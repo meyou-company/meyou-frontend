@@ -7,7 +7,6 @@ export default function HomeFeed() {
   return (
     <div className="min-h-screen w-full bg-meyou-bg text-white flex flex-col items-center px-4 py-10">
       
-      {/* Верхні банери */}
       <div className="w-full max-w-2xl flex flex-col items-center text-center gap-3">
         <div className="w-full rounded-full bg-meyou-gradient px-6 py-3 text-sm font-medium shadow-lg">
           Добро пожаловать в ME YOU — где знакомство превращается в выгоду
@@ -18,14 +17,14 @@ export default function HomeFeed() {
         </div>
       </div>
 
-      {/* Три фічі */}
+      
       <div className="flex justify-center gap-10 mt-10 text-xs">
         <Feature icon={<FaMoneyBillWave />} title="Бонусы за друзей" />
         <Feature icon={<FaComments />} title="Современный чат" />
         <Feature icon={<FaShieldAlt />} title="Полная безопасность" />
       </div>
 
-      {/* Логотип */}
+      
       <div className="mt-12 border border-white/10 rounded-2xl p-8 bg-white/5 backdrop-blur-sm">
         <img
           src="/Logo/photo.jpeg"
