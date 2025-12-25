@@ -5,61 +5,73 @@ export default function HomeFeed() {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen w-full bg-meyou-bg text-white flex flex-col items-center px-4 py-10">
-      
-      <div className="w-full max-w-2xl flex flex-col items-center text-center gap-3">
-        <div className="w-full rounded-full bg-meyou-gradient px-6 py-3 text-sm font-medium shadow-lg">
-          Добро пожаловать в ME YOU — где знакомство превращается в выгоду
+    <div className="min-h-screen w-full bg-meyou-bg text-white flex items-center justify-center px-4">
+      <div className="w-full max-w-[580px] flex flex-col items-center text-center pt-10 pb-14">
+
+        {/* Logo block */}
+        <div className="w-[300px] h-[300px] flex items-center justify-center rounded-2xl border border-white/15 
+                        bg-white/5 backdrop-blur-sm shadow-[0_0_60px_rgba(176,92,255,0.15)] mb-10">
+          <img
+            src="/Logo/photo.jpeg"
+            alt="Me You logo"
+            className="w-[240px] h-auto object-contain"
+          />
         </div>
 
-        <div className="w-full max-w-sm rounded-full bg-meyou-gradient px-6 py-2 text-xs shadow-lg">
-          Новое поколение знакомств — с бонусами за активность
+        {/* Features (icons are links) */}
+        <div className="w-full flex justify-between px-6 mb-12">
+          <Feature
+            icon={<FaMoneyBillWave />}
+            title="Бонусы за друзей"
+            onClick={() => navigate("/register")}
+          />
+          <Feature
+            icon={<FaComments />}
+            title="Современный чат"
+            onClick={() => navigate("/login")}
+          />
+          <Feature
+            icon={<FaShieldAlt />}
+            title="Полная безопасность"
+            onClick={() => navigate("/login")}
+          />
         </div>
-      </div>
 
-      
-      <div className="flex justify-center gap-10 mt-10 text-xs">
-        <Feature icon={<FaMoneyBillWave />} title="Бонусы за друзей" />
-        <Feature icon={<FaComments />} title="Современный чат" />
-        <Feature icon={<FaShieldAlt />} title="Полная безопасность" />
-      </div>
+        {/* Buttons */}
+        <div className="w-full flex flex-col items-center gap-5">
+          <button
+            onClick={() => navigate("/register")}
+            className="btn-gradient !w-[260px] !py-3 !text-sm"
+          >
+            Создать аккаунт
+          </button>
 
-      
-      <div className="mt-12 border border-white/10 rounded-2xl p-8 bg-white/5 backdrop-blur-sm">
-        <img
-          src="/Logo/photo.jpeg"
-          alt="Me You logo"
-          className="w-64 h-auto object-contain"
-        />
-      </div>
-
-      {/* Кнопки */}
-      <div className="w-full max-w-md flex flex-col gap-4 mt-14">
-        <button
-          onClick={() => navigate("/register")}
-          className="w-full py-3 rounded-full bg-meyou-gradient text-base font-semibold shadow-lg hover:opacity-90 transition"
-        >
-          Создать аккаунт
-        </button>
-
-        <button
-          onClick={() => navigate("/login")}
-             className="w-full py-3 rounded-full bg-meyou-gradient text-base font-semibold shadow-lg hover:opacity-90 transition"
-        >
-          Войти
-        </button>
+          <button
+            onClick={() => navigate("/login")}
+            className="btn-gradient !w-[260px] !py-3 !text-sm"
+          >
+            Войти
+          </button>
+        </div>
       </div>
     </div>
   );
 }
 
-function Feature({ icon, title }) {
+function Feature({ icon, title, onClick }) {
   return (
-    <div className="flex flex-col items-center gap-2 text-center">
-      <div className="w-9 h-9 rounded-full bg-black/40 flex items-center justify-center text-meyou-pink text-lg shadow-md">
+    <button
+      onClick={onClick}
+      className="flex flex-col items-center gap-3 w-[150px] text-center 
+                 text-white/60 hover:text-white transition"
+    >
+      <div className="text-2xl">
         {icon}
       </div>
-      <span className="text-[12px] text-white/70">{title}</span>
-    </div>
+
+      <span className="text-[12px] leading-4 whitespace-normal">
+        {title}
+      </span>
+    </button>
   );
 }

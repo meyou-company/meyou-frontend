@@ -1,0 +1,31 @@
+.btn-gradient {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+
+  width: 100%;
+  padding: 12px 0;
+
+  border-radius: 9999px;
+  font-size: 16px;
+  font-weight: 600;
+  color: white;
+
+  background: linear-gradient(90deg, #4F7CFF 0%, #B05CFF 50%, #FF4FA3 100%);
+  box-shadow: 0 10px 30px rgba(176, 92, 255, 0.25);
+
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: linear-gradient(90deg, #FF4FA3 0%, #B05CFF 50%, #4F7CFF 100%);
+  }
+
+  &:active {
+    transform: scale(0.98);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
