@@ -2,4 +2,76 @@
 @tailwind components;
 @tailwind utilities;
 
+/* =========================
+   BASE
+   ========================= */
+@layer base {
+  :root {
+    --app-bg: 23 10 40;
+    --app-text: 255 255 255;
+  }
 
+  .theme-light {
+    --app-bg: 241 231 255;
+    --app-text: 23 10 40;
+  }
+
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+
+  body {
+    margin: 0;
+    @apply bg-appBg text-appText;
+  }
+}
+
+/* =========================
+   APP LAYOUT (GLOBAL)
+   ========================= */
+@layer components {
+  /* зовнішній центрер */
+  .app-shell {
+    @apply w-full flex justify-center;
+    min-height: 100dvh; /* Safari-friendly */
+  }
+
+  /* “сторінка” */
+  .app-page {
+    @apply w-full flex justify-center;
+    min-height: 100dvh;
+  }
+
+  /* контейнер контенту */
+  .app-container {
+    @apply w-full flex flex-col;
+    @apply px-4 pt-8 pb-10;
+
+    /* головне: ширина адаптивно, а не фікс px */
+    max-width: 520px;
+
+    /* важливо для flex-дітей, щоб не ламався розрахунок висоти */
+    min-height: 100dvh;
+  }
+
+  /* обгортка для Routes/сторінок */
+  .app-content {
+    @apply flex-1 min-h-0;
+    overflow-y: auto; /* ✅ скрол тут, не в body */
+    -webkit-overflow-scrolling: touch;
+  
+}
+  @screen md {
+    .app-container { max-width: 900px; }
+  }
+
+  @screen lg {
+    .app-container { max-width: 1200px; }
+  }
+
+  @screen 2xl {
+    .app-container { max-width: 1440px; }
+  }
+}

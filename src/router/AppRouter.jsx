@@ -10,6 +10,10 @@ import Register from "../pages/Auth/Register";
 export default function AppRouter() {
   return (
     <BrowserRouter>
+      <div className="app-shell">
+      <div className="app-page">
+        <div className="app-container">
+       
       <Routes>
         <Route path="/" element={<HomeFeed />} />
         <Route path="/explore" element={<Explore />} />
@@ -19,6 +23,9 @@ export default function AppRouter() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
       </Routes>
+    
+      </div></div>
+      </div>
     </BrowserRouter>
   );
 }

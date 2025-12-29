@@ -1,0 +1,320 @@
+
+/* =========================
+   HOME LAYOUT
+   ========================= */
+.home {
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+
+  flex: 1;
+  min-height: 0;
+
+  padding: clamp(16px, 12vw, 40px) 0;
+  gap: clamp(24px, 9vw, 56px); 
+}
+
+
+/* =========================
+   BUBBLES DECOR
+   ========================= */
+
+.home__bubbles {
+  position: absolute;
+  z-index: 0;
+  pointer-events: none;
+  user-select: none;
+
+  opacity: 0.55;
+  filter: blur(0.2px);
+
+  width: clamp(180px, 22vw, 420px);
+  height: auto;
+
+  animation: floatBubbles 9s ease-in-out infinite;
+}
+
+/* top-left */
+.home__bubbles--tl {
+  top: -30px;
+  left: -80px;
+  animation-duration: 10s;
+}
+
+/* bottom-right */
+.home__bubbles--br {
+  bottom: -30px;
+  right: -10px;
+  opacity: 0.45;
+  animation-duration: 12s;
+  animation-direction: reverse;
+}
+
+@keyframes floatBubbles {
+  0%   { transform: translate3d(0, 0, 0) scale(1) rotate(0deg); }
+  50%  { transform: translate3d(0, 14px, 0) scale(1.03) rotate(1deg); }
+  100% { transform: translate3d(0, 0, 0) scale(1) rotate(0deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home__bubbles { animation: none; }
+}
+
+/* =========================
+   SECTIONS (z-index)
+   ========================= */
+
+.home__logoSection,
+.home__featuresSection {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  
+}
+.home__actionsSection {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin-top: auto;
+}
+/* =========================
+   LOGO
+   ========================= */
+.home__logoCard {
+  width: 220px;             
+  height: 220px;
+  aspect-ratio: 1 / 1;
+  border-radius: 22px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(12px);
+
+  box-shadow:
+    0 0 50px rgba(176, 92, 255, 0.18),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.06);
+}
+
+/* tablet */
+@media (min-width: 768px) {
+  .home__logoCard {
+    width: 380px;
+    height: 380px;
+    border-radius: 26px;
+  }
+}
+
+/* desktop */
+@media (min-width: 1024px) {
+  .home__logoCard {
+    width: 440px;
+    height: 440px;
+    border-radius: 32px;
+  }
+}
+
+/* wide desktop */
+@media (min-width: 1440px) {
+  .home__logoCard {
+    width: 500px;
+    height: 500px;
+    border-radius: 34px;
+  }
+}
+
+
+.home__logoImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* =========================
+   FEATURES
+   ========================= */
+
+.home__features {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+
+  gap: clamp(12px, 2vw, 28px);
+  padding: 0 16px;
+}
+
+.feature {
+  flex: 1;
+  min-width: 0;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+
+  background: transparent;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+
+  color: rgba(255, 255, 255, 0.72);
+  transition: color 0.2s ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .feature:hover {
+    color: rgba(255, 255, 255, 0.95);
+  }
+}
+.feature__icon {
+  width: clamp(24px, 2.4vw, 36px);
+  height: clamp(24px, 2.4vw, 36px);
+
+  /* default (як зараз — світла іконка) */
+  background: rgba(255, 255, 255, 0.72);
+
+  /* робимо PNG маскою */
+  -webkit-mask-image: var(--icon-url);
+  mask-image: var(--icon-url);
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
+  -webkit-mask-size: contain;
+  mask-size: contain;
+
+  transition: background 0.2s ease, filter 0.2s ease, transform 0.2s ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .feature:hover .feature__icon {
+    background: linear-gradient(90deg, #FF4FB1 0%, #4F6BFF 100%);
+    filter: drop-shadow(0 6px 14px rgba(176, 92, 255, 0.25));
+    transform: translateY(-1px);
+  }
+
+  .feature:hover {
+    color: rgba(255, 255, 255, 0.95);
+  }
+}
+
+
+.feature__text {
+  font-size: clamp(11px, 1.1vw, 14px);
+  line-height: 1.2;
+  text-wrap: balance;
+}
+@media (hover: hover) and (pointer: fine) {
+  .feature:hover .feature__text {
+    background: linear-gradient(90deg, #FF4FB1 0%, #4F6BFF 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+}
+
+/* =========================
+   ACTIONS / BUTTONS
+   ========================= */
+
+.home__actions {
+  
+  max-width: 520px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  gap: clamp(22px, 12vw, 28px);
+  padding: 0 16px;
+}
+@media (min-width: 600px) {
+  .home__actions {
+    width: 70%;
+  }
+}
+/* desktop — трохи ширше */
+@media (min-width: 1024px) {
+  .home__actions {
+    max-width: 575px;
+  }
+}
+
+.home__btn {
+  width: 100%;
+  min-height: 56px;
+
+  padding: 16px 22px;
+  border-radius: 999px;
+
+  font-size: 16px;
+  line-height: 1;
+}
+
+@media (min-width: 768px) {
+  .home__btn {
+    min-height: 64px;
+    padding: 18px 28px;
+    font-size: 18px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .home__btn {
+    min-height: 72px;
+    padding: 20px 34px;
+    font-size: 20px;
+  }
+}
+
+@media (min-width: 1440px) {
+  .home__btn {
+    min-height: 76px;
+    font-size: 22px;
+  }
+}
+
+/* =========================
+   GRADIENT BUTTON
+   ========================= */
+
+.btn-gradient {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  border: 0;
+  cursor: pointer;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+
+  color: #fff;
+  font-weight: 500;
+  line-height: 1;
+
+  background: linear-gradient(
+    90deg,
+    #4F6BFF 0%,
+    #B05CFF 52%,
+    #FF4FB1 100%
+  );
+
+  box-shadow: 0 14px 34px rgba(176, 92, 255, 0.22);
+  transition: transform 0.15s ease, filter 0.2s ease;
+}
+

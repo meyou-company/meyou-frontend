@@ -1,19 +1,27 @@
 /** @type {import('tailwindcss').Config} */
 export default {
-  content: [
-    "./index.html",
-    "./src/**/*.{js,jsx,ts,tsx}",
-  ],
+  content: ["./index.html", "./src/**/*.{js,jsx,ts,tsx}"],
   theme: {
+    // ✅ брейкпоінти (зберігаємо стандартні + додаємо свої)
+    screens: {
+      sm: "640px",
+      md: "768px",
+      lg: "1024px",
+      xl: "1280px",
+      "2xl": "1536px",
+
+      // твої назви (можеш використовувати iphone:..., tablet:..., desktop:...)
+      iphone: "390px",
+      tablet: "768px",
+      desktop: "1024px", // ✅ важливо: зроби desktop від 1024, а не 1440
+      wide: "1440px",    // ✅ окремо для великих екранів
+    },
+
     extend: {
+      // ✅ кольори через CSS variables
       colors: {
-        "meyou-bg": "#060018",
-        "meyou-card": "#14052B",
-        "meyou-pink": "#FF4BB5",
-        "meyou-purple": "#7B5CFF",
-      },
-      backgroundImage: {
-        "meyou-gradient": "linear-gradient(90deg, #FF4BB5 0%, #7B5CFF 100%)",
+        appBg: "rgb(var(--app-bg) / <alpha-value>)",
+        appText: "rgb(var(--app-text) / <alpha-value>)",
       },
     },
   },
