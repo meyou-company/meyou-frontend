@@ -15,8 +15,8 @@
   flex: 1;
   min-height: 0;
 
-  padding: clamp(16px, 12vw, 40px) 0;
-  gap: clamp(24px, 9vw, 56px); 
+  padding: clamp(24px, 12vw, 40px) 0;
+  gap: clamp(24px, 16vw, 56px); 
 }
 
 
@@ -84,7 +84,7 @@
   width: 100%;
   display: flex;
   justify-content: center;
-  margin-top: auto;
+  
 }
 /* =========================
    LOGO
