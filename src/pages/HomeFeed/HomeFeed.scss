@@ -1,4 +1,3 @@
-
 /* =========================
    HOME LAYOUT
    ========================= */
@@ -16,14 +15,12 @@
   min-height: 0;
 
   padding: clamp(24px, 12vw, 40px) 0;
-  gap: clamp(24px, 16vw, 56px); 
+  gap: clamp(24px, 16vw, 56px);
 }
 
-
 /* =========================
-   BUBBLES DECOR
+   BUBBLES DECOR (STATIC)
    ========================= */
-
 .home__bubbles {
   position: absolute;
   z-index: 0;
@@ -36,14 +33,13 @@
   width: clamp(180px, 22vw, 420px);
   height: auto;
 
-  animation: floatBubbles 9s ease-in-out infinite;
+  /* ⛔️ animation removed */
 }
 
 /* top-left */
 .home__bubbles--tl {
   top: -30px;
   left: -80px;
-  animation-duration: 10s;
 }
 
 /* bottom-right */
@@ -51,46 +47,26 @@
   bottom: -30px;
   right: -10px;
   opacity: 0.45;
-  animation-duration: 12s;
-  animation-direction: reverse;
-}
-
-@keyframes floatBubbles {
-  0%   { transform: translate3d(0, 0, 0) scale(1) rotate(0deg); }
-  50%  { transform: translate3d(0, 14px, 0) scale(1.03) rotate(1deg); }
-  100% { transform: translate3d(0, 0, 0) scale(1) rotate(0deg); }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .home__bubbles { animation: none; }
 }
 
 /* =========================
    SECTIONS (z-index)
    ========================= */
-
 .home__logoSection,
-.home__featuresSection {
-  position: relative;
-  z-index: 1;
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  
-}
+.home__featuresSection,
 .home__actionsSection {
   position: relative;
   z-index: 1;
   width: 100%;
   display: flex;
   justify-content: center;
-  
 }
+
 /* =========================
    LOGO
    ========================= */
 .home__logoCard {
-  width: 220px;             
+  width: 220px;
   height: 220px;
   aspect-ratio: 1 / 1;
   border-radius: 22px;
@@ -136,7 +112,6 @@
   }
 }
 
-
 .home__logoImg {
   width: 100%;
   height: 100%;
@@ -147,7 +122,6 @@
 /* =========================
    FEATURES
    ========================= */
-
 .home__features {
   width: 100%;
   display: flex;
@@ -181,14 +155,13 @@
     color: rgba(255, 255, 255, 0.95);
   }
 }
+
 .feature__icon {
   width: clamp(24px, 2.4vw, 36px);
   height: clamp(24px, 2.4vw, 36px);
 
-  /* default (як зараз — світла іконка) */
   background: rgba(255, 255, 255, 0.72);
 
-  /* робимо PNG маскою */
   -webkit-mask-image: var(--icon-url);
   mask-image: var(--icon-url);
   -webkit-mask-repeat: no-repeat;
@@ -213,12 +186,12 @@
   }
 }
 
-
 .feature__text {
   font-size: clamp(11px, 1.1vw, 14px);
   line-height: 1.2;
   text-wrap: balance;
 }
+
 @media (hover: hover) and (pointer: fine) {
   .feature:hover .feature__text {
     background: linear-gradient(90deg, #FF4FB1 0%, #4F6BFF 100%);
@@ -231,9 +204,7 @@
 /* =========================
    ACTIONS / BUTTONS
    ========================= */
-
 .home__actions {
-  
   max-width: 520px;
 
   display: flex;
@@ -243,12 +214,13 @@
   gap: clamp(22px, 12vw, 28px);
   padding: 0 16px;
 }
+
 @media (min-width: 600px) {
   .home__actions {
     width: 70%;
   }
 }
-/* desktop — трохи ширше */
+
 @media (min-width: 1024px) {
   .home__actions {
     max-width: 575px;
@@ -292,7 +264,6 @@
 /* =========================
    GRADIENT BUTTON
    ========================= */
-
 .btn-gradient {
   display: inline-flex;
   align-items: center;
@@ -317,4 +288,3 @@
   box-shadow: 0 14px 34px rgba(176, 92, 255, 0.22);
   transition: transform 0.15s ease, filter 0.2s ease;
 }
-

@@ -1,33 +1,29 @@
 import { useNavigate } from "react-router-dom";
 import "./HomeFeed.scss";
 
+function Feature({ icon, title, onClick }) {
+  return (
+    <button className="feature" onClick={onClick} type="button">
+      <span
+        className="feature__icon"
+        style={{ "--icon-url": `url(${icon})` }}
+        aria-hidden="true"
+      />
+      <span className="feature__text">{title}</span>
+    </button>
+  );
+}
+
 export default function HomeFeed() {
   const navigate = useNavigate();
 
   return (
     <section className="home">
-      {/* ✅ Background bubbles (decor) */}
-      <img
-        className="home__bubbles home__bubbles--tl"
-        src="/icon1/image0.png"
-        alt=""
-        aria-hidden="true"
-      />
-      <img
-        className="home__bubbles home__bubbles--br"
-        src="/icon1/image0.png"
-        alt=""
-        aria-hidden="true"
-      />
-
+   
       {/* LOGO */}
       <div className="home__logoSection">
         <div className="home__logoCard">
-          <img
-            className="home__logoImg"
-            src="/Logo/photo.png"
-            alt="Me You logo"
-          />
+          <img className="home__logoImg" src="/Logo/photo.png" alt="Me You logo" />
         </div>
       </div>
 
@@ -75,17 +71,3 @@ export default function HomeFeed() {
     </section>
   );
 }
- function Feature({ icon, title, onClick }) {
-  return (
-    <button className="feature" onClick={onClick} type="button">
-      <span
-        className="feature__icon"
-        style={{ "--icon-url": `url(${icon})` }}
-        aria-hidden="true"
-      />
-      <span className="feature__text">{title}</span>
-    </button>
-  );
-}
-
-

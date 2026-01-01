@@ -25,6 +25,43 @@
   body {
     margin: 0;
     @apply bg-appBg text-appText;
+
+    /* ✅ не ріжемо сторінку */
+    overflow-x: hidden;
+    overflow-y: auto;
+
+    position: relative;
+  }
+
+  /* ✅ Глобальний фон на всі сторінки */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+
+    background-image: url("/foon.png");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+
+    opacity: 0.9;
+    filter: saturate(1.05);
+    pointer-events: none;
+  }
+
+  body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    background: radial-gradient(
+      circle at 50% 30%,
+      rgba(0, 0, 0, 0.05) 0%,
+      rgba(0, 0, 0, 0.35) 55%,
+      rgba(0, 0, 0, 0.55) 100%
+    );
+    pointer-events: none;
   }
 }
 
@@ -35,7 +72,7 @@
   /* зовнішній центрер */
   .app-shell {
     @apply w-full flex justify-center;
-    min-height: 100dvh; /* Safari-friendly */
+    min-height: 100dvh;
   }
 
   /* “сторінка” */
@@ -49,26 +86,36 @@
     @apply w-full flex flex-col;
     @apply px-4 pt-8 pb-10;
 
-    /* головне: ширина адаптивно, а не фікс px */
     max-width: 520px;
 
-    /* важливо для flex-дітей, щоб не ламався розрахунок висоти */
+    /* ✅ не фіксуємо висоту жорстко */
     min-height: 100dvh;
+    height: auto;
   }
 
-  /* обгортка для Routes/сторінок */
+  /* ✅ За замовчуванням (mobile/tablet) — скрол всередині контенту */
   .app-content {
     @apply flex-1 min-h-0;
-    overflow-y: auto; /* ✅ скрол тут, не в body */
+    overflow-y: auto;
     -webkit-overflow-scrolling: touch;
-  
-}
+  }
+
   @screen md {
     .app-container { max-width: 900px; }
   }
 
+  /* ✅ На desktop: скрол сторінки (body), а контент НЕ обрізається */
   @screen lg {
-    .app-container { max-width: 1200px; }
+    .app-container {
+      min-height: 100vh;
+      height: auto;
+    }
+
+    .app-content {
+      overflow: visible;
+      min-height: auto;
+      flex: initial;
+    }
   }
 
   @screen 2xl {
