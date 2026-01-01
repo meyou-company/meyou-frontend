@@ -1,0 +1,204 @@
+.auth.auth--register {
+  position: relative;
+  min-height: 100vh;
+  padding: 28px 16px 28px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  color: #fff;
+  overflow: hidden;
+
+}
+
+/* back arrow */
+.auth__back {
+  position: absolute;
+  top: 20px;
+  left: 16px;
+
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+
+  display: grid;
+  place-items: center;
+
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.92);
+  cursor: pointer;
+
+  backdrop-filter: blur(10px);
+}
+@media (hover: hover) and (pointer: fine) {
+  .auth__back:hover {
+    background: linear-gradient(
+      90deg,
+      #4F6BFF 0%,
+      #B05CFF 52%,
+      #FF4FB1 100%
+    );
+    border-color: transparent;
+    color: #fff;
+    filter: brightness(1.08);
+  }
+}
+/* tap effect for mobile */
+.auth__back:active {
+  background: linear-gradient(
+    90deg,
+    #4F6BFF 0%,
+    #B05CFF 52%,
+    #FF4FB1 100%
+  );
+  border-color: transparent;
+  color: #fff;
+
+  transform: scale(0.94);
+}
+.auth__back:focus-visible {
+  background: linear-gradient(
+    90deg,
+    #4F6BFF 0%,
+    #B05CFF 52%,
+    #FF4FB1 100%
+  );
+  outline: none;
+}
+
+/* logo */
+.auth__logoCard {
+  margin-top: 10px;
+  width: 120px;
+  height: 120px;
+  border-radius: 6px;
+
+  display: grid;
+  place-items: center;
+
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(12px);
+
+  box-shadow:
+    0 0 40px rgba(176, 92, 255, 0.18),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.06);
+
+  overflow: hidden;
+}
+
+.auth__logoImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* title — як у Figma (градієнт тексту) */
+.auth__title {
+  margin: 18px 0 16px;
+
+  font-size: clamp(26px, 3vw, 60px);
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: 0.01em;
+
+  background: linear-gradient(90deg, #FF4FB1 0%, #4F6BFF 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* form */
+.auth__form {
+  width: 100%;
+  max-width: 555px;
+
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* policy spacing трохи акуратніше */
+.authPolicy {
+  margin-top: 2px;
+}
+
+/* error box (якщо у тебе є глобальний — прибери цей блок) */
+.auth__error {
+  padding: 10px 12px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 118, 159, 0.35);
+  background: rgba(255, 118, 159, 0.12);
+  color: rgba(255, 210, 220, 0.95);
+  font-size: 12px;
+}
+.authPolicy__text {
+  font-size: clamp(9px, 2.2vw, 11px);
+  line-height: 1.3;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+/* =========================
+   ACTIONS ROW (2 buttons)
+   ========================= */
+
+.authActions {
+  display: flex;
+  gap: 22px;
+  margin-top: 10px;
+  width: 100%;
+}
+
+/* =========================
+   BUTTON MODIFIERS (build on global .btn-gradient)
+   ========================= */
+
+/* primary — flex:1, висота як у макеті */
+.btn-gradient--auth-primary {
+  flex: 1;
+  height: clamp(54px, 8vw, 80px);
+  border-radius: 40px;
+
+  font-weight: 600;
+}
+
+/* google — фіксована ширина як у макеті */
+.btn-gradient--auth-google {
+  width: clamp(130px, 22vw, 180px);
+  height: clamp(54px, 8vw, 80px);
+  border-radius: 40px;
+
+  display: grid;
+  place-items: center;
+
+  font-size: 22px;
+  font-weight: 700;
+}
+
+/* bottom — 425x100 (адаптивно) */
+.btn-gradient--auth-bottom {
+  margin: 18px auto 0;
+
+  width: 100%;
+  max-width: 425px;
+  height: clamp(54px, 8vw, 80px);
+  border-radius: 40px;
+
+  font-weight: 600;
+}
+
+/* responsive */
+@media (min-width: 768px) {
+  .auth.auth--register {
+    padding-top: 34px;
+  }
+
+  .auth__logoCard {
+    width: 140px;
+    height: 140px;
+    border-radius: 30px;
+  }
+}
