@@ -6,7 +6,7 @@ import Profile from "../pages/Profile/Profile";
 import VipChat from "../pages/VipChat/VipChat";
 import Login from "../pages/Auth/Login";
 import Register from "../pages/Auth/Register";
-
+import AuthCallback from "../pages/AuthCallback/AuthCallback";
 export default function AppRouter() {
   return (
     <BrowserRouter>
@@ -22,6 +22,8 @@ export default function AppRouter() {
         <Route path="/vip-chat" element={<VipChat />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/auth/callback" element={<AuthCallback />} />
+
       </Routes>
     
       </div></div>
