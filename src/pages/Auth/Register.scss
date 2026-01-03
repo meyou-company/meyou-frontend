@@ -1,4 +1,3 @@
-
 .auth.auth--register {
   position: relative;
   min-height: 100vh;
@@ -10,12 +9,11 @@
 
   color: #fff;
   overflow: hidden;
-
 }
+
 /* =========================
    BACK ARROW — ICON ONLY
    ========================= */
-
 .auth__back {
   position: absolute;
   top: 20px;
@@ -33,73 +31,35 @@
   -webkit-tap-highlight-color: transparent;
 }
 
-/* =========================
-   ARROW ICON (DEFAULT — WHITE)
-   ========================= */
-
 .auth__backIcon {
-  width: 20px;    /* ≈ 24.55px */
-  height: 32px;   /* ≈ 42.43px */
+  width: 15px;
+  height: 22px;
   display: block;
 
-  /* робимо іконку маскою */
   filter: brightness(0) invert(1);
-
-  transition:
-    transform 0.15s ease,
-    filter 0.25s ease;
+  transition: transform 0.15s ease, filter 0.25s ease;
 }
-
-/* =========================
-   HOVER / FOCUS — GRADIENT LIKE BUTTONS
-   ========================= */
 
 @media (hover: hover) and (pointer: fine) {
   .auth__back:hover .auth__backIcon,
   .auth__back:focus-visible .auth__backIcon {
     filter: drop-shadow(0 0 6px rgba(255, 79, 177, 0.9))
-            drop-shadow(0 0 12px rgba(176, 92, 255, 0.8))
-            drop-shadow(0 0 18px rgba(79, 107, 255, 0.7));
+      drop-shadow(0 0 12px rgba(176, 92, 255, 0.8))
+      drop-shadow(0 0 18px rgba(79, 107, 255, 0.7));
     transform: translateX(-2px);
   }
 }
 
-/* =========================
-   ACTIVE / TAP (MOBILE)
-   ========================= */
-
 .auth__back:active .auth__backIcon {
   transform: translateX(-2px) scale(0.9);
-
   filter: drop-shadow(0 0 8px rgba(255, 79, 177, 1))
-          drop-shadow(0 0 16px rgba(176, 92, 255, 0.9))
-          drop-shadow(0 0 22px rgba(79, 107, 255, 0.8));
+    drop-shadow(0 0 16px rgba(176, 92, 255, 0.9))
+    drop-shadow(0 0 22px rgba(79, 107, 255, 0.8));
 }
 
 /* =========================
-   MOBILE ADAPTATION
+   LOGO
    ========================= */
-
-@media (max-width: 420px) {
-  .auth__back {
-    top: 14px;
-    left: 12px;
-  }
-
-  .auth__backIcon {
-    width: 12px;
-    height: 20px;
-  }
-}
-
-@media (max-width: 360px) {
-  .auth__backIcon {
-    width: 12px;
-    height: 20px;
-  }
-}
-
-/* logo */
 .auth__logoCard {
   margin-top: 10px;
   width: 120px;
@@ -113,8 +73,7 @@
   background: rgba(255, 255, 255, 0.04);
   backdrop-filter: blur(12px);
 
-  box-shadow:
-    0 0 40px rgba(176, 92, 255, 0.18),
+  box-shadow: 0 0 40px rgba(176, 92, 255, 0.18),
     inset 0 0 0 1px rgba(255, 255, 255, 0.06);
 
   overflow: hidden;
@@ -125,38 +84,50 @@
   height: 100%;
   object-fit: cover;
   display: block;
-   
 }
 
+/* =========================
+   TITLE
+   ========================= */
 .auth__title {
-  margin: 18px 0 16px;
+  margin: 28px 0 36px;
 
   font-size: clamp(26px, 3vw, 60px);
   font-weight: 600;
   line-height: 1;
   letter-spacing: 0.01em;
 
-  background: linear-gradient(90deg, #FF4FB1 0%, #4F6BFF 100%);
+  background: linear-gradient(90deg, #ff4fb1 0%, #4f6bff 100%);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
 }
 
-/* form */
+/* =========================
+   FORM
+   ========================= */
 .auth__form {
   width: 100%;
   max-width: 555px;
 
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 24px;
 }
 
-/* policy spacing трохи акуратніше */
 .authPolicy {
   margin-top: 2px;
 }
-/* ERROR — тільки бордер + hint */
+
+.authPolicy__text {
+  font-size: clamp(9px, 2.2vw, 11px);
+  line-height: 1.3;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+/* =========================
+   ERRORS
+   ========================= */
 .authField.is-error .authField__control {
   box-shadow: 0 0 0 2px rgba(255, 27, 27, 0.85);
   filter: none;
@@ -179,16 +150,10 @@
   color: rgba(255, 210, 220, 0.95);
   font-size: 12px;
 }
-.authPolicy__text {
-  font-size: clamp(9px, 2.2vw, 11px);
-  line-height: 1.3;
-  color: rgba(255, 255, 255, 0.6);
-}
 
 /* =========================
-   ACTIONS ROW (2 buttons)
+   ACTIONS ROW
    ========================= */
-
 .authActions {
   display: flex;
   gap: 22px;
@@ -197,26 +162,18 @@
 }
 
 /* =========================
-   BUTTON MODIFIERS (build on global .btn-gradient)
+   BUTTONS
    ========================= */
-
 .btn-gradient--auth-primary {
   flex: 1;
-  height: clamp(54px, 8vw, 80px);
+  height: clamp(34px, 6vw, 60px);
   border-radius: 40px;
-
   font-weight: 600;
 }
-.authField__iconImg {
-  width: 22px;
-  height: 22px;
-  display: block;
-  object-fit: contain;
-}
-/* google — фіксована ширина як у макеті */
+
 .btn-gradient--auth-google {
   width: clamp(130px, 22vw, 180px);
-  height: clamp(54px, 8vw, 80px);
+  height: clamp(34px, 8vw, 60px);
   border-radius: 40px;
 
   display: grid;
@@ -225,38 +182,32 @@
   font-size: 22px;
   font-weight: 700;
 }
-/* =========================
-   GOOGLE ICON
-   ========================= */
-.google-auth-btn__icon {
-  width: 40px;
-  height: 40px;
-  display: block;
-}
-/* bottom — 425x100 (адаптивно) */
+
 .btn-gradient--auth-bottom {
   margin: 18px auto 0;
 
   width: 100%;
   max-width: 425px;
-  height: clamp(54px, 8vw, 80px);
+  height: clamp(34px, 8vw, 60px);
   border-radius: 40px;
 
   font-weight: 600;
 }
 
-/* responsive */
-@media (min-width: 768px) {
-  .auth.auth--register {
-    padding-top: 34px;
-  }
-
-  .auth__logoCard {
-    width: 140px;
-    height: 140px;
-    border-radius: 30px;
-  }
+/* icons */
+.authField__iconImg {
+  width: 22px;
+  height: 22px;
+  display: block;
+  object-fit: contain;
 }
+
+.google-auth-btn__icon {
+  width: 40px;
+  height: 40px;
+  display: block;
+}
+
 /* =========================
    AUTH FIELDS ICON LAYOUT
    ========================= */
@@ -264,7 +215,6 @@
   position: relative;
 }
 
-/* left icon inside input */
 .authField__iconLeft {
   position: absolute;
   left: 16px;
@@ -280,7 +230,6 @@
   pointer-events: none;
 }
 
-/* right button (eye) */
 .authField__iconRight {
   position: absolute;
   right: 10px;
@@ -296,10 +245,8 @@
   border: none;
   background: transparent;
   cursor: pointer;
-
   padding: 0;
 }
-
 
 @media (hover: hover) and (pointer: fine) {
   .authField__iconRight:hover {
@@ -311,31 +258,29 @@
   transform: translateY(-50%) scale(0.95);
 }
 
-/* input paddings for icons */
 .authField__input {
-  padding-left: 52px; 
+  padding-left: 52px;
   padding-right: 58px;
 }
-/* =========================
-   MOBILE-FIRST TUNING
-   ========================= */
 
-/* iPhone 390 / Android 360 */
+/* =========================
+   MOBILE (<=420)
+   ========================= */
 @media (max-width: 420px) {
   .auth.auth--register {
-    padding: 18px 12px 18px; /* менше паддінги */
+    padding: 18px 12px 18px;
   }
 
-  /* back arrow smaller */
   .auth__back {
     top: 14px;
     left: 12px;
-    width: 40px;
-    height: 40px;
-    border-radius: 12px;
   }
 
-  /* logo smaller */
+  .auth__backIcon {
+    width: 12px;
+    height: 20px;
+  }
+
   .auth__logoCard {
     margin-top: 6px;
     width: 96px;
@@ -343,24 +288,18 @@
     border-radius: 10px;
   }
 
-  /* title smaller */
   .auth__title {
     margin: 12px 0 12px;
-    font-size: 26px; /* чітко як мобільна */
+    font-size: 26px;
   }
 
-  /* form width */
   .auth__form {
     max-width: 360px;
     gap: 12px;
   }
 
-  /* =========================
-     FIELDS: size + icons
-     ========================= */
-
   .authField__control {
-    height: 52px; /* менше */
+    height: 52px;
     border-radius: 16px;
   }
 
@@ -383,8 +322,8 @@
 
   .authField__input {
     font-size: 13px;
-    padding-left: 46px;  /* під іконку */
-    padding-right: 52px; /* під око */
+    padding-left: 46px;
+    padding-right: 52px;
   }
 
   .authField__hint {
@@ -393,32 +332,23 @@
   }
 
   .authPolicy__text {
-    font-size: 9px;   /* реально менше на мобілці */
+    font-size: 9px;
     line-height: 1.25;
   }
 
-  /* =========================
-     BUTTONS (row)
-     ========================= */
-
   .authActions {
-    gap: 12px; /* менше проміжок */
+    gap: 12px;
   }
 
   .btn-gradient--auth-primary,
   .btn-gradient--auth-google,
   .btn-gradient--auth-bottom {
-    height: 56px;       /* стабільна мобільна висота */
+    height: 56px;
     border-radius: 999px;
   }
 
-  .btn-gradient--auth-primary {
-    font-size: 14px;
-    font-weight: 600;
-  }
-
   .btn-gradient--auth-google {
-    width: 90px;        /* не роздувай */
+    width: 90px;
     font-size: 20px;
   }
 
@@ -434,7 +364,7 @@
 }
 
 /* =========================
-   ANDROID 360x800 extra-tight
+   EXTRA TIGHT (<=360)
    ========================= */
 @media (max-width: 360px) {
   .auth.auth--register {
@@ -455,7 +385,7 @@
    ========================= */
 @media (min-width: 768px) {
   .auth.auth--register {
-    padding: 34px 16px 28px;
+    padding-top: 34px; /* тільки те, що реально змінюється */
   }
 
   .auth__logoCard {
@@ -464,43 +394,11 @@
     border-radius: 30px;
   }
 
-  .auth__form {
-    max-width: 555px;
-  }
-
   .authField__control {
     height: 56px;
   }
 
   .authField__input {
     font-size: 14px;
-    padding-left: 52px;
-    padding-right: 58px;
-  }
-
-  .authField__iconLeft {
-    width: 22px;
-    height: 22px;
-  }
-
-  .authField__iconImg {
-    width: 22px;
-    height: 22px;
-  }
-
-  .btn-gradient--auth-primary,
-  .btn-gradient--auth-google,
-  .btn-gradient--auth-bottom {
-    height: clamp(54px, 8vw, 80px);
-    border-radius: 40px;
-  }
-
-  .btn-gradient--auth-google {
-    width: clamp(130px, 22vw, 180px);
-  }
-
-  .google-auth-btn__icon {
-    width: 40px;
-    height: 40px;
   }
 }
