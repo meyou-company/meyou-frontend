@@ -7,6 +7,7 @@ export const authApi = {
     return data;
   },
 
+
   async login(payload) {
     const { data } = await api.post("/auth/login", payload);
     if (data?.accessToken) setAccessToken(data.accessToken);

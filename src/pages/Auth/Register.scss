@@ -38,8 +38,8 @@
    ========================= */
 
 .auth__backIcon {
-  width: 24px;    /* ≈ 24.55px */
-  height: 42px;   /* ≈ 42.43px */
+  width: 20px;    /* ≈ 24.55px */
+  height: 32px;   /* ≈ 42.43px */
   display: block;
 
   /* робимо іконку маскою */
@@ -87,15 +87,15 @@
   }
 
   .auth__backIcon {
-    width: 20px;
-    height: 34px;
+    width: 12px;
+    height: 20px;
   }
 }
 
 @media (max-width: 360px) {
   .auth__backIcon {
-    width: 18px;
-    height: 30px;
+    width: 12px;
+    height: 20px;
   }
 }
 

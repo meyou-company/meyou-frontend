@@ -32,6 +32,10 @@ export default function Register() {
 
   const errors = useMemo(() => validateRegister(form), [form]);
 
+  const handleGoogle = () => {
+  window.location.href = `${import.meta.env.VITE_API_URL}/auth/google`;
+};
+
   const markTouched = (name) =>
     setTouched((prev) => ({ ...prev, [name]: true }));
 
@@ -49,6 +53,7 @@ export default function Register() {
   const onBlur = (e) => {
     markTouched(e.target.name);
   };
+
 const [isSubmitting, setIsSubmitting] = useState(false);
 
 const onSubmit = async (e) => {
@@ -286,17 +291,13 @@ const onSubmit = async (e) => {
   >
     {isSubmitting ? "Создание..." : "Создать аккаунт"}
   </button>
-<button
+  <button
   type="button"
-  className="btn-gradient btn-gradient--auth-google "
-  onClick={() => alert("Google auth підключимо пізніше")}
+  className="btn-gradient btn-gradient--auth-google"
+  onClick={handleGoogle}
   aria-label="Sign in with Google"
 >
-  <img
-    src="/icon1/google.png"
-    alt="Google"
-    className="google-auth-btn__icon"
-  />
+  <img src="/icon1/google.png" alt="Google" className="google-auth-btn__icon" />
 </button>
 
 </div>
