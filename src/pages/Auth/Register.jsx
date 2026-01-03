@@ -73,14 +73,23 @@ const onSubmit = async (e) => {
     firstName: form.firstName.trim(),
     email: form.email.trim(),
     password: form.password,
+    confirmPassword: form.confirmPassword, // ✅ ДОДАЛИ
   };
 
-  setIsSubmitting(true);
-  const res = await register(payload);
-  setIsSubmitting(false);
-
-  if (res?.ok) navigate("/");
-  else setSubmitError(res?.error?.message || res?.error || "Помилка реєстрації");
+  try {
+    setIsSubmitting(true);
+    await register(payload); // ✅ НЕ ЧЕКАЄМО res.ok
+    navigate("/");
+  } catch (err) {
+    const msg =
+      err?.response?.data?.message?.[0] ||
+      err?.response?.data?.message ||
+      err?.message ||
+      "Помилка реєстрації";
+    setSubmitError(msg);
+  } finally {
+    setIsSubmitting(false);
+  }
 };
 
   const fieldError = (key) => (touched[key] ? errors[key] : "");
@@ -90,17 +99,19 @@ const onSubmit = async (e) => {
     <section className="auth auth--register">
       {/* back arrow */}
       <button
-        type="button"
-        className="auth__back"
-        onClick={() => navigate(-1)}
-        aria-label="Назад"
-      >
-        ←
-      </button>
-
+  type="button"
+  className="auth__back"
+  onClick={() => navigate(-1)}
+  aria-label="Назад"
+>
+  <img
+    src="/icon1/Vector.png"
+    alt=""
+    aria-hidden="true"
+    className="auth__backIcon"
+  />
+</button>
       {/* logo block */}
-    
-      
           <div className="auth__logoCard" aria-hidden="true">
   <img className="auth__logoImg" src="/Logo/photo.png" alt="Me You logo" />
 
@@ -113,9 +124,15 @@ const onSubmit = async (e) => {
         {/* First name */}
         <div className={`authField ${isFieldError("firstName") ? "is-error" : ""}`}>
           <div className="authField__control">
-            <span className="authField__iconLeft" aria-hidden="true">
-              👤
-            </span>
+             <span className="authField__iconLeft" aria-hidden="true">
+      <img
+        className="authField__iconImg"
+        src="/icon1/name.png"
+        alt=""
+        aria-hidden="true"
+      />
+    </span>
+         
 
             <input
               className="authField__input"
@@ -139,9 +156,15 @@ const onSubmit = async (e) => {
         {/* Email */}
         <div className={`authField ${isFieldError("email") ? "is-error" : ""}`}>
           <div className="authField__control">
-            <span className="authField__iconLeft" aria-hidden="true">
-              ✉️
-            </span>
+             <span className="authField__iconLeft" aria-hidden="true">
+      <img
+        className="authField__iconImg"
+        src="/icon1/emeil.png"
+        alt=""
+        aria-hidden="true"
+      />
+    </span>
+           
 
             <input
               className="authField__input"
@@ -158,76 +181,83 @@ const onSubmit = async (e) => {
 
           <p className="authField__hint">{fieldError("email") || "Введите E-mail"}</p>
         </div>
+{/* Password */}
+<div className={`authField ${isFieldError("password") ? "is-error" : ""}`}>
+  <div className="authField__control">
+    <span className="authField__iconLeft" aria-hidden="true">
+      <img className="authField__iconImg" src="/icon1/password.png" alt="" aria-hidden="true" />
+    </span>
 
-        {/* Password */}
-        <div className={`authField ${isFieldError("password") ? "is-error" : ""}`}>
-          <div className="authField__control">
-            <span className="authField__iconLeft" aria-hidden="true">
-              🔑
-            </span>
+    <input
+      className="authField__input"
+      type={showPassword ? "text" : "password"}
+      name="password"
+      placeholder="Введите пароль"
+      value={form.password}
+      onChange={onChange}
+      onBlur={onBlur}
+      autoComplete="new-password"
+      required
+    />
 
-            <input
-              className="authField__input"
-              type={showPassword ? "text" : "password"}
-              name="password"
-              placeholder="Введите пароль"
-              value={form.password}
-              onChange={onChange}
-              onBlur={onBlur}
-              autoComplete="new-password"
-              required
-            />
+    <button
+      type="button"
+      className="authField__iconRight"
+      aria-label={showPassword ? "Сховати пароль" : "Показати пароль"}
+      onClick={() => setShowPassword((v) => !v)}
+    >
+      <img
+        src={showPassword ? "/icon1/oko-off.png" : "/icon1/oko.png"}
+        alt=""
+        aria-hidden="true"
+        className="authField__iconImg"
+      />
+    </button>
+  </div>
 
-            <button
-              type="button"
-              className="authField__iconRight"
-              aria-label={showPassword ? "Сховати пароль" : "Показати пароль"}
-              onClick={() => setShowPassword((v) => !v)}
-            >
-              👁️
-            </button>
-          </div>
+  <p className="authField__hint">
+    {fieldError("password") || "*пароль должен содержать не менее 8 символов"}
+  </p>
+</div>
+{/* Confirm password */}
+<div className={`authField ${isFieldError("confirmPassword") ? "is-error" : ""}`}>
+  <div className="authField__control">
+    <span className="authField__iconLeft" aria-hidden="true">
+      <img className="authField__iconImg" src="/icon1/password.png" alt="" aria-hidden="true" />
+    </span>
 
-          <p className="authField__hint">
-            {fieldError("password") || "*пароль должен содержать не менее 8 символов"}
-          </p>
-        </div>
+    <input
+      className="authField__input"
+      type={showConfirmPassword ? "text" : "password"}
+      name="confirmPassword"
+      placeholder="Повторно ввести пароль"
+      value={form.confirmPassword}
+      onChange={onChange}
+      onBlur={onBlur}
+      autoComplete="new-password"
+      required
+    />
 
-        {/* Confirm password */}
-        <div className={`authField ${isFieldError("confirmPassword") ? "is-error" : ""}`}>
-          <div className="authField__control">
-            <span className="authField__iconLeft" aria-hidden="true">
-              🔑
-            </span>
+    <button
+      type="button"
+      className="authField__iconRight"
+      aria-label={showConfirmPassword ? "Сховати пароль" : "Показати пароль"}
+      onClick={() => setShowConfirmPassword((v) => !v)}
+    >
+      <img
+        src={showConfirmPassword ? "/icon1/oko-off.png" : "/icon1/oko.png"}
+        alt=""
+        aria-hidden="true"
+        className="authField__iconImg"
+      />
+    </button>
+  </div>
 
-            <input
-              className="authField__input"
-              type={showConfirmPassword ? "text" : "password"}
-              name="confirmPassword"
-              placeholder="Повторно ввести пароль"
-              value={form.confirmPassword}
-              onChange={onChange}
-              onBlur={onBlur}
-              autoComplete="new-password"
-              required
-            />
-
-            <button
-              type="button"
-              className="authField__iconRight"
-              aria-label={showConfirmPassword ? "Сховати пароль" : "Показати пароль"}
-              onClick={() => setShowConfirmPassword((v) => !v)}
-            >
-              👁️
-            </button>
-          </div>
-
-          <p className="authField__hint">
-            {fieldError("confirmPassword") || "*пожалуйста, подтвердите ваш пароль"}
-          </p>
-        </div>
-
-        {/* Policy */}
+  <p className="authField__hint">
+    {fieldError("confirmPassword") || "*пожалуйста, подтвердите ваш пароль"}
+  </p>
+</div>
+ {/* Policy */}
         <div className={`authPolicy ${touched.acceptPolicy && errors.acceptPolicy ? "is-error" : ""}`}>
           <input
             className="authPolicy__checkbox"
@@ -256,15 +286,19 @@ const onSubmit = async (e) => {
   >
     {isSubmitting ? "Создание..." : "Создать аккаунт"}
   </button>
+<button
+  type="button"
+  className="btn-gradient btn-gradient--auth-google "
+  onClick={() => alert("Google auth підключимо пізніше")}
+  aria-label="Sign in with Google"
+>
+  <img
+    src="/icon1/google.png"
+    alt="Google"
+    className="google-auth-btn__icon"
+  />
+</button>
 
-  <button
-    type="button"
-    className="btn-gradient btn-gradient--auth-google"
-    onClick={() => alert("Google auth підключимо пізніше")}
-    aria-label="Google"
-  >
-    G
-  </button>
 </div>
 
 <button
