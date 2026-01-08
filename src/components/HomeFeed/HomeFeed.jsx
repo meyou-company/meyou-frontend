@@ -1,4 +1,3 @@
-import { useNavigate } from "react-router-dom";
 import "./HomeFeed.scss";
 
 function Feature({ icon, title, onClick }) {
@@ -14,16 +13,17 @@ function Feature({ icon, title, onClick }) {
   );
 }
 
-export default function HomeFeed() {
-  const navigate = useNavigate();
-
+export default function HomeFeed({ onRegister, onLogin }) {
   return (
     <section className="home">
-   
       {/* LOGO */}
       <div className="home__logoSection">
         <div className="home__logoCard">
-          <img className="home__logoImg" src="/Logo/photo.png" alt="Me You logo" />
+          <img
+            className="home__logoImg"
+            src="/Logo/photo.png"
+            alt="Me You logo"
+          />
         </div>
       </div>
 
@@ -33,17 +33,17 @@ export default function HomeFeed() {
           <Feature
             icon="/icon1/1.png"
             title="Бонусы за друзей"
-            onClick={() => navigate("/register")}
+            onClick={onRegister}
           />
           <Feature
             icon="/icon1/2.png"
             title="Современный чат"
-            onClick={() => navigate("/login")}
+            onClick={onLogin}
           />
           <Feature
             icon="/icon1/3.png"
             title="Полная безопасность"
-            onClick={() => navigate("/login")}
+            onClick={onLogin}
           />
         </div>
       </div>
@@ -54,7 +54,7 @@ export default function HomeFeed() {
           <button
             type="button"
             className="btn-gradient home__btn"
-            onClick={() => navigate("/register")}
+            onClick={onRegister}
           >
             Создать аккаунт
           </button>
@@ -62,7 +62,7 @@ export default function HomeFeed() {
           <button
             type="button"
             className="btn-gradient home__btn"
-            onClick={() => navigate("/login")}
+            onClick={onLogin}
           >
             Войти
           </button>

@@ -1,0 +1,50 @@
+/* =========================
+   BACK ARROW — GLOBAL
+   icon only, glow like logo
+   ========================= */
+
+.back-arrow {
+  position: absolute;
+  top: 18px;
+  left: 14px;
+
+  padding: 8px;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+
+  display: grid;
+  place-items: center;
+
+  /* базовий колір — як кнопка */
+  color: #ff4fb1;
+
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    color 0.2s ease,
+    transform 0.15s ease,
+    filter 0.25s ease;
+}
+
+.back-arrow__icon {
+  width: 22px;
+  height: 32px;
+  display: block;
+}
+
+/* hover / focus — як LOGO glow */
+@media (hover: hover) and (pointer: fine) {
+  .back-arrow:hover,
+  .back-arrow:focus-visible {
+    color: #4f6bff;
+    filter:
+      drop-shadow(0 0 10px rgba(255, 79, 177, 0.45))
+      drop-shadow(0 0 22px rgba(176, 92, 255, 0.35));
+    transform: translateX(-2px);
+  }
+}
+
+.back-arrow:active {
+  transform: scale(0.9);
+  color: #b05cff;
+}

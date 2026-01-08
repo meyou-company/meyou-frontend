@@ -11,52 +11,16 @@
   align-items: center;
   text-align: center;
 
-  flex: 1;
-  min-height: 0;
-
   padding: clamp(24px, 12vw, 40px) 0;
   gap: clamp(24px, 16vw, 56px);
 }
 
 /* =========================
-   BUBBLES DECOR (STATIC)
-   ========================= */
-.home__bubbles {
-  position: absolute;
-  z-index: 0;
-  pointer-events: none;
-  user-select: none;
-
-  opacity: 0.55;
-  filter: blur(0.2px);
-
-  width: clamp(180px, 22vw, 420px);
-  height: auto;
-
-  /* ⛔️ animation removed */
-}
-
-/* top-left */
-.home__bubbles--tl {
-  top: -30px;
-  left: -80px;
-}
-
-/* bottom-right */
-.home__bubbles--br {
-  bottom: -30px;
-  right: -10px;
-  opacity: 0.45;
-}
-
-/* =========================
-   SECTIONS (z-index)
+   SECTIONS
    ========================= */
 .home__logoSection,
 .home__featuresSection,
 .home__actionsSection {
-  position: relative;
-  z-index: 1;
   width: 100%;
   display: flex;
   justify-content: center;
@@ -68,7 +32,6 @@
 .home__logoCard {
   width: 220px;
   height: 220px;
-  aspect-ratio: 1 / 1;
   border-radius: 22px;
 
   display: flex;
@@ -85,33 +48,6 @@
     inset 0 0 0 1px rgba(255, 255, 255, 0.06);
 }
 
-/* tablet */
-@media (min-width: 768px) {
-  .home__logoCard {
-    width: 380px;
-    height: 380px;
-    border-radius: 26px;
-  }
-}
-
-/* desktop */
-@media (min-width: 1024px) {
-  .home__logoCard {
-    width: 440px;
-    height: 440px;
-    border-radius: 32px;
-  }
-}
-
-/* wide desktop */
-@media (min-width: 1440px) {
-  .home__logoCard {
-    width: 500px;
-    height: 500px;
-    border-radius: 34px;
-  }
-}
-
 .home__logoImg {
   width: 100%;
   height: 100%;
@@ -126,8 +62,6 @@
   width: 100%;
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
-
   gap: clamp(12px, 2vw, 28px);
   padding: 0 16px;
 }
@@ -150,12 +84,6 @@
   transition: color 0.2s ease;
 }
 
-@media (hover: hover) and (pointer: fine) {
-  .feature:hover {
-    color: rgba(255, 255, 255, 0.95);
-  }
-}
-
 .feature__icon {
   width: clamp(24px, 2.4vw, 36px);
   height: clamp(24px, 2.4vw, 36px);
@@ -171,19 +99,7 @@
   -webkit-mask-size: contain;
   mask-size: contain;
 
-  transition: background 0.2s ease, filter 0.2s ease, transform 0.2s ease;
-}
-
-@media (hover: hover) and (pointer: fine) {
-  .feature:hover .feature__icon {
-    background: linear-gradient(90deg, #FF4FB1 0%, #4F6BFF 100%);
-    filter: drop-shadow(0 6px 14px rgba(176, 92, 255, 0.25));
-    transform: translateY(-1px);
-  }
-
-  .feature:hover {
-    color: rgba(255, 255, 255, 0.95);
-  }
+  transition: background 0.2s ease, transform 0.2s ease, filter 0.2s ease;
 }
 
 .feature__text {
@@ -192,9 +108,20 @@
   text-wrap: balance;
 }
 
+/* hover */
 @media (hover: hover) and (pointer: fine) {
+  .feature:hover {
+    color: rgba(255, 255, 255, 0.95);
+  }
+
+  .feature:hover .feature__icon {
+    background: linear-gradient(90deg, #ff4fb1 0%, #4f6bff 100%);
+    filter: drop-shadow(0 6px 14px rgba(176, 92, 255, 0.25));
+    transform: translateY(-1px);
+  }
+
   .feature:hover .feature__text {
-    background: linear-gradient(90deg, #FF4FB1 0%, #4F6BFF 100%);
+    background: linear-gradient(90deg, #ff4fb1 0%, #4f6bff 100%);
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
@@ -202,7 +129,7 @@
 }
 
 /* =========================
-   ACTIONS / BUTTONS
+   ACTIONS
    ========================= */
 .home__actions {
   max-width: 520px;
@@ -210,81 +137,58 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-
   gap: clamp(22px, 12vw, 28px);
+
   padding: 0 16px;
 }
 
-@media (min-width: 600px) {
-  .home__actions {
-    width: 70%;
-  }
-}
-
-@media (min-width: 1024px) {
-  .home__actions {
-    max-width: 575px;
-  }
-}
-
 .home__btn {
-  width: 110%;
+  width: 130%;
   min-height: 46px;
-
   padding: 16px 22px;
-  border-radius: 999px;
 
   font-size: 16px;
   line-height: 1;
 }
 
+/* =========================
+   RESPONSIVE
+   ========================= */
 @media (min-width: 768px) {
+  .home__logoCard {
+    width: 380px;
+    height: 380px;
+    border-radius: 26px;
+  }
+
   .home__btn {
     min-height: 64px;
-    padding: 18px 28px;
     font-size: 18px;
   }
 }
 
 @media (min-width: 1024px) {
+  .home__logoCard {
+    width: 440px;
+    height: 440px;
+    border-radius: 32px;
+  }
+
   .home__btn {
     min-height: 72px;
-    padding: 20px 34px;
     font-size: 20px;
   }
 }
 
 @media (min-width: 1440px) {
+  .home__logoCard {
+    width: 500px;
+    height: 500px;
+    border-radius: 34px;
+  }
+
   .home__btn {
     min-height: 76px;
-    font-size: 22px;
+    font-size: 24px;
   }
-}
-
-/* =========================
-   GRADIENT BUTTON
-   ========================= */
-.btn-gradient {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-
-  border: 0;
-  cursor: pointer;
-  user-select: none;
-  -webkit-tap-highlight-color: transparent;
-
-  color: #fff;
-  font-weight: 500;
-  line-height: 1;
-
-  background: linear-gradient(
-    90deg,
-    #4F6BFF 0%,
-    #B05CFF 52%,
-    #FF4FB1 100%
-  );
-
-  box-shadow: 0 14px 34px rgba(176, 92, 255, 0.22);
-  transition: transform 0.15s ease, filter 0.2s ease;
 }

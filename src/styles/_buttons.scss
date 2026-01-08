@@ -1,5 +1,5 @@
 /* =========================
-   GRADIENT BUTTON
+   GRADIENT BUTTON (GLOBAL)
    ========================= */
 
 .btn-gradient {
@@ -7,7 +7,6 @@
   align-items: center;
   justify-content: center;
 
-  width: 100%;
   border: 0;
   cursor: pointer;
   user-select: none;
@@ -17,91 +16,67 @@
   font-weight: 500;
   line-height: 1;
 
-  background: linear-gradient(
-    90deg,
-    #4F6BFF 0%,
-    #B05CFF 52%,
-    #FF4FB1 100%
-  );
+  background: linear-gradient(90deg, #4f6bff 0%, #b05cff 52%, #ff4fb1 100%);
 
-  border-radius: 999px;
+  /* базовий радіус — нейтральний */
+  border-radius: 40px;
 
-  box-shadow:
-    0 14px 34px rgba(176, 92, 255, 0.22),
-    0 0 0 rgba(0, 0, 0, 0);
-
-  transition:
-    background 0.25s ease,
-    box-shadow 0.25s ease,
-    transform 0.15s ease;
+  box-shadow: 0 14px 34px rgba(176, 92, 255, 0.22);
+  transition: background 0.25s ease, box-shadow 0.25s ease, transform 0.15s ease;
 }
 
-/* =========================
-   HOVER — ЯК У FIGMA
-   ========================= */
 @media (hover: hover) and (pointer: fine) {
   .btn-gradient:hover {
-    background: linear-gradient(
-      90deg,
-      #FF4FB1 0%,
-      #B05CFF 48%,
-      #4F6BFF 100%
-    );
-
-    box-shadow:
-      0 0 20px rgba(255, 79, 177, 0.55),
+    background: linear-gradient(90deg, #ff4fb1 0%, #b05cff 48%, #4f6bff 100%);
+    box-shadow: 0 0 20px rgba(255, 79, 177, 0.55),
       0 0 40px rgba(176, 92, 255, 0.45),
       0 18px 46px rgba(79, 107, 255, 0.35);
   }
 }
 
-/* =========================
-   ACTIVE (PRESS)
-   ========================= */
-
 .btn-gradient:active {
   transform: scale(0.985);
-
-  box-shadow:
-    0 0 14px rgba(176, 92, 255, 0.45),
+  box-shadow: 0 0 14px rgba(176, 92, 255, 0.45),
     0 10px 28px rgba(176, 92, 255, 0.35);
 }
 
 /* =========================
-   SIZE — LARGE
+   SIZE MODIFIERS
    ========================= */
+
+.btn-gradient--pill {
+  border-radius: 999px; /* тільки якщо реально треба “пілюля” */
+}
+
+.btn-gradient--full {
+  width: 100%;
+}
 
 .btn-gradient--lg {
   width: min(425px, 90vw);
   min-height: 56px;
-
   padding: 16px 22px;
   font-size: 16px;
 }
 
-/* tablet */
 @media (min-width: 768px) {
   .btn-gradient--lg {
     width: min(460px, 70vw);
     min-height: 64px;
-
     padding: 18px 28px;
     font-size: 18px;
   }
 }
 
-/* desktop */
 @media (min-width: 1024px) {
   .btn-gradient--lg {
     width: 425px;
     min-height: 72px;
-
     padding: 20px 34px;
     font-size: 20px;
   }
 }
 
-/* wide desktop */
 @media (min-width: 1440px) {
   .btn-gradient--lg {
     min-height: 76px;

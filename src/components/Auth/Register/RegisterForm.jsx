@@ -1,11 +1,9 @@
 import { useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { useAuthStore } from "../../zustand/useAuthStore";
-import { validateRegister, isEmptyErrors } from "../../utils/validationRegister";
-import "./Register.scss";
+import { useAuthStore } from "../../../zustand/useAuthStore";
+import { validateRegister, isEmptyErrors } from "../../../utils/validationRegister";
+import "./RegisterForm.scss";
 
-export default function Register() {
-  const navigate = useNavigate();
+export default function RegisterForm({ onBack, onGoLogin, onSuccess }) {
   const register = useAuthStore((s) => s.register);
 
   const [form, setForm] = useState({
@@ -24,7 +22,6 @@ export default function Register() {
     acceptPolicy: false,
   });
 
-  // ✅ щоб підказки зʼявлялись тільки коли користувач взаємодіє з полем
   const [focused, setFocused] = useState({
     firstName: false,
     email: false,
@@ -33,10 +30,8 @@ export default function Register() {
   });
 
   const [submitError, setSubmitError] = useState("");
-
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const errors = useMemo(() => validateRegister(form), [form]);
@@ -45,17 +40,9 @@ export default function Register() {
     window.location.href = `${import.meta.env.VITE_API_URL}/auth/google`;
   };
 
-  const markTouched = (name) =>
-    setTouched((prev) => ({ ...prev, [name]: true }));
-
   const onChange = (e) => {
     const { name, value, type, checked } = e.target;
-
-    setForm((prev) => ({
-      ...prev,
-      [name]: type === "checkbox" ? checked : value,
-    }));
-
+    setForm((prev) => ({ ...prev, [name]: type === "checkbox" ? checked : value }));
     setSubmitError("");
   };
 
@@ -67,8 +54,13 @@ export default function Register() {
   const onBlur = (e) => {
     const name = e.target.name;
     setFocused((prev) => ({ ...prev, [name]: false }));
-    markTouched(name);
+    setTouched((prev) => ({ ...prev, [name]: true }));
   };
+
+  const fieldError = (key) => (touched[key] ? errors[key] : "");
+  const isFieldError = (key) => Boolean(fieldError(key));
+  const shouldShowHint = (key) =>
+    Boolean(focused[key]) || Boolean(touched[key]) || String(form[key] ?? "").length > 0;
 
   const onSubmit = async (e) => {
     e.preventDefault();
@@ -98,7 +90,7 @@ export default function Register() {
     try {
       setIsSubmitting(true);
       await register(payload);
-      navigate("/");
+      onSuccess?.();
     } catch (err) {
       const msg =
         err?.response?.data?.message?.[0] ||
@@ -111,31 +103,12 @@ export default function Register() {
     }
   };
 
-  const fieldError = (key) => (touched[key] ? errors[key] : "");
-  const isFieldError = (key) => Boolean(fieldError(key));
-
-  // ✅ показувати підказку тільки якщо: focus || touched || є текст
-  const shouldShowHint = (key) =>
-    Boolean(focused[key]) || Boolean(touched[key]) || String(form[key] ?? "").length > 0;
-
   return (
     <section className="auth auth--register">
-      {/* back arrow */}
-      <button
-        type="button"
-        className="auth__back"
-        onClick={() => navigate(-1)}
-        aria-label="Назад"
-      >
-        <img
-          src="/icon1/Vector.png"
-          alt=""
-          aria-hidden="true"
-          className="auth__backIcon"
-        />
+      <button type="button" className="back-arrow" onClick={onBack} aria-label="Назад">
+        <img src="/icon1/Vector.png" alt="" aria-hidden="true" className="back-arrow__icon" />
       </button>
 
-      {/* logo */}
       <div className="auth__logoCard" aria-hidden="true">
         <img className="auth__logoImg" src="/Logo/photo.png" alt="Me You logo" />
       </div>
@@ -240,7 +213,7 @@ export default function Register() {
           )}
         </div>
 
-        {/* Confirm password */}
+        {/* Confirm */}
         <div className={`authField ${isFieldError("confirmPassword") ? "is-error" : ""}`}>
           <div className="authField__control">
             <span className="authField__iconLeft" aria-hidden="true">
@@ -292,40 +265,25 @@ export default function Register() {
             onChange={onChange}
             onBlur={onBlur}
           />
-
           <p className="authPolicy__text">
             Нажимая на кнопку «Регистрация», вы принимаете Политику конфиденциальности и
             Условия использования.
           </p>
         </div>
 
-        {/* submit error */}
         {submitError && <div className="auth__error">{submitError}</div>}
 
         <div className="authActions">
-          <button
-            className="btn-gradient btn-gradient--auth-primary"
-            type="submit"
-            disabled={isSubmitting}
-          >
+          <button className="btn-gradient btn-gradient--auth-primary" type="submit" disabled={isSubmitting}>
             {isSubmitting ? "Создание..." : "Создать аккаунт"}
           </button>
 
-          <button
-            type="button"
-            className="btn-gradient btn-gradient--auth-google"
-            onClick={handleGoogle}
-            aria-label="Sign in with Google"
-          >
+          <button type="button" className="btn-gradient btn-gradient--auth-google" onClick={handleGoogle}>
             <img src="/icon1/google.png" alt="Google" className="google-auth-btn__icon" />
           </button>
         </div>
 
-        <button
-          type="button"
-          className="btn-gradient btn-gradient--auth-bottom"
-          onClick={() => navigate("/login")}
-        >
+        <button type="button" className="btn-gradient btn-gradient--auth-bottom" onClick={onGoLogin}>
           У меня есть аккаунт
         </button>
       </form>
