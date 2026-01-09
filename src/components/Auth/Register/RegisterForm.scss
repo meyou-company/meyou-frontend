@@ -102,14 +102,14 @@
 /* BUTTON MODS (поверх глобального .btn-gradient) */
 .btn-gradient--auth-primary {
   flex: 1;
-  height: clamp(34px, 6vw, 60px);
+  height: clamp(50px, 6vw, 60px);
   border-radius: 40px;
   font-weight: 600;
 }
 
 .btn-gradient--auth-google {
   width: clamp(130px, 22vw, 180px);
-  height: clamp(34px, 8vw, 60px);
+  height: clamp(50px, 8vw, 60px);
   border-radius: 40px;
 
   display: grid;
@@ -127,7 +127,7 @@
 
   width: 100%;
   max-width: 425px;
-  height: clamp(34px, 8vw, 60px);
+  height: clamp(50px, 8vw, 60px);
   border-radius: 40px;
 
   font-weight: 600;
