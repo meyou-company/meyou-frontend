@@ -13,7 +13,7 @@ export default function AuthCallback() {
       setAccessToken(accessToken);
       navigate("/", { replace: true });
     } else {
-      navigate("/login", { replace: true });
+      navigate("/auth/login", { replace: true });
     }
   }, [navigate]);
 

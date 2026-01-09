@@ -6,8 +6,8 @@ export default function HomePage() {
 
   return (
     <HomeFeed
-      onRegister={() => navigate("/register")}
-      onLogin={() => navigate("/login")}
+      onRegister={() => navigate("/auth/register")}
+      onLogin={() => navigate("/auth/login")}
     />
   );
 }

@@ -4,7 +4,11 @@ import "./VerifyEmailForm.scss";
 const CODE_LEN = 4;
 const START_SECONDS = 59;
 
-export default function VerifyEmailForm({ onBack, onSuccess }) {
+export default function VerifyEmailForm({
+  onBack,
+  onSuccess,
+  variant = "register", // "register" | "reset"
+}) {
   const [code, setCode] = useState(Array(CODE_LEN).fill(""));
   const [seconds, setSeconds] = useState(START_SECONDS);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -118,9 +122,13 @@ export default function VerifyEmailForm({ onBack, onSuccess }) {
   const mm = String(Math.floor(seconds / 60)).padStart(2, "0");
   const ss = String(seconds % 60).padStart(2, "0");
 
+  const title = variant === "reset" ? "Смена пароля" : "Верификация";
+  const subtitle = "Код отправлен на емейл";
+  const mainBtnText = variant === "reset" ? "Далее" : "Войти";
+
   return (
     <section className="verify auth">
-      {/* back arrow — у тебе глобальна */}
+      {/* back arrow — глобальна */}
       <button type="button" className="back-arrow" onClick={onBack} aria-label="Назад">
         <img src="/icon1/Vector.png" alt="" aria-hidden="true" className="back-arrow__icon" />
       </button>
@@ -129,8 +137,8 @@ export default function VerifyEmailForm({ onBack, onSuccess }) {
         <img className="verify__logoImg" src="/Logo/photo.png" alt="Me You logo" />
       </div>
 
-      <h1 className="verify__title">Верификация</h1>
-      <p className="verify__subtitle">Код отправлен на емейл</p>
+      <h1 className="verify__title">{title}</h1>
+      <p className="verify__subtitle">{subtitle}</p>
 
       <form className="verify__form" onSubmit={onSubmit} noValidate>
         <div className="verifyCode" onPaste={handlePaste}>
@@ -155,12 +163,15 @@ export default function VerifyEmailForm({ onBack, onSuccess }) {
 
         {submitError && <div className="verify__error">{submitError}</div>}
 
-        {/* ✅ Градієнт з глобального .btn-gradient */}
-        <button className="btn-gradient verify__btnMain" type="submit" disabled={isSubmitting || !isComplete}>
-          {isSubmitting ? "Проверка..." : "Войти"}
+        {/* кнопки — з глобального .btn-gradient */}
+        <button
+          className="btn-gradient verify__btnMain"
+          type="submit"
+          disabled={isSubmitting || !isComplete}
+        >
+          {isSubmitting ? "Проверка..." : mainBtnText}
         </button>
 
-        {/* ✅ Градієнт з глобального .btn-gradient */}
         <button
           type="button"
           className="btn-gradient verify__btnResend"

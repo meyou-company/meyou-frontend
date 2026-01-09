@@ -5,26 +5,35 @@ export const useAuthStore = create((set) => ({
   user: null,
   isAuthLoading: false,
   isAuthed: false,
-init: async () => {
-  set({ isAuthLoading: true });
 
-  try {
-    // 1) пробуємо одразу отримати юзера
-    const user = await authApi.me();
-    set({ user, isAuthed: true });
-  } catch (e) {
-    // 2) якщо не авторизовані — пробуємо refresh
+  init: async () => {
+    set({ isAuthLoading: true });
+
+    try {
+      const user = await authApi.me();
+      set({ user, isAuthed: true });
+      return;
+    } catch (e) {
+      const status = e?.response?.status;
+
+      // refresh робимо ТІЛЬКИ якщо 401
+      if (status !== 401) {
+        set({ user: null, isAuthed: false });
+        throw e;
+      }
+    }
+
+    // якщо були неавторизовані — пробуємо refresh
     try {
       await authApi.refresh();
       const user = await authApi.me();
       set({ user, isAuthed: true });
     } catch {
       set({ user: null, isAuthed: false });
+    } finally {
+      set({ isAuthLoading: false });
     }
-  } finally {
-    set({ isAuthLoading: false });
-  }
-},
+  },
 
   login: async (payload) => {
     set({ isAuthLoading: true });

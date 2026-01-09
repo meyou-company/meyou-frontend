@@ -14,8 +14,8 @@
 /* logo */
 .auth__logoCard {
   margin-top: 10px;
-  width: 120px;
-  height: 120px;
+  width: 220px;
+  height: 220px;
   border-radius: 6px;
 
   display: grid;
@@ -112,7 +112,7 @@
   height: clamp(34px, 6vw, 60px);
   border-radius: 999px;
   font-weight: 600;
-  margin: 6px auto 0;
+  margin: 16px auto 0;
 }
 
 /* mobile */
@@ -123,8 +123,8 @@
 
   .auth__logoCard {
     margin-top: 6px;
-    width: 96px;
-    height: 96px;
+    width: 116px;
+    height: 116px;
     border-radius: 10px;
   }
 
@@ -139,19 +139,19 @@
   }
 
   .authForgot {
-    margin-top: -6px;
+    margin-top: 6px ;
     font-size: 14px;
   }
 
   .btn-gradient--auth-single {
-    height: 56px;
+    height: 46px;
   }
 }
 
 @media (min-width: 768px) {
   .auth__logoCard {
-    width: 140px;
-    height: 140px;
+    width: 240px;
+    height: 240px;
     border-radius: 30px;
   }
 }

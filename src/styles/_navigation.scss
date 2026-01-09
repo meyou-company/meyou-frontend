@@ -32,7 +32,9 @@
   display: block;
 }
 
-/* hover / focus — як LOGO glow */
+/* =========================
+   HOVER / FOCUS — glow як у LOGO
+   ========================= */
 @media (hover: hover) and (pointer: fine) {
   .back-arrow:hover,
   .back-arrow:focus-visible {
@@ -47,4 +49,65 @@
 .back-arrow:active {
   transform: scale(0.9);
   color: #b05cff;
+}
+
+/* =========================
+   MOBILE (≤420px)
+   ========================= */
+@media (max-width: 420px) {
+  .back-arrow {
+    top: 12px;
+    left: 10px;
+    padding: 6px;
+  }
+
+  .back-arrow__icon {
+    width: 18px;
+    height: 26px;
+  }
+}
+
+/* =========================
+   SMALL MOBILE (≤360px)
+   ========================= */
+@media (max-width: 360px) {
+  .back-arrow {
+    top: 10px;
+    left: 8px;
+  }
+
+  .back-arrow__icon {
+    width: 16px;
+    height: 24px;
+  }
+}
+
+/* =========================
+   TABLET (≥768px)
+   ========================= */
+@media (min-width: 768px) {
+  .back-arrow {
+    top: 22px;
+    left: 18px;
+  }
+
+  .back-arrow__icon {
+    width: 26px;
+    height: 38px;
+  }
+}
+
+/* =========================
+   DESKTOP (≥1024px)
+   ========================= */
+@media (min-width: 1024px) {
+  .back-arrow {
+    top: 26px;
+    left: 22px;
+  }
+
+  .back-arrow__icon {
+    width: 28px;
+    height: 42px;
+  }
 }

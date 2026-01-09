@@ -1,9 +1,9 @@
 const NAME_REGEX = /^[a-zA-Zа-яА-ЯёЁіІїЇєЄ' -]{2,}$/;
-const EMAIL_REGEX =
+export const EMAIL_REGEX =
   /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
 // мінімум: 8 символів, 1 літера, 1 цифра
-const PASSWORD_REGEX = /^(?=.*[A-Za-z])(?=.*\d).{8,}$/;
+export const PASSWORD_REGEX = /^(?=.*[A-Za-z])(?=.*\d).{8,}$/;
 
 export const validateRegister = (form) => {
   const errors = {};

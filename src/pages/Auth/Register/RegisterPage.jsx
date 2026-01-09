@@ -7,7 +7,7 @@ export default function RegisterPage() {
   return (
     <RegisterForm
       onBack={() => navigate(-1)}
-      onGoLogin={() => navigate("/login")}
+      onGoLogin={() => navigate("/auth/login")}
       onSuccess={() => navigate("/")}
     />
   );
