@@ -8,7 +8,8 @@ export default function RegisterPage() {
     <RegisterForm
       onBack={() => navigate(-1)}
       onGoLogin={() => navigate("/auth/login")}
-      onSuccess={() => navigate("/")}
+      onSuccess={() => navigate("/auth/verify-email", { replace: true })}
     />
   );
+
 }

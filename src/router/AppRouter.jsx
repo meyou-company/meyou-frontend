@@ -9,38 +9,63 @@ import VipChat from "../pages/VipChat/VipChat";
 import LoginPage from "../pages/Auth/Login/LoginPage";
 import RegisterPage from "../pages/Auth/Register/RegisterPage";
 import VerifyEmailPage from "../pages/Auth/VerifyEmail/VerifyEmailPage";
+
+// ✅ перенесли reset verify в окрему папку ResetPassword
 import VerifyResetCodePage from "../pages/Auth/VerifyEmail/VerifyResetCodePage";
+
 import AuthCallback from "../pages/AuthCallback/AuthCallback";
 import ForgotPassword from "../pages/Auth/ForgotPassword/ForgotPasswordPage";
+
 import ResetNewPasswordPage from "../pages/Auth/ResetNewPassword/ResetNewPasswordPage";
 
+import CompleteProfilePage from "../pages/Users/Profile/CompleteProfilePage";
+import EditProfilePage from "../pages/Users/Profile/EditProfilePage";
 
+import ProfileGuard from "./ProfileGuard";
 
 export default function AppRouter() {
   return (
     <BrowserRouter>
-      <div className="app-shell">
-        <div className="app-page">
-          <div className="app-container">
-            <Routes>
-              <Route path="/" element={<HomePage />} />
-              <Route path="/explore" element={<Explore />} />
-              <Route path="/friends" element={<Friends />} />
-              <Route path="/profile" element={<Profile />} />
-              <Route path="/vip-chat" element={<VipChat />} />
+      <ProfileGuard>
+        <div className="app-shell">
+          <div className="app-page">
+            <div className="app-container">
+              <Routes>
+                <Route path="/" element={<HomePage />} />
+                <Route path="/explore" element={<Explore />} />
+                <Route path="/friends" element={<Friends />} />
+                <Route path="/profile" element={<Profile />} />
+                <Route path="/vip-chat" element={<VipChat />} />
 
-              <Route path="/auth/login" element={<LoginPage />} />
-              <Route path="/auth/register" element={<RegisterPage />} />
-              <Route path="/auth/verify-email" element={<VerifyEmailPage />} />
-              <Route path="/auth/reset/verify-code" element={<VerifyResetCodePage />} />
-              <Route path="/forgot-password" element={<ForgotPassword />} />
-              <Route path="/auth/callback" element={<AuthCallback />} />
-              <Route path="/auth/reset/new-password" element={<ResetNewPasswordPage />} />
+                <Route
+                  path="/users/profile/complete"
+                  element={<CompleteProfilePage />}
+                />
+                <Route path="/users/profile/edit" element={<EditProfilePage />} />
 
-            </Routes>
+                <Route path="/auth/login" element={<LoginPage />} />
+                <Route path="/auth/register" element={<RegisterPage />} />
+
+                {/* ✅ register verify */}
+                <Route path="/auth/verify-email" element={<VerifyEmailPage />} />
+
+                {/* ✅ reset flow */}
+                <Route path="/auth/forgot-password" element={<ForgotPassword />} />
+                <Route
+                  path="/auth/reset/verify-code"
+                  element={<VerifyResetCodePage />}
+                />
+                <Route
+                  path="/auth/reset/new-password"
+                  element={<ResetNewPasswordPage />}
+                />
+
+                <Route path="/auth/callback" element={<AuthCallback />} />
+              </Routes>
+            </div>
           </div>
         </div>
-      </div>
+      </ProfileGuard>
     </BrowserRouter>
   );
 }

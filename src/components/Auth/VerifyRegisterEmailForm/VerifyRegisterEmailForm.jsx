@@ -1,30 +1,22 @@
-import { useEffect, useMemo, useRef, useState } from "react";
-import "./VerifyEmailForm.scss";
+import { useMemo, useRef, useState } from "react";
+import { useAuthStore } from "../../../zustand/useAuthStore";
+import "../VerifyRegisterEmailForm/VerifyRegisterEmailForm.scss";
 
 const CODE_LEN = 4;
-const START_SECONDS = 59;
 
-export default function VerifyEmailForm({
-  onBack,
-  onSuccess,
-  variant = "register", // "register" | "reset"
-}) {
+export default function VerifyRegisterEmailForm({ onBack, onSuccess }) {
+  const verifyEmailCode = useAuthStore((s) => s.verifyEmailCode);
+  const resendEmailCode = useAuthStore((s) => s.resendEmailCode);
+
   const [code, setCode] = useState(Array(CODE_LEN).fill(""));
-  const [seconds, setSeconds] = useState(START_SECONDS);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isResending, setIsResending] = useState(false);
   const [submitError, setSubmitError] = useState("");
 
   const inputsRef = useRef([]);
 
   const isComplete = useMemo(() => code.every((c) => c.trim() !== ""), [code]);
   const codeValue = useMemo(() => code.join(""), [code]);
-
-  // timer
-  useEffect(() => {
-    if (seconds <= 0) return;
-    const t = setInterval(() => setSeconds((s) => s - 1), 1000);
-    return () => clearInterval(t);
-  }, [seconds]);
 
   const focusIndex = (idx) => {
     const el = inputsRef.current?.[idx];
@@ -33,8 +25,7 @@ export default function VerifyEmailForm({
 
   const handleChange = (idx, e) => {
     setSubmitError("");
-    const v = e.target.value;
-    const digit = (v || "").replace(/\D/g, "").slice(0, 1);
+    const digit = (e.target.value || "").replace(/\D/g, "").slice(0, 1);
 
     setCode((prev) => {
       const next = [...prev];
@@ -62,7 +53,6 @@ export default function VerifyEmailForm({
         });
       }
     }
-
     if (e.key === "ArrowLeft" && idx > 0) focusIndex(idx - 1);
     if (e.key === "ArrowRight" && idx < CODE_LEN - 1) focusIndex(idx + 1);
   };
@@ -96,39 +86,62 @@ export default function VerifyEmailForm({
     try {
       setIsSubmitting(true);
 
-      // TODO: verify API
-      await new Promise((r) => setTimeout(r, 600));
+      const res = await verifyEmailCode?.({ code: codeValue }); // ✅ тільки code
+
+      if (!res?.ok) {
+        const msg =
+          res?.error?.response?.data?.message?.[0] ||
+          res?.error?.response?.data?.message ||
+          res?.error?.message ||
+          "Ошибка верификации";
+        setSubmitError(msg);
+        return;
+      }
 
       onSuccess?.();
-    } catch {
-      setSubmitError("Ошибка верификации");
+    } catch (err) {
+      const msg =
+        err?.response?.data?.message?.[0] ||
+        err?.response?.data?.message ||
+        err?.message ||
+        "Ошибка верификации";
+      setSubmitError(msg);
     } finally {
       setIsSubmitting(false);
     }
   };
 
   const resend = async () => {
-    if (seconds > 0) return;
-
     setSubmitError("");
     setCode(Array(CODE_LEN).fill(""));
     focusIndex(0);
 
-    // TODO: resend API
-    await new Promise((r) => setTimeout(r, 300));
-    setSeconds(START_SECONDS);
+    try {
+      setIsResending(true);
+      const res = await resendEmailCode?.();
+
+      if (res && !res?.ok) {
+        const msg =
+          res?.error?.response?.data?.message?.[0] ||
+          res?.error?.response?.data?.message ||
+          res?.error?.message ||
+          "Ошибка отправки кода";
+        setSubmitError(msg);
+      }
+    } catch (e) {
+      const msg =
+        e?.response?.data?.message?.[0] ||
+        e?.response?.data?.message ||
+        e?.message ||
+        "Ошибка отправки кода";
+      setSubmitError(msg);
+    } finally {
+      setIsResending(false);
+    }
   };
-
-  const mm = String(Math.floor(seconds / 60)).padStart(2, "0");
-  const ss = String(seconds % 60).padStart(2, "0");
-
-  const title = variant === "reset" ? "Смена пароля" : "Верификация";
-  const subtitle = "Код отправлен на емейл";
-  const mainBtnText = variant === "reset" ? "Далее" : "Войти";
 
   return (
     <section className="verify auth">
-      {/* back arrow — глобальна */}
       <button type="button" className="back-arrow" onClick={onBack} aria-label="Назад">
         <img src="/icon1/Vector.png" alt="" aria-hidden="true" className="back-arrow__icon" />
       </button>
@@ -137,8 +150,8 @@ export default function VerifyEmailForm({
         <img className="verify__logoImg" src="/Logo/photo.png" alt="Me You logo" />
       </div>
 
-      <h1 className="verify__title">{title}</h1>
-      <p className="verify__subtitle">{subtitle}</p>
+      <h1 className="verify__title">Верификация</h1>
+      <p className="verify__subtitle">Код отправлен на емейл и действителен 15 минут.</p>
 
       <form className="verify__form" onSubmit={onSubmit} noValidate>
         <div className="verifyCode" onPaste={handlePaste}>
@@ -159,26 +172,14 @@ export default function VerifyEmailForm({
           ))}
         </div>
 
-        <div className="verify__timer">{mm}:{ss}</div>
-
         {submitError && <div className="verify__error">{submitError}</div>}
 
-        {/* кнопки — з глобального .btn-gradient */}
-        <button
-          className="btn-gradient verify__btnMain"
-          type="submit"
-          disabled={isSubmitting || !isComplete}
-        >
-          {isSubmitting ? "Проверка..." : mainBtnText}
+        <button className="btn-gradient verify__btnMain" type="submit" disabled={isSubmitting || !isComplete}>
+          {isSubmitting ? "Проверка..." : "Подтвердить"}
         </button>
 
-        <button
-          type="button"
-          className="btn-gradient verify__btnResend"
-          onClick={resend}
-          disabled={seconds > 0}
-        >
-          Отправить код повторно
+        <button type="button" className="btn-gradient verify__btnResend" onClick={resend} disabled={isResending}>
+          {isResending ? "Отправка..." : "Отправить код повторно"}
         </button>
 
         <input type="hidden" name="code" value={codeValue} readOnly />

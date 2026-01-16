@@ -1,14 +1,15 @@
 import { useNavigate } from "react-router-dom";
-import VerifyCodeForm from "../../../components/Auth/VerifyEmailForm/VerifyEmailForm";
+import VerifyRegisterEmailForm from "../../../components/Auth/VerifyRegisterEmailForm/VerifyRegisterEmailForm";
 
 export default function VerifyEmailPage() {
   const navigate = useNavigate();
 
   return (
-    <VerifyCodeForm
-      mode="email"
+    <VerifyRegisterEmailForm
       onBack={() => navigate(-1)}
-      onSuccess={() => navigate("/profile/setup")} 
+      onSuccess={() =>
+        navigate("/users/profile/complete", { replace: true })
+      }
     />
   );
 }

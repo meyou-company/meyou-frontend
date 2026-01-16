@@ -7,8 +7,10 @@ export default function ForgotPasswordPage() {
   return (
     <ForgotPasswordForm
       onBack={() => navigate(-1)}
-    onSuccess={() => navigate("/auth/reset/verify-code")}
-
+      // після успіху
+onSuccess={(email) =>
+  navigate("/auth/reset/verify-code", { state: { email } })
+}
     />
   );
 }

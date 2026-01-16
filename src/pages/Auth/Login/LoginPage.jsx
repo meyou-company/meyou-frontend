@@ -5,14 +5,13 @@ import LoginForm from "../../../components/Auth/Login/LoginForm";
 export default function LoginPage() {
   const navigate = useNavigate();
   const location = useLocation();
+const redirectTo = location.state?.redirectTo || "/users/profile/complete";
 
-  const redirectTo = location.state?.redirectTo || "/profile"; 
-  // ✅ дефолт можеш поставити який треба ("/profile" або "/")
 
   return (
     <LoginForm
       onBack={() => navigate(-1)}
-      onForgot={() => navigate("/forgot-password")}
+      onForgot={() => navigate("/auth/forgot-password")}
       onSuccess={() => navigate(redirectTo, { replace: true })}
     />
   );

@@ -1,15 +1,28 @@
-import { useNavigate } from "react-router-dom";
-import VerifyCodeForm from "../../../components/Auth/VerifyEmailForm/VerifyEmailForm";
-
+import { useEffect } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import VerifyResetCodeForm from "../../../components/Auth/VerifyResetCodeForm/VerifyResetCodeForm";
 
 export default function VerifyResetCodePage() {
   const navigate = useNavigate();
+  const { state } = useLocation();
+  const email = state?.email;
+
+  useEffect(() => {
+    if (!email) navigate("/auth/forgot-password", { replace: true });
+  }, [email, navigate]);
+
+  if (!email) return null;
 
   return (
-    <VerifyCodeForm
-      mode="reset"
+    <VerifyResetCodeForm
+      email={email}
       onBack={() => navigate(-1)}
-      onSuccess={() => navigate("/auth/reset/new-password")} 
+      onSuccess={(code) =>
+        navigate("/auth/reset/new-password", {
+          replace: true,
+          state: { email, code },
+        })
+      }
     />
   );
 }

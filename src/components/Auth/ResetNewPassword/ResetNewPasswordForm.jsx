@@ -1,6 +1,5 @@
 import { useMemo, useState } from "react";
 
-// ✅ regex з твого файлу валідації
 import { PASSWORD_REGEX } from "../../../utils/validationRegister";
 import "./ResetNewPasswordForm.scss"
 export default function ResetNewPasswordForm({ onBack, onSuccess }) {

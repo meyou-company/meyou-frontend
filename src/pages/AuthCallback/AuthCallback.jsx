@@ -11,7 +11,7 @@ export default function AuthCallback() {
 
     if (accessToken) {
       setAccessToken(accessToken);
-      navigate("/", { replace: true });
+      navigate("/profile", { replace: true });
     } else {
       navigate("/auth/login", { replace: true });
     }

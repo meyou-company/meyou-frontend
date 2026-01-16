@@ -40,7 +40,7 @@
 
 /* TITLE / SUBTITLE */
 .verify__title {
-  margin: 40px 0 16px;
+  margin: 40px 0 10px;
   font-size: clamp(26px, 3vw, 60px);
   font-weight: 600;
   line-height: 1;
@@ -52,10 +52,13 @@
 }
 
 .verify__subtitle {
-  margin: 0 0 26px;
-  font-size: 14px;
-  line-height: 1.2;
-  color: rgba(255, 255, 255, 0.7);
+  margin: 0 0 22px;
+  font-size: 12px;              /* ✅ менше */
+  line-height: 1.3;
+  letter-spacing: 0.2px;
+  color: rgba(255, 255, 255, 0.65);
+  text-align: center;
+  max-width: 320px;
 }
 
 /* FORM */
@@ -103,13 +106,6 @@
   transform: translateY(-1px);
 }
 
-/* TIMER */
-.verify__timer {
-  font-size: 22px;
-  font-weight: 600;
-  color: rgba(255, 255, 255, 0.92);
-}
-
 /* ERROR */
 .verify__error {
   width: 100%;
@@ -121,7 +117,7 @@
   font-size: 12px;
 }
 
-/* ✅ BUTTONS: градієнт з глобального .btn-gradient, тут лише РОЗМІР */
+/* BUTTONS */
 .verify__btnMain {
   width: 240px;
   height: 56px;
@@ -129,7 +125,6 @@
   font-weight: 600;
 }
 
-/* як на макеті: 425 x 100 */
 .verify__btnResend {
   width: 425px;
   height: 60px;
@@ -139,7 +134,6 @@
   opacity: 0.96;
 }
 
-/* щоб глобальний width:100% не ламав ширину */
 .verify__btnMain,
 .verify__btnResend {
   max-width: 90vw;
@@ -157,8 +151,9 @@
   }
 
   .verify__subtitle {
-    font-size: 13px;
-    margin-bottom: 32px;
+    font-size: 12px;
+    margin-bottom: 28px;
+    max-width: 280px;
   }
 
   .verifyCode {

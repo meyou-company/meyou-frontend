@@ -44,11 +44,11 @@ export const validateRegister = (form) => {
   if (!password) {
     errors.password = "Введіть пароль";
   } else if (password.length < 8) {
-    errors.password = "Пароль має містити мінімум 8 символів";
+    errors.password = "Пароль має містити мінімум 8 символів першу велику літеру хоча б одну малу літеру і цифру";
   } else if (password.length > 64) {
     errors.password = "Пароль занадто довгий";
   } else if (!PASSWORD_REGEX.test(password)) {
-    errors.password = "Пароль має містити хоча б одну літеру і цифру";
+    errors.password = "Пароль має містити першу велику літеру одну малу літеру і цифру";
   }
 
   /* =====================

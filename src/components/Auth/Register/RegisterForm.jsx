@@ -61,48 +61,53 @@ export default function RegisterForm({ onBack, onGoLogin, onSuccess }) {
   const isFieldError = (key) => Boolean(fieldError(key));
   const shouldShowHint = (key) =>
     Boolean(focused[key]) || Boolean(touched[key]) || String(form[key] ?? "").length > 0;
+const onSubmit = async (e) => {
+  e.preventDefault();
+  setSubmitError("");
 
-  const onSubmit = async (e) => {
-    e.preventDefault();
-    setSubmitError("");
+  setTouched({
+    firstName: true,
+    email: true,
+    password: true,
+    confirmPassword: true,
+    acceptPolicy: true,
+  });
 
-    setTouched({
-      firstName: true,
-      email: true,
-      password: true,
-      confirmPassword: true,
-      acceptPolicy: true,
-    });
+  const currentErrors = validateRegister(form);
+  if (!isEmptyErrors(currentErrors)) {
+    setSubmitError(currentErrors.acceptPolicy || "Перевірте, будь ласка, форму");
+    return;
+  }
 
-    const currentErrors = validateRegister(form);
-    if (!isEmptyErrors(currentErrors)) {
-      setSubmitError(currentErrors.acceptPolicy || "Перевірте, будь ласка, форму");
+  const payload = {
+    firstName: form.firstName.trim(),
+    email: form.email.trim(),
+    password: form.password,
+    confirmPassword: form.confirmPassword,
+  };
+
+  setIsSubmitting(true);
+
+  try {
+    const res = await register(payload);
+
+    if (!res?.ok) {
+      const msg =
+        res?.error?.response?.data?.message?.[0] ||
+        res?.error?.response?.data?.message ||
+        res?.error?.message ||
+        "Помилка реєстрації";
+      setSubmitError(msg);
       return;
     }
 
-    const payload = {
-      firstName: form.firstName.trim(),
-      email: form.email.trim(),
-      password: form.password,
-      confirmPassword: form.confirmPassword,
-    };
+    onSuccess?.();
+  } finally {
+    setIsSubmitting(false);
+  }
+};
 
-    try {
-      setIsSubmitting(true);
-      await register(payload);
-      onSuccess?.();
-    } catch (err) {
-      const msg =
-        err?.response?.data?.message?.[0] ||
-        err?.response?.data?.message ||
-        err?.message ||
-        "Помилка реєстрації";
-      setSubmitError(msg);
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
+ 
   return (
     <section className="auth auth--register">
       <button type="button" className="back-arrow" onClick={onBack} aria-label="Назад">
