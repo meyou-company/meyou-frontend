@@ -85,7 +85,6 @@ export default function CompleteProfileForm({ onBack, onSuccess }) {
           ←
         </button>
 
-        <div className="complete-profile__logo">ME YOU</div>
       </header>
 
       <main className="complete-profile__content">
@@ -96,9 +95,7 @@ export default function CompleteProfileForm({ onBack, onSuccess }) {
           <button type="button" className="complete-profile__avatar-btn">
             Додати фото профілю
           </button>
-          <p className="complete-profile__subtext">
-            Завантажте фото профілю. Код дійсний 15 хвилин — це для верифікації, тут можна без таймера.
-          </p>
+         
         </div>
 
         <form className="complete-profile__form" onSubmit={handleSubmit}>
