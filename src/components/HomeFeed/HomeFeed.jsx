@@ -1,6 +1,7 @@
 import "./HomeFeed.scss";
-
+import { useForceDarkTheme } from "../../hooks/useForceDarkTheme";
 function Feature({ icon, title, onClick }) {
+  
   return (
     <button className="feature" onClick={onClick} type="button">
       <span
@@ -14,8 +15,9 @@ function Feature({ icon, title, onClick }) {
 }
 
 export default function HomeFeed({ onRegister, onLogin }) {
+   useForceDarkTheme();
   return (
-    <section className="home">
+    <section className="home auth">
       {/* LOGO */}
       <div className="home__logoSection">
         <div className="home__logoCard">

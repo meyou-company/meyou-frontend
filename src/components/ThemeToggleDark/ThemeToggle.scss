@@ -1,0 +1,30 @@
+.theme-toggle {
+  width: 48px;
+  height: 48px;
+  border-radius: 9999px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(10px);
+
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: white;
+
+  font-size: 22px;
+  cursor: pointer;
+
+  transition: all 0.25s ease;
+
+  &:hover {
+    transform: scale(1.05);
+  }
+
+  &.light {
+    background: rgba(0, 0, 0, 0.05);
+    color: #170a28;
+    border-color: rgba(0, 0, 0, 0.15);
+  }
+}

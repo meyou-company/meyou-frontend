@@ -5,48 +5,99 @@
 /* =========================
    BASE
    ========================= */
+
 @layer base {
   :root {
     --app-bg: 23 10 40;
     --app-text: 255 255 255;
+
+    /* DARK background */
+    --app-bg-image: url("/foon.png");
+    --app-bg-image-opacity: 0.9;
+
+    --app-overlay-1: rgba(0, 0, 0, 0.05);
+    --app-overlay-2: rgba(0, 0, 0, 0.35);
+    --app-overlay-3: rgba(0, 0, 0, 0.55);
+
+    /* DARK — PROFILE / AUTH FIELDS */
+    --field-grad: linear-gradient(90deg, #4f6bff 0%, #805cff 52%, #ff4fb1 100%);
+    --field-shadow: 0 0 18px rgba(255, 65, 193, 0.18);
+    --field-inner: rgba(18, 10, 34, 0.6);
+    --field-text: rgba(255, 255, 255, 0.92);
+    --field-placeholder: rgba(255, 255, 255, 0.45);
+
+    /* ✅ DARK — SELECT (читабельність списків) */
+    --select-menu-bg: rgba(18, 10, 34, 0.96);
+    --select-text: rgba(255, 255, 255, 0.92);
+    --select-placeholder: rgba(255, 255, 255, 0.55);
+
+    --select-option-hover-bg: linear-gradient(
+      90deg,
+      rgba(79, 107, 255, 0.22),
+      rgba(176, 92, 255, 0.22),
+      rgba(255, 79, 177, 0.22)
+    );
+
+    --select-option-selected-bg: linear-gradient(
+      90deg,
+      #4f6bff 0%,
+      #b05cff 55%,
+      #ff4fb1 100%
+    );
   }
 
-  .theme-light {
+  [data-theme="light"] {
     --app-bg: 241 231 255;
     --app-text: 23 10 40;
+
+    --app-bg-image: none;
+    --app-bg-image-opacity: 0;
+
+    --app-overlay-1: rgba(255, 255, 255, 0.35);
+    --app-overlay-2: rgba(255, 255, 255, 0.15);
+    --app-overlay-3: rgba(0, 0, 0, 0.08);
+
+    /* LIGHT — PROFILE / AUTH FIELDS */
+    --field-grad: linear-gradient(90deg, #4f6bff 0%, #805cff 52%, #ff4fb1 100%);
+    --field-shadow: 0 0 14px rgba(123, 92, 255, 0.18);
+    --field-inner: rgba(255, 255, 255, 0.75);
+    --field-text: #170a28;
+    --field-placeholder: rgba(0, 0, 0, 0.45);
+
+    /* ✅ LIGHT — SELECT */
+    --select-menu-bg: #ffffff;
+    --select-text: #2b1b4f;
+    --select-placeholder: rgba(43, 27, 79, 0.55);
+
+    --select-option-hover-bg: rgba(79, 107, 255, 0.12);
+
+    --select-option-selected-bg: linear-gradient(
+      90deg,
+      #4f6bff 0%,
+      #b05cff 55%,
+      #ff4fb1 100%
+    );
   }
 
-  html,
-  body,
-  #root {
-    height: 100%;
-  }
 
   body {
     margin: 0;
     @apply bg-appBg text-appText;
-
-    /* ✅ не ріжемо сторінку */
     overflow-x: hidden;
     overflow-y: auto;
-
     position: relative;
   }
 
-  /* ✅ Глобальний фон на всі сторінки */
   body::before {
     content: "";
     position: fixed;
     inset: 0;
     z-index: -1;
-
-    background-image: url("/foon.png");
+    background-image: var(--app-bg-image);
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
-
-    opacity: 0.9;
-    filter: saturate(1.05);
+    opacity: var(--app-bg-image-opacity);
     pointer-events: none;
   }
 
@@ -57,13 +108,14 @@
     z-index: -1;
     background: radial-gradient(
       circle at 50% 30%,
-      rgba(0, 0, 0, 0.05) 0%,
-      rgba(0, 0, 0, 0.35) 55%,
-      rgba(0, 0, 0, 0.55) 100%
+      var(--app-overlay-1) 0%,
+      var(--app-overlay-2) 55%,
+      var(--app-overlay-3) 100%
     );
     pointer-events: none;
   }
 }
+
 
 /* =========================
    APP LAYOUT (GLOBAL)

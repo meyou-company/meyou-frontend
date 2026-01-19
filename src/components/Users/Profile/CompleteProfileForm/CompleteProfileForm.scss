@@ -1,162 +1,531 @@
-/* PAGE */
+
+/* =========================
+   LAYOUT
+   ========================= */
+
 .complete-profile {
-  min-height: 100vh;
-  padding: 22px 16px;
-
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-
-  color: #fff;
-}
-
-/* HEADER */
-.complete-profile__header {
   width: 100%;
-  max-width: 520px;
-
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-
-  margin-bottom: 24px;
+  padding: 20px 16px 30px;
 }
 
-.complete-profile__back {
-  background: none;
-  border: none;
-  color: #fff;
-  font-size: 22px;
-  cursor: pointer;
-}
-
-.complete-profile__logo {
-  font-weight: 600;
-  letter-spacing: 2px;
-}
-
-/* CONTENT */
-.complete-profile__content {
+.complete-profile__form {
   width: 100%;
-  max-width: 520px;
+  max-width: 1200px;
+  margin: 0 auto;
+
+  display: grid;
+  gap: 30px; 
 }
 
-/* TITLE */
-.complete-profile__title {
-  margin-bottom: 20px;
-  font-size: 26px;
-  font-weight: 600;
+/* =========================
+   HEADER / AVATAR
+   ========================= */
 
-  background: linear-gradient(90deg, #ff4fb1, #4f6bff);
+.cp-head {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  padding: 6px 0 10px;
+}
+
+.cp-head__title {
+  font-size: 44px;
+  font-weight: 800;
+  letter-spacing: 0.4px;
+
+  background: linear-gradient(90deg, #4f6bff, #b05cff 55%, #ff4fb1);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
 }
 
-/* AVATAR */
-.complete-profile__avatar {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin-bottom: 24px;
+.cp-avatar__ring {
+  width: 216px;
+  height: 216px;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  position: relative;
+
+  background: linear-gradient(135deg, #4f6bff, #b05cff 55%, #ff4fb1);
+  padding: 4px;
 }
 
-.complete-profile__avatar-circle {
-  width: 110px;
-  height: 110px;
+.cp-avatar__ring::before {
+  content: "";
+  position: absolute;
+  inset: 4px;
+  border-radius: 999px;
+  background: #d5d5d5;
+  opacity: 0.85;
+}
+
+.cp-avatar__placeholder {
+  position: relative;
+  z-index: 2;
+  color: rgba(123, 92, 255, 0.9);
+}
+
+.cp-avatar__img {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  height: 100%;
+  border-radius: 999px;
+  object-fit: cover;
+}
+
+.cp-avatar__dot {
+  position: absolute;
+  top: 22px;
+  right: 28px;
+  width: 14px;
+  height: 14px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.12);
-  margin-bottom: 12px;
+  background: #16c60c;
+  z-index: 3;
 }
 
-.complete-profile__avatar-btn {
-  background: none;
-  border: none;
-  color: #ff4fb1;
+.cp-head__link {
+  font-size: 28px;
+  font-weight: 700;
+
+  background: linear-gradient(90deg, #4f6bff, #b05cff 55%, #ff4fb1);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.cp-head__note {
   font-size: 14px;
-  cursor: pointer;
+  opacity: 0.55;
 }
 
-.complete-profile__subtext {
-  margin-top: 6px;
-  font-size: 12px;
-  color: rgba(255, 255, 255, 0.6);
-  text-align: center;
-}
-
-/* FORM */
-.complete-profile__form {
+.cp-head__actions {
   display: flex;
-  flex-direction: column;
+  gap: 29px;
+}
+
+.cp-pill {
+  height: 40px;
+  width: 170px;
+  border-radius: 999px;
+  background: #fce9e9;
+  color: #7b5cff;
+  border: 1px solid rgba(176, 92, 255, 0.35);
+}
+
+[data-theme="dark"] .cp-pill {
+  background: linear-gradient(90deg, #4f6bff 0%, #b05cff 55%, #ff4fb1 100%);
+  color: #fff;
+  border: none;
+}
+
+/* =========================
+   FIELDS
+   ========================= */
+
+.field {
+  display: grid;
+  gap: 6px;
+}
+
+.field__wrap {
+  position: relative;
+  height: 52px;
+  border-radius: 20px;
+  overflow: hidden;
+
+  background: var(--field-grad);
+  box-shadow: var(--field-shadow);
+  transition: box-shadow 0.25s ease, filter 0.25s ease;
+}
+
+@media (min-width: 768px) {
+  .field__wrap {
+    height: 56px;
+  }
+}
+
+.field__wrap::before {
+  content: "";
+  position: absolute;
+  inset: 1px;
+  border-radius: 19px;
+  background: var(--field-inner);
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* textarea wrapper */
+.field__wrap:has(.text-area) {
+  height: auto;
+}
+
+/* ✅ select/phone: не обрізати */
+.field__wrap.select-wrap,
+.field__wrap.phone-wrap {
+  overflow: visible;
+}
+
+/* inputs */
+.text-input,
+.text-area {
+  position: relative;
+  z-index: 2;
+
+  width: 100%;
+  height: 100%;
+  background: transparent;
+  border: 0;
+  outline: none;
+
+  color: var(--field-text);
+  padding: 14px 16px 14px 28px;
+  font-size: 18px;
+}
+
+.text-area {
+  height: auto;
+  resize: none;
+  padding-top: 12px;
+}
+
+.text-input::placeholder,
+.text-area::placeholder {
+  color: var(--field-placeholder);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .field__wrap:hover {
+    filter: brightness(1.05);
+  }
+}
+
+.field__wrap:focus-within {
+  box-shadow: 0 0 24px rgba(82, 126, 255, 0.45),
+    0 0 32px rgba(255, 65, 193, 0.25);
+}
+
+/* error */
+.text-input.is-error,
+.text-area.is-error {
+  color: #ff1b1b;
+}
+
+.field__wrap:has(.is-error)::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 20px;
+  pointer-events: none;
+  z-index: 3;
+  box-shadow: inset 0 0 0 2px #ff1b1b;
+}
+
+/* star */
+.field__star {
+  position: absolute;
+  left: 10px;
+  top: 10px;
+  z-index: 5;
+  color: #fc0000;
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1;
+  pointer-events: none;
+}
+
+/* hint */
+.field__hint {
+  font-size: 14px;
+  color: #fc0000;
+  padding-left: 10px;
+}
+
+/* =========================
+   react-select (PORTAL)
+   ========================= */
+
+/* control in field */
+.select-wrap .rs__control {
+  position: relative;
+  z-index: 2;
+  height: 100%;
+  min-height: unset !important;
+
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+
+.select-wrap .rs__value-container {
+  padding-left: 28px !important;
+}
+
+.select-wrap .rs__single-value,
+.select-wrap .rs__input-container {
+  color: var(--field-text) !important;
+}
+
+.select-wrap .rs__placeholder {
+  color: var(--select-placeholder) !important;
+}
+
+/* ✅ IMPORTANT: menu renders in BODY (portal), so styles MUST be global */
+.rs__menu-portal {
+  z-index: 999999 !important;
+}
+
+.rs__menu {
+  background: var(--select-menu-bg) !important;
+  border-radius: 16px !important;
+  padding: 6px !important;
+  box-shadow: 0 12px 30px rgba(123, 92, 255, 0.25) !important;
+}
+
+.rs__option {
+  font-size: 16px !important;
+  padding: 12px 14px !important;
+  border-radius: 12px !important;
+  cursor: pointer !important;
+
+  color: var(--select-text) !important;
+  background: transparent !important;
+}
+
+.rs__option--is-focused {
+  background: var(--select-option-hover-bg) !important;
+}
+
+.rs__option--is-selected {
+  background: var(--select-option-selected-bg) !important;
+  color: #fff !important;
+  font-weight: 600 !important;
+}
+
+/* =========================
+   react-international-phone
+   ========================= */
+
+.phone-wrap .react-international-phone-input-container {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  height: 100%;
+}
+
+.phone-wrap .react-international-phone-input {
+  width: 100%;
+  height: 100%;
+  border: 0 !important;
+  background: transparent !important;
+
+  color: var(--field-text) !important;
+  font-size: 18px;
+  outline: none;
+  padding-left: 34px; /* місце під зірочку */
+}
+
+.phone-wrap .react-international-phone-country-selector-button {
+  height: 100%;
+  border: 0 !important;
+  background: transparent !important;
+}
+
+/* dropdown телефону поверх */
+.react-international-phone-country-selector-dropdown {
+  z-index: 999999 !important;
+}
+
+/* =========================
+   GRID
+   ========================= */
+
+.grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   gap: 14px;
 }
 
-/* INPUTS */
-.complete-profile__input,
-.complete-profile__textarea,
-.complete-profile__select {
-  width: 100%;
-  padding: 14px 16px;
-  border-radius: 14px;
+@media (max-width: 680px) {
+  .grid-2 {
+    grid-template-columns: 1fr;
+  }
+}
 
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.18);
+/* =========================
+   SUBMIT BUTTON
+   ========================= */
+
+.btn-gradient.wide {
+  width: 356px;
+  height: 80px;
+  border-radius: 50px;
+  border: 0;
+  margin: 0 auto; 
+  font-size: 18px;
+  font-weight: 700;
   color: #fff;
 
-  font-size: 14px;
-  outline: none;
-}
-
-.complete-profile__input::placeholder,
-.complete-profile__textarea::placeholder {
-  color: rgba(255, 255, 255, 0.5);
-}
-
-.complete-profile__textarea {
-  min-height: 90px;
-  resize: none;
-}
-
-/* ROW 2 */
-.complete-profile__row2 {
-  display: flex;
-  gap: 12px;
-}
-
-/* ERROR */
-.complete-profile__error {
-  padding: 10px 14px;
-  border-radius: 12px;
-
-  background: rgba(255, 79, 177, 0.15);
-  border: 1px solid rgba(255, 79, 177, 0.4);
-
-  font-size: 13px;
-}
-
-/* SAVE BUTTON */
-.complete-profile__save {
-  margin-top: 12px;
-  height: 54px;
-  border-radius: 40px;
-
-  background: linear-gradient(90deg, #ff4fb1, #4f6bff);
-  border: none;
-  color: #fff;
-
-  font-size: 15px;
-  font-weight: 600;
   cursor: pointer;
+  background: linear-gradient(90deg, #4f6bff, #b05cff 52%, #ff4fb1);
 }
 
-.complete-profile__save:disabled {
-  opacity: 0.6;
+.btn-gradient.wide:disabled {
+  opacity: 0.55;
   cursor: not-allowed;
 }
+/* =========================
+   MOBILE (Figma iPhone 13/14)
+   ========================= */
+@media (max-width: 480px) {
+  .complete-profile {
+    padding: 16px 14px 26px;
+  }
 
-/* MOBILE */
-@media (max-width: 420px) {
-  .complete-profile__row2 {
-    flex-direction: column;
+  .complete-profile__form {
+    max-width: 420px; /* щоб не тягнулося */
+    gap: 18px;        /* ближче як у макеті */
+  }
+
+  /* ===== Header ===== */
+  .cp-head {
+    gap: 6px;
+    padding: 4px 0 6px;
+  }
+
+  .cp-head__title {
+    font-size: 22px;      /* в макеті маленький заголовок */
+    font-weight: 700;
+    letter-spacing: 0.2px;
+  }
+
+  .cp-avatar__ring {
+    width: 92px;          /* мобільний аватар */
+    height: 92px;
+    padding: 3px;
+  }
+
+  .cp-avatar__ring::before {
+    inset: 3px;
+  }
+
+  .cp-avatar__dot {
+    top: 8px;
+    right: 10px;
+    width: 10px;
+    height: 10px;
+  }
+
+  .cp-head__link {
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  .cp-head__note {
+    font-size: 11px;
+    opacity: 0.6;
+    text-align: center;
+  }
+
+  .cp-head__actions {
+    gap: 10px;
+  }
+
+  .cp-pill {
+    width: 118px;
+    height: 30px;
+    border-radius: 999px;
+    font-size: 12px;
+    line-height: 1;
+  }
+
+  /* ===== Fields ===== */
+  .field {
+    gap: 6px;
+  }
+
+  .field__wrap {
+    height: 40px;          /* як у фігмі */
+    border-radius: 10px;    /* Figma radius 10 */
+  }
+
+  .field__wrap::before {
+    border-radius: 9px;
+  }
+
+  /* textarea */
+  .field__wrap:has(.text-area) {
+    height: auto;
+  }
+
+  .text-input,
+  .text-area {
+    font-size: 13px;
+    padding: 10px 12px 10px 22px; /* місце під зірочку */
+  }
+
+  .text-area {
+    padding-top: 10px;
+    min-height: 84px;
+  }
+
+  .field__star {
+    left: 8px;
+    top: 8px;
+    font-size: 14px;
+  }
+
+  .field__hint {
+    font-size: 12px;
+    padding-left: 6px;
+  }
+
+  /* ===== react-select ===== */
+  .select-wrap .rs__value-container {
+    padding-left: 22px !important;
+  }
+
+  /* меню (portal) */
+  .rs__menu-portal {
+    z-index: 999999 !important;
+  }
+
+  .rs__menu {
+    font-size: 13px !important;
+  }
+
+  .rs__option {
+    font-size: 13px !important;
+    padding: 10px 12px !important;
+    border-radius: 10px !important;
+  }
+
+  /* ===== phone ===== */
+  .phone-wrap .react-international-phone-input {
+    font-size: 13px;
+    padding-left: 28px; /* під зірочку */
+  }
+
+  .react-international-phone-country-selector-button {
+    transform: scale(0.92);
+    transform-origin: left center;
+  }
+
+  /* ===== Grid country/city ===== */
+  .grid-2 {
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  /* ===== Submit button (Figma) ===== */
+  .btn-gradient.wide {
+    width: 356px;
+    max-width: 100%;
+    height: 80px;
+    border-radius: 50px;
+    margin: 10px auto 0;
+    font-size: 16px;
   }
 }
