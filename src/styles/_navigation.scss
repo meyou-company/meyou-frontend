@@ -2,19 +2,17 @@
    BACK ARROW — GLOBAL
    icon only, glow like logo
    ========================= */
-
 .back-arrow {
-  position: absolute;
-  top: 4px;
-  left: 4px;
+   position: fixed !important;
+  top: 62px !important;
+  left: 62px !important;
 
-  padding: 8px;
-  border: 0;
-  background: transparent;
-  cursor: pointer;
+  right: auto !important;
+  bottom: auto !important;
 
-  display: grid;
-  place-items: center;
+  margin: 8 !important;
+  transform: none !important;
+
 
   /* базовий колір — як кнопка */
   color: #ff4fb1;

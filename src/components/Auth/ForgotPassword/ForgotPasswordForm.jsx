@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import "./ForgotPasswordForm.scss";
 import { useAuthStore } from "../../../zustand/useAuthStore";
 
+import { useForceDarkTheme } from "../../../hooks/useForceDarkTheme";
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/i;
 
 export default function ForgotPasswordForm({ onBack, onSuccess }) {
@@ -72,6 +73,7 @@ export default function ForgotPasswordForm({ onBack, onSuccess }) {
     }
   };
 
+useForceDarkTheme();
   return (
     <section className="forgot auth">
       <button
