@@ -353,7 +353,9 @@
     grid-template-columns: 1fr;
   }
 }
-
+  .cp-topbar__brand {
+    font-size: 34px;
+  }
 /* =========================
    SUBMIT BUTTON
    ========================= */
@@ -526,6 +528,163 @@
     height: 80px;
     border-radius: 50px;
     margin: 10px auto 0;
+    font-size: 16px;
+  }
+}
+.cp-topbar {
+  position: relative;
+  height: 52px;
+  display: flex;
+  align-items: center;
+}
+
+/* стрілка зліва */
+.back-arrow {
+  position: relative;
+  z-index: 2;
+}
+
+/* ME YOU завжди по центру */
+.cp-topbar__brand {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 30px;
+  font-weight: 800;
+  letter-spacing: 0.8px;
+  color: #ff4fb1;
+  pointer-events: none;
+}
+
+/* ✅ DarkMode завжди справа */
+.cp-topbar__right {
+  margin-left: auto;     /* штовхає вправо */
+  width: 44px;           /* така ж ширина як у стрілки → симетрія */
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  z-index: 1;
+}
+
+/* якщо ThemeToggleDark має absolute всередині — прибиваємо */
+.cp-topbar__right * {
+  position: relative !important;
+}
+
+/* divider під хедером */
+.cp-divider {
+  width: 100%;
+  height: 1px;
+  margin: 0 0 14px;
+  background: rgba(0, 0, 0, 0.12);
+}
+/* =========================
+   SMALL MOBILE (320px)
+   ========================= */
+@media (max-width: 360px) {
+  .complete-profile {
+    padding: 14px 12px 22px;
+  }
+
+  .complete-profile__form {
+    gap: 14px;
+  }
+
+  /* ===== TOP BAR ===== */
+  .cp-topbar {
+    height: 46px;
+  }
+
+  .cp-topbar__brand {
+    font-size: 18px; /* у тебе зараз 30px — на 320 буде завелике */
+    letter-spacing: 0.6px;
+  }
+
+  .cp-topbar__right {
+    width: 40px;
+    height: 40px;
+  }
+
+  /* divider трохи ближче */
+  .cp-divider {
+    margin: 0 0 10px;
+  }
+
+  /* ===== Header / Avatar ===== */
+  .cp-head {
+    gap: 6px;
+    padding: 2px 0 4px;
+  }
+
+  .cp-head__title {
+    font-size: 20px;
+  }
+
+  .cp-avatar__ring {
+    width: 84px;
+    height: 84px;
+  }
+
+  .cp-head__link {
+    font-size: 13px;
+  }
+
+  .cp-head__note {
+    font-size: 10px;
+  }
+
+  /* дві кнопки під аватаром — щоб не ламались */
+  .cp-head__actions {
+    gap: 8px;
+  }
+
+  .cp-pill {
+    width: 108px;
+    height: 30px;
+    font-size: 12px;
+  }
+
+  /* ===== Fields ===== */
+  .field__wrap {
+    height: 38px;
+    border-radius: 10px;
+  }
+
+  .field__wrap::before {
+    border-radius: 9px;
+  }
+
+  .text-input,
+  .text-area {
+    font-size: 13px;
+    padding: 9px 10px 9px 20px;
+  }
+
+  .field__star {
+    left: 7px;
+    top: 7px;
+    font-size: 13px;
+  }
+
+  /* phone */
+  .phone-wrap .react-international-phone-input {
+    font-size: 13px;
+    padding-left: 26px;
+  }
+
+  /* ===== Grid country/city ===== */
+  .grid-2 {
+    grid-template-columns: 1fr; /* на 320 краще в одну колонку */
+    gap: 10px;
+  }
+
+  /* ===== Submit button ===== */
+  .btn-gradient.wide {
+    width: 100%;
+    height: 48px;
+    border-radius: 999px;
     font-size: 16px;
   }
 }

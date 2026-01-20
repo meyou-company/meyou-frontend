@@ -29,7 +29,7 @@ const EMPTY = {
   city: null, // option
 };
 
-export default function CompleteProfileForm() {
+export default function CompleteProfileForm({onBack}) {
   const [values, setValues] = useState(EMPTY);
   const [touched, setTouched] = useState({});
   const [errors, setErrors] = useState({});
@@ -270,12 +270,43 @@ export default function CompleteProfileForm() {
       setIsSubmitting(false);
     }
   };
+const handleBack = () => {
+  if (onBack) onBack();
+  else window.history.back();
+};
 
   return (
     <div className="complete-profile">
-      <ThemeToggleDark className="absolute top-4 right-4 z-50" />
+      
 
       <form className="complete-profile__form" onSubmit={handleSubmit}>
+        <div className="cp-topbar">
+  {/* LEFT — BACK */}
+  <button
+    type="button"
+    className="back-arrow"
+    onClick={handleBack}
+    aria-label="Назад"
+  >
+    <img
+      src="/icon1/Vector.png"
+      alt=""
+      aria-hidden="true"
+      className="back-arrow__icon"
+    />
+  </button>
+
+  {/* CENTER — LOGO */}
+  <div className="cp-topbar__brand">ME YOU</div>
+
+  {/* RIGHT — DARK MODE */}
+  <div className="cp-topbar__right">
+    <ThemeToggleDark />
+  </div>
+</div>
+
+<div className="cp-divider" />
+
         <div className="complete-profile__top-actions">
           <div className="cp-head">
             <div className="cp-head__title">Профіль</div>

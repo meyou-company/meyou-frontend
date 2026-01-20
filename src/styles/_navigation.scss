@@ -5,8 +5,8 @@
 
 .back-arrow {
   position: absolute;
-  top: 18px;
-  left: 14px;
+  top: 4px;
+  left: 4px;
 
   padding: 8px;
   border: 0;
@@ -56,7 +56,7 @@
    ========================= */
 @media (max-width: 420px) {
   .back-arrow {
-    top: 12px;
+    top: 2px;
     left: 10px;
     padding: 6px;
   }
@@ -72,7 +72,7 @@
    ========================= */
 @media (max-width: 360px) {
   .back-arrow {
-    top: 10px;
+    top: 2px;
     left: 8px;
   }
 
@@ -87,8 +87,8 @@
    ========================= */
 @media (min-width: 768px) {
   .back-arrow {
-    top: 22px;
-    left: 18px;
+    top: 6px;
+    left: 4px;
   }
 
   .back-arrow__icon {
@@ -102,8 +102,8 @@
    ========================= */
 @media (min-width: 1024px) {
   .back-arrow {
-    top: 26px;
-    left: 22px;
+    top: 6px;
+    left: 4px;
   }
 
   .back-arrow__icon {
