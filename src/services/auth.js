@@ -1,6 +1,7 @@
 import { api, setAccessToken } from "./api";
 
 export const authApi = {
+  // ===== AUTH =====
   async register(payload) {
     const { data } = await api.post("/auth/register", payload);
     if (data?.accessToken) setAccessToken(data.accessToken);
@@ -14,6 +15,7 @@ export const authApi = {
   },
 
   async refresh() {
+    // refresh працює через cookie + JwtRefreshGuard
     const { data } = await api.post("/auth/refresh");
     if (data?.accessToken) setAccessToken(data.accessToken);
     return data;
@@ -29,11 +31,13 @@ export const authApi = {
     setAccessToken(null);
   },
 
+  // ===== USER =====
   async me() {
     const { data } = await api.get("/users/me");
     return data;
   },
 
+  // ===== EMAIL VERIFICATION (❗ НЕ ЧІПАЄМО) =====
   async verifyEmail(code) {
     const { data } = await api.post("/verification/verify", { code });
     return data;
@@ -49,7 +53,7 @@ export const authApi = {
     return data;
   },
 
-
+  // ===== PASSWORD RESET =====
   async verifyResetCode({ email, code }) {
     const { data } = await api.post("/auth/verify-reset-code", {
       email,

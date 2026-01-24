@@ -1,7 +1,10 @@
+
 export const maritalStatusOptions = [
-  { value: "SINGLE", label: "Не одружений/не заміжня" },
-  { value: "MARRIED", label: "Одружений/заміжня" },
-  { value: "DIVORCED", label: "Розлучений/розлучена" },
+  { value: "SINGLE", label: "Неодружений/Неодружена" },
+  { value: "MARRIED", label: "Одружений/Заміжня" },
+  { value: "DIVORCED", label: "Розлучений/Розлучена" },
+  { value: "WIDOWED", label: "Вдівець/Вдова" },
+  { value: "IN_RELATIONSHIP", label: "У стосунках" },
 ];
 
 export const hobbyOptions = [

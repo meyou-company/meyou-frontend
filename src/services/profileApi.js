@@ -1,8 +1,8 @@
 import { api } from "./api";
 
 export const profileApi = {
-  async getProfile() {
-    const { data } = await api.get("/profile");
+  async getProfileStatus() {
+    const { data } = await api.get("/users/profile/status");
     return data;
   },
 
@@ -11,8 +11,8 @@ export const profileApi = {
     return data;
   },
 
-  async getProfileStatus() {
-    const { data } = await api.get("/users/profile/status");
+  async updateProfile(payload) {
+    const { data } = await api.put("/users/profile", payload);
     return data;
   },
 };

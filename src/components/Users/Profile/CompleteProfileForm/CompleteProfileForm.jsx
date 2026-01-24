@@ -7,14 +7,12 @@ import "react-international-phone/style.css";
 import { profileApi } from "../../../../services/profileApi";
 import { locationApi } from "../../../../services/locationApi";
 
-import {
-  hobbyOptions,
-  maritalStatusOptions,
-} from "../../../../utils/profileOptions";
+import { hobbyOptions, maritalStatusOptions } from "../../../../utils/profileOptions";
 import { validateCompleteProfile } from "../../../../utils/validationCompleteProfile";
 
 import "./CompleteProfileForm.scss";
 import ThemeToggleDark from "../../../../components/ThemeToggleDark/ThemeToggleDark";
+import { useAuthStore } from "../../../../zustand/useAuthStore";
 
 const EMPTY = {
   firstName: "",
@@ -24,38 +22,48 @@ const EMPTY = {
   username: "",
   bio: "",
   hobbies: [],
-  maritalStatus: null, // option
-  country: null, // option
-  city: null, // option
+  maritalStatus: null,
+  country: null,
+  city: null,
 };
+const normalizePhone = (s = "") => s.replace(/[^\d+]/g, "");
 
-export default function CompleteProfileForm({onBack}) {
+export default function CompleteProfileForm({ onBack, onSuccess }) {
   const [values, setValues] = useState(EMPTY);
   const [touched, setTouched] = useState({});
   const [errors, setErrors] = useState({});
+  const [submitError, setSubmitError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const [profileCompleted, setProfileCompleted] = useState(false);
 
   const [countryOptions, setCountryOptions] = useState([]);
   const [cityOptions, setCityOptions] = useState([]);
   const [isCitiesLoading, setIsCitiesLoading] = useState(false);
 
-  // avatar (preview + file)
+  const refreshMe = useAuthStore((s) => s.refreshMe);
+
+  // avatar
   const fileRef = useRef(null);
   const [avatarFile, setAvatarFile] = useState(null);
   const [avatarPreview, setAvatarPreview] = useState("");
 
-  // ✅ react-select portal (щоб меню НЕ обрізалось)
-  const selectPortalTarget =
-    typeof window !== "undefined" ? document.body : null;
+  // cleanup preview url
+  useEffect(() => {
+    return () => {
+      if (avatarPreview) URL.revokeObjectURL(avatarPreview);
+    };
+  }, [avatarPreview]);
+
+  // react-select portal
+  const selectPortalTarget = typeof window !== "undefined" ? document.body : null;
 
   const selectCommonProps = useMemo(() => {
     if (!selectPortalTarget) return {};
     return {
       menuPortalTarget: selectPortalTarget,
       menuPosition: "fixed",
-      styles: {
-        menuPortal: (base) => ({ ...base, zIndex: 9999 }),
-      },
+      styles: { menuPortal: (base) => ({ ...base, zIndex: 9999 }) },
     };
   }, [selectPortalTarget]);
 
@@ -71,49 +79,52 @@ export default function CompleteProfileForm({onBack}) {
     };
   }, []);
 
-  // prefill from backend if exists
+  // ✅ prefill from backend: GET /users/profile/status
   useEffect(() => {
     let alive = true;
 
     (async () => {
       try {
-        const p = await profileApi.getProfile();
-        if (!alive || !p) return;
+        const res = await profileApi.getProfileStatus(); // { profileCompleted, user }
+        if (!alive || !res?.user) return;
 
-        // hobbies: ["Спорт"...]
-        const hobbiesSelected = Array.isArray(p.hobbies)
-          ? hobbyOptions.filter((o) => p.hobbies.includes(o.value))
+        setProfileCompleted(Boolean(res.profileCompleted));
+
+        const u = res.user;
+
+        const hobbiesSelected = Array.isArray(u.hobbies)
+          ? hobbyOptions.filter((o) => u.hobbies.includes(o.value))
           : [];
 
         const maritalSelected =
-          maritalStatusOptions.find((o) => o.value === p.maritalStatus) || null;
+          maritalStatusOptions.find((o) => o.value === u.maritalStatus) || null;
 
-        const countrySelected = p.country
-          ? { value: p.country, label: p.country }
-          : null;
-
-        const citySelected = p.city ? { value: p.city, label: p.city } : null;
+        const countrySelected = u.country ? { value: u.country, label: u.country } : null;
+        const citySelected = u.city ? { value: u.city, label: u.city } : null;
 
         setValues((prev) => ({
           ...prev,
-          firstName: p.firstName || "",
-          lastName: p.lastName || "",
-          phone: p.phone || "",
-          nationality: p.nationality || "",
-          username: p.username || "",
-          bio: p.bio || "",
+          firstName: u.firstName || "",
+          lastName: u.lastName || "",
+          phone: u.phone || "",
+          nationality: u.nationality || "",
+          username: u.username || "",
+          bio: u.bio || "",
           hobbies: hobbiesSelected,
           maritalStatus: maritalSelected,
           country: countrySelected,
           city: citySelected,
         }));
 
-        // якщо є країна — підвантажимо міста і поставимо список
-        if (p.country) {
+        // load cities if country exists
+        if (u.country) {
           setIsCitiesLoading(true);
-          const cities = await locationApi.getCitiesByCountry(p.country);
+          const cities = await locationApi.getCitiesByCountry(u.country);
           if (!alive) return;
           setCityOptions(cities);
+          setIsCitiesLoading(false);
+        } else {
+          setCityOptions([]);
         }
       } catch {
         // ignore
@@ -133,6 +144,7 @@ export default function CompleteProfileForm({onBack}) {
 
     (async () => {
       const countryName = values.country?.value;
+
       if (!countryName) {
         setCityOptions([]);
         setValues((v) => ({ ...v, city: null }));
@@ -143,9 +155,9 @@ export default function CompleteProfileForm({onBack}) {
       try {
         const cities = await locationApi.getCitiesByCountry(countryName);
         if (!alive) return;
+
         setCityOptions(cities);
 
-        // якщо місто вже було і є в опціях — залишимо
         const currentCity = values.city?.value;
         if (currentCity && cities.some((c) => c.value === currentCity)) return;
 
@@ -173,11 +185,11 @@ export default function CompleteProfileForm({onBack}) {
 
   const setField = (key, val) => {
     setValues((v) => ({ ...v, [key]: val }));
+    setSubmitError("");
   };
 
   const showError = (key) => Boolean(touched[key] && errors[key]);
 
-  // ⭐ показуємо, якщо required і (порожньо або є помилка після взаємодії)
   const showStar = (key) => {
     const requiredKeys = [
       "lastName",
@@ -189,11 +201,9 @@ export default function CompleteProfileForm({onBack}) {
       "country",
       "city",
     ];
-
     if (!requiredKeys.includes(key)) return false;
 
     const v = values[key];
-
     const isEmpty =
       v === null ||
       v === undefined ||
@@ -214,98 +224,95 @@ export default function CompleteProfileForm({onBack}) {
 
     setAvatarFile(f);
 
-    // preview
+    // revoke old preview
+    if (avatarPreview) URL.revokeObjectURL(avatarPreview);
+
     const url = URL.createObjectURL(f);
     setAvatarPreview(url);
   };
 
   const handleSaveAvatar = async () => {
     if (!avatarFile) return;
-
-    try {
-      // ✅ якщо у тебе є ендпоінт на бекенді - розкоментуй та зроби метод:
-      // const fd = new FormData();
-      // fd.append("file", avatarFile);
-      // await profileApi.uploadAvatar(fd);
-
-      // Поки бекенду немає — просто показуємо preview
-      console.log("avatar ready:", avatarFile);
-    } catch (e) {
-      console.error(e);
-    }
+    // поки немає ендпоінта — просто preview
+    console.log("avatar ready:", avatarFile);
   };
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  setSubmitError("");
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const allTouched = {
+    firstName: true,
+    lastName: true,
+    phone: true,
+    nationality: true,
+    username: true,
+    bio: true,
+    hobbies: true,
+    maritalStatus: true,
+    country: true,
+    city: true,
+  };
+  setTouched(allTouched);
 
-    const allTouched = {
-      firstName: true,
-      lastName: true,
-      phone: true,
-      nationality: true,
-      username: true,
-      bio: true,
-      hobbies: true,
-      maritalStatus: true,
-      country: true,
-      city: true,
-    };
-    setTouched(allTouched);
+  const normalized = normalizeForValidation(values);
+  const nextErrors = validateCompleteProfile(normalized);
+  setErrors(nextErrors);
+  if (Object.keys(nextErrors).length > 0) return;
 
-    const normalized = normalizeForValidation(values);
-    const nextErrors = validateCompleteProfile(normalized);
-    setErrors(nextErrors);
+  const payload = toBackendPayload(values);
 
-    if (Object.keys(nextErrors).length > 0) return;
+  try {
+    setIsSubmitting(true);
 
-    const payload = toBackendPayload(values);
-
-    try {
-      setIsSubmitting(true);
+    // 1) save profile
+    if (profileCompleted) {
+      await profileApi.updateProfile(payload);
+    } else {
       await profileApi.completeProfile(payload);
-      // тут можеш router.push("/profile") або куди треба
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setIsSubmitting(false);
     }
-  };
-const handleBack = () => {
-  if (onBack) onBack();
-  else window.history.back();
+
+    // 2) try refresh user (optional)
+    try {
+      await refreshMe();
+    } catch (e) {
+      console.warn("refreshMe failed", e);
+    }
+
+    // 3) navigate anyway
+    onSuccess?.();
+  } catch (err) {
+    const msg =
+      err?.response?.data?.message?.[0] ||
+      err?.response?.data?.message ||
+      err?.message ||
+      "Помилка збереження профілю";
+    setSubmitError(msg);
+  } finally {
+    setIsSubmitting(false);
+  }
 };
+
+  const handleBack = () => {
+    if (onBack) onBack();
+    else window.history.back();
+  };
 
   return (
     <div className="complete-profile">
-      
-
       <form className="complete-profile__form" onSubmit={handleSubmit}>
         <div className="cp-topbar">
-  {/* LEFT — BACK */}
-  <button
-    type="button"
-    className="back-arrow"
-    onClick={handleBack}
-    aria-label="Назад"
-  >
-    <img
-      src="/icon1/Vector.png"
-      alt=""
-      aria-hidden="true"
-      className="back-arrow__icon"
-    />
-  </button>
+          <button type="button" className="back-arrow" onClick={handleBack} aria-label="Назад">
+            <img src="/icon1/Vector.png" alt="" aria-hidden="true" className="back-arrow__icon" />
+          </button>
 
-  {/* CENTER — LOGO */}
-  <div className="cp-topbar__brand">ME YOU</div>
+          <div className="cp-topbar__brand">ME YOU</div>
 
-  {/* RIGHT — DARK MODE */}
-  <div className="cp-topbar__right">
-    <ThemeToggleDark />
-  </div>
-</div>
+          <div className="cp-topbar__right">
+            <ThemeToggleDark />
+          </div>
+        </div>
 
-<div className="cp-divider" />
+        <div className="cp-divider" />
 
         <div className="complete-profile__top-actions">
           <div className="cp-head">
@@ -314,11 +321,7 @@ const handleBack = () => {
             <div className="cp-avatar">
               <div className="cp-avatar__ring">
                 {avatarPreview ? (
-                  <img
-                    className="cp-avatar__img"
-                    src={avatarPreview}
-                    alt="avatar"
-                  />
+                  <img className="cp-avatar__img" src={avatarPreview} alt="avatar" />
                 ) : (
                   <div className="cp-avatar__placeholder" aria-hidden="true">
                     <svg viewBox="0 0 24 24" width="54" height="54">
@@ -331,41 +334,28 @@ const handleBack = () => {
                     </svg>
                   </div>
                 )}
-
                 <span className="cp-avatar__dot" />
               </div>
             </div>
 
             <div className="cp-head__link">Додати фото профіля</div>
-            <div className="cp-head__note">
-              *профілі з фото отримають більше переглядів
-            </div>
+            <div className="cp-head__note">*профілі з фото отримають більше переглядів</div>
 
             <div className="cp-head__actions">
-              <input
-                ref={fileRef}
-                type="file"
-                accept="image/*"
-                hidden
-                onChange={handleAvatarChange}
-              />
+              <input ref={fileRef} type="file" accept="image/*" hidden onChange={handleAvatarChange} />
 
               <button type="button" className="cp-pill" onClick={handlePickAvatar}>
                 Загрузить
               </button>
 
-              <button
-                type="button"
-                className="cp-pill"
-                disabled={!avatarFile}
-                onClick={handleSaveAvatar}
-              >
+              <button type="button" className="cp-pill" disabled={!avatarFile} onClick={handleSaveAvatar}>
                 Сохранить
               </button>
             </div>
           </div>
         </div>
 
+        {/* LAST NAME */}
         <div className="field">
           <div className="field__wrap">
             {showStar("lastName") && <span className="field__star">*</span>}
@@ -377,11 +367,10 @@ const handleBack = () => {
               onBlur={() => onBlur("lastName")}
             />
           </div>
-          {showError("lastName") && (
-            <div className="field__hint">{errors.lastName}</div>
-          )}
+          {showError("lastName") && <div className="field__hint">{errors.lastName}</div>}
         </div>
 
+        {/* FIRST NAME */}
         <div className="field">
           <div className="field__wrap">
             {showStar("firstName") && <span className="field__star">*</span>}
@@ -393,29 +382,26 @@ const handleBack = () => {
               onBlur={() => onBlur("firstName")}
             />
           </div>
-          {showError("firstName") && (
-            <div className="field__hint">{errors.firstName}</div>
-          )}
+          {showError("firstName") && <div className="field__hint">{errors.firstName}</div>}
         </div>
 
         {/* PHONE */}
-    
         <div className="field">
           <div className="field__wrap phone-wrap">
             {showStar("phone") && <span className="field__star">*</span>}
             <PhoneInput
-  defaultCountry="ua"
-  value={values.phone}
-  onChange={(val) => setField("phone", val)}
-  onBlur={() => onBlur("phone")}
-  inputClassName={`phone-input ${showError("phone") ? "is-error" : ""}`}
-/>
-
-
+              defaultCountry="ua"
+              value={values.phone}
+            
+               onChange={(val) => setField("phone", normalizePhone(val))}
+              onBlur={() => onBlur("phone")}
+              inputClassName={`phone-input ${showError("phone") ? "is-error" : ""}`}
+            />
           </div>
           {showError("phone") && <div className="field__hint">{errors.phone}</div>}
         </div>
 
+        {/* NATIONALITY */}
         <div className="field">
           <div className="field__wrap">
             {showStar("nationality") && <span className="field__star">*</span>}
@@ -427,11 +413,10 @@ const handleBack = () => {
               onBlur={() => onBlur("nationality")}
             />
           </div>
-          {showError("nationality") && (
-            <div className="field__hint">{errors.nationality}</div>
-          )}
+          {showError("nationality") && <div className="field__hint">{errors.nationality}</div>}
         </div>
 
+        {/* USERNAME */}
         <div className="field">
           <div className="field__wrap">
             <input
@@ -442,11 +427,10 @@ const handleBack = () => {
               onBlur={() => onBlur("username")}
             />
           </div>
-          {showError("username") && (
-            <div className="field__hint">{errors.username}</div>
-          )}
+          {showError("username") && <div className="field__hint">{errors.username}</div>}
         </div>
 
+        {/* BIO */}
         <div className="field">
           <div className="field__wrap">
             <textarea
@@ -493,9 +477,7 @@ const handleBack = () => {
               {...selectCommonProps}
             />
           </div>
-          {showError("maritalStatus") && (
-            <div className="field__hint">{errors.maritalStatus}</div>
-          )}
+          {showError("maritalStatus") && <div className="field__hint">{errors.maritalStatus}</div>}
         </div>
 
         {/* COUNTRY + CITY */}
@@ -513,9 +495,7 @@ const handleBack = () => {
                 {...selectCommonProps}
               />
             </div>
-            {showError("country") && (
-              <div className="field__hint">{errors.country}</div>
-            )}
+            {showError("country") && <div className="field__hint">{errors.country}</div>}
           </div>
 
           <div className="field">
@@ -537,6 +517,8 @@ const handleBack = () => {
           </div>
         </div>
 
+        {submitError && <div className="auth__error">{submitError}</div>}
+
         <button className="btn-gradient wide" disabled={isSubmitting || !canSubmit}>
           {isSubmitting ? "Збереження..." : "Зберегти"}
         </button>
@@ -544,12 +526,11 @@ const handleBack = () => {
     </div>
   );
 }
-
 function normalizeForValidation(v) {
   return {
     firstName: v.firstName,
     lastName: v.lastName,
-    phone: v.phone,
+    phone: normalizePhone(v.phone), // ✅
     nationality: v.nationality,
     username: v.username,
     bio: v.bio,
@@ -559,18 +540,23 @@ function normalizeForValidation(v) {
     city: v.city?.value || "",
   };
 }
-
 function toBackendPayload(v) {
-  return {
+  const payload = {
     firstName: v.firstName.trim(),
     lastName: v.lastName.trim(),
-    phone: v.phone,
+    phone: normalizePhone(v.phone),
     nationality: v.nationality.trim(),
     country: v.country?.value || "",
     city: v.city?.value || "",
-    maritalStatus: v.maritalStatus?.value || "",
-    username: v.username ? v.username.trim() : "",
-    bio: v.bio ? v.bio.trim() : "",
-    hobbies: Array.isArray(v.hobbies) ? v.hobbies.map((x) => x.value) : [],
+    maritalStatus: v.maritalStatus?.value || undefined,
+    bio: v.bio?.trim() || undefined,
   };
+
+  const username = v.username?.trim();
+  if (username) payload.username = username;
+
+  const hobbies = Array.isArray(v.hobbies) ? v.hobbies.map((x) => x.value) : [];
+  if (hobbies.length) payload.hobbies = hobbies;
+
+  return payload;
 }
