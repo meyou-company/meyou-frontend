@@ -429,21 +429,28 @@ const handleSubmit = async (e) => {
           </div>
           {showError("username") && <div className="field__hint">{errors.username}</div>}
         </div>
+{/* BIO */}
+<div className="field">
+  <div className="field__wrap">
+    <textarea
+      className={`text-area ${showError("bio") ? "is-error" : ""}`}
+      placeholder="Про себе (необов'язково)"
+      value={values.bio}
+      onChange={(e) => setField("bio", e.target.value)}
+      onBlur={() => onBlur("bio")}
+      rows={3}
+      maxLength={500}
+    />
+  </div>
 
-        {/* BIO */}
-        <div className="field">
-          <div className="field__wrap">
-            <textarea
-              className={`text-area ${showError("bio") ? "is-error" : ""}`}
-              placeholder="Про себе (необов'язково)"
-              value={values.bio}
-              onChange={(e) => setField("bio", e.target.value)}
-              onBlur={() => onBlur("bio")}
-              rows={3}
-            />
-          </div>
-          {showError("bio") && <div className="field__hint">{errors.bio}</div>}
-        </div>
+  {/* ✅ підказка під полем */}
+  <div className="field__meta">
+    <span className="field__note">*максимум символів </span>
+    <span className="field__counter">{(values.bio || "").length}/500</span>
+  </div>
+
+  {showError("bio") && <div className="field__hint">{errors.bio}</div>}
+</div>
 
         {/* HOBBIES */}
         <div className="field">

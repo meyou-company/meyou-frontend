@@ -324,18 +324,40 @@
   color: var(--field-text) !important;
   font-size: 18px;
   outline: none;
-  padding-left: 34px; /* місце під зірочку */
+  padding-left: 4px; /* місце під зірочку */
 }
 
 .phone-wrap .react-international-phone-country-selector-button {
   height: 100%;
   border: 0 !important;
   background: transparent !important;
+  margin-left: 20px;
+}
+/* =========================
+   PHONE DROPDOWN (correct UX: near flag, but readable)
+   ========================= */
+
+.phone-wrap .react-international-phone-country-selector-button {
+  position: relative;
+  z-index: 3;
 }
 
-/* dropdown телефону поверх */
-.react-international-phone-country-selector-dropdown {
+/* dropdown */
+.phone-wrap .react-international-phone-country-selector-dropdown {
   z-index: 999999 !important;
+
+  /* ✅ нормальна ширина, щоб видно було назви */
+  width: 320px !important;
+  max-width: min(360px, calc(100vw - 40px)) !important;
+
+  background: var(--select-menu-bg) !important;
+  border: 0 !important;
+  border-radius: 16px !important;
+  padding: 6px !important;
+  box-shadow: 0 12px 30px rgba(123, 92, 255, 0.25) !important;
+
+  max-height: 320px !important;
+  overflow: auto !important;
 }
 
 /* =========================
@@ -356,6 +378,8 @@
   .cp-topbar__brand {
     font-size: 34px;
   }
+
+
 /* =========================
    SUBMIT BUTTON
    ========================= */
@@ -507,7 +531,7 @@
   /* ===== phone ===== */
   .phone-wrap .react-international-phone-input {
     font-size: 13px;
-    padding-left: 28px; /* під зірочку */
+    padding-left: 2px; /* під зірочку */
   }
 
   .react-international-phone-country-selector-button {
@@ -671,7 +695,7 @@
   /* phone */
   .phone-wrap .react-international-phone-input {
     font-size: 13px;
-    padding-left: 26px;
+    padding-left: 6px;
   }
 
   /* ===== Grid country/city ===== */
@@ -687,4 +711,21 @@
     border-radius: 999px;
     font-size: 16px;
   }
+}
+.field__meta {
+  margin-top: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.field__note {
+  font-size: 12px;
+  opacity: 0.75;
+}
+
+.field__counter {
+  font-size: 12px;
+  opacity: 0.75;
 }
