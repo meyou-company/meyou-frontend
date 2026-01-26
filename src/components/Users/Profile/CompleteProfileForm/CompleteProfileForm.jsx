@@ -1,8 +1,10 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Select from "react-select";
-
 import { PhoneInput } from "react-international-phone";
 import "react-international-phone/style.css";
+
+import ThemeToggleDark from "../../../../components/ThemeToggleDark/ThemeToggleDark";
+import { useAuthStore } from "../../../../zustand/useAuthStore";
 
 import { profileApi } from "../../../../services/profileApi";
 import { locationApi } from "../../../../services/locationApi";
@@ -10,9 +12,14 @@ import { locationApi } from "../../../../services/locationApi";
 import { hobbyOptions, maritalStatusOptions } from "../../../../utils/profileOptions";
 import { validateCompleteProfile } from "../../../../utils/validationCompleteProfile";
 
+import { useAvatar } from "../../../../hooks/useAvatar";
+import { useLocationOptions } from "../../../../hooks/useLocationOptions";
+import { usePrefillProfile } from "../../../../hooks/usePrefillProfile";
+
+import { normalizeForValidation, toBackendPayload } from "../../../../utils/profilePayload";
+import { normalizePhone } from "../../../../utils/normalizePhone";
+
 import "./CompleteProfileForm.scss";
-import ThemeToggleDark from "../../../../components/ThemeToggleDark/ThemeToggleDark";
-import { useAuthStore } from "../../../../zustand/useAuthStore";
 
 const EMPTY = {
   firstName: "",
@@ -26,7 +33,6 @@ const EMPTY = {
   country: null,
   city: null,
 };
-const normalizePhone = (s = "") => s.replace(/[^\d+]/g, "");
 
 export default function CompleteProfileForm({ onBack, onSuccess }) {
   const [values, setValues] = useState(EMPTY);
@@ -34,144 +40,47 @@ export default function CompleteProfileForm({ onBack, onSuccess }) {
   const [errors, setErrors] = useState({});
   const [submitError, setSubmitError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-
   const [profileCompleted, setProfileCompleted] = useState(false);
-
-  const [countryOptions, setCountryOptions] = useState([]);
-  const [cityOptions, setCityOptions] = useState([]);
-  const [isCitiesLoading, setIsCitiesLoading] = useState(false);
 
   const refreshMe = useAuthStore((s) => s.refreshMe);
 
   // avatar
-  const fileRef = useRef(null);
-  const [avatarFile, setAvatarFile] = useState(null);
-  const [avatarPreview, setAvatarPreview] = useState("");
-
-  // cleanup preview url
-  useEffect(() => {
-    return () => {
-      if (avatarPreview) URL.revokeObjectURL(avatarPreview);
-    };
-  }, [avatarPreview]);
+  const { fileRef, avatarFile, avatarPreview, pickAvatar, onAvatarChange, saveAvatar } = useAvatar();
 
   // react-select portal
   const selectPortalTarget = typeof window !== "undefined" ? document.body : null;
-
   const selectCommonProps = useMemo(() => {
     if (!selectPortalTarget) return {};
     return {
       menuPortalTarget: selectPortalTarget,
       menuPosition: "fixed",
-      styles: { menuPortal: (base) => ({ ...base, zIndex: 9999 }) },
+      styles: { menuPortal: (base) => ({ ...base, zIndex: 9999999 }) },
     };
   }, [selectPortalTarget]);
 
-  // load countries
+  // locations (countries/cities)
+  const [cityOptions, setCityOptions] = useState([]);
+  const [isCitiesLoading, setIsCitiesLoading] = useState(false);
+
+  const { countryOptions, cityOptions: citiesFromHook, isCitiesLoading: citiesLoadingHook } =
+    useLocationOptions(values.country?.value, values.city?.value, setValues);
+
+  // синхронізуємо cityOptions/state (щоб prefill міг їх теж ставити)
   useEffect(() => {
-    let alive = true;
-    locationApi
-      .getCountries()
-      .then((opts) => alive && setCountryOptions(opts))
-      .catch(() => alive && setCountryOptions([]));
-    return () => {
-      alive = false;
-    };
-  }, []);
+    setCityOptions(citiesFromHook);
+    setIsCitiesLoading(citiesLoadingHook);
+  }, [citiesFromHook, citiesLoadingHook]);
 
-  // ✅ prefill from backend: GET /users/profile/status
-  useEffect(() => {
-    let alive = true;
-
-    (async () => {
-      try {
-        const res = await profileApi.getProfileStatus(); // { profileCompleted, user }
-        if (!alive || !res?.user) return;
-
-        setProfileCompleted(Boolean(res.profileCompleted));
-
-        const u = res.user;
-
-        const hobbiesSelected = Array.isArray(u.hobbies)
-          ? hobbyOptions.filter((o) => u.hobbies.includes(o.value))
-          : [];
-
-        const maritalSelected =
-          maritalStatusOptions.find((o) => o.value === u.maritalStatus) || null;
-
-        const countrySelected = u.country ? { value: u.country, label: u.country } : null;
-        const citySelected = u.city ? { value: u.city, label: u.city } : null;
-
-        setValues((prev) => ({
-          ...prev,
-          firstName: u.firstName || "",
-          lastName: u.lastName || "",
-          phone: u.phone || "",
-          nationality: u.nationality || "",
-          username: u.username || "",
-          bio: u.bio || "",
-          hobbies: hobbiesSelected,
-          maritalStatus: maritalSelected,
-          country: countrySelected,
-          city: citySelected,
-        }));
-
-        // load cities if country exists
-        if (u.country) {
-          setIsCitiesLoading(true);
-          const cities = await locationApi.getCitiesByCountry(u.country);
-          if (!alive) return;
-          setCityOptions(cities);
-          setIsCitiesLoading(false);
-        } else {
-          setCityOptions([]);
-        }
-      } catch {
-        // ignore
-      } finally {
-        alive && setIsCitiesLoading(false);
-      }
-    })();
-
-    return () => {
-      alive = false;
-    };
-  }, []);
-
-  // when country changes -> load cities
-  useEffect(() => {
-    let alive = true;
-
-    (async () => {
-      const countryName = values.country?.value;
-
-      if (!countryName) {
-        setCityOptions([]);
-        setValues((v) => ({ ...v, city: null }));
-        return;
-      }
-
-      setIsCitiesLoading(true);
-      try {
-        const cities = await locationApi.getCitiesByCountry(countryName);
-        if (!alive) return;
-
-        setCityOptions(cities);
-
-        const currentCity = values.city?.value;
-        if (currentCity && cities.some((c) => c.value === currentCity)) return;
-
-        setValues((v) => ({ ...v, city: null }));
-      } finally {
-        alive && setIsCitiesLoading(false);
-      }
-    })();
-
-    return () => {
-      alive = false;
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [values.country?.value]);
+  // prefill profile
+  usePrefillProfile({
+    setProfileCompleted,
+    setValues,
+    hobbyOptions,
+    maritalStatusOptions,
+    setCityOptions,
+    setIsCitiesLoading,
+    locationApi,
+  });
 
   // validate on change
   useEffect(() => {
@@ -191,16 +100,7 @@ export default function CompleteProfileForm({ onBack, onSuccess }) {
   const showError = (key) => Boolean(touched[key] && errors[key]);
 
   const showStar = (key) => {
-    const requiredKeys = [
-      "lastName",
-      "firstName",
-      "phone",
-      "nationality",
-      "hobbies",
-      "maritalStatus",
-      "country",
-      "city",
-    ];
+    const requiredKeys = ["lastName", "firstName", "phone", "nationality", "hobbies", "maritalStatus", "country", "city"];
     if (!requiredKeys.includes(key)) return false;
 
     const v = values[key];
@@ -212,85 +112,57 @@ export default function CompleteProfileForm({ onBack, onSuccess }) {
 
     if (isEmpty) return true;
     if (touched[key] && errors[key]) return true;
-
     return false;
   };
 
-  const handlePickAvatar = () => fileRef.current?.click();
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setSubmitError("");
 
-  const handleAvatarChange = (e) => {
-    const f = e.target.files?.[0];
-    if (!f) return;
+    setTouched({
+      firstName: true,
+      lastName: true,
+      phone: true,
+      nationality: true,
+      username: true,
+      bio: true,
+      hobbies: true,
+      maritalStatus: true,
+      country: true,
+      city: true,
+    });
 
-    setAvatarFile(f);
+    const normalized = normalizeForValidation(values);
+    const nextErrors = validateCompleteProfile(normalized);
+    setErrors(nextErrors);
+    if (Object.keys(nextErrors).length > 0) return;
 
-    // revoke old preview
-    if (avatarPreview) URL.revokeObjectURL(avatarPreview);
+    const payload = toBackendPayload(values);
 
-    const url = URL.createObjectURL(f);
-    setAvatarPreview(url);
-  };
-
-  const handleSaveAvatar = async () => {
-    if (!avatarFile) return;
-    // поки немає ендпоінта — просто preview
-    console.log("avatar ready:", avatarFile);
-  };
-const handleSubmit = async (e) => {
-  e.preventDefault();
-  setSubmitError("");
-
-  const allTouched = {
-    firstName: true,
-    lastName: true,
-    phone: true,
-    nationality: true,
-    username: true,
-    bio: true,
-    hobbies: true,
-    maritalStatus: true,
-    country: true,
-    city: true,
-  };
-  setTouched(allTouched);
-
-  const normalized = normalizeForValidation(values);
-  const nextErrors = validateCompleteProfile(normalized);
-  setErrors(nextErrors);
-  if (Object.keys(nextErrors).length > 0) return;
-
-  const payload = toBackendPayload(values);
-
-  try {
-    setIsSubmitting(true);
-
-    // 1) save profile
-    if (profileCompleted) {
-      await profileApi.updateProfile(payload);
-    } else {
-      await profileApi.completeProfile(payload);
-    }
-
-    // 2) try refresh user (optional)
     try {
-      await refreshMe();
-    } catch (e) {
-      console.warn("refreshMe failed", e);
-    }
+      setIsSubmitting(true);
 
-    // 3) navigate anyway
-    onSuccess?.();
-  } catch (err) {
-    const msg =
-      err?.response?.data?.message?.[0] ||
-      err?.response?.data?.message ||
-      err?.message ||
-      "Помилка збереження профілю";
-    setSubmitError(msg);
-  } finally {
-    setIsSubmitting(false);
-  }
-};
+      if (profileCompleted) await profileApi.updateProfile(payload);
+      else await profileApi.completeProfile(payload);
+
+      try {
+        await refreshMe();
+      } catch (e2) {
+        console.warn("refreshMe failed", e2);
+      }
+
+      onSuccess?.();
+    } catch (err) {
+      const msg =
+        err?.response?.data?.message?.[0] ||
+        err?.response?.data?.message ||
+        err?.message ||
+        "Помилка збереження профілю";
+      setSubmitError(msg);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   const handleBack = () => {
     if (onBack) onBack();
@@ -314,44 +186,37 @@ const handleSubmit = async (e) => {
 
         <div className="cp-divider" />
 
-        <div className="complete-profile__top-actions">
-          <div className="cp-head">
-            <div className="cp-head__title">Профіль</div>
+        {/* header */}
+        <div className="cp-head">
+          <div className="cp-head__title">Профіль</div>
 
-            <div className="cp-avatar">
-              <div className="cp-avatar__ring">
-                {avatarPreview ? (
-                  <img className="cp-avatar__img" src={avatarPreview} alt="avatar" />
-                ) : (
-                  <div className="cp-avatar__placeholder" aria-hidden="true">
-                    <svg viewBox="0 0 24 24" width="54" height="54">
-                      <path
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="1.6"
-                        d="M12 12c2.2 0 4-1.8 4-4s-1.8-4-4-4-4 1.8-4 4 1.8 4 4 4Zm0 2c-3.9 0-7 2.1-7 4.6V20h14v-1.4c0-2.5-3.1-4.6-7-4.6Z"
-                      />
-                    </svg>
-                  </div>
-                )}
-                <span className="cp-avatar__dot" />
-              </div>
+          <div className="cp-avatar">
+            <div className="cp-avatar__ring">
+              {avatarPreview ? (
+                <img className="cp-avatar__img" src={avatarPreview} alt="avatar" />
+              ) : (
+                <div className="cp-avatar__placeholder" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="54" height="54">
+                    <path
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.6"
+                      d="M12 12c2.2 0 4-1.8 4-4s-1.8-4-4-4-4 1.8-4 4 1.8 4 4 4Zm0 2c-3.9 0-7 2.1-7 4.6V20h14v-1.4c0-2.5-3.1-4.6-7-4.6Z"
+                    />
+                  </svg>
+                </div>
+              )}
+              <span className="cp-avatar__dot" />
             </div>
+          </div>
 
-            <div className="cp-head__link">Додати фото профіля</div>
-            <div className="cp-head__note">*профілі з фото отримають більше переглядів</div>
+          <div className="cp-head__link">Додати фото профіля</div>
+          <div className="cp-head__note">*профілі з фото отримають більше переглядів</div>
 
-            <div className="cp-head__actions">
-              <input ref={fileRef} type="file" accept="image/*" hidden onChange={handleAvatarChange} />
-
-              <button type="button" className="cp-pill" onClick={handlePickAvatar}>
-                Загрузить
-              </button>
-
-              <button type="button" className="cp-pill" disabled={!avatarFile} onClick={handleSaveAvatar}>
-                Сохранить
-              </button>
-            </div>
+          <div className="cp-head__actions">
+            <input ref={fileRef} type="file" accept="image/*" hidden onChange={onAvatarChange} />
+            <button type="button" className="cp-pill" onClick={pickAvatar}>Загрузить</button>
+            <button type="button" className="cp-pill" disabled={!avatarFile} onClick={saveAvatar}>Сохранить</button>
           </div>
         </div>
 
@@ -392,16 +257,14 @@ const handleSubmit = async (e) => {
             <PhoneInput
               defaultCountry="ua"
               value={values.phone}
-            
-               onChange={(val) => setField("phone", normalizePhone(val))}
+              onChange={(val) => setField("phone", normalizePhone(val))}
               onBlur={() => onBlur("phone")}
               inputClassName={`phone-input ${showError("phone") ? "is-error" : ""}`}
             />
           </div>
           {showError("phone") && <div className="field__hint">{errors.phone}</div>}
         </div>
-
-        {/* NATIONALITY */}
+{/* NATIONALITY */}
         <div className="field">
           <div className="field__wrap">
             {showStar("nationality") && <span className="field__star">*</span>}
@@ -523,7 +386,7 @@ const handleSubmit = async (e) => {
             {showError("city") && <div className="field__hint">{errors.city}</div>}
           </div>
         </div>
-
+     
         {submitError && <div className="auth__error">{submitError}</div>}
 
         <button className="btn-gradient wide" disabled={isSubmitting || !canSubmit}>
@@ -532,38 +395,4 @@ const handleSubmit = async (e) => {
       </form>
     </div>
   );
-}
-function normalizeForValidation(v) {
-  return {
-    firstName: v.firstName,
-    lastName: v.lastName,
-    phone: normalizePhone(v.phone), // ✅
-    nationality: v.nationality,
-    username: v.username,
-    bio: v.bio,
-    hobbies: Array.isArray(v.hobbies) ? v.hobbies.map((x) => x.value) : [],
-    maritalStatus: v.maritalStatus?.value || "",
-    country: v.country?.value || "",
-    city: v.city?.value || "",
-  };
-}
-function toBackendPayload(v) {
-  const payload = {
-    firstName: v.firstName.trim(),
-    lastName: v.lastName.trim(),
-    phone: normalizePhone(v.phone),
-    nationality: v.nationality.trim(),
-    country: v.country?.value || "",
-    city: v.city?.value || "",
-    maritalStatus: v.maritalStatus?.value || undefined,
-    bio: v.bio?.trim() || undefined,
-  };
-
-  const username = v.username?.trim();
-  if (username) payload.username = username;
-
-  const hobbies = Array.isArray(v.hobbies) ? v.hobbies.map((x) => x.value) : [];
-  if (hobbies.length) payload.hobbies = hobbies;
-
-  return payload;
 }

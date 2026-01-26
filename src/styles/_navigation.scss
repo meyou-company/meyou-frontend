@@ -4,7 +4,7 @@
    ========================= */
 .back-arrow {
    position: fixed;
-  top: 16px;     /* одне значення для всіх екранів */
+  top: 16px;    
   left: 16px;
   z-index: 999999;
   
@@ -58,9 +58,6 @@
 @media (max-width: 420px) {
   .back-arrow {
 
-  top: 2px !important;
-  left: 2px !important;
-  
     padding: 6px;
   }
 
@@ -103,8 +100,8 @@
    ========================= */
 @media (min-width: 1024px) {
   .back-arrow {
-    top: 6px;
-    left: 4px;
+    top: 36px;
+    left: 54px;
   }
 
   .back-arrow__icon {
