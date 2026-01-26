@@ -3,9 +3,11 @@
    icon only, glow like logo
    ========================= */
 .back-arrow {
-   position: fixed !important;
-  top: 62px !important;
-  left: 62px !important;
+   position: fixed;
+  top: 16px;     /* одне значення для всіх екранів */
+  left: 16px;
+  z-index: 999999;
+  
 
   right: auto !important;
   bottom: auto !important;
@@ -29,6 +31,7 @@
   height: 32px;
   display: block;
 }
+
 
 /* =========================
    HOVER / FOCUS — glow як у LOGO
@@ -55,8 +58,8 @@
 @media (max-width: 420px) {
   .back-arrow {
 
-  top: 42px !important;
-  left: 42px !important;
+  top: 2px !important;
+  left: 2px !important;
   
     padding: 6px;
   }
@@ -71,15 +74,13 @@
    SMALL MOBILE (≤360px)
    ========================= */
 @media (max-width: 360px) {
-  .back-arrow {
-    top: 2px;
-    left: 8px;
-  }
+
 
   .back-arrow__icon {
     width: 16px;
     height: 24px;
   }
+
 }
 
 /* =========================
