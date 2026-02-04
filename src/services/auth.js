@@ -70,4 +70,23 @@ export const authApi = {
     });
     return data;
   },
+ 
+
+   async uploadAvatar(file) {
+    const fd = new FormData();
+    fd.append("avatar", file); 
+
+    const { data } = await api.post("/users/avatar", fd, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+
+    return data; 
+  },
+
+  async deleteAvatar() {
+    const { data } = await api.delete("/users/avatar");
+    return data; 
+  },
+
+
 };

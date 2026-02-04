@@ -1,3 +1,4 @@
+
 import { useEffect, useMemo, useState } from "react";
 import Select from "react-select";
 import { PhoneInput } from "react-international-phone";
@@ -12,12 +13,15 @@ import { locationApi } from "../../../../services/locationApi";
 import { hobbyOptions, maritalStatusOptions } from "../../../../utils/profileOptions";
 import { validateCompleteProfile } from "../../../../utils/validationCompleteProfile";
 
-import { useAvatar } from "../../../../hooks/useAvatar";
 import { useLocationOptions } from "../../../../hooks/useLocationOptions";
 import { usePrefillProfile } from "../../../../hooks/usePrefillProfile";
 
 import { normalizeForValidation, toBackendPayload } from "../../../../utils/profilePayload";
 import { normalizePhone } from "../../../../utils/normalizePhone";
+
+import AvatarCropModal from "../../../../components/AvatarCropModal/AvatarCropModal";
+import { cropImageToFile } from "../../../../utils/cropImageToFile";
+import { authApi } from "../../../../services/auth";
 
 import "./CompleteProfileForm.scss";
 
@@ -42,12 +46,89 @@ export default function CompleteProfileForm({ onBack, onSuccess }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [profileCompleted, setProfileCompleted] = useState(false);
 
+  // ===== AUTH / USER =====
   const refreshMe = useAuthStore((s) => s.refreshMe);
+  const user = useAuthStore((s) => s.user);
+  const backendAvatarUrl = user?.avatarUrl || "";
 
-  // avatar
-  const { fileRef, avatarFile, avatarPreview, pickAvatar, onAvatarChange, saveAvatar } = useAvatar();
+  // ===== AVATAR CROP STATE =====
+  const [cropSrc, setCropSrc] = useState("");
+  const [isCropOpen, setIsCropOpen] = useState(false);
+  const [isAvatarUploading, setIsAvatarUploading] = useState(false);
+  const [avatarError, setAvatarError] = useState("");
 
-  // react-select portal
+  // file input ref
+  const fileRef = useMemo(() => ({ current: null }), []); // (щоб не імпортувати useRef — можна і useRef)
+ 
+  const pickAvatar = () => {
+    setAvatarError("");
+    fileRef.current?.click?.();
+  };
+
+  const handlePickForCrop = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const okTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
+    if (!okTypes.includes(file.type)) {
+      setAvatarError("Дозволено лише JPEG / PNG / WebP");
+      return;
+    }
+
+    const url = URL.createObjectURL(file);
+    setCropSrc(url);
+    setIsCropOpen(true);
+  };
+
+  const closeCrop = () => {
+    setIsCropOpen(false);
+    setCropSrc("");
+    setAvatarError("");
+    if (fileRef.current) fileRef.current.value = "";
+  };
+
+  const handleCropConfirm = async (croppedPixels) => {
+    try {
+      setIsAvatarUploading(true);
+      setAvatarError("");
+
+      const file = await cropImageToFile(cropSrc, croppedPixels, "avatar.jpg");
+
+      await authApi.uploadAvatar(file);
+
+      await refreshMe();
+      closeCrop();
+    } catch (err) {
+      const msg =
+        err?.response?.data?.message?.[0] ||
+        err?.response?.data?.message ||
+        err?.message ||
+        "Помилка завантаження аватару";
+      setAvatarError(msg);
+    } finally {
+      setIsAvatarUploading(false);
+    }
+  };
+
+  const deleteAvatar = async () => {
+    try {
+      setIsAvatarUploading(true);
+      setAvatarError("");
+      await authApi.deleteAvatar(); 
+      await refreshMe();
+    } catch (err) {
+      const msg =
+        err?.response?.data?.message?.[0] ||
+        err?.response?.data?.message ||
+        err?.message ||
+        "Помилка видалення аватару";
+      setAvatarError(msg);
+    } finally {
+      setIsAvatarUploading(false);
+    }
+  };
+
+  // ===== react-select portal =====
   const selectPortalTarget = typeof window !== "undefined" ? document.body : null;
   const selectCommonProps = useMemo(() => {
     if (!selectPortalTarget) return {};
@@ -58,20 +139,22 @@ export default function CompleteProfileForm({ onBack, onSuccess }) {
     };
   }, [selectPortalTarget]);
 
-  // locations (countries/cities)
+  // ===== locations =====
   const [cityOptions, setCityOptions] = useState([]);
   const [isCitiesLoading, setIsCitiesLoading] = useState(false);
 
-  const { countryOptions, cityOptions: citiesFromHook, isCitiesLoading: citiesLoadingHook } =
-    useLocationOptions(values.country?.value, values.city?.value, setValues);
+  const {
+    countryOptions,
+    cityOptions: citiesFromHook,
+    isCitiesLoading: citiesLoadingHook,
+  } = useLocationOptions(values.country?.value, values.city?.value, setValues);
 
-  // синхронізуємо cityOptions/state (щоб prefill міг їх теж ставити)
   useEffect(() => {
     setCityOptions(citiesFromHook);
     setIsCitiesLoading(citiesLoadingHook);
   }, [citiesFromHook, citiesLoadingHook]);
 
-  // prefill profile
+  // ===== prefill =====
   usePrefillProfile({
     setProfileCompleted,
     setValues,
@@ -80,9 +163,10 @@ export default function CompleteProfileForm({ onBack, onSuccess }) {
     setCityOptions,
     setIsCitiesLoading,
     locationApi,
+    profileApi,
   });
 
-  // validate on change
+  // ===== validate =====
   useEffect(() => {
     const normalized = normalizeForValidation(values);
     setErrors(validateCompleteProfile(normalized));
@@ -100,7 +184,16 @@ export default function CompleteProfileForm({ onBack, onSuccess }) {
   const showError = (key) => Boolean(touched[key] && errors[key]);
 
   const showStar = (key) => {
-    const requiredKeys = ["lastName", "firstName", "phone", "nationality", "hobbies", "maritalStatus", "country", "city"];
+    const requiredKeys = [
+      "lastName",
+      "firstName",
+      "phone",
+      "nationality",
+      "hobbies",
+      "maritalStatus",
+      "country",
+      "city",
+    ];
     if (!requiredKeys.includes(key)) return false;
 
     const v = values[key];
@@ -142,15 +235,15 @@ export default function CompleteProfileForm({ onBack, onSuccess }) {
     try {
       setIsSubmitting(true);
 
-      if (profileCompleted) await profileApi.updateProfile(payload);
+      const status = await profileApi.getProfileStatus();
+      const isCompleted = Boolean(status?.profileCompleted);
+
+      if (isCompleted) await profileApi.updateProfile(payload);
       else await profileApi.completeProfile(payload);
 
-      try {
-        await refreshMe();
-      } catch (e2) {
-        console.warn("refreshMe failed", e2);
-      }
+      setProfileCompleted(true);
 
+      await refreshMe();
       onSuccess?.();
     } catch (err) {
       const msg =
@@ -169,12 +262,24 @@ export default function CompleteProfileForm({ onBack, onSuccess }) {
     else window.history.back();
   };
 
+  const currentAvatarSrc = backendAvatarUrl;
+
   return (
     <div className="complete-profile">
       <form className="complete-profile__form" onSubmit={handleSubmit}>
         <div className="cp-topbar">
-          <button type="button" className="back-arrow" onClick={handleBack} aria-label="Назад">
-            <img src="/icon1/Vector.png" alt="" aria-hidden="true" className="back-arrow__icon" />
+          <button
+            type="button"
+            className="back-arrow"
+            onClick={handleBack}
+            aria-label="Назад"
+          >
+            <img
+              src="/icon1/Vector.png"
+              alt=""
+              aria-hidden="true"
+              className="back-arrow__icon"
+            />
           </button>
 
           <div className="cp-topbar__brand">ME YOU</div>
@@ -186,14 +291,14 @@ export default function CompleteProfileForm({ onBack, onSuccess }) {
 
         <div className="cp-divider" />
 
-        {/* header */}
+        {/* HEADER */}
         <div className="cp-head">
           <div className="cp-head__title">Профіль</div>
 
           <div className="cp-avatar">
-            <div className="cp-avatar__ring">
-              {avatarPreview ? (
-                <img className="cp-avatar__img" src={avatarPreview} alt="avatar" />
+            <div className="cp-avatar__ring" onClick={pickAvatar} role="button" tabIndex={0}>
+              {currentAvatarSrc ? (
+                <img className="cp-avatar__img" src={currentAvatarSrc} alt="avatar" />
               ) : (
                 <div className="cp-avatar__placeholder" aria-hidden="true">
                   <svg viewBox="0 0 24 24" width="54" height="54">
@@ -211,13 +316,34 @@ export default function CompleteProfileForm({ onBack, onSuccess }) {
           </div>
 
           <div className="cp-head__link">Додати фото профіля</div>
-          <div className="cp-head__note">*профілі з фото отримають більше переглядів</div>
+          <div className="cp-head__note">
+            *профілі з фото отримають більше переглядів
+          </div>
 
           <div className="cp-head__actions">
-            <input ref={fileRef} type="file" accept="image/*" hidden onChange={onAvatarChange} />
-            <button type="button" className="cp-pill" onClick={pickAvatar}>Загрузить</button>
-            <button type="button" className="cp-pill" disabled={!avatarFile} onClick={saveAvatar}>Сохранить</button>
+            <input
+              ref={fileRef}
+              type="file"
+              accept="image/*"
+              hidden
+              onChange={handlePickForCrop}
+            />
+
+            <button type="button" className="cp-pill" onClick={pickAvatar}>
+              Загрузить
+            </button>
+
+            <button
+              type="button"
+              className="cp-pill danger"
+              onClick={deleteAvatar}
+              disabled={isAvatarUploading}
+            >
+              {isAvatarUploading ? "..." : "Удалить"}
+            </button>
           </div>
+
+          {avatarError && <div className="auth__error">{avatarError}</div>}
         </div>
 
         {/* LAST NAME */}
@@ -232,7 +358,9 @@ export default function CompleteProfileForm({ onBack, onSuccess }) {
               onBlur={() => onBlur("lastName")}
             />
           </div>
-          {showError("lastName") && <div className="field__hint">{errors.lastName}</div>}
+          {showError("lastName") && (
+            <div className="field__hint">{errors.lastName}</div>
+          )}
         </div>
 
         {/* FIRST NAME */}
@@ -247,7 +375,9 @@ export default function CompleteProfileForm({ onBack, onSuccess }) {
               onBlur={() => onBlur("firstName")}
             />
           </div>
-          {showError("firstName") && <div className="field__hint">{errors.firstName}</div>}
+          {showError("firstName") && (
+            <div className="field__hint">{errors.firstName}</div>
+          )}
         </div>
 
         {/* PHONE */}
@@ -262,8 +392,11 @@ export default function CompleteProfileForm({ onBack, onSuccess }) {
               inputClassName={`phone-input ${showError("phone") ? "is-error" : ""}`}
             />
           </div>
-          {showError("phone") && <div className="field__hint">{errors.phone}</div>}
+          {showError("phone") && (
+            <div className="field__hint">{errors.phone}</div>
+          )}
         </div>
+
 {/* NATIONALITY */}
         <div className="field">
           <div className="field__wrap">
@@ -390,9 +523,18 @@ export default function CompleteProfileForm({ onBack, onSuccess }) {
         {submitError && <div className="auth__error">{submitError}</div>}
 
         <button className="btn-gradient wide" disabled={isSubmitting || !canSubmit}>
-          {isSubmitting ? "Збереження..." : "Зберегти"}
+          {isSubmitting ? "Збереження..." : profileCompleted ? "Оновити" : "Зберегти"}
         </button>
       </form>
+
+      {/* CROP MODAL */}
+      {isCropOpen && (
+        <AvatarCropModal
+          src={cropSrc}
+          onClose={closeCrop}
+          onConfirm={handleCropConfirm}
+        />
+      )}
     </div>
   );
 }
