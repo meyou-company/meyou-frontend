@@ -9,7 +9,7 @@ export const FirstPage = () => {
   return (
     <div className="min-h-screen bg-purple-100 flex flex-col">
       {/* HEADER */}
-      <header className="w-full border-b border-gray-900 bg-purple-100">
+      <header className="w-full border-b-[0.1px] border-gray-900 bg-purple-100">
         <div className="max-w-6xl mx-auto flex items-center justify-between px-4 py-3 md:py-6">
           {/* Left icons */}
           <div className="flex items-center gap-3">
@@ -19,7 +19,7 @@ export const FirstPage = () => {
           onClick={() => navigate("/explore")}
           aria-label="Search"
         >
-           <img src={profileIcons.search} alt="" aria-hidden="true" className="w-8 h-8 md:w-12 md:h-12"  />
+           <img src={profileIcons.search} alt="" aria-hidden="true" className="w-7 h-7 md:w-12 md:h-12"  />
         </button>
            
             {/* <img src={profileIcons.search} alt="" aria-hidden="true" className="hidden xl:flex w-10 h-10 md:w-12 md:h-12 bg-gradient-to-bl from-pink-500 to-indigo-500"/> */}
@@ -40,7 +40,7 @@ export const FirstPage = () => {
           // onClick={() => navigate("/explore")}
           aria-label="Menu"
         >
-           <img src={profileIcons.menu} alt="" aria-hidden="true" className="w-8 h-8 md:w-12 md:h-12"  />
+           <img src={profileIcons.menu} alt="" aria-hidden="true" className="w-7 h-7 md:w-12 md:h-12"  />
         </button>
             {/* <img src={profileIcons.search} alt="" aria-hidden="true" /> */}
             {/* <div className="hidden xl:flex w-10 h-10 md:w-12 md:h-12 bg-gradient-to-bl from-pink-500 to-indigo-500" /> */}
@@ -49,7 +49,7 @@ export const FirstPage = () => {
       </header>
 
       {/* STORIES */}
-      <section className="border-b border-gray-900 bg-rose-100">
+      <section className="border-b-[0.1px] border-gray-900 bg-[#FCE9E9]">
         <div className="max-w-6xl mx-auto px-4 py-4 md:py-6">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-black font-[Montserrat] text-base md:text-xl">
@@ -117,6 +117,8 @@ export const FirstPage = () => {
 
 const StoryCircle = ({ status, type }) => {
   const isAdd = type === "add";
+  // const navigate = useNavigate();
+  
   return (
     <button className="flex flex-col items-center gap-1 min-w-[70px]">
       <div
@@ -124,8 +126,7 @@ const StoryCircle = ({ status, type }) => {
           isAdd ? "border-pink-500 bg-black/5" : "border-red-600 bg-black/5"
         } w-16 h-16 md:w-24 md:h-24`}
       >
-        {/* Avatar / gradient placeholder */}
-        <div className="w-8 h-8 md:w-12 md:h-12 bg-gradient-to-bl from-pink-500 to-indigo-500 rounded-full" />
+     
         {/* Status dot */}
         {status && (
           <span
@@ -138,9 +139,17 @@ const StoryCircle = ({ status, type }) => {
         )}
         {/* Plus icon for add */}
         {type === "add" && (
-          <span className="absolute text-[10px] md:text-xs font-[Montserrat] text-black">
-            +
-          </span>
+          <button
+          type="button"
+          className="searchBtn"
+          // onClick={() => navigate("/explore")}
+          aria-label="Search"
+        >
+           <img src={profileIcons.plus} alt="" aria-hidden="true" className="w-7 h-7 md:w-12 md:h-12"  />
+        </button>
+          // <span className="absolute text-[10px] md:text-xs font-[Montserrat] text-black">
+          //   +
+          // </span>
         )}
       </div>
       <span className="text-[10px] md:text-xs font-[Montserrat] text-black underline">
