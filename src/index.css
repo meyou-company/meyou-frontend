@@ -153,7 +153,7 @@
   }
 
   @screen md {
-    .app-container { max-width: 900px; }
+    .app-container { max-width: 1440px; }
   }
 
   /* ✅ На desktop: скрол сторінки (body), а контент НЕ обрізається */

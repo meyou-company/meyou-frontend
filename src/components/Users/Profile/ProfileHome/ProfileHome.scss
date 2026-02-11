@@ -1,0 +1,854 @@
+.profile-home {
+  width: 100%;
+  background: transparent;
+}
+
+.profile-container {
+  width: 1336px;
+  max-width: 100%;
+  margin: 0 auto;
+  padding: 12px 16px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+/* =========================
+   TOP PROFILE — flex (desktop)
+   ========================= */
+.profileBlock {
+  width: 100%;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 34px;
+}
+
+/* LEFT */
+.profileLeft {
+  flex: 0 0 313px; /* як в макеті (313x313 аватар) */
+  display: flex;
+  justify-content: flex-start;
+}
+
+.leftStack {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+/* AVATAR */
+.avatarWrap {
+  position: relative;
+  width: 313px;
+  height: 313px;
+}
+
+.fileInput {
+  display: none;
+}
+
+/* online dot (desktop) */
+.avatarWrap::before {
+  content: "";
+  position: absolute;
+  top: 8px;
+  left: 72%;
+  transform: translateX(-50%);
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #22c55e;
+  border: 3px solid #fff;
+  z-index: 2;
+}
+
+.avatarBorder {
+  width: 100%;
+  height: 100%;
+  padding: 4px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #b05cff, #ff4fb1, #ff9a56);
+  display: grid;
+  place-items: center;
+}
+
+.avatarInner {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  overflow: hidden;
+  background: #f8f6fd;
+}
+
+.avatar {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  display: block;
+}
+
+/* camera */
+.avatarEdit {
+  position: absolute;
+  right: 20px;
+  bottom: 16px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 3px solid #fff;
+  background: linear-gradient(135deg, #b05cff, #ff4fb1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.18);
+  -webkit-tap-highlight-color: transparent;
+
+  &:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+  }
+
+  img {
+    width: 18px;
+    height: 18px;
+    filter: brightness(0) invert(1);
+  }
+}
+
+.editBtn {
+  height: 28px;
+  padding: 0 14px;
+  border-radius: 10px;
+  border: 1px solid rgba(0, 0, 0, 0.14);
+  background: rgba(255, 255, 255, 0.85);
+  color: rgba(0, 0, 0, 0.6);
+  font-size: 11px;
+  font-weight: 500;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.editBtnDesktop {
+  margin-left: 70px;
+}
+
+/* badges / actions (desktop hidden by default) */
+.badgesRow {
+  display: none;
+  flex-wrap: wrap;
+  gap: 12px 20px;
+  margin-top: 4px;
+}
+
+.badgeItem {
+  font-size: 12px;
+  font-weight: 500;
+  color: rgba(0, 0, 0, 0.6);
+  cursor: pointer;
+}
+
+.actionsRow1,
+.actionsRow2 {
+  display: none;
+}
+
+.actionMore {
+  flex: 0 0 auto;
+  min-width: 44px;
+  font-size: 18px;
+  padding: 0 12px;
+}
+
+/* CENTER */
+.profileInfo {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding-top: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.name {
+  margin: 0;
+  font-size: 60px;
+  line-height: 1;
+  font-weight: 800;
+  color: #6b66ff;
+  letter-spacing: -0.02em;
+}
+
+.bio {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.25;
+  color: rgba(0, 0, 0, 0.62);
+}
+
+.bioLocation {
+  margin-top: 12px;
+}
+
+.actionsBlock {
+  margin-top: 78px;
+  width: 100%;
+  display: grid;
+  gap: 16px;
+}
+
+.actionBig {
+  width: 355px;
+  margin: 0 auto;
+}
+
+.actionsRow {
+  width: 740px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+}
+
+.actionBtn {
+  height: 56px;
+  border-radius: 14px;
+  border: 1px solid rgba(0, 0, 0, 0.14);
+  background: rgba(255, 255, 255, 0.88);
+  padding: 0 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+
+  span {
+    font-size: 16px;
+    font-weight: 300;
+    color: rgba(0, 0, 0, 0.65);
+  }
+
+  img {
+    width: 22px;
+    height: 22px;
+    object-fit: contain;
+  }
+}
+
+.actionPlus {
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(0, 0, 0, 0.14);
+  background: rgba(255, 255, 255, 0.95);
+
+  img {
+    width: 14px;
+    height: 14px;
+  }
+}
+
+/* RIGHT */
+.profileRight {
+  flex: 0 0 180px;
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 18px;
+}
+
+.btnMessages {
+  position: relative;
+  width: 132px;
+  height: 80px;
+  border-radius: 20px;
+  border: none;
+  background: transparent;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 20px;
+    padding: 2px;
+    background: linear-gradient(135deg, #4f6bff, #b05cff, #ff4fb1);
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+  }
+}
+
+.msgIcon {
+  width: 40px;
+  height: 40px;
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
+}
+
+.msgText {
+  font-family: "Montserrat", sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  color: #000;
+  line-height: 1;
+  text-transform: lowercase;
+}
+
+/* =========================
+   VIP / NEW POST / FEED
+   ========================= */
+.vipCard,
+.newPost,
+.post {
+  width: 100%;
+  padding: 14px;
+  border-radius: 14px;
+  border: 1px solid rgba(0, 0, 0, 0.14);
+  background: rgba(255, 255, 255, 0.35);
+}
+
+.vipHeader {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.vipTitle {
+  font-size: 14px;
+  font-weight: 700;
+  color: rgba(0, 0, 0, 0.65);
+}
+
+.vipRow {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  overflow-x: auto;
+  padding-bottom: 6px;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.vipItem {
+  flex: 0 0 auto;
+}
+
+.vipAvatarWrap {
+  position: relative;
+  width: 153px;
+  height: 153px;
+  border-radius: 50%;
+  padding: 2px;
+  background: linear-gradient(135deg, #b05cff, #ff4fb1, #4f6bff);
+}
+
+.vipAvatar {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  display: block;
+  background: #eee;
+}
+
+.onlineDot {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #22c55e;
+  border: 2px solid #fff;
+}
+
+.vipDivider {
+  height: 1px;
+  width: 100%;
+  background: rgba(255, 79, 177, 0.65);
+  margin: 12px 0;
+}
+
+.friendsTitle {
+  font-size: 14px;
+  font-weight: 500;
+  color: rgba(0, 0, 0, 0.7);
+  margin-bottom: 10px;
+}
+
+.showMoreBtn {
+  margin: 14px auto 0;
+  display: block;
+  height: 32px;
+  padding: 0 22px;
+  border-radius: 999px;
+  border: 0;
+  background: linear-gradient(90deg, #4f6bff 0%, #b05cff 50%, #ff4fb1 100%);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.newPostHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.newPostTitle {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 700;
+  color: rgba(0, 0, 0, 0.65);
+}
+
+.newPostFilter {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  opacity: 0.65;
+}
+
+.postInput {
+  width: 100%;
+  min-height: 62px;
+  resize: none;
+  padding: 12px 12px;
+  border-radius: 10px;
+  border: 0;
+  background: rgba(255, 255, 255, 0.55);
+  outline: none;
+  font: inherit;
+  color: inherit;
+}
+
+.feed {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.postHeader {
+  display: grid;
+  grid-template-columns: 36px 1fr;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.postAvatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.postMeta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.postAuthor {
+  font-weight: 700;
+  font-size: 13px;
+}
+
+.postTime {
+  font-size: 11px;
+  color: rgba(0, 0, 0, 0.52);
+}
+
+.postText {
+  margin: 0 0 10px;
+  font-size: 12px;
+  line-height: 1.45;
+  color: rgba(0, 0, 0, 0.7);
+}
+
+.postImage {
+  height: 160px;
+  border-radius: 12px;
+  background: rgba(0, 0, 0, 0.06);
+  margin-bottom: 10px;
+}
+
+.postEngagement {
+  display: flex;
+  gap: 18px;
+  font-size: 12px;
+  color: rgba(0, 0, 0, 0.6);
+}
+
+/* =========================
+   🌙 DARK MODE — текст видно
+   ========================= */
+body.dark .profile-home .name {
+  color: #c9b8ff;
+}
+
+body.dark .profile-home .bio {
+  color: rgba(255, 255, 255, 0.82);
+}
+
+body.dark .profile-home .editBtn {
+  border-color: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.88);
+}
+
+body.dark .profile-home .actionBtn {
+  border-color: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.1);
+
+  span {
+    color: rgba(255, 255, 255, 0.88);
+  }
+}
+
+body.dark .profile-home .msgText {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+body.dark .profile-home .vipCard,
+body.dark .profile-home .newPost,
+body.dark .profile-home .post {
+  border-color: rgba(255, 255, 255, 0.15);
+  background: rgba(20, 10, 30, 0.35);
+}
+
+body.dark .profile-home .vipTitle,
+body.dark .profile-home .friendsTitle,
+body.dark .profile-home .newPostTitle {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+body.dark .profile-home .postInput {
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: rgba(255, 255, 255, 0.9);
+}
+
+body.dark .profile-home .postInput::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+body.dark .profile-home .postAuthor {
+  color: rgba(255, 255, 255, 0.92);
+}
+
+body.dark .profile-home .postTime,
+body.dark .profile-home .postText,
+body.dark .profile-home .postEngagement {
+  color: rgba(255, 255, 255, 0.75);
+}
+
+body.dark .profile-home .onlineDot {
+  border-color: rgba(20, 10, 30, 0.9);
+}
+
+body.dark .profile-home .badgeItem {
+  color: rgba(255, 255, 255, 0.75);
+}
+@media (max-width: 767px) {
+  .profile-container {
+    width: 100%;
+    max-width: 100%;
+    padding: 12px 14px 90px;
+    gap: 14px;
+  }
+
+  .profileBlock {
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 14px;
+  }
+
+  .profileLeft {
+    flex: 0 0 auto;
+  }
+
+  .leftStack {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0;
+  }
+
+  .editBtnDesktop {
+    display: none;
+  }
+
+  /* AVATAR мобільний */
+  .avatarWrap {
+    width: 86px;
+    height: 86px;
+    flex: 0 0 86px;
+  }
+
+  /* ✅ online dot — навпроти фото (зліва зверху) */
+  .avatarWrap::before {
+    width: 12px;
+    height: 12px;
+    top: 6px;
+    left: 18px;
+    transform: none;
+    border-width: 2px;
+  }
+
+  .avatarBorder {
+    padding: 3px;
+  }
+
+  .avatarEdit {
+    width: 32px;
+    height: 32px;
+    right: 2px;
+    bottom: 2px;
+
+    img {
+      width: 18px;
+      height: 18px;
+    }
+  }
+
+  /* ✅ GRID як у Figma:
+     ряд 1: name | badges (праворуч)
+     ряд 2: bio на всю ширину
+     ряд 3: actions на всю ширину
+  */
+  .profileInfo {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    grid-template-areas:
+      "name badges"
+      "bio bio"
+      "actions actions";
+    column-gap: 14px;
+    row-gap: 14px;
+
+    padding-top: 0;
+    min-width: 0;
+  }
+
+  .name {
+    grid-area: name;
+    font-size: 28px;
+    line-height: 1.05;
+    margin: 0;
+    word-break: break-word;
+  }
+
+  .bio {
+    grid-area: bio;
+    font-size: 12px;
+    line-height: 1.25;
+    margin: 0;
+  }
+
+  .bioLocation {
+    margin-top: 14px;
+  }
+
+  /* ✅ badges навпроти ніку (НЕ під фото) */
+  .badgesRow {
+    grid-area: badges;
+    display: flex;          /* ❗️перекриває desktop display:none */
+    align-items: flex-start;
+    gap: 18px;
+    margin: 0;
+    padding-top: 6px;       /* трохи опустили як у макеті */
+    flex-wrap: nowrap;
+  }
+
+  /* кнопка-бейдж: іконка зверху + підпис */
+  .badgeItem {
+    border: 0;
+    background: transparent;
+    padding: 0;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+
+    display: grid;
+    justify-items: center;
+    gap: 3px;
+
+    flex: 0 0 auto;
+    white-space: nowrap;
+    color: rgba(0, 0, 0, 0.6);
+  }
+
+  /* ✅ маленькі іконки як у Figma */
+  .badgeIcon {
+    width: 7px;
+    height: 7px;
+    object-fit: contain;
+    display: block;
+  }
+
+  .badgeText {
+    font-size: 11px;
+    font-weight: 500;
+    line-height: 1;
+    text-decoration: underline;
+    color: rgba(0, 0, 0, 0.6);
+    white-space: nowrap;
+  }
+
+  .actionsBlock {
+    grid-area: actions;
+    margin-top: 10px;
+    gap: 10px;
+  }
+
+  /* ховаємо десктопні блоки */
+  .actionBig,
+  .actionsRow {
+    display: none;
+  }
+
+  /* 1 ряд: 2 кнопки + ... */
+  .actionsRow1 {
+    display: grid;
+    grid-template-columns: 1fr 1fr 44px;
+    gap: 10px;
+    align-items: stretch;
+  }
+
+  /* 2 ряд: 2 кнопки */
+  .actionsRow2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .actionBtn {
+    height: 44px;
+    border-radius: 12px;
+    padding: 0 12px;
+    min-width: 0;
+
+    span {
+      font-size: 12px;
+      font-weight: 400;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    img {
+      width: 18px;
+      height: 18px;
+      flex: 0 0 auto;
+    }
+  }
+
+  .actionPlus {
+    width: 22px;
+    height: 22px;
+
+    img {
+      width: 12px;
+      height: 12px;
+    }
+  }
+
+  .actionMore {
+    min-width: 44px;
+    padding: 0;
+    justify-content: center;
+  }
+
+  /* my messages — в мобілці відсутнє */
+  .profileRight {
+    display: none;
+  }
+
+  /* cards */
+  .vipCard,
+  .newPost,
+  .post {
+    padding: 12px;
+    border-radius: 14px;
+  }
+
+  /* VIP/Friends — горизонтальний скрол */
+  .vipRow {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    gap: 12px;
+    padding-bottom: 6px;
+    -webkit-overflow-scrolling: touch;
+    scroll-snap-type: x mandatory;
+
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
+
+  .vipItem {
+    flex: 0 0 auto;
+    scroll-snap-align: start;
+  }
+
+  .vipAvatarWrap {
+    width: 54px;
+    height: 54px;
+    padding: 2px;
+    flex: 0 0 54px;
+  }
+
+  .onlineDot {
+    width: 9px;
+    height: 9px;
+    border-width: 2px;
+    top: -2px;
+    right: -2px;
+  }
+
+  .showMoreBtn {
+    height: 30px;
+    font-size: 12px;
+    padding: 0 18px;
+  }
+
+  .newPostTitle {
+    font-size: 12px;
+  }
+
+  .postInput {
+    min-height: 54px;
+    padding: 10px 10px;
+    border-radius: 10px;
+    font-size: 13px;
+  }
+}

@@ -13,8 +13,8 @@ export default {
       // твої назви (можеш використовувати iphone:..., tablet:..., desktop:...)
       iphone: "390px",
       tablet: "768px",
-      desktop: "1024px", // ✅ важливо: зроби desktop від 1024, а не 1440
-      wide: "1440px",    // ✅ окремо для великих екранів
+      desktop: "1440px",
+      wide: "1536px",
     },
 
     extend: {
