@@ -1,6 +1,11 @@
+import profileIcons from '../../constants/profileIcons';
 import styles from "./FirstPage.module.scss"
+import { useNavigate } from "react-router-dom";
+
 
 export const FirstPage = () => {
+  const navigate = useNavigate();
+  
   return (
     <div className="min-h-screen bg-purple-100 flex flex-col">
       {/* HEADER */}
@@ -8,20 +13,37 @@ export const FirstPage = () => {
         <div className="max-w-6xl mx-auto flex items-center justify-between px-4 py-3 md:py-6">
           {/* Left icons */}
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 md:w-12 md:h-12 bg-gradient-to-bl from-pink-500 to-indigo-500" />
-            <div className="w-10 h-10 md:w-12 md:h-12 bg-gradient-to-bl from-pink-500 to-indigo-500" />
+            <button
+          type="button"
+          className="searchBtn"
+          onClick={() => navigate("/explore")}
+          aria-label="Search"
+        >
+           <img src={profileIcons.search} alt="" aria-hidden="true" className="w-8 h-8 md:w-12 md:h-12"  />
+        </button>
+           
+            {/* <img src={profileIcons.search} alt="" aria-hidden="true" className="hidden xl:flex w-10 h-10 md:w-12 md:h-12 bg-gradient-to-bl from-pink-500 to-indigo-500"/> */}
+           
           </div>
 
           {/* Logo */}
-          <div className={styles.logoText + " text-pink-500 font-extrabold font-[Montserrat] text-xl lg:text-6xl"}>
+          <div className={styles.logoText + " text-[#FF4FB1] font-extrabold font-[Montserrat] text-xl lg:text-6xl"}>
   ME YOU
 </div>
 
 
           {/* Right icons */}
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 md:w-12 md:h-12 bg-gradient-to-bl from-pink-500 to-indigo-500" />
-            <div className="w-10 h-10 md:w-12 md:h-12 bg-gradient-to-bl from-pink-500 to-indigo-500" />
+              <button
+          type="button"
+          className="menuBtn"
+          // onClick={() => navigate("/explore")}
+          aria-label="Menu"
+        >
+           <img src={profileIcons.menu} alt="" aria-hidden="true" className="w-8 h-8 md:w-12 md:h-12"  />
+        </button>
+            {/* <img src={profileIcons.search} alt="" aria-hidden="true" /> */}
+            {/* <div className="hidden xl:flex w-10 h-10 md:w-12 md:h-12 bg-gradient-to-bl from-pink-500 to-indigo-500" /> */}
           </div>
         </div>
       </header>
