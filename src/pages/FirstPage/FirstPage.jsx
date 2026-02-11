@@ -1,3 +1,4 @@
+import styles from "./FirstPage.module.scss"
 
 export const FirstPage = () => {
   return (
@@ -12,9 +13,10 @@ export const FirstPage = () => {
           </div>
 
           {/* Logo */}
-          <div className="text-pink-500 font-extrabold font-[Montserrat] text-xl underline lg:text-6xl">
-            ME YOU
-          </div>
+          <div className={styles.logoText + " text-pink-500 font-extrabold font-[Montserrat] text-xl lg:text-6xl"}>
+  ME YOU
+</div>
+
 
           {/* Right icons */}
           <div className="flex items-center gap-3">

@@ -1,0 +1,13 @@
+.logo-text {
+  position: relative;
+}
+
+.logo-text::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;  /* расстояние от букв */
+  left: 0;
+  right: 0;
+  height: 0.5px; /* толщина линии */
+  background-color: #ec4899; /* цвет pink-500 */
+}
