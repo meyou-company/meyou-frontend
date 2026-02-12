@@ -1,6 +1,7 @@
 // ProfileHome.jsx
-import { useState, useRef } from "react";
+import { useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
+
 import AvatarCropModal from "../../../AvatarCropModal/AvatarCropModal";
 import { cropImageToFile } from "../../../../utils/cropImageToFile";
 import { authApi } from "../../../../services/auth";
@@ -12,18 +13,21 @@ const MOCK_VIP = Array.from({ length: 12 }, (_, i) => ({
   id: i + 1,
   avatar: i % 3 === 0 ? "/Logo/photo.png" : null,
 }));
-
 const MOCK_POSTS = [
   {
     id: 1,
     time: "new post",
-    location: "Rimini, Italy",
-    text: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+    location: "Рим, Италия",
+    text: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
     image: true,
     likes: 125,
     comments: 256,
+    saved: 21,
+    shares: 60,
   },
 ];
+
+
 
 export default function ProfileHome({ user, refreshMe }) {
   const navigate = useNavigate();
@@ -76,7 +80,7 @@ export default function ProfileHome({ user, refreshMe }) {
   return (
     <div className="profile-home">
       <div className="profile-container">
-        {/* ===== TOP PROFILE ===== */}
+        {/* ================= TOP: avatar + name + badges ================= */}
         <section className="profileBlock">
           {/* LEFT: avatar */}
           <div className="profileLeft">
@@ -106,6 +110,7 @@ export default function ProfileHome({ user, refreshMe }) {
                 </button>
               </div>
 
+              {/* desktop only */}
               <button
                 type="button"
                 className="editBtn editBtnDesktop"
@@ -116,15 +121,16 @@ export default function ProfileHome({ user, refreshMe }) {
             </div>
           </div>
 
-          {/* CENTER: name, bio, badges, actions */}
+          {/* CENTER: name + bio + badges */}
           <div className="profileInfo">
-            <h1 className="name">{titleName}</h1>
+            <h1 className="name">
+  <span className="nameText">{titleName}</span>
 
-            {/* як у тебе: 2 рядки */}
+</h1>
+
             {bioLine1 && <p className="bio bioName">{bioLine1}</p>}
             {bioLine2 && <p className="bio bioLocation">{bioLine2}</p>}
 
-            {/* badges (у desktop можуть бути hidden через SCSS — не чіпаю) */}
             <div className="badgesRow">
               <button type="button" className="badgeItem" aria-label="my video">
                 <img className="badgeIcon" src={profileIcons.video} alt="" />
@@ -141,86 +147,83 @@ export default function ProfileHome({ user, refreshMe }) {
                 <span className="badgeText">my balance</span>
               </button>
             </div>
-
-            <div className="actionsBlock">
-              {/* mobile rows */}
-              <div className="actionsRow1">
-                <button className="actionBtn">
-                  <span>Дополнить историю</span>
-                  <span className="actionPlus">
-                    <img src={profileIcons.plus} alt="" />
-                  </span>
-                </button>
-
-                <button
-                  type="button"
-                  className="actionBtn"
-                  onClick={() => navigate("/users/profile/edit")}
-                >
-                  <span>Редактировать профиль</span>
-                </button>
-
-                <button className="actionBtn actionMore" aria-label="Більше">
-                  …
-                </button>
-              </div>
-
-              <div className="actionsRow2">
-                <button className="actionBtn">
-                  <span>Добавить рилс</span>
-                  <img src={profileIcons.video} alt="" />
-                </button>
-
-                <button className="actionBtn">
-                  <span>Прямой эфир</span>
-                  <img src={profileIcons.live} alt="" />
-                </button>
-              </div>
-
-              {/* desktop blocks (НЕ ВИДАЛЯЮ) */}
-              <button className="actionBtn actionBig">
-                <span>Дополнить историю</span>
-                <span className="actionPlus">
-                  <img src={profileIcons.plus} alt="" />
-                </span>
-              </button>
-
-              <div className="actionsRow">
-                <button className="actionBtn">
-                  <span>Добавить рилс</span>
-                  <img src={profileIcons.video} alt="" />
-                </button>
-                <button className="actionBtn">
-                  <span>Прямой эфир</span>
-                  <img src={profileIcons.live} alt="" />
-                </button>
-              </div>
-            </div>
           </div>
 
           {/* RIGHT (desktop) */}
           <div className="profileRight">
-          
             <button
               type="button"
               className="btnMessages"
               onClick={() => navigate("/messages")}
               aria-label="My messages"
             >
-                <img
-  src={profileIcons.chat}
-  alt=""
-  className="msgIcon"
-/>
-
-
-
+              <img src={profileIcons.chat} alt="" className="msgIcon" />
               <span className="msgText">my messages</span>
             </button>
           </div>
         </section>
 
-        {/* ===== VIP ===== */}
+        {/* ================= ACTIONS: separate full-width block (like Figma) ================= */}
+        <section className="actionsSection">
+          <div className="actionsBlock">
+            {/* mobile rows */}
+            <div className="actionsRow1">
+              <button className="actionBtn" type="button">
+                <span>Дополнить историю</span>
+                <span className="actionPlus">
+                  <img src={profileIcons.plus} alt="" />
+                </span>
+              </button>
+
+              <button
+                type="button"
+                className="actionBtn"
+                onClick={() => navigate("/users/profile/edit")}
+              >
+                <span>Редактировать профиль</span>
+                {/* ✅ add pencil icon like Figma (rename icon if needed) */}
+                <img src={profileIcons.pencil || profileIcons.edit} alt="" />
+              </button>
+
+              <button className="actionBtn actionMore" type="button" aria-label="Більше">
+                …
+              </button>
+            </div>
+
+            <div className="actionsRow2">
+              <button className="actionBtn" type="button">
+                <span>Добавить рилс</span>
+                <img src={profileIcons.video} alt="" />
+              </button>
+
+              <button className="actionBtn" type="button">
+                <span>Прямой эфир</span>
+                <img src={profileIcons.live} alt="" />
+              </button>
+            </div>
+
+            {/* desktop blocks */}
+            <button className="actionBtn actionBig" type="button">
+              <span>Дополнить историю</span>
+              <span className="actionPlus">
+                <img src={profileIcons.plus} alt="" />
+              </span>
+            </button>
+
+            <div className="actionsRow">
+              <button className="actionBtn" type="button">
+                <span>Добавить рилс</span>
+                <img src={profileIcons.video} alt="" />
+              </button>
+              <button className="actionBtn" type="button">
+                <span>Прямой эфир</span>
+                <img src={profileIcons.live} alt="" />
+              </button>
+            </div>
+          </div>
+        </section>
+
+        {/* ================= VIP ================= */}
         <section className="vipCard">
           <div className="vipHeader">
             <span className="vipTitle">VIP 👑 0</span>
@@ -243,7 +246,6 @@ export default function ProfileHome({ user, refreshMe }) {
 
           <div className="vipDivider" />
 
-          {/* ===== FRIENDS ===== */}
           <div className="friendsTitle">Друзья 0</div>
 
           <div className="vipRow">
@@ -261,14 +263,16 @@ export default function ProfileHome({ user, refreshMe }) {
             ))}
           </div>
 
-          <button className="showMoreBtn">Показать больше</button>
+          <button className="showMoreBtn" type="button">
+            Показать больше
+          </button>
         </section>
 
-        {/* ===== NEW POST ===== */}
+        {/* ================= NEW POST ================= */}
         <section className="newPost">
           <div className="newPostHead">
             <h3 className="newPostTitle">Что у вас нового?</h3>
-            <button className="newPostFilter" aria-label="filter">
+            <button className="newPostFilter" type="button" aria-label="filter">
               ☰
             </button>
           </div>
@@ -280,29 +284,91 @@ export default function ProfileHome({ user, refreshMe }) {
             placeholder="Lorem ipsum dolor sit amet..."
           />
         </section>
+        {/* ================= FEED ================= */}
+<section className="feed">
+  {MOCK_POSTS.map((post) => (
+    <article key={post.id} className="postCard">
+      {/* TOP ROW */}
+      <div className="postTop">
+        <div className="postTopLeft">
+          <img src={displayAvatar} className="postAvatar" alt="" />
 
-        {/* ===== FEED ===== */}
-        <section className="feed">
-          {MOCK_POSTS.map((post) => (
-            <article key={post.id} className="post">
-              <div className="postHeader">
-                <img src={displayAvatar} className="postAvatar" alt="" />
-                <div className="postMeta">
-                  <span className="postAuthor">{titleName}</span>
-                  <span className="postTime">{post.time}</span>
-                </div>
-              </div>
+          <div className="postHeadText">
+            <div className="postLabel">new post</div>
+            <div className="postAuthor">{titleName}</div>
+          </div>
+        </div>
 
-              <p className="postText">{post.text}</p>
-              {post.image && <div className="postImage" />}
+        <div className="postTopRight">
+          <div className="postLocation">
+            <img
+              className="postLocationIcon"
+              src={profileIcons.location || "/home/Location.png"}
+              alt=""
+            />
+            <span className="postLocationText">{post.location}</span>
+          </div>
 
-              <div className="postEngagement">
-                <span>♥ {post.likes}</span>
-                <span>💬 {post.comments}</span>
-              </div>
-            </article>
-          ))}
-        </section>
+          <button className="postMoreBtn" type="button" aria-label="more">
+            …
+          </button>
+        </div>
+      </div>
+
+      {/* TEXT */}
+      <p className="postText">{post.text}</p>
+
+      {/* IMAGE */}
+      {post.image && (
+        <div className="postMedia">
+          {/* якщо потім буде реальне фото -> заміниш на <img src=... /> */}
+          <div className="postMediaMock" />
+        </div>
+      )}
+
+      {/* ACTIONS */}
+      <div className="postActions">
+        <button className="postActionBtn" type="button" aria-label="like">
+          <img
+            src={profileIcons.like || "/home/like.png"}
+            className="postActionIcon"
+            alt=""
+          />
+          <span className="postActionCount">{post.likes}</span>
+        </button>
+
+        <button className="postActionBtn" type="button" aria-label="comment">
+          <img
+            src={profileIcons.comments || "/home/comments.png"}
+            className="postActionIcon"
+            alt=""
+          />
+          <span className="postActionCount">{post.comments}</span>
+        </button>
+
+        <button className="postActionBtn" type="button" aria-label="save">
+          <img
+            src={profileIcons.saved || "/home/saved.png"}
+            className="postActionIcon"
+            alt=""
+          />
+          <span className="postActionCount">{post.saved ?? 21}</span>
+        </button>
+
+        <button className="postActionBtn" type="button" aria-label="share">
+          <img
+            src={profileIcons.share || "/home/to-share.png"}
+            className="postActionIcon"
+            alt=""
+          />
+          <span className="postActionCount">{post.shared ?? 60}</span>
+        </button>
+      </div>
+    </article>
+  ))}
+</section>
+
+
       </div>
 
       {cropModalSrc && (

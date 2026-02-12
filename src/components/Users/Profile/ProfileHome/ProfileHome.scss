@@ -4,8 +4,8 @@
 }
 
 .profile-container {
-  width: 1336px;
-  max-width: 100%;
+  max-width: 1336px;
+  
   margin: 0 auto;
   padding: 12px 16px 24px;
   display: flex;
@@ -16,13 +16,27 @@
 /* =========================
    TOP PROFILE — flex (desktop)
    ========================= */
-.profileBlock {
+   .profileBlock {
   width: 100%;
   display: flex;
   align-items: flex-start;
-  justify-content: space-between;
-  gap: 34px;
+
+  justify-content: flex-start;
+  gap: 34px;                
 }
+.profileInfo {
+  flex: 0 0 543px;  
+  max-width: 443px;
+  min-width: 0;
+}
+
+.profileRight {
+  flex: 0 0 180px;
+  display: flex;
+  justify-content: center; 
+  padding-top: 18px;
+}
+
 
 /* LEFT */
 .profileLeft {
@@ -163,38 +177,61 @@
   padding: 0 12px;
 }
 
-/* CENTER */
-.profileInfo {
-  flex: 1 1 auto;
-  min-width: 0;
-  padding-top: 6px;
+.profileInfo { 
+  flex: 1 1 auto; 
+  min-width: 0; 
+  padding-top: 16px; 
+
+  display: flex; 
+  flex-direction: column; 
+  gap: 12px; }
+.name {
+  grid-area: name;
+  margin: 0;
+font-size: 60px;
+  /* ключове: рядок з текстом + лінія */
   display: flex;
-  flex-direction: column;
-  gap: 12px;
+  align-items: flex-end;
+  gap: 10px;
+
+  /* щоб нічого не вилазило за межі */
+  min-width: 0;
+  max-width: 100%;
 }
 
-.name {
-  margin: 0;
-  font-size: 60px;
-  line-height: 1;
+.nameText {
   font-weight: 800;
-  color: #6b66ff;
   letter-spacing: -0.02em;
+  line-height: 1.05;
+
+  /* градієнт на текст */
+  background: linear-gradient(236.31deg, #ff4fb1 11.54%, #4f6bff 88.46%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+
+  /* щоб текст не переносився (як у макеті) */
+  white-space: nowrap;
+
+  /* underline як у Figma (і НЕ чорний) */
+  text-decoration-line: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 4px;
+  text-decoration-color: #ff4fb1; /* <- прибирає чорну лінію */
 }
+
 
 .bio {
   margin: 0;
-  font-size: 13px;
+  font-size: 16px;
   line-height: 1.25;
   color: rgba(0, 0, 0, 0.62);
 }
 
-.bioLocation {
-  margin-top: 12px;
-}
+
 
 .actionsBlock {
-  margin-top: 78px;
+
   width: 100%;
   display: grid;
   gap: 16px;
@@ -206,7 +243,7 @@
 }
 
 .actionsRow {
-  width: 740px;
+ width: 100%;
   margin: 0 auto;
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -215,6 +252,10 @@
 
 .actionBtn {
   height: 56px;
+   width: 100%;        
+  max-width: 555px;     
+  margin: 0 auto;  
+  
   border-radius: 14px;
   border: 1px solid rgba(0, 0, 0, 0.14);
   background: rgba(255, 255, 255, 0.88);
@@ -226,7 +267,7 @@
   -webkit-tap-highlight-color: transparent;
 
   span {
-    font-size: 16px;
+    font-size: 21px;
     font-weight: 300;
     color: rgba(0, 0, 0, 0.65);
   }
@@ -253,16 +294,16 @@
   }
 }
 
-/* RIGHT */
 .profileRight {
   flex: 0 0 180px;
   display: flex;
-  justify-content: flex-end;
+  justify-content: center;
   padding-top: 18px;
 }
 
 .btnMessages {
   position: relative;
+ transform: translateX(-38px);
   width: 132px;
   height: 80px;
   border-radius: 20px;
@@ -314,9 +355,8 @@
 /* =========================
    VIP / NEW POST / FEED
    ========================= */
-.vipCard,
-.newPost,
-.post {
+   .vipCard,
+.newPost {
   width: 100%;
   padding: 14px;
   border-radius: 14px;
@@ -454,58 +494,162 @@
   flex-direction: column;
   gap: 14px;
 }
+/* =========================
+   POST 
+   ========================= */
+.postCard {
+  width: 100%;
+  padding: 12px 12px 10px;
+  border-radius: 14px;
+  border: 1px solid rgba(0, 0, 0, 0.14);
+  background: rgba(255, 255, 255, 0.55);
+}
 
-.postHeader {
-  display: grid;
-  grid-template-columns: 36px 1fr;
+/* TOP ROW */
+.postTop {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
   gap: 10px;
+  margin-bottom: 6px;
+}
+
+.postTopLeft {
+  display: flex;
   align-items: center;
-  margin-bottom: 10px;
+  gap: 10px;
+  min-width: 0;
 }
 
 .postAvatar {
-  width: 36px;
-  height: 36px;
+  width: 34px;
+  height: 34px;
   border-radius: 50%;
   object-fit: cover;
+  flex: 0 0 34px;
 }
 
-.postMeta {
+.postHeadText {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  line-height: 1.05;
+  min-width: 0;
+}
+
+.postLabel {
+  font-size: 10px;
+  color: rgba(0, 0, 0, 0.55);
+  margin-bottom: 2px;
 }
 
 .postAuthor {
+  font-size: 14px;
   font-weight: 700;
-  font-size: 13px;
+  color: #6b66ff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.postTime {
+/* RIGHT SIDE */
+.postTopRight {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 0 0 auto;
+}
+
+.postLocation {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  max-width: 170px;
+}
+
+.postLocationIcon {
+  width: 14px;
+  height: 14px;
+  object-fit: contain;
+}
+
+.postLocationText {
   font-size: 11px;
-  color: rgba(0, 0, 0, 0.52);
+  font-weight: 600;
+  color: #ff4fb1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
+.postMoreBtn {
+  width: 28px;
+  height: 20px;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  font-size: 18px;
+  line-height: 1;
+  color: rgba(0, 0, 0, 0.55);
+}
+
+/* TEXT */
 .postText {
-  margin: 0 0 10px;
-  font-size: 12px;
-  line-height: 1.45;
-  color: rgba(0, 0, 0, 0.7);
+  margin: 0 0 8px;
+  font-size: 11px;
+  line-height: 1.35;
+  color: rgba(0, 0, 0, 0.65);
 }
 
-.postImage {
-  height: 160px;
-  border-radius: 12px;
-  background: rgba(0, 0, 0, 0.06);
+/* IMAGE */
+.postMedia {
+  width: 100%;
+  height: 320px;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid rgba(0, 0, 0, 0.12);
   margin-bottom: 10px;
 }
 
-.postEngagement {
+.postMediaMock {
+  width: 100%;
+  height: 100%;
+
+  background: rgba(0, 0, 0, 0.12);
+}
+
+/* ACTIONS */
+.postActions {
   display: flex;
-  gap: 18px;
-  font-size: 12px;
+  align-items: center;
+  justify-content: space-around;
+  gap: 10px;
+  padding: 8px 6px 2px;
+  background: rgba(255, 255, 255, 0.55);
+  border-radius: 10px;
+}
+
+.postActionBtn {
+  border: 0;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.postActionIcon {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+}
+
+.postActionCount {
+  font-size: 11px;
+  font-weight: 600;
   color: rgba(0, 0, 0, 0.6);
 }
+
 
 /* =========================
    🌙 DARK MODE — текст видно
@@ -638,11 +782,6 @@ body.dark .profile-home .badgeItem {
     }
   }
 
-  /* ✅ GRID як у Figma:
-     ряд 1: name | badges (праворуч)
-     ряд 2: bio на всю ширину
-     ряд 3: actions на всю ширину
-  */
   .profileInfo {
     display: grid;
     grid-template-columns: 1fr auto;
@@ -731,6 +870,7 @@ body.dark .profile-home .badgeItem {
   .actionBig,
   .actionsRow {
     display: none;
+  width: 740px;
   }
 
   /* 1 ряд: 2 кнопки + ... */
@@ -750,6 +890,7 @@ body.dark .profile-home .badgeItem {
 
   .actionBtn {
     height: 44px;
+  
     border-radius: 12px;
     padding: 0 12px;
     min-width: 0;
@@ -850,5 +991,232 @@ body.dark .profile-home .badgeItem {
     padding: 10px 10px;
     border-radius: 10px;
     font-size: 13px;
+  }
+}
+/* =========================
+   MOBILE 320 (<= 360px) — like Figma
+   ========================= */
+@media (max-width: 460px) {
+  .profile-container {
+    padding: 10px 12px 90px;
+    gap: 14px;
+  }
+
+  /* Top row: avatar left, info right */
+  .profileBlock {
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .avatarWrap {
+    width: 98px;
+    height: 98px;
+    flex: 0 0 78px;
+  }
+
+  /* online dot top-left like mock */
+  .avatarWrap::before {
+    width: 11px;
+    height: 11px;
+    top: 5px;
+    left: 16px;
+    transform: none;
+    border-width: 2px;
+  }
+
+  .avatarBorder {
+    padding: 3px;
+  }
+
+  .avatarEdit {
+    width: 30px;
+    height: 30px;
+    right: 2px;
+    bottom: 2px;
+
+    img {
+      width: 16px;
+      height: 16px;
+    }
+  }
+
+  /* ===== IMPORTANT: keep GRID (do not switch to flex) ===== */
+  .profileInfo {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    grid-template-areas:
+      "name badges"
+      "bio  bio"
+      "actions actions";
+    column-gap: 10px;
+    row-gap: 10px;
+    padding-top: 0;
+    min-width: 0;
+    align-items: start;
+  }
+
+  /* Fix "9999" vertical issue */
+  .name {
+    grid-area: name;
+    margin: 0;
+    font-size: 26px;
+    line-height: 1.05;
+
+    word-break: normal;
+    overflow-wrap: break-word;
+
+    text-underline-offset: 4px;
+    text-decoration-thickness: 1px;
+  }
+.nameText {
+  font-size: 20px;
+
+  background: linear-gradient(236.31deg, #FF4FB1 11.54%, #4F6BFF 88.46%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+
+  white-space: nowrap;
+}
+  .bio {
+    grid-area: bio;
+    margin: 0;
+    font-size: 12px;
+    line-height: 1.75;
+  }
+
+  .bioLocation {
+    margin-top: 12px;
+  }
+
+  /* ===== badges row (my video / saved / my balance) ===== */
+  .badgesRow {
+    grid-area: badges;
+    display: flex;
+    gap: 14px;
+    margin: 0;
+    padding-top: 2px; /* підняти як у макеті */
+    flex-wrap: nowrap;
+    align-items: flex-start;
+  }
+
+  .badgeItem {
+    border: 0;
+    background: transparent;
+    padding: 0;
+    cursor: pointer;
+
+    display: grid;
+    justify-items: center;
+    gap: 4px;
+
+    /* щоб не стискало в нуль */
+    flex: 0 0 auto;
+    white-space: nowrap;
+  }
+
+  .badgeIcon {
+    width: 14px;   /* на 320 іконки мають бути видимі */
+    height: 14px;
+    display: block;
+    object-fit: contain;
+  }
+
+  .badgeText {
+    font-size: 8px;
+    font-weight: 500;
+    line-height: 1;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  /* ===== Actions buttons: pills like Figma ===== */
+  .actionsBlock {
+    grid-area: actions;
+    margin-top: 4px;
+    gap: 12px;
+  }
+
+  /* hide desktop ones */
+  .actionBig,
+  .actionsRow {
+    display: none;
+  }
+
+  .actionsRow1 {
+    display: grid;
+    grid-template-columns: 1fr 1fr 52px; /* ... як у макеті */
+    gap: 10px;
+  }
+
+  .actionsRow2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .actionBtn {
+    height: 42px;
+    border-radius: 999px;
+    padding: 0 14px;
+    border: 1px solid rgba(0, 0, 0, 0.14);
+    background: rgba(255, 255, 255, 0.85);
+
+    /* center text like Figma */
+    justify-content: center;
+    position: relative;
+
+    /* reserve space for right icon */
+    padding-right: 40px;
+
+    span {
+      font-size: 13px;
+      font-weight: 500;
+      color: rgba(0, 0, 0, 0.7);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  }
+
+  /* icons on the right for ANY button */
+  .actionBtn > img {
+    position: absolute;
+    right: 14px;
+    width: 18px;
+    height: 18px;
+    object-fit: contain;
+  }
+
+  /* the plus bubble should also sit on the right */
+  .actionPlus {
+    position: absolute;
+    right: 10px;
+    width: 22px;
+    height: 22px;
+    border-radius: 999px;
+    display: grid;
+    place-items: center;
+  }
+
+  .actionPlus img {
+    width: 12px;
+    height: 12px;
+  }
+
+  /* ... button */
+  .actionMore {
+    width: 52px;
+    min-width: 52px;
+    padding: 0;
+    padding-right: 0;
+    font-size: 18px;
+    justify-content: center;
+  }
+
+  /* messages button hidden on mobile */
+  .profileRight {
+    display: none;
   }
 }

@@ -6,11 +6,10 @@
 .profile-header .mobileRightGroup {
   flex-shrink: 0;
 }
-
-/* щоб логотип не "з'їдав" правий блок */
 .profile-header .logo {
   flex: 1;
-  min-width: 0;      /* ✅ важливо */
+  min-width: 0;     
+
 }
 
 /* default desktop */
@@ -294,5 +293,125 @@ body.dark .profile-header .desktopNavRow::before {
 
   .profile-header .navBtnActive {
     opacity: 1;
+  }
+}
+/* =========================
+   ✅ 320px (<=360) + pink underline like Figma
+   Add to the END of ProfileHeader.scss
+========================= */
+
+.profile-header {
+  position: relative;
+}
+
+.profile-header::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+     
+  background: #111111;       
+  bottom: 0;
+  width: 100vw;
+  height: 1px;            
+  opacity: 0.35;
+  pointer-events: none;
+}
+
+/* underline під ME YOU (плоска рожева) */
+.profile-header .logoText {
+  position: relative;
+  display: inline-block;
+  padding-bottom: 1px;
+}
+
+.profile-header .logoText::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 2px;
+  height: 1px;             
+  background: #ff4fb1;
+  border-radius: 0;        
+}
+
+/* dark mode — щоб було видно */
+body.dark .profile-header::after {
+  opacity: 0.7;
+}
+
+body.dark .profile-header .logoText::after {
+  opacity: 0.95;
+}
+
+/* =========================
+   📱 320px layout fixes
+========================= */
+@media (max-width: 360px) {
+  .profile-header {
+    width: 100%;
+    margin-left: 0;
+  }
+
+  .profile-header .topRow {
+    height: 52px;
+    padding: 0 12px 12px; /* як у макеті: компактніше */
+    gap: 10px;
+  }
+
+  /* Лого менше */
+  .profile-header .logoText {
+    font-size: 30px;  /* 28-30 виглядає як у макеті */
+    line-height: 1;
+    padding-bottom: 6px;
+  }
+
+  /* кнопки не стискаються */
+  .profile-header .searchBtn,
+  .profile-header .iconBtn,
+  .profile-header .themeBtn {
+    width: 32px;
+    height: 32px;
+    flex: 0 0 32px;
+  }
+
+  .profile-header .searchBtn img,
+  .profile-header .iconBtn img {
+    width: 32px;
+    height: 32px;
+  }
+
+  .profile-header .themeBtn {
+    font-size: 26px;
+    width: 32px !important;
+    height: 32px !important;
+    min-width: 32px !important;
+    min-height: 32px !important;
+  }
+
+  /* мобільний правий блок — ближче як у Figma */
+  .profile-header .mobileRightGroup {
+    gap: 10px;
+  }
+
+  /* нижній fixed navbar — як у макеті */
+  .profile-header .mobileNavRow {
+    height: 70px;
+  }
+
+  .profile-header .navBtn {
+    width: 56px;
+    height: 56px;
+  }
+
+  .profile-header .navBtn img {
+    width: 40px;
+    height: 40px;
+  }
+
+  /* щоб контент не залазив під bottom nav */
+  .profile-container {
+    padding-bottom: 92px;
   }
 }
