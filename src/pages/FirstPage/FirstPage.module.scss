@@ -1,0 +1,13 @@
+.logoText {
+  position: relative;
+}
+
+.logoText::after {
+  content: '';
+  position: absolute;
+  bottom: 4px;  /* расстояние от букв */
+  left: 0;
+  right: 0;
+  height: 0.5px; /* толщина линии */
+  background-color: #FF4FB1;
+}

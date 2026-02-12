@@ -21,6 +21,8 @@ import ResetNewPasswordPage from "../pages/Auth/ResetNewPassword/ResetNewPasswor
 import CompleteProfilePage from "../pages/Users/Profile/CompleteProfilePage";
 import EditProfilePage from "../pages/Users/Profile/EditProfilePage";
 
+import FirstPage from "../pages/FirstPage/FirstPage";
+
 import ProfileGuard from "./ProfileGuard";
 
 export default function AppRouter() {
@@ -36,6 +38,7 @@ export default function AppRouter() {
                 <Route path="/friends" element={<Friends />} />
                 <Route path="/profile" element={<Profile />} />
                 <Route path="/vip-chat" element={<VipChat />} />
+                <Route path="/first-page" element={<FirstPage />} />
 
                 <Route
                   path="/users/profile/complete"

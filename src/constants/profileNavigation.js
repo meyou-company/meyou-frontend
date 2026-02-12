@@ -2,7 +2,7 @@ import icons from "./profileIcons";
 
 // 📱 Mobile bottom — 4 як у макеті
 export const mobileProfileNav = [
-  { key: "home", path: "/", label: "Home", icon: icons.home },
+  { key: "home", path: "/first-page", label: "Home", icon: icons.home },
   { key: "user", path: "/profile", label: "Profile", icon: icons.user },
   { key: "bell", path: "/notifications", label: "Notifications", icon: icons.bell },
   { key: "menu", action: "MENU", label: "Menu", icon: icons.menu },
@@ -18,7 +18,7 @@ export const desktopTopActions = [
 
 // 🖥 Desktop second row (5 іконок)
 export const desktopNavItems = [
-  { key: "home", path: "/", label: "Home", icon: icons.home },
+  { key: "home", path: "/first-page", label: "Home", icon: icons.home },
   { key: "add", path: "/create", label: "Add", icon: icons.plus },
   { key: "posts", path: "/posts", label: "Posts", icon: icons.posts },
   { key: "friends", path: "/friends", label: "Friends", icon: icons.friends },
