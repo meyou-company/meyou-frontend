@@ -1,9 +1,11 @@
 import { useMemo, useState } from "react";
 
 import { PASSWORD_REGEX } from "../../../utils/validationRegister";
-import "./ResetNewPasswordForm.scss"
 import { useForceDarkTheme } from "../../../hooks/useForceDarkTheme";
+import "./ResetNewPasswordForm.scss";
+
 export default function ResetNewPasswordForm({ onBack, onSuccess }) {
+  useForceDarkTheme();
   const [form, setForm] = useState({ password: "", confirmPassword: "" });
   const [touched, setTouched] = useState({ password: false, confirmPassword: false });
   const [show, setShow] = useState({ password: false, confirmPassword: false });
@@ -61,7 +63,7 @@ export default function ResetNewPasswordForm({ onBack, onSuccess }) {
       setIsSubmitting(false);
     }
   };
-useForceDarkTheme();
+
   return (
     <section className="auth auth--login">
       {/* back arrow — GLOBAL */}

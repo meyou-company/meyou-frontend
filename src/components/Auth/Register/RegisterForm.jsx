@@ -1,9 +1,11 @@
 import { useMemo, useState } from "react";
 import { useAuthStore } from "../../../zustand/useAuthStore";
+import { useForceDarkTheme } from "../../../hooks/useForceDarkTheme";
 import { validateRegister, isEmptyErrors } from "../../../utils/validationRegister";
 import "./RegisterForm.scss";
 
 export default function RegisterForm({ onBack, onGoLogin, onSuccess }) {
+  useForceDarkTheme();
   const register = useAuthStore((s) => s.register);
 
   const [form, setForm] = useState({

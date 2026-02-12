@@ -10,10 +10,10 @@ const applyTheme = (theme) => {
 };
 
 export const useThemeStore = create((set, get) => ({
-  theme: "dark", 
+  theme: "light",
 
   initTheme: () => {
-    const saved = localStorage.getItem("theme") || "dark"; 
+    const saved = localStorage.getItem("theme") || "light"; 
     applyTheme(saved);
     set({ theme: saved });
   },

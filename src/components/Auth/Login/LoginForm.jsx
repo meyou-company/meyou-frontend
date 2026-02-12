@@ -1,8 +1,10 @@
 import { useMemo, useState } from "react";
 import { useAuthStore } from "../../../zustand/useAuthStore";
-import "./LoginForm.scss";
 import { useForceDarkTheme } from "../../../hooks/useForceDarkTheme";
+import "./LoginForm.scss";
+
 export default function LoginForm({ onBack, onForgot, onSuccess }) {
+  useForceDarkTheme();
   const login = useAuthStore((s) => s.login);
 
   const [form, setForm] = useState({ email: "", password: "" });
@@ -57,7 +59,7 @@ export default function LoginForm({ onBack, onForgot, onSuccess }) {
       setIsSubmitting(false);
     }
   };
-useForceDarkTheme();
+
   return (
     <section className="auth auth--login">
       {/* back arrow (GLOBAL) */}

@@ -7,7 +7,14 @@ export const FirstPage = () => {
   const navigate = useNavigate();
   
   return (
-    <div className="min-h-screen bg-purple-100 flex flex-col">
+    <div className="relative min-h-screen flex flex-col">
+      {/* Повноекранний світлий фон — лише для FirstPage, не чіпає інші сторінки */}
+      <div
+        className="fixed inset-0 z-0 bg-purple-100"
+        style={{ minHeight: '100dvh' }}
+        aria-hidden="true"
+      />
+      <div className="relative z-10 flex flex-col flex-1">
       {/* HEADER */}
       <header className="w-full border-b-[0.1px] border-gray-900 bg-purple-100">
         <div className="max-w-6xl mx-auto flex items-center justify-between px-4 py-3 md:py-6">
@@ -111,6 +118,7 @@ export const FirstPage = () => {
           <div className="w-10 h-10 bg-gradient-to-bl from-pink-500 to-indigo-500" />
         </div>
       </nav>
+      </div>
     </div>
   );
 };

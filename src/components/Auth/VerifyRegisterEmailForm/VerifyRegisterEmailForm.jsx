@@ -1,10 +1,12 @@
 import { useMemo, useRef, useState } from "react";
 import { useAuthStore } from "../../../zustand/useAuthStore";
-import "../VerifyRegisterEmailForm/VerifyRegisterEmailForm.scss";
 import { useForceDarkTheme } from "../../../hooks/useForceDarkTheme";
+import "../VerifyRegisterEmailForm/VerifyRegisterEmailForm.scss";
+
 const CODE_LEN = 4;
 
 export default function VerifyRegisterEmailForm({ onBack, onSuccess }) {
+  useForceDarkTheme();
   const verifyEmailCode = useAuthStore((s) => s.verifyEmailCode);
   const resendEmailCode = useAuthStore((s) => s.resendEmailCode);
 
@@ -139,7 +141,7 @@ export default function VerifyRegisterEmailForm({ onBack, onSuccess }) {
       setIsResending(false);
     }
   };
-useForceDarkTheme();
+
   return (
     <section className="verify auth">
       <button type="button" className="back-arrow" onClick={onBack} aria-label="Назад">

@@ -3,11 +3,9 @@ import { useNavigate } from "react-router-dom";
 import ProfileHeader from "../../components/Users/Profile/ProfileHome/ProfileHeader";
 import ProfileHome from "../../components/Users/Profile/ProfileHome/ProfileHome";
 import { useAuthStore } from "../../zustand/useAuthStore";
-import { useForceLightTheme } from "../../hooks/useForceLightTheme";
 import styles from "./Profile.module.scss";
 
 export default function Profile() {
-  useForceLightTheme();
   const navigate = useNavigate();
   const user = useAuthStore((s) => s.user);
   const isAuthLoading = useAuthStore((s) => s.isAuthLoading);

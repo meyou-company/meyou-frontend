@@ -1,10 +1,12 @@
 import { useMemo, useRef, useState } from "react";
 import { useAuthStore } from "../../../zustand/useAuthStore";
-import "../VerifyResetCodeForm/VerifyResetCodeForm.scss";
 import { useForceDarkTheme } from "../../../hooks/useForceDarkTheme";
+import "../VerifyResetCodeForm/VerifyResetCodeForm.scss";
+
 const CODE_LEN = 4;
 
 export default function VerifyResetCodeForm({ onBack, onSuccess, email }) {
+  useForceDarkTheme();
   const verifyResetCode = useAuthStore((s) => s.verifyResetCode);
   const forgotPassword = useAuthStore((s) => s.forgotPassword);
 
@@ -151,7 +153,6 @@ const res = await verifyResetCode({ email, code: codeValue });
     }
   };
 
-useForceDarkTheme();
   return (
     <section className="verify auth">
       <button type="button" className="back-arrow" onClick={onBack} aria-label="Назад">
