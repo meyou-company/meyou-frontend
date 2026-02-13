@@ -174,3 +174,11 @@
     .app-container { max-width: 1440px; }
   }
 }
+
+/* Sonner toast: above modals, readable font */
+[data-sonner-toaster] {
+  z-index: 99999999 !important;
+}
+[data-sonner-toast] {
+  font-family: "Montserrat", sans-serif;
+}

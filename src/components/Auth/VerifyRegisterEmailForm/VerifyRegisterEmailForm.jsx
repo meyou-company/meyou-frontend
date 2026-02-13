@@ -1,4 +1,5 @@
 import { useMemo, useRef, useState } from "react";
+import { toast } from "sonner";
 import { useAuthStore } from "../../../zustand/useAuthStore";
 import { useForceDarkTheme } from "../../../hooks/useForceDarkTheme";
 import "../VerifyRegisterEmailForm/VerifyRegisterEmailForm.scss";
@@ -96,10 +97,12 @@ export default function VerifyRegisterEmailForm({ onBack, onSuccess }) {
           res?.error?.response?.data?.message ||
           res?.error?.message ||
           "Ошибка верификации";
+        toast.error(msg);
         setSubmitError(msg);
         return;
       }
 
+      toast.success("Email підтверджено");
       onSuccess?.();
     } catch (err) {
       const msg =
@@ -107,6 +110,7 @@ export default function VerifyRegisterEmailForm({ onBack, onSuccess }) {
         err?.response?.data?.message ||
         err?.message ||
         "Ошибка верификации";
+      toast.error(msg);
       setSubmitError(msg);
     } finally {
       setIsSubmitting(false);
@@ -128,7 +132,10 @@ export default function VerifyRegisterEmailForm({ onBack, onSuccess }) {
           res?.error?.response?.data?.message ||
           res?.error?.message ||
           "Ошибка отправки кода";
+        toast.error(msg);
         setSubmitError(msg);
+      } else if (res?.ok) {
+        toast.success("Код відправлено повторно");
       }
     } catch (e) {
       const msg =
@@ -136,6 +143,7 @@ export default function VerifyRegisterEmailForm({ onBack, onSuccess }) {
         e?.response?.data?.message ||
         e?.message ||
         "Ошибка отправки кода";
+      toast.error(msg);
       setSubmitError(msg);
     } finally {
       setIsResending(false);

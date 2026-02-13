@@ -1,6 +1,7 @@
 // ProfileHome.jsx
 import { useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 
 import AvatarCropModal from "../../../AvatarCropModal/AvatarCropModal";
 import { cropImageToFile } from "../../../../utils/cropImageToFile";
@@ -70,8 +71,16 @@ export default function ProfileHome({ user, refreshMe }) {
       await authApi.uploadAvatar(file);
       await refreshMe?.();
       setCropModalSrc(null);
+      toast.success("Аватар оновлено");
     } catch (err) {
-      console.error("Avatar upload error:", err);
+      const raw = err?.response?.data?.message;
+      const msg =
+        err?.response?.status === 401
+          ? "Сесія закінчилась. Увійди знову."
+          : (Array.isArray(raw) ? raw[0] : raw) ||
+            err?.message ||
+            "Не вдалося зберегти фото";
+      toast.error(String(msg));
     } finally {
       setIsSaving(false);
     }

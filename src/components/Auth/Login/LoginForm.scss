@@ -106,14 +106,34 @@
   }
 }
 
-/* single auth button (modifier) */
-.btn-gradient--auth-single {
+/* actions row: Войти + Google */
+.authActions {
+  display: flex;
+  gap: 22px;
+  margin-top: 10px;
   width: 100%;
-  max-width: 320px;
-  height: clamp(34px, 6vw, 60px);
-  border-radius: 999px;
+  max-width: 555px;
+}
+
+.btn-gradient--auth-primary {
+  flex: 1;
+  height: clamp(50px, 6vw, 60px);
+  border-radius: 40px;
   font-weight: 600;
-  margin: 16px auto 0;
+}
+
+.btn-gradient--auth-google {
+  width: clamp(130px, 22vw, 180px);
+  height: clamp(50px, 8vw, 60px);
+  border-radius: 40px;
+  display: grid;
+  place-items: center;
+}
+
+.google-auth-btn__icon {
+  width: 40px;
+  height: 40px;
+  display: block;
 }
 
 /* mobile */
@@ -144,8 +164,29 @@
     font-size: 14px;
   }
 
-  .btn-gradient--auth-single {
-    height: 46px;
+  .authActions {
+    gap: 12px;
+  }
+
+  .btn-gradient--auth-primary,
+  .btn-gradient--auth-google {
+    height: 56px;
+    border-radius: 999px;
+  }
+
+  .btn-gradient--auth-google {
+    width: 90px;
+  }
+
+  .google-auth-btn__icon {
+    width: 28px;
+    height: 28px;
+  }
+}
+
+@media (max-width: 360px) {
+  .btn-gradient--auth-google {
+    width: 80px;
   }
 }
 
