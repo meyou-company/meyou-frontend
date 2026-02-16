@@ -10,10 +10,24 @@ import { authApi } from "../../../../services/auth";
 import profileIcons from "../../../../constants/profileIcons";
 import "./ProfileHome.scss";
 
+/** Іконки тільки для actionsBlock (чорно-білі SVG) */
+const actionIcons = {
+  plus: "/icon-black/plus.svg",
+  video: "/icon-black/videocamera.svg",
+  live: "/icon-black/Group.svg",
+  pencil: "/icon-black/pencil.svg",
+};
+
 const MOCK_VIP = Array.from({ length: 12 }, (_, i) => ({
   id: i + 1,
   avatar: i % 3 === 0 ? "/Logo/photo.png" : null,
 }));
+
+/** Форма друга для відображення в кружечках */
+const toFriendItem = (f) => ({
+  id: f?.id ?? f,
+  avatar: f?.avatarUrl ?? f?.avatar ?? null,
+});
 const MOCK_POSTS = [
   {
     id: 1,
@@ -50,6 +64,9 @@ export default function ProfileHome({ user, refreshMe }) {
   const location = [user?.city, user?.country].filter(Boolean).join(", ") || "";
   const bioLine1 = fullNameReal ? `${fullNameReal}.` : "";
   const bioLine2 = location ? `${location}.` : "";
+
+  const friends = Array.isArray(user?.friends) ? user.friends.map(toFriendItem) : [];
+  const hasFriends = friends.length > 0;
 
   const onFileSelect = (e) => {
     const file = e.target.files?.[0];
@@ -180,7 +197,7 @@ export default function ProfileHome({ user, refreshMe }) {
               <button className="actionBtn" type="button">
                 <span>Дополнить историю</span>
                 <span className="actionPlus">
-                  <img src={profileIcons.plus} alt="" />
+                  <img src={actionIcons.plus} alt="" />
                 </span>
               </button>
 
@@ -190,8 +207,7 @@ export default function ProfileHome({ user, refreshMe }) {
                 onClick={() => navigate("/users/profile/edit")}
               >
                 <span>Редактировать профиль</span>
-                {/* ✅ add pencil icon like Figma (rename icon if needed) */}
-                <img src={profileIcons.pencil || profileIcons.edit} alt="" />
+                <img src={actionIcons.pencil} alt="" />
               </button>
 
               <button className="actionBtn actionMore" type="button" aria-label="Більше">
@@ -202,12 +218,12 @@ export default function ProfileHome({ user, refreshMe }) {
             <div className="actionsRow2">
               <button className="actionBtn" type="button">
                 <span>Добавить рилс</span>
-                <img src={profileIcons.video} alt="" />
+                <img src={actionIcons.video} alt="" />
               </button>
 
               <button className="actionBtn" type="button">
                 <span>Прямой эфир</span>
-                <img src={profileIcons.live} alt="" />
+                <img src={actionIcons.live} alt="" />
               </button>
             </div>
 
@@ -215,66 +231,80 @@ export default function ProfileHome({ user, refreshMe }) {
             <button className="actionBtn actionBig" type="button">
               <span>Дополнить историю</span>
               <span className="actionPlus">
-                <img src={profileIcons.plus} alt="" />
+                <img src={actionIcons.plus} alt="" />
               </span>
             </button>
 
             <div className="actionsRow">
               <button className="actionBtn" type="button">
                 <span>Добавить рилс</span>
-                <img src={profileIcons.video} alt="" />
+                <img src={actionIcons.video} alt="" />
               </button>
               <button className="actionBtn" type="button">
                 <span>Прямой эфир</span>
-                <img src={profileIcons.live} alt="" />
+                <img src={actionIcons.live} alt="" />
               </button>
             </div>
           </div>
         </section>
 
-        {/* ================= VIP ================= */}
+        {/* ================= VIP / FRIENDS ================= */}
         <section className="vipCard">
-          <div className="vipHeader">
-            <span className="vipTitle">VIP 👑 0</span>
-          </div>
-
-          <div className="vipRow">
-            {MOCK_VIP.map((v) => (
-              <div key={v.id} className="vipItem">
-                <div className="vipAvatarWrap">
-                  <img
-                    src={v.avatar || "/icon1/image0.png"}
-                    className="vipAvatar"
-                    alt=""
-                  />
-                  <span className="onlineDot" />
-                </div>
+          {hasFriends && (
+            <>
+              <div className="vipHeader">
+                <span className="vipTitle">VIP 👑 0</span>
               </div>
-            ))}
-          </div>
-
-          <div className="vipDivider" />
-
-          <div className="friendsTitle">Друзья 0</div>
-
-          <div className="vipRow">
-            {MOCK_VIP.slice(0, 7).map((v) => (
-              <div key={`f-${v.id}`} className="vipItem">
-                <div className="vipAvatarWrap">
-                  <img
-                    src={v.avatar || "/icon1/image0.png"}
-                    className="vipAvatar"
-                    alt=""
-                  />
-                  <span className="onlineDot" />
+              <div className="vipRow">
+              {MOCK_VIP.map((v) => (
+                <div key={v.id} className="vipItem">
+                  <div className="vipAvatarWrap">
+                    <img
+                      src={v.avatar || "/icon1/image0.png"}
+                      className="vipAvatar"
+                      alt=""
+                    />
+                    <span className="onlineDot" />
+                  </div>
                 </div>
+              ))}
               </div>
-            ))}
-          </div>
+            </>
+          )}
 
-          <button className="showMoreBtn" type="button">
-            Показать больше
-          </button>
+          {hasFriends && <div className="vipDivider" />}
+
+          <div className="friendsTitle">Друзья {friends.length}</div>
+
+          {hasFriends ? (
+            <>
+              <div className="vipRow">
+                {friends.slice(0, 7).map((v) => (
+                  <div key={v.id} className="vipItem">
+                    <div className="vipAvatarWrap">
+                      <img
+                        src={v.avatar || "/icon1/image0.png"}
+                        className="vipAvatar"
+                        alt=""
+                      />
+                      <span className="onlineDot" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <button className="showMoreBtn" type="button">
+                Показать больше
+              </button>
+            </>
+          ) : (
+            <button
+              type="button"
+              className="showMoreBtn findFriendsBtn"
+              onClick={() => navigate("/explore")}
+            >
+              Знайти друзів
+            </button>
+          )}
         </section>
 
         {/* ================= NEW POST ================= */}

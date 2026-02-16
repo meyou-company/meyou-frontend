@@ -276,6 +276,7 @@ font-size: 60px;
     width: 22px;
     height: 22px;
     object-fit: contain;
+    filter: grayscale(100%);
   }
 }
 
@@ -291,6 +292,7 @@ font-size: 60px;
   img {
     width: 14px;
     height: 14px;
+    filter: grayscale(100%);
   }
 }
 
@@ -449,6 +451,12 @@ font-size: 60px;
   font-size: 12px;
   font-weight: 700;
   cursor: pointer;
+}
+
+.findFriendsBtn {
+  width: 100%;
+  max-width: 280px;
+  margin-top: 8px;
 }
 
 .newPostHead {
@@ -675,6 +683,10 @@ body.dark .profile-home .actionBtn {
   span {
     color: rgba(255, 255, 255, 0.88);
   }
+
+  img {
+    filter: grayscale(100%) invert(1);
+  }
 }
 
 body.dark .profile-home .msgText {
@@ -721,6 +733,8 @@ body.dark .profile-home .onlineDot {
 body.dark .profile-home .badgeItem {
   color: rgba(255, 255, 255, 0.75);
 }
+
+
 @media (max-width: 767px) {
   .profile-container {
     width: 100%;
@@ -1218,5 +1232,220 @@ body.dark .profile-home .badgeItem {
   /* messages button hidden on mobile */
   .profileRight {
     display: none;
+  }
+}
+
+/* =========================
+   MOBILE 320px — вузький екран
+   ========================= */
+@media (max-width: 320px) {
+  .profile-container {
+    padding: 8px 10px 90px;
+    gap: 10px;
+  }
+
+  .profileBlock {
+    gap: 8px;
+  }
+
+  .avatarWrap {
+    width: 72px;
+    height: 72px;
+    flex: 0 0 72px;
+  }
+
+  .avatarWrap::before {
+    width: 10px;
+    height: 10px;
+    top: 4px;
+    left: 14px;
+    border-width: 2px;
+  }
+
+  .avatarEdit {
+    width: 26px;
+    height: 26px;
+    right: 0;
+    bottom: 0;
+
+    img {
+      width: 14px;
+      height: 14px;
+    }
+  }
+
+  .profileInfo {
+    column-gap: 8px;
+    row-gap: 8px;
+  }
+
+  .name {
+    font-size: 22px;
+  }
+
+  .nameText {
+    font-size: 18px;
+  }
+
+  .bio {
+    font-size: 11px;
+    line-height: 1.5;
+  }
+
+  .bioLocation {
+    margin-top: 8px;
+  }
+
+  .badgesRow {
+    gap: 8px;
+    padding-top: 0;
+  }
+
+  .badgeIcon {
+    width: 12px;
+    height: 12px;
+  }
+
+  .badgeText {
+    font-size: 7px;
+  }
+
+  .actionsBlock {
+    margin-top: 2px;
+    gap: 8px;
+  }
+
+  .actionsRow1 {
+    grid-template-columns: 1fr 1fr 40px;
+    gap: 8px;
+  }
+
+  .actionsRow2 {
+    gap: 8px;
+  }
+
+  .actionBtn {
+    height: 38px;
+    padding: 0 10px;
+    padding-right: 36px;
+
+    span {
+      font-size: 11px;
+    }
+  }
+
+  .actionBtn > img {
+    right: 10px;
+    width: 16px;
+    height: 16px;
+  }
+
+  .actionPlus {
+    right: 8px;
+    width: 20px;
+    height: 20px;
+  }
+
+  .actionPlus img {
+    width: 10px;
+    height: 10px;
+  }
+
+  .actionMore {
+    width: 40px;
+    min-width: 40px;
+    font-size: 16px;
+  }
+
+  .vipCard,
+  .newPost {
+    padding: 10px;
+    border-radius: 12px;
+  }
+
+  .vipTitle,
+  .friendsTitle {
+    font-size: 12px;
+  }
+
+  .vipRow {
+    gap: 10px;
+  }
+
+  .vipAvatarWrap {
+    width: 46px;
+    height: 46px;
+    flex: 0 0 46px;
+  }
+
+  .onlineDot {
+    width: 8px;
+    height: 8px;
+  }
+
+  .vipDivider {
+    margin: 10px 0;
+  }
+
+  .showMoreBtn {
+    height: 28px;
+    font-size: 11px;
+    padding: 0 14px;
+  }
+
+  .newPostTitle {
+    font-size: 11px;
+  }
+
+  .postInput {
+    min-height: 48px;
+    padding: 8px 10px;
+    font-size: 12px;
+  }
+
+  .postCard {
+    padding: 10px;
+    border-radius: 12px;
+  }
+
+  .postAvatar {
+    width: 30px;
+    height: 30px;
+    flex: 0 0 30px;
+  }
+
+  .postAuthor {
+    font-size: 12px;
+  }
+
+  .postLocation {
+    max-width: 120px;
+  }
+
+  .postLocationText {
+    font-size: 10px;
+  }
+
+  .postText {
+    font-size: 10px;
+  }
+
+  .postMedia {
+    height: 220px;
+    border-radius: 6px;
+  }
+
+  .postActions {
+    padding: 6px 4px 2px;
+    gap: 8px;
+  }
+
+  .postActionIcon {
+    width: 18px;
+    height: 18px;
+  }
+
+  .postActionCount {
+    font-size: 10px;
   }
 }

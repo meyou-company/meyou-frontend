@@ -1,6 +1,5 @@
 import icons from "./profileIcons";
-
-// 📱 Mobile bottom — 4 як у макеті
+// Mobile тільки до 767px (як у SCSS)
 export const mobileProfileNav = [
   { key: "home", path: "/first-page", label: "Home", icon: icons.home },
   { key: "user", path: "/profile", label: "Profile", icon: icons.user },
@@ -8,19 +7,18 @@ export const mobileProfileNav = [
   { key: "menu", action: "MENU", label: "Menu", icon: icons.menu },
 ];
 
-
-// 🖥 Desktop top right: Messages, Wallet, Theme, Burger
+// Desktop / Tablet (>=768) — як у макеті зверху справа має бути Messages + Saved + Burger
 export const desktopTopActions = [
-  { key: "messages", path: "/messages", label: "Messages", icon: icons.chat },
-  { key: "wallet", path: "/wallet", label: "Wallet", icon: icons.balance },
+  { key: "messages", path: "/messages", label: "my messages", icon: icons.chat },
+  { key: "saved", path: "/saved", label: "saved", icon: icons.saved }, // <- додай іконку saved
   { key: "menu", action: "MENU", label: "Menu", icon: icons.menu },
 ];
 
-// 🖥 Desktop second row (5 іконок)
+// Desktop second row (5 іконок)
 export const desktopNavItems = [
   { key: "home", path: "/first-page", label: "Home", icon: icons.home },
   { key: "add", path: "/create", label: "Add", icon: icons.plus },
-  { key: "posts", path: "/posts", label: "Posts", icon: icons.posts },
   { key: "friends", path: "/friends", label: "Friends", icon: icons.friends },
+  { key: "posts", path: "/posts", label: "Posts", icon: icons.posts },
   { key: "notifications", path: "/notifications", label: "Notifications", icon: icons.bell },
 ];
