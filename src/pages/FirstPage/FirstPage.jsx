@@ -1,4 +1,5 @@
 import profileIcons from '../../constants/profileIcons';
+import storyUser from '../../../public/home/storyUser.png';
 import styles from "./FirstPage.module.scss"
 import { useNavigate } from "react-router-dom";
 
@@ -68,8 +69,7 @@ export const FirstPage = () => {
             </div>
           </div>
 
-          {/* <div className="flex gap-4 overflow-x-auto scrollbar-hide pb-2"> */}
-          <div className={`flex gap-4 overflow-x-auto pb-2 ${styles.scrollbarHide}`}>
+          <div className={`flex gap-3 md:gap-[23px] lg:gap-[76px] overflow-x-auto pb-2 ${styles.scrollbarHide}`}>
     
             {/* Add story */}
             <StoryCircle type="add" />
@@ -84,7 +84,7 @@ export const FirstPage = () => {
 
       {/* FEED */}
       <main className="flex-1">
-        <div className="max-w-6xl mx-auto px-4 py-6 space-y-6">
+        <div className="max-w-6xl mx-auto my-[10px] px-4 space-y-6">
           <FeedCard
             name="Olivia Hugglton"
             time="3 days ago"
@@ -137,7 +137,7 @@ const StoryCircle = ({ status, type }) => {
           <div className="relative flex items-center justify-center rounded-full w-16 h-16 md:w-24 md:h-24 bg-[#D5D5D5]">
             <img
               src={profileIcons.plus}
-              alt=""
+              alt="add story"
               aria-hidden="true"
               className="w-8 h-8 md:w-12 md:h-12"
             />
@@ -145,6 +145,13 @@ const StoryCircle = ({ status, type }) => {
         </div>
       ) : (
         <div className="relative flex items-center justify-center rounded-full border bg-[#D5D5D5] border-red-600 w-16 h-16 md:w-24 md:h-24">
+          <img
+            src={storyUser}
+            alt="user story"
+            aria-hidden="true"
+            className="w-[26px] h-[26px] md:w-12 md:h-12"
+          />
+
           {status && (
             <span
               className={`absolute right-[2px] top-[2px] w-2.5 h-2.5 md:w-3 md:h-3 rounded-full ${
@@ -169,30 +176,31 @@ const StoryCircle = ({ status, type }) => {
 
 const FeedCard = ({ name, time, location, status, text }) => {
   return (
-    <article className="bg-slate-50 rounded-lg shadow-sm p-4 md:p-6 space-y-3">
+    <article className="bg-slate-50 rounded-lg shadow-sm px-[6px] pt-[6px] pb-[11px] md:p-6 space-y-3">
       {/* Header */}
       <div className="flex justify-between items-start">
-        <div className="flex gap-3">
+        <div className="flex gap-[7px]">
           <div className="relative">
             <img
-              src="https://placehold.co/60x60"
+              src={storyUser}
               alt={name}
-              className="w-10 h-10 md:w-14 md:h-14 rounded-full"
+              className="w-10 h-10 md:w-14 md:h-14 rounded-full object-none bg-gray-300"
             />
             <span
-              className={`absolute right-0 top-0 w-2 h-2 md:w-3 md:h-3 rounded-full ${
+              className={`absolute right-[2px] top-[3px] w-[6px] h-[6px] md:w-3 md:h-3 rounded-full ${
                 status === "online"
                   ? "bg-green-700"
-                  : "bg-black/5 border border-gray-900/50"
+                  : "bg-zinc-300 border border-gray-900/50"
               }`}
             />
           </div>
-          <div className="flex flex-col">
+          <div className="flex flex-col mt-[5px]">
+            
+            <span className="text-[8px] md:text-xs text-black font-[Montserrat] underline">
+              {time}
+            </span>
             <span className="text-pink-500 text-xs md:text-sm font-[Montserrat] underline">
               {name}
-            </span>
-            <span className="text-[10px] md:text-xs text-black font-[Montserrat] underline">
-              {time}
             </span>
           </div>
         </div>
