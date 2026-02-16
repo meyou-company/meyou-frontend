@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { toast } from "sonner";
 import "./ForgotPasswordForm.scss";
 import { useAuthStore } from "../../../zustand/useAuthStore";
 import { useForceDarkTheme } from "../../../hooks/useForceDarkTheme";
@@ -56,11 +57,12 @@ export default function ForgotPasswordForm({ onBack, onSuccess }) {
           res?.error?.response?.data?.message ||
           res?.error?.message ||
           "Ошибка отправки кода. Попробуйте ещё раз.";
+        toast.error(msg);
         setSubmitError(msg);
         return;
       }
 
-      // ✅ важливо: передаємо email в onSuccess
+      toast.success("Код відправлено на email");
       onSuccess?.(email);
     } catch (err) {
       const msg =
@@ -68,6 +70,7 @@ export default function ForgotPasswordForm({ onBack, onSuccess }) {
         err?.response?.data?.message ||
         err?.message ||
         "Ошибка отправки кода. Попробуйте ещё раз.";
+      toast.error(msg);
       setSubmitError(msg);
     } finally {
       setIsSubmitting(false);

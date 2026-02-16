@@ -1,7 +1,7 @@
 import { useEffect } from "react";
+import { toast, Toaster } from "sonner";
 import { useAuthStore } from "./zustand/useAuthStore";
 import AppRouter from "./router/AppRouter";
-
 export default function App() {
   const init = useAuthStore((s) => s.init);
 
@@ -9,12 +9,18 @@ export default function App() {
     (async () => {
       try {
         await init();
-        console.log("APP init done");
       } catch (e) {
-        console.error("APP init crash:", e);
+        toast.error("Не вдалося завантажити додаток. Спробуйте оновити сторінку.");
       }
     })();
   }, [init]);
 
-  return <AppRouter />;
+  return    <>
+      <Toaster
+        position="top-center"
+        richColors
+        closeButton
+      />
+      <AppRouter />
+    </>
 }

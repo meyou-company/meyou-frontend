@@ -1,5 +1,5 @@
-
 import { useEffect, useMemo, useState } from "react";
+import { toast } from "sonner";
 import Select from "react-select";
 import { PhoneInput } from "react-international-phone";
 import "react-international-phone/style.css";
@@ -98,13 +98,17 @@ export default function CompleteProfileForm({ onBack, onSuccess }) {
 
       await refreshMe();
       closeCrop();
+      toast.success("Аватар оновлено");
     } catch (err) {
+      const raw = err?.response?.data?.message;
       const msg =
-        err?.response?.data?.message?.[0] ||
-        err?.response?.data?.message ||
-        err?.message ||
-        "Помилка завантаження аватару";
-      setAvatarError(msg);
+        err?.response?.status === 401
+          ? "Сесія закінчилась. Увійди знову."
+          : (Array.isArray(raw) ? raw[0] : raw) ||
+            err?.message ||
+            "Не вдалося зберегти фото";
+      toast.error(String(msg));
+      setAvatarError(String(msg));
     } finally {
       setIsAvatarUploading(false);
     }
@@ -114,15 +118,19 @@ export default function CompleteProfileForm({ onBack, onSuccess }) {
     try {
       setIsAvatarUploading(true);
       setAvatarError("");
-      await authApi.deleteAvatar(); 
+      await authApi.deleteAvatar();
       await refreshMe();
+      toast.success("Аватар видалено");
     } catch (err) {
+      const raw = err?.response?.data?.message;
       const msg =
-        err?.response?.data?.message?.[0] ||
-        err?.response?.data?.message ||
-        err?.message ||
-        "Помилка видалення аватару";
-      setAvatarError(msg);
+        err?.response?.status === 401
+          ? "Сесія закінчилась. Увійди знову."
+          : (Array.isArray(raw) ? raw[0] : raw) ||
+            err?.message ||
+            "Помилка видалення аватару";
+      toast.error(String(msg));
+      setAvatarError(String(msg));
     } finally {
       setIsAvatarUploading(false);
     }
@@ -244,6 +252,7 @@ export default function CompleteProfileForm({ onBack, onSuccess }) {
       setProfileCompleted(true);
 
       await refreshMe();
+      toast.success("Профіль збережено");
       onSuccess?.();
     } catch (err) {
       const msg =
@@ -251,6 +260,7 @@ export default function CompleteProfileForm({ onBack, onSuccess }) {
         err?.response?.data?.message ||
         err?.message ||
         "Помилка збереження профілю";
+      toast.error(msg);
       setSubmitError(msg);
     } finally {
       setIsSubmitting(false);

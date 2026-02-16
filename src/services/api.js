@@ -1,11 +1,10 @@
-// src/services/api.js
 import axios from "axios";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
 export const api = axios.create({
   baseURL: API_URL,
-  withCredentials: true, // ✅ треба для cookie
+  withCredentials: true, 
 });
 
 let accessToken = localStorage.getItem("accessToken");
@@ -33,13 +32,21 @@ const resolveQueue = (error, token = null) => {
   queue = [];
 };
 
+const isRefreshEndpoint = (config) => {
+  const url = config?.url ?? config?.baseURL ?? "";
+  return String(url).includes("/auth/refresh");
+};
+
 api.interceptors.response.use(
   (res) => res,
   async (err) => {
     const original = err.config;
 
-    // ✅ якщо skipAuth — не refreshимо
-    if (original?.skipAuth) return Promise.reject(err);
+    // ✅ не retry refresh — якщо це refresh request або skipAuth
+    if (original?.skipAuth || isRefreshEndpoint(original)) {
+      if (isRefreshEndpoint(original)) setAccessToken(null);
+      return Promise.reject(err);
+    }
 
     if (err.response?.status === 401 && !original?._retry) {
       original._retry = true;
@@ -48,9 +55,13 @@ api.interceptors.response.use(
         return new Promise((resolve, reject) => {
           queue.push({
             resolve: (token) => {
-              original.headers = original.headers ?? {};
-              original.headers.Authorization = `Bearer ${token}`;
-              resolve(api(original));
+              if (token) {
+                original.headers = original.headers ?? {};
+                original.headers.Authorization = `Bearer ${token}`;
+                resolve(api(original));
+              } else {
+                reject(new Error("Session expired"));
+              }
             },
             reject,
           });
@@ -60,21 +71,18 @@ api.interceptors.response.use(
       isRefreshing = true;
 
       try {
-        // ✅ ВАЖЛИВО: refresh БЕЗ body, бо бекенд бере refreshToken з COOKIE
-        const { data } = await api.post("/auth/refresh", null, { skipAuth: true });
-
+        const { data } = await api.post("/auth/refresh", null, {
+          skipAuth: true,
+        });
         const newToken = data?.accessToken;
         if (newToken) setAccessToken(newToken);
-
         resolveQueue(null, newToken);
-
         original.headers = original.headers ?? {};
         original.headers.Authorization = `Bearer ${newToken}`;
-
         return api(original);
       } catch (refreshErr) {
-        resolveQueue(refreshErr, null);
         setAccessToken(null);
+        resolveQueue(refreshErr, null);
         return Promise.reject(refreshErr);
       } finally {
         isRefreshing = false;

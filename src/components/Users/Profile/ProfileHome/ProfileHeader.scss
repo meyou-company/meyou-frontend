@@ -295,6 +295,30 @@ body.dark .profile-header .desktopNavRow::before {
     opacity: 1;
   }
 }
+
+/* =========================
+   📱 420px — менші іконки в нижньому хедері
+========================= */
+@media (max-width: 420px) {
+  .profile-header .mobileNavRow {
+    height: 60px;
+  }
+
+  .profile-header .navBtn {
+    width: 48px;
+    height: 48px;
+  }
+
+  .profile-header .navBtn img {
+    width: 34px;
+    height: 34px;
+  }
+
+  .profile-container {
+    padding-bottom: 82px;
+  }
+}
+
 /* =========================
    ✅ 320px (<=360) + pink underline like Figma
    Add to the END of ProfileHeader.scss
@@ -413,5 +437,28 @@ body.dark .profile-header .logoText::after {
   /* щоб контент не залазив під bottom nav */
   .profile-container {
     padding-bottom: 92px;
+  }
+}
+
+/* =========================
+   📱 320px — менші іконки в нижньому хедері
+========================= */
+@media (max-width: 320px) {
+  .profile-header .mobileNavRow {
+    height: 56px;
+  }
+
+  .profile-header .navBtn {
+    width: 44px;
+    height: 44px;
+  }
+
+  .profile-header .navBtn img {
+    width: 28px;
+    height: 28px;
+  }
+
+  .profile-container {
+    padding-bottom: 78px;
   }
 }

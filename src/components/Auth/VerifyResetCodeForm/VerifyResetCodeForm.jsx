@@ -1,4 +1,5 @@
 import { useMemo, useRef, useState } from "react";
+import { toast } from "sonner";
 import { useAuthStore } from "../../../zustand/useAuthStore";
 import { useForceDarkTheme } from "../../../hooks/useForceDarkTheme";
 import "../VerifyResetCodeForm/VerifyResetCodeForm.scss";
@@ -101,10 +102,12 @@ const res = await verifyResetCode({ email, code: codeValue });
           res?.error?.response?.data?.message ||
           res?.error?.message ||
           "Ошибка верификации";
+        toast.error(msg);
         setSubmitError(msg);
         return;
       }
 
+      toast.success("Код підтверджено");
       onSuccess?.(codeValue);
     } catch (err) {
       const msg =
@@ -112,6 +115,7 @@ const res = await verifyResetCode({ email, code: codeValue });
         err?.response?.data?.message ||
         err?.message ||
         "Ошибка верификации";
+      toast.error(msg);
       setSubmitError(msg);
     } finally {
       setIsSubmitting(false);
@@ -139,7 +143,10 @@ const res = await verifyResetCode({ email, code: codeValue });
           res?.error?.response?.data?.message ||
           res?.error?.message ||
           "Ошибка отправки кода";
+        toast.error(msg);
         setSubmitError(msg);
+      } else if (res?.ok) {
+        toast.success("Код відправлено повторно");
       }
     } catch (e) {
       const msg =
@@ -147,6 +154,7 @@ const res = await verifyResetCode({ email, code: codeValue });
         e?.response?.data?.message ||
         e?.message ||
         "Ошибка отправки кода";
+      toast.error(msg);
       setSubmitError(msg);
     } finally {
       setIsResending(false);

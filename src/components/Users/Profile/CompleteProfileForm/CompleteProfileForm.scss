@@ -424,6 +424,33 @@
   overflow: auto !important;
 }
 
+/* Dark mode: country names readable (white text) */
+body.dark .phone-wrap .react-international-phone-country-selector-dropdown,
+[data-theme="dark"] .phone-wrap .react-international-phone-country-selector-dropdown {
+  background: var(--select-menu-bg) !important;
+  color: var(--select-text) !important;
+
+  .react-international-phone-country-selector-dropdown__list-item,
+  .react-international-phone-country-selector-dropdown__list-item-name,
+  .react-international-phone-country-selector-dropdown__list-item-dial-code,
+  [class*="list-item"],
+  [class*="list-item"] span {
+    color: rgba(255, 255, 255, 0.92) !important;
+    background: transparent !important;
+  }
+
+  .react-international-phone-country-selector-dropdown__list-item:hover,
+  [class*="list-item"]:hover {
+    background: var(--select-option-hover-bg) !important;
+  }
+
+  .react-international-phone-country-selector-dropdown__list-item--selected,
+  [class*="list-item"][class*="selected"] {
+    background: var(--select-option-selected-bg) !important;
+    color: #fff !important;
+  }
+}
+
 /* =========================
    GRID
    ========================= */

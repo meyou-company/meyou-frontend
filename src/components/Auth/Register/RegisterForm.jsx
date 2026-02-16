@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { toast } from "sonner";
 import { useAuthStore } from "../../../zustand/useAuthStore";
 import { useForceDarkTheme } from "../../../hooks/useForceDarkTheme";
 import { validateRegister, isEmptyErrors } from "../../../utils/validationRegister";
@@ -99,17 +100,26 @@ const onSubmit = async (e) => {
         res?.error?.response?.data?.message ||
         res?.error?.message ||
         "Помилка реєстрації";
+      toast.error(msg);
       setSubmitError(msg);
       return;
     }
 
+    toast.success("Реєстрація успішна. Перевірте email для підтвердження.");
     onSuccess?.();
+  } catch (err) {
+    const msg =
+      err?.response?.data?.message?.[0] ||
+      err?.response?.data?.message ||
+      err?.message ||
+      "Помилка реєстрації";
+    toast.error(msg);
+    setSubmitError(msg || "Щось пішло не так");
   } finally {
     setIsSubmitting(false);
   }
 };
 
- 
   return (
     <section className="auth auth--register">
       <button type="button" className="back-arrow" onClick={onBack} aria-label="Назад">

@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-
+import { toast } from "sonner";
 import { PASSWORD_REGEX } from "../../../utils/validationRegister";
 import { useForceDarkTheme } from "../../../hooks/useForceDarkTheme";
 import "./ResetNewPasswordForm.scss";
@@ -56,9 +56,12 @@ export default function ResetNewPasswordForm({ onBack, onSuccess }) {
       // TODO: backend "reset password"
       await new Promise((r) => setTimeout(r, 600));
 
+      toast.success("Пароль змінено");
       onSuccess?.();
     } catch {
-      setSubmitError("Ошибка. Попробуйте ещё раз.");
+      const msg = "Ошибка. Попробуйте ещё раз.";
+      toast.error(msg);
+      setSubmitError(msg);
     } finally {
       setIsSubmitting(false);
     }

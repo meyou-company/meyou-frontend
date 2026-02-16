@@ -33,6 +33,7 @@ export default function Profile() {
       avatarUrl: user.avatarUrl || user.avatar || "",
       city: user.city || "",
       country: user.country || "",
+      friends: user.friends ?? [],
     };
   }, [user]);
 

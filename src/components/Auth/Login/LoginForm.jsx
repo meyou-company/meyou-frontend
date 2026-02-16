@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { toast } from "sonner";
 import { useAuthStore } from "../../../zustand/useAuthStore";
 import { useForceDarkTheme } from "../../../hooks/useForceDarkTheme";
 import "./LoginForm.scss";
@@ -32,6 +33,10 @@ export default function LoginForm({ onBack, onForgot, onSuccess }) {
 
   const onBlur = (e) => setTouched((p) => ({ ...p, [e.target.name]: true }));
 
+  const handleGoogle = () => {
+    window.location.href = `${import.meta.env.VITE_API_URL}/auth/google`;
+  };
+
   const onSubmit = async (e) => {
     e.preventDefault();
     setSubmitError("");
@@ -46,15 +51,26 @@ export default function LoginForm({ onBack, onForgot, onSuccess }) {
         password: form.password,
       });
 
-      if (res?.ok) onSuccess?.();
-      else {
+      if (res?.ok) {
+        toast.success("Успішний вхід");
+        onSuccess?.();
+      } else {
         const msg =
           res?.error?.response?.data?.message?.[0] ||
           res?.error?.response?.data?.message ||
           res?.error?.message ||
           "Помилка входу";
+        toast.error(msg);
         setSubmitError(msg);
       }
+    } catch (err) {
+      const msg =
+        err?.response?.data?.message?.[0] ||
+        err?.response?.data?.message ||
+        err?.message ||
+        "Помилка входу";
+      toast.error(msg);
+      setSubmitError(msg || "Щось пішло не так");
     } finally {
       setIsSubmitting(false);
     }
@@ -142,9 +158,14 @@ export default function LoginForm({ onBack, onForgot, onSuccess }) {
 
         {submitError && <div className="auth__error">{submitError}</div>}
 
-        <button className="btn-gradient btn-gradient--auth-single" type="submit" disabled={isSubmitting}>
-          {isSubmitting ? "Вход..." : "Войти"}
-        </button>
+        <div className="authActions">
+          <button className="btn-gradient btn-gradient--auth-primary" type="submit" disabled={isSubmitting}>
+            {isSubmitting ? "Вход..." : "Войти"}
+          </button>
+          <button type="button" className="btn-gradient btn-gradient--auth-google" onClick={handleGoogle}>
+            <img src="/icon1/google.png" alt="Google" className="google-auth-btn__icon" />
+          </button>
+        </div>
       </form>
     </section>
   );
