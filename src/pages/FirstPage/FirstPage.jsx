@@ -1,4 +1,5 @@
 import profileIcons from '../../constants/profileIcons';
+import storyUser from '../../../public/home/storyUser.png';
 import styles from "./FirstPage.module.scss"
 import { useNavigate } from "react-router-dom";
 
@@ -16,8 +17,8 @@ export const FirstPage = () => {
       />
       <div className="relative z-10 flex flex-col flex-1">
       {/* HEADER */}
-      <header className="w-full border-b-[0.1px] border-gray-900 bg-purple-100">
-        <div className="max-w-6xl mx-auto flex items-center justify-between px-4 py-3 md:py-6">
+      <header className="w-full border-gray-900 bg-purple-100">
+        <div className="max-w-6xl mx-auto flex items-center justify-between px-1 pt-3 pb-5 md:py-6">
           {/* Left icons */}
           <div className="flex items-center gap-3">
             <button
@@ -35,8 +36,8 @@ export const FirstPage = () => {
 
           {/* Logo */}
           <div className={styles.logoText + " text-[#FF4FB1] font-extrabold font-[Montserrat] text-xl lg:text-6xl"}>
-  ME YOU
-</div>
+          ME YOU
+          </div>
 
 
           {/* Right icons */}
@@ -56,10 +57,10 @@ export const FirstPage = () => {
       </header>
 
       {/* STORIES */}
-      <section className="border-b-[0.1px] border-gray-900 bg-[#FCE9E9]">
-        <div className="max-w-6xl mx-auto px-4 py-4 md:py-6">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-black font-[Montserrat] text-base md:text-xl">
+      <section className= "border-b-[0.1px] border-t-[0.1px] -ml-4 -mr-4 border-gray-900 bg-[#FCE9E9]">
+        <div className="max-w-6xl mx-auto pl-4 pt-4 md:py-6">
+          <div className="flex items-center justify-between mb-[4px]">
+            <h2 className="text-black font-[Montserrat] text-base md:text-xl pl-[9px]">
               Истории
             </h2>
             <div className="flex items-center gap-6 text-[10px] md:text-xs font-[Montserrat]">
@@ -68,7 +69,8 @@ export const FirstPage = () => {
             </div>
           </div>
 
-          <div className="flex gap-4 overflow-x-auto pb-2">
+          <div className={`flex gap-3 md:gap-[23px] lg:gap-[76px] overflow-x-auto pb-2 ${styles.scrollbarHide}`}>
+    
             {/* Add story */}
             <StoryCircle type="add" />
             {/* Existing stories */}
@@ -82,7 +84,7 @@ export const FirstPage = () => {
 
       {/* FEED */}
       <main className="flex-1">
-        <div className="max-w-6xl mx-auto px-4 py-6 space-y-6">
+        <div className="max-w-6xl mx-auto my-[10px] px-4 space-y-6">
           <FeedCard
             name="Olivia Hugglton"
             time="3 days ago"
@@ -123,76 +125,82 @@ export const FirstPage = () => {
   );
 };
 
+
 const StoryCircle = ({ status, type }) => {
   const isAdd = type === "add";
-  // const navigate = useNavigate();
-  
+
   return (
     <button className="flex flex-col items-center gap-1 min-w-[70px]">
-      <div
-        className={`relative flex items-center justify-center rounded-full border ${
-          isAdd ? "border-pink-500 bg-black/5" : "border-red-600 bg-black/5"
-        } w-16 h-16 md:w-24 md:h-24`}
-      >
-     
-        {/* Status dot */}
-        {status && (
-          <span
-            className={`absolute right-1 top-1 w-2 h-2 md:w-3 md:h-3 rounded-full ${
-              status === "online"
-                ? "bg-green-700"
-                : "bg-zinc-300 border border-black/40"
-            }`}
+      {/* Основной кружок */}
+      {isAdd ? (
+        <div className={styles.gradientBorder}>
+          <div className="relative flex items-center justify-center rounded-full w-16 h-16 md:w-24 md:h-24 bg-[#D5D5D5]">
+            <img
+              src={profileIcons.plus}
+              alt="add story"
+              aria-hidden="true"
+              className="w-8 h-8 md:w-12 md:h-12"
+            />
+          </div>
+        </div>
+      ) : (
+        <div className="relative flex items-center justify-center rounded-full border bg-[#D5D5D5] border-red-600 w-16 h-16 md:w-24 md:h-24">
+          <img
+            src={storyUser}
+            alt="user story"
+            aria-hidden="true"
+            className="w-[26px] h-[26px] md:w-12 md:h-12"
           />
-        )}
-        {/* Plus icon for add */}
-        {type === "add" && (
-          <button
-          type="button"
-          className="searchBtn"
-          // onClick={() => navigate("/explore")}
-          aria-label="Search"
-        >
-           <img src={profileIcons.plus} alt="" aria-hidden="true" className="w-7 h-7 md:w-12 md:h-12"  />
-        </button>
-          // <span className="absolute text-[10px] md:text-xs font-[Montserrat] text-black">
-          //   +
-          // </span>
-        )}
-      </div>
-      <span className="text-[10px] md:text-xs font-[Montserrat] text-black underline">
+
+          {status && (
+            <span
+              className={`absolute right-[2px] top-[2px] w-2.5 h-2.5 md:w-3 md:h-3 rounded-full ${
+                status === "online"
+                  ? "bg-green-700"
+                  : "bg-zinc-300 border border-black/40"
+              }`}
+            />
+          )}
+        </div>
+      )}
+
+      {/* Подпись */}
+      <span className="text-[8px] md:text-xs font-[Montserrat] text-black underline">
         {isAdd ? "добавить" : status === "online" ? "online" : "story"}
       </span>
     </button>
   );
 };
 
+
+
 const FeedCard = ({ name, time, location, status, text }) => {
   return (
-    <article className="bg-slate-50 rounded-lg shadow-sm p-4 md:p-6 space-y-3">
+    <article className="bg-slate-50 rounded-lg shadow-sm px-[6px] pt-[6px] pb-[11px] md:p-6 space-y-3">
       {/* Header */}
       <div className="flex justify-between items-start">
-        <div className="flex gap-3">
+        <div className="flex gap-[7px]">
           <div className="relative">
             <img
-              src="https://placehold.co/60x60"
+              src={storyUser}
               alt={name}
-              className="w-10 h-10 md:w-14 md:h-14 rounded-full"
+              className="w-10 h-10 md:w-14 md:h-14 rounded-full object-none bg-gray-300"
             />
             <span
-              className={`absolute right-0 top-0 w-2 h-2 md:w-3 md:h-3 rounded-full ${
+              className={`absolute right-[2px] top-[3px] w-[6px] h-[6px] md:w-3 md:h-3 rounded-full ${
                 status === "online"
                   ? "bg-green-700"
-                  : "bg-black/5 border border-gray-900/50"
+                  : "bg-zinc-300 border border-gray-900/50"
               }`}
             />
           </div>
-          <div className="flex flex-col">
+          <div className="flex flex-col mt-[5px]">
+            
+            <span className="text-[8px] md:text-xs text-black font-[Montserrat] underline">
+              {time}
+            </span>
             <span className="text-pink-500 text-xs md:text-sm font-[Montserrat] underline">
               {name}
-            </span>
-            <span className="text-[10px] md:text-xs text-black font-[Montserrat] underline">
-              {time}
             </span>
           </div>
         </div>
