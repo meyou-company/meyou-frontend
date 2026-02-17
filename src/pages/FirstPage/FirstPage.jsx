@@ -1,5 +1,15 @@
 import profileIcons from '../../constants/profileIcons';
-import storyUser from '../../../public/home/storyUser.png';
+import userIcon from '../../../public/icon1/user.svg';
+import closeIcon from '../../../public/icon1/close.svg';
+import savedIcon from '../../../public/icon1/saved.svg';
+import locationIcon from '../../../public/home/Location.png';
+import likeIcon from '../../../public/home/like.png';
+import commentsIcon from '../../../public/home/comments.png';
+import shareIcon from '../../../public/home/to-share.png';
+import homeIcon from '../../../public/home/home.png';
+import userMenuIcon from '../../../public/icon1/userMenu.svg';
+import commentIcon from '../../../public/icon1/comment.svg';
+import smsIcon from '../../../public/icon1/sms.svg';
 import styles from "./FirstPage.module.scss"
 import { useNavigate } from "react-router-dom";
 
@@ -8,7 +18,7 @@ export const FirstPage = () => {
   const navigate = useNavigate();
   
   return (
-    <div className="relative min-h-screen flex flex-col">
+    <div className="relative min-h-screen flex flex-col pb-10 md:pb-0">
       {/* Повноекранний світлий фон — лише для FirstPage, не чіпає інші сторінки */}
       <div
         className="fixed inset-0 z-0 bg-purple-100"
@@ -112,12 +122,12 @@ export const FirstPage = () => {
       </main>
 
       {/* BOTTOM NAV (мобайл) */}
-      <nav className="mt-auto border-t border-gray-900 bg-rose-100 md:hidden">
+      <nav className="fixed bottom-0 left-0 right-0 z-50 bg-rose-100 md:hidden">
         <div className="flex justify-around items-center h-16">
-          <div className="w-10 h-10 bg-gradient-to-bl from-pink-500 to-indigo-500" />
-          <div className="w-10 h-10 bg-gradient-to-bl from-pink-500 to-indigo-500" />
-          <div className="w-10 h-10 bg-gradient-to-bl from-pink-500 to-indigo-500" />
-          <div className="w-10 h-10 bg-gradient-to-bl from-pink-500 to-indigo-500" />
+          <img src={homeIcon} alt="home"className="w-[30px] h-[30px] md:w-6 md:h-6" />
+          <img src={userMenuIcon} alt="home"className="w-[30px] h-[30px] md:w-6 md:h-6" />
+          <img src={commentIcon} alt="home"className="w-[30px] h-[30px] md:w-6 md:h-6" />
+          <img src={smsIcon} alt="home"className="w-[30px] h-[30px] md:w-6 md:h-6" />
         </div>
       </nav>
       </div>
@@ -146,7 +156,7 @@ const StoryCircle = ({ status, type }) => {
       ) : (
         <div className="relative flex items-center justify-center rounded-full border bg-[#D5D5D5] border-red-600 w-16 h-16 md:w-24 md:h-24">
           <img
-            src={storyUser}
+            src={userIcon}
             alt="user story"
             aria-hidden="true"
             className="w-[26px] h-[26px] md:w-12 md:h-12"
@@ -176,13 +186,13 @@ const StoryCircle = ({ status, type }) => {
 
 const FeedCard = ({ name, time, location, status, text }) => {
   return (
-    <article className="bg-slate-50 rounded-lg shadow-sm px-[6px] pt-[6px] pb-[11px] md:p-6 space-y-3">
+    <article className="bg-slate-50 shadow-sm px-[6px] pt-[6px] pb-[11px] md:p-6 space-y-3 relative">
       {/* Header */}
       <div className="flex justify-between items-start">
         <div className="flex gap-[7px]">
           <div className="relative">
             <img
-              src={storyUser}
+              src={userIcon}
               alt={name}
               className="w-10 h-10 md:w-14 md:h-14 rounded-full object-none bg-gray-300"
             />
@@ -194,49 +204,63 @@ const FeedCard = ({ name, time, location, status, text }) => {
               }`}
             />
           </div>
-          <div className="flex flex-col mt-[5px]">
+          <div className="flex flex-col mt-[5px] gap-[3px]">
             
             <span className="text-[8px] md:text-xs text-black font-[Montserrat] underline">
               {time}
             </span>
-            <span className="text-pink-500 text-xs md:text-sm font-[Montserrat] underline">
-              {name}
+            <span className="text-xs md:text-sm font-[Montserrat] underline bg-gradient-to-r from-[#FF4FB1] to-[#4F6BFF] bg-clip-text text-transparent">
+             {name}
             </span>
+
           </div>
         </div>
 
-        <div className="flex items-center gap-1">
-          <div className="w-3 h-4 bg-gradient-to-bl from-pink-500 to-indigo-500" />
-          <span className="text-[10px] md:text-xs text-pink-500 font-[Montserrat] underline">
-            {location}
+    <div>
+        <div className="flex items-center mt-[13px] mr-[19px]">
+          <img src={locationIcon} alt="location" className="w-[4px] h-[5px] mr-1 mt-[1px] "/>
+          <span className="relative text-[10px] md:text-xs text-pink-500 font-[Montserrat] mr-[7px] inline-block">
+          {location}
+          <span className="absolute bottom-[2px] left-0 right-0 h-[0.5px] bg-pink-500"></span>
           </span>
         </div>
-      </div>
+         <img src={closeIcon} alt="close" className="absolute top-[13px] right-[14px] w-[6px] h-[6px]" />
+       </div>
+    </div>
+     
 
       {/* Text */}
-      <p className="text-xs md:text-sm text-gray-900 font-[Montserrat]">
+      <p className="text-xs md:text-sm text-gray-900 font-[Montserrat] font-medium underline">
         {text}
       </p>
 
       {/* Image placeholder */}
-      <div className="mt-2 h-32 md:h-40 bg-black/5" />
+      <div className="!mt-[19px] h-[202px] md:h-40 bg-black/5" />
 
       {/* Actions */}
-      <div className="mt-3 flex justify-between max-w-xs md:max-w-sm">
-        <ActionIcon label="125" />
-        <ActionIcon label="256" />
-        <ActionIcon label="21" />
-        <ActionIcon label="24" />
+      <div className="flex justify-center mt-3">
+        <div className="flex gap-[41px]">
+          <ActionIcon icon={likeIcon} label="125" />
+          <ActionIcon icon={commentsIcon} label="256" /> 
+          <ActionIcon icon={savedIcon} label="21" />
+          <ActionIcon icon={shareIcon} label="24" />
+        </div>
       </div>
+
     </article>
   );
 };
 
-const ActionIcon = ({ label }) => (
+const ActionIcon = ({ icon, label }) => (
   <button className="flex flex-col items-center text-[10px] md:text-xs font-[Montserrat] text-black">
-    <div className="w-7 h-7 md:w-8 md:h-8 bg-gradient-to-bl from-pink-500 to-indigo-500" />
-    <span>{label}</span>
+    <img 
+      src={icon} 
+      alt={label} 
+      className="w-5 h-5 md:w-6 md:h-6" 
+    />
+    <span className="text-black text-[8px] font-normal font-['Montserrat']">{label}</span>
   </button>
 );
+
 
 export default FirstPage;
