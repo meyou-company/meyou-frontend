@@ -28,7 +28,7 @@ export const FirstPage = () => {
       <div className="relative z-10 flex flex-col flex-1">
       {/* HEADER */}
       <header className="w-full border-gray-900 bg-purple-100">
-        <div className="max-w-6xl mx-auto flex items-center justify-between px-1 pt-3 pb-5 md:py-6">
+        <div className="mx-auto flex items-center justify-between px-1 pt-3 pb-5 md:py-6">
           {/* Left icons */}
           <div className="flex items-center gap-3">
             <button
@@ -37,7 +37,7 @@ export const FirstPage = () => {
           onClick={() => navigate("/explore")}
           aria-label="Search"
         >
-           <img src={profileIcons.search} alt="" aria-hidden="true" className="w-7 h-7 md:w-12 md:h-12"  />
+           <img src={profileIcons.search} alt="" aria-hidden="true" className="w-7 h-7 md:w-8 md:h-8"  />
         </button>
            
             {/* <img src={profileIcons.search} alt="" aria-hidden="true" className="hidden xl:flex w-10 h-10 md:w-12 md:h-12 bg-gradient-to-bl from-pink-500 to-indigo-500"/> */}
@@ -45,7 +45,7 @@ export const FirstPage = () => {
           </div>
 
           {/* Logo */}
-          <div className={styles.logoText + " text-[#FF4FB1] font-extrabold font-[Montserrat] text-xl lg:text-6xl"}>
+          <div className={styles.logoText + " text-[#FF4FB1] font-extrabold font-[Montserrat] text-xl md:text-[40px] lg:text-6xl"}>
           ME YOU
           </div>
 
@@ -66,17 +66,21 @@ export const FirstPage = () => {
           // onClick={() => navigate("/")}
           aria-label="Menu"
         >
-            <img src={profileIcons.menu} alt="" aria-hidden="true" className="hidden md:block w-7 h-7 md:w-12 md:h-12"  />
+            <img src={profileIcons.menu} alt="" aria-hidden="true" className="hidden md:block w-7 h-7 md:w-8 md:h-8"  />
         </button>
             {/* <img src={profileIcons.search} alt="" aria-hidden="true" /> */}
             {/* <div className="hidden xl:flex w-10 h-10 md:w-12 md:h-12 bg-gradient-to-bl from-pink-500 to-indigo-500" /> */}
           </div>
         </div>
       </header>
+{/* 
+      <div className="hidden md:flex mb-4">
+  <BottomNav />
+</div> */}
 
       {/* STORIES */}
       <section className= "border-b-[0.1px] border-t-[0.1px] -ml-4 -mr-4 border-gray-900 bg-[#FCE9E9]">
-        <div className="max-w-6xl mx-auto pl-4 pt-4 md:py-6">
+        <div className="mx-auto pl-4 pt-4 pr-1 md:py-6">
           <div className="flex items-center justify-between mb-[4px]">
             <h2 className="text-black font-[Montserrat] text-base md:text-xl pl-[9px]">
               Истории
@@ -86,7 +90,7 @@ export const FirstPage = () => {
             </div>
           </div>
 
-          <div className={`flex gap-3 md:gap-[23px] lg:gap-[76px] overflow-x-auto pb-2 ${styles.scrollbarHide}`}>
+          <div className={`flex gap-3 md:gap-[23px] lg:gap-[76px] overflow-x-auto pb-2 snap-x snap-mandatory snap-center ${styles.scrollbarHide}`}>
     
             {/* Add story */}
             <StoryCircle type="add" />
@@ -95,6 +99,7 @@ export const FirstPage = () => {
             <StoryCircle status="offline" />
             <StoryCircle status="online" />
             <StoryCircle type="add-more" />
+
           </div>
         </div>
       </section>
@@ -292,6 +297,59 @@ const ActionIcon = ({ icon, label }) => (
     <span className="text-black text-[8px] font-normal font-['Montserrat']">{label}</span>
   </button>
 );
+
+const BottomNav = () => {
+  const navigate = useNavigate();
+
+  const navItems = [
+    { 
+      icon: homeIcon, 
+      alt: 'home', 
+      route: '/home',
+      label: 'Главная'
+    },
+    { 
+      icon: userMenuIcon, 
+      alt: 'profile', 
+      route: '/profile',
+      label: 'Профиль'
+    },
+    { 
+      icon: commentIcon, 
+      alt: 'notifications', 
+      route: '/notifications',
+      label: 'Уведомления'
+    },
+    { 
+      icon: profileIcons.menu, 
+      alt: 'menu', 
+      route: '/',
+      label: 'Меню'
+    }
+  ];
+
+  return (
+    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-rose-100 md:hidden border-t border-gray-900">
+      <div className="flex justify-around items-center h-16 px-4">
+        {navItems.map((item, index) => (
+          <button
+            key={index}
+            onClick={() => navigate(item.route)}
+            className="flex flex-col items-center p-2 rounded-lg hover:bg-rose-200 active:bg-rose-300 transition-colors flex-1 h-full"
+            aria-label={item.label}
+          >
+            <img 
+              src={item.icon} 
+              alt={item.alt} 
+              className="w-[30px] h-[30px]" 
+            />
+          </button>
+        ))}
+      </div>
+    </nav>
+  );
+};
+
 
 
 export default FirstPage;
