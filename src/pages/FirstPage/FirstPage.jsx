@@ -55,10 +55,18 @@ export const FirstPage = () => {
               <button
           type="button"
           className="menuBtn"
-          // onClick={() => navigate("/explore")}
+          onClick={() => navigate("/vip-chat")}
           aria-label="Menu"
         >
-           <img src={profileIcons.menu} alt="" aria-hidden="true" className="w-7 h-7 md:w-12 md:h-12"  />
+           <img src={smsIcon} alt="" aria-hidden="true" className="w-7 h-7 md:hidden" />
+        </button>
+           <button
+          type="button"
+          className="menuBtn"
+          // onClick={() => navigate("/")}
+          aria-label="Menu"
+        >
+            <img src={profileIcons.menu} alt="" aria-hidden="true" className="hidden md:block w-7 h-7 md:w-12 md:h-12"  />
         </button>
             {/* <img src={profileIcons.search} alt="" aria-hidden="true" /> */}
             {/* <div className="hidden xl:flex w-10 h-10 md:w-12 md:h-12 bg-gradient-to-bl from-pink-500 to-indigo-500" /> */}
@@ -74,7 +82,6 @@ export const FirstPage = () => {
               Истории
             </h2>
             <div className="flex items-center gap-6 text-[10px] md:text-xs font-[Montserrat]">
-              <button className="underline">добавить</button>
               <span className="underline hidden md:inline">online</span>
             </div>
           </div>
@@ -121,15 +128,40 @@ export const FirstPage = () => {
         </div>
       </main>
 
+
       {/* BOTTOM NAV (мобайл) */}
-      <nav className="fixed bottom-0 left-0 right-0 z-50 bg-rose-100 md:hidden">
-        <div className="flex justify-around items-center h-16">
-          <img src={homeIcon} alt="home"className="w-[30px] h-[30px] md:w-6 md:h-6" />
-          <img src={userMenuIcon} alt="home"className="w-[30px] h-[30px] md:w-6 md:h-6" />
-          <img src={commentIcon} alt="home"className="w-[30px] h-[30px] md:w-6 md:h-6" />
-          <img src={smsIcon} alt="home"className="w-[30px] h-[30px] md:w-6 md:h-6" />
-        </div>
-      </nav>
+<nav className="fixed bottom-0 left-0 right-0 z-50 bg-rose-100 md:hidden">
+  <div className="flex justify-around items-center h-16 px-4">
+    <button 
+      onClick={() => navigate('/profile')}
+      className="flex flex-col items-center p-2 rounded-lg hover:bg-rose-200 active:bg-rose-300 transition-colors"
+    >
+      <img src={homeIcon} alt="profile" className="w-[30px] h-[30px]" />
+    </button>
+    
+    <button 
+      onClick={() => navigate('/friends')}
+      className="flex flex-col items-center p-2 rounded-lg hover:bg-rose-200 active:bg-rose-300 transition-colors"
+    >
+      <img src={userMenuIcon} alt="friends" className="w-[30px] h-[30px]" />
+    </button>
+    
+    <button 
+      onClick={() => navigate('/notifications')}
+      className="flex flex-col items-center p-2 rounded-lg hover:bg-rose-200 active:bg-rose-300 transition-colors"
+    >
+      <img src={commentIcon} alt="notifications" className="w-[30px] h-[30px]" />
+    </button>
+    
+    <button 
+      onClick={() => navigate('/')}
+      className="flex flex-col items-center p-2 rounded-lg hover:bg-rose-200 active:bg-rose-300 transition-colors"
+    >
+      <img src={profileIcons.menu} alt="messages" className="w-[30px] h-[30px]" />
+    </button>
+  </div>
+</nav>
+
       </div>
     </div>
   );
@@ -181,7 +213,6 @@ const StoryCircle = ({ status, type }) => {
     </button>
   );
 };
-
 
 
 const FeedCard = ({ name, time, location, status, text }) => {
@@ -256,7 +287,7 @@ const ActionIcon = ({ icon, label }) => (
     <img 
       src={icon} 
       alt={label} 
-      className="w-5 h-5 md:w-6 md:h-6" 
+      className="w-6 h-6 md:w-10 md:h-10" 
     />
     <span className="text-black text-[8px] font-normal font-['Montserrat']">{label}</span>
   </button>
