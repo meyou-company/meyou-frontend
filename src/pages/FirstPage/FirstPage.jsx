@@ -36,7 +36,7 @@ export const FirstPage = () => {
           onClick={() => navigate("/profile")}
           aria-label="Profile"
         >
-            <img src={userMenuIcon} alt="" aria-hidden="true" className="hidden xl:flex w-12 h-12 mr-[60px]"/>
+            <img src={profileIcons.home} alt="" aria-hidden="true" className="hidden xl:flex h-12 mr-[60px]"/>
         </button>
 
             <button
@@ -45,7 +45,7 @@ export const FirstPage = () => {
           onClick={() => navigate("/explore")}
           aria-label="Search"
         >
-           <img src={profileIcons.search} alt="" aria-hidden="true" className="w-7 h-7 md:w-8 md:h-8 xl:w-12 xl:h-12"  />
+           <img src={profileIcons.search} alt="" aria-hidden="true" className="h-7 md:h-8 xl:h-12"  />
         </button>
           </div>
 
@@ -70,7 +70,7 @@ export const FirstPage = () => {
           onClick={() => navigate("/vip-chat")}
           aria-label="Menu"
         >
-           <img src={smsIcon} alt="" aria-hidden="true" className="w-7 h-7 md:hidden" />
+           <img src={smsIcon} alt="" aria-hidden="true" className="h-7 md:hidden" />
         </button>
            <button
           type="button"
@@ -78,7 +78,7 @@ export const FirstPage = () => {
           // onClick={() => navigate("/")}
           aria-label="Menu"
         >
-            <img src={profileIcons.menu} alt="" aria-hidden="true" className="hidden md:block w-7 h-7 md:w-8 md:h-8 xl:w-12 xl:h-12"  />
+            <img src={profileIcons.menu} alt="" aria-hidden="true" className="hidden md:block h-7 md:h-8 xl:h-12"  />
         </button>
 
         
@@ -390,29 +390,19 @@ const TabletNav = () => {
           />
         </button>
 
-
-        {/* 2 кнопка */}
+       {/* Остальные без изменений */}
+  
         <button
           onClick={() => navigate("/")}
           className="flex flex-col items-center gap-2 group"
         >
-          {/* md = plus */}
-          <img
-            src={profileIcons.plus}
-            alt="Add"
-            className="h-8 xl:hidden"
-          />
-
-          {/* xl = video (раскомментированная) */}
           <img
             src={profileIcons.video}
             alt="Video"
-            className="hidden xl:block h-8 xl:h-[50px]"
+            className="hidden md:block h-8 xl:h-[50px]"
           />
         </button>
-
-
-        {/* Остальные без изменений */}
+ 
         <button
           onClick={() => navigate("/friends")}
           className="flex flex-col items-center gap-2 group"
