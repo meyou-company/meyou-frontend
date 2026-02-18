@@ -1,0 +1,11 @@
+/* =========================
+   Explore page — тільки навігація / layout
+   Стилізація контенту в components/Explore/
+========================= */
+
+.explore-page {
+  min-height: 100%;
+  background: transparent;
+  display: flex;
+  flex-direction: column;
+}

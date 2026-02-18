@@ -1,8 +1,15 @@
+
 import { create } from "zustand";
 
-const applyTheme = (theme) => {
-  document.documentElement.setAttribute("data-theme", theme);
-  if (theme === "dark") {
+/** 19:00–5:59 = dark, 6:00–18:59 = light */
+const getEffectiveFromTime = () => {
+  const hour = new Date().getHours();
+  return hour >= 19 || hour < 6 ? "dark" : "light";
+};
+
+const applyTheme = (effective) => {
+  document.documentElement.setAttribute("data-theme", effective);
+  if (effective === "dark") {
     document.body.classList.add("dark");
   } else {
     document.body.classList.remove("dark");
@@ -10,23 +17,49 @@ const applyTheme = (theme) => {
 };
 
 export const useThemeStore = create((set, get) => ({
-  theme: "light",
+  theme: "auto", // "light" | "dark" | "auto"
+  effectiveTheme: "light",
+
+  getEffectiveTheme: () => {
+    const { theme } = get();
+    return theme === "auto" ? getEffectiveFromTime() : theme;
+  },
 
   initTheme: () => {
-    const saved = localStorage.getItem("theme") || "light"; 
-    applyTheme(saved);
+    let saved = localStorage.getItem("theme");
+    const userChose = localStorage.getItem("themeUserChose");
+    if (!saved) saved = "auto";
+    else if (saved === "light" && !userChose) saved = "auto";
+    if (saved === "auto") localStorage.setItem("theme", "auto");
     set({ theme: saved });
+
+    const update = () => {
+      const { theme } = get();
+      const effective = theme === "auto" ? getEffectiveFromTime() : theme;
+      applyTheme(effective);
+      set({ effectiveTheme: effective });
+    };
+
+    update();
+    setInterval(update, 60 * 1000);
   },
 
   setTheme: (theme) => {
     localStorage.setItem("theme", theme);
-    applyTheme(theme);
-    set({ theme });
+    localStorage.setItem("themeUserChose", "1");
+    const effective = theme === "auto" ? getEffectiveFromTime() : theme;
+    applyTheme(effective);
+    set({ theme, effectiveTheme: effective });
   },
 
   toggleTheme: () => {
-    const current = get().theme;
-    const next = current === "dark" ? "light" : "dark";
-    get().setTheme(next);
+    const { theme, getEffectiveTheme } = get();
+    if (theme === "auto") {
+      const next = getEffectiveTheme() === "dark" ? "light" : "dark";
+      get().setTheme(next);
+    } else {
+      const next = theme === "dark" ? "light" : "dark";
+      get().setTheme(next);
+    }
   },
 }));

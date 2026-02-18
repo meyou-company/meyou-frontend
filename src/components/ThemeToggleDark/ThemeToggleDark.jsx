@@ -2,7 +2,7 @@ import { useThemeStore } from "../../zustand/useThemeStore";
 import "./ThemeToggle.scss";
 
 export default function ThemeToggleDark({ className = "" }) {
-  const theme = useThemeStore((s) => s.theme);
+  const effectiveTheme = useThemeStore((s) => s.effectiveTheme);
   const toggleTheme = useThemeStore((s) => s.toggleTheme);
 
   return (
@@ -10,10 +10,10 @@ export default function ThemeToggleDark({ className = "" }) {
       type="button"
       onClick={toggleTheme}
       aria-label="Toggle theme"
-      className={`theme-toggle ${theme} ${className}`}
+      className={`theme-toggle ${effectiveTheme} ${className}`}
     >
       <span className="icon">
-        {theme === "dark" ? "🌙" : "☀️"}
+        {effectiveTheme === "dark" ? "🌙" : "☀️"}
       </span>
     </button>
   );

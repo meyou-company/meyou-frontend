@@ -180,7 +180,7 @@ export default function ProfileHome({ user, refreshMe }) {
             <button
               type="button"
               className="btnMessages"
-              onClick={() => navigate("/messages")}
+              onClick={() => navigate("/vip-chat")}
               aria-label="My messages"
             >
               <img src={profileIcons.chat} alt="" className="msgIcon" />
@@ -300,7 +300,7 @@ export default function ProfileHome({ user, refreshMe }) {
             <button
               type="button"
               className="showMoreBtn findFriendsBtn"
-              onClick={() => navigate("/explore")}
+              onClick={() => navigate("/search")}
             >
               Знайти друзів
             </button>
@@ -387,7 +387,7 @@ export default function ProfileHome({ user, refreshMe }) {
 
         <button className="postActionBtn" type="button" aria-label="save">
           <img
-            src={profileIcons.saved || "/home/saved.png"}
+            src={profileIcons.saved || "/icon1/saved.svg"}
             className="postActionIcon"
             alt=""
           />

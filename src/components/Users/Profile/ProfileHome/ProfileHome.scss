@@ -25,9 +25,13 @@
   gap: 34px;                
 }
 .profileInfo {
-  flex: 0 0 543px;  
-  max-width: 443px;
+  flex: 0 0 543px;
+  max-width: 543px; 
   min-width: 0;
+  padding-top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
 .profileRight {
@@ -176,7 +180,6 @@
   font-size: 18px;
   padding: 0 12px;
 }
-
 .profileInfo { 
   flex: 1 1 auto; 
   min-width: 0; 
@@ -647,8 +650,8 @@ font-size: 60px;
 }
 
 .postActionIcon {
-  width: 20px;
-  height: 20px;
+  width: 40px;
+  height: 40px;
   object-fit: contain;
 }
 
@@ -695,7 +698,7 @@ body.dark .profile-home .msgText {
 
 body.dark .profile-home .vipCard,
 body.dark .profile-home .newPost,
-body.dark .profile-home .post {
+body.dark .profile-home .postCard {
   border-color: rgba(255, 255, 255, 0.15);
   background: rgba(20, 10, 30, 0.35);
 }
@@ -730,8 +733,9 @@ body.dark .profile-home .onlineDot {
   border-color: rgba(20, 10, 30, 0.9);
 }
 
-body.dark .profile-home .badgeItem {
-  color: rgba(255, 255, 255, 0.75);
+body.dark .profile-home .badgeItem,
+body.dark .profile-home .badgeText {
+  color: rgba(255, 255, 255, 0.9);
 }
 
 
@@ -742,7 +746,11 @@ body.dark .profile-home .badgeItem {
     padding: 12px 14px 90px;
     gap: 14px;
   }
-
+  .postActionIcon {
+  width: 25px;
+  height: 25px;
+  object-fit: contain;
+}
   .profileBlock {
     flex-direction: row;
     align-items: flex-start;
@@ -775,7 +783,7 @@ body.dark .profile-home .badgeItem {
     width: 12px;
     height: 12px;
     top: 6px;
-    left: 18px;
+    left: 68px;
     transform: none;
     border-width: 2px;
   }
@@ -859,8 +867,8 @@ body.dark .profile-home .badgeItem {
 
   /* ✅ маленькі іконки як у Figma */
   .badgeIcon {
-    width: 7px;
-    height: 7px;
+    width: 14px;
+    height: 14px;
     object-fit: contain;
     display: block;
   }
@@ -1034,7 +1042,7 @@ body.dark .profile-home .badgeItem {
     width: 11px;
     height: 11px;
     top: 5px;
-    left: 16px;
+    left: 76px;
     transform: none;
     border-width: 2px;
   }
@@ -1258,7 +1266,7 @@ body.dark .profile-home .badgeItem {
     width: 10px;
     height: 10px;
     top: 4px;
-    left: 14px;
+    left: 54px;
     border-width: 2px;
   }
 
@@ -1438,11 +1446,6 @@ body.dark .profile-home .badgeItem {
   .postActions {
     padding: 6px 4px 2px;
     gap: 8px;
-  }
-
-  .postActionIcon {
-    width: 18px;
-    height: 18px;
   }
 
   .postActionCount {
