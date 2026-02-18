@@ -18,7 +18,12 @@
   .logoText::after {
     bottom: -3px;
     height: 1px;
-    
+  }
+}
+
+@media only screen and (min-width: 1440px) {
+  .logoText::after {
+    bottom: 3px;
   }
 }
 
@@ -39,3 +44,10 @@
   align-items: center;
   justify-content: center;
 }
+
+@media only screen and (min-width: 1440px) {  
+.gradientBorder {
+  padding: 3px;
+  }
+}
+
