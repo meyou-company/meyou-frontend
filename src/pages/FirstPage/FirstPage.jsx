@@ -33,15 +33,20 @@ export const FirstPage = () => {
           <div className="flex items-center gap-3">
             <button
           type="button"
+          onClick={() => navigate("/profile")}
+          aria-label="Profile"
+        >
+            <img src={userMenuIcon} alt="" aria-hidden="true" className="hidden xl:flex w-12 h-12 mr-[60px]"/>
+        </button>
+
+            <button
+          type="button"
           className="searchBtn"
           onClick={() => navigate("/explore")}
           aria-label="Search"
         >
-           <img src={profileIcons.search} alt="" aria-hidden="true" className="w-7 h-7 md:w-8 md:h-8"  />
+           <img src={profileIcons.search} alt="" aria-hidden="true" className="w-7 h-7 md:w-8 md:h-8 xl:w-12 xl:h-12"  />
         </button>
-           
-            {/* <img src={profileIcons.search} alt="" aria-hidden="true" className="hidden xl:flex w-10 h-10 md:w-12 md:h-12 bg-gradient-to-bl from-pink-500 to-indigo-500"/> */}
-           
           </div>
 
           {/* Logo */}
@@ -65,7 +70,7 @@ export const FirstPage = () => {
           // onClick={() => navigate("/")}
           aria-label="Menu"
         >
-            <img src={profileIcons.menu} alt="" aria-hidden="true" className="hidden md:block w-7 h-7 md:w-8 md:h-8"  />
+            <img src={profileIcons.menu} alt="" aria-hidden="true" className="hidden md:block w-7 h-7 md:w-8 md:h-8 xl:w-12 xl:h-12"  />
         </button>
             {/* <img src={profileIcons.search} alt="" aria-hidden="true" /> */}
             {/* <div className="hidden xl:flex w-10 h-10 md:w-12 md:h-12 bg-gradient-to-bl from-pink-500 to-indigo-500" /> */}
@@ -82,14 +87,14 @@ export const FirstPage = () => {
     
       {/* STORIES */}
       <section className= "border-b-[0.1px] border-t-[0.1px] -ml-4 -mr-4 border-gray-900 bg-[#FCE9E9]">
-        <div className="mx-auto pl-4 pt-4 pr-1 md:py-6">
+        <div className="mx-auto pl-4 pt-4 pr-1 md:pt-[23px] md:pb-[19px] md:pl-[38px]">
           <div className="flex items-center justify-between mb-[4px] md:mb-6">
             <h2 className="text-black font-[Montserrat] text-base md:text-xl pl-[9px] md:pl-0">
               Истории
             </h2>
           </div>
 
-          <div className={`flex gap-3 md:gap-[23px] lg:gap-[76px] overflow-x-auto pb-2 snap-x snap-mandatory snap-center ${styles.scrollbarHide}`}>
+          <div className={`flex gap-3 md:gap-[23px] lg:gap-[76px] overflow-x-auto pb-2 md:pb-0 snap-x snap-mandatory snap-center ${styles.scrollbarHide}`}>
     
             {/* Add story */}
             <StoryCircle type="add" />
@@ -105,7 +110,7 @@ export const FirstPage = () => {
 
       {/* FEED */}
       <main className="flex-1">
-        <div className="max-w-6xl mx-auto my-[10px] px-4 space-y-6">
+        <div className="max-w-6xl mx-auto my-[10px] md:my-5 px-[10px] md:px-5 space-y-[10px] md:space-y-5">
           <FeedCard
             name="Olivia Hugglton"
             time="3 days ago"
@@ -180,7 +185,7 @@ const StoryCircle = ({ status, type }) => {
       {/* Основной кружок */}
       {isAdd ? (
         <div className={styles.gradientBorder}>
-          <div className="relative flex items-center justify-center rounded-full w-16 h-16 md:w-24 md:h-24 bg-[#D5D5D5]">
+          <div className="relative flex items-center justify-center rounded-full w-16 h-16 md:w-[120px] md:h-[120px] bg-[#D5D5D5]">
             <img
               src={profileIcons.plus}
               alt="add story"
@@ -190,7 +195,7 @@ const StoryCircle = ({ status, type }) => {
           </div>
         </div>
       ) : (
-        <div className="relative flex items-center justify-center rounded-full border bg-[#D5D5D5] border-red-600 w-16 h-16 md:w-24 md:h-24">
+        <div className="relative flex items-center justify-center rounded-full border bg-[#D5D5D5] border-red-600 w-16 h-16 md:w-[120px] md:h-[120px]">
           <img
             src={userIcon}
             alt="user story"
@@ -200,7 +205,7 @@ const StoryCircle = ({ status, type }) => {
 
           {status && (
             <span
-              className={`absolute right-[2px] top-[2px] w-2.5 h-2.5 md:w-3 md:h-3 rounded-full ${
+              className={`absolute right-[2px] top-[2px] w-2.5 h-2.5 md:w-3 md:h-3 md:top-3 md:right-[7px] rounded-full ${
                 status === "online"
                   ? "bg-green-700"
                   : "bg-zinc-300 border border-black/40"
@@ -221,7 +226,7 @@ const StoryCircle = ({ status, type }) => {
 
 const FeedCard = ({ name, time, location, status, text }) => {
   return (
-    <article className="bg-slate-50 shadow-sm px-[6px] pt-[6px] pb-[11px] md:p-6 space-y-3 relative">
+    <article className="bg-slate-50 shadow-sm px-[6px] pt-[6px] pb-[11px] md:p-[10px] space-y-3 relative">
       {/* Header */}
       <div className="flex justify-between items-start">
         <div className="flex gap-[7px]">
@@ -229,10 +234,10 @@ const FeedCard = ({ name, time, location, status, text }) => {
             <img
               src={userIcon}
               alt={name}
-              className="w-10 h-10 md:w-14 md:h-14 rounded-full object-none bg-gray-300"
+              className="w-10 h-10 md:w-[60px] md:h-[60px] rounded-full object-none bg-gray-300"
             />
             <span
-              className={`absolute right-[2px] top-[3px] w-[6px] h-[6px] md:w-3 md:h-3 rounded-full ${
+              className={`absolute right-[2px] top-[3px] w-[6px] h-[6px] md:w-2 md:h-2 md:top-[7px] md:right-[3px] rounded-full ${
                 status === "online"
                   ? "bg-green-700"
                   : "bg-zinc-300 border border-gray-900/50"
@@ -253,28 +258,27 @@ const FeedCard = ({ name, time, location, status, text }) => {
 
     <div>
         <div className="flex items-center mt-[13px] mr-[19px]">
-          <img src={locationIcon} alt="location" className="w-[4px] h-[5px] mr-1 mt-[1px] "/>
+          <img src={locationIcon} alt="location" className="w-[4px] h-[5px] mr-1 mt-[1px] md:w-[10px] md:h-[13px]" />
           <span className="relative text-[10px] md:text-xs text-pink-500 font-[Montserrat] mr-[7px] inline-block">
           {location}
           <span className="absolute bottom-[2px] left-0 right-0 h-[0.5px] bg-pink-500"></span>
           </span>
         </div>
-         <img src={closeIcon} alt="close" className="absolute top-[13px] right-[14px] w-[6px] h-[6px]" />
+         <img src={closeIcon} alt="close" className="absolute top-[13px] right-[14px] w-[6px] h-[6px] md:w-2 md:h-2" />
        </div>
     </div>
-     
 
       {/* Text */}
-      <p className="text-xs md:text-sm text-gray-900 font-[Montserrat] font-medium underline">
+      <p className="text-xs text-gray-900 font-[Montserrat] font-medium md:font-normal underline">
         {text}
       </p>
 
       {/* Image placeholder */}
-      <div className="!mt-[19px] h-[202px] md:h-40 bg-black/5" />
+      <div className="!mt-[19px] md:!mt-[10px] h-[202px] md:h-40 bg-black/5" />
 
       {/* Actions */}
       <div className="flex justify-center mt-3">
-        <div className="flex gap-[41px]">
+        <div className="flex gap-[41px] md:gap-[60px]">
           <ActionIcon icon={likeIcon} label="125" />
           <ActionIcon icon={commentsIcon} label="256" /> 
           <ActionIcon icon={savedIcon} label="21" />
@@ -291,9 +295,9 @@ const ActionIcon = ({ icon, label }) => (
     <img 
       src={icon} 
       alt={label} 
-      className="w-6 h-6 md:w-10 md:h-10" 
+      className="w-6 h-6 md:w-9 md:h-9" 
     />
-    <span className="text-black text-[8px] font-normal font-['Montserrat']">{label}</span>
+    <span className="text-black text-[8px] md:text-xs font-normal font-['Montserrat']">{label}</span>
   </button>
 );
 
@@ -353,10 +357,10 @@ const TabletNav = () => {
   const navigate = useNavigate();
 
   const navItems = [
-    { icon: homeIcon, route: "/profile", label: "Профиль" },
-    { icon: userMenuIcon, route: "/profile", label: "Главная" },
-    { icon: profileIcons.user, route: "/", label: "Меню" },
-    { icon: commentIcon, route: "/notifications", label: "Уведомления" },
+    { icon: homeIcon, route: "/profile", label: "Profile" },
+    { icon: profileIcons.video, route: "/", label: "" },
+    { icon: profileIcons.user, route: "/friends", label: "Friends" },
+    { icon: commentIcon, route: "/notifications", label: "Notifications" },
   ];
 
   return (
@@ -371,7 +375,7 @@ const TabletNav = () => {
             <img
               src={item.icon}
               alt={item.label}
-              className=" h-6 lg:w-10 lg:h-10 group-hover:scale-110 transition"
+              className=" h-8 lg:w-10 lg:h-10 group-hover:scale-110 transition"
             />
           </button>
         ))}
