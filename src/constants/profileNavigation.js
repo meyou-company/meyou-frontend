@@ -10,7 +10,7 @@ export const mobileProfileNav = [
 // Desktop / Tablet (>=768) — як у макеті зверху справа має бути Messages + Saved + Burger
 export const desktopTopActions = [
   { key: "messages", path: "/messages", label: "my messages", icon: icons.chat },
-  { key: "saved", path: "/saved", label: "saved", icon: icons.saved }, // <- додай іконку saved
+  { key: "saved", path: "/saved", label: "saved", icon: icons.saved }, 
   { key: "menu", action: "MENU", label: "Menu", icon: icons.menu },
 ];
 
@@ -18,7 +18,8 @@ export const desktopTopActions = [
 export const desktopNavItems = [
   { key: "home", path: "/first-page", label: "Home", icon: icons.home },
   { key: "add", path: "/create", label: "Add", icon: icons.plus },
+  { key: "reels", path: "/reels", label: "Reels", icon: icons.video },
+
   { key: "friends", path: "/friends", label: "Friends", icon: icons.friends },
-  { key: "posts", path: "/posts", label: "Posts", icon: icons.posts },
   { key: "notifications", path: "/notifications", label: "Notifications", icon: icons.bell },
 ];

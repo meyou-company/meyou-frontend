@@ -180,7 +180,7 @@ export default function ProfileHome({ user, refreshMe }) {
             <button
               type="button"
               className="btnMessages"
-              onClick={() => navigate("/messages")}
+              onClick={() => navigate("/vip-chat")}
               aria-label="My messages"
             >
               <img src={profileIcons.chat} alt="" className="msgIcon" />
@@ -300,7 +300,7 @@ export default function ProfileHome({ user, refreshMe }) {
             <button
               type="button"
               className="showMoreBtn findFriendsBtn"
-              onClick={() => navigate("/explore")}
+              onClick={() => navigate("/search")}
             >
               Знайти друзів
             </button>
@@ -342,7 +342,7 @@ export default function ProfileHome({ user, refreshMe }) {
           <div className="postLocation">
             <img
               className="postLocationIcon"
-              src={profileIcons.location || "/home/Location.png"}
+              src={profileIcons.location || "/home/location.svg"}
               alt=""
             />
             <span className="postLocationText">{post.location}</span>
@@ -369,7 +369,7 @@ export default function ProfileHome({ user, refreshMe }) {
       <div className="postActions">
         <button className="postActionBtn" type="button" aria-label="like">
           <img
-            src={profileIcons.like || "/home/like.png"}
+            src={profileIcons.like || "/home/like.svg"}
             className="postActionIcon"
             alt=""
           />
@@ -378,7 +378,7 @@ export default function ProfileHome({ user, refreshMe }) {
 
         <button className="postActionBtn" type="button" aria-label="comment">
           <img
-            src={profileIcons.comments || "/home/comments.png"}
+            src={profileIcons.comments || "/home/comments.svg"}
             className="postActionIcon"
             alt=""
           />
@@ -387,7 +387,7 @@ export default function ProfileHome({ user, refreshMe }) {
 
         <button className="postActionBtn" type="button" aria-label="save">
           <img
-            src={profileIcons.saved || "/home/saved.png"}
+            src={profileIcons.saved || "/icon1/saved.svg"}
             className="postActionIcon"
             alt=""
           />
@@ -396,7 +396,7 @@ export default function ProfileHome({ user, refreshMe }) {
 
         <button className="postActionBtn" type="button" aria-label="share">
           <img
-            src={profileIcons.share || "/home/to-share.png"}
+            src={profileIcons.share || "/home/to-share.svg"}
             className="postActionIcon"
             alt=""
           />

@@ -192,7 +192,7 @@ const onSubmit = async (e) => {
         <div className={`authField ${isFieldError("password") ? "is-error" : ""}`}>
           <div className="authField__control">
             <span className="authField__iconLeft" aria-hidden="true">
-              <img className="authField__iconImg" src="/icon1/password.png" alt="" aria-hidden="true" />
+              <img className="authField__iconImg" src="/icon1/password.svg" alt="" aria-hidden="true" />
             </span>
 
             <input
@@ -215,7 +215,7 @@ const onSubmit = async (e) => {
               onClick={() => setShowPassword((v) => !v)}
             >
               <img
-                src={showPassword ? "/icon1/oko-off.png" : "/icon1/oko.png"}
+                src={showPassword ? "/icon1/oko-off.svg" : "/icon1/oko.svg"}
                 alt=""
                 aria-hidden="true"
                 className="authField__iconImg"
@@ -234,7 +234,7 @@ const onSubmit = async (e) => {
         <div className={`authField ${isFieldError("confirmPassword") ? "is-error" : ""}`}>
           <div className="authField__control">
             <span className="authField__iconLeft" aria-hidden="true">
-              <img className="authField__iconImg" src="/icon1/password.png" alt="" aria-hidden="true" />
+              <img className="authField__iconImg" src="/icon1/password.svg" alt="" aria-hidden="true" />
             </span>
 
             <input
@@ -257,7 +257,7 @@ const onSubmit = async (e) => {
               onClick={() => setShowConfirmPassword((v) => !v)}
             >
               <img
-                src={showConfirmPassword ? "/icon1/oko-off.png" : "/icon1/oko.png"}
+                src={showConfirmPassword ? "/icon1/oko-off.svg" : "/icon1/oko.svg"}
                 alt=""
                 aria-hidden="true"
                 className="authField__iconImg"

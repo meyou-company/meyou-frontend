@@ -21,7 +21,7 @@ export default function ProfileHeader() {
         <button
           type="button"
           className="searchBtn"
-          onClick={() => navigate("/explore")}
+          onClick={() => navigate("/search")}
           aria-label="Search"
         >
           <img src={profileIcons.search} alt="" aria-hidden="true" />

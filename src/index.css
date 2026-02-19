@@ -138,8 +138,6 @@
     @apply w-full flex flex-col;
     @apply px-4 pt-8 pb-10;
 
-    max-width: 520px;
-
     /* ✅ не фіксуємо висоту жорстко */
     min-height: 100dvh;
     height: auto;

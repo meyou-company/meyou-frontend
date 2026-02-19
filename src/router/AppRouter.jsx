@@ -34,7 +34,7 @@ export default function AppRouter() {
             <div className="app-container">
               <Routes>
                 <Route path="/" element={<HomePage />} />
-                <Route path="/explore" element={<Explore />} />
+                <Route path="/search" element={<Explore />} />
                 <Route path="/friends" element={<Friends />} />
                 <Route path="/profile" element={<Profile />} />
                 <Route path="/vip-chat" element={<VipChat />} />

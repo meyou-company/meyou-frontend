@@ -86,7 +86,7 @@ export default function ResetNewPasswordForm({ onBack, onSuccess }) {
         <div className={`authField ${isFieldError("password") ? "is-error" : ""}`}>
           <div className="authField__control">
             <span className="authField__iconLeft" aria-hidden="true">
-              <img className="authField__iconImg" src="/icon1/password.png" alt="" aria-hidden="true" />
+              <img className="authField__iconImg" src="/icon1/password.svg" alt="" aria-hidden="true" />
             </span>
 
             <input
@@ -109,7 +109,7 @@ export default function ResetNewPasswordForm({ onBack, onSuccess }) {
             >
               <img
                 className="authField__iconImg"
-                src={show.password ? "/icon1/oko-off.png" : "/icon1/oko.png"}
+                src={show.password ? "/icon1/oko-off.svg" : "/icon1/oko.svg"}
                 alt=""
                 aria-hidden="true"
               />
@@ -123,7 +123,7 @@ export default function ResetNewPasswordForm({ onBack, onSuccess }) {
         <div className={`authField ${isFieldError("confirmPassword") ? "is-error" : ""}`}>
           <div className="authField__control">
             <span className="authField__iconLeft" aria-hidden="true">
-              <img className="authField__iconImg" src="/icon1/password.png" alt="" aria-hidden="true" />
+              <img className="authField__iconImg" src="/icon1/password.svg" alt="" aria-hidden="true" />
             </span>
 
             <input
@@ -146,7 +146,7 @@ export default function ResetNewPasswordForm({ onBack, onSuccess }) {
             >
               <img
                 className="authField__iconImg"
-                src={show.confirmPassword ? "/icon1/oko-off.png" : "/icon1/oko.png"}
+                src={show.confirmPassword ? "/icon1/oko-off.svg" : "/icon1/oko.svg"}
                 alt=""
                 aria-hidden="true"
               />

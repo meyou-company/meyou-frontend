@@ -1,17 +1,17 @@
-// import profileIcons from '../../constants/profileIcons';
-// import userIcon from '../../../public/icon1/user.svg';
-// import closeIcon from '../../../public/icon1/close.svg';
-// import savedIcon from '../../../public/icon1/saved.svg';
-// import locationIcon from '../../../public/home/Location.png';
-// import likeIcon from '../../../public/home/like.png';
-// import commentsIcon from '../../../public/home/comments.png';
-// import shareIcon from '../../../public/home/to-share.png';
-// import homeIcon from '../../../public/home/home.png';
-// import userMenuIcon from '../../../public/icon1/userMenu.svg';
-// import commentIcon from '../../../public/icon1/comment.svg';
-// import smsIcon from '../../../public/icon1/sms.svg';
-// import styles from "./FirstPage.module.scss"
-// import { useNavigate } from "react-router-dom";
+import profileIcons from '../../constants/profileIcons';
+import userIcon from '../../../public/icon1/user.svg';
+import closeIcon from '../../../public/icon1/close.svg';
+import savedIcon from '../../../public/icon1/saved.svg';
+import locationIcon from '../../../public/home/location.svg';
+import likeIcon from '../../../public/home/like.svg';
+import commentsIcon from '../../../public/home/comments.svg';
+import shareIcon from '../../../public/home/to-share.svg';
+import homeIcon from '../../../public/home/home.svg';
+import userMenuIcon from '../../../public/icon1/userMenu.svg';
+import commentIcon from '../../../public/icon1/comment.svg';
+import smsIcon from '../../../public/icon1/sms.svg';
+import styles from "./FirstPage.module.scss"
+import { useNavigate } from "react-router-dom";
 
 
 // export const FirstPage = () => {
