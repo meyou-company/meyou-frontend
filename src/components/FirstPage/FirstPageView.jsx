@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import ThemeToggleDark from "../ThemeToggleDark/ThemeToggleDark";
 import profileIcons from "../../constants/profileIcons";
 import "./FirstPageView.scss";
 
@@ -24,9 +25,9 @@ export default function FirstPageView({
         <header className="w-full border-gray-900 bg-purple-100">
             <div className="mx-auto flex items-center justify-between px-1 pt-3 pb-5 md:pb-[49px] md:pt-[38px] xl:pb-8 xl:pt-0 xl:mx-10">
             {/* LEFT */}
-            <div className="flex items-center gap-3">
+            <div className="flex items-center md:mx-5 xl:mx-0 xl:gap-10">
               <button onClick={onGoProfile}>
-                <img src={profileIcons.home} alt="Profile" aria-hidden="true" className="hidden xl:flex h-12 mr-[60px]"/>
+                <img src={profileIcons.home} alt="Profile" aria-hidden="true" className="hidden xl:flex h-12"/>
               </button>
 
               <button onClick={onGoExplore}>
@@ -40,14 +41,16 @@ export default function FirstPageView({
             </button>
 
             {/* RIGHT */}
-            <div className="flex items-center gap-3">
+            <div className="flex items-center md:gap-3 xl:gap-10">
               <button onClick={onGoProfile}>
-                <img src={profileIcons.balance} alt="Balance" aria-hidden="true" className="hidden xl:flex h-12 mr-[60px]"/>
+                <img src={profileIcons.balance} alt="Balance" aria-hidden="true" className="hidden xl:flex h-12"/>
               </button>
 
               <button onClick={onGoVipChat}>
                 <img src={profileIcons.sms} alt="" aria-hidden="true" className="h-7 md:hidden" />
               </button>
+
+              <ThemeToggleDark className="themeBtn" />
 
               <button>
                 <img src={profileIcons.menu} alt="" aria-hidden="true" className="hidden md:block h-7 md:h-8 xl:h-12"  />
@@ -58,7 +61,7 @@ export default function FirstPageView({
 
         {/* TABLET / DESKTOP NAV  */}
       <section className="hidden md:block -ml-4 -mr-4 border-t-[0.1px] border-gray-900 bg-[#FCE9E9]">
-        <div className="mx-auto flex justify-between items-center px-[41px] py-10 xl:py-10 xl:px-[60px]">
+        <div className="mx-auto flex justify-between items-center px-[41px] py-8 xl:px-[60px]">
 
           <TabletNav />
 
@@ -137,19 +140,19 @@ function StoryCircle({ status, type }) {
     <button className="flex flex-col items-center gap-1">
       {isAdd ? (
         <div className="gradientBorder">
-          <div className="relative flex items-center justify-center rounded-full w-14 h-14 md:w-[97px] md:h-[97px] bg-[#D5D5D5]">
+          <div className="relative flex items-center justify-center rounded-full w-14 h-14 md:w-[77px] md:h-[77px] xl:w-[97px] xl:h-[97px] bg-[#D5D5D5]">
             <img src={profileIcons.plus}  alt="add story"
                  aria-hidden="true"
                  className="h-8 md:h-12" />
           </div>
         </div>
       ) : (
-        <div className="relative rounded-full w-14 h-14 border bg-[#D5D5D5] border-[#FF0B0B] flex items-center justify-center md:w-[100px] md:h-[100px] xl:border-[3px]">
+        <div className="relative rounded-full w-14 h-14 border bg-[#D5D5D5] border-[#FF0B0B] flex items-center justify-center md:w-20 md:h-20 xl:w-[100px] xl:h-[100px] xl:border-[3px]">
           <img src={profileIcons.userStory} alt="user story" className="w-[26px] h-[26px] md:w-12 md:h-12"/>
 
           {status && (
             <span
-              className={`absolute right-[2px] top-[2px] w-2.5 h-2.5 md:w-3 md:h-3 xl:w-5 xl:h-5 md:top-3 md:right-[7px] rounded-full ${
+              className={`absolute right-[2px] top-[2px] md:top-[10px] xl:top-[3px]  w-2.5 h-2.5 md:w-3 md:h-3 xl:w-5 xl:h-5  rounded-full ${
                 status === "online" ? "bg-green-700" : "bg-zinc-300 border border-black/40"
               }`}
             />
@@ -163,53 +166,6 @@ function StoryCircle({ status, type }) {
     </button>
   );
 }
-
-
-// / const StoryCircle = ({ status, type }) => {
-//   const isAdd = type === "add";
-
-//   return (
-//     <button className="flex flex-col items-center gap-1">
-//       {/* Основной кружок */}
-//       {isAdd ? (
-//         <div className={styles.gradientBorder}>
-//           <div className="relative flex items-center justify-center rounded-full w-16 h-16 md:w-[120px] md:h-[120px] xl:w-[160px] xl:h-[160px] bg-[#D5D5D5]">
-//             <img
-//               src={profileIcons.plus}
-//               alt="add story"
-//               aria-hidden="true"
-//               className="h-8 md:h-12 xl:h-20"
-//             />
-//           </div>
-//         </div>
-//       ) : (
-//         <div className="relative flex items-center justify-center rounded-full border bg-[#D5D5D5] border-[#FF0B0B] w-16 h-16 md:w-[120px] md:h-[120px] xl:w-[160px] xl:h-[160px] xl:border-[3px]">
-//           <img
-//             src={userIcon}
-//             alt="user story"
-//             aria-hidden="true"
-//             className="w-[26px] h-[26px] md:w-12 md:h-12"
-//           />
-
-          // {status && (
-          //   <span
-          //     className={`absolute right-[2px] top-[2px] w-2.5 h-2.5 md:w-3 md:h-3 xl:w-5 xl:h-5 md:top-3 md:right-[7px] rounded-full ${
-          //       status === "online"
-          //         ? "bg-green-700"
-          //         : "bg-zinc-300 border border-black/40"
-          //     }`}
-          //   />
-          // )}
-//         </div>
-//       )}
-
-//       {/* Подпись */}
-//       <span className="text-[8px] md:text-xs xl:text-xl font-[Montserrat] text-black underline">
-//         {isAdd ? "добавить" : status === "online" ? "online" : "story"}
-//       </span>
-//     </button>
-//   );
-// };
 
 const FeedCard = ({ name, time, location, status, text }) => {
   return (
@@ -313,7 +269,7 @@ const TabletNav = () => {
           <img
             src={profileIcons.plus}
             alt="Add"
-            className="hidden xl:block h-8 xl:h-[50px]"
+            className="hidden xl:block h-8 xl:h-10"
           />
         </button>
 
@@ -326,7 +282,7 @@ const TabletNav = () => {
           <img
             src={profileIcons.video}
             alt="Video"
-            className="hidden md:block h-8 xl:h-[50px]"
+            className="hidden md:block h-8 xl:h-10"
           />
         </button>
  
@@ -337,7 +293,7 @@ const TabletNav = () => {
           <img
             src={profileIcons.friends}
             alt="Friends"
-            className="h-8 xl:h-[50px]"
+            className="h-8 xl:h-10"
           />
         </button>
 
@@ -348,7 +304,7 @@ const TabletNav = () => {
           <img
             src={profileIcons.bell}
             alt="Notifications"
-            className="h-8 xl:h-[50px]"
+            className="h-8 xl:h-10"
           />
         </button>
 
