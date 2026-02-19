@@ -1,4 +1,4 @@
-import { useNavigate, useLocation } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import ThemeToggleDark from "../../../ThemeToggleDark/ThemeToggleDark";
 
 import profileIcons from "../../../../constants/profileIcons";
@@ -7,8 +7,13 @@ import { useBurgerMenu } from "../../../../hooks/useBurgerMenu";
 
 import "./ProfileHeader.scss";
 
-export default function ProfileHeader() {
-  const navigate = useNavigate();
+export default function ProfileHeader({
+  onSearch,
+  onGoHome,
+  onMessagesTop,
+  onWallet,
+  onNav, // (path) => void
+}) {
   const location = useLocation();
   const { toggle } = useBurgerMenu();
 
@@ -18,57 +23,31 @@ export default function ProfileHeader() {
     <header className="profile-header">
       <div className="topRow">
         {/* Left: Search */}
-        <button
-          type="button"
-          className="searchBtn"
-          onClick={() => navigate("/search")}
-          aria-label="Search"
-        >
+        <button type="button" className="searchBtn" onClick={onSearch} aria-label="Search">
           <img src={profileIcons.search} alt="" aria-hidden="true" />
         </button>
 
         {/* Center: Logo */}
-        <button
-          type="button"
-          className="logo"
-          onClick={() => navigate("/")}
-          aria-label="Go home"
-        >
+        <button type="button" className="logo" onClick={onGoHome} aria-label="Go home">
           <span className="logoText">ME YOU</span>
         </button>
 
-        {/* 📱 MOBILE top right: Chat — Theme — Wallet */}
+        {/* 📱 MOBILE top right */}
         <div className="mobileRightGroup" aria-label="Mobile actions">
-          <button
-            type="button"
-            className="iconBtn"
-            onClick={() => navigate("/messages")}
-            aria-label="Messages"
-          >
+          <button type="button" className="iconBtn" onClick={onMessagesTop} aria-label="Messages">
             <img src={profileIcons.chat} alt="" aria-hidden="true" />
           </button>
-
         </div>
 
-        {/* 🖥 DESKTOP top right: Wallet — Theme — Burger */}
+        {/* 🖥 DESKTOP top right */}
         <div className="rightGroup" aria-label="Desktop actions">
-          <button
-            type="button"
-            className="iconBtn"
-            onClick={() => navigate("/wallet")}
-            aria-label="Wallet"
-          >
+          <button type="button" className="iconBtn" onClick={onWallet} aria-label="Wallet">
             <img src={profileIcons.balance} alt="" aria-hidden="true" />
           </button>
 
           <ThemeToggleDark className="themeBtn" />
 
-          <button
-            type="button"
-            className="iconBtn"
-            onClick={toggle}
-            aria-label="Menu"
-          >
+          <button type="button" className="iconBtn" onClick={toggle} aria-label="Menu">
             <img src={profileIcons.menu} alt="" aria-hidden="true" />
           </button>
         </div>
@@ -78,13 +57,12 @@ export default function ProfileHeader() {
       <nav className="desktopNavRow" aria-label="Desktop navigation">
         {desktopNavItems.map((item) => {
           const active = isActive(item.path);
-
           return (
             <button
               key={item.key}
               type="button"
               className={`desktopNavBtn ${active ? "desktopNavBtnActive" : ""}`}
-              onClick={() => navigate(item.path)}
+              onClick={() => onNav(item.path)}
               aria-label={item.label}
             >
               <img src={item.icon} alt="" aria-hidden="true" />
@@ -105,7 +83,7 @@ export default function ProfileHeader() {
               className={`navBtn ${active ? "navBtnActive" : ""}`}
               onClick={() => {
                 if (item.action === "MENU") return toggle();
-                if (item.path) navigate(item.path);
+                if (item.path) onNav(item.path);
               }}
               aria-label={item.label}
             >

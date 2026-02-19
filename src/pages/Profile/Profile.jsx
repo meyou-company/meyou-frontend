@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import ProfileHeader from "../../components/Users/Profile/ProfileHome/ProfileHeader";
 import ProfileHome from "../../components/Users/Profile/ProfileHome/ProfileHome";
@@ -12,9 +12,7 @@ export default function Profile() {
   const refreshMe = useAuthStore((s) => s.refreshMe);
 
   useEffect(() => {
-    if (!user && !isAuthLoading) {
-      refreshMe?.().catch(() => {});
-    }
+    if (!user && !isAuthLoading) refreshMe?.().catch(() => {});
   }, [user, isAuthLoading, refreshMe]);
 
   useEffect(() => {
@@ -37,14 +35,31 @@ export default function Profile() {
     };
   }, [user]);
 
-  if (!isAuthLoading && !user) {
-    return null;
-  }
+  // ✅ handlers для Header
+  const onSearch = useCallback(() => navigate("/search"), [navigate]);
+  const onGoHome = useCallback(() => navigate("/"), [navigate]);
+  const onMessagesTop = useCallback(() => navigate("/messages"), [navigate]);
+  const onWallet = useCallback(() => navigate("/wallet"), [navigate]);
+
+  const onNav = useCallback((path) => navigate(path), [navigate]);
+
+  // ✅ handlers для Home
+  const onEditProfile = useCallback(() => navigate("/users/profile/edit"), [navigate]);
+  const onMessages = useCallback(() => navigate("/vip-chat"), [navigate]);
+  const onSaved = useCallback(() => navigate("/saved"), [navigate]);
+
+  if (!isAuthLoading && !user) return null;
 
   if (isAuthLoading || !profileUser) {
     return (
       <div className={styles.page}>
-        <ProfileHeader />
+        <ProfileHeader
+          onSearch={onSearch}
+          onGoHome={onGoHome}
+          onMessagesTop={onMessagesTop}
+          onWallet={onWallet}
+          onNav={onNav}
+        />
         <div className={styles.loading}>Завантаження профілю…</div>
       </div>
     );
@@ -52,9 +67,21 @@ export default function Profile() {
 
   return (
     <div className={styles.page}>
-      <ProfileHeader />
+      <ProfileHeader
+        onSearch={onSearch}
+        onGoHome={onGoHome}
+        onMessagesTop={onMessagesTop}
+        onWallet={onWallet}
+        onNav={onNav}
+      />
       <div className={styles.content}>
-        <ProfileHome user={profileUser} refreshMe={refreshMe} />
+        <ProfileHome
+          user={profileUser}
+          refreshMe={refreshMe}
+          onEditProfile={onEditProfile}
+          onMessages={onMessages}
+          onSaved={onSaved}
+        />
       </div>
     </div>
   );

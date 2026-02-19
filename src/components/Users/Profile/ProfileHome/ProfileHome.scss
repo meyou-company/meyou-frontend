@@ -458,6 +458,7 @@ font-size: 60px;
 
 .findFriendsBtn {
   width: 100%;
+  height: 50px;
   max-width: 280px;
   margin-top: 8px;
 }
@@ -737,7 +738,179 @@ body.dark .profile-home .badgeItem,
 body.dark .profile-home .badgeText {
   color: rgba(255, 255, 255, 0.9);
 }
+.btnSaved {
+  display: none;
+}
 
+/* =========================
+   TABLET (768–1024) — iPad layout
+   ========================= */
+@media (min-width: 768px) and (max-width: 1024px) {
+  .profile-container {
+    max-width: 1024px;
+    padding: 16px 18px 28px;
+    gap: 18px;
+  }
+
+  .profileBlock {
+    gap: 22px;
+    align-items: flex-start;
+  }
+
+  /* avatar smaller than desktop, like iPad mock */
+  .profileLeft {
+    flex: 0 0 240px;
+  }
+
+  .avatarWrap {
+    width: 240px;
+    height: 240px;
+  }
+
+  /* online dot — correct for smaller avatar */
+  .avatarWrap::before {
+    top: 7px;
+    left: 72%;
+    width: 14px;
+    height: 14px;
+    border-width: 3px;
+  }
+
+  .profileInfo {
+    flex: 1 1 auto;
+    max-width: none;
+    padding-top: 8px;
+    gap: 10px;
+  }
+
+  .name {
+    font-size: 44px; /* was 60 */
+    gap: 10px;
+  }
+
+  .bio {
+    font-size: 14px;
+    line-height: 1.25;
+  }
+
+  /* actions keep tablet-friendly width */
+  .actionsBlock {
+    gap: 14px;
+  }
+
+  .actionBig {
+    width: 100%;
+    max-width: 520px;
+  }
+
+  .actionsRow {
+    gap: 14px;
+  }
+
+  .actionBtn {
+    height: 52px;
+    border-radius: 14px;
+
+    span {
+      font-size: 18px;
+    }
+  }
+
+  /* ===== RIGHT SIDE: show BOTH buttons (messages + saved) ===== */
+  .profileRight {
+    flex: 0 0 auto;
+    padding-top: 12px;
+
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-end;
+    gap: 14px;
+  }
+
+  /* remove desktop shift on tablet */
+  .btnMessages {
+    transform: none;
+  }
+ 
+.btnSaved {
+  position: relative;
+    width: 110px;
+    height: 74px;
+    border-radius: 18px;
+    border: none;
+    background: transparent;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+
+}
+  /* same “gradient border card” style for both buttons */
+  .btnMessages {
+    position: relative;
+    width: 110px;
+    height: 74px;
+    border-radius: 18px;
+    border: none;
+    background: transparent;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+
+    &::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: 18px;
+      padding: 2px;
+      background: linear-gradient(135deg, #4f6bff, #b05cff, #ff4fb1);
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      pointer-events: none;
+    }
+  }
+
+  .msgIcon {
+    width: 36px;
+    height: 36px;
+  }
+
+  .msgText {
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 1;
+  }
+
+  /* If you use separate icon/text classes for saved — keep same sizing */
+  .savedIcon {
+    width: 36px;
+    height: 36px;
+  }
+
+  .savedText {
+    font-family: "Montserrat", sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 1;
+    text-transform: lowercase;
+  }
+
+  /* Dark mode text on tablet buttons */
+  body.dark .profile-home .savedText,
+  body.dark .profile-home .msgText {
+    color: rgba(255, 255, 255, 0.9);
+  }
+}
 
 @media (max-width: 767px) {
   .profile-container {
@@ -999,7 +1172,7 @@ body.dark .profile-home .badgeText {
   }
 
   .showMoreBtn {
-    height: 30px;
+    height: 35px;
     font-size: 12px;
     padding: 0 18px;
   }

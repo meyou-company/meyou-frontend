@@ -1,6 +1,5 @@
 // ProfileHome.jsx
 import { useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
 import AvatarCropModal from "../../../AvatarCropModal/AvatarCropModal";
@@ -44,8 +43,10 @@ const MOCK_POSTS = [
 
 
 
-export default function ProfileHome({ user, refreshMe }) {
-  const navigate = useNavigate();
+export default function ProfileHome({ user, refreshMe,  onEditProfile,
+  onMessages,
+  onSaved,}) {
+  
   const fileInputRef = useRef(null);
 
   const [newPostText, setNewPostText] = useState("");
@@ -140,7 +141,7 @@ export default function ProfileHome({ user, refreshMe }) {
               <button
                 type="button"
                 className="editBtn editBtnDesktop"
-                onClick={() => navigate("/users/profile/edit")}
+                onClick={onEditProfile}
               >
                 Редактировать профиль
               </button>
@@ -174,19 +175,29 @@ export default function ProfileHome({ user, refreshMe }) {
               </button>
             </div>
           </div>
+{/* RIGHT */}
+<div className="profileRight">
+  <button
+    type="button"
+    className="btnMessages"
+    onClick={onMessages}
+    aria-label="My messages"
+  >
+    <img src={profileIcons.chat} alt="" className="msgIcon" />
+    <span className="msgText">my messages</span>
+  </button>
 
-          {/* RIGHT (desktop) */}
-          <div className="profileRight">
-            <button
-              type="button"
-              className="btnMessages"
-              onClick={() => navigate("/vip-chat")}
-              aria-label="My messages"
-            >
-              <img src={profileIcons.chat} alt="" className="msgIcon" />
-              <span className="msgText">my messages</span>
-            </button>
-          </div>
+  <button
+    type="button"
+    className="btnSaved"
+    onClick={onSaved}
+    aria-label="Saved"
+  >
+    <img src={profileIcons.saved} alt="" className="msgIcon" />
+    <span className="msgText">saved</span>
+  </button>
+</div>
+
         </section>
 
         {/* ================= ACTIONS: separate full-width block (like Figma) ================= */}
@@ -204,7 +215,7 @@ export default function ProfileHome({ user, refreshMe }) {
               <button
                 type="button"
                 className="actionBtn"
-                onClick={() => navigate("/users/profile/edit")}
+                onClick={onEditProfile}
               >
                 <span>Редактировать профиль</span>
                 <img src={actionIcons.pencil} alt="" />
@@ -228,7 +239,9 @@ export default function ProfileHome({ user, refreshMe }) {
             </div>
 
             {/* desktop blocks */}
+           
             <button className="actionBtn actionBig" type="button">
+             
               <span>Дополнить историю</span>
               <span className="actionPlus">
                 <img src={actionIcons.plus} alt="" />
@@ -300,7 +313,7 @@ export default function ProfileHome({ user, refreshMe }) {
             <button
               type="button"
               className="showMoreBtn findFriendsBtn"
-              onClick={() => navigate("/search")}
+              onClick={onSaved}
             >
               Знайти друзів
             </button>
