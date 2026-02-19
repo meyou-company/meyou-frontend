@@ -1,17 +1,17 @@
-import profileIcons from '../../constants/profileIcons';
-import userIcon from '../../../public/icon1/user.svg';
-import closeIcon from '../../../public/icon1/close.svg';
-import savedIcon from '../../../public/icon1/saved.svg';
-import locationIcon from '../../../public/home/location.svg';
-import likeIcon from '../../../public/home/like.svg';
-import commentsIcon from '../../../public/home/comments.svg';
-import shareIcon from '../../../public/home/to-share.svg';
-import homeIcon from '../../../public/home/home.svg';
-import userMenuIcon from '../../../public/icon1/userMenu.svg';
-import commentIcon from '../../../public/icon1/comment.svg';
-import smsIcon from '../../../public/icon1/sms.svg';
-import styles from "./FirstPage.module.scss"
-import { useNavigate } from "react-router-dom";
+// import profileIcons from '../../constants/profileIcons';
+// import userIcon from '../../../public/icon1/user.svg';
+// import closeIcon from '../../../public/icon1/close.svg';
+// import savedIcon from '../../../public/icon1/saved.svg';
+// import locationIcon from '../../../public/home/location.svg';
+// import likeIcon from '../../../public/home/like.svg';
+// import commentsIcon from '../../../public/home/comments.svg';
+// import shareIcon from '../../../public/home/to-share.svg';
+// import homeIcon from '../../../public/home/home.svg';
+// import userMenuIcon from '../../../public/icon1/userMenu.svg';
+// import commentIcon from '../../../public/icon1/comment.svg';
+// import smsIcon from '../../../public/icon1/sms.svg';
+// import styles from "./FirstPage.module.scss"
+// import { useNavigate } from "react-router-dom";
 
 
 // export const FirstPage = () => {
@@ -87,21 +87,22 @@ import { useNavigate } from "react-router-dom";
 //         </div>
 //       </header>
 
-//       {/* TABLET / DESKTOP NAV */}
+// !       {/* TABLET / DESKTOP NAV */}
 //       <section className="hidden md:block -ml-4 -mr-4 border-t-[0.1px] border-gray-900 bg-[#FCE9E9]">
 //         <div className="mx-auto flex justify-between items-center px-[41px] py-[54px] xl:px-[60px] xl:py-10">
 //           <TabletNav />
 //         </div>
 //       </section>
     
+
 //       {/* STORIES */}
 //       <section className= "border-b-[0.1px] border-t-[0.1px] -ml-4 -mr-4 border-gray-900 bg-[#FCE9E9]">
 //         <div className="mx-auto pl-4 pt-4 pr-1 md:pt-[23px] md:pb-[19px] md:pl-[38px] xl:pl-[50px] xl:pt-4 xl:pb-[43px]">
-//           <div className="flex items-center justify-between mb-[4px] md:mb-6">
-//             <h2 className="text-black font-[Montserrat] text-base md:text-xl pl-[9px] md:pl-0 xl:text-[28px]">
-//               Истории
-//             </h2>
-//           </div>
+          // <div className="flex items-center justify-between mb-[4px] md:mb-6">
+          //   <h2 className="text-black font-[Montserrat] text-base md:text-xl pl-[9px] md:pl-0 xl:text-[28px]">
+          //     Истории
+          //   </h2>
+          // </div>
 
 //           <div className={`flex gap-3 md:gap-[23px] xl:gap-[76px] overflow-x-auto pb-2 pr-3 md:pb-0  xl:pl-4 snap-x snap-mandatory snap-center ${styles.scrollbarHide}`}>
     
@@ -130,11 +131,11 @@ import { useNavigate } from "react-router-dom";
 //           />
 
 //           <FeedCard
-//             name="Marcus White"
-//             time="2 days ago"
-//             location="Рим, Италия"
-//             status="online"
-//             text="Lorem ipsum dolor sit amet, consectetur adipiscing..."
+            // name="Marcus White"
+            // time="2 days ago"
+            // location="Рим, Италия"
+            // status="online"
+            // text="Lorem ipsum dolor sit amet, consectetur adipiscing..."
 //           />
 
 //           <FeedCard
@@ -213,15 +214,15 @@ import { useNavigate } from "react-router-dom";
 //             className="w-[26px] h-[26px] md:w-12 md:h-12"
 //           />
 
-//           {status && (
-//             <span
-//               className={`absolute right-[2px] top-[2px] w-2.5 h-2.5 md:w-3 md:h-3 xl:w-5 xl:h-5 md:top-3 md:right-[7px] rounded-full ${
-//                 status === "online"
-//                   ? "bg-green-700"
-//                   : "bg-zinc-300 border border-black/40"
-//               }`}
-//             />
-//           )}
+          // {status && (
+          //   <span
+          //     className={`absolute right-[2px] top-[2px] w-2.5 h-2.5 md:w-3 md:h-3 xl:w-5 xl:h-5 md:top-3 md:right-[7px] rounded-full ${
+          //       status === "online"
+          //         ? "bg-green-700"
+          //         : "bg-zinc-300 border border-black/40"
+          //     }`}
+          //   />
+          // )}
 //         </div>
 //       )}
 
@@ -240,30 +241,30 @@ import { useNavigate } from "react-router-dom";
 //       {/* Header */}
 //       <div className="flex justify-between items-start">
 //         <div className="flex gap-[7px]">
-//           <div className="relative">
-//             <img
-//               src={userIcon}
-//               alt={name}
-//               className=" h-10  md:h-[60px] xl:h-20 rounded-full object-none bg-gray-300"
-//             />
-//             <span
-//               className={`absolute right-[2px] top-[3px] w-[6px] h-[6px] md:w-2 md:h-2 md:top-[7px] md:right-[3px] rounded-full ${
-//                 status === "online"
-//                   ? "bg-green-700"
-//                   : "bg-zinc-300 border border-gray-900/50"
-//               }`}
-//             />
-//           </div>
-//           <div className="flex flex-col mt-[5px] gap-[3px]">
+          // <div className="relative">
+          //   <img
+          //     src={userIcon}
+          //     alt={name}
+          //     className=" h-10  md:h-[60px] xl:h-20 rounded-full object-none bg-gray-300"
+          //   />
+          //   <span
+          //     className={`absolute right-[2px] top-[3px] w-[6px] h-[6px] md:w-2 md:h-2 md:top-[7px] md:right-[3px] rounded-full ${
+          //       status === "online"
+          //         ? "bg-green-700"
+          //         : "bg-zinc-300 border border-gray-900/50"
+          //     }`}
+          //   />
+          // </div>
+          // <div className="flex flex-col mt-[5px] gap-[3px]">
             
-//             <span className="text-[8px] md:text-xs xl:text-xl text-black font-[Montserrat] underline">
-//               {time}
-//             </span>
-//             <span className="text-xs md:text-sm xl:text-xl font-[Montserrat] underline bg-gradient-to-r from-[#FF4FB1] to-[#4F6BFF] bg-clip-text text-transparent">
-//              {name}
-//             </span>
+          //   <span className="text-[8px] md:text-xs xl:text-xl text-black font-[Montserrat] underline">
+          //     {time}
+          //   </span>
+          //   <span className="text-xs md:text-sm xl:text-xl font-[Montserrat] underline bg-gradient-to-r from-[#FF4FB1] to-[#4F6BFF] bg-clip-text text-transparent">
+          //    {name}
+          //   </span>
 
-//           </div>
+          // </div>
 //         </div>
 
 //     <div>
