@@ -1,53 +1,53 @@
 
 
-.logoText {
-  position: relative;
-}
+// .logoText {
+//   position: relative;
+// }
 
-.logoText::after {
-  content: '';
-  position: absolute;
-  bottom: 4px;  /* расстояние от букв */
-  left: 0;
-  right: 0;
-  height: 0.5px;
-  background-color: #FF4FB1;
-}
+// .logoText::after {
+//   content: '';
+//   position: absolute;
+//   bottom: 4px;  /* расстояние от букв */
+//   left: 0;
+//   right: 0;
+//   height: 0.5px;
+//   background-color: #FF4FB1;
+// }
 
-@media only screen and (min-width: 768px) {
-  .logoText::after {
-    bottom: -3px;
-    height: 1px;
-  }
-}
+// @media only screen and (min-width: 768px) {
+//   .logoText::after {
+//     bottom: -3px;
+//     height: 1px;
+//   }
+// }
 
-@media only screen and (min-width: 1440px) {
-  .logoText::after {
-    bottom: 3px;
-  }
-}
+// @media only screen and (min-width: 1440px) {
+//   .logoText::after {
+//     bottom: 3px;
+//   }
+// }
 
-.scrollbarHide {
-  -ms-overflow-style: none; /* IE and Edge */
-  scrollbar-width: none; /* Firefox */
-}
+// .scrollbarHide {
+//   -ms-overflow-style: none; /* IE and Edge */
+//   scrollbar-width: none; /* Firefox */
+// }
 
-.scrollbarHide::-webkit-scrollbar {
-  display: none; /* Chrome, Safari, Opera */
-}
+// .scrollbarHide::-webkit-scrollbar {
+//   display: none; /* Chrome, Safari, Opera */
+// }
 
-.gradientBorder {
-  border-radius: 50%;
-  padding: 1px; 
-  background: linear-gradient(135deg, #FF4FB1, #4F6BFF);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-}
+// .gradientBorder {
+//   border-radius: 50%;
+//   padding: 1px; 
+//   background: linear-gradient(135deg, #FF4FB1, #4F6BFF);
+//   display: inline-flex;
+//   align-items: center;
+//   justify-content: center;
+// }
 
-@media only screen and (min-width: 1440px) {  
-.gradientBorder {
-  padding: 3px;
-  }
-}
+// @media only screen and (min-width: 1440px) {  
+// .gradientBorder {
+//   padding: 3px;
+//   }
+// }
 
