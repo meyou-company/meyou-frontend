@@ -16,7 +16,7 @@ export default function FirstPageView({
     <div className="relative min-h-screen flex flex-col pb-10 md:pb-0">
       {/* background */}
       <div
-        className="fixed inset-0 z-0 bg-purple-100"
+        className="backgroundDark fixed inset-0 z-0 "
         style={{ minHeight: "100dvh" }} aria-hidden="true"
       />
 
