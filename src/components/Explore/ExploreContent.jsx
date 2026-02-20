@@ -4,9 +4,10 @@ import { useNavigate } from "react-router-dom";
 import profileIcons from "../../constants/profileIcons";
 import { usersApi } from "../../services/usersApi";
 import { subscriptionsApi } from "../../services/subscriptionsApi";
+import SearchFilterModal from "./SearchFilterModal";
 import "./ExploreContent.scss";
 
-const DEFAULT_AVATAR = "/icon1/image0.png";
+const DEFAULT_AVATAR = "/foon2.png";
 
 export default function ExploreContent() {
   const navigate = useNavigate();
@@ -17,11 +18,8 @@ export default function ExploreContent() {
   const [loading, setLoading] = useState(false);
   const [subscribedIds, setSubscribedIds] = useState(new Set());
   const [subscribeLoadingId, setSubscribeLoadingId] = useState(null);
-
-  // майбутні фільтри
-  const [newOnly] = useState(false);
-  const [onlineOnly] = useState(false);
-  const [sort] = useState("recommended");
+  const [filterOpen, setFilterOpen] = useState(false);
+  const [filterParams, setFilterParams] = useState({});
 
   const lastReqId = useRef(0);
 
@@ -51,11 +49,11 @@ export default function ExploreContent() {
       try {
         setLoading(true);
 
-        const params = {};
+        const params = {
+          sort: filterParams.sort || "recommended",
+          ...filterParams,
+        };
         if (query.trim()) params.q = query.trim();
-        if (newOnly) params.new = true;
-        if (onlineOnly) params.online = true;
-        if (sort) params.sort = sort;
 
         const res = await usersApi.search(params);
 
@@ -85,7 +83,7 @@ export default function ExploreContent() {
     }, 300);
 
     return () => clearTimeout(t);
-  }, [query, newOnly, onlineOnly, sort]);
+  }, [query, filterParams]);
 
   const filteredUsers = useMemo(() => users, [users]);
 
@@ -198,7 +196,12 @@ export default function ExploreContent() {
           )}
         </div>
 
-        <button type="button" className="explore-content__filterBtn" aria-label="Фильтр">
+        <button
+          type="button"
+          className="explore-content__filterBtn"
+          aria-label="Фильтр"
+          onClick={() => setFilterOpen(true)}
+        >
           <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
             <path
               d="M2 4h16M5 10h10M8 16h4"
@@ -282,6 +285,16 @@ export default function ExploreContent() {
           </ul>
         )}
       </div>
+
+      <SearchFilterModal
+        isOpen={filterOpen}
+        onClose={() => setFilterOpen(false)}
+        onApply={(params) => {
+          setFilterParams(params);
+          setFilterOpen(false);
+        }}
+        initialParams={filterParams}
+      />
     </div>
   );
 }
