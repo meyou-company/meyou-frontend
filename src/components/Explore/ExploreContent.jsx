@@ -1,11 +1,13 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import profileIcons from "../../constants/profileIcons";
 import { usersApi } from "../../services/usersApi";
+import { subscriptionsApi } from "../../services/subscriptionsApi";
+import SearchFilterModal from "./SearchFilterModal";
 import "./ExploreContent.scss";
 
-const DEFAULT_AVATAR = "/icon1/image0.png";
+const DEFAULT_AVATAR = "/foon2.png";
 
 export default function ExploreContent() {
   const navigate = useNavigate();
@@ -14,13 +16,29 @@ export default function ExploreContent() {
   const [viewMode, setViewMode] = useState("list"); // "list" | "grid"
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
-
-  // майбутні фільтри
-  const [newOnly] = useState(false);
-  const [onlineOnly] = useState(false);
-  const [sort] = useState("recommended");
+  const [subscribedIds, setSubscribedIds] = useState(new Set());
+  const [subscribeLoadingId, setSubscribeLoadingId] = useState(null);
+  const [filterOpen, setFilterOpen] = useState(false);
+  const [filterParams, setFilterParams] = useState({});
 
   const lastReqId = useRef(0);
+
+  /** При відкритті сторінки завантажуємо список «вже в друзях» (following), щоб кнопка показувала «Відписатися» */
+  useEffect(() => {
+    let cancelled = false;
+    subscriptionsApi
+      .getFollowing({ take: 200 })
+      .then((res) => {
+        const data = res?.data ?? res;
+        const items = data?.items ?? [];
+        const ids = new Set((Array.isArray(items) ? items : []).map((i) => i.id).filter(Boolean));
+        if (!cancelled) setSubscribedIds(ids);
+      })
+      .catch(() => {
+        if (!cancelled) setSubscribedIds(new Set());
+      });
+    return () => { cancelled = true; };
+  }, []);
 
   const handleClear = () => setQuery("");
 
@@ -31,11 +49,11 @@ export default function ExploreContent() {
       try {
         setLoading(true);
 
-        const params = {};
+        const params = {
+          sort: filterParams.sort || "recommended",
+          ...filterParams,
+        };
         if (query.trim()) params.q = query.trim();
-        if (newOnly) params.new = true;
-        if (onlineOnly) params.online = true;
-        if (sort) params.sort = sort;
 
         const res = await usersApi.search(params);
 
@@ -48,6 +66,13 @@ export default function ExploreContent() {
         // payload має бути або масив, або { users: [...] }
         const list = Array.isArray(payload) ? payload : (payload?.users ?? []);
         setUsers(list);
+        setSubscribedIds((prev) => {
+          const next = new Set(prev);
+          list.forEach((u) => {
+            if (u?.subscriptionStatus?.isSubscribed || u?.isSubscribed) next.add(u.id);
+          });
+          return next;
+        });
       } catch (e) {
         if (reqId !== lastReqId.current) return;
         console.error("SEARCH ERROR:", e?.response?.status, e?.response?.data, e);
@@ -58,9 +83,33 @@ export default function ExploreContent() {
     }, 300);
 
     return () => clearTimeout(t);
-  }, [query, newOnly, onlineOnly, sort]);
+  }, [query, filterParams]);
 
   const filteredUsers = useMemo(() => users, [users]);
+
+  const handleSubscribe = useCallback(async (u) => {
+    const id = u?.id;
+    if (!id) return;
+    setSubscribeLoadingId(id);
+    try {
+      const isSubscribed = subscribedIds.has(id);
+      if (isSubscribed) {
+        await subscriptionsApi.unsubscribe(id);
+        setSubscribedIds((prev) => {
+          const next = new Set(prev);
+          next.delete(id);
+          return next;
+        });
+      } else {
+        await subscriptionsApi.subscribe(id);
+        setSubscribedIds((prev) => new Set(prev).add(id));
+      }
+    } catch (e) {
+      console.error("Subscribe error:", e);
+    } finally {
+      setSubscribeLoadingId(null);
+    }
+  }, [subscribedIds]);
 
   const hasResults = filteredUsers.length > 0;
   const showEmptyState = !loading && !hasResults;
@@ -147,7 +196,12 @@ export default function ExploreContent() {
           )}
         </div>
 
-        <button type="button" className="explore-content__filterBtn" aria-label="Фильтр">
+        <button
+          type="button"
+          className="explore-content__filterBtn"
+          aria-label="Фильтр"
+          onClick={() => setFilterOpen(true)}
+        >
           <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
             <path
               d="M2 4h16M5 10h10M8 16h4"
@@ -187,7 +241,7 @@ export default function ExploreContent() {
                   <button
                     type="button"
                     className="explore-content__userInfoBtn"
-                    onClick={() => navigate(`/profile/${user.id}`)}
+                    onClick={() => navigate(`/profile/${user.username || user.id}`)}
                   >
                     <div className="explore-content__avatarWrap">
                       <div className="explore-content__avatarBorder">
@@ -209,8 +263,17 @@ export default function ExploreContent() {
                   </button>
 
                   <div className="explore-content__actionBtns">
-                    <button type="button" className="explore-content__addFriendBtn">
-                      Додати в друзі
+                    <button
+                      type="button"
+                      className="explore-content__addFriendBtn"
+                      onClick={() => handleSubscribe(user)}
+                      disabled={subscribeLoadingId === user.id}
+                    >
+                      {subscribeLoadingId === user.id
+                        ? "…"
+                        : subscribedIds.has(user.id)
+                          ? "Відписатися"
+                          : "Додати в друзі"}
                     </button>
                     <button type="button" className="explore-content__addVipBtn">
                       Додати VIP
@@ -222,6 +285,16 @@ export default function ExploreContent() {
           </ul>
         )}
       </div>
+
+      <SearchFilterModal
+        isOpen={filterOpen}
+        onClose={() => setFilterOpen(false)}
+        onApply={(params) => {
+          setFilterParams(params);
+          setFilterOpen(false);
+        }}
+        initialParams={filterParams}
+      />
     </div>
   );
 }

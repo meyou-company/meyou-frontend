@@ -10,9 +10,9 @@ import { useAuthStore } from "../../../../zustand/useAuthStore";
 import { profileApi } from "../../../../services/profileApi";
 import { locationApi } from "../../../../services/locationApi";
 
-import { hobbyOptions, maritalStatusOptions } from "../../../../utils/profileOptions";
+import {  maritalStatusOptions } from "../../../../utils/profileOptions";
 import { validateCompleteProfile } from "../../../../utils/validationCompleteProfile";
-
+import { hobbyOptions } from "../../../../constants/interests";
 import { useLocationOptions } from "../../../../hooks/useLocationOptions";
 import { usePrefillProfile } from "../../../../hooks/usePrefillProfile";
 

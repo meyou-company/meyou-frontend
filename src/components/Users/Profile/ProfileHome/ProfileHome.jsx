@@ -1,5 +1,5 @@
 // ProfileHome.jsx
-import { useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 
 import AvatarCropModal from "../../../AvatarCropModal/AvatarCropModal";
@@ -25,6 +25,7 @@ const MOCK_VIP = Array.from({ length: 12 }, (_, i) => ({
 /** Форма друга для відображення в кружечках */
 const toFriendItem = (f) => ({
   id: f?.id ?? f,
+  username: f?.username,
   avatar: f?.avatarUrl ?? f?.avatar ?? null,
 });
 const MOCK_POSTS = [
@@ -43,11 +44,27 @@ const MOCK_POSTS = [
 
 
 
-export default function ProfileHome({ user, refreshMe,  onEditProfile,
+export default function ProfileHome({
+  user,
+  viewType = "OWNER",
+  isSubscribed,
+  onSubscribe,
+  subscriptionLoading,
+  /** Список з GET /subscriptions/following — для блоку «Друзья» на своєму профілі */
+  followingList,
+  /** Відкрити профіль користувача за username (клік по аватару друга) */
+  onOpenUser,
+  /** Відкрити сторінку «Друзі та VIP» (Показать больше) */
+  onShowMore,
+  refreshMe,
+  onEditProfile,
   onMessages,
-  onSaved,}) {
-  
+  onSaved,
+}) {
   const fileInputRef = useRef(null);
+  const isOwner = viewType === "OWNER";
+  const isVisitor = viewType === "VISITOR";
+  const canSubscribe = isVisitor && typeof onSubscribe === "function";
 
   const [newPostText, setNewPostText] = useState("");
   const [cropModalSrc, setCropModalSrc] = useState(null);
@@ -66,7 +83,12 @@ export default function ProfileHome({ user, refreshMe,  onEditProfile,
   const bioLine1 = fullNameReal ? `${fullNameReal}.` : "";
   const bioLine2 = location ? `${location}.` : "";
 
-  const friends = Array.isArray(user?.friends) ? user.friends.map(toFriendItem) : [];
+  const friends = useMemo(() => {
+    if (Array.isArray(followingList) && followingList.length > 0) {
+      return followingList.map(toFriendItem);
+    }
+    return Array.isArray(user?.friends) ? user.friends.map(toFriendItem) : [];
+  }, [followingList, user?.friends]);
   const hasFriends = friends.length > 0;
 
   const onFileSelect = (e) => {
@@ -127,24 +149,27 @@ export default function ProfileHome({ user, refreshMe,  onEditProfile,
                   </div>
                 </div>
 
-                <button
-                  type="button"
-                  className="avatarEdit"
-                  onClick={() => fileInputRef.current?.click()}
-                  disabled={isSaving}
-                >
-                  <img src={profileIcons.live} alt="" />
-                </button>
+                {isOwner && (
+                  <button
+                    type="button"
+                    className="avatarEdit"
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={isSaving}
+                  >
+                    <img src={profileIcons.live} alt="" />
+                  </button>
+                )}
               </div>
 
-              {/* desktop only */}
-              <button
-                type="button"
-                className="editBtn editBtnDesktop"
-                onClick={onEditProfile}
-              >
-                Редактировать профиль
-              </button>
+              {isOwner && (
+                <button
+                  type="button"
+                  className="editBtn editBtnDesktop"
+                  onClick={onEditProfile}
+                >
+                  Редактировать профиль
+                </button>
+              )}
             </div>
           </div>
 
@@ -177,89 +202,118 @@ export default function ProfileHome({ user, refreshMe,  onEditProfile,
           </div>
 {/* RIGHT */}
 <div className="profileRight">
-  <button
-    type="button"
-    className="btnMessages"
-    onClick={onMessages}
-    aria-label="My messages"
-  >
-    <img src={profileIcons.chat} alt="" className="msgIcon" />
-    <span className="msgText">my messages</span>
-  </button>
+  {canSubscribe ? (
+    <button
+      type="button"
+      className="btnMessages profileSubscribeBtn"
+      onClick={onSubscribe}
+      disabled={subscriptionLoading}
+      aria-label={isSubscribed ? "Відписатися" : "Підписатися"}
+    >
+      <span className="msgText">
+        {subscriptionLoading ? "…" : isSubscribed ? "Відписатися" : "Підписатися"}
+      </span>
+    </button>
+  ) : (
+    <>
+      <button
+        type="button"
+        className="btnMessages"
+        onClick={onMessages}
+        aria-label="My messages"
+      >
+        <img src={profileIcons.chat} alt="" className="msgIcon" />
+        <span className="msgText">my messages</span>
+      </button>
 
-  <button
-    type="button"
-    className="btnSaved"
-    onClick={onSaved}
-    aria-label="Saved"
-  >
-    <img src={profileIcons.saved} alt="" className="msgIcon" />
-    <span className="msgText">saved</span>
-  </button>
+      <button
+        type="button"
+        className="btnSaved"
+        onClick={onSaved}
+        aria-label="Saved"
+      >
+        <img src={profileIcons.saved} alt="" className="msgIcon" />
+        <span className="msgText">saved</span>
+      </button>
+    </>
+  )}
 </div>
 
         </section>
 
-        {/* ================= ACTIONS: separate full-width block (like Figma) ================= */}
-        <section className="actionsSection">
-          <div className="actionsBlock">
-            {/* mobile rows */}
-            <div className="actionsRow1">
-              <button className="actionBtn" type="button">
+        {/* ================= ACTIONS: only for OWNER ================= */}
+        {isOwner && (
+          <section className="actionsSection">
+            <div className="actionsBlock">
+              <div className="actionsRow1">
+                <button className="actionBtn" type="button">
+                  <span>Дополнить историю</span>
+                  <span className="actionPlus">
+                    <img src={actionIcons.plus} alt="" />
+                  </span>
+                </button>
+
+                <button
+                  type="button"
+                  className="actionBtn"
+                  onClick={onEditProfile}
+                >
+                  <span>Редактировать профиль</span>
+                  <img src={actionIcons.pencil} alt="" />
+                </button>
+
+                <button className="actionBtn actionMore" type="button" aria-label="Більше">
+                  …
+                </button>
+              </div>
+
+              <div className="actionsRow2">
+                <button className="actionBtn" type="button">
+                  <span>Добавить рилс</span>
+                  <img src={actionIcons.video} alt="" />
+                </button>
+
+                <button className="actionBtn" type="button">
+                  <span>Прямой эфир</span>
+                  <img src={actionIcons.live} alt="" />
+                </button>
+              </div>
+
+              <button className="actionBtn actionBig" type="button">
                 <span>Дополнить историю</span>
                 <span className="actionPlus">
                   <img src={actionIcons.plus} alt="" />
                 </span>
               </button>
 
+              <div className="actionsRow">
+                <button className="actionBtn" type="button">
+                  <span>Добавить рилс</span>
+                  <img src={actionIcons.video} alt="" />
+                </button>
+                <button className="actionBtn" type="button">
+                  <span>Прямой эфир</span>
+                  <img src={actionIcons.live} alt="" />
+                </button>
+              </div>
+            </div>
+          </section>
+        )}
+
+        {isVisitor && canSubscribe && (
+          <section className="actionsSection">
+            <div className="actionsBlock">
               <button
                 type="button"
-                className="actionBtn"
-                onClick={onEditProfile}
+                className="actionBtn actionBig profileSubscribeBtnMobile"
+                onClick={onSubscribe}
+                disabled={subscriptionLoading}
               >
-                <span>Редактировать профиль</span>
-                <img src={actionIcons.pencil} alt="" />
-              </button>
-
-              <button className="actionBtn actionMore" type="button" aria-label="Більше">
-                …
+                {subscriptionLoading ? "…" : isSubscribed ? "Відписатися" : "Підписатися"}
               </button>
             </div>
-
-            <div className="actionsRow2">
-              <button className="actionBtn" type="button">
-                <span>Добавить рилс</span>
-                <img src={actionIcons.video} alt="" />
-              </button>
-
-              <button className="actionBtn" type="button">
-                <span>Прямой эфир</span>
-                <img src={actionIcons.live} alt="" />
-              </button>
-            </div>
-
-            {/* desktop blocks */}
-           
-            <button className="actionBtn actionBig" type="button">
-             
-              <span>Дополнить историю</span>
-              <span className="actionPlus">
-                <img src={actionIcons.plus} alt="" />
-              </span>
-            </button>
-
-            <div className="actionsRow">
-              <button className="actionBtn" type="button">
-                <span>Добавить рилс</span>
-                <img src={actionIcons.video} alt="" />
-              </button>
-              <button className="actionBtn" type="button">
-                <span>Прямой эфир</span>
-                <img src={actionIcons.live} alt="" />
-              </button>
-            </div>
-          </div>
-        </section>
+          </section>
+        )}
 
         {/* ================= VIP / FRIENDS ================= */}
         <section className="vipCard">
@@ -294,18 +348,27 @@ export default function ProfileHome({ user, refreshMe,  onEditProfile,
               <div className="vipRow">
                 {friends.slice(0, 7).map((v) => (
                   <div key={v.id} className="vipItem">
-                    <div className="vipAvatarWrap">
+                    <button
+                      type="button"
+                      className="vipAvatarWrap vipAvatarWrap--clickable"
+                      onClick={() => v.username && onOpenUser?.(v.username)}
+                      aria-label={v.username ? `Профіль ${v.username}` : "Користувач"}
+                    >
                       <img
                         src={v.avatar || "/icon1/image0.png"}
                         className="vipAvatar"
                         alt=""
                       />
                       <span className="onlineDot" />
-                    </div>
+                    </button>
                   </div>
                 ))}
               </div>
-              <button className="showMoreBtn" type="button">
+              <button
+                className="showMoreBtn"
+                type="button"
+                onClick={onShowMore}
+              >
                 Показать больше
               </button>
             </>

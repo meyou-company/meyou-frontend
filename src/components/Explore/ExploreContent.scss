@@ -297,18 +297,25 @@
 .explore-content__avatarBorder {
   width: 56px;
   height: 56px;
+  min-width: 56px;
+  min-height: 56px;
   padding: 3px;
   border-radius: 50%;
   background: linear-gradient(135deg, #b05cff, #ff4fb1, #ff9a56);
-  display: grid;
-  place-items: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
 }
 
 .explore-content__avatar {
   width: 100%;
   height: 100%;
+  min-width: 0;
+  min-height: 0;
   border-radius: 50%;
   object-fit: cover;
+  object-position: center;
   display: block;
   background: #eee;
 }
@@ -436,7 +443,7 @@ body.dark .explore-content__viewBtnActive {
 }
 
 /* -------------------------
-   RESPONSIVE
+   RESPONSIVE: мобілка від 320, планшет 768–1045, десктоп не чіпаємо
 ------------------------- */
 
 /* Mobile < 768px */
@@ -466,6 +473,8 @@ body.dark .explore-content__viewBtnActive {
   .explore-content__avatarBorder {
     width: 48px;
     height: 48px;
+    min-width: 48px;
+    min-height: 48px;
   }
 
   .explore-content__username {
@@ -482,8 +491,167 @@ body.dark .explore-content__viewBtnActive {
   }
 }
 
-/* Tablet 768–1024px (main target) */
-@media (min-width: 768px) and (max-width: 1024px) {
+/* Мобілка 480px */
+@media (max-width: 480px) {
+  .explore-content {
+    padding: 10px;
+  }
+
+  .explore-content__topBar {
+    padding: 6px 0 14px;
+    gap: 12px;
+  }
+
+  .explore-content__title {
+    font-size: 19px;
+  }
+
+  .explore-content__backBtn {
+    width: 42px;
+    height: 42px;
+  }
+
+  .explore-content__backBtnIcon {
+    width: 18px;
+    height: 24px;
+  }
+
+  .explore-content__viewBtn {
+    width: 38px;
+    height: 38px;
+  }
+
+  .explore-content__searchBlock {
+    gap: 10px;
+    margin-bottom: 18px;
+  }
+
+  .explore-content__inputWrap {
+    height: 46px;
+    padding: 0 12px;
+  }
+
+  .explore-content__input {
+    font-size: 15px;
+  }
+
+  .explore-content__filterBtn {
+    width: 46px;
+    height: 46px;
+  }
+
+  .explore-content__avatarBorder {
+    width: 46px;
+    height: 46px;
+    min-width: 46px;
+    min-height: 46px;
+  }
+
+  .explore-content__username {
+    font-size: 14px;
+  }
+
+  .explore-content__subtitle {
+    font-size: 11px;
+  }
+
+  .explore-content__resultsGrid {
+    gap: 10px;
+  }
+
+  .explore-content__userCard {
+    padding: 11px;
+  }
+
+  .explore-content__addFriendBtn,
+  .explore-content__addVipBtn {
+    font-size: 13px;
+    padding: 9px 12px;
+  }
+}
+
+/* Мобілка 320px — компактніше */
+@media (max-width: 320px) {
+  .explore-content {
+    padding: 8px;
+  }
+
+  .explore-content__topBar {
+    gap: 10px;
+    padding: 6px 0 12px;
+  }
+
+  .explore-content__title {
+    font-size: 18px;
+  }
+
+  .explore-content__backBtn {
+    width: 38px;
+    height: 38px;
+  }
+
+  .explore-content__backBtnIcon {
+    width: 16px;
+    height: 20px;
+  }
+
+  .explore-content__viewBtn {
+    width: 36px;
+    height: 36px;
+  }
+
+  .explore-content__searchBlock {
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+
+  .explore-content__inputWrap {
+    height: 44px;
+    padding: 0 12px;
+  }
+
+  .explore-content__input {
+    font-size: 14px;
+  }
+
+  .explore-content__filterBtn {
+    width: 44px;
+    height: 44px;
+  }
+
+  .explore-content__avatarBorder {
+    width: 42px;
+    height: 42px;
+    min-width: 42px;
+    min-height: 42px;
+  }
+
+  .explore-content__username {
+    font-size: 14px;
+  }
+
+  .explore-content__subtitle {
+    font-size: 11px;
+  }
+
+  .explore-content__resultsGrid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+
+  .explore-content__userCard {
+    padding: 10px;
+  }
+
+  .explore-content__addFriendBtn,
+  .explore-content__addVipBtn {
+    font-size: 12px;
+    padding: 8px 10px;
+  }
+}
+
+/* Планшет 768–1045px */
+@media (min-width: 768px) and (max-width: 1045px) {
   .explore-content {
     padding: 24px;
     max-width: 768px;
@@ -525,6 +693,8 @@ body.dark .explore-content__viewBtnActive {
   .explore-content__avatarBorder {
     width: 64px;
     height: 64px;
+    min-width: 64px;
+    min-height: 64px;
   }
 
   .explore-content__username {

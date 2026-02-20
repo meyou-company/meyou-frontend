@@ -1,0 +1,410 @@
+/* =========================
+   FriendsContent — сторінка «Показать больше»: пошук + Усі VIP / Друзі
+   ========================= */
+
+.friends-content {
+  width: 100%;
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 16px;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.friends-content__header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 0 16px;
+  flex-shrink: 0;
+}
+
+.friends-content__backBtn {
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.friends-content__backIcon {
+  width: 22px;
+  height: 28px;
+  display: block;
+}
+
+.friends-content__title {
+  flex: 1;
+  margin: 0;
+  font-size: 22px;
+  font-weight: 700;
+  text-align: center;
+  color: inherit;
+}
+
+.friends-content__searchWrap {
+  margin-bottom: 16px;
+}
+
+.friends-content__search {
+  width: 100%;
+  height: 48px;
+  padding: 0 16px;
+  font-size: 16px;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  border-radius: 12px;
+  background: var(--input-bg, #fff);
+  color: inherit;
+
+  &::placeholder {
+    color: rgba(0, 0, 0, 0.4);
+  }
+
+  &:focus {
+    outline: none;
+    border-color: #ff4fb1;
+    box-shadow: 0 0 0 2px rgba(255, 79, 177, 0.2);
+  }
+}
+
+body.dark .friends-content__search {
+  border-color: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.08);
+
+  &::placeholder {
+    color: rgba(255, 255, 255, 0.5);
+  }
+}
+
+.friends-content__tabs {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 20px;
+  flex-shrink: 0;
+}
+
+.friends-content__tab {
+  flex: 1;
+  height: 44px;
+  padding: 0 16px;
+  font-size: 15px;
+  font-weight: 600;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  border-radius: 10px;
+  background: transparent;
+  cursor: pointer;
+  color: inherit;
+  -webkit-tap-highlight-color: transparent;
+  transition: background 0.2s, border-color 0.2s;
+
+  &:hover {
+    background: rgba(255, 79, 177, 0.08);
+    border-color: rgba(255, 79, 177, 0.3);
+  }
+}
+
+.friends-content__tabActive {
+  background: linear-gradient(135deg, #ff4fb1, #4f6bff);
+  border-color: transparent;
+  color: #fff;
+
+  &:hover {
+    background: linear-gradient(135deg, #e0459f, #4560e6);
+    border-color: transparent;
+    color: #fff;
+  }
+}
+
+body.dark .friends-content__tab {
+  border-color: rgba(255, 255, 255, 0.2);
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.08);
+  }
+}
+
+body.dark .friends-content__tabActive {
+  background: linear-gradient(135deg, #ff4fb1, #4f6bff);
+  color: #fff;
+}
+
+.friends-content__listWrap {
+  flex: 1;
+  min-height: 200px;
+}
+
+.friends-content__empty {
+  margin: 24px 0;
+  text-align: center;
+  color: rgba(0, 0, 0, 0.5);
+  font-size: 15px;
+}
+
+body.dark .friends-content__empty {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.friends-content__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.friends-content__item {
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--card-bg, rgba(0, 0, 0, 0.03));
+}
+
+body.dark .friends-content__item {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.friends-content__userBtn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 16px;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+  -webkit-tap-highlight-color: transparent;
+
+  &:hover {
+    background: rgba(255, 79, 177, 0.06);
+  }
+}
+
+body.dark .friends-content__userBtn:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.friends-content__avatarWrap {
+  flex-shrink: 0;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: rgba(0, 0, 0, 0.08);
+}
+
+.friends-content__avatar {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.friends-content__userInfo {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.friends-content__name {
+  font-size: 16px;
+  font-weight: 600;
+  color: inherit;
+}
+
+.friends-content__username {
+  font-size: 14px;
+  color: rgba(0, 0, 0, 0.5);
+}
+
+body.dark .friends-content__username {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+/* -------------------------
+   RESPONSIVE: мобілка 320, 480, планшет 768–1045
+------------------------- */
+
+/* Мобілка 480px */
+@media (max-width: 480px) {
+  .friends-content {
+    padding: 12px;
+  }
+
+  .friends-content__header {
+    padding: 10px 0 14px;
+    gap: 14px;
+  }
+
+  .friends-content__title {
+    font-size: 20px;
+  }
+
+  .friends-content__backBtn {
+    width: 42px;
+    height: 42px;
+  }
+
+  .friends-content__backIcon {
+    width: 20px;
+    height: 26px;
+  }
+
+  .friends-content__search {
+    height: 46px;
+    padding: 0 14px;
+    font-size: 15px;
+  }
+
+  .friends-content__tabs {
+    gap: 10px;
+    margin-bottom: 18px;
+  }
+
+  .friends-content__tab {
+    height: 42px;
+    padding: 0 14px;
+    font-size: 14px;
+  }
+
+  .friends-content__avatarWrap {
+    width: 48px;
+    height: 48px;
+  }
+
+  .friends-content__name {
+    font-size: 15px;
+  }
+
+  .friends-content__username {
+    font-size: 13px;
+  }
+
+  .friends-content__userBtn {
+    padding: 11px 14px;
+    gap: 13px;
+  }
+
+  .friends-content__empty {
+    font-size: 14px;
+    margin: 20px 0;
+  }
+}
+
+/* Мобілка 320px */
+@media (max-width: 320px) {
+  .friends-content {
+    padding: 10px;
+  }
+
+  .friends-content__header {
+    padding: 8px 0 12px;
+    gap: 12px;
+  }
+
+  .friends-content__title {
+    font-size: 18px;
+  }
+
+  .friends-content__backBtn {
+    width: 38px;
+    height: 38px;
+  }
+
+  .friends-content__backIcon {
+    width: 18px;
+    height: 24px;
+  }
+
+  .friends-content__search {
+    height: 44px;
+    padding: 0 12px;
+    font-size: 14px;
+    border-radius: 10px;
+  }
+
+  .friends-content__tabs {
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+
+  .friends-content__tab {
+    height: 40px;
+    padding: 0 12px;
+    font-size: 13px;
+  }
+
+  .friends-content__avatarWrap {
+    width: 44px;
+    height: 44px;
+  }
+
+  .friends-content__name {
+    font-size: 14px;
+  }
+
+  .friends-content__username {
+    font-size: 12px;
+  }
+
+  .friends-content__userBtn {
+    padding: 10px 12px;
+    gap: 12px;
+  }
+
+  .friends-content__empty {
+    font-size: 14px;
+    margin: 16px 0;
+  }
+}
+
+/* Планшет 768–1045px */
+@media (min-width: 768px) and (max-width: 1045px) {
+  .friends-content {
+    padding: 24px;
+    max-width: 560px;
+  }
+
+  .friends-content__header {
+    padding: 16px 0 20px;
+  }
+
+  .friends-content__title {
+    font-size: 24px;
+  }
+
+  .friends-content__search {
+    height: 52px;
+    font-size: 16px;
+  }
+
+  .friends-content__tabs {
+    margin-bottom: 24px;
+  }
+
+  .friends-content__tab {
+    height: 48px;
+    font-size: 16px;
+  }
+
+  .friends-content__avatarWrap {
+    width: 56px;
+    height: 56px;
+  }
+
+  .friends-content__name {
+    font-size: 17px;
+  }
+
+  .friends-content__username {
+    font-size: 15px;
+  }
+}

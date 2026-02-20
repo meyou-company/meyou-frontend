@@ -406,6 +406,15 @@ font-size: 60px;
   border-radius: 50%;
   padding: 2px;
   background: linear-gradient(135deg, #b05cff, #ff4fb1, #4f6bff);
+
+  &--clickable {
+    border: none;
+    cursor: pointer;
+    display: block;
+    appearance: none;
+    &:hover { opacity: 0.9; }
+    &:focus-visible { outline: 2px solid var(--focus-color, #4f6bff); outline-offset: 2px; }
+  }
 }
 
 .vipAvatar {
@@ -743,11 +752,11 @@ body.dark .profile-home .badgeText {
 }
 
 /* =========================
-   TABLET (768–1024) — iPad layout
+   TABLET (768–1045) — планшет, десктоп не чіпаємо
    ========================= */
-@media (min-width: 768px) and (max-width: 1024px) {
+@media (min-width: 768px) and (max-width: 1045px) {
   .profile-container {
-    max-width: 1024px;
+    max-width: 1045px;
     padding: 16px 18px 28px;
     gap: 18px;
   }
@@ -1189,9 +1198,9 @@ body.dark .profile-home .badgeText {
   }
 }
 /* =========================
-   MOBILE 320 (<= 360px) — like Figma
+   MOBILE 480px
    ========================= */
-@media (max-width: 460px) {
+@media (max-width: 480px) {
   .profile-container {
     padding: 10px 12px 90px;
     gap: 14px;
