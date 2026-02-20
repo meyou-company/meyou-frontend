@@ -142,17 +142,27 @@ const Tabs = ({ className, items, itemClass, activeClass }) => (
   </div>
 );
 
-const Item = ({ type, title, date, amount }) => (
-  <article className="wallet-item">
-    <div className={`wallet-item__icon wallet-item__icon--${type}`} />
+const Item = ({ type, title, date, amount }) => {
+  const iconMap = {
+    gift: profileIcons.giftIcon,
+    vip: profileIcons.starIcon,
+    topup: profileIcons.plusIcon,
+  };
 
-    <div className="wallet-item__body">
-      <div className="wallet-item__title">{title}</div>
-      <div className="wallet-item__meta">{date}</div>
-    </div>
+  return (
+    <article className="wallet-item">
+      <div className={`wallet-item__icon-wrapper wallet-item__icon-wrapper--${type}`}>
+        <img src={iconMap[type]} alt={type} className="wallet-item__icon"/>
+      </div>
 
-    <div className="wallet-item__amount wallet-item__amount--positive">
-      {amount}
-    </div>
-  </article>
-);
+      <div className="wallet-item__body">
+        <div className="wallet-item__title">{title}</div>
+        <div className="wallet-item__meta">{date}</div>
+      </div>
+
+      <div className="wallet-item__amount wallet-item__amount--positive">
+        {amount}
+      </div>
+    </article>
+  );
+};
