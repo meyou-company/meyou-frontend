@@ -16,7 +16,7 @@
 .profile-header .rightGroup {
   display: flex;
   align-items: center;
-  gap: 18px;
+  gap: 14px;
 }
 
 .profile-header .mobileRightGroup {
@@ -132,6 +132,8 @@
   min-width: 36px !important;
   min-height: 36px !important;
   font-size: 30px;
+  margin: 0;
+  flex-shrink: 0;
 
   body.dark & {
     color: #e0bbe4;
@@ -144,13 +146,13 @@
 .profile-header .rightGroup {
   display: flex;
   align-items: center;
-  gap: 18px;
+  gap: 14px;
 }
 
 .profile-header .mobileRightGroup {
   display: none;
   align-items: center;
-  gap: 14px;
+  gap: 12px;
 }
 
 /* -------------------------

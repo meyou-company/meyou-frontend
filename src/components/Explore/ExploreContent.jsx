@@ -1,8 +1,9 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import profileIcons from "../../constants/profileIcons";
 import { usersApi } from "../../services/usersApi";
+import { subscriptionsApi } from "../../services/subscriptionsApi";
 import "./ExploreContent.scss";
 
 const DEFAULT_AVATAR = "/icon1/image0.png";
@@ -14,6 +15,8 @@ export default function ExploreContent() {
   const [viewMode, setViewMode] = useState("list"); // "list" | "grid"
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [subscribedIds, setSubscribedIds] = useState(new Set());
+  const [subscribeLoadingId, setSubscribeLoadingId] = useState(null);
 
   // майбутні фільтри
   const [newOnly] = useState(false);
@@ -21,6 +24,23 @@ export default function ExploreContent() {
   const [sort] = useState("recommended");
 
   const lastReqId = useRef(0);
+
+  /** При відкритті сторінки завантажуємо список «вже в друзях» (following), щоб кнопка показувала «Відписатися» */
+  useEffect(() => {
+    let cancelled = false;
+    subscriptionsApi
+      .getFollowing({ take: 200 })
+      .then((res) => {
+        const data = res?.data ?? res;
+        const items = data?.items ?? [];
+        const ids = new Set((Array.isArray(items) ? items : []).map((i) => i.id).filter(Boolean));
+        if (!cancelled) setSubscribedIds(ids);
+      })
+      .catch(() => {
+        if (!cancelled) setSubscribedIds(new Set());
+      });
+    return () => { cancelled = true; };
+  }, []);
 
   const handleClear = () => setQuery("");
 
@@ -48,6 +68,13 @@ export default function ExploreContent() {
         // payload має бути або масив, або { users: [...] }
         const list = Array.isArray(payload) ? payload : (payload?.users ?? []);
         setUsers(list);
+        setSubscribedIds((prev) => {
+          const next = new Set(prev);
+          list.forEach((u) => {
+            if (u?.subscriptionStatus?.isSubscribed || u?.isSubscribed) next.add(u.id);
+          });
+          return next;
+        });
       } catch (e) {
         if (reqId !== lastReqId.current) return;
         console.error("SEARCH ERROR:", e?.response?.status, e?.response?.data, e);
@@ -61,6 +88,30 @@ export default function ExploreContent() {
   }, [query, newOnly, onlineOnly, sort]);
 
   const filteredUsers = useMemo(() => users, [users]);
+
+  const handleSubscribe = useCallback(async (u) => {
+    const id = u?.id;
+    if (!id) return;
+    setSubscribeLoadingId(id);
+    try {
+      const isSubscribed = subscribedIds.has(id);
+      if (isSubscribed) {
+        await subscriptionsApi.unsubscribe(id);
+        setSubscribedIds((prev) => {
+          const next = new Set(prev);
+          next.delete(id);
+          return next;
+        });
+      } else {
+        await subscriptionsApi.subscribe(id);
+        setSubscribedIds((prev) => new Set(prev).add(id));
+      }
+    } catch (e) {
+      console.error("Subscribe error:", e);
+    } finally {
+      setSubscribeLoadingId(null);
+    }
+  }, [subscribedIds]);
 
   const hasResults = filteredUsers.length > 0;
   const showEmptyState = !loading && !hasResults;
@@ -187,7 +238,7 @@ export default function ExploreContent() {
                   <button
                     type="button"
                     className="explore-content__userInfoBtn"
-                    onClick={() => navigate(`/profile/${user.id}`)}
+                    onClick={() => navigate(`/profile/${user.username || user.id}`)}
                   >
                     <div className="explore-content__avatarWrap">
                       <div className="explore-content__avatarBorder">
@@ -209,8 +260,17 @@ export default function ExploreContent() {
                   </button>
 
                   <div className="explore-content__actionBtns">
-                    <button type="button" className="explore-content__addFriendBtn">
-                      Додати в друзі
+                    <button
+                      type="button"
+                      className="explore-content__addFriendBtn"
+                      onClick={() => handleSubscribe(user)}
+                      disabled={subscribeLoadingId === user.id}
+                    >
+                      {subscribeLoadingId === user.id
+                        ? "…"
+                        : subscribedIds.has(user.id)
+                          ? "Відписатися"
+                          : "Додати в друзі"}
                     </button>
                     <button type="button" className="explore-content__addVipBtn">
                       Додати VIP

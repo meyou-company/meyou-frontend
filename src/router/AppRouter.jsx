@@ -37,6 +37,7 @@ export default function AppRouter() {
                 <Route path="/search" element={<Explore />} />
                 <Route path="/friends" element={<Friends />} />
                 <Route path="/profile" element={<Profile />} />
+                <Route path="/profile/:username" element={<Profile />} />
                 <Route path="/vip-chat" element={<VipChat />} />
                 <Route path="/first-page" element={<FirstPage />} />
 
