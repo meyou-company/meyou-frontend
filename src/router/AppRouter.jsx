@@ -22,6 +22,7 @@ import CompleteProfilePage from "../pages/Users/Profile/CompleteProfilePage";
 import EditProfilePage from "../pages/Users/Profile/EditProfilePage";
 
 import FirstPage from "../pages/FirstPage/FirstPage";
+import WalletPage from "../pages/Wallet/WalletPage";
 
 import ProfileGuard from "./ProfileGuard";
 
@@ -39,6 +40,7 @@ export default function AppRouter() {
                 <Route path="/profile" element={<Profile />} />
                 <Route path="/vip-chat" element={<VipChat />} />
                 <Route path="/first-page" element={<FirstPage />} />
+                <Route path="/wallet" element={<WalletPage />} />
 
                 <Route
                   path="/users/profile/complete"

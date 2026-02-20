@@ -6,6 +6,7 @@ import "./FirstPageView.scss";
 export default function FirstPageView({
   onGoProfile,
   onGoExplore,
+  onGoWallet,
   onGoVipChat,
   onGoFriends,
   onGoNotifications,
@@ -42,8 +43,8 @@ export default function FirstPageView({
 
             {/* RIGHT */}
             <div className="flex items-center md:gap-3 xl:gap-10">
-              <button onClick={onGoProfile}>
-                <img src={profileIcons.balance} alt="Balance" aria-hidden="true" className="hidden xl:flex h-12"/>
+              <button onClick={onGoWallet}>
+                <img src={profileIcons.balance} alt="Balance" aria-hidden="true" className="hidden md:flex h-7 xl:h-12"/>
               </button>
 
               <button onClick={onGoVipChat}>

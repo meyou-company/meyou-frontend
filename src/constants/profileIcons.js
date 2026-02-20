@@ -47,6 +47,7 @@ const profileIcons = {
   closeBlack: `${BLACK}/cross-filled.svg`,
   lockBlack: `${BLACK}/lock.svg`,
   vipButton: `${BLACK}/vip-button.svg`,
+  arrowLeftBlack: `${BLACK}/arrow-left.svg`,
 };
 
 export default profileIcons;
