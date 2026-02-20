@@ -133,6 +133,7 @@ export default function Profile() {
   const onOpenUser = useCallback((username) => {
     if (username) navigate(`/profile/${username}`);
   }, [navigate]);
+  const onShowMore = useCallback(() => navigate("/friends"), [navigate]);
 
   const loadingOwn = !urlUsername && (!user || isAuthLoading);
   const loadingPublic = urlUsername && fetchedUser === null && !fetchError;
@@ -193,6 +194,7 @@ export default function Profile() {
           subscriptionLoading={subscriptionLoading}
           followingList={isOwnProfile ? followingList : undefined}
           onOpenUser={onOpenUser}
+          onShowMore={onShowMore}
           refreshMe={refreshMe}
           onEditProfile={onEditProfile}
           onMessages={onMessages}

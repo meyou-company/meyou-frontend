@@ -54,6 +54,8 @@ export default function ProfileHome({
   followingList,
   /** Відкрити профіль користувача за username (клік по аватару друга) */
   onOpenUser,
+  /** Відкрити сторінку «Друзі та VIP» (Показать больше) */
+  onShowMore,
   refreshMe,
   onEditProfile,
   onMessages,
@@ -362,7 +364,11 @@ export default function ProfileHome({
                   </div>
                 ))}
               </div>
-              <button className="showMoreBtn" type="button">
+              <button
+                className="showMoreBtn"
+                type="button"
+                onClick={onShowMore}
+              >
                 Показать больше
               </button>
             </>
