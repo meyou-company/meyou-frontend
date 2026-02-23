@@ -3,6 +3,7 @@
 const HOME = "/home";
 const ICON1 = "/icon1";
 const BLACK = "/icon-black";
+const WALLET = "/balance";
 
 const profileIcons = {
   /* === HOME === */
@@ -47,6 +48,12 @@ const profileIcons = {
   closeBlack: `${BLACK}/cross-filled.svg`,
   lockBlack: `${BLACK}/lock.svg`,
   vipButton: `${BLACK}/vip-button.svg`,
+  arrowLeftBlack: `${BLACK}/arrow-left.svg`,
+
+   /* === WALLET === */
+  giftIcon: `${WALLET}/gift.svg`,
+  starIcon: `${WALLET}/star.svg`,
+  plusIcon: `${WALLET}/plus.svg`,
 };
 
 export default profileIcons;
