@@ -1,3 +1,4 @@
+import ThemeToggleDark from "../ThemeToggleDark/ThemeToggleDark";
 import profileIcons from "../../constants/profileIcons";
 import "./Wallet.scss";
 
