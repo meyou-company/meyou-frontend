@@ -3,6 +3,8 @@
    ========================= */
 
 .complete-profile {
+  --field-radius: 20px;
+  --field-radius-inner: 19px; /* inset 1px */
   width: 100%;
   padding: 20px 16px 30px;
   overflow: visible; /* dropdowns can overlay */
@@ -29,7 +31,24 @@
   align-items: center;
 }
 
+/* Стрілка «назад» — як даркмод, з іншого боку логотипу (такий самий блок 44×44) */
+.cp-topbar .back-arrow {
+  position: relative;
+  top: auto;
+  left: auto;
+  width: 44px;
+  height: 44px;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
 
+.cp-topbar .back-arrow__icon {
+  width: 24px;
+  height: 34px;
+}
 
 /* brand centered */
 .cp-topbar__brand {
@@ -195,7 +214,7 @@
 .field__wrap {
   position: relative;
   height: 52px;
-  border-radius: 20px;
+  border-radius: var(--field-radius);
   overflow: hidden;
 
   background: var(--field-grad);
@@ -218,7 +237,7 @@
   content: "";
   position: absolute;
   inset: 1px;
-  border-radius: 19px;
+  border-radius: var(--field-radius-inner);
   background: var(--field-inner);
   z-index: 1;
   pointer-events: none;
@@ -238,7 +257,7 @@
 
   color: var(--field-text);
   padding: 14px 16px 14px 28px;
-  font-size: 18px;
+  font-size: 14px;
 }
 
 .text-area {
@@ -273,7 +292,7 @@
   content: "";
   position: absolute;
   inset: 0;
-  border-radius: 20px;
+  border-radius: var(--field-radius);
   pointer-events: none;
   z-index: 3;
   box-shadow: inset 0 0 0 2px #ff1b1b;
@@ -286,7 +305,7 @@
   top: 10px;
   z-index: 5;
   color: #fc0000;
-  font-size: 18px;
+  font-size: 14px;
   font-weight: 700;
   line-height: 1;
   pointer-events: none;
@@ -297,6 +316,667 @@
   font-size: 14px;
   color: #fc0000;
   padding-left: 10px;
+}
+
+/* Поле Пол — такий самий колір/стиль як інші поля (градієнт + внутрішній фон) */
+.field__genderWrap {
+  position: relative;
+  border-radius: var(--field-radius);
+  overflow: visible;
+  background: var(--field-grad);
+  box-shadow: var(--field-shadow);
+  transition: box-shadow 0.25s ease, filter 0.25s ease;
+}
+
+.field__genderWrap::before {
+  content: "";
+  position: absolute;
+  inset: 1px;
+  border-radius: var(--field-radius-inner);
+  background: var(--field-inner);
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* Десктоп/планшет: висота така ж як у решти полів (52px) */
+.field__genderWrap--desktop {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 14px;
+  height: 52px;
+  min-height: 52px;
+  max-height: 52px;
+  padding: 0 16px 0 14px;
+}
+
+.field__genderWrap--desktop .field__label--row {
+  flex-shrink: 0;
+  margin: 0;
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--field-placeholder);
+  position: relative;
+  z-index: 2;
+}
+
+.field__genderWrap--desktop .field__label--row .field__star {
+  position: static;
+  margin-right: 4px;
+  color: #fc0000;
+}
+
+.field__genderWrap--desktop .field__genderGroup {
+  flex: 1;
+  min-width: 0;
+  position: relative;
+  z-index: 2;
+}
+
+.field__genderWrap--mobile {
+  display: none;
+  overflow: visible;
+}
+
+/* Відкритий вибір на мобілці — не ховатись під полями */
+.field--gender.field--genderOpen {
+  z-index: 999999;
+  position: relative;
+}
+
+@media (max-width: 767px) {
+  .field__genderWrap--desktop {
+    display: none;
+  }
+
+  .field__genderWrap--mobile {
+    display: block;
+    padding: 0;
+    min-height: 0;
+    background: transparent;
+    box-shadow: none;
+  }
+
+  .field__genderWrap--mobile::before {
+    display: none;
+  }
+
+  .field__genderTriggerWrap {
+    position: relative;
+    height: 42px;
+    border-radius: var(--field-radius);
+    overflow: visible;
+    background: var(--field-grad);
+    box-shadow: var(--field-shadow);
+    transition: box-shadow 0.25s ease, filter 0.25s ease;
+  }
+
+  .field__genderTriggerWrap::before {
+    content: "";
+    position: absolute;
+    inset: 1px;
+    border-radius: var(--field-radius-inner);
+    background: var(--field-inner);
+    z-index: 1;
+    pointer-events: none;
+  }
+
+  .field__genderTrigger {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    padding: 0 16px 0 28px;
+    border-radius: var(--field-radius);
+    border: 0;
+    background: transparent;
+    color: var(--field-text);
+    font-size: 14px;
+    font-weight: 400;
+    text-align: left;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    position: relative;
+    z-index: 2;
+  }
+
+  .field__genderTrigger .field__star {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    margin: 0;
+    color: #fc0000;
+  }
+
+  .field__genderTriggerText {
+    flex: 1;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    min-width: 0;
+  }
+
+  .field__genderTriggerLabel {
+    font-size: 14px;
+    font-weight: 400;
+    opacity: 1;
+    color: var(--field-placeholder);
+  }
+
+  .field__genderTriggerValue {
+    font-size: 14px;
+    font-weight: 400;
+    text-align: right;
+    color: var(--field-text);
+  }
+
+  .field__genderTriggerValue--placeholder {
+    color: var(--field-placeholder);
+  }
+
+  .field__genderChevron {
+    width: 0;
+    height: 0;
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+    border-top: 6px solid currentColor;
+    opacity: 0.7;
+    flex-shrink: 0;
+    margin-left: 8px;
+  }
+
+  .field__genderDropdown {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    right: 0;
+    z-index: 100000;
+    border-radius: 16px;
+    overflow: hidden;
+    background: var(--select-menu-bg, #fff);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(0, 0, 0, 0.08);
+  }
+
+  .field__genderDropdownItem {
+    display: block;
+    width: 100%;
+    padding: 14px 16px;
+    border: 0;
+    background: transparent;
+    color: var(--field-text);
+    font-size: 14px;
+    text-align: left;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition: background 0.15s;
+  }
+
+  .field__genderDropdownItem:hover {
+    background: var(--select-option-hover-bg, rgba(0, 0, 0, 0.06));
+  }
+
+  .field__genderDropdownItemActive {
+    background: var(--select-option-selected-bg);
+    color: #fff !important;
+    font-weight: 600;
+  }
+}
+
+.field__label--inside {
+  display: block;
+  margin-bottom: 12px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--field-placeholder);
+}
+
+.field__label--inside .field__star {
+  position: static;
+  margin-right: 4px;
+  color: #fc0000;
+}
+
+/* Три опції в один ряд горизонтально */
+.field__genderGroup {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+}
+
+.field__genderBtn {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex: 1;
+  min-width: 0;
+  padding: 8px 10px 8px 12px;
+  border-radius: 14px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  background: rgba(255, 255, 255, 0.8);
+  cursor: pointer;
+  font-size: 14px;
+  color: var(--field-text);
+  text-align: left;
+  -webkit-tap-highlight-color: transparent;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.field__genderBtn:hover {
+  border-color: rgba(0, 0, 0, 0.18);
+  background: rgba(255, 255, 255, 1);
+}
+
+.field__genderBtnActive {
+  border-color: rgba(255, 79, 177, 0.5);
+  background: rgba(255, 79, 177, 0.08);
+}
+
+.field__genderLabel {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Перемикач: подовжена овальна форма, коло зліва (off) / справа (on) */
+.field__genderToggle {
+  width: 44px;
+  height: 24px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.12);
+  flex-shrink: 0;
+  position: relative;
+  transition: background 0.2s;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+}
+
+.field__genderBtnActive .field__genderToggle {
+  background: linear-gradient(135deg, #ff4fb1, #4f6bff);
+  border-color: transparent;
+}
+
+.field__genderToggle::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  transition: transform 0.2s;
+}
+
+.field__genderBtnActive .field__genderToggle::after {
+  transform: translateX(20px);
+}
+
+/* Поле дати народження: календар + ручний ввод (YYYY-MM-DD), стрілка вниз */
+.field__wrap--birthDate {
+  overflow: visible;
+  position: relative;
+}
+
+/* Поле дати народження — так само як селекти (Хобі, Країна тощо): той самий відступ справа й стрілка */
+.field__wrap--birthDate .field__date-input {
+  padding-right: 36px;
+}
+
+/* Ховаємо нативну іконку календаря, клік відкриває календар */
+.field__wrap--birthDate .field__date-input::-webkit-calendar-picker-indicator {
+  opacity: 0;
+  cursor: pointer;
+  position: absolute;
+  right: 0;
+  width: 36px;
+  height: 100%;
+}
+
+/* Блок справа: вертикальна лінія + сіра стрілка-шеврон (як на макеті) */
+.field__date-indicator {
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  z-index: 3;
+}
+
+/* Вертикальна сіра лінія-роздільник */
+.field__date-indicator::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 12px;
+  bottom: 12px;
+  width: 1px;
+  background: rgba(0, 0, 0, 0.28);
+}
+
+/* Стрілка вниз — світло-сірий шеврон */
+.field__date-indicator::after {
+  content: "";
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 0;
+  height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 5px solid rgba(0, 0, 0, 0.45);
+  pointer-events: none;
+}
+
+/* Помилку показуємо на wrap, індикатор залишається */
+.field__wrap--birthDate:has(.is-error) {
+  box-shadow: var(--field-shadow), inset 0 0 0 2px #ff1b1b;
+}
+
+/* Збільшений календар, що вискакує для вибору дати */
+.birthDate-picker.react-datepicker {
+  font-size: 14px;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  background: var(--select-menu-bg, #fff);
+}
+
+.birthDate-picker .react-datepicker__header {
+  padding-top: 16px;
+  padding-bottom: 12px;
+  background: var(--field-inner);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.birthDate-picker .react-datepicker__current-month {
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: var(--field-text);
+}
+
+.birthDate-picker .react-datepicker__day-names,
+.birthDate-picker .react-datepicker__week {
+  display: flex;
+  justify-content: space-around;
+}
+
+.birthDate-picker .react-datepicker__day-name,
+.birthDate-picker .react-datepicker__day {
+  width: 42px;
+  height: 42px;
+  line-height: 42px;
+  margin: 4px;
+  font-size: 17px;
+  border-radius: 12px;
+  color: var(--field-text);
+}
+
+.birthDate-picker .react-datepicker__day--selected,
+.birthDate-picker .react-datepicker__day--keyboard-selected {
+  background: linear-gradient(90deg, #4f6bff 0%, #b05cff 55%, #ff4fb1 100%) !important;
+  color: #fff !important;
+}
+
+.birthDate-picker .react-datepicker__day:hover {
+  background: var(--select-option-hover-bg, rgba(0, 0, 0, 0.06));
+}
+
+.birthDate-picker .react-datepicker__month-container {
+  padding: 12px 16px 20px;
+}
+
+.birthDate-picker .react-datepicker__month-dropdown-container,
+.birthDate-picker .react-datepicker__year-dropdown-container {
+  font-size: 16px;
+  margin: 0 6px 8px;
+}
+
+.birthDate-picker .react-datepicker__month-read-view,
+.birthDate-picker .react-datepicker__year-read-view {
+  padding: 6px 10px;
+  font-size: 17px;
+  color: var(--field-text);
+}
+
+/* Темна тема: календар — темний фон (календар рендериться в body через портал) */
+body.dark .birthDate-picker.react-datepicker,
+body.dark .birthDate-picker .react-datepicker,
+body.night .birthDate-picker.react-datepicker,
+body.night .birthDate-picker .react-datepicker,
+html[data-theme="dark"] .birthDate-picker.react-datepicker,
+html[data-theme="dark"] .birthDate-picker .react-datepicker,
+html[data-theme="night"] .birthDate-picker.react-datepicker,
+html[data-theme="night"] .birthDate-picker .react-datepicker {
+  background: var(--select-menu-bg) !important;
+  background-color: var(--select-menu-bg) !important;
+  border-color: rgba(255, 255, 255, 0.12);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+  color: var(--select-text);
+}
+
+body.dark .birthDate-picker .react-datepicker__header,
+body.night .birthDate-picker .react-datepicker__header,
+[data-theme="dark"] .birthDate-picker .react-datepicker__header,
+[data-theme="night"] .birthDate-picker .react-datepicker__header {
+  background: rgba(0, 0, 0, 0.25) !important;
+  border-bottom-color: rgba(255, 255, 255, 0.12);
+}
+
+/* Сіра шапка та біла сітка — перебиваємо білий фон з бібліотеки */
+body.dark .birthDate-picker .react-datepicker__month-container,
+body.night .birthDate-picker .react-datepicker__month-container,
+[data-theme="dark"] .birthDate-picker .react-datepicker__month-container,
+[data-theme="night"] .birthDate-picker .react-datepicker__month-container {
+  background: transparent !important;
+}
+
+body.dark .birthDate-picker .react-datepicker__current-month,
+body.dark .birthDate-picker .react-datepicker__day-name,
+body.night .birthDate-picker .react-datepicker__current-month,
+body.night .birthDate-picker .react-datepicker__day-name,
+[data-theme="dark"] .birthDate-picker .react-datepicker__current-month,
+[data-theme="dark"] .birthDate-picker .react-datepicker__day-name,
+[data-theme="night"] .birthDate-picker .react-datepicker__current-month,
+[data-theme="night"] .birthDate-picker .react-datepicker__day-name {
+  color: var(--select-text);
+}
+
+body.dark .birthDate-picker .react-datepicker__day,
+body.night .birthDate-picker .react-datepicker__day,
+[data-theme="dark"] .birthDate-picker .react-datepicker__day,
+[data-theme="night"] .birthDate-picker .react-datepicker__day {
+  color: var(--select-text);
+}
+
+body.dark .birthDate-picker .react-datepicker__day--outside-month,
+body.night .birthDate-picker .react-datepicker__day--outside-month,
+[data-theme="dark"] .birthDate-picker .react-datepicker__day--outside-month,
+[data-theme="night"] .birthDate-picker .react-datepicker__day--outside-month {
+  color: rgba(255, 255, 255, 0.35);
+}
+
+body.dark .birthDate-picker .react-datepicker__day:hover,
+body.night .birthDate-picker .react-datepicker__day:hover,
+[data-theme="dark"] .birthDate-picker .react-datepicker__day:hover,
+[data-theme="night"] .birthDate-picker .react-datepicker__day:hover {
+  background: var(--select-option-hover-bg);
+}
+
+body.dark .birthDate-picker .react-datepicker__month-read-view,
+body.dark .birthDate-picker .react-datepicker__year-read-view,
+body.night .birthDate-picker .react-datepicker__month-read-view,
+body.night .birthDate-picker .react-datepicker__year-read-view,
+[data-theme="dark"] .birthDate-picker .react-datepicker__month-read-view,
+[data-theme="dark"] .birthDate-picker .react-datepicker__year-read-view,
+[data-theme="night"] .birthDate-picker .react-datepicker__month-read-view,
+[data-theme="night"] .birthDate-picker .react-datepicker__year-read-view {
+  color: var(--select-text);
+}
+
+/* Стрілки навігації календаря (місяць/рік) — темна тема */
+body.dark .birthDate-picker .react-datepicker__navigation-icon::before,
+body.night .birthDate-picker .react-datepicker__navigation-icon::before,
+[data-theme="dark"] .birthDate-picker .react-datepicker__navigation-icon::before,
+[data-theme="night"] .birthDate-picker .react-datepicker__navigation-icon::before {
+  border-color: rgba(255, 255, 255, 0.75);
+}
+
+body.dark .birthDate-picker .react-datepicker__navigation:hover .react-datepicker__navigation-icon::before,
+body.night .birthDate-picker .react-datepicker__navigation:hover .react-datepicker__navigation-icon::before,
+[data-theme="dark"] .birthDate-picker .react-datepicker__navigation:hover .react-datepicker__navigation-icon::before,
+[data-theme="night"] .birthDate-picker .react-datepicker__navigation:hover .react-datepicker__navigation-icon::before {
+  border-color: rgba(255, 255, 255, 0.95);
+}
+
+/* Трикутник поппера (стрілка до поля) — темна тема */
+body.dark .birthDate-picker .react-datepicker__triangle,
+body.night .birthDate-picker .react-datepicker__triangle,
+[data-theme="dark"] .birthDate-picker .react-datepicker__triangle,
+[data-theme="night"] .birthDate-picker .react-datepicker__triangle {
+  fill: var(--select-menu-bg) !important;
+  stroke: rgba(255, 255, 255, 0.12) !important;
+  color: var(--select-menu-bg) !important;
+}
+
+/* Темна тема: Пол і підписи — колір як у плейсхолдера «Національність» */
+body.dark .field__label--inside,
+body.dark .field__label--row,
+[data-theme="dark"] .field__label--inside,
+[data-theme="dark"] .field__label--row {
+  color: var(--field-placeholder);
+}
+
+body.dark .field__genderTriggerLabel,
+[data-theme="dark"] .field__genderTriggerLabel {
+  color: var(--field-placeholder);
+}
+
+body.dark .field__genderTriggerValue--placeholder,
+[data-theme="dark"] .field__genderTriggerValue--placeholder {
+  color: var(--field-placeholder);
+}
+
+body.dark .field__genderBtn,
+[data-theme="dark"] .field__genderBtn {
+  border-color: rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--field-text);
+}
+
+body.dark .field__genderBtn:hover,
+[data-theme="dark"] .field__genderBtn:hover {
+  border-color: rgba(255, 255, 255, 0.22);
+  background: rgba(255, 255, 255, 0.12);
+}
+
+/* У темному та нічному режимі обрана кнопка (наприклад Женский) світиться */
+body.dark .field__genderBtnActive,
+body.night .field__genderBtnActive,
+[data-theme="dark"] .field__genderBtnActive,
+[data-theme="night"] .field__genderBtnActive {
+  border-color: rgba(255, 79, 177, 0.6);
+  background: rgba(255, 79, 177, 0.2);
+  box-shadow: 0 0 20px rgba(255, 79, 177, 0.45), 0 0 28px rgba(79, 107, 255, 0.3);
+}
+
+body.dark .field__genderBtnActive .field__genderToggle,
+body.night .field__genderBtnActive .field__genderToggle,
+[data-theme="dark"] .field__genderBtnActive .field__genderToggle,
+[data-theme="night"] .field__genderBtnActive .field__genderToggle {
+  border-color: transparent;
+}
+
+body.dark .field__genderToggle,
+[data-theme="dark"] .field__genderToggle {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.25);
+}
+
+body.dark .field__genderToggle::after,
+[data-theme="dark"] .field__genderToggle::after {
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+body.dark .field__wrap--birthDate .field__date-input,
+[data-theme="dark"] .field__wrap--birthDate .field__date-input {
+  color: var(--field-text);
+}
+
+/* У темній темі теж лише наша стрілка, нативна іконка прихована */
+body.dark .field__wrap--birthDate .field__date-input::-webkit-calendar-picker-indicator,
+[data-theme="dark"] .field__wrap--birthDate .field__date-input::-webkit-calendar-picker-indicator {
+  opacity: 0;
+  filter: none;
+}
+
+/* Темна тема: лінія й стрілка — світло-сірі */
+body.dark .field__date-indicator::before,
+body.night .field__date-indicator::before,
+[data-theme="dark"] .field__date-indicator::before,
+[data-theme="night"] .field__date-indicator::before {
+  background: rgba(255, 255, 255, 0.35);
+}
+
+body.dark .field__date-indicator::after,
+body.night .field__date-indicator::after,
+[data-theme="dark"] .field__date-indicator::after,
+[data-theme="night"] .field__date-indicator::after {
+  border-top-color: rgba(255, 255, 255, 0.6);
+}
+
+/* Мобілка: календар меншого розміру */
+@media (max-width: 767px) {
+  .birthDate-picker.react-datepicker {
+    font-size: 14px;
+  }
+
+  .birthDate-picker .react-datepicker__current-month {
+    font-size: 16px;
+  }
+
+  .birthDate-picker .react-datepicker__day-name,
+  .birthDate-picker .react-datepicker__day {
+    width: 32px;
+    height: 32px;
+    line-height: 32px;
+    margin: 2px;
+    font-size: 13px;
+  }
+
+  .birthDate-picker .react-datepicker__month-container {
+    padding: 8px 10px 14px;
+  }
+
+  .birthDate-picker .react-datepicker__month-read-view,
+  .birthDate-picker .react-datepicker__year-read-view {
+    font-size: 14px;
+    padding: 4px 8px;
+  }
+}
+
+@media (max-width: 767px) {
+  body.dark .field__genderDropdown,
+  [data-theme="dark"] .field__genderDropdown {
+    background: var(--select-menu-bg);
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+
+  body.dark .field__genderDropdownItem,
+  [data-theme="dark"] .field__genderDropdownItem {
+    color: var(--select-text);
+  }
 }
 
 /* meta row */
@@ -336,10 +1016,12 @@
 .select-wrap .rs__single-value,
 .select-wrap .rs__input-container {
   color: var(--field-text) !important;
+  font-size: 14px !important;
 }
 
 .select-wrap .rs__placeholder {
   color: var(--select-placeholder) !important;
+  font-size: 14px !important;
 }
 
 /* menu renders in BODY (portal) */
@@ -392,7 +1074,7 @@
   background: transparent !important;
 
   color: var(--field-text) !important;
-  font-size: 18px;
+  font-size: 14px;
   outline: none;
   padding-left: 4px; /* space for star */
 }
@@ -584,14 +1266,19 @@ body.dark .phone-wrap .react-international-phone-country-selector-dropdown,
     line-height: 1;
   }
 
-  /* fields */
+  /* fields — той самий радіус для всіх полів */
+  .complete-profile {
+    --field-radius: 10px;
+    --field-radius-inner: 9px;
+  }
+
   .field__wrap {
     height: 40px;
-    border-radius: 10px;
+    border-radius: var(--field-radius);
   }
 
   .field__wrap::before {
-    border-radius: 9px;
+    border-radius: var(--field-radius-inner);
   }
 
   .text-input,
