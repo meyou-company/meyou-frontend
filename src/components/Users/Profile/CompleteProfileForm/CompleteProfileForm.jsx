@@ -1,6 +1,8 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import Select from "react-select";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 import { PhoneInput } from "react-international-phone";
 import "react-international-phone/style.css";
 
@@ -36,7 +38,28 @@ const EMPTY = {
   maritalStatus: null,
   country: null,
   city: null,
+  gender: null,
+  birthDate: "", // "YYYY-MM-DD"
 };
+
+const GENDER_OPTIONS = [
+  { value: "MALE", label: "Мужской" },
+  { value: "FEMALE", label: "Женский" },
+];
+
+/** Мін/макс дата для віку 18–100 років */
+function getBirthDateLimits() {
+  const today = new Date();
+  const max = new Date(today);
+  max.setFullYear(max.getFullYear() - 18);
+  const min = new Date(today.getFullYear() - 100, 0, 1);
+  return {
+    minStr: min.toISOString().slice(0, 10),
+    maxStr: max.toISOString().slice(0, 10),
+    minDate: min,
+    maxDate: max,
+  };
+}
 
 export default function CompleteProfileForm({ onBack, onSuccess }) {
   const [values, setValues] = useState(EMPTY);
@@ -58,7 +81,9 @@ export default function CompleteProfileForm({ onBack, onSuccess }) {
   const [avatarError, setAvatarError] = useState("");
 
   // file input ref
-  const fileRef = useMemo(() => ({ current: null }), []); // (щоб не імпортувати useRef — можна і useRef)
+  const fileRef = useMemo(() => ({ current: null }), []);
+  const genderDropdownRef = useRef(null);
+  const [genderPickerOpen, setGenderPickerOpen] = useState(false);
  
   const pickAvatar = () => {
     setAvatarError("");
@@ -180,6 +205,21 @@ export default function CompleteProfileForm({ onBack, onSuccess }) {
     setErrors(validateCompleteProfile(normalized));
   }, [values]);
 
+  useEffect(() => {
+    if (!genderPickerOpen) return;
+    const handleOutside = (e) => {
+      if (genderDropdownRef.current && !genderDropdownRef.current.contains(e.target)) {
+        setGenderPickerOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleOutside);
+    document.addEventListener("touchstart", handleOutside, { passive: true });
+    return () => {
+      document.removeEventListener("mousedown", handleOutside);
+      document.removeEventListener("touchstart", handleOutside);
+    };
+  }, [genderPickerOpen]);
+
   const canSubmit = useMemo(() => Object.keys(errors).length === 0, [errors]);
 
   const onBlur = (key) => setTouched((t) => ({ ...t, [key]: true }));
@@ -201,6 +241,8 @@ export default function CompleteProfileForm({ onBack, onSuccess }) {
       "maritalStatus",
       "country",
       "city",
+      "birthDate",
+      "gender",
     ];
     if (!requiredKeys.includes(key)) return false;
 
@@ -212,6 +254,9 @@ export default function CompleteProfileForm({ onBack, onSuccess }) {
       (Array.isArray(v) && v.length === 0);
 
     if (isEmpty) return true;
+    if (key === "gender") {
+      if (values.gender !== "MALE" && values.gender !== "FEMALE") return true;
+    }
     if (touched[key] && errors[key]) return true;
     return false;
   };
@@ -231,6 +276,8 @@ export default function CompleteProfileForm({ onBack, onSuccess }) {
       maritalStatus: true,
       country: true,
       city: true,
+      gender: true,
+      birthDate: true,
     });
 
     const normalized = normalizeForValidation(values);
@@ -239,6 +286,7 @@ export default function CompleteProfileForm({ onBack, onSuccess }) {
     if (Object.keys(nextErrors).length > 0) return;
 
     const payload = toBackendPayload(values);
+    console.log("PAYLOAD >>>", payload);
 
     try {
       setIsSubmitting(true);
@@ -255,6 +303,9 @@ export default function CompleteProfileForm({ onBack, onSuccess }) {
       toast.success("Профіль збережено");
       onSuccess?.();
     } catch (err) {
+      console.log("ERR STATUS", err?.response?.status);
+      console.log("ERR DATA", err?.response?.data);
+      console.log("ERR RAW", err);
       const msg =
         err?.response?.data?.message?.[0] ||
         err?.response?.data?.message ||
@@ -271,6 +322,12 @@ export default function CompleteProfileForm({ onBack, onSuccess }) {
     if (onBack) onBack();
     else window.history.back();
   };
+const toYMDLocal = (d) => {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+};
 
   const currentAvatarSrc = backendAvatarUrl;
 
@@ -388,6 +445,101 @@ export default function CompleteProfileForm({ onBack, onSuccess }) {
           {showError("firstName") && (
             <div className="field__hint">{errors.firstName}</div>
           )}
+        </div>
+
+        {/* ПОЛ + ВОЗРАСТ: десктоп/планшет — як на фото; мобілка — один ряд, по тапу вискакує вибір */}
+        <div className="grid-2 grid-2--gender-age">
+          <div className={`field field--gender ${genderPickerOpen ? "field--genderOpen" : ""}`} ref={genderDropdownRef}>
+            {/* Десктоп/планшет: текст "Пол" навпроти опцій (один ряд) */}
+            <div className="field__genderWrap field__genderWrap--desktop">
+              <label className="field__label field__label--row">
+                {showStar("gender") && <span className="field__star">*</span>}
+
+                Пол
+              </label>
+              <div className="field__genderGroup">
+                {GENDER_OPTIONS.map((opt) => (
+                  <button
+                    key={opt.label}
+                    type="button"
+                    className={`field__genderBtn ${values.gender === opt.value ? "field__genderBtnActive" : ""}`}
+                    onClick={() => setField("gender", opt.value)}
+                    onBlur={() => onBlur("gender")}
+                  >
+                    <span className="field__genderLabel">{opt.label}</span>
+                    <span className="field__genderToggle" aria-hidden="true" />
+                  </button>
+                ))}
+              </div>
+            </div>
+            {/* Мобілка: один ряд, по натисканню — вибір поверх полів */}
+            <div className="field__genderWrap field__genderWrap--mobile">
+              <div className="field__genderTriggerWrap">
+                <button
+                  type="button"
+                  className="field__genderTrigger"
+                onClick={() => setGenderPickerOpen((o) => !o)}
+                aria-expanded={genderPickerOpen}
+                aria-haspopup="listbox"
+              >
+                  {showStar("gender") && <span className="field__star">*</span>}
+           
+                <span className="field__genderTriggerText">
+                  <span className="field__genderTriggerLabel">Пол</span>
+                  <span className={`field__genderTriggerValue ${!values.gender ? "field__genderTriggerValue--placeholder" : ""}`}>
+                    {GENDER_OPTIONS.find((o) => o.value === values.gender)?.label ?? "Виберіть"}
+                  </span>
+                </span>
+                <span className="field__genderChevron" aria-hidden="true" />
+              </button>
+              </div>
+              {genderPickerOpen && (
+                <div className="field__genderDropdown" role="listbox">
+                  {GENDER_OPTIONS.map((opt) => (
+                    <button
+                      key={opt.label}
+                      type="button"
+                      role="option"
+                      aria-selected={values.gender === opt.value}
+                      className={`field__genderDropdownItem ${values.gender === opt.value ? "field__genderDropdownItemActive" : ""}`}
+                      onClick={() => {
+                        setField("gender", opt.value);
+                        onBlur("gender");
+                        setGenderPickerOpen(false);
+                      }}
+                    >
+                      {opt.label}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+            {showError("gender") && <div className="field__hint">{errors.gender}</div>}
+          </div>
+
+          <div className="field">
+            <div className="field__wrap field__wrap--birthDate">
+              {showStar("birthDate") && <span className="field__star">*</span>}
+              <DatePicker
+                className={`text-input field__date-input ${showError("birthDate") ? "is-error" : ""}`}
+                placeholderText="Оберіть дату народження"
+                aria-label="Дата народження"
+                dateFormat="yyyy-MM-dd"
+                selected={values.birthDate ? new Date(values.birthDate + "T12:00:00") : null}
+                minDate={getBirthDateLimits().minDate}
+                maxDate={getBirthDateLimits().maxDate}
+                onChange={(d) => setField("birthDate", d ? toYMDLocal(d) : "")}
+                onBlur={() => onBlur("birthDate")}
+                popperClassName="birthDate-picker"
+                showMonthDropdown
+                showYearDropdown
+                dropdownMode="select"
+                yearDropdownItemNumber={100}
+              />
+              <span className="field__date-indicator" aria-hidden="true" />
+            </div>
+            {showError("birthDate") && <div className="field__hint">{errors.birthDate}</div>}
+          </div>
         </div>
 
         {/* PHONE */}

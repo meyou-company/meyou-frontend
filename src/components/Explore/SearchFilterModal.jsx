@@ -9,15 +9,15 @@ const SORT_CHIPS = [
   { id: "new", label: "Новые профили" },
   { id: "nearby", label: "Профили рядом" },
 ];
-
 const MARITAL_CHIPS = [
   { id: "", label: "Не указано" },
-  { id: "single", label: "Свободен" },
-  { id: "relationship", label: "В отношениях" },
-  { id: "married_m", label: "Женат" },
-  { id: "married_f", label: "Замужем" },
-  { id: "searching", label: "В поиске" },
+  { id: "SINGLE", label: "Свободен" },
+  { id: "IN_RELATIONSHIP", label: "В отношениях" },
+  { id: "MARRIED", label: "Женат / Замужем" },
+  { id: "DIVORCED", label: "Разведен / Разведена" },
+  { id: "WIDOWED", label: "Вдова / Вдовец" },
 ];
+
 
 const GENDER_OPTIONS = [
   { id: "male", label: "Мужской" },

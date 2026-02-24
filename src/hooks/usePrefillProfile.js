@@ -31,6 +31,17 @@ export function usePrefillProfile({
         const countrySelected = u.country ? { value: u.country, label: u.country } : null;
         const citySelected = u.city ? { value: u.city, label: u.city } : null;
 
+        const rawBirth = u.birthDate || u.birth_date;
+        const birthDate =
+          rawBirth
+            ? (typeof rawBirth === "string" && /^\d{4}-\d{2}-\d{2}/.test(rawBirth)
+                ? rawBirth.slice(0, 10)
+                : (() => {
+                    const d = new Date(rawBirth);
+                    return Number.isNaN(d.getTime()) ? "" : d.toISOString().slice(0, 10);
+                  })())
+            : "";
+
         setValues((prev) => ({
           ...prev,
           firstName: u.firstName || "",
@@ -43,6 +54,8 @@ export function usePrefillProfile({
           maritalStatus: maritalSelected,
           country: countrySelected,
           city: citySelected,
+          gender: u.gender === "MALE" || u.gender === "FEMALE" ? u.gender : null,
+          birthDate: birthDate || "",
         }));
 
         if (u.country) {

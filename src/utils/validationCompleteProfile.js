@@ -21,6 +21,33 @@ export function validateCompleteProfile(values) {
   req("city", "Оберіть місто");
   req("hobbies", "Оберіть хобі");
 
+  // Пол: обов'язково, тільки MALE або FEMALE (бекенд вимагає)
+  if (values.gender !== "MALE" && values.gender !== "FEMALE") {
+    e.gender = "Оберіть стать";
+  }
+
+  // Дата народження: YYYY-MM-DD, вік 18–100
+  const birthDate = values.birthDate;
+  if (birthDate === null || birthDate === undefined || (typeof birthDate === "string" && !birthDate.trim())) {
+    e.birthDate = "Оберіть дату народження";
+  } else {
+    const s = String(birthDate).trim();
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(s)) {
+      e.birthDate = "Формат: РРРР-ММ-ДД";
+    } else {
+      const [y, m, d] = s.split("-").map(Number);
+      const date = new Date(y, m - 1, d);
+      if (date.getFullYear() !== y || date.getMonth() !== m - 1 || date.getDate() !== d) {
+        e.birthDate = "Невірна дата";
+      } else {
+        const today = new Date();
+        let age = today.getFullYear() - y;
+        if (new Date(today.getFullYear(), today.getMonth(), today.getDate()) < new Date(y + age, m - 1, d)) age -= 1;
+        if (age < 18 || age > 100) e.birthDate = "Вік має бути від 18 до 100";
+      }
+    }
+  }
+
   // правила
   if (values.firstName && !onlyLettersSpaces(values.firstName)) {
     e.firstName = "Ім'я має містити лише літери";
