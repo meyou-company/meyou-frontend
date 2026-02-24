@@ -363,13 +363,30 @@ body.dark .profile-header .desktopNavRow::before {
   border-radius: 0;        
 }
 
-/* dark mode — щоб було видно */
+/* dark mode — підводка хедера з світтінням */
 body.dark .profile-header::after {
-  opacity: 0.7;
+  opacity: 0.85;
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(176, 92, 255, 0.4) 20%,
+    rgba(255, 79, 177, 0.6) 50%,
+    rgba(176, 92, 255, 0.4) 80%,
+    transparent 100%
+  );
+  box-shadow:
+    0 0 12px rgba(176, 92, 255, 0.35),
+    0 0 24px rgba(255, 79, 177, 0.2);
 }
 
 body.dark .profile-header .logoText::after {
   opacity: 0.95;
+}
+
+/* додаткова підводка для topRow в dark (світліша лінія під шапкою) */
+body.dark .profile-header .topRow {
+  box-shadow: 0 2px 0 0 rgba(255, 255, 255, 0.06);
 }
 
 /* =========================

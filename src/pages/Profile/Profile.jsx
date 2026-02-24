@@ -252,6 +252,7 @@ export default function Profile() {
             onEditProfile={onEditProfile}
             onMessages={onMessages}
             onSaved={onSaved}
+            onWallet={onWallet}
           />
         )}
       </div>

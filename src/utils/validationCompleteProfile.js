@@ -61,11 +61,11 @@ export function validateCompleteProfile(values) {
     e.nationality = "Національність має містити лише літери";
   }
 
-  // username: формат та довжина (вже перевірено req вище)
+  // username: формат та довжина (макс. 10 символів; ексклюзивність перевіряється на бекенді / при сабміті)
   if (!e.username && values.username) {
     const u = String(values.username).trim();
     if (u.length < 3) e.username = "Нік має містити мінімум 3 символи";
-    else if (u.length > 30) e.username = "Нік має бути до 30 символів";
+    else if (u.length > 10) e.username = "Нік має бути до 10 символів";
     else if (!/^[a-zA-Z0-9._-]+$/.test(u)) {
       e.username = "Нік: тільки латиниця/цифри та . _ -";
     }

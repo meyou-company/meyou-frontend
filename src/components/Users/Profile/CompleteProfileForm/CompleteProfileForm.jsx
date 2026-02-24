@@ -11,6 +11,7 @@ import { useAuthStore } from "../../../../zustand/useAuthStore";
 
 import { profileApi } from "../../../../services/profileApi";
 import { locationApi } from "../../../../services/locationApi";
+import { usersApi } from "../../../../services/usersApi";
 
 import {  maritalStatusOptions } from "../../../../utils/profileOptions";
 import { validateCompleteProfile } from "../../../../utils/validationCompleteProfile";
@@ -293,6 +294,24 @@ export default function CompleteProfileForm({ onBack, onSuccess }) {
     const nextErrors = validateCompleteProfile(normalized);
     setErrors(nextErrors);
     if (Object.keys(nextErrors).length > 0) return;
+
+    const username = normalized.username?.trim();
+    if (username) {
+      try {
+        const res = await usersApi.getByUsername(username);
+        const data = res?.data ?? res;
+        const currentUserId = user?.id;
+        if (data?.id && data.id !== currentUserId) {
+          setErrors((prev) => ({ ...prev, username: "Цей нік вже зайнятий" }));
+          return;
+        }
+      } catch (err) {
+        if (err?.response?.status !== 404) {
+          setSubmitError(err?.message || "Помилка перевірки ніка");
+          return;
+        }
+      }
+    }
 
     const payload = toBackendPayload(values);
     console.log("PAYLOAD >>>", payload);
@@ -589,10 +608,11 @@ const toYMDLocal = (d) => {
             {showStar("username") && <span className="field__star">*</span>}
             <input
               className={`text-input ${showError("username") ? "is-error" : ""}`}
-              placeholder="Нік"
+              placeholder="Нік (до 10 символів)"
               value={values.username}
               onChange={(e) => setField("username", e.target.value)}
               onBlur={() => onBlur("username")}
+              maxLength={10}
               required
               aria-required="true"
             />

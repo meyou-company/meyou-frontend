@@ -62,6 +62,7 @@ export default function ProfileHome({
   onEditProfile,
   onMessages,
   onSaved,
+  onWallet,
 }) {
   const fileInputRef = useRef(null);
   const isOwner = viewType === "OWNER";
@@ -212,7 +213,7 @@ export default function ProfileHome({
                 <span className="badgeText">saved</span>
               </button>
 
-              <button type="button" className="badgeItem" aria-label="my balance">
+              <button type="button" className="badgeItem" onClick={onWallet} aria-label="my balance">
                 <img className="badgeIcon" src={profileIcons.balance} alt="" />
                 <span className="badgeText">my balance</span>
               </button>

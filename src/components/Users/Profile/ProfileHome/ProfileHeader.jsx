@@ -32,7 +32,7 @@ export default function ProfileHeader({
           <span className="logoText">ME YOU</span>
         </button>
 
-        {/* 📱 MOBILE top right */}
+        {/* 📱 MOBILE top right (без іконки балансу) */}
         <div className="mobileRightGroup" aria-label="Mobile actions">
           <button type="button" className="iconBtn" onClick={onMessagesTop} aria-label="Messages">
             <img src={profileIcons.chat} alt="" aria-hidden="true" />
