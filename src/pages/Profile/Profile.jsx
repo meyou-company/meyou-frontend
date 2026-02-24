@@ -134,6 +134,8 @@ export default function Profile() {
     if (username) navigate(`/profile/${username}`);
   }, [navigate]);
   const onShowMore = useCallback(() => navigate("/friends"), [navigate]);
+  /** Якщо немає друзів — кнопка «Знайти друзів» веде на пошук */
+  const onFindFriends = useCallback(() => navigate("/search"), [navigate]);
 
   const loadingOwn = !urlUsername && (!user || isAuthLoading);
   const loadingPublic = urlUsername && fetchedUser === null && !fetchError;
@@ -195,6 +197,7 @@ export default function Profile() {
           followingList={isOwnProfile ? followingList : undefined}
           onOpenUser={onOpenUser}
           onShowMore={onShowMore}
+          onFindFriends={onFindFriends}
           refreshMe={refreshMe}
           onEditProfile={onEditProfile}
           onMessages={onMessages}

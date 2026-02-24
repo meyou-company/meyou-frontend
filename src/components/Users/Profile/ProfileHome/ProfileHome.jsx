@@ -56,6 +56,8 @@ export default function ProfileHome({
   onOpenUser,
   /** Відкрити сторінку «Друзі та VIP» (Показать больше) */
   onShowMore,
+  /** Відкрити пошук (коли немає друзів — кнопка «Знайти друзів») */
+  onFindFriends,
   refreshMe,
   onEditProfile,
   onMessages,
@@ -376,7 +378,7 @@ export default function ProfileHome({
             <button
               type="button"
               className="showMoreBtn findFriendsBtn"
-              onClick={onSaved}
+              onClick={onFindFriends ?? onShowMore}
             >
               Знайти друзів
             </button>

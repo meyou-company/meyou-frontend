@@ -21,6 +21,7 @@ export function normalizeForValidation(v) {
     nationality: v.nationality,
     username: v.username,
     bio: v.bio,
+    interests: Array.isArray(v.interests) ? v.interests.map((x) => x.value) : [],
     hobbies: Array.isArray(v.hobbies) ? v.hobbies.map((x) => x.value) : [],
     maritalStatus: v.maritalStatus?.value || "",
     country: v.country?.value || "",
@@ -61,6 +62,9 @@ export function toBackendPayload(v) {
 
   const username = v.username?.trim();
   if (username) payload.username = username;
+
+  const interests = Array.isArray(v.interests) ? v.interests.map((x) => x.value) : [];
+  payload.interests = interests;
 
   const hobbies = Array.isArray(v.hobbies) ? v.hobbies.map((x) => x.value) : [];
   if (hobbies.length) payload.hobbies = hobbies;

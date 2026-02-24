@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { useAuthStore } from "../../../zustand/useAuthStore";
 import { useForceDarkTheme } from "../../../hooks/useForceDarkTheme";
-import { validateRegister, isEmptyErrors } from "../../../utils/validationRegister";
+import { validateRegister, isEmptyErrors, PASSWORD_HINT } from "../../../utils/validationRegister";
 import "./RegisterForm.scss";
 
 export default function RegisterForm({ onBack, onGoLogin, onSuccess }) {
@@ -223,11 +223,11 @@ const onSubmit = async (e) => {
             </button>
           </div>
 
-          {shouldShowHint("password") && (
-            <p className="authField__hint">
-              {fieldError("password") || "*пароль должен содержать не менее 8 символов"}
-            </p>
-          )}
+{shouldShowHint("password") && (
+              <p className="authField__hint">
+                {fieldError("password") || `*${PASSWORD_HINT}`}
+              </p>
+            )}
         </div>
 
         {/* Confirm */}

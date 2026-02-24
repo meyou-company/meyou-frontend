@@ -36,7 +36,7 @@ const profileIcons = {
   password: `${ICON1}/password.svg`,
   eye: `${ICON1}/oko.svg`,
   eyeOff: `${ICON1}/oko-off.svg`,
-
+arrowGradient: `${ICON1}/Vector.png`,
   /* ========= BLACK (actions, buttons) ========= */
   plusBlack: `${BLACK}/plus.svg`,
   videoBlack: `${BLACK}/videocamera.svg`,

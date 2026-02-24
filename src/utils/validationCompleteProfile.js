@@ -19,6 +19,7 @@ export function validateCompleteProfile(values) {
   req("maritalStatus", "Оберіть сімейне положення");
   req("country", "Оберіть країну");
   req("city", "Оберіть місто");
+  req("interests", "Оберіть інтереси");
   req("hobbies", "Оберіть хобі");
 
   // Пол: обов'язково, тільки MALE або FEMALE (бекенд вимагає)

@@ -14,7 +14,8 @@ import { locationApi } from "../../../../services/locationApi";
 
 import {  maritalStatusOptions } from "../../../../utils/profileOptions";
 import { validateCompleteProfile } from "../../../../utils/validationCompleteProfile";
-import { hobbyOptions } from "../../../../constants/interests";
+import { interestOptions } from "../../../../constants/interests";
+import { profileHobbyOptions } from "../../../../constants/hobbies";
 import { useLocationOptions } from "../../../../hooks/useLocationOptions";
 import { usePrefillProfile } from "../../../../hooks/usePrefillProfile";
 
@@ -34,6 +35,7 @@ const EMPTY = {
   nationality: "",
   username: "",
   bio: "",
+  interests: [],
   hobbies: [],
   maritalStatus: null,
   country: null,
@@ -46,6 +48,9 @@ const GENDER_OPTIONS = [
   { value: "MALE", label: "Мужской" },
   { value: "FEMALE", label: "Женский" },
 ];
+
+const MAX_INTERESTS = 7;
+const MAX_HOBBIES = 7;
 
 /** Мін/макс дата для віку 18–100 років */
 function getBirthDateLimits() {
@@ -191,7 +196,8 @@ export default function CompleteProfileForm({ onBack, onSuccess }) {
   usePrefillProfile({
     setProfileCompleted,
     setValues,
-    hobbyOptions,
+    interestOptions,
+    hobbyOptions: profileHobbyOptions,
     maritalStatusOptions,
     setCityOptions,
     setIsCitiesLoading,
@@ -237,6 +243,7 @@ export default function CompleteProfileForm({ onBack, onSuccess }) {
       "firstName",
       "phone",
       "nationality",
+      "interests",
       "hobbies",
       "maritalStatus",
       "country",
@@ -272,6 +279,7 @@ export default function CompleteProfileForm({ onBack, onSuccess }) {
       nationality: true,
       username: true,
       bio: true,
+      interests: true,
       hobbies: true,
       maritalStatus: true,
       country: true,
@@ -485,10 +493,10 @@ const toYMDLocal = (d) => {
                   {showStar("gender") && <span className="field__star">*</span>}
            
                 <span className="field__genderTriggerText">
-                  <span className="field__genderTriggerLabel">Пол</span>
                   <span className={`field__genderTriggerValue ${!values.gender ? "field__genderTriggerValue--placeholder" : ""}`}>
                     {GENDER_OPTIONS.find((o) => o.value === values.gender)?.label ?? "Виберіть"}
                   </span>
+                  <span className="field__genderTriggerLabel">Пол</span>
                 </span>
                 <span className="field__genderChevron" aria-hidden="true" />
               </button>
@@ -610,7 +618,30 @@ const toYMDLocal = (d) => {
   {showError("bio") && <div className="field__hint">{errors.bio}</div>}
 </div>
 
-        {/* HOBBIES */}
+        {/* INTERESTS (interests String[] на бекенді, макс. 7) */}
+        <div className="field">
+          <div className="field__wrap select-wrap">
+            {showStar("interests") && <span className="field__star">*</span>}
+            <Select
+              classNamePrefix="rs"
+              placeholder="Інтереси"
+              isMulti
+              value={values.interests}
+              options={interestOptions}
+              onChange={(arr) => setField("interests", (arr || []).slice(0, MAX_INTERESTS))}
+              onBlur={() => onBlur("interests")}
+              isOptionDisabled={() => (values.interests || []).length >= MAX_INTERESTS}
+              {...selectCommonProps}
+            />
+          </div>
+          <div className="field__meta">
+            <span className="field__note">Максимум {MAX_INTERESTS}</span>
+            <span className="field__counter">{(values.interests || []).length}/{MAX_INTERESTS}</span>
+          </div>
+          {showError("interests") && <div className="field__hint">{errors.interests}</div>}
+        </div>
+
+        {/* HOBBIES (макс. 7) */}
         <div className="field">
           <div className="field__wrap select-wrap">
             {showStar("hobbies") && <span className="field__star">*</span>}
@@ -619,11 +650,16 @@ const toYMDLocal = (d) => {
               placeholder="Хобі"
               isMulti
               value={values.hobbies}
-              options={hobbyOptions}
-              onChange={(arr) => setField("hobbies", arr || [])}
+              options={profileHobbyOptions}
+              onChange={(arr) => setField("hobbies", (arr || []).slice(0, MAX_HOBBIES))}
               onBlur={() => onBlur("hobbies")}
+              isOptionDisabled={() => (values.hobbies || []).length >= MAX_HOBBIES}
               {...selectCommonProps}
             />
+          </div>
+          <div className="field__meta">
+            <span className="field__note">Максимум {MAX_HOBBIES}</span>
+            <span className="field__counter">{(values.hobbies || []).length}/{MAX_HOBBIES}</span>
           </div>
           {showError("hobbies") && <div className="field__hint">{errors.hobbies}</div>}
         </div>
