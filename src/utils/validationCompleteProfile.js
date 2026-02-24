@@ -21,6 +21,7 @@ export function validateCompleteProfile(values) {
   req("city", "Оберіть місто");
   req("interests", "Оберіть інтереси");
   req("hobbies", "Оберіть хобі");
+  req("username", "Вкажіть нік");
 
   // Пол: обов'язково, тільки MALE або FEMALE (бекенд вимагає)
   if (values.gender !== "MALE" && values.gender !== "FEMALE") {
@@ -60,8 +61,8 @@ export function validateCompleteProfile(values) {
     e.nationality = "Національність має містити лише літери";
   }
 
-  // username optional
-  if (values.username) {
+  // username: формат та довжина (вже перевірено req вище)
+  if (!e.username && values.username) {
     const u = String(values.username).trim();
     if (u.length < 3) e.username = "Нік має містити мінімум 3 символи";
     else if (u.length > 30) e.username = "Нік має бути до 30 символів";

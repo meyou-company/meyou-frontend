@@ -243,6 +243,7 @@ export default function CompleteProfileForm({ onBack, onSuccess }) {
       "firstName",
       "phone",
       "nationality",
+      "username",
       "interests",
       "hobbies",
       "maritalStatus",
@@ -585,12 +586,15 @@ const toYMDLocal = (d) => {
         {/* USERNAME */}
         <div className="field">
           <div className="field__wrap">
+            {showStar("username") && <span className="field__star">*</span>}
             <input
               className={`text-input ${showError("username") ? "is-error" : ""}`}
-              placeholder="Нік (необов'язково)"
+              placeholder="Нік"
               value={values.username}
               onChange={(e) => setField("username", e.target.value)}
               onBlur={() => onBlur("username")}
+              required
+              aria-required="true"
             />
           </div>
           {showError("username") && <div className="field__hint">{errors.username}</div>}

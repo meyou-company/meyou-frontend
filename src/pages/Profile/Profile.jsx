@@ -2,11 +2,13 @@ import { useEffect, useMemo, useCallback, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import ProfileHeader from "../../components/Users/Profile/ProfileHome/ProfileHeader";
 import ProfileHome from "../../components/Users/Profile/ProfileHome/ProfileHome";
+import ProfileVisitorSubscribed from "../../components/Users/Profile/ProfileVisitorSubscribed/ProfileVisitorSubscribed";
 import { useAuthStore } from "../../zustand/useAuthStore";
 import { usersApi } from "../../services/usersApi";
 import { subscriptionsApi } from "../../services/subscriptionsApi";
 import styles from "./Profile.module.scss";
 
+/** Нормалізація профілю з GET /users/:username (viewType, subscriptionStatus з бекенду) */
 const normalizeProfile = (u) => {
   if (!u) return null;
   return {
@@ -18,9 +20,16 @@ const normalizeProfile = (u) => {
     avatarUrl: u.avatarUrl || u.avatar || "",
     city: u.city || "",
     country: u.country || "",
+    bio: u.bio,
+    isVerified: u.isVerified,
     friends: u.friends ?? [],
     viewType: u.viewType,
-    subscriptionStatus: u.subscriptionStatus,
+    subscriptionStatus: u.subscriptionStatus
+      ? {
+          isSubscribed: u.subscriptionStatus.isSubscribed === true,
+          isBlocked: u.subscriptionStatus.isBlocked === true,
+        }
+      : undefined,
   };
 };
 
@@ -37,7 +46,10 @@ export default function Profile() {
   /** Список підписок (following) — для блоку «Друзья» на своєму профілі */
   const [followingList, setFollowingList] = useState([]);
 
-  const isOwnProfile = !urlUsername || (user && (user.username || user.nick) === urlUsername);
+  const urlUsernameNorm = urlUsername?.trim().replace(/^@/, "") || "";
+  const isOwnProfile =
+    !urlUsernameNorm ||
+    (user && (user.username || user.nick || "").toLowerCase() === urlUsernameNorm.toLowerCase());
 
   /** На своєму профілі завантажуємо список підписок (following) для блоку «Друзья» */
   useEffect(() => {
@@ -61,22 +73,41 @@ export default function Profile() {
       if (!user && !isAuthLoading) refreshMe?.().catch(() => {});
       return;
     }
+    if (!urlUsernameNorm) {
+      setFetchError("not_found");
+      setFetchedUser(null);
+      return;
+    }
     let cancelled = false;
     setFetchError(null);
-    usersApi
-      .getByUsername(urlUsername)
-      .then((res) => {
+
+    const fetchProfile = (username) =>
+      usersApi.getByUsername(username).then((res) => {
         const data = res?.data ?? res;
         if (!cancelled) setFetchedUser(data);
-      })
-      .catch((e) => {
-        if (!cancelled) {
-          setFetchError(e?.response?.status === 404 ? "not_found" : "error");
-          setFetchedUser(null);
-        }
       });
+
+    const firstTry = urlUsernameNorm;
+    fetchProfile(firstTry).catch((e) => {
+      if (cancelled) return;
+      if (e?.response?.status === 404) {
+        const lower = firstTry.toLowerCase();
+        if (lower !== firstTry) {
+          fetchProfile(lower).catch((err) => {
+            if (!cancelled) {
+              setFetchError(err?.response?.status === 404 ? "not_found" : "error");
+              setFetchedUser(null);
+            }
+          });
+          return;
+        }
+      }
+      setFetchError(e?.response?.status === 404 ? "not_found" : "error");
+      setFetchedUser(null);
+    });
+
     return () => { cancelled = true; };
-  }, [urlUsername, user]);
+  }, [urlUsernameNorm, urlUsername, user]);
 
   useEffect(() => {
     if (!urlUsername && !isAuthLoading && !user) {
@@ -136,6 +167,9 @@ export default function Profile() {
   const onShowMore = useCallback(() => navigate("/friends"), [navigate]);
   /** Якщо немає друзів — кнопка «Знайти друзів» веде на пошук */
   const onFindFriends = useCallback(() => navigate("/search"), [navigate]);
+  const onAddToVip = useCallback(() => navigate("/friends"), [navigate]);
+  const onGifts = useCallback(() => {}, []);
+  const onReport = useCallback(() => {}, []);
 
   const loadingOwn = !urlUsername && (!user || isAuthLoading);
   const loadingPublic = urlUsername && fetchedUser === null && !fetchError;
@@ -169,7 +203,9 @@ export default function Profile() {
         />
         <div className={styles.content}>
           <div className={styles.loading}>
-            {fetchError === "not_found" ? "Профіль не знайдено" : "Помилка завантаження"}
+            {fetchError === "not_found"
+              ? `Профіль не знайдено${urlUsername ? `: @${urlUsername}` : ""}`
+              : "Помилка завантаження"}
           </div>
         </div>
       </div>
@@ -177,6 +213,8 @@ export default function Profile() {
   }
 
   if (!profileUser) return null;
+
+  const showSubscribedView = !isOwnProfile && isSubscribed;
 
   return (
     <div className={styles.page}>
@@ -188,21 +226,34 @@ export default function Profile() {
         onNav={onNav}
       />
       <div className={styles.content}>
-        <ProfileHome
-          user={profileUser}
-          viewType={profileUser.viewType}
-          isSubscribed={isSubscribed}
-          onSubscribe={handleSubscribe}
-          subscriptionLoading={subscriptionLoading}
-          followingList={isOwnProfile ? followingList : undefined}
-          onOpenUser={onOpenUser}
-          onShowMore={onShowMore}
-          onFindFriends={onFindFriends}
-          refreshMe={refreshMe}
-          onEditProfile={onEditProfile}
-          onMessages={onMessages}
-          onSaved={onSaved}
-        />
+        {showSubscribedView ? (
+          <ProfileVisitorSubscribed
+            user={profileUser}
+            onAddToVip={onAddToVip}
+            onUnsubscribe={handleSubscribe}
+            onVipChat={() => navigate("/vip-chat")}
+            onGifts={onGifts}
+            onReport={onReport}
+            onShowMoreFriends={onShowMore}
+            onOpenUser={onOpenUser}
+          />
+        ) : (
+          <ProfileHome
+            user={profileUser}
+            viewType={profileUser.viewType}
+            isSubscribed={isSubscribed}
+            onSubscribe={handleSubscribe}
+            subscriptionLoading={subscriptionLoading}
+            followingList={isOwnProfile ? followingList : undefined}
+            onOpenUser={onOpenUser}
+            onShowMore={onShowMore}
+            onFindFriends={onFindFriends}
+            refreshMe={refreshMe}
+            onEditProfile={onEditProfile}
+            onMessages={onMessages}
+            onSaved={onSaved}
+          />
+        )}
       </div>
     </div>
   );

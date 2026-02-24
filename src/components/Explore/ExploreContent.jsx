@@ -278,7 +278,7 @@ export default function ExploreContent({ onBack, onOpenProfile }) {
                     <button
                       type="button"
                       className="explore-content__cardPhotoBtn"
-                      onClick={() => navigate(`/profile/${user.username || user.id}`)}
+                      onClick={() => { if (!user?.username) return; navigate(`/profile/${user.username}`); }}
                     >
                       <div className="explore-content__cardPhoto">
                         <img

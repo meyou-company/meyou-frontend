@@ -1,0 +1,450 @@
+/* =========================
+   ProfileVisitorSubscribed — профіль при перегляді підписника (не VIP)
+   Світла фіолетово-рожева тема як на макеті
+   ========================= */
+
+$gradient: linear-gradient(90deg, #4f6bff 0%, #b05cff 52%, #ff4fb1 100%);
+$gradientHover: linear-gradient(90deg, #ff4fb1 0%, #b05cff 48%, #4f6bff 100%);
+$purple: #6b66ff;
+$purpleDark: #5b56e8;
+$pink: #ff4fb1;
+$yellow: #fef08a;
+$yellowDark: #f5e76e;
+
+.profile-visitor-subscribed {
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 24px 16px 48px;
+  background: transparent;
+}
+
+.profile-visitor-subscribed__top {
+  display: flex;
+  align-items: flex-start;
+  gap: 32px;
+  margin-bottom: 28px;
+  flex-wrap: wrap;
+}
+
+.profile-visitor-subscribed__left {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.profile-visitor-subscribed__avatarWrap {
+  position: relative;
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 3px solid transparent;
+  background: linear-gradient(white, white) padding-box,
+    $gradient border-box;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.profile-visitor-subscribed__avatar {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.profile-visitor-subscribed__onlineDot {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #22c55e;
+  border: 2px solid #fff;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1);
+}
+
+.profile-visitor-subscribed__onlineLabel {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: $purple;
+  text-decoration: underline;
+}
+
+.profile-visitor-subscribed__right {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.profile-visitor-subscribed__name {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 700;
+  color: $purple;
+  line-height: 1.2;
+}
+
+.profile-visitor-subscribed__iconsRow {
+  display: flex;
+  align-items: flex-start;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+.profile-visitor-subscribed__iconItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  color: $purple;
+  font-size: 13px;
+  font-weight: 500;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.profile-visitor-subscribed__iconItem:disabled {
+  cursor: default;
+  opacity: 0.85;
+}
+
+.profile-visitor-subscribed__iconWrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+}
+
+.profile-visitor-subscribed__iconImg {
+  width: 36px;
+  height: 36px;
+  object-fit: contain;
+}
+
+.profile-visitor-subscribed__lockIcon {
+  position: absolute;
+  bottom: -2px;
+  right: -2px;
+  width: 14px;
+  height: 14px;
+  object-fit: contain;
+}
+
+.profile-visitor-subscribed__reportIcon {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 2px solid $purple;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  font-weight: 700;
+  color: $purple;
+}
+
+.profile-visitor-subscribed__iconLabel {
+  white-space: nowrap;
+}
+
+.profile-visitor-subscribed__btnAddVip {
+  padding: 12px 28px;
+  border-radius: 999px;
+  border: 0;
+  background: $yellow;
+  color: #1f2937;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: background 0.2s, transform 0.15s;
+}
+
+.profile-visitor-subscribed__btnAddVip:hover {
+  background: $yellowDark;
+}
+
+.profile-visitor-subscribed__btnAddVip:active {
+  transform: scale(0.98);
+}
+
+.profile-visitor-subscribed__btnDelete {
+  padding: 12px 28px;
+  border-radius: 12px;
+  border: 0;
+  background: $gradient;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: box-shadow 0.2s, transform 0.15s;
+}
+
+.profile-visitor-subscribed__btnDelete:hover {
+  background: $gradientHover;
+  box-shadow: 0 4px 20px rgba(176, 92, 255, 0.4);
+}
+
+.profile-visitor-subscribed__btnDelete:active {
+  transform: scale(0.98);
+}
+
+/* Таби */
+.profile-visitor-subscribed__tabs {
+  display: flex;
+  gap: 0;
+  margin-bottom: 20px;
+  border-bottom: 1px solid rgba(107, 102, 255, 0.25);
+}
+
+.profile-visitor-subscribed__tab {
+  padding: 12px 16px 10px;
+  border: 0;
+  background: transparent;
+  font-size: 14px;
+  font-weight: 500;
+  color: rgba(0, 0, 0, 0.6);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: inherit;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.profile-visitor-subscribed__tabActive {
+  color: $purple;
+  font-weight: 600;
+  position: relative;
+}
+
+.profile-visitor-subscribed__tabActive::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 2px;
+  background: $gradient;
+  border-radius: 1px;
+}
+
+.profile-visitor-subscribed__tabLocked {
+  cursor: default;
+  opacity: 0.8;
+}
+
+.profile-visitor-subscribed__tabLock {
+  width: 12px;
+  height: 12px;
+  opacity: 0.7;
+}
+
+.profile-visitor-subscribed__tabContent {
+  margin-bottom: 28px;
+}
+
+.profile-visitor-subscribed__infoText {
+  margin: 0;
+  font-size: 15px;
+  color: rgba(0, 0, 0, 0.7);
+}
+
+/* Друзья */
+.profile-visitor-subscribed__friends {
+  background: rgba(248, 246, 253, 0.9);
+  border-radius: 20px;
+  padding: 24px;
+  border: 1px solid rgba(107, 102, 255, 0.15);
+}
+
+body.dark .profile-visitor-subscribed__friends {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+.profile-visitor-subscribed__friendsTitle {
+  margin: 0 0 16px;
+  font-size: 16px;
+  font-weight: 600;
+  color: rgba(0, 0, 0, 0.7);
+}
+
+body.dark .profile-visitor-subscribed__friendsTitle {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.profile-visitor-subscribed__friendsGrid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.profile-visitor-subscribed__friendAvatar {
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  overflow: hidden;
+  padding: 0;
+  border: 2px solid transparent;
+  background: linear-gradient(white, white) padding-box,
+    $gradient border-box;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.profile-visitor-subscribed__friendAvatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.profile-visitor-subscribed__showMore {
+  display: block;
+  width: 100%;
+  max-width: 280px;
+  margin: 0 auto;
+  padding: 12px 24px;
+  border-radius: 999px;
+  border: 0;
+  background: $gradient;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: box-shadow 0.2s, transform 0.15s;
+}
+
+.profile-visitor-subscribed__showMore:hover {
+  background: $gradientHover;
+  box-shadow: 0 4px 20px rgba(176, 92, 255, 0.4);
+}
+
+.profile-visitor-subscribed__showMore:active {
+  transform: scale(0.98);
+}
+
+/* Dark mode */
+body.dark .profile-visitor-subscribed__name,
+body.dark .profile-visitor-subscribed__onlineLabel {
+  color: #b05cff;
+}
+
+body.dark .profile-visitor-subscribed__iconItem {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+body.dark .profile-visitor-subscribed__tab {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+body.dark .profile-visitor-subscribed__tabActive {
+  color: #b05cff;
+}
+
+body.dark .profile-visitor-subscribed__infoText {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+/* Перегляд фото в повному розмірі */
+.profile-visitor-subscribed__imageViewer {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 48px;
+  background: rgba(0, 0, 0, 0.85);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.profile-visitor-subscribed__imageViewerClose {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 48px;
+  height: 48px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  color: #fff;
+  font-size: 28px;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+}
+
+.profile-visitor-subscribed__imageViewerClose:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.profile-visitor-subscribed__imageViewerImg {
+  max-width: 100%;
+  max-height: calc(100vh - 96px);
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  cursor: default;
+  border-radius: 8px;
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.5);
+}
+
+/* Адаптив */
+@media (max-width: 600px) {
+  .profile-visitor-subscribed {
+    padding: 16px 12px 32px;
+  }
+
+  .profile-visitor-subscribed__top {
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+  }
+
+  .profile-visitor-subscribed__avatarWrap {
+    width: 160px;
+    height: 160px;
+  }
+
+  .profile-visitor-subscribed__right {
+    align-items: center;
+    text-align: center;
+  }
+
+  .profile-visitor-subscribed__name {
+    font-size: 22px;
+    text-align: center;
+  }
+
+  .profile-visitor-subscribed__iconsRow {
+    justify-content: center;
+  }
+
+  .profile-visitor-subscribed__friendsGrid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+  }
+}

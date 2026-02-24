@@ -1,5 +1,5 @@
 // ProfileHome.jsx
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 
 import AvatarCropModal from "../../../AvatarCropModal/AvatarCropModal";
@@ -71,6 +71,15 @@ export default function ProfileHome({
   const [newPostText, setNewPostText] = useState("");
   const [cropModalSrc, setCropModalSrc] = useState(null);
   const [isSaving, setIsSaving] = useState(false);
+  /** URL фото для перегляду в повному розмірі (null = закрито) */
+  const [viewImageUrl, setViewImageUrl] = useState(null);
+
+  useEffect(() => {
+    if (!viewImageUrl) return;
+    const onEscape = (e) => e.key === "Escape" && setViewImageUrl(null);
+    window.addEventListener("keydown", onEscape);
+    return () => window.removeEventListener("keydown", onEscape);
+  }, [viewImageUrl]);
 
   const username =
     user?.username || user?.nick || user?.nickname || user?.login || "";
@@ -146,7 +155,14 @@ export default function ProfileHome({
                 />
 
                 <div className="avatarBorder">
-                  <div className="avatarInner">
+                  <div
+                    className="avatarInner avatarInner--clickable"
+                    role="button"
+                    tabIndex={0}
+                    onClick={() => setViewImageUrl(displayAvatar)}
+                    onKeyDown={(e) => e.key === "Enter" && setViewImageUrl(displayAvatar)}
+                    aria-label="Переглянути фото в повному розмірі"
+                  >
                     <img src={displayAvatar} alt={titleName} className="avatar" />
                   </div>
                 </div>
@@ -155,7 +171,7 @@ export default function ProfileHome({
                   <button
                     type="button"
                     className="avatarEdit"
-                    onClick={() => fileInputRef.current?.click()}
+                    onClick={(e) => { e.stopPropagation(); fileInputRef.current?.click(); }}
                     disabled={isSaving}
                   >
                     <img src={profileIcons.live} alt="" />
@@ -408,7 +424,14 @@ export default function ProfileHome({
       {/* TOP ROW */}
       <div className="postTop">
         <div className="postTopLeft">
-          <img src={displayAvatar} className="postAvatar" alt="" />
+          <button
+            type="button"
+            className="postAvatarBtn"
+            onClick={() => setViewImageUrl(displayAvatar)}
+            aria-label="Переглянути фото"
+          >
+            <img src={displayAvatar} className="postAvatar" alt="" />
+          </button>
 
           <div className="postHeadText">
             <div className="postLabel">new post</div>
@@ -494,6 +517,33 @@ export default function ProfileHome({
           onClose={() => setCropModalSrc(null)}
           onConfirm={handleAvatarConfirm}
         />
+      )}
+
+      {/* Перегляд фото в повному розмірі */}
+      {viewImageUrl && (
+        <div
+          className="profile-home__imageViewer"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Фото в повному розмірі"
+          onClick={() => setViewImageUrl(null)}
+        >
+          <button
+            type="button"
+            className="profile-home__imageViewerClose"
+            onClick={() => setViewImageUrl(null)}
+            aria-label="Закрити"
+          >
+            ×
+          </button>
+          <img
+            src={viewImageUrl}
+            alt=""
+            className="profile-home__imageViewerImg"
+            onClick={(e) => e.stopPropagation()}
+            draggable={false}
+          />
+        </div>
       )}
     </div>
   );

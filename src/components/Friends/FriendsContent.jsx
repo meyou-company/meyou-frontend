@@ -111,7 +111,7 @@ export default function FriendsContent({ onBack, onOpenProfile }) {
                 <button
                   type="button"
                   className="friends-content__userBtn"
-                  onClick={() => onOpenProfile(user.username || user.id)}
+                  onClick={() => onOpenProfile(user.username)}
                 >
                   <div className="friends-content__avatarWrap">
                     <img
