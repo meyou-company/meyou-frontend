@@ -49,6 +49,7 @@ arrowGradient: `${ICON1}/Vector.png`,
   lockBlack: `${BLACK}/lock.svg`,
   vipButton: `${BLACK}/vip-button.svg`,
   arrowLeftBlack: `${BLACK}/arrow-left.svg`,
+  arrowLeftFilledBlack: `${BLACK}/arrow-left-filled.svg`,
 
    /* === WALLET === */
   giftIcon: `${WALLET}/gift.svg`,

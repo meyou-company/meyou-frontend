@@ -23,8 +23,8 @@ export default function FirstPageView({
 
       <div className="relative z-10 flex flex-col flex-1">
         {/* HEADER */}
-        <header className="w-full border-gray-900 bg-purple-100">
-            <div className="mx-auto flex items-center justify-between px-1 pt-3 pb-5 md:pb-[49px] md:pt-[38px] xl:pb-8 xl:pt-0 xl:mx-10">
+        <header className="w-full border-gray-900">
+            <div className="mx-auto flex items-center justify-between px-1 mt-[-10px] pb-5 md:pb-5 md:pt-[38px] xl:pb-8 xl:pt-[10px] xl:mx-10">
             {/* LEFT */}
             <div className="flex items-center md:mx-5 xl:mx-0 xl:gap-10">
               <button onClick={onGoProfile}>
@@ -62,7 +62,7 @@ export default function FirstPageView({
 
         {/* TABLET / DESKTOP NAV  */}
       <section className="hidden md:block -ml-4 -mr-4 border-t-[0.1px] border-gray-900 bg-[#FCE9E9]">
-        <div className="mx-auto flex justify-between items-center px-[41px] py-8 xl:px-[60px]">
+        <div className="mx-auto flex justify-between items-center px-[41px] py-3 xl:px-[60px]">
 
           <TabletNav />
 

@@ -1,3 +1,4 @@
+import ThemeToggleDark from "../ThemeToggleDark/ThemeToggleDark";
 import profileIcons from "../../constants/profileIcons";
 import "./Wallet.scss";
 
@@ -18,8 +19,28 @@ export default function WalletPage({ onGoBack, onGoNotifications }) {
 
 const Header = ({ onGoBack, onGoNotifications }) => (
   <header className="wallet__topbar">
-    <button className="wallet__back" onClick={onGoBack}>
-      <img className="wallet__back-icon" src={profileIcons.arrowLeftBlack} alt="Назад" />
+      {/* Кнопка для мобилки */}
+    <button
+      className="wallet__back wallet__back--mobile"
+      onClick={onGoBack}
+    >
+      <img
+        className="wallet__back-icon"
+        src={profileIcons.arrowLeftFilledBlack}
+        alt="Назад"
+      />
+    </button>
+
+    {/* Кнопка для планшета и выше */}
+    <button
+      className="wallet__back wallet__back--tablet"
+      onClick={onGoBack}
+    >
+      <img
+        className="wallet__back-icon"
+        src={profileIcons.arrowLeftBlack}
+        alt="Назад"
+      />
     </button>
 
     <h1 className="wallet__title">Мой кошелек</h1>
