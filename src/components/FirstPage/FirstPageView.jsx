@@ -2,8 +2,8 @@ import { useNavigate } from "react-router-dom";
 import ThemeToggleDark from "../ThemeToggleDark/ThemeToggleDark";
 import profileIcons from "../../constants/profileIcons";
 import "./FirstPageView.scss";
-import { useState } from "react";
-import BurgerMenu from "../BurgerMenu/BurgerMenu";
+import { useBurgerMenu } from "../../hooks/useBurgerMenu";
+import BurgerMenu from "../BurgerMenu/BurgerMenu"; 
 
 export default function FirstPageView({
   onGoProfile,
@@ -14,9 +14,8 @@ export default function FirstPageView({
   onGoNotifications,
   onGoHome,
 }) {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const handleOpenMenu = () => setIsMenuOpen(true);
-  const handleCloseMenu = () => setIsMenuOpen(false);
+
+   const { isOpen, open, close } = useBurgerMenu();
 
   return (
     <div className="relative min-h-screen flex flex-col pb-10 md:pb-0">
@@ -58,7 +57,7 @@ export default function FirstPageView({
 
               <ThemeToggleDark className="themeBtn" />
 
-              <button onClick={handleOpenMenu} onClose={handleCloseMenu} >
+              <button onClick={open} >
                 <img src={profileIcons.menu} alt="" aria-hidden="true" className="hidden md:block h-7 md:h-8 xl:h-12"  />
               </button>
             </div>
@@ -115,7 +114,8 @@ export default function FirstPageView({
           </div>
         </main>
 
-          <BurgerMenu isOpen={isMenuOpen} onClose={handleCloseMenu} />
+          {/* <BurgerMenu isOpen={isMenuOpen} onClose={handleCloseMenu} /> */}
+           <BurgerMenu isOpen={isOpen} onClose={close} />
 
         {/* MOBILE NAV */}
         <nav className="fixed bottom-0 left-0 right-0 bg-rose-100 md:hidden">
@@ -123,7 +123,7 @@ export default function FirstPageView({
             <NavBtn icon={profileIcons.home} onClick={onGoProfile} />
             <NavBtn icon={profileIcons.userMenu} onClick={onGoFriends} />
             <NavBtn icon={profileIcons.comment} onClick={onGoNotifications} />
-            <NavBtn icon={profileIcons.menu} onClick={handleOpenMenu}/>
+            <NavBtn icon={profileIcons.menu} onClick={open}/>
           </div>
         </nav>
       </div>
