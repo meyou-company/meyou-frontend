@@ -2,8 +2,11 @@ const NAME_REGEX = /^[a-zA-Zа-яА-ЯёЁіІїЇєЄ' -]{2,}$/;
 export const EMAIL_REGEX =
   /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
-// мінімум: 8 символів, 1 літера, 1 цифра
-export const PASSWORD_REGEX = /^(?=.*[A-Za-z])(?=.*\d).{8,}$/;
+// мінімум: 8 символів, цифри, одна мала латинська літера, одна велика латинська літера
+export const PASSWORD_REGEX = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}$/;
+
+export const PASSWORD_HINT =
+  "Пароль має містити цифри, хоча б одну малу латинську літеру (a-z) та одну велику (A-Z), інакше пароль неправильний";
 
 export const validateRegister = (form) => {
   const errors = {};
@@ -44,11 +47,11 @@ export const validateRegister = (form) => {
   if (!password) {
     errors.password = "Введіть пароль";
   } else if (password.length < 8) {
-    errors.password = "Пароль має містити мінімум 8 символів першу велику літеру хоча б одну малу літеру і цифру";
+    errors.password = "Мінімум 8 символів. Потрібні цифри, одна мала латинська літера (a-z) та одна велика (A-Z), інакше пароль неправильний";
   } else if (password.length > 64) {
     errors.password = "Пароль занадто довгий";
   } else if (!PASSWORD_REGEX.test(password)) {
-    errors.password = "Пароль має містити першу велику літеру одну малу літеру і цифру";
+    errors.password = "Потрібні цифри, одна мала латинська літера (a-z) та одна велика (A-Z), інакше пароль неправильний";
   }
 
   /* =====================

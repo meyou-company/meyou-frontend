@@ -469,7 +469,7 @@
   .field__genderTriggerValue {
     font-size: 14px;
     font-weight: 400;
-    text-align: right;
+    text-align: left;
     color: var(--field-text);
   }
 
@@ -758,8 +758,9 @@ html[data-theme="dark"] .birthDate-picker.react-datepicker,
 html[data-theme="dark"] .birthDate-picker .react-datepicker,
 html[data-theme="night"] .birthDate-picker.react-datepicker,
 html[data-theme="night"] .birthDate-picker .react-datepicker {
-  background: var(--select-menu-bg) !important;
-  background-color: var(--select-menu-bg) !important;
+  background: #0d0d0d !important;
+  background-color: #0d0d0d !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
   border-color: rgba(255, 255, 255, 0.12);
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
   color: var(--select-text);
@@ -842,9 +843,9 @@ body.night .birthDate-picker .react-datepicker__navigation:hover .react-datepick
 /* Трикутник поппера (стрілка до поля) — темна тема */
 body.dark .birthDate-picker .react-datepicker__triangle,
 body.night .birthDate-picker .react-datepicker__triangle,
-[data-theme="dark"] .birthDate-picker .react-datepicker__triangle,
-[data-theme="night"] .birthDate-picker .react-datepicker__triangle {
-  fill: var(--select-menu-bg) !important;
+html[data-theme="dark"] .birthDate-picker .react-datepicker__triangle,
+html[data-theme="night"] .birthDate-picker .react-datepicker__triangle {
+  fill: #0d0d0d !important;
   stroke: rgba(255, 255, 255, 0.12) !important;
   color: var(--select-menu-bg) !important;
 }
@@ -968,9 +969,9 @@ body.night .field__date-indicator::after,
 
 @media (max-width: 767px) {
   body.dark .field__genderDropdown,
-  [data-theme="dark"] .field__genderDropdown {
-    background: var(--select-menu-bg);
-    border-color: rgba(255, 255, 255, 0.1);
+  html[data-theme="dark"] .field__genderDropdown {
+    background: #0d0d0d;
+    border: 1px solid rgba(255, 255, 255, 0.12);
   }
 
   body.dark .field__genderDropdownItem,
@@ -1034,6 +1035,19 @@ body.night .field__date-indicator::after,
   border-radius: 16px !important;
   padding: 6px !important;
   box-shadow: 0 12px 30px rgba(123, 92, 255, 0.25) !important;
+}
+
+/* Темна тема: чорний дропдаун react-select */
+body.dark .rs__menu,
+html[data-theme="dark"] .rs__menu {
+  background: #0d0d0d !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.6) !important;
+}
+
+body.dark .rs__option,
+html[data-theme="dark"] .rs__option {
+  color: rgba(255, 255, 255, 0.95) !important;
 }
 
 .rs__option {
@@ -1106,11 +1120,13 @@ body.night .field__date-indicator::after,
   overflow: auto !important;
 }
 
-/* Dark mode: country names readable (white text) */
+/* Темна тема: чорний дропдаун країн */
 body.dark .phone-wrap .react-international-phone-country-selector-dropdown,
-[data-theme="dark"] .phone-wrap .react-international-phone-country-selector-dropdown {
-  background: var(--select-menu-bg) !important;
-  color: var(--select-text) !important;
+html[data-theme="dark"] .phone-wrap .react-international-phone-country-selector-dropdown {
+  background: #0d0d0d !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  color: rgba(255, 255, 255, 0.95) !important;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.6) !important;
 
   .react-international-phone-country-selector-dropdown__list-item,
   .react-international-phone-country-selector-dropdown__list-item-name,

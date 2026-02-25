@@ -2,6 +2,8 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import profileIcons from "../../constants/profileIcons";
+import { getInterestLabel } from "../../constants/interests";
+import { getHobbyLabel } from "../../constants/hobbies";
 import { usersApi } from "../../services/usersApi";
 import { subscriptionsApi } from "../../services/subscriptionsApi";
 import SearchFilterModal from "./SearchFilterModal";
@@ -9,11 +11,33 @@ import "./ExploreContent.scss";
 
 const DEFAULT_AVATAR = "/foon2.png";
 
-export default function ExploreContent() {
+const TABS = [
+  { id: "popular", label: "Рекомендуем" },
+  { id: "nearby", label: "Популярные рядом" },
+  { id: "new", label: "Новые профили" },
+  { id: "vip", label: "VIP" },
+];
+
+/** Перші 2 інтереси/хобі для чипів + "+N" якщо більше */
+function getChipItems(user) {
+  const fromInterests = Array.isArray(user?.interests) && user.interests.length > 0;
+  const arr = fromInterests ? user.interests : (Array.isArray(user?.hobbies) ? user.hobbies : []);
+  const getLabel = fromInterests ? getInterestLabel : getHobbyLabel;
+  const items = arr.slice(0, 2).map((value) => ({ value, label: getLabel(value) }));
+  const more = arr.length > 2 ? arr.length - 2 : 0;
+  return { items, more };
+}
+
+function isVip(user) {
+  return user?.isVip === true || user?.vipFlag === true || user?.accountStatus === "vip";
+}
+
+export default function ExploreContent({ onBack, onOpenProfile }) {
   const navigate = useNavigate();
 
   const [query, setQuery] = useState("");
-  const [viewMode, setViewMode] = useState("list"); // "list" | "grid"
+  const [sortBy, setSortBy] = useState("popular");
+  const [viewMode, setViewMode] = useState("grid"); // "list" | "grid"
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [subscribedIds, setSubscribedIds] = useState(new Set());
@@ -50,7 +74,7 @@ export default function ExploreContent() {
         setLoading(true);
 
         const params = {
-          sort: filterParams.sort || "recommended",
+          sort: filterParams.sort || sortBy,
           ...filterParams,
         };
         if (query.trim()) params.q = query.trim();
@@ -83,7 +107,7 @@ export default function ExploreContent() {
     }, 300);
 
     return () => clearTimeout(t);
-  }, [query, filterParams]);
+  }, [query, filterParams, sortBy]);
 
   const filteredUsers = useMemo(() => users, [users]);
 
@@ -115,31 +139,29 @@ export default function ExploreContent() {
   const showEmptyState = !loading && !hasResults;
   const showResults = !loading && hasResults;
 
+  const handleBack = useCallback(() => {
+    if (onBack) onBack();
+    else navigate(-1);
+  }, [onBack, navigate]);
+
   return (
     <div className="explore-content">
-      <header className="explore-content__topBar">
+      <header className="explore-content__header">
         <button
           type="button"
           className="explore-content__backBtn"
-          onClick={() => navigate(-1)}
+          onClick={handleBack}
           aria-label="Назад"
         >
-          <img
-            src="/icon1/Vector.png"
-            alt=""
-            aria-hidden="true"
-            className="explore-content__backBtnIcon"
-          />
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <path d="M19 12H5M12 19l-7-7 7-7" />
+          </svg>
         </button>
-
-        <h1 className="explore-content__title">Поиск</h1>
-
-        <div className="explore-content__viewToggle">
+        <h1 className="explore-content__pageTitle">Пошук</h1>
+        <div className="explore-content__viewToggle explore-content__viewToggleInHeader">
           <button
             type="button"
-            className={`explore-content__viewBtn ${
-              viewMode === "grid" ? "explore-content__viewBtnActive" : ""
-            }`}
+            className={`explore-content__viewBtn ${viewMode === "grid" ? "explore-content__viewBtnActive" : ""}`}
             onClick={() => setViewMode("grid")}
             aria-label="Сітка"
           >
@@ -150,12 +172,9 @@ export default function ExploreContent() {
               <rect x="12" y="12" width="6" height="6" rx="1" stroke="currentColor" strokeWidth="1.5" />
             </svg>
           </button>
-
           <button
             type="button"
-            className={`explore-content__viewBtn ${
-              viewMode === "list" ? "explore-content__viewBtnActive" : ""
-            }`}
+            className={`explore-content__viewBtn ${viewMode === "list" ? "explore-content__viewBtnActive" : ""}`}
             onClick={() => setViewMode("list")}
             aria-label="Список"
           >
@@ -167,8 +186,8 @@ export default function ExploreContent() {
           </button>
         </div>
       </header>
-
-      <div className="explore-content__searchBlock">
+      {/* Пошуковий ряд */}
+      <div className="explore-content__searchRow">
         <div className="explore-content__inputWrap">
           <img
             src={profileIcons.search}
@@ -179,7 +198,7 @@ export default function ExploreContent() {
           <input
             type="search"
             className="explore-content__input"
-            placeholder="Поиск..."
+            placeholder="Поиск людей, интересов, городов..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             aria-label="Поиск"
@@ -194,23 +213,35 @@ export default function ExploreContent() {
               ×
             </button>
           )}
+          <button
+            type="button"
+            className="explore-content__filterBtnInInput"
+            aria-label="Фильтр"
+            onClick={() => setFilterOpen(true)}
+          >
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+              <path d="M2 4h16M5 10h10M8 16h4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+            </svg>
+          </button>
         </div>
+      </div>
 
-        <button
-          type="button"
-          className="explore-content__filterBtn"
-          aria-label="Фильтр"
-          onClick={() => setFilterOpen(true)}
-        >
-          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
-            <path
-              d="M2 4h16M5 10h10M8 16h4"
-              stroke="currentColor"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-            />
-          </svg>
-        </button>
+      {/* Вкладки */}
+      <div className="explore-content__tabsRow">
+        <div className="explore-content__tabs" role="tablist">
+          {TABS.map((tab) => (
+            <button
+              key={tab.id}
+              type="button"
+              role="tab"
+              aria-selected={sortBy === tab.id}
+              className={`explore-content__tab ${sortBy === tab.id ? "explore-content__tabActive" : ""}`}
+              onClick={() => setSortBy(tab.id)}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
       </div>
 
       <div className="explore-content__content">
@@ -235,53 +266,83 @@ export default function ExploreContent() {
             }`}
             role="list"
           >
-            {filteredUsers.map((user) => (
-              <li key={user.id} className="explore-content__resultItem">
-                <div className="explore-content__userCard">
-                  <button
-                    type="button"
-                    className="explore-content__userInfoBtn"
-                    onClick={() => navigate(`/profile/${user.username || user.id}`)}
-                  >
-                    <div className="explore-content__avatarWrap">
-                      <div className="explore-content__avatarBorder">
+            {filteredUsers.map((user) => {
+              const chipData = getChipItems(user);
+              const displayName = [user.firstName, user.lastName].filter(Boolean).join(" ") || user.username || user.name || "Користувач";
+              const locationParts = [user.city, user.country].filter(Boolean);
+              const locationStr = locationParts.length > 0 ? locationParts.join(", ") : (user.location || user.subtitle || "");
+
+              return (
+                <li key={user.id} className="explore-content__resultItem">
+                  <div className="explore-content__userCard">
+                    <button
+                      type="button"
+                      className="explore-content__cardPhotoBtn"
+                      onClick={() => { if (!user?.username) return; navigate(`/profile/${user.username}`); }}
+                    >
+                      <div className="explore-content__cardPhoto">
                         <img
                           src={user.avatar || user.avatarUrl || DEFAULT_AVATAR}
                           alt=""
-                          className="explore-content__avatar"
+                          className="explore-content__cardPhotoImg"
                         />
+                        <div className="explore-content__cardPhotoOverlay" />
+
+                        {user.online && (
+                          <span className="explore-content__cardOnlineDot" aria-hidden="true" />
+                        )}
+
+                        {isVip(user) && (
+                          <span className="explore-content__vipBadge" aria-hidden="true">VIP</span>
+                        )}
+
+                        <div className="explore-content__cardCaption">
+                          <span className="explore-content__username">{displayName}</span>
+                          {locationStr && (
+                            <span className="explore-content__cardLocation">{locationStr}</span>
+                          )}
+                        </div>
+
+                        {(chipData.items.length > 0 || chipData.more > 0) && (
+                          <div className="explore-content__cardTags explore-content__cardTags--onPhoto">
+                            {chipData.items.map(({ value, label }) => (
+                              <span key={value} className="explore-content__cardTag">
+                                {label}
+                              </span>
+                            ))}
+                            {chipData.more > 0 && (
+                              <span className="explore-content__cardTag explore-content__cardTag--more">
+                                +{chipData.more}
+                              </span>
+                            )}
+                          </div>
+                        )}
                       </div>
-                      {user.online && (
-                        <span className="explore-content__onlineDot" aria-hidden="true" />
-                      )}
-                    </div>
-
-                    <div className="explore-content__userInfo">
-                      <span className="explore-content__username">{user.username}</span>
-                      <span className="explore-content__subtitle">{user.subtitle}</span>
-                    </div>
-                  </button>
-
-                  <div className="explore-content__actionBtns">
-                    <button
-                      type="button"
-                      className="explore-content__addFriendBtn"
-                      onClick={() => handleSubscribe(user)}
-                      disabled={subscribeLoadingId === user.id}
-                    >
-                      {subscribeLoadingId === user.id
-                        ? "…"
-                        : subscribedIds.has(user.id)
-                          ? "Відписатися"
-                          : "Додати в друзі"}
                     </button>
-                    <button type="button" className="explore-content__addVipBtn">
-                      Додати VIP
-                    </button>
+
+                    <div className="explore-content__cardRight">
+                      <div className="explore-content__cardActions">
+                        <button
+                          type="button"
+                          className="explore-content__btnPrimary"
+                          onClick={() => handleSubscribe(user)}
+                          disabled={subscribeLoadingId === user.id}
+                        >
+                          {subscribeLoadingId === user.id
+                            ? "…"
+                            : subscribedIds.has(user.id)
+                              ? "Отписаться"
+                              : "Подписаться"}
+                        </button>
+                        <button type="button" className="explore-content__btnSecondary">
+                          Добавить в VIP
+                        </button>
+                      </div>
+                    </div>
                   </div>
-                </div>
-              </li>
-            ))}
+                </li>
+              );
+            })}
           </ul>
         )}
       </div>
@@ -294,6 +355,7 @@ export default function ExploreContent() {
           setFilterOpen(false);
         }}
         initialParams={filterParams}
+        resultCount={filteredUsers.length}
       />
     </div>
   );

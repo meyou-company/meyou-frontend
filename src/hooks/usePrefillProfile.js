@@ -4,6 +4,7 @@ import { profileApi } from "../services/profileApi.js";
 export function usePrefillProfile({
   setProfileCompleted,
   setValues,
+  interestOptions,
   hobbyOptions,
   maritalStatusOptions,
   setCityOptions,
@@ -21,7 +22,11 @@ export function usePrefillProfile({
         setProfileCompleted(Boolean(res.profileCompleted));
         const u = res.user;
 
-        const hobbiesSelected = Array.isArray(u.hobbies)
+        const interestsSelected = Array.isArray(u.interests) && interestOptions
+          ? interestOptions.filter((o) => u.interests.includes(o.value))
+          : [];
+
+        const hobbiesSelected = Array.isArray(u.hobbies) && hobbyOptions
           ? hobbyOptions.filter((o) => u.hobbies.includes(o.value))
           : [];
 
@@ -50,6 +55,7 @@ export function usePrefillProfile({
           nationality: u.nationality || "",
           username: u.username || "",
           bio: u.bio || "",
+          interests: interestsSelected,
           hobbies: hobbiesSelected,
           maritalStatus: maritalSelected,
           country: countrySelected,

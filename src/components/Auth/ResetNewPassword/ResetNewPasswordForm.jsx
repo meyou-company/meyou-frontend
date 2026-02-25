@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
-import { PASSWORD_REGEX } from "../../../utils/validationRegister";
+import { PASSWORD_REGEX, PASSWORD_HINT } from "../../../utils/validationRegister";
 import { useForceDarkTheme } from "../../../hooks/useForceDarkTheme";
 import "./ResetNewPasswordForm.scss";
 
@@ -16,9 +16,9 @@ export default function ResetNewPasswordForm({ onBack, onSuccess }) {
   const errors = useMemo(() => {
     const e = {};
 
-    if (!form.password.trim()) e.password = "Введите новый пароль";
+    if (!form.password.trim()) e.password = "Введіть новий пароль";
     else if (!PASSWORD_REGEX.test(form.password))
-      e.password = "Минимум 8 символов, 1 буква и 1 цифра";
+      e.password = PASSWORD_HINT;
 
     if (!form.confirmPassword.trim()) e.confirmPassword = "Повторите пароль";
     else if (form.confirmPassword !== form.password) e.confirmPassword = "Пароли не совпадают";
@@ -116,7 +116,11 @@ export default function ResetNewPasswordForm({ onBack, onSuccess }) {
             </button>
           </div>
 
-          {touched.password && <p className="authField__hint">{fieldError("password")}</p>}
+          {(touched.password && fieldError("password")) ? (
+            <p className="authField__hint">{fieldError("password")}</p>
+          ) : (
+            <p className="authField__hint">{PASSWORD_HINT}</p>
+          )}
         </div>
 
         {/* Confirm password */}

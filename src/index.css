@@ -26,9 +26,9 @@
     --field-text: rgba(255, 255, 255, 0.92);
     --field-placeholder: rgba(255, 255, 255, 0.45);
 
-    /* ✅ DARK — SELECT (читабельність списків) */
-    --select-menu-bg: rgba(18, 10, 34, 0.96);
-    --select-text: rgba(255, 255, 255, 0.92);
+    /* ✅ DARK — SELECT: чорний дропдаун, читабельний текст */
+    --select-menu-bg: #0d0d0d;
+    --select-text: rgba(255, 255, 255, 0.95);
     --select-placeholder: rgba(255, 255, 255, 0.55);
 
     --select-option-hover-bg: linear-gradient(
@@ -44,6 +44,23 @@
       #b05cff 55%,
       #ff4fb1 100%
     );
+  }
+
+  /* Явна темна тема: чорні дропдауни, контрастний текст */
+  html[data-theme="dark"] {
+    --select-menu-bg: #0d0d0d;
+    --select-text: rgba(255, 255, 255, 0.95);
+    --select-placeholder: rgba(255, 255, 255, 0.55);
+    --field-inner: rgba(12, 12, 18, 0.85);
+    --field-text: rgba(255, 255, 255, 0.95);
+    --field-placeholder: rgba(255, 255, 255, 0.5);
+  }
+
+  body.dark {
+    --select-menu-bg: #0d0d0d;
+    --select-text: rgba(255, 255, 255, 0.95);
+    --field-inner: rgba(12, 12, 18, 0.85);
+    --field-text: rgba(255, 255, 255, 0.95);
   }
 
   /* Денний режим: тема застосовується до всього документа */
@@ -172,6 +189,16 @@
   @screen 2xl {
     .app-container { max-width: 1440px; }
   }
+}
+
+/* Без стрілочок у полях type="number" */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type="number"] {
+  -moz-appearance: textfield;
 }
 
 /* Sonner toast: above modals, readable font */

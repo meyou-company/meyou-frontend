@@ -11,105 +11,78 @@
   padding: 16px;
   max-width: 1024px;
   margin: 0 auto;
+  box-sizing: border-box;
+  overflow-x: hidden;
 }
 
-/* -------------------------
-   Top bar
-------------------------- */
-.explore-content__topBar {
+.explore-content__header {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  padding: 12px 0 20px;
-  flex-shrink: 0;
+  justify-content: center;
+  position: relative;
+  margin-bottom: 16px;
+  min-height: 44px;
 }
 
 .explore-content__backBtn {
-  flex-shrink: 0;
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
   width: 44px;
   height: 44px;
   padding: 0;
   border: 0;
   background: transparent;
+  color: inherit;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #ff4fb1;
   -webkit-tap-highlight-color: transparent;
-
-  &:hover {
-    color: #4f6bff;
-  }
+  opacity: 0.9;
 }
 
-.explore-content__backBtnIcon {
-  width: 22px;
-  height: 28px;
-  display: block;
+.explore-content__backBtn:hover {
+  opacity: 1;
 }
 
-.explore-content__title {
-  flex: 1;
+.explore-content__pageTitle {
   margin: 0;
   font-size: 24px;
   font-weight: 700;
-  text-align: center;
   color: inherit;
+  text-align: center;
 }
 
-.explore-content__viewToggle {
+/* Кнопки сітка/полоски навпроти заголовка (справа в шапці) */
+.explore-content__viewToggleInHeader {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
   display: flex;
   align-items: center;
-  gap: 8px;
-  flex-shrink: 0;
-}
-
-.explore-content__viewBtn {
-  width: 40px;
-  height: 40px;
-  padding: 0;
-  border: 0;
-  background: transparent;
-  border-radius: 10px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: rgba(0, 0, 0, 0.45);
-  -webkit-tap-highlight-color: transparent;
-
-  &:hover {
-    color: rgba(0, 0, 0, 0.7);
-    background: rgba(0, 0, 0, 0.06);
-  }
-}
-
-.explore-content__viewBtnActive {
-  color: #ff4fb1;
+  gap: 6px;
 }
 
 /* -------------------------
-   Search input block
+   Search row
 ------------------------- */
-.explore-content__searchBlock {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 24px;
+.explore-content__searchRow {
+  margin-bottom: 16px;
 }
 
 .explore-content__inputWrap {
-  flex: 1;
+  width: 100%;
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 0 16px;
+  padding: 0 16px 0 16px;
   height: 52px;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.4);
-  border: 1px solid rgba(0, 0, 0, 0.1);
+  background: rgba(255, 255, 255, 0.5);
+  border: 1px solid rgba(0, 0, 0, 0.08);
 }
 
 .explore-content__searchIcon {
@@ -133,6 +106,13 @@
   &::placeholder {
     color: rgba(0, 0, 0, 0.4);
   }
+
+  /* приховати браузерний хрестик очищення (щоб був лише один — наш) */
+  &::-webkit-search-cancel-button,
+  &::-webkit-search-decoration {
+    -webkit-appearance: none;
+    appearance: none;
+  }
 }
 
 .explore-content__clearBtn {
@@ -141,30 +121,134 @@
   height: 28px;
   padding: 0;
   border: 0;
-  background: rgba(0, 0, 0, 0.12);
+  background: rgba(0, 0, 0, 0.1);
   border-radius: 50%;
   cursor: pointer;
-  font-size: 20px;
+  font-size: 18px;
   line-height: 1;
-  color: rgba(0, 0, 0, 0.7);
+  color: rgba(0, 0, 0, 0.6);
   display: flex;
   align-items: center;
   justify-content: center;
   -webkit-tap-highlight-color: transparent;
+}
 
-  &:hover {
-    background: rgba(0, 0, 0, 0.2);
-  }
+.explore-content__filterBtnInInput {
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(0, 0, 0, 0.55);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.explore-content__filterBtnInInput:hover {
+  color: #b05cff;
+}
+
+body.dark .explore-content__filterBtnInInput {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+body.dark .explore-content__filterBtnInInput:hover {
+  color: #b05cff;
+}
+
+/* -------------------------
+   Tabs row (лише вкладки)
+------------------------- */
+.explore-content__tabsRow {
+  margin-bottom: 14px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  min-height: 0;
+}
+
+.explore-content__tabs {
+  display: flex;
+  gap: 0;
+  min-width: 0;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.explore-content__tab {
+  flex-shrink: 0;
+  padding: 12px 10px 10px;
+  border: 0;
+  background: transparent;
+  font-size: 14px;
+  font-weight: 500;
+  color: rgba(0, 0, 0, 0.6);
+  cursor: pointer;
+  position: relative;
+  white-space: nowrap;
+  font-family: inherit;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.explore-content__tabActive {
+  color: #b05cff;
+  font-weight: 600;
+}
+
+.explore-content__tabActive::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 2px;
+  background: linear-gradient(90deg, #4f6bff 0%, #b05cff 52%, #ff4fb1 100%);
+  border-radius: 1px;
+}
+
+/* -------------------------
+   Toolbar: сортування + фільтр + сітка/список
+------------------------- */
+.explore-content__toolbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.explore-content__sortWrap {
+  flex: 1;
+  min-width: 0;
+}
+
+.explore-content__sortSelect {
+  width: 100%;
+  max-width: 200px;
+  height: 40px;
+  padding: 0 32px 0 12px;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 10px;
+  font-size: 14px;
+  font-family: inherit;
+  color: inherit;
+  background: rgba(255, 255, 255, 0.5);
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23666' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
 }
 
 .explore-content__filterBtn {
   flex-shrink: 0;
-  width: 52px;
-  height: 52px;
+  width: 40px;
+  height: 40px;
   padding: 0;
   border: 0;
   background: rgba(255, 255, 255, 0.4);
-  border-radius: 999px;
+  border-radius: 10px;
   border: 1px solid rgba(0, 0, 0, 0.1);
   cursor: pointer;
   display: flex;
@@ -172,10 +256,32 @@
   justify-content: center;
   color: rgba(0, 0, 0, 0.6);
   -webkit-tap-highlight-color: transparent;
+}
 
-  &:hover {
-    background: rgba(255, 255, 255, 0.55);
-  }
+.explore-content__viewToggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.explore-content__viewBtn {
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  border-radius: 10px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(0, 0, 0, 0.45);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.explore-content__viewBtnActive {
+  color: #b05cff;
 }
 
 /* -------------------------
@@ -184,6 +290,9 @@
 .explore-content__content {
   flex: 1;
   min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
 }
 
 .explore-content__emptyState {
@@ -217,32 +326,55 @@
 
 .explore-content__resultsGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
 }
 
 .explore-content__resultItem {
   margin: 0;
+  min-width: 0; /* щоб картки не роздували сітку на мобільних */
 }
 
+/* ----- Card: фото 70–80%, overlay, 2 кнопки 50/50, hover scale + тінь ----- */
 .explore-content__userCard {
   width: 100%;
+  height: 100%;
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  padding: 12px;
-  background: rgba(255, 255, 255, 0.35);
-  border-radius: 14px;
+  flex-direction: column;
+  min-height: 0;
+  background: rgba(255, 255, 255, 0.6);
+  border-radius: 16px;
+  overflow: hidden;
   border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  position: relative;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-.explore-content__userInfoBtn {
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  align-items: center;
-  gap: 14px;
+.explore-content__userCard:hover {
+  transform: scale(1.03);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12), 0 14px 34px rgba(176, 92, 255, 0.22);
+}
+
+.explore-content__vipBadge {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 2;
+  padding: 3px 8px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+  color: #1f2937;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.explore-content__cardPhotoBtn {
+  flex: 1 1 78%;
+  min-height: 0;
+  width: 100%;
   padding: 0;
   border: 0;
   background: transparent;
@@ -250,151 +382,268 @@
   text-align: left;
   font-family: inherit;
   -webkit-tap-highlight-color: transparent;
+  display: block;
 }
 
-.explore-content__actionBtns {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  flex-shrink: 0;
-}
-
-.explore-content__addFriendBtn,
-.explore-content__addVipBtn {
-  padding: 8px 14px;
-  border-radius: 999px;
-  border: 0;
-  font-size: 12px;
-  font-weight: 600;
-  cursor: pointer;
-  white-space: nowrap;
-  font-family: inherit;
-  -webkit-tap-highlight-color: transparent;
-}
-
-.explore-content__addFriendBtn {
-  background: linear-gradient(90deg, #4f6bff 0%, #b05cff 50%, #ff4fb1 100%);
-  color: #fff;
-}
-
-.explore-content__addVipBtn {
-  background: rgba(255, 255, 255, 0.6);
-  color: #6b21a8;
-  border: 1px solid rgba(107, 33, 168, 0.4);
-}
-
-.explore-content__addFriendBtn:hover,
-.explore-content__addVipBtn:hover {
-  opacity: 0.92;
-}
-
-/* avatar with gradient border */
-.explore-content__avatarWrap {
+.explore-content__cardPhoto {
   position: relative;
-  flex-shrink: 0;
-}
-
-.explore-content__avatarBorder {
-  width: 56px;
-  height: 56px;
-  min-width: 56px;
-  min-height: 56px;
-  padding: 3px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #b05cff, #ff4fb1, #ff9a56);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-}
-
-.explore-content__avatar {
   width: 100%;
   height: 100%;
-  min-width: 0;
-  min-height: 0;
-  border-radius: 50%;
+  min-height: 120px;
+  overflow: hidden;
+  background: linear-gradient(135deg, #e9d5ff 0%, #fbcfe8 50%, #bfdbfe 100%);
+  border-radius: 18px 18px 0 0;
+}
+
+.explore-content__cardPhotoImg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
   object-fit: cover;
   object-position: center;
   display: block;
-  background: #eee;
 }
 
-.explore-content__onlineDot {
+/* Сильний темний градієнт знизу для читабельності тексту */
+.explore-content__cardPhotoOverlay {
   position: absolute;
-  top: -2px;
-  right: -2px;
-  width: 12px;
-  height: 12px;
+  inset: 0;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.85) 0%, rgba(0, 0, 0, 0.5) 35%, rgba(0, 0, 0, 0.15) 60%, transparent 80%);
+  pointer-events: none;
+}
+
+.explore-content__cardOnlineDot {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  width: 10px;
+  height: 10px;
   border-radius: 50%;
   background: #22c55e;
   border: 2px solid #fff;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.2);
+  z-index: 2;
 }
 
-.explore-content__userInfo {
-  flex: 1;
-  min-width: 0;
+.explore-content__cardCaption {
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: 0;
   display: flex;
   flex-direction: column;
   gap: 4px;
+  z-index: 1;
+  padding-bottom: 8px;
 }
 
-.explore-content__username {
+.explore-content__cardCaption .explore-content__username {
   font-size: 16px;
-  font-weight: 600;
-  color: inherit;
+  font-weight: 700;
+  color: #fff;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
 }
 
-.explore-content__subtitle {
-  font-size: 13px;
-  color: rgba(0, 0, 0, 0.55);
+.explore-content__cardLocation {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.95);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-/* grid layout: vertical cards */
-.explore-content__resultsGrid .explore-content__userCard {
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
+.explore-content__username {
+  font-size: 15px;
+  font-weight: 600;
+  color: inherit;
 }
 
-.explore-content__resultsGrid .explore-content__userInfoBtn {
-  flex-direction: column;
-  align-items: center;
-}
-
-.explore-content__resultsGrid .explore-content__userInfo {
-  align-items: center;
-}
-
-.explore-content__resultsGrid .explore-content__subtitle {
-  white-space: normal;
-  text-align: center;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-.explore-content__resultsGrid .explore-content__actionBtns {
-  flex-direction: row;
+/* Чипи на фото (над градієнтом, напівпрозорий фіолетовий фон) */
+.explore-content__cardTags--onPhoto {
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: 0;
+  padding: 8px 0 12px;
+  z-index: 1;
   flex-wrap: wrap;
+  gap: 6px;
+}
+
+.explore-content__cardTags--onPhoto .explore-content__cardTag {
+  background: linear-gradient(90deg, #4f6bff 0%, #b05cff 52%, #ff4fb1 100%);
+  color: #fff;
+  padding: 5px 12px;
+  font-size: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+}
+
+.explore-content__cardTags--onPhoto .explore-content__cardTag--more {
+  background: linear-gradient(90deg, #b05cff 0%, #ff4fb1 100%);
+  opacity: 0.95;
+}
+
+/* Якщо є чипи — caption вище чипів */
+.explore-content__cardPhoto:has(.explore-content__cardTags--onPhoto) .explore-content__cardCaption {
+  bottom: 52px;
+}
+
+.explore-content__cardPhoto:has(.explore-content__cardTags--onPhoto) .explore-content__cardTags--onPhoto {
+  padding-bottom: 10px;
+}
+
+.explore-content__cardRight {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 0 12px 12px;
+}
+
+/* Дві кнопки поруч: flex-row, однакова висота, не розтягуються */
+.explore-content__cardActions {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+  margin-top: 10px;
+  flex-shrink: 0;
+}
+
+.explore-content__btnPrimary,
+.explore-content__btnSecondary {
+  flex: 1;
+  min-width: 0;
+  height: 38px;
+  min-height: 38px;
+  max-height: 38px;
+  padding: 0 12px;
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  -webkit-tap-highlight-color: transparent;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
   justify-content: center;
+  transition: box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.explore-content__btnPrimary {
+  border: 0;
+  background: linear-gradient(90deg, #4f6bff 0%, #b05cff 52%, #ff4fb1 100%);
+  color: #fff;
+}
+
+.explore-content__btnPrimary:hover:not(:disabled) {
+  box-shadow: 0 0 20px rgba(255, 79, 177, 0.4), 0 0 40px rgba(176, 92, 255, 0.35);
+}
+
+.explore-content__btnPrimary:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.explore-content__btnSecondary {
+  background: transparent;
+  color: #b05cff;
+  border: 1.5px solid rgba(176, 92, 255, 0.5);
+}
+
+.explore-content__btnSecondary:hover {
+  background: rgba(176, 92, 255, 0.1);
+}
+
+/* Chips (на фото) — градієнт як на інших сторінках */
+.explore-content__cardTag {
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+  background: linear-gradient(90deg, #4f6bff 0%, #b05cff 52%, #ff4fb1 100%);
+  color: #fff;
+  white-space: nowrap;
+}
+
+.explore-content__cardTag--more {
+  background: linear-gradient(90deg, #b05cff 0%, #ff4fb1 100%);
+  opacity: 0.95;
+}
+
+/* Grid: картка колонка, компактні кнопки */
+.explore-content__resultsGrid .explore-content__userCard {
+  align-items: stretch;
+}
+
+.explore-content__resultsGrid .explore-content__cardPhoto {
+  aspect-ratio: 4 / 5;
+  min-height: 0;
+}
+
+.explore-content__resultsGrid .explore-content__cardRight {
+  padding: 0 10px 10px;
+}
+
+.explore-content__resultsGrid .explore-content__cardActions {
+  margin-top: 8px;
+  gap: 8px;
+}
+
+.explore-content__resultsGrid .explore-content__btnPrimary,
+.explore-content__resultsGrid .explore-content__btnSecondary {
+  height: 36px;
+  min-height: 36px;
+  max-height: 36px;
+  padding: 0 10px;
+  font-size: 11px;
+}
+
+/* List: фото зліва, контент справа, кнопки більші */
+.explore-content__resultsList .explore-content__userCard {
+  flex-direction: row;
+  align-items: stretch;
+}
+
+.explore-content__resultsList .explore-content__cardPhotoBtn {
+  flex: 0 0 38%;
+  max-width: 160px;
+  min-height: 0;
+}
+
+.explore-content__resultsList .explore-content__cardPhoto {
+  aspect-ratio: 1;
+  min-height: 100px;
+}
+
+.explore-content__resultsList .explore-content__cardRight {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 0 14px 14px;
+}
+
+.explore-content__resultsList .explore-content__cardActions {
+  margin-top: 12px;
+  gap: 10px;
+  align-self: stretch;
+}
+
+.explore-content__resultsList .explore-content__btnPrimary,
+.explore-content__resultsList .explore-content__btnSecondary {
+  height: 40px;
+  min-height: 40px;
+  max-height: 40px;
+  padding: 0 14px;
+  font-size: 13px;
 }
 
 /* -------------------------
    DARK MODE
 ------------------------- */
-body.dark .explore-content__backBtn {
-  color: #ff4fb1;
-}
-
-body.dark .explore-content__backBtn:hover {
-  color: #b05cff;
-}
-
 body.dark .explore-content__inputWrap {
   background: rgba(255, 255, 255, 0.08);
   border-color: rgba(255, 255, 255, 0.15);
@@ -402,6 +651,28 @@ body.dark .explore-content__inputWrap {
 
 body.dark .explore-content__input::placeholder {
   color: rgba(255, 255, 255, 0.4);
+}
+
+body.dark .explore-content__tabsRow {
+  border-bottom-color: rgba(255, 255, 255, 0.15);
+}
+
+body.dark .explore-content__tab {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+body.dark .explore-content__tabActive {
+  color: #b05cff;
+}
+
+body.dark .explore-content__tabActive::after {
+  background: linear-gradient(90deg, #4f6bff 0%, #b05cff 52%, #ff4fb1 100%);
+}
+
+body.dark .explore-content__sortSelect {
+  background-color: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.15);
+  color: rgba(255, 255, 255, 0.9);
 }
 
 body.dark .explore-content__filterBtn {
@@ -419,14 +690,23 @@ body.dark .explore-content__userCard {
   border-color: rgba(255, 255, 255, 0.12);
 }
 
-body.dark .explore-content__addVipBtn {
-  background: rgba(255, 255, 255, 0.1);
-  color: #e9d5ff;
-  border-color: rgba(233, 213, 255, 0.4);
+body.dark .explore-content__btnSecondary {
+  background: transparent;
+  color: #b05cff;
+  border-color: rgba(176, 92, 255, 0.5);
+}
+
+body.dark .explore-content__btnSecondary:hover {
+  background: rgba(176, 92, 255, 0.15);
+}
+
+body.dark .explore-content__cardTag--more {
+  background: linear-gradient(90deg, #b05cff 0%, #ff4fb1 100%);
+  opacity: 0.9;
 }
 
 body.dark .explore-content__subtitle {
-  color: rgba(255, 255, 255, 0.6);
+  color: rgba(255, 255, 255, 0.55);
 }
 
 body.dark .explore-content__viewBtn {
@@ -439,160 +719,65 @@ body.dark .explore-content__viewBtn:hover {
 }
 
 body.dark .explore-content__viewBtnActive {
-  color: #ff4fb1;
+  color: #b05cff;
 }
 
 /* -------------------------
-   RESPONSIVE: мобілка від 320, планшет 768–1045, десктоп не чіпаємо
+   RESPONSIVE
+   Мобілка: 320–420 | iPhone: 420–767 | Планшет: 768–1048 | Desktop: 1049+
 ------------------------- */
 
-/* Mobile < 768px */
-@media (max-width: 767px) {
+/* 1) Мобілка до 420px (включно 320–420, і менші) */
+@media (max-width: 420px) {
   .explore-content {
-    padding: 12px;
+    padding: 8px 10px;
   }
 
-  .explore-content__topBar {
-    padding: 8px 0 16px;
+  .explore-content__header {
+    min-height: 40px;
+    margin-bottom: 12px;
   }
 
-  .explore-content__title {
+  .explore-content__pageTitle {
     font-size: 20px;
   }
 
-  .explore-content__backBtnIcon {
-    width: 18px;
-    height: 24px;
-  }
-
-  .explore-content__inputWrap {
-    height: 48px;
-    padding: 0 14px;
-  }
-
-  .explore-content__avatarBorder {
-    width: 48px;
-    height: 48px;
-    min-width: 48px;
-    min-height: 48px;
-  }
-
-  .explore-content__username {
-    font-size: 15px;
-  }
-
-  .explore-content__subtitle {
-    font-size: 12px;
-  }
-
-  .explore-content__resultsGrid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
-  }
-}
-
-/* Мобілка 480px */
-@media (max-width: 480px) {
-  .explore-content {
-    padding: 10px;
-  }
-
-  .explore-content__topBar {
-    padding: 6px 0 14px;
-    gap: 12px;
-  }
-
-  .explore-content__title {
-    font-size: 19px;
-  }
-
   .explore-content__backBtn {
-    width: 42px;
-    height: 42px;
+    width: 40px;
+    height: 40px;
   }
 
-  .explore-content__backBtnIcon {
-    width: 18px;
-    height: 24px;
-  }
-
-  .explore-content__viewBtn {
-    width: 38px;
-    height: 38px;
-  }
-
-  .explore-content__searchBlock {
-    gap: 10px;
-    margin-bottom: 18px;
+  .explore-content__searchRow {
+    margin-bottom: 10px;
   }
 
   .explore-content__inputWrap {
-    height: 46px;
+    height: 44px;
     padding: 0 12px;
+    gap: 8px;
   }
 
   .explore-content__input {
-    font-size: 15px;
-  }
-
-  .explore-content__filterBtn {
-    width: 46px;
-    height: 46px;
-  }
-
-  .explore-content__avatarBorder {
-    width: 46px;
-    height: 46px;
-    min-width: 46px;
-    min-height: 46px;
-  }
-
-  .explore-content__username {
     font-size: 14px;
   }
 
-  .explore-content__subtitle {
-    font-size: 11px;
-  }
-
-  .explore-content__resultsGrid {
-    gap: 10px;
-  }
-
-  .explore-content__userCard {
-    padding: 11px;
-  }
-
-  .explore-content__addFriendBtn,
-  .explore-content__addVipBtn {
-    font-size: 13px;
-    padding: 9px 12px;
-  }
-}
-
-/* Мобілка 320px — компактніше */
-@media (max-width: 320px) {
-  .explore-content {
-    padding: 8px;
-  }
-
-  .explore-content__topBar {
-    gap: 10px;
-    padding: 6px 0 12px;
-  }
-
-  .explore-content__title {
-    font-size: 18px;
-  }
-
-  .explore-content__backBtn {
-    width: 38px;
-    height: 38px;
-  }
-
-  .explore-content__backBtnIcon {
-    width: 16px;
+  .explore-content__searchIcon {
+    width: 20px;
     height: 20px;
+  }
+
+  .explore-content__filterBtnInInput {
+    width: 36px;
+    height: 36px;
+  }
+
+  .explore-content__tabsRow {
+    margin-bottom: 10px;
+  }
+
+  .explore-content__tab {
+    font-size: 12px;
+    padding: 8px 6px 6px;
   }
 
   .explore-content__viewBtn {
@@ -600,109 +785,420 @@ body.dark .explore-content__viewBtnActive {
     height: 36px;
   }
 
-  .explore-content__searchBlock {
-    gap: 8px;
-    margin-bottom: 16px;
-  }
-
-  .explore-content__inputWrap {
-    height: 44px;
-    padding: 0 12px;
-  }
-
-  .explore-content__input {
-    font-size: 14px;
-  }
-
-  .explore-content__filterBtn {
-    width: 44px;
-    height: 44px;
-  }
-
-  .explore-content__avatarBorder {
-    width: 42px;
-    height: 42px;
-    min-width: 42px;
-    min-height: 42px;
-  }
-
-  .explore-content__username {
-    font-size: 14px;
-  }
-
-  .explore-content__subtitle {
-    font-size: 11px;
-  }
-
   .explore-content__resultsGrid {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 8px;
   }
 
   .explore-content__userCard {
-    padding: 10px;
+    min-width: 0;
   }
 
-  .explore-content__addFriendBtn,
-  .explore-content__addVipBtn {
-    font-size: 12px;
-    padding: 8px 10px;
+  .explore-content__resultsGrid .explore-content__cardPhoto {
+    aspect-ratio: 3 / 4;
+  }
+
+  .explore-content__resultsGrid .explore-content__cardRight {
+    padding: 0 6px 6px;
+  }
+
+  .explore-content__resultsGrid .explore-content__cardActions {
+    gap: 6px;
+    margin-top: 6px;
+  }
+
+  .explore-content__cardCaption .explore-content__username {
+    font-size: 13px;
+  }
+
+  .explore-content__cardLocation {
+    font-size: 11px;
+  }
+
+  .explore-content__cardRight {
+    padding: 0 8px 8px;
+  }
+
+  .explore-content__cardActions {
+    margin-top: 6px;
+    gap: 6px;
+  }
+
+  .explore-content__resultsGrid .explore-content__btnPrimary,
+  .explore-content__resultsGrid .explore-content__btnSecondary {
+    height: 34px;
+    min-height: 34px;
+    max-height: 34px;
+    font-size: 9px;
+    padding: 0 6px;
+  }
+
+  .explore-content__resultsList .explore-content__cardPhotoBtn {
+    max-width: 120px;
+  }
+
+  .explore-content__resultsList .explore-content__userCard {
+    min-width: 0;
+  }
+
+  .explore-content__resultsList .explore-content__btnPrimary,
+  .explore-content__resultsList .explore-content__btnSecondary {
+    height: 36px;
+    min-height: 36px;
+    max-height: 36px;
+    font-size: 10px;
+    padding: 0 8px;
+  }
+
+  .explore-content__emptyText {
+    font-size: 14px;
   }
 }
 
-/* Планшет 768–1045px */
-@media (min-width: 768px) and (max-width: 1045px) {
+/* Ще компактніше для вузьких екранів 320–360px */
+@media (max-width: 360px) {
   .explore-content {
-    padding: 24px;
+    padding: 6px 8px;
+  }
+
+  .explore-content__tab {
+    font-size: 11px;
+    padding: 6px 4px 6px;
+  }
+
+  .explore-content__viewBtn {
+    width: 34px;
+    height: 34px;
+  }
+
+  .explore-content__resultsGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 6px;
+  }
+
+  .explore-content__userCard {
+    min-width: 0;
+  }
+
+  .explore-content__resultsGrid .explore-content__cardRight {
+    padding: 0 6px 6px;
+  }
+
+  .explore-content__resultsGrid .explore-content__btnPrimary,
+  .explore-content__resultsGrid .explore-content__btnSecondary {
+    font-size: 9px;
+  }
+
+  .explore-content__resultsList .explore-content__btnPrimary,
+  .explore-content__resultsList .explore-content__btnSecondary {
+    font-size: 9px;
+  }
+}
+
+/* 2) iPhone / великі телефони 420–767px */
+@media (min-width: 421px) and (max-width: 767px) {
+  .explore-content {
+    padding: 12px 14px;
+  }
+
+  .explore-content__header {
+    margin-bottom: 14px;
+  }
+
+  .explore-content__pageTitle {
+    font-size: 22px;
+  }
+
+  .explore-content__searchRow {
+    margin-bottom: 12px;
+  }
+
+  .explore-content__inputWrap {
+    height: 48px;
+    padding: 0 14px;
+  }
+
+  .explore-content__input {
+    font-size: 15px;
+  }
+
+  .explore-content__tabsRow {
+    margin-bottom: 12px;
+  }
+
+  .explore-content__tab {
+    font-size: 13px;
+    padding: 10px 8px 8px;
+  }
+
+  .explore-content__viewBtn {
+    width: 40px;
+    height: 40px;
+  }
+
+  .explore-content__resultsGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+
+  .explore-content__userCard {
+    min-width: 0;
+  }
+
+  .explore-content__cardCaption .explore-content__username {
+    font-size: 15px;
+  }
+
+  .explore-content__cardLocation {
+    font-size: 12px;
+  }
+
+  .explore-content__cardRight {
+    padding: 0 10px 10px;
+  }
+
+  .explore-content__resultsGrid .explore-content__btnPrimary,
+  .explore-content__resultsGrid .explore-content__btnSecondary {
+    height: 36px;
+    min-height: 36px;
+    max-height: 36px;
+    font-size: 10px;
+    padding: 0 10px;
+  }
+
+  .explore-content__resultsList .explore-content__btnPrimary,
+  .explore-content__resultsList .explore-content__btnSecondary {
+    height: 38px;
+    min-height: 38px;
+    max-height: 38px;
+    font-size: 11px;
+  }
+
+  .explore-content__emptyText {
+    font-size: 15px;
+  }
+}
+
+/* 3) Планшет 768–1048px */
+@media (min-width: 768px) and (max-width: 1048px) {
+  .explore-content {
+    padding: 20px 24px;
     max-width: 768px;
+    margin-left: auto;
+    margin-right: auto;
   }
 
-  .explore-content__topBar {
-    padding: 16px 0 24px;
+  .explore-content__header {
+    margin-bottom: 20px;
   }
 
-  .explore-content__title {
-    font-size: 28px;
+  .explore-content__searchRow {
+    margin-bottom: 18px;
+  }
+
+  .explore-content__inputWrap {
+    height: 52px;
+    padding: 0 18px;
+  }
+
+  .explore-content__tabsRow {
+    margin-bottom: 16px;
+  }
+
+  .explore-content__tab {
+    font-size: 14px;
+    padding: 12px 12px 10px;
   }
 
   .explore-content__resultsGrid {
     grid-template-columns: repeat(3, 1fr);
-    gap: 24px;
+    gap: 20px;
+  }
+
+  .explore-content__cardCaption .explore-content__username {
+    font-size: 16px;
+  }
+
+  .explore-content__cardLocation {
+    font-size: 12px;
+  }
+
+  .explore-content__resultsGrid .explore-content__cardRight {
+    padding: 0 12px 12px;
+  }
+
+  .explore-content__resultsGrid .explore-content__btnPrimary,
+  .explore-content__resultsGrid .explore-content__btnSecondary {
+    height: 38px;
+    min-height: 38px;
+    max-height: 38px;
+    font-size: 12px;
+  }
+
+  .explore-content__resultsList .explore-content__cardPhotoBtn {
+    max-width: 180px;
+  }
+
+  .explore-content__resultsList .explore-content__btnPrimary,
+  .explore-content__resultsList .explore-content__btnSecondary {
+    height: 40px;
+    min-height: 40px;
+    max-height: 40px;
+    font-size: 13px;
   }
 }
 
-/* Desktop > 1024px */
-@media (min-width: 1025px) {
+/* 4) Desktop 1049+ — більші розміри, картки крупніші */
+@media (min-width: 1049px) {
   .explore-content {
-    padding: 32px;
-    max-width: 800px;
+    padding: 40px 48px;
+    max-width: 1200px;
   }
 
-  .explore-content__topBar {
-    padding: 20px 0 28px;
+  .explore-content__header {
+    margin-bottom: 24px;
+    min-height: 52px;
   }
 
-  .explore-content__title {
+  .explore-content__pageTitle {
     font-size: 28px;
   }
 
-  .explore-content__resultsList .explore-content__userCard {
-    padding: 16px;
+  .explore-content__backBtn {
+    width: 48px;
+    height: 48px;
   }
 
-  .explore-content__avatarBorder {
-    width: 64px;
-    height: 64px;
-    min-width: 64px;
-    min-height: 64px;
+  .explore-content__searchRow {
+    margin-bottom: 28px;
   }
 
-  .explore-content__username {
+  .explore-content__inputWrap {
+    height: 56px;
+    padding: 0 20px;
+    border-radius: 999px;
+  }
+
+  .explore-content__input {
     font-size: 17px;
   }
 
+  .explore-content__searchIcon {
+    width: 24px;
+    height: 24px;
+  }
+
+  .explore-content__tabsRow {
+    margin-bottom: 20px;
+  }
+
+  .explore-content__tab {
+    font-size: 16px;
+    padding: 14px 14px 12px;
+  }
+
+  .explore-content__viewToggleInHeader .explore-content__viewBtn {
+    width: 44px;
+    height: 44px;
+  }
+
   .explore-content__resultsGrid {
-    grid-template-columns: repeat(4, 1fr);
-    gap: 24px;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 32px;
+  }
+
+  .explore-content__userCard {
+    border-radius: 20px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  }
+
+  .explore-content__userCard:hover {
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.14), 0 18px 40px rgba(176, 92, 255, 0.24);
+  }
+
+  .explore-content__resultsGrid .explore-content__cardPhoto {
+    border-radius: 20px 20px 0 0;
+    aspect-ratio: 4 / 5;
+    min-height: 200px;
+  }
+
+  .explore-content__cardPhoto {
+    border-radius: 20px 20px 0 0;
+  }
+
+  .explore-content__cardCaption .explore-content__username {
+    font-size: 18px;
+  }
+
+  .explore-content__cardLocation {
+    font-size: 14px;
+  }
+
+  .explore-content__username {
+    font-size: 18px;
+  }
+
+  .explore-content__resultsGrid .explore-content__cardRight {
+    padding: 0 16px 16px;
+  }
+
+  .explore-content__resultsGrid .explore-content__cardActions {
+    margin-top: 14px;
+    gap: 14px;
+  }
+
+  .explore-content__resultsGrid .explore-content__btnPrimary,
+  .explore-content__resultsGrid .explore-content__btnSecondary {
+    height: 44px;
+    min-height: 44px;
+    max-height: 44px;
+    padding: 0 16px;
+    font-size: 15px;
+    border-radius: 12px;
+  }
+
+  .explore-content__resultsList .explore-content__userCard {
+    padding: 0;
+  }
+
+  .explore-content__resultsList .explore-content__cardPhotoBtn {
+    max-width: 260px;
+  }
+
+  .explore-content__resultsList .explore-content__cardPhoto {
+    min-height: 140px;
+  }
+
+  .explore-content__resultsList .explore-content__cardRight {
+    padding: 0 18px 18px;
+  }
+
+  .explore-content__resultsList .explore-content__cardActions {
+    margin-top: 14px;
+    gap: 12px;
+  }
+
+  .explore-content__resultsList .explore-content__btnPrimary,
+  .explore-content__resultsList .explore-content__btnSecondary {
+    height: 46px;
+    min-height: 46px;
+    max-height: 46px;
+    padding: 0 18px;
+    font-size: 15px;
+    border-radius: 12px;
+  }
+
+  .explore-content__cardTag {
+    font-size: 12px;
+    padding: 5px 12px;
+  }
+
+  .explore-content__vipBadge {
+    font-size: 11px;
+    padding: 4px 10px;
+  }
+
+  .explore-content__emptyText {
+    font-size: 18px;
   }
 }

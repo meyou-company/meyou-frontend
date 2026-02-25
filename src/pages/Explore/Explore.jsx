@@ -7,7 +7,7 @@ export default function Explore() {
   return (
     <ExploreContent
       onBack={() => navigate(-1)}
-      onOpenProfile={(id) => navigate(`/profile/${id}`)}
+      onOpenProfile={(username) => username && navigate(`/profile/${username}`)}
     />
   );
 }
