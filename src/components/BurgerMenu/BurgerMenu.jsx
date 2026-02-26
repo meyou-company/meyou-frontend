@@ -13,7 +13,7 @@ export default function BurgerMenu({ isOpen, onClose, onItemClick, toggleTheme }
     if (id === "logout") {
       try {
         await logout();
-        navigate("/login", { replace: true });
+        navigate("/auth/login", { replace: true });
       } catch (error) {
         console.error("Logout error:", error);
       }
