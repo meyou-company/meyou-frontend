@@ -2,6 +2,8 @@ import { useNavigate } from "react-router-dom";
 import ThemeToggleDark from "../ThemeToggleDark/ThemeToggleDark";
 import profileIcons from "../../constants/profileIcons";
 import "./FirstPageView.scss";
+import { useBurgerMenu } from "../../hooks/useBurgerMenu";
+import BurgerMenu from "../BurgerMenu/BurgerMenu"; 
 
 export default function FirstPageView({
   onGoProfile,
@@ -12,6 +14,8 @@ export default function FirstPageView({
   onGoNotifications,
   onGoHome,
 }) {
+
+   const { isOpen, open, close } = useBurgerMenu();
 
   return (
     <div className="relative min-h-screen flex flex-col pb-10 md:pb-0">
@@ -24,7 +28,7 @@ export default function FirstPageView({
       <div className="relative z-10 flex flex-col flex-1">
         {/* HEADER */}
         <header className="w-full border-gray-900">
-            <div className="mx-auto flex items-center justify-between px-1 mt-[-10px] pb-5 md:pb-5 md:pt-[38px] xl:pb-8 xl:pt-[10px] xl:mx-10">
+            <div className="mx-auto flex items-center justify-between px-1 mt-[-10px] pb-5 md:pb-5 xl:pb-8 xl:pt-[10px] xl:mx-10">
             {/* LEFT */}
             <div className="flex items-center md:mx-5 xl:mx-0 xl:gap-10">
               <button onClick={onGoProfile}>
@@ -53,7 +57,7 @@ export default function FirstPageView({
 
               <ThemeToggleDark className="themeBtn" />
 
-              <button>
+              <button onClick={open} >
                 <img src={profileIcons.menu} alt="" aria-hidden="true" className="hidden md:block h-7 md:h-8 xl:h-12"  />
               </button>
             </div>
@@ -72,7 +76,7 @@ export default function FirstPageView({
         {/* STORIES */}
         <section className= "border-b-[0.1px] border-t-[0.1px] -ml-4 -mr-4 border-gray-900 bg-[#FCE9E9]">
           <div className="mx-auto pl-4 pt-4 pr-1 md:pt-[23px] md:pb-[19px] md:pl-[38px] xl:pl-[50px] xl:pt-4 xl:pb-[13px]">
-            <h2 className="mb-1 md:mb-6 text-black font-[Montserrat] text-base md:text-xl pl-[9px] md:pl-0 xl:text-[28px]">Истории</h2>
+            <h2 className="mb-1 md:mb-2 xl:mb-4 text-black font-[Montserrat] text-base md:text-xl pl-[9px] md:pl-0 xl:text-[28px]">Истории</h2>
 
             <div
               className="flex gap-3 md:gap-[23px] xl:gap-10 overflow-x-auto pb-2 pr-3 md:pb-0  xl:pl-4 snap-x snap-mandatory snap-center scrollbarHide"
@@ -110,13 +114,16 @@ export default function FirstPageView({
           </div>
         </main>
 
+          {/* <BurgerMenu isOpen={isMenuOpen} onClose={handleCloseMenu} /> */}
+           <BurgerMenu isOpen={isOpen} onClose={close} />
+
         {/* MOBILE NAV */}
         <nav className="fixed bottom-0 left-0 right-0 bg-rose-100 md:hidden">
           <div className="flex justify-around items-center h-16 px-4">
             <NavBtn icon={profileIcons.home} onClick={onGoProfile} />
             <NavBtn icon={profileIcons.userMenu} onClick={onGoFriends} />
             <NavBtn icon={profileIcons.comment} onClick={onGoNotifications} />
-            <NavBtn icon={profileIcons.menu} onClick={onGoHome} />
+            <NavBtn icon={profileIcons.menu} onClick={open}/>
           </div>
         </nav>
       </div>

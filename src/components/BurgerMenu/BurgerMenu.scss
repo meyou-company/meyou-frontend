@@ -1,0 +1,324 @@
+$bp-tablet: 768px;
+$bp-desktop: 1440px;
+
+$bg-panel: #f3e5ff;
+$bg-panel-desktop: #ffffff;
+$border-panel: #c6b5e5;
+$accent-logout: #e53333;
+
+.profile-menu {
+  position: fixed;
+  right: 0;
+  top: 70px;
+  width: 100%;
+  max-width: 420px;
+  font-family: "Montserrat", sans-serif;
+  background: #ffffff;
+  border-radius: 24px;
+  box-shadow: 0 0 30px rgba(0, 0, 0, 0.25);
+  display: flex;
+  flex-direction: column;
+  transform: translateY(130%);
+  transition: transform 0.3s ease;
+
+  @media (min-width: $bp-tablet) {
+    transform: translateY(-120%);
+    top: 90px;
+    max-height: calc(100vh - 90px);
+    width: 430px;
+    max-width: none;
+  }
+
+  @media (min-width: $bp-desktop) {
+    border-radius: 24px;
+    background: $bg-panel;
+    top: 110px;
+    right: 40px;
+    bottom: auto;
+    width: 420px;
+    background: $bg-panel-desktop;
+    border-radius: 24px;
+    box-shadow: 0 6px 30px rgba(0, 0, 0, 0.2);
+  }
+}
+
+.profile-menu--open {
+  transform: translateY(0); 
+  bottom: 66px;
+
+   @media (max-width: 767.98px) {
+    border: 1px solid black;
+  }
+
+  @media (min-width: $bp-tablet) {
+    transform: translateY(0);
+    bottom: auto;
+  }
+}
+
+.profile-menu__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 25px 6px 23px;
+  background: $bg-panel;
+  border-radius: 24px 24px 0 0;
+}
+
+.profile-menu__user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.profile-menu__avatar-wrapper {
+  position: relative;
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  padding: 3px;
+  background: linear-gradient(135deg, #ff4fd1, #8f5bff);
+}
+
+.profile-menu__avatar {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid #f3e5ff;
+}
+
+.profile-menu__status-dot {
+  position: absolute;
+  right: 0px;
+  bottom: 46px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #12c54b;
+  border: 2px solid #f3e5ff;
+}
+
+.profile-menu__info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+
+  @media only screen and (max-width: 1439.98px) {
+    text-decoration: underline 0.6px rgb(0, 0, 0);
+  }
+}
+
+.profile-menu__name {
+  font-weight: 700;
+  font-size: 16px;
+}
+
+.profile-menu__email {
+  font-size: 13px;
+  color: rgba(0, 0, 0, 0.8);
+}
+
+.profile-menu__close {
+  margin-bottom: 50px;
+}
+.profile-menu__close--icon {
+  width: 13px;
+}
+
+.profile-menu__divider {
+  height: 1px;
+  background: #000000;
+}
+
+.profile-menu__list {
+  padding: 10px 16px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+  overflow-y: auto;
+}
+
+.profile-menu__item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 6px 4px;
+  border-radius: 10px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+
+  &:hover {
+    background: rgba(0, 0, 0, 0.03);
+  }
+}
+
+.profile-menu__item--language {
+  padding: 6px 12px 6px 48px;
+  border: 0.5px solid black;
+  border-radius: 0;
+}
+
+.profile-menu__item--language .profile-menu__label {
+  flex: 1;
+}
+
+.profile-menu__icon--language {
+  margin-left: auto;
+}
+
+.profile-menu__icon {
+  width: 18px;
+  text-align: center;
+}
+
+.profile-menu__label {
+  font-size: 13px;
+
+  @media (max-width: 767.98px) {
+    text-decoration: underline 0.5px;
+  }
+}
+
+/* Переключатель "Посмотреть как гость" */
+.profile-menu__guest-toggle {
+  margin-left: auto;
+}
+
+.profile-menu__toggle-track {
+  width: 46px;
+  height: 20px;
+  background: #F1E7FF;
+  border-radius: 20px;
+  border: 0.5px solid black;
+  position: relative;
+  overflow: hidden;
+}
+
+.profile-menu__toggle-thumb {
+  width: 15px;
+  height: 15px;
+  background: #F1E7FF;
+  border-radius: 50%;
+  border: 0.2px solid black;
+  position: absolute;
+  left: 4px;
+  top: 2px;
+}
+
+/* ThemeToggleDark в меню */
+
+.profile-menu__item--dark {
+  display: flex;
+  align-items: center;
+  padding: 6px 4px;
+  border-radius: 10px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+
+  .profile-menu__label {
+    flex: 1;
+  }
+}
+
+.profile-menu__theme-toggle--hidden-icon {
+  background: none !important;
+  border: none;
+  position: absolute;
+  backdrop-filter: none;
+  width: 390px;
+  height: 38px;
+  margin-bottom: 10px;
+
+  img,
+  button,
+  svg,
+  [class*="icon"] {
+    display: none !important;
+  }
+
+  @media only screen and (min-width: $bp-tablet) {
+    width: 410px;
+  }
+
+}
+
+.profile-menu__icon--toggle {
+  margin-right: 14px;
+
+}
+
+.profile-menu__item--logout {
+  margin-top: 4px;
+  color: $accent-logout;
+}
+
+/* ============ ПЛАНШЕТ ============ */
+
+@media (min-width: $bp-tablet) {
+  .profile-menu {
+    width: 430px;   
+    max-width: none;
+    border-radius: 24px 24px 24px 24px;
+    background: $bg-panel; 
+  }
+
+  .profile-menu__header {
+    padding: 18px 24px;
+    border-radius: 24px 24px 0 0;
+  }
+
+  .profile-menu__avatar-wrapper {
+    width: 70px;
+    height: 70px;
+  }
+
+  .profile-menu__name {
+    font-size: 18px;
+  }
+
+  .profile-menu__email {
+    font-size: 14px;
+  }
+
+  .profile-menu__close {
+    font-size: 26px;    
+  }
+
+  .profile-menu__list {
+    padding: 14px 24px 18px;
+    gap: 10px;
+  }
+}
+
+/* ============ ДЕСКТОП ============ */
+
+@media (min-width: $bp-desktop) {
+
+  .profile-menu__header {
+    padding: 14px 20px;
+    border-bottom: 1px solid $border-panel;
+    background: $bg-panel-desktop;
+  }
+
+  .profile-menu__close {
+    font-size: 22px;
+  }
+
+  .profile-menu__divider {
+    display: none; 
+  }
+
+  .profile-menu__list {
+    padding: 12px 20px 16px;
+  }
+
+  .profile-menu__item {
+    padding: 6px 2px;
+  }
+}
