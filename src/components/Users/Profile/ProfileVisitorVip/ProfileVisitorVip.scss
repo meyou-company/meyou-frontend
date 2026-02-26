@@ -7,6 +7,7 @@ $desktop: 1440px;
 .profile-visitor-vip {
   max-width: 1000px;
   margin: 0 auto;
+  font-family: "Montserrat", sans-serif;
 }
 
 /* ===== TOP ===== */
@@ -24,6 +25,34 @@ $desktop: 1440px;
    }
 }
 
+.profile-visitor-vip__avatarWrap {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  position: relative;
+  cursor: pointer;
+  background: linear-gradient(white, white) padding-box, $gradient border-box;
+  border: 3px solid transparent;
+
+   @media (min-width: $tablet) {  
+    width: 120px;
+    height: 120px;
+  }
+
+  @media (min-width: $desktop) {  
+    width: 160px;
+    height: 160px;
+  }
+}
+
+.profile-visitor-vip__avatar {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+  display: block;
+}
+
 .profile-visitor-vip__avatarBlock {
   display: flex;
   flex-direction: column;
@@ -31,40 +60,42 @@ $desktop: 1440px;
   gap: 12px;
 }
 
-.profile-visitor-vip__avatarWrap {
-  width: 60px;
-  height: 60px;
-  border-radius: 50%;
-  overflow: hidden;
-  background: linear-gradient(white, white) padding-box, $gradient border-box;
-  border: 3px solid transparent;
-  position: relative;
-  cursor: pointer;
-}
-
-.profile-visitor-vip__avatar {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
 .profile-visitor-vip__onlineDot {
   position: absolute;
-  top: 8px;
-  right: 8px;
-  width: 14px;
-  height: 14px;
+  top: 4px;
+  right: -1px;
+  width: 10px;
+  height: 10px;
   background: #22c55e;
   border-radius: 50%;
-  border: 2px solid white;
+  z-index: 2;
+
+   @media (min-width: $tablet) {  
+    width: 12px;
+    height: 12px;
+    top: 12px;
+    right: 5px;
+  }
+
+  @media (min-width: $desktop) {  
+    width: 16px;
+    height: 16px;
+    top: 18px;
+    right: 6px;
+  }
 }
 
-.profile-visitor-vip__onlineLabel {
-  color: $purple;
-  font-weight: 600;
-  text-decoration: underline;
+.profile-visitor-vip__onlineLabel,
+.profile-visitor-vip__name {
+    display: inline-block;
+  font-weight: 700;
+  text-decoration: underline 0.7px;
+  background: linear-gradient(236.31deg, #FF4FB1 11.54%, #4F6BFF 88.46%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  white-space: nowrap;
 }
-
 /* ===== INFO BLOCK ===== */
 
 .profile-visitor-vip__infoBlock {
@@ -76,8 +107,6 @@ $desktop: 1440px;
 
 .profile-visitor-vip__name {
   font-size: 20px;
-  font-weight: 700;
-  color: $purple;
 
   @media only screen and (min-width: $tablet) {
     font-size: 28px;
@@ -103,6 +132,15 @@ $desktop: 1440px;
   cursor: pointer;
   color: $purple;
   font-weight: 500;
+}
+
+.profile-visitor-vip__icon {
+    height: 30px;
+    width: 30px;
+}
+
+.profile-visitor-vip__iconLabel {
+  font-size: 10px;
 }
 
 /* ===== BUTTON ===== */

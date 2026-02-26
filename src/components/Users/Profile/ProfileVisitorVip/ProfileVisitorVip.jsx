@@ -86,16 +86,16 @@ export default function ProfileVisitorVip({
               className="profile-visitor-vip__iconItem"
               onClick={onVipChat}
             >
-              <img src={profileIcons.vip} alt="" />
-              <span>VIP Chat</span>
+              <img src={profileIcons.vip} alt="" className="profile-visitor-vip__icon"/>
+              <span className="profile-visitor-vip__iconLabel">VIP Chat</span>
             </button>
 
             <button
               className="profile-visitor-vip__iconItem"
               onClick={onGifts}
             >
-              <img src={profileIcons.giftIcon} alt="" />
-              <span>Подарки</span>
+              <img src={profileIcons.giftIcon} alt="" className="profile-visitor-vip__icon"/>
+              <span className="profile-visitor-vip__iconLabel">Подарки</span>
             </button>
 
             <button
@@ -103,9 +103,9 @@ export default function ProfileVisitorVip({
               onClick={onReport}
             >
               <span className="profile-visitor-vip__reportIcon">
-                <img src={profileIcons.complaint} alt="" />
+                <img src={profileIcons.complaint} alt=""  className="profile-visitor-vip__icon"/>
               </span>
-              <span>Пожаловаться</span>
+              <span className="profile-visitor-vip__iconLabel">Пожаловаться</span>
             </button>
           </div>
 
