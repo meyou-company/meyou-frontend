@@ -1,12 +1,14 @@
-import {  useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import profileIcons from "../../../../constants/profileIcons";
 import "./ProfileVisitorVip.scss";
+import { FeedCard } from "../../../FirstPage/FirstPageView";
 
-const toFriendItem = (f) => ({
-  id: f?.id ?? f,
-  username: f?.username,
-  avatar: f?.avatarUrl ?? f?.avatar ?? null,
-});
+const TABS = [
+  { id: "info", label: "Информация" },
+  { id: "stories", label: "Истории" },
+  { id: "video", label: "Видео" },
+  { id: "photo", label: "Фото" },
+];
 
 export default function ProfileVisitorVip({
   user,
@@ -16,20 +18,19 @@ export default function ProfileVisitorVip({
   onReport,
   onShowMoreFriends,
   onOpenUser,
-  onViewPhoto: onViewPhotoExternal,
+  onViewPhoto,
 }) {
   const [activeTab, setActiveTab] = useState("info");
-  // const [viewImageUrl, setViewImageUrl] = useState(null);
 
-  const onViewPhoto = (url) => {
-    if (onViewPhotoExternal) onViewPhotoExternal(url);
-    // else setViewImageUrl(url);
-  };
+  const displayName = useMemo(() => {
+    return (
+      [user?.firstName, user?.lastName].filter(Boolean).join(" ") ||
+      user?.username ||
+      "User"
+    );
+  }, [user]);
 
-  const displayName =
-    [user?.firstName, user?.lastName].filter(Boolean).join(" ") ||
-    user?.username ||
-    "User";
+  const titleName = user?.username || user?.fullNameReal || "User";
 
   const displayAvatar =
     user?.avatarUrl || user?.avatar || "/Logo/photo.png";
@@ -37,24 +38,41 @@ export default function ProfileVisitorVip({
   const isOnline = user?.online !== false;
 
   const friends = useMemo(
-    () => (Array.isArray(user?.friends) ? user.friends.map(toFriendItem) : []),
+    () => (Array.isArray(user?.friends) ? user.friends : []),
     [user?.friends]
   );
 
-  const tabs = [
-    { id: "info", label: "Информация" },
-    { id: "stories", label: "Истории" },
-    { id: "video", label: "Видео" },
-    { id: "photo", label: "Фото" },
-  ];
+  const actions = [
+    {
+      id: "vip",
+      icon: profileIcons.chat,
+      label: "VIP Chat",
+      onClick: onVipChat,
+    },
+    {
+      id: "gifts",
+      icon: profileIcons.giftIcon,
+      label: "Подарки",
+      onClick: onGifts,
+    },
+    {
+      id: "report",
+      icon: profileIcons.complaint,
+      label: "Пожаловаться",
+      onClick: onReport,
+    },
+  ].filter(a => a.onClick);
 
   return (
     <div className="profile-visitor-vip">
       <section className="profile-visitor-vip__top">
+
+        {/* ===== LEFT BLOCK ===== */}
         <div className="profile-visitor-vip__avatarBlock">
+
           <div
             className="profile-visitor-vip__avatarWrap"
-            onClick={() => onViewPhoto(displayAvatar)}
+            onClick={() => onViewPhoto?.(displayAvatar)}
           >
             <img
               src={displayAvatar}
@@ -67,50 +85,59 @@ export default function ProfileVisitorVip({
           </div>
 
           {isOnline && (
-            <p className="profile-visitor-vip__onlineLabel">Online</p>
+            <p className="profile-visitor-vip__onlineLabel">
+              Online
+            </p>
           )}
 
-          <button
-            className="profile-visitor-vip__btnDelete"
-            onClick={onUnsubscribe}
-          >
-            Удалить
-          </button>
+          {onUnsubscribe && (
+            <button
+              className="profile-visitor-vip__btnDelete"
+              onClick={onUnsubscribe}
+            >
+              Удалить
+            </button>
+          )}
         </div>
 
+        {/* ===== RIGHT BLOCK ===== */}
         <div className="profile-visitor-vip__infoBlock">
-          <h1 className="profile-visitor-vip__name">{displayName}</h1>
 
-          <div className="profile-visitor-vip__actions">
-            <button
-              className="profile-visitor-vip__iconItem"
-              onClick={onVipChat}
-            >
-              <img src={profileIcons.vip} alt="" className="profile-visitor-vip__icon"/>
-              <span className="profile-visitor-vip__iconLabel">VIP Chat</span>
-            </button>
-
-            <button
-              className="profile-visitor-vip__iconItem"
-              onClick={onGifts}
-            >
-              <img src={profileIcons.giftIcon} alt="" className="profile-visitor-vip__icon"/>
-              <span className="profile-visitor-vip__iconLabel">Подарки</span>
-            </button>
-
-            <button
-              className="profile-visitor-vip__iconItem"
-              onClick={onReport}
-            >
-              <span className="profile-visitor-vip__reportIcon">
-                <img src={profileIcons.complaint} alt=""  className="profile-visitor-vip__icon"/>
-              </span>
-              <span className="profile-visitor-vip__iconLabel">Пожаловаться</span>
-            </button>
+          <div className="profile-visitor-vip__nameBlock">
+            <div>
+             <h1 className="profile-visitor-vip__name">
+            {titleName}
+          </h1>
+          <p>{displayName}</p>
+          <p className="profile-visitor-vip__location">{user?.location || "Не указано"}</p>
           </div>
+         
+         {/* ACTIONS */}
+          {actions.length > 0 && (
+            <div className="profile-visitor-vip__actions">
+              {actions.map(({ id, icon, label, onClick }) => (
+                <button
+                  key={id}
+                  className="profile-visitor-vip__iconItem"
+                  onClick={onClick}
+                >
+                  <img
+                    src={icon}
+                    alt=""
+                    className="profile-visitor-vip__icon"
+                  />
+                  <span className="profile-visitor-vip__iconLabel">
+                    {label}
+                  </span>
+                </button>
+              ))}
+            </div>
+          )}
+          </div> 
 
+          {/* TABS */}
           <div className="profile-visitor-vip__tabs">
-            {tabs.map((tab) => (
+            {TABS.map((tab) => (
               <button
                 key={tab.id}
                 className={`profile-visitor-vip__tab ${
@@ -124,35 +151,53 @@ export default function ProfileVisitorVip({
               </button>
             ))}
           </div>
+
         </div>
       </section>
 
+      {/* ===== FRIENDS ===== */}
       <section className="profile-visitor-vip__friends">
+
         <h2 className="profile-visitor-vip__friendsTitle">
           Друзья {friends.length}
         </h2>
 
         <div className="profile-visitor-vip__friendsGrid">
-          {friends.slice(0, 10).map((f) => (
-            <button
-              key={f.id}
-              className="profile-visitor-vip__friendAvatar"
-              onClick={() => f.username && onOpenUser?.(f.username)}
-            >
-              <img
-                src={f.avatar || "/icon1/image0.png"}
-                alt=""
-              />
-            </button>
-          ))}
+          {friends.slice(0, 10).map((f) => {
+            const id = f?.id ?? f;
+            const username = f?.username;
+            const avatar =
+              f?.avatarUrl ||
+              f?.avatar ||
+              "/icon1/image0.png";
+
+            return (
+              <button
+                key={id}
+                className="profile-visitor-vip__friendAvatar"
+                onClick={() =>
+                  username && onOpenUser?.(username)
+                }
+              >
+                <img src={avatar} alt="" />
+              </button>
+            );
+          })}
         </div>
 
-        <button
-          className="profile-visitor-vip__showMore"
-          onClick={onShowMoreFriends}
-        >
-          Показать больше
-        </button>
+        {onShowMoreFriends && (
+          <button
+            className="profile-visitor-vip__showMore"
+            onClick={onShowMoreFriends}
+          >
+            Показать больше
+          </button>
+        )}
+
+      </section>
+
+      <section className="profile-visitor-vip__feed">
+      <FeedCard name={displayName} time="2 дня назад" location={user?.location || "Не указано"} status="online" text="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam auctor, nisl eget ultricies ultricies, nunc nisl ultricies nunc, eget ultricies nunc nisl eget ultricies." />
       </section>
     </div>
   );

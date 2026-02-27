@@ -175,7 +175,7 @@ function StoryCircle({ status, type }) {
   );
 }
 
-const FeedCard = ({ name, time, location, status, text }) => {
+export const FeedCard = ({ name, time, location, status, text }) => {
   return (
     <article className="bg-slate-50 shadow-sm px-[6px] pt-[6px] pb-[11px] md:p-[10px] xl:!mb-[29px] space-y-3 relative">
       {/* Header */}
