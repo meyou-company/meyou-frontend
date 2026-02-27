@@ -27,16 +27,16 @@ $accent-logout: #e53333;
     max-height: calc(100vh - 90px);
     width: 430px;
     max-width: none;
+    border-radius: 24px 24px 24px 24px;
+    background: $bg-panel; 
   }
 
   @media (min-width: $bp-desktop) {
     border-radius: 24px;
     background: $bg-panel;
-    top: 110px;
-    right: 40px;
-    bottom: auto;
+    top: 120px;
+    right: calc((100vw - 1440px) / 2 + 40px);
     width: 420px;
-    background: $bg-panel-desktop;
     border-radius: 24px;
     box-shadow: 0 6px 30px rgba(0, 0, 0, 0.2);
   }
@@ -54,6 +54,10 @@ $accent-logout: #e53333;
     transform: translateY(0);
     bottom: auto;
   }
+
+  @media (min-width: $bp-desktop) {
+    bottom: 16px;
+  }
 }
 
 .profile-menu__header {
@@ -61,8 +65,17 @@ $accent-logout: #e53333;
   align-items: center;
   justify-content: space-between;
   padding: 20px 25px 6px 23px;
-  background: $bg-panel;
   border-radius: 24px 24px 0 0;
+
+  @media (min-width: $bp-tablet) {
+    padding: 18px 24px 8px;
+    border-radius: 24px 24px 0 0;
+  }
+
+  @media (min-width: $bp-desktop) {
+    padding: 14px 20px;
+    border-bottom: 1px solid $border-panel;
+  }
 }
 
 .profile-menu__user {
@@ -78,6 +91,11 @@ $accent-logout: #e53333;
   border-radius: 50%;
   padding: 3px;
   background: linear-gradient(135deg, #ff4fd1, #8f5bff);
+
+  @media (min-width: $bp-tablet) {
+    width: 70px;
+    height: 70px;
+  }
 }
 
 .profile-menu__avatar {
@@ -112,16 +130,33 @@ $accent-logout: #e53333;
 .profile-menu__name {
   font-weight: 700;
   font-size: 16px;
+
+@media (min-width: $bp-tablet) {
+    font-size: 18px;
+  }
 }
 
 .profile-menu__email {
   font-size: 13px;
   color: rgba(0, 0, 0, 0.8);
+
+  @media (min-width: $bp-tablet) {
+    font-size: 14px;
+  }
 }
 
 .profile-menu__close {
   margin-bottom: 50px;
+
+  @media (min-width: $bp-tablet) {
+    font-size: 26px; 
+  }
+
+  @media (min-width: $bp-desktop) {
+    font-size: 22px;
+  }
 }
+
 .profile-menu__close--icon {
   width: 13px;
 }
@@ -129,6 +164,10 @@ $accent-logout: #e53333;
 .profile-menu__divider {
   height: 1px;
   background: #000000;
+
+    @media (min-width: $bp-desktop) {
+    display: none; 
+  }
 }
 
 .profile-menu__list {
@@ -138,6 +177,15 @@ $accent-logout: #e53333;
   gap: 8px;
   flex: 1;
   overflow-y: auto;
+
+  @media (min-width: $bp-tablet) {
+    padding: 14px 24px 18px;
+    gap: 10px;
+  }
+
+  @media (min-width: $bp-desktop) {
+    padding: 12px 20px 16px;
+  }
 }
 
 .profile-menu__item {
@@ -153,6 +201,10 @@ $accent-logout: #e53333;
 
   &:hover {
     background: rgba(0, 0, 0, 0.03);
+  }
+
+  @media (min-width: $bp-desktop) {
+    padding: 6px 2px;
   }
 }
 
@@ -173,6 +225,14 @@ $accent-logout: #e53333;
 .profile-menu__icon {
   width: 18px;
   text-align: center;
+  
+   @media (min-width: $bp-tablet) {
+    width: 20px;
+   }
+
+    @media (min-width: $bp-desktop) {
+    width: 23px;
+   }
 }
 
 .profile-menu__label {
@@ -181,6 +241,10 @@ $accent-logout: #e53333;
   @media (max-width: 767.98px) {
     text-decoration: underline 0.5px;
   }
+
+   @media (min-width: $bp-tablet) {
+    font-size: 16px;
+   }
 }
 
 /* Переключатель "Посмотреть как гость" */
@@ -258,67 +322,84 @@ $accent-logout: #e53333;
   color: $accent-logout;
 }
 
-/* ============ ПЛАНШЕТ ============ */
 
-@media (min-width: $bp-tablet) {
+/* =========================
+   !🌙 DARK MODE 
+   ========================= */
+
+[data-theme="dark"] {
   .profile-menu {
-    width: 430px;   
-    max-width: none;
-    border-radius: 24px 24px 24px 24px;
-    background: $bg-panel; 
+    --bg-menu: #1a1a1a;
+    --bg-header: #2a2a2a;
+    --text-primary: #ffffff;
+    --text-secondary: rgba(255, 255, 255, 0.8);
+    --border-color: #444444;
+    --divider-color: #444444;
+    --hover-bg: rgba(255, 255, 255, 0.1);
+    --shadow: rgba(0, 0, 0, 0.7);
+    
+    background: var(--bg-menu);
+    color: var(--text-primary);
+    box-shadow: 0 0 30px var(--shadow);
+    
+    @media (min-width: $bp-tablet) {
+      background: var(--bg-header);
+    }
+    
+    @media (max-width: 767.98px) {
+      border-color: var(--border-color);
+    }
   }
-
+  
+  .profile-menu--open {
+    @media (max-width: 767.98px) {
+      border-color: var(--border-color);
+    }
+  }
+  
   .profile-menu__header {
-    padding: 18px 24px;
-    border-radius: 24px 24px 0 0;
+    background: var(--bg-header);
+    
+    @media (min-width: $bp-desktop) {
+      border-bottom-color: var(--border-color);
+    }
   }
-
-  .profile-menu__avatar-wrapper {
-    width: 70px;
-    height: 70px;
-  }
-
+  
   .profile-menu__name {
-    font-size: 18px;
+    color: var(--text-primary);
   }
-
+  
   .profile-menu__email {
-    font-size: 14px;
+    color: var(--text-secondary);
   }
-
-  .profile-menu__close {
-    font-size: 26px;    
-  }
-
-  .profile-menu__list {
-    padding: 14px 24px 18px;
-    gap: 10px;
-  }
-}
-
-/* ============ ДЕСКТОП ============ */
-
-@media (min-width: $bp-desktop) {
-
-  .profile-menu__header {
-    padding: 14px 20px;
-    border-bottom: 1px solid $border-panel;
-    background: $bg-panel-desktop;
-  }
-
-  .profile-menu__close {
-    font-size: 22px;
-  }
-
+  
   .profile-menu__divider {
-    display: none; 
+    background: var(--divider-color);
   }
-
-  .profile-menu__list {
-    padding: 12px 20px 16px;
-  }
-
+  
   .profile-menu__item {
-    padding: 6px 2px;
+    color: var(--text-primary);
+    
+    &:hover {
+      background: var(--hover-bg);
+    }
+  }
+  
+  .profile-menu__section--language {
+    border-color: var(--border-color);
+  }
+  
+  .profile-menu__item--language {
+    border-color: var(--border-color);
+  }
+  
+  .profile-menu__item--logout {
+    color: #ff6b6b !important;
+  }
+
+  .profile-menu__icon,
+  .profile-menu__close,
+  .profile-menu__icon--language {
+    filter: brightness(0) invert(1);
   }
 }

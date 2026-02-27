@@ -26,6 +26,7 @@ const profileIcons = {
   vip: `${HOME}/vip-fill.svg`,
   plus: `${HOME}/gg_add.svg`,
   chat: `${HOME}/my-massages.svg`,
+  complaint: `${HOME}/complaints.svg`,
   /* ========= ICON1 ========= */
   userStory: `${ICON1}/user.svg`,
   close: `${ICON1}/close.svg`,
