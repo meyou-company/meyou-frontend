@@ -17,18 +17,31 @@ export default function ProfileVisitorVip({
   onGifts,
   onReport,
   onShowMoreFriends,
-  onOpenUser,
-  onViewPhoto,
   followingList,
 }) {
   const [activeTab, setActiveTab] = useState("info");
+  const [viewImageUrl, setViewImageUrl] = useState(null);
+  // eslint-disable-next-line no-unused-vars
+  const [isFriendImage, setIsFriendImage] = useState(false);
 
   const [isTablet, setIsTablet] = useState(window.innerWidth >= 768);
+
+  useEffect(() => {
+  if (!viewImageUrl) return;
+
+  const onEscape = (e) => {
+    if (e.key === "Escape") setViewImageUrl(null);
+  };
+
+  window.addEventListener("keydown", onEscape);
+  return () => window.removeEventListener("keydown", onEscape);
+}, [viewImageUrl]);
 
   useEffect(() => {
   const handleResize = () => {
     setIsTablet(window.innerWidth >= 768);
   };
+  
 
   window.addEventListener("resize", handleResize);
   return () => window.removeEventListener("resize", handleResize);
@@ -67,7 +80,7 @@ export default function ProfileVisitorVip({
       }
       return Array.isArray(user?.friends) ? user.friends.map(toFriendItem) : [];
     }, [followingList, user?.friends]);
-    // const hasFriends = friends.length > 0;
+    
 
     const mockFriends = [
   {
@@ -134,7 +147,10 @@ export default function ProfileVisitorVip({
 
           <div
             className="profile-visitor-vip__avatarWrap"
-            onClick={() => onViewPhoto?.(displayAvatar)}
+            onClick={() => {
+  setIsFriendImage(false);
+  setViewImageUrl(displayAvatar);
+}}
           >
             <img
               src={displayAvatar}
@@ -166,7 +182,7 @@ export default function ProfileVisitorVip({
         <div className="profile-visitor-vip__infoBlock">
 
           <div className="profile-visitor-vip__nameBlock">
-            <div>
+            <div className="profile-visitor-vip__nameWrap">
              <h1 className="profile-visitor-vip__name">
             {titleName}
           </h1>
@@ -226,26 +242,55 @@ export default function ProfileVisitorVip({
       {/* ===== FRIENDS ===== */}
       <section className="profile-visitor-vip__friends">
 
-        <h2 className="profile-visitor-vip__friendsTitle">
+        {/* ===== VIP FRIENDS ===== */}
+           <h2 className="profile-visitor-vip__friendsTitle">
+            <p className="profile-visitor-vip__friendsSubtitle">VIP</p>
+           <img src={profileIcons.vip} className="profile-visitor-vip__vipIcon"/>
+          <p className="profile-visitor-vip__friendsSubtitle">{friends.length}</p>
+        </h2>
+        <div className="profile-visitor-vip__friendsGrid">
+  {friendsToRender.length > 0 && (
+    <>
+      {friendsToRender.map((friend) => (
+        <div
+          key={`vip-${friend.id}`}
+          className="profile-visitor-vip__friendCard profile-visitor-vip__friendCard--vip"
+          onClick={() => {
+  setIsFriendImage(true);
+  setViewImageUrl(friend.avatar);
+}}
+        >
+          <div className="profile-visitor-vip__friendAvatar profile-visitor-vip__friendAvatar--vip">
+            <img src={friend.avatar} alt="" />
+            {isOnline && ( <span className="profile-visitor-vip__onlineDot--friend" /> )}
+          </div>
+        </div>
+      ))}
+    </>
+  )} 
+  </div>
+
+  {/* ===== REGULAR FRIENDS ===== */}
+ <h2 className="profile-visitor-vip__friendsTitle">
           Друзья {friends.length}
         </h2>
-       
-        <div className="profile-visitor-vip__friendsGrid">
-         {friendsToRender.slice(0, 6).map((friend) => (
-         <div
-           key={friend.id}
-           className="profile-visitor-vip__friendCard"
-           onClick={() => onOpenUser?.(friend.username)}
-         >
-           <div className="profile-visitor-vip__friendAvatar">
-             <img src={friend.avatar} alt="" />
-             {isOnline && (
-              <span className="profile-visitor-vip__onlineDot--friend" />
-            )}
-           </div>
-         </div>
-       ))}
-       </div>
+  <div className="profile-visitor-vip__friendsGrid">
+  {friendsToRender.slice(0, 6).map((friend) => (
+    <div
+      key={friend.id}
+      className="profile-visitor-vip__friendCard"
+      onClick={() => {
+  setIsFriendImage(true);
+  setViewImageUrl(friend.avatar);
+}}
+    >
+      <div className="profile-visitor-vip__friendAvatar">
+         <img src={friend.avatar} alt="" />
+        {isOnline && ( <span className="profile-visitor-vip__onlineDot--friend" /> )}
+      </div>
+    </div>
+    ))}
+   </div>
 
         {onShowMoreFriends && (
           <button
@@ -255,12 +300,35 @@ export default function ProfileVisitorVip({
             Показать больше
           </button>
         )}
-
+        
       </section>
 
       <section className="profile-visitor-vip__feed">
       <FeedCard name={displayName} time="2 дня назад" location={user?.location || "Не указано"} status="online" text="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam auctor, nisl eget ultricies ultricies, nunc nisl ultricies nunc, eget ultricies nunc nisl eget ultricies." />
       </section>
+
+      {viewImageUrl && (
+  <div
+    className="profile-visitor-vip__imageViewer"
+    onClick={() => setViewImageUrl(null)}
+  >
+    <button
+      type="button"
+      className="profile-visitor-vip__imageViewerClose"
+      onClick={() => setViewImageUrl(null)}
+    >
+      ×
+    </button>
+
+    <img
+      src={viewImageUrl}
+      alt=""
+      className="profile-visitor-vip__imageViewerImg"
+      onClick={(e) => e.stopPropagation()}
+      draggable={false}
+    />
+  </div>
+)}
     </div>
   );
 }

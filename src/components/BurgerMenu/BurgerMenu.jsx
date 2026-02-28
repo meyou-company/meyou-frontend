@@ -102,18 +102,21 @@ export default function BurgerMenu({ isOpen, onClose, onItemClick, toggleTheme }
           // "Темная тема" — с ThemeToggleDark
           if (item.id === "dark") {
             return (
-            <button
-            type="button"
+            <div key={item.id}
             className="profile-menu__item profile-menu__item--dark"
             onClick={handleDarkClick}
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => e.key === "Enter" && handleDarkClick()}
           >
+            
             <img src={item.icon} alt="" className="profile-menu__icon profile-menu__icon--toggle"/>
             <span className="profile-menu__label">{item.label}</span>
 
             <div ref={toggleRef}>
               <ThemeToggleDark className="profile-menu__theme-toggle" />
             </div>
-          </button>
+          </div>
             );
           }
 
