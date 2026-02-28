@@ -21,19 +21,25 @@ export default function ProfileVisitorVip({
   onViewPhoto,
 }) {
   const [activeTab, setActiveTab] = useState("info");
+  
+  const formatName = (str) =>
+  str
+    ?.toLowerCase()
+    .replace(/\b\w/g, (char) => char.toUpperCase());
 
-  const displayName = useMemo(() => {
-    return (
-      [user?.firstName, user?.lastName].filter(Boolean).join(" ") ||
+  const displayName = formatName(
+  [user?.firstName, user?.lastName].filter(Boolean).join(" ") ||
       user?.username ||
       "User"
     );
-  }, [user]);
 
   const titleName = user?.username || user?.fullNameReal || "User";
 
   const displayAvatar =
     user?.avatarUrl || user?.avatar || "/Logo/photo.png";
+
+    const locationParts = [user.city, user.country].filter(Boolean);
+    const locationStr = locationParts.length > 0 ? locationParts.join(", ") : (user.location || user.subtitle || "");
 
   const isOnline = user?.online !== false;
 
@@ -45,7 +51,7 @@ export default function ProfileVisitorVip({
   const actions = [
     {
       id: "vip",
-      icon: profileIcons.chat,
+      icon: profileIcons.vipChat,
       label: "VIP Chat",
       onClick: onVipChat,
     },
@@ -108,8 +114,8 @@ export default function ProfileVisitorVip({
              <h1 className="profile-visitor-vip__name">
             {titleName}
           </h1>
-          <p>{displayName}</p>
-          <p className="profile-visitor-vip__location">{user?.location || "Не указано"}</p>
+          <p className="profile-visitor-vip__info">{displayName}</p>
+          <p className="profile-visitor-vip__info">{locationStr || "Не указано"}</p>
           </div>
          
          {/* ACTIONS */}

@@ -57,7 +57,7 @@ $desktop: 1440px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
 }
 
 .profile-visitor-vip__onlineDot {
@@ -86,13 +86,12 @@ $desktop: 1440px;
 }
 
 .profile-visitor-vip__onlineLabel {
-  font-size: 14px;
+  font-size: 13px;
 }
-
 
 .profile-visitor-vip__onlineLabel,
 .profile-visitor-vip__name {
-    display: inline-block;
+  display: inline-block;
   font-weight: 700;
   text-decoration: underline 0.7px;
   background: linear-gradient(236.31deg, #FF4FB1 11.54%, #4F6BFF 88.46%);
@@ -123,9 +122,14 @@ $desktop: 1440px;
   }
 }
 
-.profile-visitor-vip__location {
-  text-decoration: underline 0.5px;
+.profile-visitor-vip__info {
+  font-size: 12px;
+  
+  @media (max-width: 767px) {
+    text-decoration: underline 0.5px;
+  }
 }
+
 
 .profile-visitor-vip__actions {
   display: flex;
@@ -185,9 +189,9 @@ $desktop: 1440px;
 /* ===== BUTTON ===== */
 
 .profile-visitor-vip__btnDelete {
-  padding: 5px 8px;
-  border-radius: 999px;
-  font-size: 12px;
+  padding: 6px 8px;
+  border-radius: 10px;
+  font-size: 11px;
   background: $gradient;
   border: none;
   color: white;
@@ -198,6 +202,8 @@ $desktop: 1440px;
     text-decoration: underline 0.7px;
   }
 }
+
+
 
 /* ===== TABS ===== */
 
@@ -247,7 +253,6 @@ $desktop: 1440px;
    }
  
 }
-
 
 /* ===== FRIENDS ===== */
 

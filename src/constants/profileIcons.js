@@ -24,6 +24,7 @@ const profileIcons = {
   notifications: `${HOME}/notifications.svg`,
   bell: `${HOME}/notifications.svg`,
   vip: `${HOME}/vip-fill.svg`,
+  vipChat: `${HOME}/vip-chat.svg`,
   plus: `${HOME}/gg_add.svg`,
   chat: `${HOME}/my-massages.svg`,
   complaint: `${HOME}/complaints.svg`,
