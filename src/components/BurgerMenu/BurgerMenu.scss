@@ -103,7 +103,6 @@ $accent-logout: #e53333;
   height: 100%;
   border-radius: 50%;
   object-fit: cover;
-  border: 3px solid #f3e5ff;
 }
 
 .profile-menu__status-dot {
@@ -113,8 +112,7 @@ $accent-logout: #e53333;
   width: 12px;
   height: 12px;
   border-radius: 50%;
-  background: #12c54b;
-  border: 2px solid #f3e5ff;
+  background: rgba(11, 134, 4, 1);
 }
 
 .profile-menu__info {
@@ -287,34 +285,16 @@ $accent-logout: #e53333;
 
   .profile-menu__label {
     flex: 1;
+    white-space: nowrap;
   }
 }
 
-.profile-menu__theme-toggle--hidden-icon {
+.profile-menu__theme-toggle {
   background: none !important;
   border: none;
-  position: absolute;
   backdrop-filter: none;
-  width: 390px;
-  height: 38px;
-  margin-bottom: 10px;
-
-  img,
-  button,
-  svg,
-  [class*="icon"] {
-    display: none !important;
-  }
-
-  @media only screen and (min-width: $bp-tablet) {
-    width: 410px;
-  }
-
-}
-
-.profile-menu__icon--toggle {
-  margin-right: 14px;
-
+  height: 18px;
+  pointer-events: none;
 }
 
 .profile-menu__item--logout {
