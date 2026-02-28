@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import profileIcons from "../../../../constants/profileIcons";
 import "./ProfileVisitorVip.scss";
 import { FeedCard } from "../../../FirstPage/FirstPageView";
@@ -19,8 +19,20 @@ export default function ProfileVisitorVip({
   onShowMoreFriends,
   onOpenUser,
   onViewPhoto,
+  followingList,
 }) {
   const [activeTab, setActiveTab] = useState("info");
+
+  const [isTablet, setIsTablet] = useState(window.innerWidth >= 768);
+
+  useEffect(() => {
+  const handleResize = () => {
+    setIsTablet(window.innerWidth >= 768);
+  };
+
+  window.addEventListener("resize", handleResize);
+  return () => window.removeEventListener("resize", handleResize);
+}, []);
   
   const formatName = (str) =>
   str
@@ -43,21 +55,65 @@ export default function ProfileVisitorVip({
 
   const isOnline = user?.online !== false;
 
-  const friends = useMemo(
-    () => (Array.isArray(user?.friends) ? user.friends : []),
-    [user?.friends]
-  );
+  const toFriendItem = (f) => ({
+  id: f?.id ?? f,
+  username: f?.username,
+  avatar: f?.avatarUrl ?? f?.avatar ?? null,
+});
+
+  const friends = useMemo(() => {
+      if (Array.isArray(followingList) && followingList.length > 0) {
+        return followingList.map(toFriendItem);
+      }
+      return Array.isArray(user?.friends) ? user.friends.map(toFriendItem) : [];
+    }, [followingList, user?.friends]);
+    // const hasFriends = friends.length > 0;
+
+    const mockFriends = [
+  {
+    id: "1",
+    username: "anna_smith",
+    avatar: "https://i.pravatar.cc/150?img=1",
+  },
+  {
+    id: "2",
+    username: "john_doe",
+    avatar: "https://i.pravatar.cc/150?img=2",
+  },
+  {
+    id: "3",
+    username: "kate_m",
+    avatar: "https://i.pravatar.cc/150?img=3",
+  },
+  {
+    id: "4",
+    username: "alex_dev",
+    avatar: "https://i.pravatar.cc/150?img=4",
+  },
+  {
+    id: "5",
+    username: "lisa_star",
+    avatar: "https://i.pravatar.cc/150?img=5",
+  },
+  {
+    id: "6",
+    username: "mike_x",
+    avatar: "https://i.pravatar.cc/150?img=6",
+  },
+];
+
+    const friendsToRender = friends.length > 0 ? friends : mockFriends;
 
   const actions = [
     {
       id: "vip",
-      icon: profileIcons.vipChat,
+      icon: isTablet ? profileIcons.chat : profileIcons.vipChat,
       label: "VIP Chat",
       onClick: onVipChat,
     },
     {
       id: "gifts",
-      icon: profileIcons.giftIcon,
+      icon: profileIcons.present,
       label: "Подарки",
       onClick: onGifts,
     },
@@ -121,22 +177,28 @@ export default function ProfileVisitorVip({
          {/* ACTIONS */}
           {actions.length > 0 && (
             <div className="profile-visitor-vip__actions">
-              {actions.map(({ id, icon, label, onClick }) => (
-                <button
-                  key={id}
-                  className="profile-visitor-vip__iconItem"
-                  onClick={onClick}
-                >
-                  <img
-                    src={icon}
-                    alt=""
-                    className="profile-visitor-vip__icon"
-                  />
-                  <span className="profile-visitor-vip__iconLabel">
-                    {label}
-                  </span>
-                </button>
-              ))}
+            {actions.map(({ id, icon, label, onClick }) => (
+            <button
+              key={id}
+              className={`profile-visitor-vip__iconItem ${
+                id === "vip" ? "profile-visitor-vip__iconItem--vip" : ""
+              }`}
+              onClick={onClick}
+            >
+              {id === "vip" ? (
+                <img
+                src={icon}
+                alt=""
+                className="profile-visitor-vip__icon"
+              />
+              ) : (
+                <img src={icon} alt="" className="profile-visitor-vip__icon" />
+              )}
+              <span className="profile-visitor-vip__iconLabel">
+                {label}
+              </span>
+            </button>
+          ))}
             </div>
           )}
           </div> 
@@ -167,29 +229,23 @@ export default function ProfileVisitorVip({
         <h2 className="profile-visitor-vip__friendsTitle">
           Друзья {friends.length}
         </h2>
-
+       
         <div className="profile-visitor-vip__friendsGrid">
-          {friends.slice(0, 10).map((f) => {
-            const id = f?.id ?? f;
-            const username = f?.username;
-            const avatar =
-              f?.avatarUrl ||
-              f?.avatar ||
-              "/icon1/image0.png";
-
-            return (
-              <button
-                key={id}
-                className="profile-visitor-vip__friendAvatar"
-                onClick={() =>
-                  username && onOpenUser?.(username)
-                }
-              >
-                <img src={avatar} alt="" />
-              </button>
-            );
-          })}
-        </div>
+         {friendsToRender.slice(0, 6).map((friend) => (
+         <div
+           key={friend.id}
+           className="profile-visitor-vip__friendCard"
+           onClick={() => onOpenUser?.(friend.username)}
+         >
+           <div className="profile-visitor-vip__friendAvatar">
+             <img src={friend.avatar} alt="" />
+             {isOnline && (
+              <span className="profile-visitor-vip__onlineDot--friend" />
+            )}
+           </div>
+         </div>
+       ))}
+       </div>
 
         {onShowMoreFriends && (
           <button
