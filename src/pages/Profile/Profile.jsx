@@ -7,7 +7,6 @@ import { useAuthStore } from "../../zustand/useAuthStore";
 import { usersApi } from "../../services/usersApi";
 import { subscriptionsApi } from "../../services/subscriptionsApi";
 import styles from "./Profile.module.scss";
-import ProfileVisitorVip from "../../components/Users/Profile/ProfileVisitorVip/ProfileVisitorVip";
 
 /** Нормалізація профілю з GET /users/:username (viewType, subscriptionStatus з бекенду) */
 const normalizeProfile = (u) => {
@@ -228,7 +227,7 @@ export default function Profile() {
       />
       <div className={styles.content}>
         {showSubscribedView ? (
-          <ProfileVisitorVip
+          <ProfileVisitorSubscribed
             user={profileUser}
             onAddToVip={onAddToVip}
             onUnsubscribe={handleSubscribe}
