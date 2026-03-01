@@ -114,7 +114,6 @@ export default function FirstPageView({
           </div>
         </main>
 
-          {/* <BurgerMenu isOpen={isMenuOpen} onClose={handleCloseMenu} /> */}
            <BurgerMenu isOpen={isOpen} onClose={close} />
 
         {/* MOBILE NAV */}
@@ -208,14 +207,13 @@ export const FeedCard = ({ name, time, location, status, text }) => {
         </div>
 
     <div>
-        <div className="flex items-center mt-[13px] mr-[19px] xl:hidden">
+        <div className="flex items-center mt-[13px] mr-[19px]">
           <img src={profileIcons.location} alt="location" className="w-[4px] h-[5px] mr-1 mt-[1px] md:w-[10px] md:h-[13px]" />
           <span className="relative text-[10px] md:text-xs text-pink-500 font-[Montserrat] mr-[7px] inline-block">
           {location}
           <span className="absolute bottom-[2px] left-0 right-0 h-[0.5px] bg-pink-500"></span>
           </span>
         </div>
-         <img src={profileIcons.close} alt="close" className="absolute top-[13px] xl:top-7 right-[14px] xl:right-7 h-[6px] md:h-2 xl:h-3" />
        </div>
     </div>
 

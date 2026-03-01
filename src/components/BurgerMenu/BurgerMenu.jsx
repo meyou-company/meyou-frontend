@@ -4,10 +4,25 @@ import ThemeToggleDark from "../ThemeToggleDark/ThemeToggleDark";
 import { MENU_ITEMS, LANGUAGE_ITEM, LOGOUT_ITEM, CLOSE_ITEM } from "../../constants/burgerMenuItems";
 import "./BurgerMenu.scss";
 import profileIcons from "../../constants/profileIcons";
+import { useMemo, useRef } from "react";
+
 
 export default function BurgerMenu({ isOpen, onClose, onItemClick, toggleTheme }) {
-   const { logout } = useAuthStore();
+  const { logout, user } = useAuthStore();
   const navigate = useNavigate();
+  const toggleRef = useRef(null);
+
+  const avatarUrl = user?.avatarUrl || user?.avatar || null;
+
+  const email = user?.email || "";
+
+  const displayName = useMemo(() => {
+    return (
+      [user?.firstName, user?.lastName].filter(Boolean).join(" ") ||
+      user?.username ||
+      "User"
+    );
+  }, [user]);
 
    const handleItemClick = async (id) => {
     if (id === "logout") {
@@ -27,28 +42,43 @@ export default function BurgerMenu({ isOpen, onClose, onItemClick, toggleTheme }
     onClose();
   };
 
+  const handleDarkClick = () => {
+  const button = toggleRef.current?.querySelector("button");
+
+  if (button) {
+    button.click();
+  }
+};
+
   return (
     <div className={`profile-menu ${isOpen ? "profile-menu--open" : ""}`}>
- 
-      <div className="profile-menu__header">
-        <div className="profile-menu__user">
-          <div className="profile-menu__avatar-wrapper">
-            <img className="profile-menu__avatar" src={profileIcons.user} alt="" />
-            <span className="profile-menu__status-dot" />
-          </div>
 
-          <div className="profile-menu__info">
-            <div className="profile-menu__name">Марина Хельмут.</div>
-            <a href="mailto:marinaart222@gmail.com" className="profile-menu__email">
-              marinaart222@gmail.com
-            </a>
-          </div>
-        </div>
+    <div className="profile-menu__header">
+      <div className="profile-menu__user">
+       <div className="profile-menu__avatar-wrapper">
+      <img
+        className="profile-menu__avatar"
+        src={avatarUrl || profileIcons.user}
+        alt={displayName}
+      />
+      <span className="profile-menu__status-dot" />
+    </div>
 
-        <button onClick={onClose} className="profile-menu__close">
-          <img src={CLOSE_ITEM.icon} alt=""  className="profile-menu__close--icon "/>
-        </button>
-      </div>
+    <div className="profile-menu__info">
+      <div className="profile-menu__name">{displayName}</div>
+
+      {email && (
+        <a href={`mailto:${email}`} className="profile-menu__email">
+          {email}
+        </a>
+      )}
+    </div>
+  </div>
+
+  <button onClick={onClose} className="profile-menu__close">
+    <img src={CLOSE_ITEM.icon} alt="Close menu" className="profile-menu__close--icon" />
+  </button>
+</div>
 
       <div className="profile-menu__divider" />
 
@@ -72,16 +102,25 @@ export default function BurgerMenu({ isOpen, onClose, onItemClick, toggleTheme }
           // "Темная тема" — с ThemeToggleDark
           if (item.id === "dark") {
             return (
-              <button key={item.id} className="profile-menu__item--dark" onClick={() => handleItemClick(item.id)}>
-                <ThemeToggleDark className="profile-menu__theme-toggle--hidden-icon" />
-                <img src={item.icon} alt="" className="profile-menu__icon profile-menu__icon--toggle" />
-                <span className="profile-menu__label">{item.label}</span>
+            <div key={item.id}
+            className="profile-menu__item profile-menu__item--dark"
+            onClick={handleDarkClick}
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => e.key === "Enter" && handleDarkClick()}
+          >
+            
+            <img src={item.icon} alt="" className="profile-menu__icon profile-menu__icon--toggle"/>
+            <span className="profile-menu__label">{item.label}</span>
 
-              </button>
+            <div ref={toggleRef}>
+              <ThemeToggleDark className="profile-menu__theme-toggle" />
+            </div>
+          </div>
             );
           }
 
-
+        
           // остальные пункты как обычно
           return (
             <button
