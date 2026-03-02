@@ -3,6 +3,21 @@ import { useEffect, useMemo, useState } from "react";
 import profileIcons from "../../../../constants/profileIcons";
 import "./ProfileVisitorSubscribed.scss";
 
+/** Мок постів для відображення на сторінці друга (поки немає API) */
+const MOCK_POSTS = [
+  {
+    id: 1,
+    time: "new post",
+    location: "Рим, Италия",
+    text: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+    image: true,
+    likes: 125,
+    comments: 256,
+    saved: 21,
+    shared: 60,
+  },
+];
+
 const toFriendItem = (f) => ({
   id: f?.id ?? f,
   username: f?.username,
@@ -135,10 +150,46 @@ export default function ProfileVisitorSubscribed({
               )}
             </div>
           </div>
-          {/* Окремий блок іконок: VIP Chat, Подарки, Пожаловаться */}
-          <div className="pvs-tools-wrap">
+          {/* Окремий div тільки для іконок — не впливає на відступи ніка/локації */}
+          <div className="pvs-icons-block">
             <div className="pvs-tools">
-            {/* VIP Chat (locked) — іконка бульбашка+корона+замок */}
+              {/* Перший ряд: Подарки, Пожаловаться */}
+              <div className="pvs-tools__right">
+                <button
+                  type="button"
+                  className="pvs-tools__small"
+                  onClick={onGifts}
+                  aria-label="Подарки"
+                >
+                  <img
+                    src={profileIcons.present}
+                    alt=""
+                    className="pvs-tools__smallIcon"
+                    aria-hidden="true"
+                  />
+                  <span className="pvs-tools__smallLabel">Подарки</span>
+                </button>
+
+                <button
+                  type="button"
+                  className="pvs-tools__small"
+                  onClick={onReport}
+                  aria-label="Пожаловаться"
+                >
+                  <img
+                    src={profileIcons.complaints}
+                    alt=""
+                    className="pvs-tools__smallIcon"
+                    aria-hidden="true"
+                  />
+                  <span className="pvs-tools__smallLabel">Пожаловаться</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* VIP Chat навпроти локації */}
+          <div className="pvs-vip-chat-wrap">
             <button
               type="button"
               className="pvs-tools__vip"
@@ -155,44 +206,10 @@ export default function ProfileVisitorSubscribed({
                   aria-hidden="true"
                 />
               </div>
+              <span className="pvs-tools__label">VIP Chat</span>
             </button>
-
-            {/* Right: Gift + Report (75x81) */}
-            <div className="pvs-tools__right">
-              <button
-                type="button"
-                className="pvs-tools__small"
-                onClick={onGifts}
-                aria-label="Подарки"
-              >
-                <img
-                  src={profileIcons.present}
-                  alt=""
-                  className="pvs-tools__smallIcon"
-                  aria-hidden="true"
-                />
-                <span className="pvs-tools__smallLabel">Подарки</span>
-              </button>
-
-              <button
-                type="button"
-                className="pvs-tools__small"
-                onClick={onReport}
-                aria-label="Пожаловаться"
-              >
-                <img
-                  src={profileIcons.complaints}
-                  alt=""
-                  className="pvs-tools__smallIcon"
-                  aria-hidden="true"
-                />
-                <span className="pvs-tools__smallLabel">Пожаловаться</span>
-              </button>
-            </div>
-          </div>
           </div>
 
-          {/* ===== Add VIP button + Tabs (desktop: таби тут; mobile: таби окремо під блоком) ===== */}
           <div className="pvs-actions">
             <button
               type="button"
@@ -313,6 +330,83 @@ export default function ProfileVisitorSubscribed({
         >
           Показать больше
         </button>
+      </section>
+
+      {/* ===== ПОСТИ: під секцією Друзья, як на особистому профілі ===== */}
+      <section className="profile-visitor-subscribed__feed feed">
+        {MOCK_POSTS.map((post) => (
+          <article key={post.id} className="postCard">
+            <div className="postTop">
+              <div className="postTopLeft">
+                <button
+                  type="button"
+                  className="postAvatarBtn"
+                  onClick={() => onViewPhoto?.(displayAvatar)}
+                  aria-label="Переглянути фото"
+                >
+                  <img src={displayAvatar} className="postAvatar" alt="" />
+                </button>
+                <div className="postHeadText">
+                  <div className="postLabel">{post.time}</div>
+                  <div className="postAuthor">{displayName}</div>
+                </div>
+              </div>
+              <div className="postTopRight">
+                <div className="postLocation">
+                  <img
+                    className="postLocationIcon"
+                    src={profileIcons.location || "/home/location.svg"}
+                    alt=""
+                  />
+                  <span className="postLocationText">{post.location}</span>
+                </div>
+                <button className="postMoreBtn" type="button" aria-label="more">
+                  …
+                </button>
+              </div>
+            </div>
+            <p className="postText">{post.text}</p>
+            {post.image && (
+              <div className="postMedia">
+                <div className="postMediaMock" />
+              </div>
+            )}
+            <div className="postActions">
+              <button className="postActionBtn" type="button" aria-label="like">
+                <img
+                  src={profileIcons.like || "/home/like.svg"}
+                  className="postActionIcon"
+                  alt=""
+                />
+                <span className="postActionCount">{post.likes}</span>
+              </button>
+              <button className="postActionBtn" type="button" aria-label="comment">
+                <img
+                  src={profileIcons.comments || "/home/comments.svg"}
+                  className="postActionIcon"
+                  alt=""
+                />
+                <span className="postActionCount">{post.comments}</span>
+              </button>
+              <button className="postActionBtn" type="button" aria-label="save">
+                <img
+                  src={profileIcons.saved || "/icon1/saved.svg"}
+                  className="postActionIcon"
+                  alt=""
+                />
+                <span className="postActionCount">{post.saved ?? 21}</span>
+              </button>
+              <button className="postActionBtn" type="button" aria-label="share">
+                <img
+                  src={profileIcons.share || "/home/to-share.svg"}
+                  className="postActionIcon"
+                  alt=""
+                />
+                <span className="postActionCount">{post.shared ?? 60}</span>
+              </button>
+            </div>
+          </article>
+        ))}
       </section>
 
       {/* ===== IMAGE VIEWER ===== */}

@@ -80,7 +80,7 @@ export default function ProfileHeader({
           </button>
         </div>
 
-        {/* 🖥 DESKTOP top right: owner = Wallet + Theme + Burger; friend/vipFriend/regularFriend = тільки Burger */}
+        {/* 🖥 DESKTOP top right: owner = Wallet + Theme + Burger (Theme і Burger поміняні місцями); friend = тільки Burger */}
         <div className="rightGroup" aria-label="Desktop actions">
           {desktopTop.map((item) => {
             const active = item.path ? isActive(item.path, false) : false;
@@ -89,19 +89,21 @@ export default function ProfileHeader({
               if (item.key === "balance" && onWallet) return onWallet();
               if (item.path) return onNav(item.path);
             };
+            const isMenu = item.action === "MENU";
             return (
-              <button
-                key={item.key}
-                type="button"
-                className={`iconBtn ${active ? "iconBtnActive" : ""}`}
-                onClick={onClick}
-                aria-label={item.label}
-              >
-                <img src={item.icon} alt="" aria-hidden="true" />
-              </button>
+              <span key={item.key} style={{ display: "contents" }}>
+                {isMenu && showThemeInRight && <ThemeToggleDark className="themeBtn" />}
+                <button
+                  type="button"
+                  className={`iconBtn ${active ? "iconBtnActive" : ""}`}
+                  onClick={onClick}
+                  aria-label={item.label}
+                >
+                  <img src={item.icon} alt="" aria-hidden="true" />
+                </button>
+              </span>
             );
           })}
-          {showThemeInRight && <ThemeToggleDark className="themeBtn" />}
         </div>
       </div>
 
