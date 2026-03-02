@@ -7,10 +7,14 @@ export const mobileProfileNav = [
   { key: "menu", action: "MENU", label: "Menu", icon: icons.menu },
 ];
 
-// Desktop / Tablet (>=768) — як у макеті зверху справа має бути Messages + Saved + Burger
-export const desktopTopActions = [
-  { key: "messages", path: "/messages", label: "my messages", icon: icons.chat },
-  { key: "saved", path: "/saved", label: "saved", icon: icons.saved }, 
+// Desktop top-right: мій профіль — wallet + theme + burger
+export const desktopTopActionsOwner = [
+  { key: "balance", path: "/wallet", label: "Wallet", icon: icons.balance },
+  { key: "menu", action: "MENU", label: "Menu", icon: icons.menu },
+];
+
+// Desktop top-right: профіль іншого (friend/vipFriend/regularFriend) — тільки Burger
+export const desktopTopActionsFriend = [
   { key: "menu", action: "MENU", label: "Menu", icon: icons.menu },
 ];
 
@@ -19,7 +23,42 @@ export const desktopNavItems = [
   { key: "home", path: "/first-page", label: "Home", icon: icons.home },
   { key: "add", path: "/create", label: "Add", icon: icons.plus },
   { key: "reels", path: "/reels", label: "Reels", icon: icons.video },
-
   { key: "friends", path: "/friends", label: "Friends", icon: icons.friends },
   { key: "notifications", path: "/notifications", label: "Notifications", icon: icons.bell },
 ];
+
+/**
+ * Варіанти хедера профілю.
+ * owner — мій профіль: зліва Search, справа Wallet + Theme + Burger; desktop — другий ряд показується.
+ * friend | vipFriend | regularFriend — чужий профіль на desktop: Home + Search + Logo + Burger, нижній ряд (5 іконок) приховано.
+ */
+export const HEADER_CONFIG = {
+  owner: {
+    leftButtons: ["search"],
+    desktopTop: desktopTopActionsOwner,
+    showThemeInRight: true,
+    desktopNav: desktopNavItems,
+    showDesktopNav: true,
+  },
+  friend: {
+    leftButtons: ["home", "search"],
+    desktopTop: desktopTopActionsFriend,
+    showThemeInRight: false,
+    desktopNav: desktopNavItems,
+    showDesktopNav: false,
+  },
+  vipFriend: {
+    leftButtons: ["home", "search"],
+    desktopTop: desktopTopActionsFriend,
+    showThemeInRight: false,
+    desktopNav: desktopNavItems,
+    showDesktopNav: false,
+  },
+  regularFriend: {
+    leftButtons: ["home", "search"],
+    desktopTop: desktopTopActionsFriend,
+    showThemeInRight: false,
+    desktopNav: desktopNavItems,
+    showDesktopNav: false,
+  },
+};

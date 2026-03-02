@@ -384,7 +384,7 @@
   position: relative;
 }
 
-@media (max-width: 767px) {
+@media (max-width: 768px) {
   .field__genderWrap--desktop {
     display: none;
   }
@@ -938,7 +938,7 @@ body.night .field__date-indicator::after,
 }
 
 /* Мобілка: календар меншого розміру */
-@media (max-width: 767px) {
+@media (max-width: 768px) {
   .birthDate-picker.react-datepicker {
     font-size: 14px;
   }
@@ -967,7 +967,7 @@ body.night .field__date-indicator::after,
   }
 }
 
-@media (max-width: 767px) {
+@media (max-width: 768px) {
   body.dark .field__genderDropdown,
   html[data-theme="dark"] .field__genderDropdown {
     background: #0d0d0d;

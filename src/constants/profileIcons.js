@@ -24,11 +24,15 @@ const profileIcons = {
   notifications: `${HOME}/notifications.svg`,
   bell: `${HOME}/notifications.svg`,
   vip: `${HOME}/vip-fill.svg`,
-  vipChat: `${HOME}/vip-chat.svg`,
+
+  vipChat: `${HOME}/my-messages-blok.svg`,
   plus: `${HOME}/gg_add.svg`,
   present: `${HOME}/present.svg`,
   chat: `${HOME}/my-massages.svg`,
   complaint: `${HOME}/complaints.svg`,
+
+  present: `${HOME}/present.svg`,
+  complaints: `${HOME}/complaints.svg`,
   /* ========= ICON1 ========= */
   userStory: `${ICON1}/user.svg`,
   close: `${ICON1}/close.svg`,

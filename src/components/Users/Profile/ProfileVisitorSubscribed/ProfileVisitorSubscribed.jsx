@@ -1,4 +1,3 @@
-// Сторінка профілю, коли ти підписаний на людину (не VIP) — layout як на макеті
 import { useEffect, useMemo, useState } from "react";
 
 import profileIcons from "../../../../constants/profileIcons";
@@ -8,10 +7,13 @@ const toFriendItem = (f) => ({
   id: f?.id ?? f,
   username: f?.username,
   avatar: f?.avatarUrl ?? f?.avatar ?? null,
+  online: f?.online ?? true,
 });
 
 export default function ProfileVisitorSubscribed({
   user,
+  /** Загальна кількість друзів у цієї людини (з API GET /users/:username); показується, коли ти на неї підписана */
+  friendsCount: friendsCountProp,
   onAddToVip,
   onUnsubscribe,
   onVipChat,
@@ -36,21 +38,27 @@ export default function ProfileVisitorSubscribed({
     return () => window.removeEventListener("keydown", onEscape);
   }, [viewImageUrl]);
 
-  const displayName =
-    [user?.firstName, user?.lastName].filter(Boolean).join(" ") ||
-    user?.username ||
-    user?.nick ||
-    user?.nickname ||
-    "Користувач";
-  const displayAvatar =
-    user?.avatarUrl || user?.avatar || "/Logo/photo.png";
+  const nickname = user?.username || user?.nick || user?.nickname || "";
+  const fullName = [user?.firstName, user?.lastName].filter(Boolean).join(" ").trim() || "";
+  const location = [user?.city, user?.country].filter(Boolean).join(", ").trim() || "";
+  const displayName = fullName || nickname || "Користувач";
+
+  const displayAvatar = user?.avatarUrl || user?.avatar || "/Logo/photo.png";
   const isOnline = user?.online !== false;
 
   const friends = useMemo(
     () => (Array.isArray(user?.friends) ? user.friends.map(toFriendItem) : []),
     [user?.friends]
   );
-  const friendsCount = friends.length;
+  /** Загальна кількість друзів у неї: з API, інакше — скільки прийшло в user.friends (завжди число для відображення) */
+  const displayFriendsCount =
+    typeof friendsCountProp === "number"
+      ? friendsCountProp
+      : typeof user?.friendsCount === "number"
+        ? user.friendsCount
+        : Array.isArray(user?.friends)
+          ? user.friends.length
+          : 0;
 
   const tabs = [
     { id: "info", label: "Информация", locked: false },
@@ -61,16 +69,17 @@ export default function ProfileVisitorSubscribed({
 
   return (
     <div className="profile-visitor-subscribed">
+      {/* ===== TOP ===== */}
       <section className="profile-visitor-subscribed__top">
+        {/* LEFT: avatar + online + delete; на мобілці поруч справа — нікнейм, ім'я, локація */}
         <div className="profile-visitor-subscribed__left">
-          <div
-            className="profile-visitor-subscribed__avatarWrap"
+          <div className="profile-visitor-subscribed__mobileRow1">
+            <div
+              className="profile-visitor-subscribed__avatarWrap"
             role="button"
             tabIndex={0}
             onClick={() => onViewPhoto?.(displayAvatar)}
-            onKeyDown={(e) =>
-              e.key === "Enter" && onViewPhoto?.(displayAvatar)
-            }
+            onKeyDown={(e) => e.key === "Enter" && onViewPhoto?.(displayAvatar)}
             aria-label="Переглянути фото"
           >
             <img
@@ -84,81 +93,23 @@ export default function ProfileVisitorSubscribed({
                 aria-hidden="true"
               />
             )}
+            </div>
+            <div className="profile-visitor-subscribed__nameBlock">
+              <h1 className="profile-visitor-subscribed__nickname">
+                {nickname || displayName}
+              </h1>
+              {fullName && nickname !== fullName && (
+                <p className="profile-visitor-subscribed__fullName">{fullName}.</p>
+              )}
+              {location && (
+                <p className="profile-visitor-subscribed__location">{location}.</p>
+              )}
+            </div>
           </div>
+
           {isOnline && (
             <p className="profile-visitor-subscribed__onlineLabel">Online</p>
           )}
-        </div>
-
-        <div className="profile-visitor-subscribed__right">
-          <h1 className="profile-visitor-subscribed__name">{displayName}</h1>
-
-          <div className="profile-visitor-subscribed__iconsRow">
-            <button
-              type="button"
-              className="profile-visitor-subscribed__iconItem"
-              onClick={onVipChat}
-              aria-label="VIP Chat"
-              disabled
-              title="VIP Chat (заблоковано)"
-            >
-              <span className="profile-visitor-subscribed__iconWrap">
-                <img
-                  src={profileIcons.vip}
-                  alt=""
-                  className="profile-visitor-subscribed__iconImg"
-                  aria-hidden="true"
-                />
-                <img
-                  src={profileIcons.lockBlack}
-                  alt=""
-                  className="profile-visitor-subscribed__lockIcon"
-                  aria-hidden="true"
-                />
-              </span>
-              <span className="profile-visitor-subscribed__iconLabel">
-                VIP Chat
-              </span>
-            </button>
-
-            <button
-              type="button"
-              className="profile-visitor-subscribed__iconItem"
-              onClick={onGifts}
-              aria-label="Подарки"
-            >
-              <img
-                src={profileIcons.giftIcon}
-                alt=""
-                className="profile-visitor-subscribed__iconImg"
-                aria-hidden="true"
-              />
-              <span className="profile-visitor-subscribed__iconLabel">
-                Подарки
-              </span>
-            </button>
-
-            <button
-              type="button"
-              className="profile-visitor-subscribed__iconItem"
-              onClick={onReport}
-              aria-label="Пожаловаться"
-            >
-              <span className="profile-visitor-subscribed__reportIcon" aria-hidden="true">!</span>
-              <span className="profile-visitor-subscribed__iconLabel">
-                Пожаловаться
-              </span>
-            </button>
-          </div>
-
-          <button
-            type="button"
-            className="profile-visitor-subscribed__btnAddVip"
-            onClick={onAddToVip}
-            aria-label="Добавить в VIP"
-          >
-            Добавить в VIP
-          </button>
 
           <button
             type="button"
@@ -169,10 +120,137 @@ export default function ProfileVisitorSubscribed({
             Удалить
           </button>
         </div>
+
+        {/* RIGHT column: на мобілці сітка як на головному профілі (name | badges, bio, actions) */}
+        <div className="profile-visitor-subscribed__right">
+          {/* Блок ніка та локації (окремо від іконок) */}
+          <div className="pvs-info-mobile">
+            <h1 className="pvs-info-mobile__name">{nickname || displayName}</h1>
+            <div className="pvs-info-mobile__bio">
+              {fullName && nickname !== fullName && (
+                <p className="profile-visitor-subscribed__fullName">{fullName}.</p>
+              )}
+              {location && (
+                <p className="profile-visitor-subscribed__location">{location}.</p>
+              )}
+            </div>
+          </div>
+          {/* Окремий блок іконок: VIP Chat, Подарки, Пожаловаться */}
+          <div className="pvs-tools-wrap">
+            <div className="pvs-tools">
+            {/* VIP Chat (locked) — іконка бульбашка+корона+замок */}
+            <button
+              type="button"
+              className="pvs-tools__vip"
+              onClick={onVipChat}
+              aria-label="VIP Chat"
+              disabled
+              title="VIP Chat (заблоковано)"
+            >
+              <div className="pvs-tools__vipIconWrap">
+                <img
+                  src={profileIcons.vipChat}
+                  alt=""
+                  className="pvs-tools__vipIcon pvs-tools__vipIcon--full"
+                  aria-hidden="true"
+                />
+              </div>
+            </button>
+
+            {/* Right: Gift + Report (75x81) */}
+            <div className="pvs-tools__right">
+              <button
+                type="button"
+                className="pvs-tools__small"
+                onClick={onGifts}
+                aria-label="Подарки"
+              >
+                <img
+                  src={profileIcons.present}
+                  alt=""
+                  className="pvs-tools__smallIcon"
+                  aria-hidden="true"
+                />
+                <span className="pvs-tools__smallLabel">Подарки</span>
+              </button>
+
+              <button
+                type="button"
+                className="pvs-tools__small"
+                onClick={onReport}
+                aria-label="Пожаловаться"
+              >
+                <img
+                  src={profileIcons.complaints}
+                  alt=""
+                  className="pvs-tools__smallIcon"
+                  aria-hidden="true"
+                />
+                <span className="pvs-tools__smallLabel">Пожаловаться</span>
+              </button>
+            </div>
+          </div>
+          </div>
+
+          {/* ===== Add VIP button + Tabs (desktop: таби тут; mobile: таби окремо під блоком) ===== */}
+          <div className="pvs-actions">
+            <button
+              type="button"
+              className="pvs-actions__vipBtn"
+              onClick={onAddToVip}
+              aria-label="Добавить в VIP"
+            >
+              <span className="pvs-actions__vipBtnText">Добавить в VIP</span>
+              <img
+                src="/icon-black/vip-button.svg"
+                alt=""
+                className="pvs-actions__vipBtnIcon"
+                width={15}
+                height={15}
+              />
+            </button>
+
+            <div
+              className="pvs-actions__tabs"
+              role="tablist"
+              aria-label="Табы профиля"
+            >
+              {tabs.map((tab) => (
+                <button
+                  key={tab.id}
+                  type="button"
+                  role="tab"
+                  aria-selected={activeTab === tab.id}
+                  aria-disabled={tab.locked}
+                  className={[
+                    "pvs-actions__tab",
+                    activeTab === tab.id ? "is-active" : "",
+                    tab.locked ? "is-locked" : "",
+                  ].join(" ")}
+                  onClick={() => !tab.locked && setActiveTab(tab.id)}
+                >
+                  <span className="pvs-actions__tabText">{tab.label}</span>
+                  {tab.locked && (
+                    <img
+                      src={profileIcons.lockBlack}
+                      alt=""
+                      className="pvs-actions__tabLock"
+                      aria-hidden="true"
+                    />
+                  )}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
       </section>
 
-      {/* Таби: Информация | Истории | Видео 🔒 | Фото 🔒 */}
-      <div className="profile-visitor-subscribed__tabs" role="tablist">
+      {/* Окремий блок табів (мобілка) — не пов’язаний з верхньою секцією */}
+      <div
+        className="pvs-tabs-mobile"
+        role="tablist"
+        aria-label="Табы профиля"
+      >
         {tabs.map((tab) => (
           <button
             key={tab.id}
@@ -180,17 +258,19 @@ export default function ProfileVisitorSubscribed({
             role="tab"
             aria-selected={activeTab === tab.id}
             aria-disabled={tab.locked}
-            className={`profile-visitor-subscribed__tab ${
-              activeTab === tab.id ? "profile-visitor-subscribed__tabActive" : ""
-            } ${tab.locked ? "profile-visitor-subscribed__tabLocked" : ""}`}
+            className={[
+              "pvs-actions__tab",
+              activeTab === tab.id ? "is-active" : "",
+              tab.locked ? "is-locked" : "",
+            ].join(" ")}
             onClick={() => !tab.locked && setActiveTab(tab.id)}
           >
-            {tab.label}
+            <span className="pvs-actions__tabText">{tab.label}</span>
             {tab.locked && (
               <img
                 src={profileIcons.lockBlack}
                 alt=""
-                className="profile-visitor-subscribed__tabLock"
+                className="pvs-actions__tabLock"
                 aria-hidden="true"
               />
             )}
@@ -198,43 +278,34 @@ export default function ProfileVisitorSubscribed({
         ))}
       </div>
 
-      {/* Контент табу (поки заглушка) */}
-      {activeTab === "info" && (
-        <div className="profile-visitor-subscribed__tabContent">
-          {user?.city || user?.country ? (
-            <p className="profile-visitor-subscribed__infoText">
-              {[user?.city, user?.country].filter(Boolean).join(", ")}
-            </p>
-          ) : (
-            <p className="profile-visitor-subscribed__infoText">
-              Інформація недоступна
-            </p>
-          )}
-        </div>
-      )}
+      {/* ===== TAB CONTENT: для табу «Информация» нічого не показуємо ===== */}
+      {activeTab === "info" && null}
 
-      {/* Друзья */}
-      <section className="profile-visitor-subscribed__friends">
+      {/* ===== FRIENDS: реальна кількість з API (friendsCount) або кількість завантажених у user.friends ===== */}
+      <section className="profile-visitor-subscribed__friends" aria-label={displayFriendsCount > 0 ? `Друзья, всього ${displayFriendsCount}` : "Друзья"}>
         <h2 className="profile-visitor-subscribed__friendsTitle">
-          Друзья {friendsCount}
+          Друзья{displayFriendsCount > 0 ? ` ${displayFriendsCount}` : ""}
         </h2>
+
         <div className="profile-visitor-subscribed__friendsGrid">
           {friends.slice(0, 10).map((f) => (
             <button
               key={f.id}
               type="button"
-              className="profile-visitor-subscribed__friendAvatar"
+              className={`profile-visitor-subscribed__friendAvatar ${!f.avatar ? "profile-visitor-subscribed__friendAvatar--placeholder" : ""} ${!f.online ? "profile-visitor-subscribed__friendAvatar--offline" : ""}`}
               onClick={() => f.username && onOpenUser?.(f.username)}
-              aria-label={f.username ? `Профіль ${f.username}` : ""}
+              aria-label={f.username ? `Профіль ${f.username}` : "Профіль"}
             >
-              <img
-                src={f.avatar || "/icon1/image0.png"}
-                alt=""
-                aria-hidden="true"
-              />
+              {f.avatar ? (
+                <img src={f.avatar} alt="" aria-hidden="true" />
+              ) : (
+                <span className="profile-visitor-subscribed__friendAvatarPlaceholder" aria-hidden="true" />
+              )}
+              <span className={`profile-visitor-subscribed__friendDot ${f.online ? "profile-visitor-subscribed__friendDot--online" : "profile-visitor-subscribed__friendDot--offline"}`} aria-hidden="true" />
             </button>
           ))}
         </div>
+
         <button
           type="button"
           className="profile-visitor-subscribed__showMore"
@@ -244,7 +315,7 @@ export default function ProfileVisitorSubscribed({
         </button>
       </section>
 
-      {/* Перегляд фото в повному розмірі */}
+      {/* ===== IMAGE VIEWER ===== */}
       {viewImageUrl && (
         <div
           className="profile-visitor-subscribed__imageViewer"
@@ -261,6 +332,7 @@ export default function ProfileVisitorSubscribed({
           >
             ×
           </button>
+
           <img
             src={viewImageUrl}
             alt=""

@@ -10,7 +10,6 @@ import LoginPage from "../pages/Auth/Login/LoginPage";
 import RegisterPage from "../pages/Auth/Register/RegisterPage";
 import VerifyEmailPage from "../pages/Auth/VerifyEmail/VerifyEmailPage";
 
-// ✅ перенесли reset verify в окрему папку ResetPassword
 import VerifyResetCodePage from "../pages/Auth/VerifyEmail/VerifyResetCodePage";
 
 import AuthCallback from "../pages/AuthCallback/AuthCallback";
@@ -25,11 +24,25 @@ import FirstPage from "../pages/FirstPage/FirstPage";
 import WalletPage from "../pages/Wallet/WalletPage";
 
 import ProfileGuard from "./ProfileGuard";
+import BurgerMenu from "../components/BurgerMenu/BurgerMenu";
+import { useBurgerMenuStore } from "../zustand/useBurgerMenuStore";
+import { useThemeStore } from "../zustand/useThemeStore";
+
+/** Глобальне бургер-меню — рендериться один раз, відкривається з будь-якої сторінки */
+function GlobalBurgerMenu() {
+  const isOpen = useBurgerMenuStore((s) => s.isOpen);
+  const close = useBurgerMenuStore((s) => s.close);
+  const toggleTheme = useThemeStore((s) => s.toggleTheme);
+  return (
+    <BurgerMenu isOpen={isOpen} onClose={close} toggleTheme={toggleTheme} />
+  );
+}
 
 export default function AppRouter() {
   return (
     <BrowserRouter>
       <ProfileGuard>
+        <GlobalBurgerMenu />
         <div className="app-shell">
           <div className="app-page">
             <div className="app-container">

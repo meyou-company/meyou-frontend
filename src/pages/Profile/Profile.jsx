@@ -8,9 +8,28 @@ import { usersApi } from "../../services/usersApi";
 import { subscriptionsApi } from "../../services/subscriptionsApi";
 import styles from "./Profile.module.scss";
 
-/** Нормалізація профілю з GET /users/:username (viewType, subscriptionStatus з бекенду) */
+/** Нормалізація профілю з GET /users/:username (viewType, subscriptionStatus, загальна кількість друзів з бекенду) */
 const normalizeProfile = (u) => {
   if (!u) return null;
+  const friendsArray = Array.isArray(u.friends) ? u.friends : (u.friends?.items ?? []);
+  const friendsCountFromApi =
+    typeof u.friendsCount === "number"
+      ? u.friendsCount
+      : typeof u.friends_count === "number"
+        ? u.friends_count
+        : typeof u.friendsTotal === "number"
+          ? u.friendsTotal
+          : typeof u.friends_total === "number"
+            ? u.friends_total
+            : typeof u.friends?.total === "number"
+              ? u.friends.total
+              : typeof u.friends?.totalCount === "number"
+                ? u.friends.totalCount
+                : u.stats?.friendsCount ?? u.stats?.friends_count;
+  const friendsCount =
+    typeof friendsCountFromApi === "number" && friendsCountFromApi >= 0
+      ? friendsCountFromApi
+      : undefined;
   return {
     id: u.id,
     firstName: u.firstName || "",
@@ -22,7 +41,9 @@ const normalizeProfile = (u) => {
     country: u.country || "",
     bio: u.bio,
     isVerified: u.isVerified,
-    friends: u.friends ?? [],
+    friends: friendsArray,
+    /** Загальна кількість друзів цієї людини (з API) — показуємо на її сторінці, коли ти на неї підписана */
+    friendsCount,
     viewType: u.viewType,
     subscriptionStatus: u.subscriptionStatus
       ? {
@@ -152,6 +173,8 @@ export default function Profile() {
   // ✅ handlers для Header
   const onSearch = useCallback(() => navigate("/search"), [navigate]);
   const onGoHome = useCallback(() => navigate("/"), [navigate]);
+  /** На сторінці іншого юзера клік по домику — повернути на мій профіль */
+  const onGoToMyProfile = useCallback(() => navigate("/profile"), [navigate]);
   const onMessagesTop = useCallback(() => navigate("/messages"), [navigate]);
   const onWallet = useCallback(() => navigate("/wallet"), [navigate]);
 
@@ -176,12 +199,18 @@ export default function Profile() {
 
   if (!urlUsername && !isAuthLoading && !user) return null;
 
+  const headerVariant = isOwnProfile ? "owner" : "friend";
+  const currentUserAvatar = user?.avatarUrl || user?.avatar;
+
   if (loadingOwn || loadingPublic) {
     return (
       <div className={styles.page}>
         <ProfileHeader
+          variant={headerVariant}
+          currentUserAvatar={currentUserAvatar}
           onSearch={onSearch}
           onGoHome={onGoHome}
+          onGoToMyProfile={onGoToMyProfile}
           onMessagesTop={onMessagesTop}
           onWallet={onWallet}
           onNav={onNav}
@@ -195,8 +224,11 @@ export default function Profile() {
     return (
       <div className={styles.page}>
         <ProfileHeader
+          variant={headerVariant}
+          currentUserAvatar={currentUserAvatar}
           onSearch={onSearch}
           onGoHome={onGoHome}
+          onGoToMyProfile={onGoToMyProfile}
           onMessagesTop={onMessagesTop}
           onWallet={onWallet}
           onNav={onNav}
@@ -219,8 +251,11 @@ export default function Profile() {
   return (
     <div className={styles.page}>
       <ProfileHeader
+        variant={headerVariant}
+        currentUserAvatar={currentUserAvatar}
         onSearch={onSearch}
         onGoHome={onGoHome}
+        onGoToMyProfile={onGoToMyProfile}
         onMessagesTop={onMessagesTop}
         onWallet={onWallet}
         onNav={onNav}
@@ -229,6 +264,7 @@ export default function Profile() {
         {showSubscribedView ? (
           <ProfileVisitorSubscribed
             user={profileUser}
+            friendsCount={profileUser?.friendsCount}
             onAddToVip={onAddToVip}
             onUnsubscribe={handleSubscribe}
             onVipChat={() => navigate("/vip-chat")}

@@ -1,15 +1,22 @@
 /* =========================
    ProfileHeader.scss
    ========================= */
+.profile-header .leftGroup,
 .profile-header .searchBtn,
 .profile-header .rightGroup,
 .profile-header .mobileRightGroup {
   flex-shrink: 0;
 }
+
+.profile-header .leftGroup {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 .profile-header .logo {
   flex: 1;
-  min-width: 0;     
-
+  min-width: 0;
 }
 
 /* default desktop */
@@ -219,7 +226,7 @@ body.dark .profile-header .desktopNavRow::before {
 /* =========================
    📱 MOBILE (< 768px)
 ========================= */
-@media (max-width: 767px) {
+@media (max-width: 768px) {
   .profile-header {
     width: 100%;
     margin-left: 0;
@@ -228,6 +235,11 @@ body.dark .profile-header .desktopNavRow::before {
   .profile-header .topRow {
     padding: 0 16px;
     height: 52px;
+  }
+
+  /* На сторінці іншого юзера зверху не показувати домик */
+  .profile-header--visitor .leftGroup [data-button="home"] {
+    display: none;
   }
 
   /* show mobile top right */
@@ -294,6 +306,15 @@ body.dark .profile-header .desktopNavRow::before {
     }
   }
 
+  /* По центру нижнього ряду — аватар юзера (кругле фото) */
+  .profile-header .navBtn--avatar .navBtn__avatarImg {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    display: block;
+  }
+
   .profile-header .navBtnActive {
     opacity: 1;
   }
@@ -313,6 +334,11 @@ body.dark .profile-header .desktopNavRow::before {
   }
 
   .profile-header .navBtn img {
+    width: 34px;
+    height: 34px;
+  }
+
+  .profile-header .navBtn--avatar .navBtn__avatarImg {
     width: 34px;
     height: 34px;
   }
@@ -474,6 +500,11 @@ body.dark .profile-header .topRow {
   }
 
   .profile-header .navBtn img {
+    width: 28px;
+    height: 28px;
+  }
+
+  .profile-header .navBtn--avatar .navBtn__avatarImg {
     width: 28px;
     height: 28px;
   }
