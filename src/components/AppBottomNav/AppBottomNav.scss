@@ -1,0 +1,130 @@
+/* Глобальний нижній хедер — однаковий на всіх сторінках (тільки mobile) */
+.app-bottom-nav {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .app-bottom-nav {
+    display: flex;
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 64px;
+    justify-content: space-around;
+    align-items: center;
+    z-index: 9999;
+  }
+
+  .app-bottom-nav::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    width: 100vw;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #fce9e9;
+    z-index: -1;
+    border-top: 1px solid rgba(0, 0, 0, 0.08);
+  }
+
+  body.dark .app-bottom-nav::before,
+  html[data-theme="dark"] .app-bottom-nav::before {
+    background: rgba(20, 10, 30, 0.65);
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
+  }
+
+  .app-bottom-nav__btn {
+    width: 52px;
+    height: 52px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0.9;
+
+    img {
+      width: 36px;
+      height: 36px;
+      object-fit: contain;
+    }
+  }
+
+  .app-bottom-nav__btn--avatar .app-bottom-nav__avatarImg {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .app-bottom-nav__btn--active {
+    opacity: 1;
+  }
+}
+
+@media (max-width: 420px) {
+  .app-bottom-nav {
+    height: 60px;
+  }
+
+  .app-bottom-nav__btn {
+    width: 48px;
+    height: 48px;
+
+    img {
+      width: 36px;
+      height: 36px;
+    }
+  }
+
+  .app-bottom-nav__btn--avatar .app-bottom-nav__avatarImg {
+    width: 36px;
+    height: 36px;
+  }
+}
+
+@media (max-width: 360px) {
+  .app-bottom-nav {
+    height: 64px;
+  }
+
+  .app-bottom-nav__btn {
+    width: 48px;
+    height: 48px;
+
+    img {
+      width: 36px;
+      height: 36px;
+    }
+  }
+
+  .app-bottom-nav__btn--avatar .app-bottom-nav__avatarImg {
+    width: 36px;
+    height: 36px;
+  }
+}
+
+@media (max-width: 320px) {
+  .app-bottom-nav {
+    height: 60px;
+  }
+
+  .app-bottom-nav__btn {
+    width: 44px;
+    height: 44px;
+
+    img {
+      width: 32px;
+      height: 32px;
+    }
+  }
+
+  .app-bottom-nav__btn--avatar .app-bottom-nav__avatarImg {
+    width: 32px;
+    height: 32px;
+  }
+}

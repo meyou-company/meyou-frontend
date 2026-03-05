@@ -1,3 +1,5 @@
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap");
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -97,9 +99,11 @@
     );
   }
 
-
   body {
     margin: 0;
+    font-family: "Montserrat", sans-serif;
+    font-weight: 400;
+
     @apply bg-appBg text-appText;
     overflow-x: hidden;
     overflow-y: auto;
@@ -132,8 +136,15 @@
     );
     pointer-events: none;
   }
-}
 
+  /* Стандарт для тексту в усіх кнопках */
+  button,
+  input[type="submit"],
+  input[type="button"],
+  [role="button"] {
+    font-family: "Montserrat", sans-serif;
+  }
+}
 
 /* =========================
    APP LAYOUT (GLOBAL)
@@ -169,7 +180,9 @@
   }
 
   @screen md {
-    .app-container { max-width: 1440px; }
+    .app-container {
+      max-width: 1440px;
+    }
   }
 
   /* ✅ На desktop: скрол сторінки (body), а контент НЕ обрізається */
@@ -187,7 +200,38 @@
   }
 
   @screen 2xl {
-    .app-container { max-width: 1440px; }
+    .app-container {
+      max-width: 1440px;
+    }
+  }
+
+  /* Нижній хедер — відступ контенту на mobile */
+  @media (max-width: 768px) {
+    .app-container--has-bottom-nav {
+      padding-bottom: 80px;
+    }
+  }
+  @media (max-width: 420px) {
+    .app-container--has-bottom-nav {
+      padding-bottom: 82px;
+    }
+  }
+  @media (max-width: 320px) {
+    .app-container--has-bottom-nav {
+      padding-bottom: 78px;
+    }
+  }
+
+  /* ✅ Текст (Montserrat 30 Regular underline) — якщо треба клас */
+  .figma-text-30-underline {
+    font-family: "Montserrat", sans-serif;
+    font-weight: 400;
+    font-size: 30px;
+    line-height: 1; /* 100% */
+    letter-spacing: 0;
+    text-decoration: underline;
+    text-decoration-style: solid;
+    text-decoration-skip-ink: auto;
   }
 }
 

@@ -75,11 +75,11 @@ export function toBackendPayload(v) {
   const username = v.username?.trim();
   if (username) payload.username = username;
 
+  /* Інтереси та хобі — однаково: масив рядків (value). Бекенд має зберігати обидва в users (interests, hobbies). */
   const interests = mapSelectToStrings(v.interests, MAX_INTERESTS);
-  if (interests.length) payload.interests = interests;
-
   const hobbies = mapSelectToStrings(v.hobbies, MAX_HOBBIES);
-  if (hobbies.length) payload.hobbies = hobbies;
+  payload.interests = [...(Array.isArray(interests) ? interests : [])];
+  payload.hobbies = [...(Array.isArray(hobbies) ? hobbies : [])];
 
   return payload;
 }

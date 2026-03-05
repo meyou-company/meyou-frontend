@@ -3,7 +3,6 @@ import ThemeToggleDark from "../ThemeToggleDark/ThemeToggleDark";
 import profileIcons from "../../constants/profileIcons";
 import "./FirstPageView.scss";
 import { useBurgerMenu } from "../../hooks/useBurgerMenu";
-import BurgerMenu from "../BurgerMenu/BurgerMenu"; 
 
 export default function FirstPageView({
   onGoProfile,
@@ -14,8 +13,7 @@ export default function FirstPageView({
   onGoNotifications,
   onGoHome,
 }) {
-
-   const { isOpen, open, close } = useBurgerMenu();
+  const { open } = useBurgerMenu();
 
   return (
     <div className="relative min-h-screen flex flex-col pb-10 md:pb-0">
@@ -114,17 +112,6 @@ export default function FirstPageView({
           </div>
         </main>
 
-           <BurgerMenu isOpen={isOpen} onClose={close} />
-
-        {/* MOBILE NAV */}
-        <nav className="fixed bottom-0 left-0 right-0 bg-rose-100 md:hidden">
-          <div className="flex justify-around items-center h-16 px-4">
-            <NavBtn icon={profileIcons.home} onClick={onGoProfile} />
-            <NavBtn icon={profileIcons.userMenu} onClick={onGoFriends} />
-            <NavBtn icon={profileIcons.comment} onClick={onGoNotifications} />
-            <NavBtn icon={profileIcons.menu} onClick={open}/>
-          </div>
-        </nav>
       </div>
     </div>
   );

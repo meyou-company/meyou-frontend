@@ -126,6 +126,10 @@ export default function ProfileVisitorSubscribed({
             <p className="profile-visitor-subscribed__onlineLabel">Online</p>
           )}
 
+          <p className="profile-visitor-subscribed__friendsCountLabel" aria-label={`Друзья: ${displayFriendsCount}`}>
+            Друзья: <span className="profile-visitor-subscribed__friendsCountValue">{displayFriendsCount}</span>
+          </p>
+
           <button
             type="button"
             className="profile-visitor-subscribed__btnDelete"
@@ -298,38 +302,46 @@ export default function ProfileVisitorSubscribed({
       {/* ===== TAB CONTENT: для табу «Информация» нічого не показуємо ===== */}
       {activeTab === "info" && null}
 
-      {/* ===== FRIENDS: реальна кількість з API (friendsCount) або кількість завантажених у user.friends ===== */}
+      {/* ===== FRIENDS: показуємо друзів підписника або повідомлення «Поки немає друзів» ===== */}
       <section className="profile-visitor-subscribed__friends" aria-label={displayFriendsCount > 0 ? `Друзья, всього ${displayFriendsCount}` : "Друзья"}>
         <h2 className="profile-visitor-subscribed__friendsTitle">
-          Друзья{displayFriendsCount > 0 ? ` ${displayFriendsCount}` : ""}
+          Друзья {displayFriendsCount}
         </h2>
 
-        <div className="profile-visitor-subscribed__friendsGrid">
-          {friends.slice(0, 10).map((f) => (
-            <button
-              key={f.id}
-              type="button"
-              className={`profile-visitor-subscribed__friendAvatar ${!f.avatar ? "profile-visitor-subscribed__friendAvatar--placeholder" : ""} ${!f.online ? "profile-visitor-subscribed__friendAvatar--offline" : ""}`}
-              onClick={() => f.username && onOpenUser?.(f.username)}
-              aria-label={f.username ? `Профіль ${f.username}` : "Профіль"}
-            >
-              {f.avatar ? (
-                <img src={f.avatar} alt="" aria-hidden="true" />
-              ) : (
-                <span className="profile-visitor-subscribed__friendAvatarPlaceholder" aria-hidden="true" />
-              )}
-              <span className={`profile-visitor-subscribed__friendDot ${f.online ? "profile-visitor-subscribed__friendDot--online" : "profile-visitor-subscribed__friendDot--offline"}`} aria-hidden="true" />
-            </button>
-          ))}
-        </div>
+        {friends.length > 0 ? (
+          <>
+            <div className="profile-visitor-subscribed__friendsGrid">
+              {friends.slice(0, 10).map((f) => (
+                <button
+                  key={f.id}
+                  type="button"
+                  className={`profile-visitor-subscribed__friendAvatar ${!f.avatar ? "profile-visitor-subscribed__friendAvatar--placeholder" : ""} ${!f.online ? "profile-visitor-subscribed__friendAvatar--offline" : ""}`}
+                  onClick={() => f.username && onOpenUser?.(f.username)}
+                  aria-label={f.username ? `Профіль ${f.username}` : "Профіль"}
+                >
+                  {f.avatar ? (
+                    <img src={f.avatar} alt="" aria-hidden="true" />
+                  ) : (
+                    <span className="profile-visitor-subscribed__friendAvatarPlaceholder" aria-hidden="true" />
+                  )}
+                  <span className={`profile-visitor-subscribed__friendDot ${f.online ? "profile-visitor-subscribed__friendDot--online" : "profile-visitor-subscribed__friendDot--offline"}`} aria-hidden="true" />
+                </button>
+              ))}
+            </div>
 
-        <button
-          type="button"
-          className="profile-visitor-subscribed__showMore"
-          onClick={onShowMoreFriends}
-        >
-          Показать больше
-        </button>
+            <button
+              type="button"
+              className="profile-visitor-subscribed__showMore"
+              onClick={onShowMoreFriends}
+            >
+              Показать больше
+            </button>
+          </>
+        ) : (
+          <p className="profile-visitor-subscribed__friendsEmpty">
+            Поки немає друзів
+          </p>
+        )}
       </section>
 
       {/* ===== ПОСТИ: під секцією Друзья, як на особистому профілі ===== */}

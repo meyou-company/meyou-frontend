@@ -343,9 +343,7 @@ body.dark .profile-header .desktopNavRow::before {
     height: 34px;
   }
 
-  .profile-container {
-    padding-bottom: 82px;
-  }
+  /* Відступ для нижнього навбару тепер на .app-container--has-bottom-nav (глобально) */
 }
 
 /* =========================
@@ -480,10 +478,6 @@ body.dark .profile-header .topRow {
     height: 40px;
   }
 
-  /* щоб контент не залазив під bottom nav */
-  .profile-container {
-    padding-bottom: 92px;
-  }
 }
 
 /* =========================
@@ -509,7 +503,4 @@ body.dark .profile-header .topRow {
     height: 28px;
   }
 
-  .profile-container {
-    padding-bottom: 78px;
-  }
 }

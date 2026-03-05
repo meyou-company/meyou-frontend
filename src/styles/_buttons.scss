@@ -1,4 +1,33 @@
 /* =========================
+   ШРИФТ ДЛЯ ТЕКСТУ В УСІХ КНОПКАХ (глобально)
+   ========================= */
+button,
+input[type="submit"],
+input[type="button"],
+[role="button"] {
+  font-family: Montserrat, sans-serif;
+}
+
+/* Класи-кнопки (якщо використані на div/span) */
+.btn-gradient,
+.actionBtn,
+.showMoreBtn,
+.findFriendsBtn,
+.btnMessages,
+.btnSaved,
+.ph-visitor-tabs__tab,
+.ph-visitor-actions__subscribe,
+.ph-visitor-actions__block,
+.ph-visitor-tools__vip,
+.ph-visitor-tools__report,
+.pvs-actions__tab,
+.pvs-actions__vipBtn,
+.profile-visitor-vip__tab,
+.profile-visitor-vip__btnDelete {
+  font-family: Montserrat, sans-serif;
+}
+
+/* =========================
    GRADIENT BUTTON (GLOBAL)
    ========================= */
 
@@ -15,6 +44,7 @@
   color: #ffffff;
   font-weight: 500;
   line-height: 1;
+  font-family: Montserrat, sans-serif;
 
   background: linear-gradient(90deg, #4f6bff 0%, #b05cff 52%, #ff4fb1 100%);
 

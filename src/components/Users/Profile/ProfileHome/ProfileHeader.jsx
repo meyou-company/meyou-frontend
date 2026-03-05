@@ -3,7 +3,6 @@ import ThemeToggleDark from "../../../ThemeToggleDark/ThemeToggleDark";
 
 import profileIcons from "../../../../constants/profileIcons";
 import {
-  mobileProfileNav,
   desktopNavItems,
   HEADER_CONFIG,
 } from "../../../../constants/profileNavigation";
@@ -127,51 +126,7 @@ export default function ProfileHeader({
         </nav>
       )}
 
-      {/* 📱 MOBILE bottom: 5 пунктів — Home, Профіль (іконка), Аватар (по центру), Сповіщення, Меню */}
-      <nav className="mobileNavRow" aria-label="Mobile navigation">
-        {(() => {
-          const withAvatar = [
-            ...mobileProfileNav.slice(0, 2),
-            { key: "avatar", type: "avatar", label: "Мій профіль" },
-            ...mobileProfileNav.slice(2),
-          ];
-          return withAvatar.map((item) => {
-            const isHome = item.key === "home";
-            const isAvatar = item.type === "avatar";
-            const active = isHome
-              ? isActive("/first-page", false)
-              : (isAvatar || item.key === "user")
-                ? isActive("/profile", true)
-                : (item.path ? isActive(item.path, false) : false);
-            const onClick = () => {
-              if (item.action === "MENU") return toggle();
-              if (isHome) return onNav("/first-page");
-              if (isAvatar || item.key === "user") return onGoToMyProfile?.();
-              if (item.path) onNav(item.path);
-            };
-            return (
-              <button
-                key={item.key}
-                type="button"
-                className={`navBtn ${isAvatar ? "navBtn navBtn--avatar" : ""} ${active ? "navBtnActive" : ""}`}
-                onClick={onClick}
-                aria-label={item.label}
-              >
-                {isAvatar ? (
-                  <img
-                    src={currentUserAvatar || DEFAULT_AVATAR}
-                    alt=""
-                    aria-hidden="true"
-                    className="navBtn__avatarImg"
-                  />
-                ) : (
-                  <img src={item.icon} alt="" aria-hidden="true" />
-                )}
-              </button>
-            );
-          });
-        })()}
-      </nav>
+      {/* 📱 Нижній навбар — глобальний AppBottomNav на всіх сторінках */}
     </header>
   );
 }

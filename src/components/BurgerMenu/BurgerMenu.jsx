@@ -50,9 +50,19 @@ export default function BurgerMenu({ isOpen, onClose, onItemClick, toggleTheme }
   }
 };
 
-  return (
-    <div className={`profile-menu ${isOpen ? "profile-menu--open" : ""}`}>
+  if (!isOpen) return null;
 
+  return (
+    <div className="profile-menu-wrap" aria-hidden="false">
+      <div
+        className="profile-menu__backdrop"
+        onClick={onClose}
+        onKeyDown={(e) => e.key === "Escape" && onClose()}
+        role="button"
+        tabIndex={0}
+        aria-label="Закрити меню"
+      />
+      <div className={`profile-menu ${isOpen ? "profile-menu--open" : ""}`}>
     <div className="profile-menu__header">
       <div className="profile-menu__user">
        <div className="profile-menu__avatar-wrapper">
@@ -155,6 +165,7 @@ export default function BurgerMenu({ isOpen, onClose, onItemClick, toggleTheme }
           </button>
         </div>
       </nav>
+      </div>
     </div>
   );
 }

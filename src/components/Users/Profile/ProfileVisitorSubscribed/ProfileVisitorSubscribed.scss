@@ -136,7 +136,7 @@ $tabBgMobile: #f5f0e8; // світло-бежеві таби
 /* Загальна кількість друзів у людини (ліва колонка + секція Друзья) */
 .profile-visitor-subscribed__followersCount,
 .profile-visitor-subscribed__friendsCountLabel {
-  margin: 6px 0 0;
+  margin: 6px 0 8px;
   font-size: 14px;
   font-weight: 600;
   color: rgba(0, 0, 0, 0.75);
@@ -441,6 +441,15 @@ html[data-theme="dark"] .pvs-tools__vip .pvs-tools__label {
   grid-template-columns: repeat(5, 1fr);
   gap: 14px;
   margin-bottom: 16px;
+}
+
+.profile-visitor-subscribed__friendsEmpty {
+  margin: 0 0 16px;
+  font-family: Montserrat, sans-serif;
+  font-size: 16px;
+  font-weight: 500;
+  color: rgba(0, 0, 0, 0.6);
+  line-height: 1.4;
 }
 
 /* Сітка: 2 рядки по 5 аватарів, градієнтна обводка, індикатор онлайну */
@@ -1061,6 +1070,11 @@ html[data-theme="dark"] .profile-visitor-subscribed__friends {
 body.dark .profile-visitor-subscribed__friendsTitle,
 html[data-theme="dark"] .profile-visitor-subscribed__friendsTitle {
   color: $dark-text;
+}
+
+body.dark .profile-visitor-subscribed__friendsEmpty,
+html[data-theme="dark"] .profile-visitor-subscribed__friendsEmpty {
+  color: $dark-text-muted;
 }
 
 /* Показать больше */

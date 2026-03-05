@@ -6,8 +6,25 @@ $bg-panel-desktop: #ffffff;
 $border-panel: #c6b5e5;
 $accent-logout: #e53333;
 
+/* Обгортка + бекдроп поверх усього контенту */
+.profile-menu-wrap {
+  position: fixed;
+  inset: 0;
+  z-index: 1000000;
+  pointer-events: auto;
+}
+
+.profile-menu__backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: rgba(0, 0, 0, 0.35);
+  cursor: default;
+}
+
 .profile-menu {
   position: fixed;
+  z-index: 1;
   right: 0;
   top: 70px;
   width: 100%;

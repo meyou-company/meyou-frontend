@@ -363,6 +363,353 @@ font-size: 60px;
 }
 
 /* =========================
+   VISITOR NOT SUBSCRIBED — макет як на фото
+   ========================= */
+$phVisitorGradient: linear-gradient(236.31deg, #FF4FB1 11.54%, #4F6BFF 88.46%);
+$phVisitorGold: linear-gradient(90deg, #E7C577 0%, #FFE9B1 38%, #F4D695 70%, #D8B66D 100%);
+$phVisitorPinkPurple: linear-gradient(236.31deg, #FF4FB1 11.54%, #4F6BFF 88.46%);
+$phVisitorBluePurple: linear-gradient(135deg, #4f6bff, #b05cff);
+$phVisitorTabBeige: #FCE9E9;
+
+.profile-home--visitor-not-subscribed .profileBlock--visitorNotSub {
+  align-items: flex-start;
+  gap: 28px;
+}
+
+.profile-home--visitor-not-subscribed .profileBlock--visitorNotSub .profileLeft {
+  flex: 0 0 313px;
+}
+
+.ph-visitor-avatarBlock {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.ph-visitor-avatarWrap {
+  width: 313px;
+  height: 313px;
+  border-radius: 50%;
+  padding: 4px;
+  background: $phVisitorPinkPurple;
+  overflow: visible;
+  display: block;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+
+  .avatar {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    display: block;
+  }
+}
+
+/* Зелений значок онлайн зверху аватарки (правый верхній кут) */
+.ph-visitor-onlineDot {
+  position: absolute;
+  top: 18px;
+  right: 58px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #22c55e;
+  border: 3px solid #fff;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.06);
+  flex-shrink: 0;
+}
+
+.ph-visitor-onlineLabel {
+  margin: 8px 0 0;
+  font-family: Montserrat, sans-serif;
+  font-weight: 600;
+  font-size: 36px;
+  background: $phVisitorGradient;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  line-height: 1.2;
+}
+
+.ph-visitor-right {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 32px;
+  padding-top: 0;
+}
+
+/* Нік і кнопки Пожаловаться / Добавить в VIP на одному рівні */
+.ph-visitor-name-row {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.ph-visitor-name-row .ph-visitor-name {
+  flex: 0 1 auto;
+  min-width: 0;
+}
+
+.ph-visitor-tools {
+  display: flex;
+  align-items: center;
+  gap: 42px;
+  flex-shrink: 0;
+}
+
+/* Пожаловаться: іконка зверху (градієнт), текст чорний знизу — як у макеті */
+.ph-visitor-tools__report {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 10px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.ph-visitor-tools__reportIconWrap {
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  background: $phVisitorGradient;
+  -webkit-mask: url("/home/complaints.svg") center / contain no-repeat;
+  mask: url("/home/complaints.svg") center / contain no-repeat;
+}
+
+.ph-visitor-tools__reportLabel {
+  font-family: Montserrat, sans-serif;
+  font-weight: 400;
+  font-size: 14px;
+  color: #000000;
+  line-height: 1.1;
+}
+
+.ph-visitor-tools__vip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 400px;
+  height: 74px;
+  padding: 0 18px;
+  border-radius: 20px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  background: $phVisitorGold;
+  color: rgba(0, 0, 0, 0.75);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.ph-visitor-tools__vipText {
+  font-family: Montserrat, sans-serif;
+  font-weight: 300;
+  font-style: normal;
+  font-size: 20px;
+  line-height: 100%;
+  letter-spacing: 0%;
+  opacity: 1;
+}
+
+.ph-visitor-tools__vip .ph-visitor-tools__vipIcon {
+  width: 18px;
+  height: 18px;
+  display: block;
+  flex-shrink: 0;
+}
+
+.ph-visitor-name {
+  margin: 0;
+  font-size: 60px;
+  font-weight: 800;
+  line-height: 1.15;
+  background: $phVisitorGradient;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-color: #ff4fb1;
+}
+
+/* Ім'я та локація — два рядки, десктоп: Montserrat 30px, underline, #000, max 313px */
+.ph-visitor-bio {
+  margin: 0;
+  max-width: 313px;
+}
+
+.ph-visitor-bio__line {
+  margin: 20px 0 30px 0;
+  font-family: Montserrat, sans-serif;
+  font-weight: 400;
+  font-size: 30px;
+  line-height: 100%;
+  color: #000000;
+  opacity: 1;
+
+  &:not(:last-child) {
+    margin-bottom: 2px;
+  }
+}
+
+/* Підкреслення саме цієї частини: ім'я та локація (наприклад «Артем Журавлев.» / «Киев, Польша.») — під кожним словом */
+.ph-visitor-bio__word {
+  text-decoration: underline;
+  text-decoration-style: solid;
+  text-underline-offset: 0;
+  text-underline-position: under;
+}
+
+/* Кнопки Подписаться та Заблокировать в один ряд */
+.ph-visitor-actions {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 116px;
+  width: 100%;
+}
+
+.ph-visitor-actions__subscribe {
+  width: 400px;
+  flex-shrink: 0;
+  height: 70px;
+  padding: 0 24px;
+  border-radius: 20px;
+  border: 0;
+  background: $phVisitorGradient;
+  color: #fff;
+  font-family: Montserrat, sans-serif;
+  font-weight: 400;
+  font-style: normal;
+  font-size: 18px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: opacity 0.2s;
+
+  &:hover:not(:disabled) {
+    opacity: 0.92;
+  }
+  &:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+  }
+}
+
+.ph-visitor-actions__block {
+  width: 400px;
+  flex-shrink: 0;
+  height: 70px;
+  padding: 0 24px;
+  border-radius: 20px;
+  border: 0;
+  background: $phVisitorBluePurple;
+  color: #fff;
+  font-family: Montserrat, sans-serif;
+  font-weight: 400;
+  font-style: normal;
+  font-size: 18px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: opacity 0.2s;
+
+  &:hover {
+    opacity: 0.92;
+  }
+}
+
+/* Таби: Информация (активний), Истории, Видео 🔒, Фото 🔒 */
+.ph-visitor-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 94px;
+  width: 100%;
+}
+
+.ph-visitor-tabs__tab {
+  min-width: 230px;
+  height: 56px;
+  padding: 0 20px;
+  border-radius: 14px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  background: $phVisitorTabBeige;
+  color: rgba(0, 0, 0, 0.65);
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  -webkit-tap-highlight-color: transparent;
+
+  &.is-active {
+    background: $phVisitorGradient;
+    color: #fff;
+    border-color: transparent;
+  }
+
+  &.is-locked {
+    cursor: default;
+    opacity: 0.9;
+  }
+}
+
+.ph-visitor-tabs__lock {
+  width: 16px;
+  height: 16px;
+  opacity: 0.8;
+}
+
+/* Темна тема — visitor not subscribed */
+body.dark .profile-home--visitor-not-subscribed .ph-visitor-tools__report,
+html[data-theme="dark"] .profile-home--visitor-not-subscribed .ph-visitor-tools__report {
+  color: rgba(255, 255, 255, 0.85);
+}
+body.dark .profile-home--visitor-not-subscribed .ph-visitor-tools__vip,
+html[data-theme="dark"] .profile-home--visitor-not-subscribed .ph-visitor-tools__vip {
+  border-color: rgba(255, 255, 255, 0.2);
+  color: rgba(255, 255, 255, 0.95);
+}
+body.dark .profile-home--visitor-not-subscribed .ph-visitor-bio__line,
+html[data-theme="dark"] .profile-home--visitor-not-subscribed .ph-visitor-bio__line {
+  color: #a5b4ff;
+}
+body.dark .profile-home--visitor-not-subscribed .ph-visitor-tabs__tab:not(.is-active),
+html[data-theme="dark"] .profile-home--visitor-not-subscribed .ph-visitor-tabs__tab:not(.is-active) {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.15);
+  color: rgba(255, 255, 255, 0.85);
+}
+body.dark .profile-home--visitor-not-subscribed .ph-visitor-tabs__lock,
+html[data-theme="dark"] .profile-home--visitor-not-subscribed .ph-visitor-tabs__lock {
+  filter: brightness(0) invert(1);
+  opacity: 0.7;
+}
+
+body.dark .profile-home--visitor-not-subscribed .ph-visitor-onlineLabel,
+html[data-theme="dark"] .profile-home--visitor-not-subscribed .ph-visitor-onlineLabel {
+  color: #c9b8ff;
+}
+
+body.dark .profile-home--visitor-not-subscribed .ph-visitor-onlineDot,
+html[data-theme="dark"] .profile-home--visitor-not-subscribed .ph-visitor-onlineDot {
+  border-color: rgba(20, 10, 30, 0.95);
+}
+
+/* =========================
    VIP / NEW POST / FEED
    ========================= */
    .vipCard,
@@ -459,21 +806,24 @@ font-size: 60px;
 .showMoreBtn {
   margin: 14px auto 0;
   display: block;
-  height: 32px;
+  width: 415px;
+  max-width: 100%;
+  height: 80px;
   padding: 0 22px;
-  border-radius: 999px;
+  border-radius: 240px;
   border: 0;
   background: linear-gradient(90deg, #4f6bff 0%, #b05cff 50%, #ff4fb1 100%);
   color: #fff;
-  font-size: 12px;
+  font-size: 22px;
   font-weight: 700;
+  opacity: 1;
   cursor: pointer;
 }
 
 .findFriendsBtn {
   width: 100%;
-  height: 50px;
-  max-width: 280px;
+  height: 70px;
+  max-width: 380px;
   margin-top: 8px;
 }
 

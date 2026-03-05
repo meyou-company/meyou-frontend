@@ -193,6 +193,7 @@ export default function Profile() {
   const onAddToVip = useCallback(() => navigate("/friends"), [navigate]);
   const onGifts = useCallback(() => {}, []);
   const onReport = useCallback(() => {}, []);
+  const onBlock = useCallback(() => {}, []);
 
   const loadingOwn = !urlUsername && (!user || isAuthLoading);
   const loadingPublic = urlUsername && fetchedUser === null && !fetchError;
@@ -289,6 +290,9 @@ export default function Profile() {
             onMessages={onMessages}
             onSaved={onSaved}
             onWallet={onWallet}
+            onReport={onReport}
+            onAddToVip={onAddToVip}
+            onBlock={onBlock}
           />
         )}
       </div>

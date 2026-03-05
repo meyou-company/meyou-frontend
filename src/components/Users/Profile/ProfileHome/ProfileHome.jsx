@@ -44,6 +44,13 @@ const MOCK_POSTS = [
 
 
 
+const TABS_VISITOR_NOT_SUB = [
+  { id: "info", label: "Информация", locked: false },
+  { id: "stories", label: "Истории", locked: false },
+  { id: "video", label: "Видео", locked: true },
+  { id: "photo", label: "Фото", locked: true },
+];
+
 export default function ProfileHome({
   user,
   viewType = "OWNER",
@@ -63,15 +70,21 @@ export default function ProfileHome({
   onMessages,
   onSaved,
   onWallet,
+  /** Для профілю непідписаного відвідувача */
+  onReport,
+  onAddToVip,
+  onBlock,
 }) {
   const fileInputRef = useRef(null);
   const isOwner = viewType === "OWNER";
   const isVisitor = viewType === "VISITOR";
   const canSubscribe = isVisitor && typeof onSubscribe === "function";
+  const isVisitorNotSubscribed = isVisitor && !isSubscribed;
 
   const [newPostText, setNewPostText] = useState("");
   const [cropModalSrc, setCropModalSrc] = useState(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [visitorTab, setVisitorTab] = useState("info");
   /** URL фото для перегляду в повному розмірі (null = закрито) */
   const [viewImageUrl, setViewImageUrl] = useState(null);
 
@@ -139,9 +152,90 @@ export default function ProfileHome({
   };
 
   return (
-    <div className="profile-home">
+    <div className={`profile-home${isVisitorNotSubscribed ? " profile-home--visitor-not-subscribed" : ""}`}>
       <div className="profile-container">
         {/* ================= TOP: avatar + name + badges ================= */}
+        {isVisitorNotSubscribed ? (
+          <section className="profileBlock profileBlock--visitorNotSub">
+            <div className="profileLeft">
+              <div className="ph-visitor-avatarBlock">
+                <div
+                  className="ph-visitor-avatarWrap"
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => setViewImageUrl(displayAvatar)}
+                  onKeyDown={(e) => e.key === "Enter" && setViewImageUrl(displayAvatar)}
+                  aria-label="Переглянути фото"
+                >
+                  <img src={displayAvatar} alt={titleName} className="avatar" />
+                </div>
+                <span className="ph-visitor-onlineDot" aria-hidden="true" />
+                <p className="ph-visitor-onlineLabel">Online</p>
+              </div>
+            </div>
+            <div className="ph-visitor-right">
+              <div className="ph-visitor-name-row">
+                <h1 className="ph-visitor-name">{titleName}</h1>
+                <div className="ph-visitor-tools">
+                  <button
+                    type="button"
+                    className="ph-visitor-tools__report"
+                    onClick={onReport}
+                    aria-label="Пожаловаться"
+                  >
+                    <span className="ph-visitor-tools__reportIconWrap" aria-hidden="true" />
+                    <span className="ph-visitor-tools__reportLabel">Пожаловаться</span>
+                  </button>
+                  <button
+                    type="button"
+                    className="ph-visitor-tools__vip"
+                    onClick={onAddToVip}
+                    aria-label="Добавить в VIP"
+                  >
+                    <span className="ph-visitor-tools__vipText">Добавить в VIP</span>
+                    <img src={profileIcons.vipButton} alt="" className="ph-visitor-tools__vipIcon" />
+                  </button>
+                </div>
+              </div>
+              {(bioLine1 || bioLine2) && (
+                <div className="ph-visitor-bio">
+                  {bioLine1 && (
+                    <p className="ph-visitor-bio__line">
+                      {bioLine1.split(/(\s+)/).map((part, i) =>
+                        /\s/.test(part) ? part : <span key={i} className="ph-visitor-bio__word">{part}</span>
+                      )}
+                    </p>
+                  )}
+                  {bioLine2 && (
+                    <p className="ph-visitor-bio__line">
+                      {bioLine2.split(/(\s+)/).map((part, i) =>
+                        /\s/.test(part) ? part : <span key={i} className="ph-visitor-bio__word">{part}</span>
+                      )}
+                    </p>
+                  )}
+                </div>
+              )}
+              <div className="ph-visitor-actions">
+                <button
+                  type="button"
+                  className="ph-visitor-actions__subscribe"
+                  onClick={onSubscribe}
+                  disabled={subscriptionLoading}
+                >
+                  {subscriptionLoading ? "…" : "Подписаться"}
+                </button>
+                <button
+                  type="button"
+                  className="ph-visitor-actions__block"
+                  onClick={onBlock}
+                  aria-label="Заблокировать"
+                >
+                  Заблокировать
+                </button>
+              </div>
+            </div>
+          </section>
+        ) : (
         <section className="profileBlock">
           {/* LEFT: avatar */}
           <div className="profileLeft">
@@ -259,6 +353,7 @@ export default function ProfileHome({
 </div>
 
         </section>
+        )}
 
         {/* ================= ACTIONS: only for OWNER ================= */}
         {isOwner && (
@@ -319,7 +414,7 @@ export default function ProfileHome({
           </section>
         )}
 
-        {isVisitor && canSubscribe && (
+        {isVisitor && canSubscribe && !isVisitorNotSubscribed && (
           <section className="actionsSection">
             <div className="actionsBlock">
               <button
@@ -334,9 +429,31 @@ export default function ProfileHome({
           </section>
         )}
 
+        {/* ================= TABS (тільки для непідписаного відвідувача) ================= */}
+        {isVisitorNotSubscribed && (
+          <section className="ph-visitor-tabs" role="tablist" aria-label="Табы профиля">
+            {TABS_VISITOR_NOT_SUB.map((tab) => (
+              <button
+                key={tab.id}
+                type="button"
+                role="tab"
+                aria-selected={visitorTab === tab.id}
+                aria-disabled={tab.locked}
+                className={`ph-visitor-tabs__tab${visitorTab === tab.id ? " is-active" : ""}${tab.locked ? " is-locked" : ""}`}
+                onClick={() => !tab.locked && setVisitorTab(tab.id)}
+              >
+                <span>{tab.label}</span>
+                {tab.locked && (
+                  <img src={profileIcons.lockBlack} alt="" className="ph-visitor-tabs__lock" aria-hidden />
+                )}
+              </button>
+            ))}
+          </section>
+        )}
+
         {/* ================= VIP / FRIENDS ================= */}
         <section className="vipCard">
-          {hasFriends && (
+          {hasFriends && !isVisitorNotSubscribed && (
             <>
               <div className="vipHeader">
                 <span className="vipTitle">VIP 👑 0</span>
@@ -358,7 +475,7 @@ export default function ProfileHome({
             </>
           )}
 
-          {hasFriends && <div className="vipDivider" />}
+          {hasFriends && !isVisitorNotSubscribed && <div className="vipDivider" />}
 
           <div className="friendsTitle">Друзья {friends.length}</div>
 
@@ -394,15 +511,16 @@ export default function ProfileHome({
           ) : (
             <button
               type="button"
-              className="showMoreBtn findFriendsBtn"
+              className="showMoreBtn"
               onClick={onFindFriends ?? onShowMore}
             >
-              Знайти друзів
+              Показать больше
             </button>
           )}
         </section>
 
-        {/* ================= NEW POST ================= */}
+        {/* ================= NEW POST (тільки для власника) ================= */}
+        {!isVisitor && (
         <section className="newPost">
           <div className="newPostHead">
             <h3 className="newPostTitle">Что у вас нового?</h3>
@@ -418,6 +536,7 @@ export default function ProfileHome({
             placeholder="Lorem ipsum dolor sit amet..."
           />
         </section>
+        )}
         {/* ================= FEED ================= */}
 <section className="feed">
   {MOCK_POSTS.map((post) => (

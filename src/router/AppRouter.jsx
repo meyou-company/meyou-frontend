@@ -1,5 +1,6 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 
+import AppBottomNav from "../components/AppBottomNav/AppBottomNav";
 import HomePage from "../pages/HomeFeed/HomePage";
 import Explore from "../pages/Explore/Explore";
 import Friends from "../pages/Friends/Friends";
@@ -38,52 +39,64 @@ function GlobalBurgerMenu() {
   );
 }
 
+function AppLayout() {
+  const location = useLocation();
+  const isAuthRoute =
+    location.pathname.startsWith("/auth") || location.pathname === "/auth/callback";
+  const showBottomNav = !isAuthRoute;
+
+  return (
+    <>
+      <div className="app-shell">
+        <div className="app-page">
+          <div className={`app-container${showBottomNav ? " app-container--has-bottom-nav" : ""}`}>
+            <Routes>
+              <Route path="/" element={<HomePage />} />
+              <Route path="/search" element={<Explore />} />
+              <Route path="/friends" element={<Friends />} />
+              <Route path="/profile" element={<Profile />} />
+              <Route path="/profile/:username" element={<Profile />} />
+              <Route path="/vip-chat" element={<VipChat />} />
+              <Route path="/first-page" element={<FirstPage />} />
+              <Route path="/wallet" element={<WalletPage />} />
+
+              <Route
+                path="/users/profile/complete"
+                element={<CompleteProfilePage />}
+              />
+              <Route path="/users/profile/edit" element={<EditProfilePage />} />
+
+              <Route path="/auth/login" element={<LoginPage />} />
+              <Route path="/auth/register" element={<RegisterPage />} />
+
+              <Route path="/auth/verify-email" element={<VerifyEmailPage />} />
+
+              <Route path="/auth/forgot-password" element={<ForgotPassword />} />
+              <Route
+                path="/auth/reset/verify-code"
+                element={<VerifyResetCodePage />}
+              />
+              <Route
+                path="/auth/reset/new-password"
+                element={<ResetNewPasswordPage />}
+              />
+
+              <Route path="/auth/callback" element={<AuthCallback />} />
+            </Routes>
+          </div>
+        </div>
+      </div>
+      {showBottomNav && <AppBottomNav />}
+    </>
+  );
+}
+
 export default function AppRouter() {
   return (
     <BrowserRouter>
       <ProfileGuard>
         <GlobalBurgerMenu />
-        <div className="app-shell">
-          <div className="app-page">
-            <div className="app-container">
-              <Routes>
-                <Route path="/" element={<HomePage />} />
-                <Route path="/search" element={<Explore />} />
-                <Route path="/friends" element={<Friends />} />
-                <Route path="/profile" element={<Profile />} />
-                <Route path="/profile/:username" element={<Profile />} />
-                <Route path="/vip-chat" element={<VipChat />} />
-                <Route path="/first-page" element={<FirstPage />} />
-                <Route path="/wallet" element={<WalletPage />} />
-
-                <Route
-                  path="/users/profile/complete"
-                  element={<CompleteProfilePage />}
-                />
-                <Route path="/users/profile/edit" element={<EditProfilePage />} />
-
-                <Route path="/auth/login" element={<LoginPage />} />
-                <Route path="/auth/register" element={<RegisterPage />} />
-
-                {/* ✅ register verify */}
-                <Route path="/auth/verify-email" element={<VerifyEmailPage />} />
-
-                {/* ✅ reset flow */}
-                <Route path="/auth/forgot-password" element={<ForgotPassword />} />
-                <Route
-                  path="/auth/reset/verify-code"
-                  element={<VerifyResetCodePage />}
-                />
-                <Route
-                  path="/auth/reset/new-password"
-                  element={<ResetNewPasswordPage />}
-                />
-
-                <Route path="/auth/callback" element={<AuthCallback />} />
-              </Routes>
-            </div>
-          </div>
-        </div>
+        <AppLayout />
       </ProfileGuard>
     </BrowserRouter>
   );
