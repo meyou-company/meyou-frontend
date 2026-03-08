@@ -20,10 +20,16 @@ const MOCK_POSTS = [
 ];
 
 const toFriendItem = (f) => ({
-  id: f?.id ?? f,
+  id: f?.id ?? f?._id ?? f,
   username: f?.username,
+  firstName: f?.firstName,
+  lastName: f?.lastName,
   avatar: f?.avatarUrl ?? f?.avatar ?? null,
   online: f?.online ?? true,
+  isFollowingMe: f?.isFollowingMe === true,
+  amIFollowing: f?.amIFollowing === true,
+  isFriend: f?.isFriend === true,
+  isVip: f?.isVip === true,
 });
 
 export default function ProfileVisitorSubscribed({

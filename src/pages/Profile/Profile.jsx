@@ -146,7 +146,14 @@ export default function Profile() {
         mergeFriendsList(items);
       });
 
-    tryFollowing().catch(() => tryFriends().catch(() => {}));
+    /** Список підписників з isFollowingMe, amIFollowing, isFriend, isVip — щоб видно було друзів у підписниках */
+    const tryFollowers = () =>
+      usersApi.getUserFollowers(urlUsernameNorm).then((res) => {
+        const items = normalizeFriendsApiResponse(res);
+        mergeFriendsList(items);
+      });
+
+    tryFollowing().catch(() => tryFriends().catch(() => tryFollowers().catch(() => {})));
 
     return () => { cancelled = true; };
   }, [urlUsernameNorm, fetchedUser]);

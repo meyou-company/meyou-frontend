@@ -16,25 +16,31 @@ export function getFriendsCountNumber(raw) {
 }
 
 /**
- * Нормалізує відповідь API списку друзів/підписок у масив об'єктів з id, username, avatar.
- * Підтримує: масив напряму, { items: [] }, { data: [] }, { data: { items: [] } }, елементи { user: {...} }.
+ * Нормалізує відповідь API списку друзів/підписників у масив об'єктів.
+ * Підтримує: масив напряму, { items: [] }, { followers: [] }, { data: [] }, елементи з _id, isFollowingMe, amIFollowing, isFriend, isVip.
  */
 export function normalizeFriendsApiResponse(response) {
   const data = response?.data ?? response;
   if (!data || typeof data !== "object") return [];
-  let list = Array.isArray(data) ? data : (data.items ?? data.data ?? data.results ?? data.list ?? []);
+  let list = Array.isArray(data)
+    ? data
+    : (data.items ?? data.data ?? data.results ?? data.list ?? data.followers ?? []);
   if (!Array.isArray(list)) return [];
   return list.map((item) => {
     const u = item?.user ?? item?.followedUser ?? item?.follower ?? item;
     if (!u || typeof u !== "object") return null;
     return {
-      id: u.id ?? u.userId ?? u.username,
+      id: u.id ?? u._id ?? u.userId ?? u.username,
       username: u.username ?? u.userName ?? u.nick ?? u.nickname,
       firstName: u.firstName ?? u.first_name,
       lastName: u.lastName ?? u.last_name,
       avatarUrl: u.avatarUrl ?? u.avatar ?? u.avatar_url ?? u.profileImage,
       avatar: u.avatarUrl ?? u.avatar ?? u.avatar_url ?? u.profileImage,
       online: u.online !== false,
+      isFollowingMe: Boolean(u.isFollowingMe),
+      amIFollowing: Boolean(u.amIFollowing),
+      isFriend: Boolean(u.isFriend),
+      isVip: Boolean(u.isVip),
     };
   }).filter(Boolean);
 }
@@ -56,7 +62,8 @@ export function getFriendsFromUser(u) {
     if (combined.length > 0) {
       const seen = new Set();
       list = combined.filter((f) => {
-        const id = f?.id ?? f?.userId ?? f?.username;
+        const raw = f?.user ?? f?.followedUser ?? f?.follower ?? f;
+        const id = raw?.id ?? raw?._id ?? raw?.userId ?? raw?.username;
         if (id == null || seen.has(id)) return false;
         seen.add(id);
         return true;
@@ -68,13 +75,17 @@ export function getFriendsFromUser(u) {
     if (!f || typeof f !== "object") return null;
     return {
       ...f,
-      id: f?.id ?? f?.userId ?? f?.username,
+      id: f?.id ?? f?._id ?? f?.userId ?? f?.username,
       username: f?.username ?? f?.userName ?? f?.nick ?? f?.nickname,
       firstName: f?.firstName ?? f?.first_name,
       lastName: f?.lastName ?? f?.last_name,
       avatarUrl: f?.avatarUrl ?? f?.avatar ?? f?.avatar_url ?? f?.profileImage,
       avatar: f?.avatarUrl ?? f?.avatar ?? f?.avatar_url ?? f?.profileImage,
       online: f?.online !== false,
+      isFollowingMe: f?.isFollowingMe === true,
+      amIFollowing: f?.amIFollowing === true,
+      isFriend: f?.isFriend === true,
+      isVip: f?.isVip === true,
     };
   }).filter(Boolean);
 }

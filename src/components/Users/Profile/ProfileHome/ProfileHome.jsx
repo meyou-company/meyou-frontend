@@ -23,11 +23,17 @@ const MOCK_VIP = Array.from({ length: 12 }, (_, i) => ({
   avatar: i % 3 === 0 ? "/Logo/photo.png" : null,
 }));
 
-/** Форма друга для відображення в кружечках */
+/** Форма друга для відображення в кружечках (підтримка полів з GET /users/:username/followers) */
 const toFriendItem = (f) => ({
-  id: f?.id ?? f,
+  id: f?.id ?? f?._id ?? f,
   username: f?.username,
+  firstName: f?.firstName,
+  lastName: f?.lastName,
   avatar: f?.avatarUrl ?? f?.avatar ?? null,
+  isFollowingMe: f?.isFollowingMe === true,
+  amIFollowing: f?.amIFollowing === true,
+  isFriend: f?.isFriend === true,
+  isVip: f?.isVip === true,
 });
 const MOCK_POSTS = [
   {

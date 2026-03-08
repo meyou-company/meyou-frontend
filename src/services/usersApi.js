@@ -38,4 +38,15 @@ export const usersApi = {
     if (!value) return Promise.reject(new Error("username required"));
     return api.get(`/users/${encodeURIComponent(value)}/friends`);
   },
+
+  /**
+   * Список підписників (followers) з полями isFollowingMe, amIFollowing, isFriend, isVip.
+   * Відповідь: { followers: [{ _id, firstName, lastName, avatar, isFollowingMe, amIFollowing, isFriend, isVip }, ...] }.
+   */
+  getUserFollowers(username) {
+    const raw = String(username ?? "").trim();
+    const value = raw.startsWith("@") ? raw.slice(1) : raw;
+    if (!value) return Promise.reject(new Error("username required"));
+    return api.get(`/users/${encodeURIComponent(value)}/followers`);
+  },
 };
