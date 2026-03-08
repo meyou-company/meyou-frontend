@@ -1,0 +1,337 @@
+/* =========================
+   ProfileVisitorPublic — публічний профіль (без підписки)
+   ========================= */
+$phVisitorGradient: linear-gradient(236.31deg, #FF4FB1 11.54%, #4F6BFF 88.46%);
+$phVisitorGold: linear-gradient(90deg, #E7C577 0%, #FFE9B1 38%, #F4D695 70%, #D8B66D 100%);
+$phVisitorPinkPurple: linear-gradient(236.31deg, #FF4FB1 11.54%, #4F6BFF 88.46%);
+$phVisitorBluePurple: linear-gradient(135deg, #4f6bff, #b05cff);
+$phVisitorTabBeige: #FCE9E9;
+
+.profile-visitor-public .profileBlock--visitorNotSub {
+  align-items: flex-start;
+  gap: 28px;
+}
+
+.profile-visitor-public .profileBlock--visitorNotSub .profileLeft {
+  flex: 0 0 313px;
+}
+
+.profile-visitor-public .ph-visitor-avatarBlock {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.profile-visitor-public .ph-visitor-avatarWrap {
+  width: 313px;
+  height: 313px;
+  border-radius: 50%;
+  padding: 4px;
+  background: $phVisitorPinkPurple;
+  overflow: visible;
+  display: block;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+
+  .avatar {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    display: block;
+  }
+}
+
+.profile-visitor-public .ph-visitor-onlineDot {
+  position: absolute;
+  top: 18px;
+  right: 58px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #22c55e;
+  border: 3px solid #fff;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.06);
+  flex-shrink: 0;
+}
+
+.profile-visitor-public .ph-visitor-onlineLabel {
+  margin: 8px 0 0;
+  font-family: Montserrat, sans-serif;
+  font-weight: 600;
+  font-size: 36px;
+  background: $phVisitorGradient;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  line-height: 1.2;
+}
+
+.profile-visitor-public .ph-visitor-right {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 32px;
+  padding-top: 0;
+}
+
+.profile-visitor-public .ph-visitor-name-row {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.profile-visitor-public .ph-visitor-name-row .ph-visitor-name {
+  flex: 0 1 auto;
+  min-width: 0;
+}
+
+.profile-visitor-public .ph-visitor-tools {
+  display: flex;
+  align-items: center;
+  gap: 42px;
+  flex-shrink: 0;
+}
+
+.profile-visitor-public .ph-visitor-tools__report {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 10px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.profile-visitor-public .ph-visitor-tools__reportIconWrap {
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  background: $phVisitorGradient;
+  -webkit-mask: url("/home/complaints.svg") center / contain no-repeat;
+  mask: url("/home/complaints.svg") center / contain no-repeat;
+}
+
+.profile-visitor-public .ph-visitor-tools__reportLabel {
+  font-family: Montserrat, sans-serif;
+  font-weight: 400;
+  font-size: 14px;
+  color: #000000;
+  line-height: 1.1;
+}
+
+.profile-visitor-public .ph-visitor-tools__vip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 400px;
+  height: 74px;
+  padding: 0 18px;
+  border-radius: 20px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  background: $phVisitorGold;
+  color: rgba(0, 0, 0, 0.75);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.profile-visitor-public .ph-visitor-tools__vipText {
+  font-family: Montserrat, sans-serif;
+  font-weight: 300;
+  font-style: normal;
+  font-size: 20px;
+  line-height: 100%;
+  letter-spacing: 0%;
+  opacity: 1;
+}
+
+.profile-visitor-public .ph-visitor-tools__vip .ph-visitor-tools__vipIcon {
+  width: 18px;
+  height: 18px;
+  display: block;
+  flex-shrink: 0;
+}
+
+.profile-visitor-public .ph-visitor-name {
+  margin: 0;
+  font-size: 60px;
+  font-weight: 800;
+  line-height: 1.15;
+  background: $phVisitorGradient;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-color: #ff4fb1;
+}
+
+.profile-visitor-public .ph-visitor-bio {
+  margin: 0;
+  max-width: 313px;
+}
+
+.profile-visitor-public .ph-visitor-bio__line {
+  margin: 20px 0 30px 0;
+  font-family: Montserrat, sans-serif;
+  font-weight: 400;
+  font-size: 30px;
+  line-height: 100%;
+  color: #000000;
+  opacity: 1;
+
+  &:not(:last-child) {
+    margin-bottom: 2px;
+  }
+}
+
+.profile-visitor-public .ph-visitor-bio__word {
+  text-decoration: underline;
+  text-decoration-style: solid;
+  text-underline-offset: 0;
+  text-underline-position: under;
+}
+
+.profile-visitor-public .ph-visitor-actions {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 116px;
+  width: 100%;
+}
+
+.profile-visitor-public .ph-visitor-actions__subscribe {
+  width: 400px;
+  flex-shrink: 0;
+  height: 70px;
+  padding: 0 24px;
+  border-radius: 20px;
+  border: 0;
+  background: $phVisitorGradient;
+  color: #fff;
+  font-family: Montserrat, sans-serif;
+  font-weight: 400;
+  font-style: normal;
+  font-size: 18px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: opacity 0.2s;
+
+  &:hover:not(:disabled) {
+    opacity: 0.92;
+  }
+  &:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+  }
+}
+
+.profile-visitor-public .ph-visitor-actions__block {
+  width: 400px;
+  flex-shrink: 0;
+  height: 70px;
+  padding: 0 24px;
+  border-radius: 20px;
+  border: 0;
+  background: $phVisitorBluePurple;
+  color: #fff;
+  font-family: Montserrat, sans-serif;
+  font-weight: 400;
+  font-style: normal;
+  font-size: 18px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: opacity 0.2s;
+
+  &:hover {
+    opacity: 0.92;
+  }
+}
+
+.profile-visitor-public .ph-visitor-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 94px;
+  width: 100%;
+}
+
+.profile-visitor-public .ph-visitor-tabs__tab {
+  min-width: 230px;
+  height: 56px;
+  padding: 0 20px;
+  border-radius: 14px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  background: $phVisitorTabBeige;
+  color: rgba(0, 0, 0, 0.65);
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  -webkit-tap-highlight-color: transparent;
+
+  &.is-active {
+    background: $phVisitorGradient;
+    color: #fff;
+    border-color: transparent;
+  }
+
+  &.is-locked {
+    cursor: default;
+    opacity: 0.9;
+  }
+}
+
+.profile-visitor-public .ph-visitor-tabs__lock {
+  width: 16px;
+  height: 16px;
+  opacity: 0.8;
+}
+
+/* Dark theme */
+body.dark .profile-visitor-public .ph-visitor-tools__report,
+html[data-theme="dark"] .profile-visitor-public .ph-visitor-tools__report {
+  color: rgba(255, 255, 255, 0.85);
+}
+body.dark .profile-visitor-public .ph-visitor-tools__vip,
+html[data-theme="dark"] .profile-visitor-public .ph-visitor-tools__vip {
+  border-color: rgba(255, 255, 255, 0.2);
+  color: rgba(255, 255, 255, 0.95);
+}
+body.dark .profile-visitor-public .ph-visitor-bio__line,
+html[data-theme="dark"] .profile-visitor-public .ph-visitor-bio__line {
+  color: #a5b4ff;
+}
+body.dark .profile-visitor-public .ph-visitor-tabs__tab:not(.is-active),
+html[data-theme="dark"] .profile-visitor-public .ph-visitor-tabs__tab:not(.is-active) {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.15);
+  color: rgba(255, 255, 255, 0.85);
+}
+body.dark .profile-visitor-public .ph-visitor-tabs__lock,
+html[data-theme="dark"] .profile-visitor-public .ph-visitor-tabs__lock {
+  filter: brightness(0) invert(1);
+  opacity: 0.7;
+}
+body.dark .profile-visitor-public .ph-visitor-onlineLabel,
+html[data-theme="dark"] .profile-visitor-public .ph-visitor-onlineLabel {
+  color: #c9b8ff;
+}
+body.dark .profile-visitor-public .ph-visitor-onlineDot,
+html[data-theme="dark"] .profile-visitor-public .ph-visitor-onlineDot {
+  border-color: rgba(20, 10, 30, 0.95);
+}

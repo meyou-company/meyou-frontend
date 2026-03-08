@@ -1,3 +1,4 @@
+/** Друг / підписаний користувач */
 import { useEffect, useMemo, useState } from "react";
 
 import profileIcons from "../../../../constants/profileIcons";

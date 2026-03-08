@@ -2,7 +2,9 @@ import { useEffect, useMemo, useCallback, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import ProfileHeader from "../../components/Users/Profile/ProfileHome/ProfileHeader";
 import ProfileHome from "../../components/Users/Profile/ProfileHome/ProfileHome";
+import ProfileVisitorPublic from "../../components/Users/Profile/ProfileVisitorPublic/ProfileVisitorPublic";
 import ProfileVisitorSubscribed from "../../components/Users/Profile/ProfileVisitorSubscribed/ProfileVisitorSubscribed";
+import ProfileVisitorVip from "../../components/Users/Profile/ProfileVisitorVip/ProfileVisitorVip";
 import { useAuthStore } from "../../zustand/useAuthStore";
 import { usersApi } from "../../services/usersApi";
 import { subscriptionsApi } from "../../services/subscriptionsApi";
@@ -279,7 +281,72 @@ export default function Profile() {
 
   if (!profileUser) return null;
 
-  const showSubscribedView = !isOwnProfile && isSubscribed;
+  // 4 стани профілю: owner | public | subscribed/friend | vip
+  const isOwner = isOwnProfile;
+  const isVip = profileUser?.viewType === "VIP";
+  const isFriendOrSubscribed = !isOwner && isSubscribed;
+  const isPublic = !isOwner && !isSubscribed && !isVip;
+
+  const renderProfileContent = () => {
+    if (isOwner) {
+      return (
+        <ProfileHome
+          user={profileUser}
+          followingList={followingList}
+          onOpenUser={onOpenUser}
+          onShowMore={onShowMore}
+          onFindFriends={onFindFriends}
+          refreshMe={refreshMe}
+          onEditProfile={onEditProfile}
+          onMessages={onMessages}
+          onSaved={onSaved}
+          onWallet={onWallet}
+        />
+      );
+    }
+    if (isVip) {
+      return (
+        <ProfileVisitorVip
+          user={profileUser}
+          onUnsubscribe={handleSubscribe}
+          onVipChat={() => navigate("/vip-chat")}
+          onGifts={onGifts}
+          onReport={onReport}
+          onShowMoreFriends={onShowMoreFriendFriends}
+          followingList={profileUser?.friends}
+        />
+      );
+    }
+    if (isFriendOrSubscribed) {
+      return (
+        <ProfileVisitorSubscribed
+          user={profileUser}
+          friendsCount={profileUser?.friendsCount}
+          onAddToVip={onAddToVip}
+          onUnsubscribe={handleSubscribe}
+          onVipChat={() => navigate("/vip-chat")}
+          onGifts={onGifts}
+          onReport={onReport}
+          onShowMoreFriends={onShowMoreFriendFriends}
+          onOpenUser={onOpenUser}
+        />
+      );
+    }
+    // isPublic
+    return (
+      <ProfileVisitorPublic
+        user={profileUser}
+        onSubscribe={handleSubscribe}
+        subscriptionLoading={subscriptionLoading}
+        onOpenUser={onOpenUser}
+        onShowMore={onShowMoreFriendFriends}
+        onFindFriends={onFindFriends}
+        onReport={onReport}
+        onAddToVip={onAddToVip}
+        onBlock={onBlock}
+      />
+    );
+  };
 
   return (
     <div className={styles.page}>
@@ -293,41 +360,7 @@ export default function Profile() {
         onWallet={onWallet}
         onNav={onNav}
       />
-      <div className={styles.content}>
-        {showSubscribedView ? (
-          <ProfileVisitorSubscribed
-            user={profileUser}
-            friendsCount={profileUser?.friendsCount}
-            onAddToVip={onAddToVip}
-            onUnsubscribe={handleSubscribe}
-            onVipChat={() => navigate("/vip-chat")}
-            onGifts={onGifts}
-            onReport={onReport}
-            onShowMoreFriends={onShowMoreFriendFriends}
-            onOpenUser={onOpenUser}
-          />
-        ) : (
-          <ProfileHome
-            user={profileUser}
-            viewType={profileUser.viewType}
-            isSubscribed={isSubscribed}
-            onSubscribe={handleSubscribe}
-            subscriptionLoading={subscriptionLoading}
-            followingList={isOwnProfile ? followingList : undefined}
-            onOpenUser={onOpenUser}
-            onShowMore={isOwnProfile ? onShowMore : onShowMoreFriendFriends}
-            onFindFriends={onFindFriends}
-            refreshMe={refreshMe}
-            onEditProfile={onEditProfile}
-            onMessages={onMessages}
-            onSaved={onSaved}
-            onWallet={onWallet}
-            onReport={onReport}
-            onAddToVip={onAddToVip}
-            onBlock={onBlock}
-          />
-        )}
-      </div>
+      <div className={styles.content}>{renderProfileContent()}</div>
     </div>
   );
 }
