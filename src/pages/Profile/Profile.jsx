@@ -6,30 +6,18 @@ import ProfileVisitorSubscribed from "../../components/Users/Profile/ProfileVisi
 import { useAuthStore } from "../../zustand/useAuthStore";
 import { usersApi } from "../../services/usersApi";
 import { subscriptionsApi } from "../../services/subscriptionsApi";
+import { getFriendsFromUser, getFriendsCountNumber, normalizeFriendsApiResponse } from "../../utils/profileFriends";
 import styles from "./Profile.module.scss";
 
-/** Нормалізація профілю з GET /users/:username (viewType, subscriptionStatus, загальна кількість друзів з бекенду) */
+/** Нормалізація профілю з GET /users/:username (viewType, subscriptionStatus, friendsCount, interests) */
 const normalizeProfile = (u) => {
   if (!u) return null;
-  const friendsArray = Array.isArray(u.friends) ? u.friends : (u.friends?.items ?? []);
-  const friendsCountFromApi =
-    typeof u.friendsCount === "number"
-      ? u.friendsCount
-      : typeof u.friends_count === "number"
-        ? u.friends_count
-        : typeof u.friendsTotal === "number"
-          ? u.friendsTotal
-          : typeof u.friends_total === "number"
-            ? u.friends_total
-            : typeof u.friends?.total === "number"
-              ? u.friends.total
-              : typeof u.friends?.totalCount === "number"
-                ? u.friends.totalCount
-                : u.stats?.friendsCount ?? u.stats?.friends_count;
-  const friendsCount =
-    typeof friendsCountFromApi === "number" && friendsCountFromApi >= 0
-      ? friendsCountFromApi
-      : undefined;
+  const friendsArray = getFriendsFromUser(u);
+
+  const rawFriendsCount = u.friendsCount ?? u.friends_count ?? u.friendsTotal ?? u.friends_total
+    ?? u.friends?.total ?? u.friends?.totalCount ?? u.stats?.friendsCount ?? u.stats?.friends_count;
+  const friendsCount = getFriendsCountNumber(rawFriendsCount);
+
   return {
     id: u.id,
     firstName: u.firstName || "",
@@ -41,8 +29,11 @@ const normalizeProfile = (u) => {
     country: u.country || "",
     bio: u.bio,
     isVerified: u.isVerified,
+    /** Інтереси та хобі з бекенду (зберігаються в DTO update-profile) */
+    interests: Array.isArray(u.interests) ? u.interests : [],
+    hobbies: Array.isArray(u.hobbies) ? u.hobbies : [],
     friends: friendsArray,
-    /** Загальна кількість друзів цієї людини (з API) — показуємо на її сторінці, коли ти на неї підписана */
+    /** Загальна кількість друзів (підписники + підписки) з API */
     friendsCount,
     viewType: u.viewType,
     subscriptionStatus: u.subscriptionStatus
@@ -130,6 +121,36 @@ export default function Profile() {
     return () => { cancelled = true; };
   }, [urlUsernameNorm, urlUsername, user]);
 
+  /** Якщо в профілі є friendsCount, але списку друзів немає — підтягуємо список окремим запитом і мержимо з аватарами/даними */
+  useEffect(() => {
+    if (!urlUsernameNorm || !fetchedUser) return;
+    const friendsFromProfile = getFriendsFromUser(fetchedUser);
+    const count = getFriendsCountNumber(fetchedUser?.friendsCount ?? fetchedUser?.friends_count);
+    if (friendsFromProfile.length > 0 || !(typeof count === "number" && count > 0)) return;
+
+    let cancelled = false;
+    const mergeFriendsList = (items) => {
+      if (cancelled || !Array.isArray(items) || items.length === 0) return;
+      setFetchedUser((prev) => (prev ? { ...prev, following: items } : null));
+    };
+
+    const tryFollowing = () =>
+      usersApi.getUserFollowing(urlUsernameNorm).then((res) => {
+        const items = normalizeFriendsApiResponse(res);
+        mergeFriendsList(items);
+      });
+
+    const tryFriends = () =>
+      usersApi.getUserFriends(urlUsernameNorm).then((res) => {
+        const items = normalizeFriendsApiResponse(res);
+        mergeFriendsList(items);
+      });
+
+    tryFollowing().catch(() => tryFriends().catch(() => {}));
+
+    return () => { cancelled = true; };
+  }, [urlUsernameNorm, fetchedUser]);
+
   useEffect(() => {
     if (!urlUsername && !isAuthLoading && !user) {
       navigate("/auth/login", { replace: true });
@@ -188,6 +209,10 @@ export default function Profile() {
     if (username) navigate(`/profile/${username}`);
   }, [navigate]);
   const onShowMore = useCallback(() => navigate("/friends"), [navigate]);
+  /** На сторінці друга: «Показать больше» веде до списку його друзів */
+  const onShowMoreFriendFriends = useCallback(() => {
+    if (profileUser?.username) navigate(`/profile/${profileUser.username}/friends`);
+  }, [profileUser?.username, navigate]);
   /** Якщо немає друзів — кнопка «Знайти друзів» веде на пошук */
   const onFindFriends = useCallback(() => navigate("/search"), [navigate]);
   const onAddToVip = useCallback(() => navigate("/friends"), [navigate]);
@@ -271,7 +296,7 @@ export default function Profile() {
             onVipChat={() => navigate("/vip-chat")}
             onGifts={onGifts}
             onReport={onReport}
-            onShowMoreFriends={onShowMore}
+            onShowMoreFriends={onShowMoreFriendFriends}
             onOpenUser={onOpenUser}
           />
         ) : (
@@ -283,7 +308,7 @@ export default function Profile() {
             subscriptionLoading={subscriptionLoading}
             followingList={isOwnProfile ? followingList : undefined}
             onOpenUser={onOpenUser}
-            onShowMore={onShowMore}
+            onShowMore={isOwnProfile ? onShowMore : onShowMoreFriendFriends}
             onFindFriends={onFindFriends}
             refreshMe={refreshMe}
             onEditProfile={onEditProfile}

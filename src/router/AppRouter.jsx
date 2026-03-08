@@ -5,6 +5,7 @@ import HomePage from "../pages/HomeFeed/HomePage";
 import Explore from "../pages/Explore/Explore";
 import Friends from "../pages/Friends/Friends";
 import Profile from "../pages/Profile/Profile";
+import ProfileFriendsPage from "../pages/Profile/ProfileFriendsPage";
 import VipChat from "../pages/VipChat/VipChat";
 
 import LoginPage from "../pages/Auth/Login/LoginPage";
@@ -56,6 +57,7 @@ function AppLayout() {
               <Route path="/friends" element={<Friends />} />
               <Route path="/profile" element={<Profile />} />
               <Route path="/profile/:username" element={<Profile />} />
+              <Route path="/profile/:username/friends" element={<ProfileFriendsPage />} />
               <Route path="/vip-chat" element={<VipChat />} />
               <Route path="/first-page" element={<FirstPage />} />
               <Route path="/wallet" element={<WalletPage />} />

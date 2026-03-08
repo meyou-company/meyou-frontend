@@ -7,6 +7,7 @@ import { cropImageToFile } from "../../../../utils/cropImageToFile";
 import { authApi } from "../../../../services/auth";
 
 import profileIcons from "../../../../constants/profileIcons";
+import { getFriendsCountNumber } from "../../../../utils/profileFriends";
 import "./ProfileHome.scss";
 
 /** Іконки тільки для actionsBlock (чорно-білі SVG) */
@@ -115,6 +116,10 @@ export default function ProfileHome({
     return Array.isArray(user?.friends) ? user.friends.map(toFriendItem) : [];
   }, [followingList, user?.friends]);
   const hasFriends = friends.length > 0;
+  /** Загальна кількість друзів з бекенду (friendsCount: { followers, following } або число); інакше — довжина списку */
+  const apiCount = getFriendsCountNumber(user?.friendsCount ?? user?.friends_count);
+  const displayFriendsCount =
+    typeof apiCount === "number" && apiCount >= 0 ? apiCount : friends.length;
 
   const onFileSelect = (e) => {
     const file = e.target.files?.[0];
@@ -477,7 +482,7 @@ export default function ProfileHome({
 
           {hasFriends && !isVisitorNotSubscribed && <div className="vipDivider" />}
 
-          <div className="friendsTitle">Друзья {friends.length}</div>
+          <div className="friendsTitle">Друзья {displayFriendsCount}</div>
 
           {hasFriends ? (
             <>

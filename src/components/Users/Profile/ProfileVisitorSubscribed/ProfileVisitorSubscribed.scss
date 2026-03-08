@@ -57,36 +57,71 @@ $tabBgMobile: #f5f0e8; // світло-бежеві таби
   text-underline-offset: 2px;
 }
 
-/* ===== TOP: 2 колонки як у макеті ===== */
+/* ===== TOP: 3 колонки як у макеті — зліва аватар+Online, центр нік+ім'я+локація, справа VIP Chat+Подарки+Пожаловаться+Добавить в VIP ===== */
 .profile-visitor-subscribed__top {
   display: grid;
-  grid-template-columns: 260px 1fr; /* ✅ лівий блок фіксований */
-  gap: 28px;
+  grid-template-columns: 200px 1fr auto;
+  gap: 24px 28px;
   align-items: start;
 }
 
-/* ===== LEFT ===== */
 .profile-visitor-subscribed__left {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  gap: 10px;
+  align-items: center;
+  gap: 8px;
 }
 
-/* Ряд 1: на desktop — спочатку нікнейм/ім'я, потім аватар; на мобілці — аватар зліва, нікнейм справа */
-.profile-visitor-subscribed__mobileRow1 {
+.profile-visitor-subscribed__nameBlock--mobile {
+  display: none;
+}
+
+.profile-visitor-subscribed__center {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  gap: 10px;
+  gap: 4px;
+  min-width: 0;
+  padding-top: 8px;
 }
 
-.profile-visitor-subscribed__mobileRow1 .profile-visitor-subscribed__avatarWrap {
-  order: 2;
+.profile-visitor-subscribed__nickname--center {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 800;
+  line-height: 1.15;
+  background: $gradient;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-color: #ff4fb1;
 }
 
-.profile-visitor-subscribed__mobileRow1 .profile-visitor-subscribed__nameBlock {
-  order: 1;
+.profile-visitor-subscribed__center .profile-visitor-subscribed__fullName,
+.profile-visitor-subscribed__center .profile-visitor-subscribed__location {
+  margin: 0;
+  font-size: 14px;
+  color: rgba(0, 0, 0, 0.8);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.profile-visitor-subscribed__right {
+  min-width: 0;
+}
+
+.pvs-top-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 12px;
+}
+
+.pvs-tools__row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
 }
 
 
@@ -123,14 +158,17 @@ $tabBgMobile: #f5f0e8; // світло-бежеві таби
   box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.08);
 }
 
-/* Online label під аватаром */
+/* Online під аватаром — як у макеті (фіолетовий) */
 .profile-visitor-subscribed__onlineLabel {
- 
-  margin-left: 25px;
-  font-size: 16px;
+  margin: 0;
+  font-size: 18px;
   font-weight: 700;
-  color: $purple;
+  background: $gradient;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
   text-decoration: underline;
+  text-underline-offset: 2px;
 }
 
 /* Загальна кількість друзів у людини (ліва колонка + секція Друзья) */
@@ -178,34 +216,7 @@ html[data-theme="dark"] .profile-visitor-subscribed__friendsCountLabel {
   transform: scale(0.98);
 }
 
-/* ===== RIGHT ===== */
-.profile-visitor-subscribed__right {
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  gap: 10px;
-  padding-top: 0;
-}
-
-/* Окремий блок іконок — компактний, не збільшує відступи ніка/локації */
-.pvs-icons-block {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 0;
-  margin: 0;
-  padding: 0;
-}
-
-/* Зверху Подарки + Пожаловаться, під ними іконка чату */
-.pvs-tools {
-  width: auto;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 6px;
-}
+/* Права колонка вже задана вище (.profile-visitor-subscribed__right) */
 
 .pvs-tools__vip {
   width: 128px;
@@ -277,14 +288,7 @@ html[data-theme="dark"] .pvs-tools__vip .pvs-tools__label {
   color: $pvsText;
 }
 
-/* перший ряд: Подарки, Пожаловаться */
-.pvs-tools__right {
-  display: flex;
-  justify-content: flex-end;
-  gap: 42px;
-  padding-top: 0;
-  margin-top: 0;
-}
+/* Подарки + Пожаловаться в один ряд (pvs-tools__row) */
 
 .pvs-tools__small {
   width: 75px;
@@ -328,26 +332,20 @@ html[data-theme="dark"] .pvs-tools__vip .pvs-tools__label {
   white-space: nowrap;
 }
 
-/* ===== Кнопка «Добавить в VIP» + таби ===== */
-.pvs-actions {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
+/* Кнопка «Добавить в VIP» (у правій колонці) */
 .pvs-actions__vipBtn {
-  width: 310px;
-  height: 60px;
+  width: 100%;
+  max-width: 280px;
+  height: 56px;
   border-radius: 20px;
   border: 1px solid rgba(0, 0, 0, 0.08);
   background: $goldGrad;
   color: rgba(0, 0, 0, 0.75);
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 700;
+  font-family: Montserrat, sans-serif;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
-  justify-self: center;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -359,28 +357,32 @@ html[data-theme="dark"] .pvs-tools__vip .pvs-tools__label {
   display: block;
 }
 
-.pvs-actions__tabs {
+/* Таби під верхнім блоком — як у макеті: Удалить, Информация, Истории, Видео, Фото */
+.pvs-actions__tabs--standalone {
   width: 100%;
+  margin-top: 20px;
   display: flex;
-  justify-content: flex-start; /* ✅ таби починаються зліва як у Figma */
-  gap: 16px;
-  flex-wrap: nowrap;           /* ✅ на desktop в один ряд */
+  justify-content: flex-start;
+  gap: 12px;
+  flex-wrap: wrap;
 }
 
 .pvs-actions__tab {
-  width: 180px;
-  height: 60px;
-  border-radius: 16px;
-  border: 1px solid transparent;
+  min-width: 100px;
+  height: 52px;
+  padding: 0 20px;
+  border-radius: 14px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
   background: $pinkBeige;
   color: rgba(0, 0, 0, 0.65);
-  font-size: 18px;
+  font-size: 15px;
   font-weight: 600;
+  font-family: Montserrat, sans-serif;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 10px;
+  gap: 8px;
   -webkit-tap-highlight-color: transparent;
 }
 
@@ -388,6 +390,14 @@ html[data-theme="dark"] .pvs-tools__vip .pvs-tools__label {
   border-color: rgba(107, 102, 255, 0.35);
   color: rgba(0, 0, 0, 0.75);
   box-shadow: 0 6px 18px rgba(107, 102, 255, 0.14);
+}
+
+/* Таб «Удалить» коли активний — градієнт як у макеті */
+.pvs-actions__tab--delete.is-active {
+  background: $gradient;
+  color: #fff;
+  border-color: transparent;
+  box-shadow: 0 4px 14px rgba(107, 102, 255, 0.3);
 }
 
 .pvs-actions__tab.is-locked {
@@ -414,8 +424,7 @@ html[data-theme="dark"] .pvs-tools__vip .pvs-tools__label {
   color: rgba(0, 0, 0, 0.6);
 }
 
-/* ===== FRIENDS ===== */
-/* Блок постів (таб «Посты») */
+/* ===== FRIENDS: такий самий вигляд як у моєму профілі (vipCard, vipRow, showMoreBtn) ===== */
 .profile-visitor-subscribed__feed {
   margin-top: 16px;
   width: 100%;
@@ -423,24 +432,94 @@ html[data-theme="dark"] .pvs-tools__vip .pvs-tools__label {
 
 .profile-visitor-subscribed__friends {
   margin-top: 16px;
-  background: $cardBg;
-  border-radius: 18px;
-  padding: 18px 16px 16px;
-  border: 1px solid $stroke;
 }
 
-.profile-visitor-subscribed__friendsTitle {
-  margin: 0 0 14px;
+/* Блок друзів — ті самі класи й стилі що в ProfileHome */
+.profile-visitor-subscribed .vipCard {
+  width: 100%;
+  padding: 14px;
+  border-radius: 14px;
+  border: 1px solid rgba(0, 0, 0, 0.14);
+  background: rgba(255, 255, 255, 0.35);
+}
+
+.profile-visitor-subscribed .friendsTitle {
   font-size: 14px;
-  font-weight: 800;
-  color: rgba(0, 0, 0, 0.6);
+  font-weight: 500;
+  color: rgba(0, 0, 0, 0.7);
+  margin: 0 0 10px;
 }
 
-.profile-visitor-subscribed__friendsGrid {
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 14px;
-  margin-bottom: 16px;
+.profile-visitor-subscribed .vipRow {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  overflow-x: auto;
+  padding-bottom: 6px;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.profile-visitor-subscribed .vipRow::-webkit-scrollbar {
+  display: none;
+}
+
+.profile-visitor-subscribed .vipItem {
+  flex: 0 0 auto;
+}
+
+.profile-visitor-subscribed .vipAvatarWrap {
+  position: relative;
+  width: 153px;
+  height: 153px;
+  border-radius: 50%;
+  padding: 2px;
+  background: linear-gradient(135deg, #b05cff, #ff4fb1, #4f6bff);
+}
+.profile-visitor-subscribed .vipAvatarWrap--clickable {
+  border: none;
+  cursor: pointer;
+  display: block;
+  appearance: none;
+}
+.profile-visitor-subscribed .vipAvatarWrap--clickable:hover {
+  opacity: 0.9;
+}
+
+.profile-visitor-subscribed .vipAvatar {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  display: block;
+  background: #eee;
+}
+
+.profile-visitor-subscribed .onlineDot {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #22c55e;
+  border: 2px solid #fff;
+}
+
+.profile-visitor-subscribed .showMoreBtn {
+  margin: 14px auto 0;
+  display: block;
+  width: 415px;
+  max-width: 100%;
+  height: 80px;
+  padding: 0 22px;
+  border-radius: 240px;
+  border: 0;
+  background: linear-gradient(90deg, #4f6bff 0%, #b05cff 50%, #ff4fb1 100%);
+  color: #fff;
+  font-size: 22px;
+  font-weight: 700;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .profile-visitor-subscribed__friendsEmpty {
@@ -450,102 +529,6 @@ html[data-theme="dark"] .pvs-tools__vip .pvs-tools__label {
   font-weight: 500;
   color: rgba(0, 0, 0, 0.6);
   line-height: 1.4;
-}
-
-/* Сітка: 2 рядки по 5 аватарів, градієнтна обводка, індикатор онлайну */
-.profile-visitor-subscribed__friendAvatar {
-  width: 100%;
-  aspect-ratio: 1;
-  border-radius: 50%;
-  overflow: visible;
-  padding: 0;
-  border: 3px solid transparent;
-  background: linear-gradient(#ffffff, #ffffff) padding-box, $gradient border-box;
-  background-clip: padding-box, border-box;
-  cursor: pointer;
-  position: relative;
-  display: block;
-}
-
-.profile-visitor-subscribed__friendAvatar img,
-.profile-visitor-subscribed__friendAvatarPlaceholder {
-  width: 100%;
-  height: 100%;
-  border-radius: 50%;
-  display: block;
-  object-fit: cover;
-}
-
-.profile-visitor-subscribed__friendAvatar img {
-  object-fit: cover;
-}
-
-/* Плейсхолдер: сірий фон у градієнтній обводці (коли немає фото) */
-.profile-visitor-subscribed__friendAvatar--placeholder .profile-visitor-subscribed__friendAvatarPlaceholder {
-  width: 100%;
-  height: 100%;
-  border-radius: 50%;
-  background: rgba(0, 0, 0, 0.07);
-  background-image: radial-gradient(circle at 50% 35%, rgba(176, 92, 255, 0.2) 0%, transparent 50%), radial-gradient(circle at 50% 85%, rgba(255, 79, 177, 0.15) 0%, transparent 45%);
-}
-
-body.dark .profile-visitor-subscribed__friendAvatar--placeholder .profile-visitor-subscribed__friendAvatarPlaceholder,
-html[data-theme="dark"] .profile-visitor-subscribed__friendAvatar--placeholder .profile-visitor-subscribed__friendAvatarPlaceholder {
-  background-color: rgba(255, 255, 255, 0.06);
-  background-image: radial-gradient(circle at 50% 35%, rgba(176, 92, 255, 0.25) 0%, transparent 50%), radial-gradient(circle at 50% 85%, rgba(255, 79, 177, 0.2) 0%, transparent 45%);
-}
-
-/* Крапка онлайну: зелена — онлайн, біла/сіра — офлайн */
-.profile-visitor-subscribed__friendDot {
-  position: absolute;
-  top: 4px;
-  right: 6px;
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  border: 2px solid #fff;
-  box-sizing: border-box;
-}
-
-.profile-visitor-subscribed__friendDot--online {
-  background: #22c55e;
-}
-
-.profile-visitor-subscribed__friendDot--offline {
-  background: rgba(255, 255, 255, 0.9);
-  border-color: rgba(0, 0, 0, 0.12);
-}
-
-body.dark .profile-visitor-subscribed__friendDot--offline,
-html[data-theme="dark"] .profile-visitor-subscribed__friendDot--offline {
-  background: rgba(255, 255, 255, 0.5);
-  border-color: rgba(0, 0, 0, 0.3);
-}
-
-/* Аватар друга — темний внутрішній фон замість білого */
-body.dark .profile-visitor-subscribed__friendAvatar,
-html[data-theme="dark"] .profile-visitor-subscribed__friendAvatar {
-  background: linear-gradient(rgba(30, 22, 45, 0.95), rgba(30, 22, 45, 0.95)) padding-box, $gradient border-box;
-}
-
-.profile-visitor-subscribed__showMore {
-  display: block;
-  width: 240px;
-  margin: 0 auto;
-  padding: 10px 18px;
-  border-radius: 999px;
-  border: 0;
-  background: $gradient;
-  color: #fff;
-  font-size: 13px;
-  font-weight: 800;
-  cursor: pointer;
-  -webkit-tap-highlight-color: transparent;
-  transition: box-shadow 0.2s, transform 0.15s;
-}
-
-.profile-visitor-subscribed__showMore:hover {
-  box-shadow: 0 4px 16px rgba(107, 102, 255, 0.35);
 }
 
 /* ===== IMAGE VIEWER ===== */
@@ -612,118 +595,70 @@ html[data-theme="dark"] .profile-visitor-subscribed__friendAvatar {
   .profile-visitor-subscribed__top {
     display: flex;
     flex-direction: row;
+    flex-wrap: wrap;
     align-items: flex-start;
     gap: 14px;
     grid-template-columns: unset;
   }
 
-  /* Ліва колонка: тільки аватар (120px як на головному) + Online + Удалить */
   .profile-visitor-subscribed__left {
     flex: 0 0 auto;
-    align-items: flex-start;
-    text-align: left;
+    align-items: center;
     min-width: 0;
   }
 
-  .profile-visitor-subscribed__mobileRow1 {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0;
-    width: auto;
-  }
-
-  .profile-visitor-subscribed__mobileRow1 .profile-visitor-subscribed__avatarWrap {
-    order: 0;
-    flex-shrink: 0;
+  .profile-visitor-subscribed__avatarWrap {
     width: 120px;
     height: 120px;
   }
 
-  /* На мобілці нік/біо тільки справа (pvs-info-mobile), у лівій колонці ховаємо */
-  .profile-visitor-subscribed__mobileRow1 .profile-visitor-subscribed__nameBlock {
+  .profile-visitor-subscribed__center {
     display: none;
   }
 
-  .profile-visitor-subscribed__nickname {
+  .profile-visitor-subscribed__nameBlock--mobile {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    text-align: center;
+  }
+
+  .profile-visitor-subscribed__nameBlock--mobile .profile-visitor-subscribed__nickname {
     font-size: 22px;
   }
 
-  .profile-visitor-subscribed__fullName,
-  .profile-visitor-subscribed__location {
+  .profile-visitor-subscribed__nameBlock--mobile .profile-visitor-subscribed__fullName,
+  .profile-visitor-subscribed__nameBlock--mobile .profile-visitor-subscribed__location {
     font-size: 12px;
   }
 
-  /* Права колонка: ряд 1 — нік | іконки; ряд 2 — біо/локація | VIP Chat навпроти; ряд 3 — кнопка + таби */
   .profile-visitor-subscribed__right {
     flex: 1 1 auto;
     min-width: 0;
-    display: grid;
-    grid-template-columns: 1fr auto;
-    grid-template-areas:
-      "name icons"
-      "bio vipChat"
-      "actions actions";
-    column-gap: 14px;
-    row-gap: 10px;
-    align-items: start;
-    padding-top: 0;
-    gap: 0;
   }
 
-  .pvs-icons-block {
-    grid-area: icons;
-    align-self: flex-start;
-    padding-top: 2px;
-  }
-
-  .pvs-vip-chat-wrap {
-    grid-area: vipChat;
-    align-self: flex-start;
-    padding-top: 8px;
-    margin-left: 20px;
-  }
-
-  .pvs-info-mobile {
-    display: contents;
-  }
-
-  .pvs-info-mobile__name {
-    grid-area: name;
-    margin: 0;
-    font-size: 28px;
-    font-weight: 800;
-  
-    background: $gradient;
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-    text-decoration: underline;
-    text-underline-offset: 3px;
-    text-decoration-color: #ff4fb1;
-    white-space: nowrap;
-  }
-
-  .pvs-info-mobile__bio {
-    grid-area: bio;
-    margin: 0;
-    font-size: 12px;
-    line-height: 1.25;
-  }
-
-  /* Відступ між ніком та блоком ім'я/локація — лишається 14px (grid row-gap); між ім'ям і локацією — 14px */
-  .pvs-info-mobile__bio .profile-visitor-subscribed__fullName {
-    margin-bottom: 2px;
-  }
-
-  .pvs-info-mobile__bio .profile-visitor-subscribed__location {
-    margin-top: 14px;
+  .pvs-top-right {
+    align-items: flex-start;
   }
 
   .profile-visitor-subscribed__left {
     gap: 12px;
   }
 
-  /* Окремий блок табів на всю ширину екрана (адаптивно) */
+  .pvs-tools__vipIconWrap {
+    width: 80px;
+    height: 80px;
+  }
+
+  .pvs-tools__vipIcon {
+    width: 60px;
+    height: 60px;
+  }
+
+  .pvs-actions__tabs--standalone {
+    display: none !important;
+  }
+
   .pvs-tabs-mobile {
     display: flex;
     flex-direction: row;
@@ -746,10 +681,6 @@ html[data-theme="dark"] .profile-visitor-subscribed__friendAvatar {
     justify-content: center;
   }
 
-  /* На мобілці таби в правій колонці ховаємо */
-  .pvs-actions__tabs {
-    display: none !important;
-  }
 
   .pvs-icons-block .pvs-tools {
     justify-content: flex-end;
@@ -868,8 +799,9 @@ html[data-theme="dark"] .profile-visitor-subscribed__friendAvatar {
     color: rgba(0, 0, 0, 0.85);
   }
 
-  .profile-visitor-subscribed__friendsGrid {
-    grid-template-columns: repeat(4, 1fr);
+  .profile-visitor-subscribed .vipAvatarWrap {
+    width: 54px;
+    height: 54px;
   }
 }
 
@@ -985,9 +917,13 @@ html[data-theme="dark"] .profile-visitor-subscribed__friendAvatar {
     border-radius: 8px;
   }
 
-  .profile-visitor-subscribed__friendsGrid {
-    grid-template-columns: repeat(3, 1fr);
-    gap: 10px;
+  .profile-visitor-subscribed .vipAvatarWrap {
+    width: 46px;
+    height: 46px;
+  }
+  .profile-visitor-subscribed .showMoreBtn {
+    height: 35px;
+    font-size: 16px;
   }
 }
 
@@ -1054,21 +990,28 @@ html[data-theme="dark"] .pvs-actions__tab.is-active {
   box-shadow: 0 4px 14px rgba(107, 102, 255, 0.2);
 }
 
+body.dark .pvs-actions__tab--delete.is-active,
+html[data-theme="dark"] .pvs-actions__tab--delete.is-active {
+  background: $gradient;
+  color: #fff;
+  border-color: transparent;
+}
+
 body.dark .pvs-actions__tabLock,
 html[data-theme="dark"] .pvs-actions__tabLock {
   filter: brightness(0) invert(1);
   opacity: 0.7;
 }
 
-/* Блок Друзья */
-body.dark .profile-visitor-subscribed__friends,
-html[data-theme="dark"] .profile-visitor-subscribed__friends {
+/* Блок Друзья (vipCard) — темна тема */
+body.dark .profile-visitor-subscribed .vipCard,
+html[data-theme="dark"] .profile-visitor-subscribed .vipCard {
   background: $dark-bg-card;
   border-color: $dark-border;
 }
 
-body.dark .profile-visitor-subscribed__friendsTitle,
-html[data-theme="dark"] .profile-visitor-subscribed__friendsTitle {
+body.dark .profile-visitor-subscribed .friendsTitle,
+html[data-theme="dark"] .profile-visitor-subscribed .friendsTitle {
   color: $dark-text;
 }
 
@@ -1077,15 +1020,9 @@ html[data-theme="dark"] .profile-visitor-subscribed__friendsEmpty {
   color: $dark-text-muted;
 }
 
-/* Показать больше */
-body.dark .profile-visitor-subscribed__showMore,
-html[data-theme="dark"] .profile-visitor-subscribed__showMore {
+body.dark .profile-visitor-subscribed .showMoreBtn,
+html[data-theme="dark"] .profile-visitor-subscribed .showMoreBtn {
   color: #fff;
-}
-
-body.dark .profile-visitor-subscribed__showMore:hover,
-html[data-theme="dark"] .profile-visitor-subscribed__showMore:hover {
-  box-shadow: 0 4px 20px rgba(107, 102, 255, 0.4);
 }
 
 /* Переглядач фото */

@@ -19,4 +19,23 @@ export const usersApi = {
     const value = raw.startsWith("@") ? raw.slice(1) : raw;
     return api.get(`/users/${encodeURIComponent(value)}`);
   },
+
+  /**
+   * Список підписок/друзів іншого користувача (GET /users/:username/following або /users/:username/friends).
+   * Якщо бекенд не має такого ендпоінту — запит поверне 404, тоді список залишиться порожнім.
+   */
+  getUserFollowing(username) {
+    const raw = String(username ?? "").trim();
+    const value = raw.startsWith("@") ? raw.slice(1) : raw;
+    if (!value) return Promise.reject(new Error("username required"));
+    return api.get(`/users/${encodeURIComponent(value)}/following`);
+  },
+
+  /** Альтернатива: GET /users/:username/friends (якщо бекенд віддає список саме так) */
+  getUserFriends(username) {
+    const raw = String(username ?? "").trim();
+    const value = raw.startsWith("@") ? raw.slice(1) : raw;
+    if (!value) return Promise.reject(new Error("username required"));
+    return api.get(`/users/${encodeURIComponent(value)}/friends`);
+  },
 };
