@@ -133,20 +133,20 @@ export default function ProfileVisitorSubscribed({
 
         <div className="profile-visitor-subscribed__right">
           <div className="pvs-top-right">
-            <button
-              type="button"
-              className="pvs-tools__vip"
-              onClick={onVipChat}
-              aria-label="VIP Chat"
-              disabled
-              title="VIP Chat (заблоковано)"
-            >
-              <div className="pvs-tools__vipIconWrap">
-                <img src={profileIcons.vipChat} alt="" className="pvs-tools__vipIcon pvs-tools__vipIcon--full" aria-hidden="true" />
-              </div>
-              <span className="pvs-tools__label">VIP Chat</span>
-            </button>
-            <div className="pvs-tools__row">
+            <div className="pvs-tools__row pvs-tools__row--top">
+              <button
+                type="button"
+                className="pvs-tools__vip"
+                onClick={onVipChat}
+                aria-label="VIP Chat"
+                disabled
+                title="VIP Chat (заблоковано)"
+              >
+                <div className="pvs-tools__vipIconWrap">
+                  <img src={profileIcons.vipChat} alt="" className="pvs-tools__vipIcon pvs-tools__vipIcon--full" aria-hidden="true" />
+                </div>
+                <span className="pvs-tools__label">VIP Chat</span>
+              </button>
               <button type="button" className="pvs-tools__small" onClick={onGifts} aria-label="Подарки">
                 <img src={profileIcons.present} alt="" className="pvs-tools__smallIcon" aria-hidden="true" />
                 <span className="pvs-tools__smallLabel">Подарки</span>
@@ -204,7 +204,10 @@ export default function ProfileVisitorSubscribed({
 
       {/* ===== FRIENDS: такий самий блок як у моєму профілі (vipCard, friendsTitle, vipRow, showMoreBtn) — тільки з його друзями ===== */}
       <section className="vipCard profile-visitor-subscribed__friends" aria-label={displayFriendsCount > 0 ? `Друзья, всього ${displayFriendsCount}` : "Друзья"}>
-        <div className="friendsTitle">Друзья {displayFriendsCount}</div>
+        <div className="friendsTitle">
+          <span className="friendsTitle__label">Друзья</span>{" "}
+          <span className="friendsTitle__count">{displayFriendsCount}</span>
+        </div>
 
         {(friends.length > 0 || displayFriendsCount > 0) ? (
           <>

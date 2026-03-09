@@ -7,13 +7,24 @@ $phVisitorPinkPurple: linear-gradient(236.31deg, #FF4FB1 11.54%, #4F6BFF 88.46%)
 $phVisitorBluePurple: linear-gradient(135deg, #4f6bff, #b05cff);
 $phVisitorTabBeige: #FCE9E9;
 
+.profile-visitor-public .profile-container {
+  max-width: 1200px;
+  padding: 18px 24px 32px;
+}
+
 .profile-visitor-public .profileBlock--visitorNotSub {
+  display: grid;
+  grid-template-columns: 236px minmax(0, 1fr);
+  grid-template-areas:
+    "left right"
+    "left tabs";
   align-items: flex-start;
-  gap: 28px;
+  gap: 18px 26px;
 }
 
 .profile-visitor-public .profileBlock--visitorNotSub .profileLeft {
-  flex: 0 0 313px;
+  grid-area: left;
+  flex: 0 0 236px;
 }
 
 .profile-visitor-public .ph-visitor-avatarBlock {
@@ -24,8 +35,8 @@ $phVisitorTabBeige: #FCE9E9;
 }
 
 .profile-visitor-public .ph-visitor-avatarWrap {
-  width: 313px;
-  height: 313px;
+  width: 228px;
+  height: 228px;
   border-radius: 50%;
   padding: 4px;
   background: $phVisitorPinkPurple;
@@ -45,10 +56,10 @@ $phVisitorTabBeige: #FCE9E9;
 
 .profile-visitor-public .ph-visitor-onlineDot {
   position: absolute;
-  top: 18px;
-  right: 58px;
-  width: 20px;
-  height: 20px;
+  top: 6px;
+  right: 12px;
+  width: 18px;
+  height: 18px;
   border-radius: 50%;
   background: #22c55e;
   border: 3px solid #fff;
@@ -57,65 +68,79 @@ $phVisitorTabBeige: #FCE9E9;
 }
 
 .profile-visitor-public .ph-visitor-onlineLabel {
-  margin: 8px 0 0;
+  margin: 12px 0 0;
   font-family: Montserrat, sans-serif;
   font-weight: 600;
-  font-size: 36px;
+  font-size: 28px;
+  line-height: 1.2;
   background: $phVisitorGradient;
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
-  line-height: 1.2;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+  text-decoration-color: #7a63ef;
+}
+
+.profile-visitor-public .ph-visitor-avatarInfoBtn {
+  margin: 14px 0 0;
+  min-width: 166px;
+  height: 48px;
+  padding: 0 18px;
+  border-radius: 14px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  background: $phVisitorGradient;
+  color: #fff;
+  font-family: Montserrat, sans-serif;
+  font-size: 18px;
+  font-weight: 400;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .profile-visitor-public .ph-visitor-right {
+  grid-area: right;
   flex: 1;
   min-width: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 32px;
-  padding-top: 0;
+  display: grid;
+  grid-template-columns: minmax(240px, 1fr) 286px 286px;
+  grid-template-areas:
+    "identity report vip"
+    "identity subscribe block";
+  align-items: start;
+  gap: 28px 28px;
+  padding-top: 10px;
 }
 
-.profile-visitor-public .ph-visitor-name-row {
-  width: 100%;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  flex-wrap: wrap;
-}
-
-.profile-visitor-public .ph-visitor-name-row .ph-visitor-name {
-  flex: 0 1 auto;
+.profile-visitor-public .ph-visitor-identity {
+  grid-area: identity;
   min-width: 0;
-}
-
-.profile-visitor-public .ph-visitor-tools {
-  display: flex;
-  align-items: center;
-  gap: 42px;
-  flex-shrink: 0;
 }
 
 .profile-visitor-public .ph-visitor-tools__report {
+  grid-area: report;
   display: inline-flex;
   flex-direction: column;
   align-items: center;
-  gap: 6px;
-  padding: 8px 10px;
+  justify-content: flex-start;
+  gap: 8px;
+  padding: 0;
   border: 0;
   border-radius: 10px;
   background: transparent;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
+  justify-self: center;
+  align-self: start;
 }
 
 .profile-visitor-public .ph-visitor-tools__reportIconWrap {
-  width: 40px;
-  height: 40px;
+  width: 34px;
+  height: 34px;
   flex-shrink: 0;
   background: $phVisitorGradient;
   -webkit-mask: url("/home/complaints.svg") center / contain no-repeat;
@@ -125,49 +150,123 @@ $phVisitorTabBeige: #FCE9E9;
 .profile-visitor-public .ph-visitor-tools__reportLabel {
   font-family: Montserrat, sans-serif;
   font-weight: 400;
-  font-size: 14px;
+  font-size: 13px;
   color: #000000;
   line-height: 1.1;
+  white-space: nowrap;
+}
+
+.profile-visitor-public .ph-visitor-tools__mobileMenuWrap {
+  display: none;
+  position: relative;
+}
+
+.profile-visitor-public .ph-visitor-tools__more {
+  width: 52px;
+  height: 52px;
+  border-radius: 16px;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  background: rgba(255, 255, 255, 0.72);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.profile-visitor-public .ph-visitor-tools__moreDots {
+  font-size: 22px;
+  line-height: 1;
+  letter-spacing: 2px;
+  color: #8f62e7;
+  transform: translateY(-2px);
+}
+
+.profile-visitor-public .ph-visitor-mobileMenu {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  z-index: 5;
+  min-width: 210px;
+  padding: 14px 16px;
+  border-radius: 18px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.12);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.profile-visitor-public .ph-visitor-mobileMenu__item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: rgba(0, 0, 0, 0.85);
+  font-family: Montserrat, sans-serif;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  text-align: left;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.profile-visitor-public .ph-visitor-mobileMenu__icon {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.profile-visitor-public .ph-visitor-mobileActions {
+  display: none;
 }
 
 .profile-visitor-public .ph-visitor-tools__vip {
+  grid-area: vip;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  width: 400px;
-  height: 74px;
+  width: 286px;
+  height: 68px;
   padding: 0 18px;
-  border-radius: 20px;
+  border-radius: 16px;
   border: 1px solid rgba(0, 0, 0, 0.08);
   background: $phVisitorGold;
   color: rgba(0, 0, 0, 0.75);
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
+  justify-self: end;
+  align-self: end;
 }
 
 .profile-visitor-public .ph-visitor-tools__vipText {
   font-family: Montserrat, sans-serif;
-  font-weight: 300;
+  font-weight: 500;
   font-style: normal;
-  font-size: 20px;
+  font-size: 18px;
   line-height: 100%;
   letter-spacing: 0%;
   opacity: 1;
 }
 
 .profile-visitor-public .ph-visitor-tools__vip .ph-visitor-tools__vipIcon {
-  width: 18px;
-  height: 18px;
+  width: 16px;
+  height: 16px;
   display: block;
   flex-shrink: 0;
 }
 
 .profile-visitor-public .ph-visitor-name {
   margin: 0;
-  font-size: 60px;
+  font-size: 52px;
   font-weight: 800;
-  line-height: 1.15;
+  line-height: 1.05;
   background: $phVisitorGradient;
   -webkit-background-clip: text;
   background-clip: text;
@@ -179,20 +278,20 @@ $phVisitorTabBeige: #FCE9E9;
 
 .profile-visitor-public .ph-visitor-bio {
   margin: 0;
-  max-width: 313px;
+  max-width: 330px;
 }
 
 .profile-visitor-public .ph-visitor-bio__line {
-  margin: 20px 0 30px 0;
+  margin: 0;
   font-family: Montserrat, sans-serif;
   font-weight: 400;
-  font-size: 30px;
-  line-height: 100%;
+  font-size: 20px;
+  line-height: 1.2;
   color: #000000;
   opacity: 1;
 
   &:not(:last-child) {
-    margin-bottom: 2px;
+    margin-bottom: 4px;
   }
 }
 
@@ -208,26 +307,28 @@ $phVisitorTabBeige: #FCE9E9;
   flex-direction: row;
   align-items: center;
   flex-wrap: wrap;
-  gap: 116px;
+  gap: 84px;
   width: 100%;
 }
 
 .profile-visitor-public .ph-visitor-actions__subscribe {
-  width: 400px;
+  grid-area: subscribe;
+  width: 286px;
   flex-shrink: 0;
-  height: 70px;
+  height: 62px;
   padding: 0 24px;
-  border-radius: 20px;
+  border-radius: 16px;
   border: 0;
   background: $phVisitorGradient;
   color: #fff;
   font-family: Montserrat, sans-serif;
-  font-weight: 400;
+  font-weight: 500;
   font-style: normal;
-  font-size: 18px;
+  font-size: 17px;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
   transition: opacity 0.2s;
+  justify-self: center;
 
   &:hover:not(:disabled) {
     opacity: 0.92;
@@ -239,21 +340,23 @@ $phVisitorTabBeige: #FCE9E9;
 }
 
 .profile-visitor-public .ph-visitor-actions__block {
-  width: 400px;
+  grid-area: block;
+  width: 286px;
   flex-shrink: 0;
-  height: 70px;
+  height: 56px;
   padding: 0 24px;
-  border-radius: 20px;
+  border-radius: 16px;
   border: 0;
   background: $phVisitorBluePurple;
   color: #fff;
   font-family: Montserrat, sans-serif;
   font-weight: 400;
   font-style: normal;
-  font-size: 18px;
+  font-size: 17px;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
   transition: opacity 0.2s;
+  justify-self: end;
 
   &:hover {
     opacity: 0.92;
@@ -263,20 +366,37 @@ $phVisitorTabBeige: #FCE9E9;
 .profile-visitor-public .ph-visitor-tabs {
   display: flex;
   flex-wrap: wrap;
-  gap: 94px;
+  gap: 22px 28px;
   width: 100%;
 }
 
+.profile-visitor-public .ph-visitor-tabs--desktop {
+  grid-area: tabs;
+  align-self: start;
+  margin-top: 96px;
+  margin-left: 24px;
+}
+
+.profile-visitor-public .ph-visitor-tabs--mobile {
+  display: none;
+}
+
+.profile-visitor-public .showMoreBtn {
+  width: 320px;
+  height: 60px;
+  font-size: 18px;
+}
+
 .profile-visitor-public .ph-visitor-tabs__tab {
-  min-width: 230px;
+  min-width: 166px;
   height: 56px;
-  padding: 0 20px;
+  padding: 0 18px;
   border-radius: 14px;
   border: 1px solid rgba(0, 0, 0, 0.1);
   background: $phVisitorTabBeige;
   color: rgba(0, 0, 0, 0.65);
-  font-size: 16px;
-  font-weight: 600;
+  font-size: 18px;
+  font-weight: 400;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
@@ -327,11 +447,543 @@ html[data-theme="dark"] .profile-visitor-public .ph-visitor-tabs__lock {
   filter: brightness(0) invert(1);
   opacity: 0.7;
 }
-body.dark .profile-visitor-public .ph-visitor-onlineLabel,
-html[data-theme="dark"] .profile-visitor-public .ph-visitor-onlineLabel {
-  color: #c9b8ff;
-}
 body.dark .profile-visitor-public .ph-visitor-onlineDot,
 html[data-theme="dark"] .profile-visitor-public .ph-visitor-onlineDot {
   border-color: rgba(20, 10, 30, 0.95);
+}
+
+body.dark .profile-visitor-public .ph-visitor-avatarInfoBtn,
+html[data-theme="dark"] .profile-visitor-public .ph-visitor-avatarInfoBtn {
+  color: #fff;
+}
+
+@media (min-width: 768px) and (max-width: 1045px) {
+  .profile-visitor-public .profile-container {
+    padding: 16px 18px 28px;
+  }
+
+  .profile-visitor-public .profileBlock--visitorNotSub {
+    grid-template-columns: 200px minmax(0, 1fr);
+    gap: 16px 20px;
+  }
+
+  .profile-visitor-public .profileBlock--visitorNotSub .profileLeft {
+    flex: 0 0 200px;
+  }
+
+  .profile-visitor-public .ph-visitor-avatarWrap {
+    width: 190px;
+    height: 190px;
+    padding: 3px;
+  }
+
+  .profile-visitor-public .ph-visitor-onlineDot {
+    top: 6px;
+    right: 10px;
+    width: 16px;
+    height: 16px;
+    border-width: 2px;
+  }
+
+  .profile-visitor-public .ph-visitor-onlineLabel {
+    margin-top: 10px;
+    font-size: 24px;
+  }
+
+  .profile-visitor-public .ph-visitor-avatarInfoBtn {
+    min-width: 150px;
+    height: 44px;
+    padding: 0 16px;
+    font-size: 16px;
+  }
+
+  .profile-visitor-public .ph-visitor-right {
+    grid-template-columns: minmax(180px, 1fr) 220px 220px;
+    gap: 22px 18px;
+    padding-top: 6px;
+  }
+
+  .profile-visitor-public .ph-visitor-name {
+    font-size: 42px;
+  }
+
+  .profile-visitor-public .ph-visitor-bio {
+    max-width: 250px;
+  }
+
+  .profile-visitor-public .ph-visitor-bio__line {
+    font-size: 18px;
+  }
+
+  .profile-visitor-public .ph-visitor-tools__reportIconWrap {
+    width: 30px;
+    height: 30px;
+  }
+
+  .profile-visitor-public .ph-visitor-tools__reportLabel {
+    font-size: 12px;
+  }
+
+  .profile-visitor-public .ph-visitor-tools__vip {
+    width: 220px;
+    height: 58px;
+    padding: 0 14px;
+  }
+
+  .profile-visitor-public .ph-visitor-tools__vipText {
+    font-size: 16px;
+  }
+
+  .profile-visitor-public .ph-visitor-tools__vip .ph-visitor-tools__vipIcon {
+    width: 14px;
+    height: 14px;
+  }
+
+  .profile-visitor-public .ph-visitor-actions__subscribe,
+  .profile-visitor-public .ph-visitor-actions__block {
+    width: 220px;
+    height: 54px;
+    padding: 0 16px;
+    font-size: 15px;
+  }
+
+  .profile-visitor-public .ph-visitor-tabs--desktop {
+    margin-top: 82px;
+    margin-left: 14px;
+    gap: 14px;
+  }
+
+  .profile-visitor-public .ph-visitor-tabs__tab {
+    min-width: 132px;
+    height: 48px;
+    padding: 0 14px;
+    font-size: 15px;
+  }
+
+  .profile-visitor-public .ph-visitor-tabs__lock {
+    width: 14px;
+    height: 14px;
+  }
+
+  .profile-visitor-public .showMoreBtn {
+    width: 280px;
+    height: 54px;
+    font-size: 17px;
+  }
+}
+
+@media (max-width: 768px) {
+  .profile-visitor-public .ph-visitor-right .ph-visitor-tabs--desktop,
+  .profile-visitor-public .ph-visitor-tabs--desktop {
+    display: none !important;
+  }
+
+  .profile-visitor-public .ph-visitor-identity,
+  .profile-visitor-public .ph-visitor-name,
+  .profile-visitor-public .ph-visitor-bio {
+    display: block;
+  }
+
+  .profile-visitor-public .showMoreBtn {
+    width: auto;
+    min-width: 210px;
+    max-width: 260px;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 0 22px;
+  }
+
+  .profile-visitor-public .profile-container {
+    padding: 12px 14px 90px;
+  }
+
+  .profile-visitor-public .profileBlock--visitorNotSub {
+    display: flex;
+    gap: 14px;
+  }
+
+  .profile-visitor-public .profileBlock--visitorNotSub .profileLeft {
+    flex: 0 0 148px;
+  }
+
+  .profile-visitor-public .ph-visitor-avatarWrap {
+    width: 138px;
+    height: 138px;
+    padding: 3px;
+  }
+
+  .profile-visitor-public .ph-visitor-onlineDot {
+    top: 2px;
+    right: 2px;
+    width: 14px;
+    height: 14px;
+    border-width: 2px;
+  }
+
+  .profile-visitor-public .ph-visitor-onlineLabel,
+  .profile-visitor-public .ph-visitor-avatarInfoBtn {
+    display: none;
+  }
+
+  .profile-visitor-public .ph-visitor-onlineLabel {
+    display: inline-block;
+    margin-top: 12px;
+    font-size: 18px;
+    text-underline-offset: 2px;
+  }
+
+  .profile-visitor-public .ph-visitor-tabs--mobile {
+    display: grid;
+  }
+
+  .profile-visitor-public .ph-visitor-right {
+    display: block;
+    padding-top: 2px;
+  }
+
+  .profile-visitor-public .ph-visitor-identity {
+    align-self: start;
+  }
+
+  .profile-visitor-public .ph-visitor-name {
+    font-size: 36px;
+    line-height: 1.02;
+  }
+
+  .profile-visitor-public .ph-visitor-bio {
+    max-width: 240px;
+    margin-top: 10px;
+  }
+
+  .profile-visitor-public .ph-visitor-bio__line {
+    font-size: 15px;
+    line-height: 1.15;
+  }
+
+  .profile-visitor-public .ph-visitor-tools__report,
+  .profile-visitor-public .ph-visitor-actions__block,
+  .profile-visitor-public .ph-visitor-right > .ph-visitor-actions__subscribe,
+  .profile-visitor-public .ph-visitor-right > .ph-visitor-tools__vip {
+    display: none;
+  }
+
+  .profile-visitor-public .ph-visitor-mobileActions {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 10px;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 14px;
+    width: 100%;
+  }
+
+  .profile-visitor-public .ph-visitor-mobileActions .ph-visitor-actions__subscribe,
+  .profile-visitor-public .ph-visitor-mobileActions .ph-visitor-tools__vip {
+    flex: 1 1 0;
+    min-width: 0;
+    height: 48px;
+    border-radius: 18px;
+    font-size: 12px;
+  }
+
+  .profile-visitor-public .ph-visitor-mobileActions .ph-visitor-actions__subscribe {
+    padding: 0 12px;
+    white-space: nowrap;
+    font-weight: 500;
+  }
+
+  .profile-visitor-public .ph-visitor-mobileActions .ph-visitor-tools__vip {
+    padding: 0 12px;
+    gap: 6px;
+    white-space: nowrap;
+  }
+
+  .profile-visitor-public .ph-visitor-mobileActions .ph-visitor-tools__vipText {
+    font-size: 12px;
+    font-weight: 500;
+  }
+
+  .profile-visitor-public .ph-visitor-mobileActions .ph-visitor-tools__vip .ph-visitor-tools__vipIcon {
+    width: 14px;
+    height: 14px;
+  }
+
+  .profile-visitor-public .ph-visitor-mobileActions .ph-visitor-tools__mobileMenuWrap {
+    display: block;
+    flex: 0 0 48px;
+    align-self: center;
+  }
+
+  .profile-visitor-public .ph-visitor-mobileActions .ph-visitor-tools__more {
+    width: 48px;
+    height: 40px;
+    border-radius: 14px;
+  }
+
+  .profile-visitor-public .ph-visitor-mobileActions .ph-visitor-tools__moreDots {
+    font-size: 20px;
+  }
+
+  .profile-visitor-public .ph-visitor-tabs {
+    margin-top: 18px;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 8px;
+    overflow: visible;
+  }
+
+  .profile-visitor-public .ph-visitor-tabs__tab {
+    min-width: 0;
+    width: 100%;
+    height: 44px;
+    padding: 0 10px;
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .profile-visitor-public .showMoreBtn {
+    min-width: 180px;
+    max-width: 220px;
+    height: 36px;
+    font-size: 14px;
+    padding: 0 18px;
+  }
+
+  .profile-visitor-public .profile-container {
+    padding: 10px 12px 90px;
+  }
+
+  .profile-visitor-public .profileBlock--visitorNotSub {
+    gap: 12px;
+  }
+
+  .profile-visitor-public .profileBlock--visitorNotSub .profileLeft {
+    flex: 0 0 132px;
+  }
+
+  .profile-visitor-public .ph-visitor-avatarWrap {
+    width: 122px;
+    height: 122px;
+  }
+
+  .profile-visitor-public .ph-visitor-onlineDot {
+    width: 13px;
+    height: 13px;
+  }
+
+  .profile-visitor-public .ph-visitor-onlineLabel {
+    margin-top: 10px;
+    font-size: 16px;
+  }
+
+  .profile-visitor-public .ph-visitor-right {
+    grid-template-columns: minmax(0, 1fr) 132px;
+    gap: 14px 14px;
+  }
+
+  .profile-visitor-public .ph-visitor-name {
+    font-size: 30px;
+  }
+
+  .profile-visitor-public .ph-visitor-bio {
+    max-width: 185px;
+    margin-top: 8px;
+  }
+
+  .profile-visitor-public .ph-visitor-bio__line {
+    font-size: 13px;
+    line-height: 1.15;
+  }
+
+  .profile-visitor-public .ph-visitor-mobileActions .ph-visitor-actions__subscribe,
+  .profile-visitor-public .ph-visitor-mobileActions .ph-visitor-tools__vip {
+    height: 44px;
+    border-radius: 16px;
+  }
+
+  .profile-visitor-public .ph-visitor-mobileActions .ph-visitor-actions__subscribe {
+    padding: 0 12px;
+    font-size: 11px;
+    font-weight: 500;
+  }
+
+  .profile-visitor-public .ph-visitor-mobileActions .ph-visitor-tools__vip {
+    padding: 0 10px;
+    gap: 5px;
+  }
+
+  .profile-visitor-public .ph-visitor-mobileActions .ph-visitor-tools__vipText {
+    font-size: 11px;
+    font-weight: 500;
+  }
+
+  .profile-visitor-public .ph-visitor-mobileActions .ph-visitor-tools__vip .ph-visitor-tools__vipIcon {
+    width: 13px;
+    height: 13px;
+  }
+
+  .profile-visitor-public .ph-visitor-mobileActions {
+    gap: 8px;
+  }
+
+  .profile-visitor-public .ph-visitor-mobileActions .ph-visitor-tools__more {
+    width: 44px;
+    height: 38px;
+  }
+
+  .profile-visitor-public .ph-visitor-mobileActions .ph-visitor-tools__mobileMenuWrap {
+    flex-basis: 44px;
+  }
+
+  .profile-visitor-public .ph-visitor-mobileMenu {
+    min-width: 190px;
+    padding: 12px 14px;
+    gap: 12px;
+  }
+
+  .profile-visitor-public .ph-visitor-mobileMenu__item {
+    gap: 10px;
+    font-size: 14px;
+  }
+
+  .profile-visitor-public .ph-visitor-mobileMenu__icon {
+    width: 22px;
+    height: 22px;
+  }
+
+  .profile-visitor-public .ph-visitor-tabs {
+    gap: 8px;
+  }
+
+  .profile-visitor-public .ph-visitor-tabs__tab {
+    min-width: 0;
+    width: 100%;
+    height: 40px;
+    padding: 0 8px;
+    font-size: 11px;
+  }
+}
+
+@media (max-width: 360px) {
+  .profile-visitor-public .showMoreBtn {
+    min-width: 164px;
+    max-width: 200px;
+    height: 34px;
+    font-size: 13px;
+    padding: 0 16px;
+  }
+
+  .profile-visitor-public .profile-container {
+    padding: 8px 10px 90px;
+  }
+
+  .profile-visitor-public .profileBlock--visitorNotSub {
+    gap: 10px;
+  }
+
+  .profile-visitor-public .profileBlock--visitorNotSub .profileLeft {
+    flex: 0 0 120px;
+  }
+
+  .profile-visitor-public .ph-visitor-avatarWrap {
+    width: 112px;
+    height: 112px;
+    padding: 2px;
+  }
+
+  .profile-visitor-public .ph-visitor-onlineDot {
+    top: 1px;
+    right: 1px;
+    width: 12px;
+    height: 12px;
+  }
+
+  .profile-visitor-public .ph-visitor-onlineLabel {
+    margin-top: 8px;
+    font-size: 14px;
+  }
+
+  .profile-visitor-public .ph-visitor-right {
+    grid-template-columns: minmax(0, 1fr) 116px;
+    gap: 12px;
+  }
+
+  .profile-visitor-public .ph-visitor-name {
+    font-size: 26px;
+    line-height: 1;
+  }
+
+  .profile-visitor-public .ph-visitor-bio {
+    max-width: 160px;
+  }
+
+  .profile-visitor-public .ph-visitor-bio__line {
+    font-size: 12px;
+  }
+
+  .profile-visitor-public .ph-visitor-mobileActions .ph-visitor-actions__subscribe,
+  .profile-visitor-public .ph-visitor-mobileActions .ph-visitor-tools__vip {
+    height: 40px;
+    border-radius: 14px;
+  }
+
+  .profile-visitor-public .ph-visitor-mobileActions .ph-visitor-actions__subscribe {
+    padding: 0 10px;
+    font-size: 10px;
+    font-weight: 500;
+  }
+
+  .profile-visitor-public .ph-visitor-mobileActions .ph-visitor-tools__vipText {
+    font-size: 10px;
+    font-weight: 500;
+  }
+
+  .profile-visitor-public .ph-visitor-mobileActions .ph-visitor-tools__vip .ph-visitor-tools__vipIcon {
+    width: 12px;
+    height: 12px;
+  }
+
+  .profile-visitor-public .ph-visitor-mobileActions {
+    gap: 8px;
+  }
+
+  .profile-visitor-public .ph-visitor-mobileActions .ph-visitor-tools__more {
+    width: 40px;
+    height: 34px;
+    border-radius: 12px;
+  }
+
+  .profile-visitor-public .ph-visitor-mobileActions .ph-visitor-tools__mobileMenuWrap {
+    flex-basis: 40px;
+  }
+
+  .profile-visitor-public .ph-visitor-mobileActions .ph-visitor-tools__moreDots {
+    font-size: 18px;
+  }
+
+  .profile-visitor-public .ph-visitor-mobileMenu {
+    min-width: 170px;
+    padding: 10px 12px;
+    gap: 10px;
+    border-radius: 16px;
+  }
+
+  .profile-visitor-public .ph-visitor-mobileMenu__item {
+    gap: 8px;
+    font-size: 13px;
+  }
+
+  .profile-visitor-public .ph-visitor-mobileMenu__icon {
+    width: 20px;
+    height: 20px;
+  }
+
+  .profile-visitor-public .ph-visitor-tabs__tab {
+    min-width: 0;
+    width: 100%;
+    height: 36px;
+    padding: 0 6px;
+    font-size: 10px;
+  }
 }
