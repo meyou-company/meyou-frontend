@@ -164,6 +164,25 @@ export default function ProfileVisitorSubscribed({
         </div>
       </section>
 
+      <div className="pvs-mobile-actions" aria-label="Дії профілю">
+        <button
+          type="button"
+          className="profile-visitor-subscribed__btnDelete"
+          onClick={() => onTabClick("delete")}
+        >
+          Удалить
+        </button>
+        <button
+          type="button"
+          className="pvs-actions__vipBtn pvs-actions__vipBtn--mobile"
+          onClick={onAddToVip}
+          aria-label="Добавить в VIP"
+        >
+          <span className="pvs-actions__vipBtnText">Добавить в VIP</span>
+          <img src="/icon-black/vip-button.svg" alt="" className="pvs-actions__vipBtnIcon" width={15} height={15} />
+        </button>
+      </div>
+
       {/* Таби як у макеті: Удалить (з градієнтом), Информация, Истории, Видео 🔒, Фото 🔒 */}
       <div className="pvs-actions__tabs pvs-actions__tabs--standalone" role="tablist" aria-label="Табы профиля">
         {tabs.map((tab) => (
@@ -183,7 +202,7 @@ export default function ProfileVisitorSubscribed({
       </div>
 
       <div className="pvs-tabs-mobile" role="tablist" aria-label="Табы профиля">
-        {tabs.map((tab) => (
+        {tabs.filter((tab) => tab.id !== "delete").map((tab) => (
           <button
             key={tab.id}
             type="button"

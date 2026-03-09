@@ -636,6 +636,10 @@ html[data-theme="dark"] .pvs-tools__vip .pvs-tools__label {
   display: none;
 }
 
+.pvs-mobile-actions {
+  display: none;
+}
+
 /* ===== мобільна версія 360px–768px: розташування як на головному профілі (profileBlock + profileInfo) ===== */
 @media (max-width: 768px) {
   .profile-visitor-subscribed {
@@ -644,188 +648,158 @@ html[data-theme="dark"] .pvs-tools__vip .pvs-tools__label {
   }
 
   .profile-visitor-subscribed__top {
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-    align-items: flex-start;
-    gap: 14px;
-    grid-template-columns: unset;
+    display: grid;
+    grid-template-columns: 112px minmax(0, 1fr) auto;
+    grid-template-areas: "left center right";
+    align-items: start;
+    gap: 10px 12px;
   }
 
   .profile-visitor-subscribed__left {
-    flex: 0 0 auto;
-    align-items: center;
+    grid-area: left;
     min-width: 0;
+    gap: 8px;
   }
 
   .profile-visitor-subscribed__avatarWrap {
-    width: 120px;
-    height: 120px;
+    width: 112px;
+    height: 112px;
   }
 
   .profile-visitor-subscribed__center {
-    display: none;
+    grid-area: center;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+    padding-top: 0;
+  }
+
+  .profile-visitor-subscribed__nickname--center {
+    font-size: 28px;
+    line-height: 1;
+  }
+
+  .profile-visitor-subscribed__center .profile-visitor-subscribed__fullName,
+  .profile-visitor-subscribed__center .profile-visitor-subscribed__location {
+    font-size: 14px;
+    line-height: 1.08;
   }
 
   .profile-visitor-subscribed__nameBlock--mobile {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-    text-align: center;
-  }
-
-  .profile-visitor-subscribed__nameBlock--mobile .profile-visitor-subscribed__nickname {
-    font-size: 22px;
-  }
-
-  .profile-visitor-subscribed__nameBlock--mobile .profile-visitor-subscribed__fullName,
-  .profile-visitor-subscribed__nameBlock--mobile .profile-visitor-subscribed__location {
-    font-size: 12px;
+    display: none;
   }
 
   .profile-visitor-subscribed__right {
-    flex: 1 1 auto;
+    grid-area: right;
     min-width: 0;
+    width: auto;
+    align-self: start;
   }
 
   .pvs-top-right {
     align-items: flex-start;
+    gap: 0;
   }
 
-  .profile-visitor-subscribed__left {
-    gap: 12px;
-  }
-
-  .pvs-tools__vipIconWrap {
-    width: 80px;
-    height: 80px;
-  }
-
-  .pvs-tools__vipIcon {
-    width: 60px;
-    height: 60px;
-  }
-
-  .pvs-actions__tabs--standalone {
-    display: none !important;
-  }
-
-  .pvs-tabs-mobile {
-    display: flex;
-    flex-direction: row;
-    flex-wrap: nowrap;
-    align-items: center;
-    justify-content: flex-start;
-    gap: 8px;
-    margin-top: 14px;
-    width: 100vw;
-    margin-left: calc(50% - 50vw);
-    padding-left: 14px;
-    padding-right: 14px;
-    min-width: 0;
-    box-sizing: border-box;
-  }
-
-  .pvs-tabs-mobile .pvs-actions__tab {
-    flex: 1 1 0;
-    min-width: 0;
-    justify-content: center;
-  }
-
-
-  .pvs-icons-block .pvs-tools {
-    justify-content: flex-end;
-  }
-
-  .pvs-actions {
-    display: inline;
-    grid-area: actions;
-    align-items: flex-end;
-    margin-top: 10px;
-  }
-
-  .profile-visitor-subscribed__onlineLabel {
-    font-size: 18px;
-    font-weight: 800;
-    background: $gradient;
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-  }
-
-  .profile-visitor-subscribed__btnDelete {
-    width: auto;
-    min-width: 88px;
-    padding: 6px 12px;
-    border-radius: 8px;
-    font-size: 12px;
-  }
-
-  .pvs-tools {
-    gap: 6px;
+  .pvs-tools__row {
+    display: grid;
+    grid-template-columns: repeat(2, auto);
+    justify-content: start;
+    align-items: start;
+    column-gap: 8px;
+    row-gap: 2px;
   }
 
   .pvs-tools__vip {
     width: auto;
-    height: auto;
-    min-width: 0;
-    padding: 2px;
+    min-width: 58px;
+    padding: 0;
+    grid-column: 1 / span 2;
+    justify-self: center;
   }
 
-  /* Іконка заблокованого чату як була (48px); обводка градієнт, відступ від іконки */
   .pvs-tools__vipIconWrap {
-    width: 64px; /* 48 + 8*2 */
-    height: 64px;
-    padding: 8px;
-    border-radius: 8px;
+    width: 54px;
+    height: 54px;
+    padding: 6px;
+    border-radius: 10px;
   }
 
   .pvs-tools__vipIcon {
-    width: 48px;
-    height: 48px;
+    width: 36px;
+    height: 36px;
     object-fit: contain;
   }
 
   .pvs-tools__label {
-    font-size: 9px;
-    white-space: nowrap;
-  }
-
-  .pvs-tools__right {
-    display: flex;
-    flex-direction: row;
-    justify-content: flex-end;
-    gap: 12px;
+    font-size: 0;
+    line-height: 0;
   }
 
   .pvs-tools__small {
-    width: auto;
-    height: auto;
-    min-width: 38px;
-    padding: 2px;
+    width: 42px;
+    min-width: 42px;
+    gap: 5px;
+    padding: 0;
+  }
+
+  .profile-visitor-subscribed .pvs-tools__small {
+    display: flex;
   }
 
   .pvs-tools__smallIcon,
   .pvs-tools__warn {
     width: 22px;
     height: 22px;
-    font-size: 12px;
+    font-size: 11px;
   }
 
   .pvs-tools__smallLabel {
     font-size: 8px;
+    line-height: 1.1;
+    white-space: normal;
   }
 
   .pvs-actions__vipBtn {
-    width: auto;
-    max-width: 100%;
-    min-width: 130px;
-    height: 38px;
-    padding: 0 12px;
-    font-size: 12px;
-    border-radius: 12px;
+    width: min(100%, 280px);
+    max-width: none;
+    min-width: 0;
+    height: 42px;
+    padding: 0 14px;
+    font-size: 13px;
+    border-radius: 14px;
     gap: 6px;
-    justify-self: flex-end;
+    margin-left: 0;
+  }
+
+  .profile-visitor-subscribed__right .pvs-actions__vipBtn {
+    display: none;
+  }
+
+  .pvs-mobile-actions {
+    display: grid;
+    grid-template-columns: 138px minmax(0, 1fr);
+    gap: 12px;
+    align-items: stretch;
+    margin-top: 14px;
+  }
+
+  .pvs-mobile-actions .profile-visitor-subscribed__btnDelete,
+  .pvs-mobile-actions .pvs-actions__vipBtn--mobile {
+    width: 100%;
+    min-width: 0;
+    height: 42px;
+    margin: 0;
+  }
+
+  .pvs-mobile-actions .profile-visitor-subscribed__btnDelete {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 14px;
+    font-size: 13px;
+    border-radius: 14px;
   }
 
   .pvs-actions__vipBtnIcon {
@@ -833,33 +807,76 @@ html[data-theme="dark"] .pvs-tools__vip .pvs-tools__label {
     height: 12px;
   }
 
-  .pvs-actions__tabs {
-    flex-wrap: wrap;
-    justify-content: flex-start;
-    gap: 6px;
+  .pvs-actions__tabs--standalone {
+    display: none !important;
+  }
+
+  .pvs-tabs-mobile {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 12px;
+    margin-top: 18px;
+    width: 100%;
+    align-items: start;
+  }
+
+  .pvs-tabs-mobile .pvs-actions__tab {
+    min-width: 0;
+    width: 100%;
+    justify-content: center;
+  }
+
+  .profile-visitor-subscribed__onlineLabel {
+    font-size: 16px;
+    font-weight: 800;
+    background: $gradient;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
   }
 
   .pvs-actions__tab {
-    width: auto;
-    min-width: 70px;
-    height: 36px;
+    width: 100%;
+    min-width: 0;
+    height: 40px;
+    padding: 0 8px;
     font-size: 11px;
-    border-radius: 10px;
-   
+    border-radius: 12px;
     border: 1px solid rgba(0, 0, 0, 0.1);
     color: rgba(0, 0, 0, 0.85);
+    white-space: nowrap;
   }
 
   .profile-visitor-subscribed .vipAvatarWrap {
-    width: 54px;
-    height: 54px;
+    width: 100%;
+    height: auto;
     max-width: none;
+    min-width: 0;
+    min-height: 0;
+    aspect-ratio: 1 / 1;
+    flex: 0 0 auto;
+  }
+
+  .profile-visitor-subscribed .friendsTitle {
+    font-size: 17px;
+    margin-bottom: 20px;
+  }
+
+  .profile-visitor-subscribed .showMoreBtn {
+    width: 240px;
+    height: 42px;
+    font-size: 14px;
+    margin-top: 24px;
+  }
+
+  .profile-visitor-subscribed__friendsEmpty {
+    font-size: 14px;
   }
 
   .profile-visitor-subscribed .vipRow {
     flex-wrap: nowrap;
     overflow-x: auto;
-    gap: 12px;
+    gap: 8px;
     padding-bottom: 6px;
     scrollbar-width: none;
     -ms-overflow-style: none;
@@ -870,99 +887,98 @@ html[data-theme="dark"] .pvs-tools__vip .pvs-tools__label {
   }
 
   .profile-visitor-subscribed .vipItem {
-    flex: 0 0 auto;
+    flex: 0 0 calc((100% - 24px) / 4);
+  }
+
+  .profile-visitor-subscribed__friends {
+    margin-top: 34px;
   }
 }
 
-/* Екрани до 480px (в т.ч. 360px): як на головному профілі — 108px аватар, компактніше */
 @media (max-width: 480px) {
   .profile-visitor-subscribed {
     padding: 10px 12px 90px;
   }
 
   .profile-visitor-subscribed__top {
-    gap: 12px;
+    grid-template-columns: 100px minmax(0, 1fr) auto;
+    gap: 8px 10px;
   }
 
-  .profile-visitor-subscribed__mobileRow1 {
-    gap: 0;
+  .profile-visitor-subscribed__left {
+    gap: 6px;
   }
 
-  .profile-visitor-subscribed__mobileRow1 .profile-visitor-subscribed__avatarWrap {
-    width: 108px;
-    height: 108px;
+  .profile-visitor-subscribed__avatarWrap {
+    width: 100px;
+    height: 100px;
   }
 
-  .pvs-info-mobile__name {
-    font-size: 26px;
+  .profile-visitor-subscribed__nickname--center {
+    font-size: 23px;
   }
 
-  .profile-visitor-subscribed__right {
-    column-gap: 10px;
-    row-gap: 10px;
-  }
-
-  .pvs-info-mobile__bio .profile-visitor-subscribed__fullName,
-  .pvs-info-mobile__bio .profile-visitor-subscribed__location {
-    font-size: 11px;
+  .profile-visitor-subscribed__center .profile-visitor-subscribed__fullName,
+  .profile-visitor-subscribed__center .profile-visitor-subscribed__location {
+    font-size: 12px;
   }
 
   .profile-visitor-subscribed__onlineLabel {
-    font-size: 16px;
+    font-size: 14px;
   }
 
-  .profile-visitor-subscribed__btnDelete {
-    min-width: 76px;
-    padding: 5px 10px;
-    font-size: 11px;
-  }
-
-  .pvs-tools {
-    gap: 8px;
+  .pvs-tools__row {
+    gap: 10px;
   }
 
   .pvs-tools__vipIconWrap {
-    width: 52px; /* 40 + 6*2 */
-    height: 52px;
-    padding: 6px;
+    width: 48px;
+    height: 48px;
+    padding: 5px;
   }
 
   .pvs-tools__vipIcon {
-    width: 40px;
-    height: 40px;
-    object-fit: contain;
-  }
-
-  .pvs-tools__label {
-    font-size: 8px;
-  }
-
-  .pvs-tools__right {
-    gap: 8px;
-    margin-bottom: 1px;
+    width: 32px;
+    height: 32px;
   }
 
   .pvs-tools__small {
-    min-width: 32px;
+    width: 36px;
+    min-width: 36px;
   }
 
   .pvs-tools__smallIcon,
   .pvs-tools__warn {
-    width: 20px;
-    height: 20px;
-    font-size: 11px;
+    width: 18px;
+    height: 18px;
+    font-size: 10px;
   }
 
   .pvs-tools__smallLabel {
-    font-size: 7px;
+    font-size: 6px;
   }
 
   .pvs-actions__vipBtn {
-    min-width: 110px;
-    height: 34px;
+    height: 38px;
     padding: 0 10px;
     font-size: 11px;
     gap: 5px;
+  }
+
+  .pvs-mobile-actions {
+    grid-template-columns: 110px minmax(0, 1fr);
+    gap: 10px;
+    margin-top: 12px;
+  }
+
+  .pvs-mobile-actions .profile-visitor-subscribed__btnDelete,
+  .pvs-mobile-actions .pvs-actions__vipBtn--mobile {
+    height: 38px;
+  }
+
+  .pvs-mobile-actions .profile-visitor-subscribed__btnDelete {
+    font-size: 11px;
+    padding: 0 10px;
   }
 
   .pvs-actions__vipBtnIcon {
@@ -970,29 +986,141 @@ html[data-theme="dark"] .pvs-tools__vip .pvs-tools__label {
     height: 10px;
   }
 
-  .pvs-actions__tabs {
-    gap: 5px;
-  }
-
   .pvs-tabs-mobile {
-    padding-left: 12px;
-    padding-right: 12px;
+    gap: 8px;
+    margin-top: 16px;
   }
 
   .pvs-actions__tab {
-    min-width: 62px;
-    height: 32px;
+    height: 36px;
     font-size: 10px;
     border-radius: 8px;
   }
 
   .profile-visitor-subscribed .vipAvatarWrap {
-    width: 46px;
-    height: 46px;
+    width: 100%;
+    height: auto;
   }
+
+  .profile-visitor-subscribed .friendsTitle {
+    font-size: 15px;
+    margin-bottom: 16px;
+  }
+
   .profile-visitor-subscribed .showMoreBtn {
-    height: 35px;
-    font-size: 16px;
+    width: 210px;
+    height: 34px;
+    font-size: 13px;
+  }
+
+  .profile-visitor-subscribed__friendsEmpty {
+    font-size: 13px;
+  }
+
+  .profile-visitor-subscribed__friends {
+    margin-top: 30px;
+  }
+}
+
+@media (max-width: 360px) {
+  .profile-visitor-subscribed__top {
+    grid-template-columns: 90px minmax(0, 1fr) auto;
+    gap: 8px;
+  }
+
+  .profile-visitor-subscribed__avatarWrap {
+    width: 90px;
+    height: 90px;
+  }
+
+  .profile-visitor-subscribed__nickname--center {
+    font-size: 20px;
+  }
+
+  .profile-visitor-subscribed__center .profile-visitor-subscribed__fullName,
+  .profile-visitor-subscribed__center .profile-visitor-subscribed__location {
+    font-size: 10px;
+  }
+
+  .profile-visitor-subscribed__onlineLabel {
+    font-size: 13px;
+  }
+
+  .pvs-tools__vipIconWrap {
+    width: 42px;
+    height: 42px;
+    padding: 5px;
+  }
+
+  .pvs-tools__vipIcon {
+    width: 28px;
+    height: 28px;
+  }
+
+  .pvs-tools__small {
+    width: 32px;
+    min-width: 32px;
+  }
+
+  .pvs-tools__smallIcon,
+  .pvs-tools__warn {
+    width: 16px;
+    height: 16px;
+  }
+
+  .pvs-tools__smallLabel {
+    font-size: 6px;
+  }
+
+  .pvs-actions__vipBtn {
+    height: 34px;
+    padding: 0 8px;
+    font-size: 10px;
+  }
+
+  .pvs-tabs-mobile {
+    gap: 6px;
+  }
+
+  .pvs-actions__tab {
+    height: 34px;
+    padding: 0 6px;
+    font-size: 9px;
+  }
+
+  .pvs-mobile-actions {
+    grid-template-columns: 92px minmax(0, 1fr);
+    gap: 8px;
+  }
+
+  .pvs-mobile-actions .profile-visitor-subscribed__btnDelete,
+  .pvs-mobile-actions .pvs-actions__vipBtn--mobile {
+    height: 34px;
+  }
+
+  .pvs-mobile-actions .profile-visitor-subscribed__btnDelete {
+    font-size: 10px;
+    padding: 0 8px;
+  }
+
+  .profile-visitor-subscribed .vipAvatarWrap {
+    width: 100%;
+    height: auto;
+  }
+
+  .profile-visitor-subscribed .friendsTitle {
+    font-size: 14px;
+    margin-bottom: 14px;
+  }
+
+  .profile-visitor-subscribed .showMoreBtn {
+    width: 190px;
+    height: 32px;
+    font-size: 12px;
+  }
+
+  .profile-visitor-subscribed__friendsEmpty {
+    font-size: 12px;
   }
 }
 
