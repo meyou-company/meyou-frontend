@@ -203,18 +203,21 @@
 }
 
 .field:focus-within {
-  z-index: 999999; /* bring active field above others */
+  z-index: 100; /* bring active field above others */
 }
 
 .field__wrap {
   position: relative;
-  height: 52px;
+  min-height: 52px;
+  height: auto;
   border-radius: var(--field-radius);
-  overflow: hidden;
+  overflow: visible;
 
   background: var(--field-grad);
   box-shadow: var(--field-shadow);
-  transition: box-shadow 0.25s ease, filter 0.25s ease;
+  transition:
+    box-shadow 0.25s ease,
+    filter 0.25s ease;
 }
 
 .field__lock-icon {
@@ -289,7 +292,8 @@
 
 .field__wrap:focus-within {
   z-index: 10;
-  box-shadow: 0 0 24px rgba(82, 126, 255, 0.45),
+  box-shadow:
+    0 0 24px rgba(82, 126, 255, 0.45),
     0 0 32px rgba(255, 65, 193, 0.25);
 }
 
@@ -338,7 +342,9 @@
   overflow: visible;
   background: var(--field-grad);
   box-shadow: var(--field-shadow);
-  transition: box-shadow 0.25s ease, filter 0.25s ease;
+  transition:
+    box-shadow 0.25s ease,
+    filter 0.25s ease;
 }
 
 .field__genderWrap::before {
@@ -357,9 +363,9 @@
   flex-direction: row;
   align-items: center;
   gap: 14px;
-  height: 56px;
-  min-height: 56px;
-  max-height: 56px;
+  height: 52px;
+  min-height: 52px;
+  max-height: 52px;
   padding: 0 16px 0 14px;
 }
 
@@ -416,12 +422,14 @@
 
   .field__genderTriggerWrap {
     position: relative;
-    height: 42px;
+    height: 52px;
     border-radius: var(--field-radius);
     overflow: visible;
     background: var(--field-grad);
     box-shadow: var(--field-shadow);
-    transition: box-shadow 0.25s ease, filter 0.25s ease;
+    transition:
+      box-shadow 0.25s ease,
+      filter 0.25s ease;
   }
 
   .field__genderTriggerWrap::before {
@@ -530,13 +538,13 @@
   }
 }
 
-// .field__label--inside {
-//   display: block;
-//   margin-bottom: 12px;
-//   font-size: 14px;
-//   font-weight: 500;
-//   color: var(--field-placeholder);
-// }
+.field__label--inside {
+  display: block;
+  margin-bottom: 12px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--field-placeholder);
+}
 
 /* Дві опції в один ряд горизонтально */
 .field__genderGroup {
@@ -561,7 +569,9 @@
   color: var(--field-text);
   text-align: left;
   -webkit-tap-highlight-color: transparent;
-  transition: border-color 0.2s, background 0.2s;
+  transition:
+    border-color 0.2s,
+    background 0.2s;
 }
 
 .field__genderBtn:hover {
@@ -676,7 +686,9 @@
 
 /* Помилку показуємо на wrap, індикатор залишається */
 .field__wrap--birthDate:has(.is-error) {
-  box-shadow: var(--field-shadow), inset 0 0 0 2px #ff1b1b;
+  box-shadow:
+    var(--field-shadow),
+    inset 0 0 0 2px #ff1b1b;
 }
 
 /* Збільшений календар, що вискакує для вибору дати */
@@ -722,12 +734,7 @@
 
 .birthDate-picker .react-datepicker__day--selected,
 .birthDate-picker .react-datepicker__day--keyboard-selected {
-  background: linear-gradient(
-    90deg,
-    #4f6bff 0%,
-    #b05cff 55%,
-    #ff4fb1 100%
-  ) !important;
+  background: linear-gradient(90deg, #4f6bff 0%, #b05cff 55%, #ff4fb1 100%) !important;
   color: #fff !important;
 }
 
@@ -830,12 +837,8 @@ body.night .birthDate-picker .react-datepicker__year-read-view,
 /* Стрілки навігації календаря (місяць/рік) — темна тема */
 body.dark .birthDate-picker .react-datepicker__navigation-icon::before,
 body.night .birthDate-picker .react-datepicker__navigation-icon::before,
-[data-theme='dark']
-  .birthDate-picker
-  .react-datepicker__navigation-icon::before,
-[data-theme='night']
-  .birthDate-picker
-  .react-datepicker__navigation-icon::before {
+[data-theme='dark'] .birthDate-picker .react-datepicker__navigation-icon::before,
+[data-theme='night'] .birthDate-picker .react-datepicker__navigation-icon::before {
   border-color: rgba(255, 255, 255, 0.75);
 }
 
@@ -906,7 +909,8 @@ body.night .field__genderBtnActive,
 [data-theme='night'] .field__genderBtnActive {
   border-color: rgba(255, 79, 177, 0.6);
   background: rgba(255, 79, 177, 0.2);
-  box-shadow: 0 0 20px rgba(255, 79, 177, 0.45),
+  box-shadow:
+    0 0 20px rgba(255, 79, 177, 0.45),
     0 0 28px rgba(79, 107, 255, 0.3);
 }
 
@@ -935,12 +939,8 @@ body.dark .field__wrap--birthDate .field__date-input,
 }
 
 /* У темній темі теж лише наша стрілка, нативна іконка прихована */
-body.dark
-  .field__wrap--birthDate
-  .field__date-input::-webkit-calendar-picker-indicator,
-[data-theme='dark']
-  .field__wrap--birthDate
-  .field__date-input::-webkit-calendar-picker-indicator {
+body.dark .field__wrap--birthDate .field__date-input::-webkit-calendar-picker-indicator,
+[data-theme='dark'] .field__wrap--birthDate .field__date-input::-webkit-calendar-picker-indicator {
   opacity: 0;
   filter: none;
 }
@@ -1010,66 +1010,110 @@ body.night .field__date-indicator::after,
 .select-wrap .rs__control {
   position: relative;
   z-index: 2;
-  height: 100%;
-  min-height: unset !important;
+
+  min-height: 56px;
+  height: auto;
 
   background: transparent !important;
+  // background: red !important;
   border: 0 !important;
   box-shadow: none !important;
+
+  // align-items: flex-start;
 }
+
+/* container з тегами */
 
 .select-wrap .rs__value-container {
   padding-left: 28px !important;
+
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+
+  // gap: 4px;
+
+  overflow: visible;
 }
 
-.select-wrap .rs__single-value,
+/* input */
+
 .select-wrap .rs__input-container {
-  color: var(--field-text) !important;
-  font-size: 14px !important;
+  margin: 2px;
 }
+
+/* selected tags */
+
+.rs__multi-value {
+  margin: 2px;
+
+  background: var(--select-tag-bg);
+  border-radius: 10px;
+
+  font-size: 13px;
+}
+
+.rs__multi-value__label {
+  color: var(--select-tag-text);
+  padding: 2px 6px;
+}
+
+.rs__multi-value__remove {
+  cursor: pointer;
+}
+
+.rs__multi-value__remove:hover {
+  background: rgba(255, 0, 0, 0.15);
+}
+
+/* placeholder */
 
 .select-wrap .rs__placeholder {
   color: var(--select-placeholder) !important;
   font-size: 14px !important;
 }
 
-/* menu renders in BODY (portal) */
+.select-wrap .rs__indicators {
+  align-items: flex-start;
+  padding-top: 8px;
+}
+
+.select-wrap .rs__indicator-separator {
+  margin-top: 8px;
+}
+
+/* single value */
+
+.select-wrap .rs__single-value {
+  color: var(--field-text) !important;
+  font-size: 14px !important;
+}
+
+/* =========================
+     dropdown menu (portal)
+     ========================= */
+
 .rs__menu-portal {
-  z-index: 9999999 !important;
+  z-index: 2000 !important;
 }
 
 .rs__menu {
   background: var(--select-menu-bg) !important;
+
   border-radius: 16px !important;
   padding: 6px !important;
+
   box-shadow: 0 12px 30px rgba(123, 92, 255, 0.25) !important;
 }
-.more-badge {
-  color: var(--field-text) !important;
-  font-size: 14px !important;
-  padding: 4px 8px;
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-}
 
-/* Темна тема: чорний дропдаун react-select */
-body.dark .rs__menu,
-html[data-theme='dark'] .rs__menu {
-  background: #0d0d0d !important;
-  border: 1px solid rgba(255, 255, 255, 0.12) !important;
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.6) !important;
-}
-
-body.dark .rs__option,
-html[data-theme='dark'] .rs__option {
-  color: rgba(255, 255, 255, 0.95) !important;
-}
+/* options */
 
 .rs__option {
-  font-size: 16px !important;
-  padding: 12px 14px !important;
+  font-size: 15px !important;
+
+  padding: 10px 14px !important;
   border-radius: 12px !important;
+
   cursor: pointer !important;
 
   color: var(--select-text) !important;
@@ -1082,8 +1126,97 @@ html[data-theme='dark'] .rs__option {
 
 .rs__option--is-selected {
   background: var(--select-option-selected-bg) !important;
+
   color: #fff !important;
   font-weight: 600 !important;
+}
+
+/* =========================
+     dark theme
+     ========================= */
+
+body.dark .rs__menu,
+html[data-theme='dark'] .rs__menu {
+  background: #0d0d0d !important;
+
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.6) !important;
+}
+
+body.dark .rs__option,
+html[data-theme='dark'] .rs__option {
+  color: rgba(255, 255, 255, 0.95) !important;
+}
+
+.more-badge {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.more-button {
+  cursor: pointer;
+
+  padding: 4px 8px;
+  margin-left: 4px;
+
+  border-radius: 12px;
+  border: none;
+
+  background: #f1f1f1;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+[data-theme='dark'] .more-button,
+.more-popover {
+  background: rgba(255, 255, 255, 0.95);
+  color: #0d0d0d;
+}
+
+.more-popover {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+
+  z-index: 2100;
+
+  background: white;
+  border-radius: 12px;
+
+  border: 1px solid #e6e6e6;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
+
+  padding: 8px;
+
+  min-width: 180px;
+}
+
+.popover-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  padding: 6px 8px;
+  border-radius: 8px;
+}
+
+.popover-item:hover {
+  background: #f5f5f5;
+}
+
+.remove-btn {
+  border: none;
+  background: transparent;
+
+  cursor: pointer;
+  font-size: 14px;
+  color: #888;
+}
+
+.remove-btn:hover {
+  color: #ff4d4f;
 }
 
 /* =========================
@@ -1138,9 +1271,7 @@ html[data-theme='dark'] .rs__option {
 
 /* Dark mode: country names readable (white text) */
 body.dark .phone-wrap .react-international-phone-country-selector-dropdown,
-[data-theme='dark']
-  .phone-wrap
-  .react-international-phone-country-selector-dropdown {
+[data-theme='dark'] .phone-wrap .react-international-phone-country-selector-dropdown {
   background: var(--select-menu-bg) !important;
   color: var(--select-text) !important;
 
@@ -1172,7 +1303,7 @@ body.dark .phone-wrap .react-international-phone-country-selector-dropdown,
 .grid-2 {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 14px;
+  gap: 30px;
 }
 
 /* below 680px: single column */
@@ -1211,7 +1342,8 @@ body.dark .phone-wrap .react-international-phone-country-selector-dropdown,
 
 @media (min-width: 768px) {
   .field__wrap {
-    height: 56px;
+    min-height: 52px;
+    height: auto;
   }
 }
 
@@ -1222,12 +1354,14 @@ body.dark .phone-wrap .react-international-phone-country-selector-dropdown,
 @media (max-width: 480px) {
   .edit-profile {
     padding: 16px 14px 26px;
-    --field-radius: 10px;
-    --field-radius-inner: 9px;
   }
 
   .edit-profile__form {
     max-width: 420px;
+    gap: 18px;
+  }
+
+  .grid-2 {
     gap: 18px;
   }
 
@@ -1295,14 +1429,21 @@ body.dark .phone-wrap .react-international-phone-country-selector-dropdown,
     line-height: 1;
   }
 
+  /* fields — той самий радіус для всіх полів */
+  .complete-profile {
+    --field-radius: 10px;
+    --field-radius-inner: 9px;
+  }
+
   /* fields */
   .field__wrap {
-    height: 40px;
+    min-height: 40px;
+    height: auto;
     border-radius: var(--field-radius);
   }
 
   .field__wrap::before {
-    border-radius: var(--field-radius);
+    border-radius: var(--field-radius-inner);
   }
 
   .text-input,
@@ -1319,6 +1460,13 @@ body.dark .phone-wrap .react-international-phone-country-selector-dropdown,
   .field__hint {
     font-size: 12px;
     padding-left: 6px;
+  }
+
+  .field__genderTriggerWrap {
+    display: flex;
+    align-items: center;
+    min-height: 40px;
+    height: auto;
   }
 
   /* react-select */
@@ -1396,7 +1544,8 @@ body.dark .phone-wrap .react-international-phone-country-selector-dropdown,
   }
 
   .field__wrap {
-    height: 38px;
+    min-height: 38px;
+    height: auto;
   }
 
   .field__lock-icon {

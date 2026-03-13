@@ -1,40 +1,37 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
-import { toast } from 'sonner'
-import Select from 'react-select'
-import DatePicker from 'react-datepicker'
-import 'react-datepicker/dist/react-datepicker.css'
-import { PhoneInput } from 'react-international-phone'
-import 'react-international-phone/style.css'
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { toast } from 'sonner';
+import Select from 'react-select';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
+import { PhoneInput } from 'react-international-phone';
+import 'react-international-phone/style.css';
 
-import { useAuthStore } from '../../../../zustand/useAuthStore'
+import { useAuthStore } from '../../../../zustand/useAuthStore';
 
-import { authApi } from '../../../../services/auth'
-import { profileApi } from '../../../../services/profileApi'
-import { locationApi } from '../../../../services/locationApi'
-import { usersApi } from '../../../../services/usersApi'
+import { authApi } from '../../../../services/auth';
+import { profileApi } from '../../../../services/profileApi';
+import { locationApi } from '../../../../services/locationApi';
+import { usersApi } from '../../../../services/usersApi';
 
-import { useLocationOptions } from '../../../../hooks/useLocationOptions'
-import { usePrefillProfile } from '../../../../hooks/usePrefillProfile'
+import { useLocationOptions } from '../../../../hooks/useLocationOptions';
+import { usePrefillProfile } from '../../../../hooks/usePrefillProfile';
 
-import {
-  normalizeForValidation,
-  toBackendPayload,
-} from '../../../../utils/profilePayload'
+import { normalizeForValidation, toBackendPayload } from '../../../../utils/profilePayload';
 
-import { maritalStatusOptions } from '../../../../utils/profileOptions'
-import { validateCompleteProfile } from '../../../../utils/validationCompleteProfile'
-import { normalizePhone } from '../../../../utils/normalizePhone'
-import { cropImageToFile } from '../../../../utils/cropImageToFile'
+import { maritalStatusOptions } from '../../../../utils/profileOptions';
+import { validateCompleteProfile } from '../../../../utils/validationCompleteProfile';
+import { normalizePhone } from '../../../../utils/normalizePhone';
+import { cropImageToFile } from '../../../../utils/cropImageToFile';
 
-import { interestOptions } from '../../../../constants/interests'
-import { profileHobbyOptions } from '../../../../constants/hobbies'
-import profileIcons from '../../../../constants/profileIcons'
+import { interestOptions } from '../../../../constants/interests';
+import { profileHobbyOptions } from '../../../../constants/hobbies';
+import profileIcons from '../../../../constants/profileIcons';
 
-import ThemeToggleDark from '../../../../components/ThemeToggleDark/ThemeToggleDark'
-import AvatarCropModal from '../../../../components/AvatarCropModal/AvatarCropModal'
-import MultiSelect from './MultiSelect'
+import ThemeToggleDark from '../../../../components/ThemeToggleDark/ThemeToggleDark';
+import AvatarCropModal from '../../../../components/AvatarCropModal/AvatarCropModal';
+import MultiSelect from './MultiSelect';
 
-import './EditProfileForm.scss'
+import './EditProfileForm.scss';
 
 const INITIAL_VALUES = {
   firstName: '',
@@ -50,154 +47,146 @@ const INITIAL_VALUES = {
   city: null,
   gender: null,
   birthDate: '',
-}
+};
 
 const GENDER_OPTIONS = [
   { value: 'MALE', label: 'Чоловіча' },
   { value: 'FEMALE', label: 'Жіноча' },
-]
-
-const MAX_INTERESTS = 10
-const MAX_HOBBIES = 10
+];
 
 function getBirthDateLimits() {
-  const today = new Date()
-  const max = new Date(today)
-  max.setFullYear(max.getFullYear() - 18)
-  const min = new Date(today.getFullYear() - 100, 0, 1)
+  const today = new Date();
+  const max = new Date(today);
+  max.setFullYear(max.getFullYear() - 18);
+  const min = new Date(today.getFullYear() - 100, 0, 1);
   return {
     minStr: min.toISOString().slice(0, 10),
     maxStr: max.toISOString().slice(0, 10),
     minDate: min,
     maxDate: max,
-  }
+  };
 }
 
 export default function EditProfileForm({ onBack, onSave }) {
-  const [values, setValues] = useState(INITIAL_VALUES)
-  const [touched, setTouched] = useState({})
-  const [errors, setErrors] = useState({})
-  const [submitError, setSubmitError] = useState('')
-  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [values, setValues] = useState(INITIAL_VALUES);
+  const [touched, setTouched] = useState({});
+  const [errors, setErrors] = useState({});
+  const [submitError, setSubmitError] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // ===== AUTH / USER =====
-  const refreshMe = useAuthStore((s) => s.refreshMe)
-  const user = useAuthStore((s) => s.user)
-  const backendAvatarUrl = user?.avatarUrl || ''
+  const refreshMe = useAuthStore((s) => s.refreshMe);
+  const user = useAuthStore((s) => s.user);
+  const backendAvatarUrl = user?.avatarUrl || '';
 
   // ===== AVATAR CROP STATE =====
-  const [cropSrc, setCropSrc] = useState('')
-  const [isCropOpen, setIsCropOpen] = useState(false)
-  const [isAvatarUploading, setIsAvatarUploading] = useState(false)
-  const [avatarError, setAvatarError] = useState('')
+  const [cropSrc, setCropSrc] = useState('');
+  const [isCropOpen, setIsCropOpen] = useState(false);
+  const [isAvatarUploading, setIsAvatarUploading] = useState(false);
+  const [avatarError, setAvatarError] = useState('');
 
-  const fileRef = useMemo(() => ({ current: null }), [])
-  const genderDropdownRef = useRef(null)
-  const [genderPickerOpen, setGenderPickerOpen] = useState(false)
+  const fileRef = useMemo(() => ({ current: null }), []);
+  const genderDropdownRef = useRef(null);
+  const [genderPickerOpen, setGenderPickerOpen] = useState(false);
 
   const pickAvatar = () => {
-    setAvatarError('')
-    fileRef.current?.click?.()
-  }
+    setAvatarError('');
+    fileRef.current?.click?.();
+  };
 
   const handlePickForCrop = (e) => {
-    const file = e.target.files?.[0]
-    if (!file) return
+    const file = e.target.files?.[0];
+    if (!file) return;
 
-    const okTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp']
+    const okTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
     if (!okTypes.includes(file.type)) {
-      setAvatarError('Дозволено лише JPEG, PNG, WebP')
-      return
+      setAvatarError('Дозволено лише JPEG, PNG, WebP');
+      return;
     }
 
-    const url = URL.createObjectURL(file)
-    setCropSrc(url)
-    setIsCropOpen(true)
-  }
+    const url = URL.createObjectURL(file);
+    setCropSrc(url);
+    setIsCropOpen(true);
+  };
 
   const closeCrop = () => {
-    setIsCropOpen(false)
-    setCropSrc('')
-    setAvatarError('')
-    if (fileRef.current) fileRef.current.value = ''
-  }
+    setIsCropOpen(false);
+    setCropSrc('');
+    setAvatarError('');
+    if (fileRef.current) fileRef.current.value = '';
+  };
 
   const handleCropConfirm = async (croppedPixels) => {
     try {
-      setIsAvatarUploading(true)
-      setAvatarError('')
+      setIsAvatarUploading(true);
+      setAvatarError('');
 
-      const file = await cropImageToFile(cropSrc, croppedPixels, 'avatar.jpg')
+      const file = await cropImageToFile(cropSrc, croppedPixels, 'avatar.jpg');
 
-      await authApi.uploadAvatar(file)
+      await authApi.uploadAvatar(file);
 
-      await refreshMe()
-      closeCrop()
-      toast.success('Аватар оновлено')
+      await refreshMe();
+      closeCrop();
+      toast.success('Аватар оновлено');
     } catch (err) {
-      const raw = err?.response?.data?.message
+      const raw = err?.response?.data?.message;
       const msg =
         err?.response?.status === 401
           ? 'Сесія закінчилась. Увійди знову.'
-          : (Array.isArray(raw) ? raw[0] : raw) ||
-            err?.message ||
-            'Не вдалося оновити фото'
-      toast.error(String(msg))
-      setAvatarError(String(msg))
+          : (Array.isArray(raw) ? raw[0] : raw) || err?.message || 'Не вдалося оновити фото';
+      toast.error(String(msg));
+      setAvatarError(String(msg));
     } finally {
-      setIsAvatarUploading(false)
+      setIsAvatarUploading(false);
     }
-  }
+  };
 
   const deleteAvatar = async () => {
     try {
-      setIsAvatarUploading(true)
-      setAvatarError('')
-      await authApi.deleteAvatar()
-      await refreshMe()
-      toast.success('Аватар видалено')
+      setIsAvatarUploading(true);
+      setAvatarError('');
+      await authApi.deleteAvatar();
+      await refreshMe();
+      toast.success('Аватар видалено');
     } catch (err) {
-      const raw = err?.response?.data?.message
+      const raw = err?.response?.data?.message;
       const msg =
         err?.response?.status === 401
           ? 'Сесія закінчилась. Увійди знову.'
-          : (Array.isArray(raw) ? raw[0] : raw) ||
-            err?.message ||
-            'Помилка видалення аватару'
-      toast.error(String(msg))
-      setAvatarError(String(msg))
+          : (Array.isArray(raw) ? raw[0] : raw) || err?.message || 'Помилка видалення аватару';
+      toast.error(String(msg));
+      setAvatarError(String(msg));
     } finally {
-      setIsAvatarUploading(false)
+      setIsAvatarUploading(false);
     }
-  }
+  };
 
   // ===== REACT-SELECT PORTAL =====
-  const selectPortalTarget =
-    typeof window !== 'undefined' ? document.body : null
+  const selectPortalTarget = typeof window !== 'undefined' ? document.body : null;
 
   const selectCommonProps = useMemo(() => {
-    if (!selectPortalTarget) return {}
+    if (!selectPortalTarget) return {};
     return {
       menuPortalTarget: selectPortalTarget,
       menuPosition: 'fixed',
       styles: { menuPortal: (base) => ({ ...base, zIndex: 9999999 }) },
-    }
-  }, [selectPortalTarget])
+    };
+  }, [selectPortalTarget]);
 
   // ===== LOCATIONS =====
-  const [cityOptions, setCityOptions] = useState([])
-  const [isCitiesLoading, setIsCitiesLoading] = useState(false)
+  const [cityOptions, setCityOptions] = useState([]);
+  const [isCitiesLoading, setIsCitiesLoading] = useState(false);
 
   const {
     countryOptions,
     cityOptions: citiesFromHook,
     isCitiesLoading: citiesLoadingHook,
-  } = useLocationOptions(values.country?.value, values.city?.value, setValues)
+  } = useLocationOptions(values.country?.value, values.city?.value, setValues);
 
   useEffect(() => {
-    setCityOptions(citiesFromHook)
-    setIsCitiesLoading(citiesLoadingHook)
-  }, [citiesFromHook, citiesLoadingHook])
+    setCityOptions(citiesFromHook);
+    setIsCitiesLoading(citiesLoadingHook);
+  }, [citiesFromHook, citiesLoadingHook]);
 
   // ===== PREFILL FROM USER ====
   usePrefillProfile({
@@ -210,45 +199,42 @@ export default function EditProfileForm({ onBack, onSave }) {
     setIsCitiesLoading,
     locationApi,
     profileApi,
-  })
+  });
 
   // ===== VALIDATION =====
   useEffect(() => {
-    const normalized = normalizeForValidation(values)
-    setErrors(validateCompleteProfile(normalized))
-  }, [values])
+    const normalized = normalizeForValidation(values);
+    setErrors(validateCompleteProfile(normalized));
+  }, [values]);
 
   useEffect(() => {
-    if (!genderPickerOpen) return
+    if (!genderPickerOpen) return;
     const handleOutside = (e) => {
-      if (
-        genderDropdownRef.current &&
-        !genderDropdownRef.current.contains(e.target)
-      ) {
-        setGenderPickerOpen(false)
+      if (genderDropdownRef.current && !genderDropdownRef.current.contains(e.target)) {
+        setGenderPickerOpen(false);
       }
-    }
-    document.addEventListener('mousedown', handleOutside)
-    document.addEventListener('touchstart', handleOutside, { passive: true })
+    };
+    document.addEventListener('mousedown', handleOutside);
+    document.addEventListener('touchstart', handleOutside, { passive: true });
     return () => {
-      document.removeEventListener('mousedown', handleOutside)
-      document.removeEventListener('touchstart', handleOutside)
-    }
-  }, [genderPickerOpen])
+      document.removeEventListener('mousedown', handleOutside);
+      document.removeEventListener('touchstart', handleOutside);
+    };
+  }, [genderPickerOpen]);
 
-  const onBlur = (key) => setTouched((t) => ({ ...t, [key]: true }))
+  const onBlur = (key) => setTouched((t) => ({ ...t, [key]: true }));
 
   const setField = (key, val) => {
-    setValues((v) => ({ ...v, [key]: val }))
-    setSubmitError('')
-  }
+    setValues((v) => ({ ...v, [key]: val }));
+    setSubmitError('');
+  };
 
-  const showError = (key) => Boolean(touched[key] && errors[key])
+  const showError = (key) => Boolean(touched[key] && errors[key]);
 
   // ===== SUBMIT =====
   const handleSubmit = async (e) => {
-    e.preventDefault()
-    setSubmitError('')
+    e.preventDefault();
+    setSubmitError('');
 
     setTouched({
       firstName: true,
@@ -264,69 +250,64 @@ export default function EditProfileForm({ onBack, onSave }) {
       city: true,
       gender: true,
       birthDate: true,
-    })
+    });
 
-    const normalized = normalizeForValidation(values)
-    const nextErrors = validateCompleteProfile(normalized)
-    setErrors(nextErrors)
+    const normalized = normalizeForValidation(values);
+    const nextErrors = validateCompleteProfile(normalized);
+    setErrors(nextErrors);
 
-    if (Object.keys(nextErrors).length > 0) return
+    if (Object.keys(nextErrors).length > 0) return;
 
-    const username = normalized.username?.trim()
+    const username = normalized.username?.trim();
     if (username) {
       try {
-        const res = await usersApi.getByUsername(username)
-        const data = res?.data ?? res
-        const currentUserId = user?.id
+        const res = await usersApi.getByUsername(username);
+        const data = res?.data ?? res;
+        const currentUserId = user?.id;
         if (data?.id && data.id !== currentUserId) {
-          setErrors((prev) => ({ ...prev, username: 'Цей нік вже зайнятий' }))
-          return
+          setErrors((prev) => ({ ...prev, username: 'Цей нік вже зайнятий' }));
+          return;
         }
       } catch (err) {
         if (err?.response?.status !== 404) {
-          setSubmitError(err?.message || 'Помилка перевірки ніка')
-          return
+          setSubmitError(err?.message || 'Помилка перевірки ніка');
+          return;
         }
       }
     }
 
-    const payload = toBackendPayload(values)
-    console.log('PAYLOAD', payload)
+    const payload = toBackendPayload(values);
+    console.log('PAYLOAD', payload);
     try {
-      setIsSubmitting(true)
-      await onSave?.(payload)
+      setIsSubmitting(true);
+      await onSave?.(payload);
     } catch (err) {
-      console.log('ERR RAW', err)
+      console.log('ERR RAW', err);
       const msg =
         err?.response?.data?.message?.[0] ||
         err?.response?.data?.message ||
         err?.message ||
-        'Помилка оновлення профілю'
-      setSubmitError(msg)
+        'Помилка оновлення профілю';
+      setSubmitError(msg);
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
-  }
+  };
 
   const toYMDLocal = (d) => {
-    const y = d.getFullYear()
-    const m = String(d.getMonth() + 1).padStart(2, '0')
-    const day = String(d.getDate()).padStart(2, '0')
-    return `${y}-${m}-${day}`
-  }
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
+  };
 
-  const currentAvatarSrc = backendAvatarUrl
+  const currentAvatarSrc = backendAvatarUrl;
 
   return (
     <div className="edit-profile">
       <form className="edit-profile__form" onSubmit={handleSubmit}>
         <div className="ep-topbar">
-          <button
-            type="button"
-            className="back-arrow"
-            onClick={onBack}
-            aria-label="Назад"
-          >
+          <button type="button" className="back-arrow" onClick={onBack} aria-label="Назад">
             <img
               src={profileIcons.arrowGradient}
               alt=""
@@ -347,18 +328,9 @@ export default function EditProfileForm({ onBack, onSave }) {
           <div className="ep-head__title">Редагувати профіль</div>
 
           <div className="ep-avatar">
-            <div
-              className="ep-avatar__ring"
-              onClick={pickAvatar}
-              role="button"
-              tabIndex={0}
-            >
+            <div className="ep-avatar__ring" onClick={pickAvatar} role="button" tabIndex={0}>
               {currentAvatarSrc ? (
-                <img
-                  className="ep-avatar__img"
-                  src={currentAvatarSrc}
-                  alt="avatar"
-                />
+                <img className="ep-avatar__img" src={currentAvatarSrc} alt="avatar" />
               ) : (
                 <div className="ep-avatar__placeholder" aria-hidden="true">
                   <svg viewBox="0 0 24 24" width="54" height="54">
@@ -378,13 +350,7 @@ export default function EditProfileForm({ onBack, onSave }) {
           <div className="ep-head__link">Змінити фото профілю</div>
 
           <div className="ep-head__actions">
-            <input
-              ref={fileRef}
-              type="file"
-              accept="image/*"
-              hidden
-              onChange={handlePickForCrop}
-            />
+            <input ref={fileRef} type="file" accept="image/*" hidden onChange={handlePickForCrop} />
 
             <button type="button" className="ep-pill" onClick={pickAvatar}>
               Завантажити
@@ -408,42 +374,32 @@ export default function EditProfileForm({ onBack, onSave }) {
         <div className="field">
           <div className="field__wrap">
             <input
-              className={`text-input ${
-                showError('lastName') ? 'is-error' : ''
-              }`}
+              className={`text-input ${showError('lastName') ? 'is-error' : ''}`}
               placeholder="Прізвище"
               value={values.lastName}
               onChange={(e) => setField('lastName', e.target.value)}
               onBlur={() => onBlur('lastName')}
             />
           </div>
-          {showError('lastName') && (
-            <div className="field__hint">{errors.lastName}</div>
-          )}
+          {showError('lastName') && <div className="field__hint">{errors.lastName}</div>}
         </div>
         {/* NAME */}
         <div className="field">
           <div className="field__wrap">
             <input
-              className={`text-input ${
-                showError('firstName') ? 'is-error' : ''
-              }`}
+              className={`text-input ${showError('firstName') ? 'is-error' : ''}`}
               placeholder="Ім'я"
               value={values.firstName}
               onChange={(e) => setField('firstName', e.target.value)}
               onBlur={() => onBlur('firstName')}
             />
           </div>
-          {showError('firstName') && (
-            <div className="field__hint">{errors.firstName}</div>
-          )}
+          {showError('firstName') && <div className="field__hint">{errors.firstName}</div>}
         </div>
         {/* СТАТЬ + ВІК: десктоп/планшет — 2 поля в одному рядку; мобілка — кожне поле - свій рядок */}
         <div className="grid-2">
           <div
-            className={`field field--gender ${
-              genderPickerOpen ? 'field--genderOpen' : ''
-            }`}
+            className={`field field--gender ${genderPickerOpen ? 'field--genderOpen' : ''}`}
             ref={genderDropdownRef}
           >
             {/* Десктоп/планшет: текст "СТАТЬ" навпроти опцій (один ряд) */}
@@ -455,9 +411,7 @@ export default function EditProfileForm({ onBack, onSave }) {
                     key={opt.label}
                     type="button"
                     className={`field__genderBtn ${
-                      values.gender === opt.value
-                        ? 'field__genderBtnActive'
-                        : ''
+                      values.gender === opt.value ? 'field__genderBtnActive' : ''
                     }`}
                     onClick={() => setField('gender', opt.value)}
                     onBlur={() => onBlur('gender')}
@@ -481,13 +435,10 @@ export default function EditProfileForm({ onBack, onSave }) {
                   <span className="field__genderTriggerText">
                     <span
                       className={`field__genderTriggerValue ${
-                        !values.gender
-                          ? 'field__genderTriggerValue--placeholder'
-                          : ''
+                        !values.gender ? 'field__genderTriggerValue--placeholder' : ''
                       }`}
                     >
-                      {GENDER_OPTIONS.find((o) => o.value === values.gender)
-                        ?.label ?? 'Виберіть'}
+                      {GENDER_OPTIONS.find((o) => o.value === values.gender)?.label ?? 'Виберіть'}
                     </span>
                     <span className="field__genderTriggerLabel">Стать</span>
                   </span>
@@ -503,14 +454,12 @@ export default function EditProfileForm({ onBack, onSave }) {
                       role="option"
                       aria-selected={values.gender === opt.value}
                       className={`field__genderDropdownItem ${
-                        values.gender === opt.value
-                          ? 'field__genderDropdownItemActive'
-                          : ''
+                        values.gender === opt.value ? 'field__genderDropdownItemActive' : ''
                       }`}
                       onClick={() => {
-                        setField('gender', opt.value)
-                        onBlur('gender')
-                        setGenderPickerOpen(false)
+                        setField('gender', opt.value);
+                        onBlur('gender');
+                        setGenderPickerOpen(false);
                       }}
                     >
                       {opt.label}
@@ -519,9 +468,7 @@ export default function EditProfileForm({ onBack, onSave }) {
                 </div>
               )}
             </div>
-            {showError('gender') && (
-              <div className="field__hint">{errors.gender}</div>
-            )}
+            {showError('gender') && <div className="field__hint">{errors.gender}</div>}
           </div>
 
           <div className="field">
@@ -534,8 +481,7 @@ export default function EditProfileForm({ onBack, onSave }) {
                 aria-label="Дата народження"
                 dateFormat="yyyy-MM-dd"
                 selected={
-                  values?.birthDate &&
-                  !isNaN(new Date(values.birthDate).getTime())
+                  values?.birthDate && !isNaN(new Date(values.birthDate).getTime())
                     ? new Date(values.birthDate)
                     : null
                 }
@@ -551,9 +497,7 @@ export default function EditProfileForm({ onBack, onSave }) {
               />
               <span className="field__date-indicator" aria-hidden="true" />
             </div>
-            {showError('birthDate') && (
-              <div className="field__hint">{errors.birthDate}</div>
-            )}
+            {showError('birthDate') && <div className="field__hint">{errors.birthDate}</div>}
           </div>
         </div>
         {/* PHONE */}
@@ -564,22 +508,16 @@ export default function EditProfileForm({ onBack, onSave }) {
               value={values.phone}
               onChange={(val) => setField('phone', normalizePhone(val))}
               onBlur={() => onBlur('phone')}
-              inputClassName={`phone-input ${
-                showError('phone') ? 'is-error' : ''
-              }`}
+              inputClassName={`phone-input ${showError('phone') ? 'is-error' : ''}`}
             />
           </div>
-          {showError('phone') && (
-            <div className="field__hint">{errors.phone}</div>
-          )}
+          {showError('phone') && <div className="field__hint">{errors.phone}</div>}
         </div>
         {/* NATIONALITY */}
         <div className="field">
           <div className="field__wrap">
             <input
-              className={`text-input ${
-                showError('nationality') ? 'is-error' : ''
-              }`}
+              className={`text-input ${showError('nationality') ? 'is-error' : ''}`}
               placeholder="Національність"
               value={values.nationality}
               onChange={(e) => setField('nationality', e.target.value)}
@@ -593,17 +531,13 @@ export default function EditProfileForm({ onBack, onSave }) {
               className="field__lock-icon"
             />
           </div>
-          {showError('nationality') && (
-            <div className="field__hint">{errors.nationality}</div>
-          )}
+          {showError('nationality') && <div className="field__hint">{errors.nationality}</div>}
         </div>
         {/* NICKNAME */}
         <div className="field">
           <div className="field__wrap">
             <input
-              className={`text-input ${
-                showError('username') ? 'is-error' : ''
-              }`}
+              className={`text-input ${showError('username') ? 'is-error' : ''}`}
               placeholder="Нік (до 10 символів)"
               value={values.username}
               onChange={(e) => setField('username', e.target.value)}
@@ -613,9 +547,7 @@ export default function EditProfileForm({ onBack, onSave }) {
               aria-required="true"
             />
           </div>
-          {showError('username') && (
-            <div className="field__hint">{errors.username}</div>
-          )}
+          {showError('username') && <div className="field__hint">{errors.username}</div>}
         </div>
         {/* BIO */}
         <div className="field">
@@ -633,9 +565,7 @@ export default function EditProfileForm({ onBack, onSave }) {
 
           <div className="field__meta">
             <span className="field__note">*максимум символів </span>
-            <span className="field__counter">
-              {(values.bio || '').length}/500
-            </span>
+            <span className="field__counter">{(values.bio || '').length}/500</span>
           </div>
 
           {showError('bio') && <div className="field__hint">{errors.bio}</div>}
@@ -648,7 +578,7 @@ export default function EditProfileForm({ onBack, onSave }) {
           placeholder="Інтереси"
           onBlur={() => onBlur('interests')}
           error={showError('interests') && errors.interests}
-          // selectProps={selectCommonProps}
+          selectProps={selectCommonProps}
         />
         {/* HOBBIES */}
         <MultiSelect
@@ -658,7 +588,7 @@ export default function EditProfileForm({ onBack, onSave }) {
           placeholder="Хобі"
           onBlur={() => onBlur('hobbies')}
           error={showError('hobbies') && errors.hobbies}
-          // selectProps={selectCommonProps}/
+          selectProps={selectCommonProps}
         />
         {/* MARITAL */}
         <div className="field">
@@ -674,9 +604,7 @@ export default function EditProfileForm({ onBack, onSave }) {
             />
           </div>
 
-          {showError('maritalStatus') && (
-            <div className="field__hint">{errors.maritalStatus}</div>
-          )}
+          {showError('maritalStatus') && <div className="field__hint">{errors.maritalStatus}</div>}
         </div>
         {/* COUNTRY + CITY */}
         <div className="grid-2">
@@ -692,9 +620,7 @@ export default function EditProfileForm({ onBack, onSave }) {
                 {...selectCommonProps}
               />
             </div>
-            {showError('country') && (
-              <div className="field__hint">{errors.country}</div>
-            )}
+            {showError('country') && <div className="field__hint">{errors.country}</div>}
           </div>
 
           <div className="field">
@@ -711,9 +637,7 @@ export default function EditProfileForm({ onBack, onSave }) {
                 {...selectCommonProps}
               />
             </div>
-            {showError('city') && (
-              <div className="field__hint">{errors.city}</div>
-            )}
+            {showError('city') && <div className="field__hint">{errors.city}</div>}
           </div>
         </div>
         {submitError && <div className="field__hint">{submitError}</div>}
@@ -724,12 +648,8 @@ export default function EditProfileForm({ onBack, onSave }) {
 
       {/* CROP MODAL */}
       {isCropOpen && (
-        <AvatarCropModal
-          src={cropSrc}
-          onClose={closeCrop}
-          onConfirm={handleCropConfirm}
-        />
+        <AvatarCropModal src={cropSrc} onClose={closeCrop} onConfirm={handleCropConfirm} />
       )}
     </div>
-  )
+  );
 }

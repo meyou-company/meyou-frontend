@@ -1,30 +1,25 @@
-import { normalizePhone } from "./normalizePhone";
+import { normalizePhone } from './normalizePhone';
 
 /** Перевірка формату YYYY-MM-DD та віку 18–100 */
 export function isValidBirthDate(s) {
-  if (!s || typeof s !== "string") return false;
+  if (!s || typeof s !== 'string') return false;
   const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(s.trim());
   if (!match) return false;
   const [, y, m, d] = match.map(Number);
   const date = new Date(y, m - 1, d);
-  if (
-    date.getFullYear() !== y ||
-    date.getMonth() !== m - 1 ||
-    date.getDate() !== d
-  )
-    return false;
+  if (date.getFullYear() !== y || date.getMonth() !== m - 1 || date.getDate() !== d) return false;
 
   const age = new Date().getFullYear() - y;
   if (new Date() < new Date(y + age, m - 1, d)) return age >= 18 && age <= 100;
   return age >= 18 && age <= 100;
 }
 
-const MAX_INTERESTS = 7;
-const MAX_HOBBIES = 7;
+const MAX_INTERESTS = 10;
+const MAX_HOBBIES = 10;
 
 const mapSelectToStrings = (arr, max) =>
   (Array.isArray(arr) ? arr : [])
-    .map((x) => (typeof x === "string" ? x : x?.value))
+    .map((x) => (typeof x === 'string' ? x : x?.value))
     .filter(Boolean)
     .slice(0, max);
 
@@ -40,9 +35,9 @@ export function normalizeForValidation(v) {
     interests: mapSelectToStrings(v.interests, MAX_INTERESTS),
     hobbies: mapSelectToStrings(v.hobbies, MAX_HOBBIES),
 
-    maritalStatus: v.maritalStatus?.value || "",
-    country: v.country?.value || "",
-    city: v.city?.value || "",
+    maritalStatus: v.maritalStatus?.value || '',
+    country: v.country?.value || '',
+    city: v.city?.value || '',
     gender: v.gender,
     birthDate: v.birthDate,
   };
@@ -50,7 +45,7 @@ export function normalizeForValidation(v) {
 
 export function toBackendPayload(v) {
   const birthDate =
-    v.birthDate && typeof v.birthDate === "string" && v.birthDate.trim()
+    v.birthDate && typeof v.birthDate === 'string' && v.birthDate.trim()
       ? v.birthDate.trim()
       : undefined;
 
@@ -66,7 +61,7 @@ export function toBackendPayload(v) {
     maritalStatus: v.maritalStatus?.value || undefined,
     bio: v.bio?.trim() || undefined,
 
-    gender: v.gender === "MALE" || v.gender === "FEMALE" ? v.gender : undefined,
+    gender: v.gender === 'MALE' || v.gender === 'FEMALE' ? v.gender : undefined,
 
     // ✅ твій фікс дати:
     birthDate: birthDate ? `${birthDate}T12:00:00.000Z` : undefined,
