@@ -333,7 +333,7 @@ export default function EditProfileForm({ onBack, onSave }) {
                 <img className="ep-avatar__img" src={currentAvatarSrc} alt="avatar" />
               ) : (
                 <div className="ep-avatar__placeholder" aria-hidden="true">
-                  <svg viewBox="0 0 24 24" width="54" height="54">
+                  <svg viewBox="0 0 24 24" className="ep-avatar__icon">
                     <path
                       fill="none"
                       stroke="currentColor"
