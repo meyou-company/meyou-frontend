@@ -1,7 +1,8 @@
+import Video from "../../components/Video/Video"
 
 const VideoPage = () => {
   return (
-    <div>VideoPage</div>
+    <Video/>
   )
 }
 
