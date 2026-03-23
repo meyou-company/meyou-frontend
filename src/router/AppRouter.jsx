@@ -24,6 +24,7 @@ import EditProfilePage from "../pages/Users/Profile/EditProfilePage";
 
 import FirstPage from "../pages/FirstPage/FirstPage";
 import WalletPage from "../pages/Wallet/WalletPage";
+import VideoPage from "../pages/Video/VideoPage";
 
 import ProfileGuard from "./ProfileGuard";
 import BurgerMenu from "../components/BurgerMenu/BurgerMenu";
@@ -61,6 +62,7 @@ function AppLayout() {
               <Route path="/vip-chat" element={<VipChat />} />
               <Route path="/first-page" element={<FirstPage />} />
               <Route path="/wallet" element={<WalletPage />} />
+              <Route path="/video" element={<VideoPage />} />
 
               <Route
                 path="/users/profile/complete"
