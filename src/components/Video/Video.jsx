@@ -108,11 +108,13 @@ const Video = () => {
 
         <div className="video__search">
           <input className="video__searchInput" placeholder="Поиск видео" />
-          <img
+          <button className="video__searchBtn">
+            <img
            className="video__searchIcon"
            src={profileIcons.searchVideo}
            alt="Поиск видео иконка"
          />
+          </button>
         </div>
       </div>
 
@@ -130,24 +132,34 @@ const Video = () => {
         </div>
 
         <div className="video__grid">
-            {(showAll ? videos : videos.slice(0, 4)).map((video) => (
+            {(showAll ? videos : videos.slice(0, 5)).map((video) => (
             <div key={video.id} className="video-card">
-              <img src={video.image} alt="" />
+              <img src={video.image} alt="" className="video__preview"/>
 
               <div className="video-card__overlay">
-                <div className="video-card__play">▶</div>
+                <button className="video-card__play">
+                  <img  className="video__playIcon"
+              src={profileIcons.playVideo}
+              alt="Включить Видео иконка"
+             />
+         </button>
 
                 <div className="video-card__info">
                   <div>
                     <p className="video-card__name">{video.name}</p>
-                    <p className="video-card__location">
-                      📍 {video.location}
-                    </p>
+                    <div className="video-card__location">
+                     <img  className="video__locationIcon" src={profileIcons.locationVideo} alt="Локация Видео иконка" />
+                    <p>{video.location}</p>
+                    </div>
                   </div>
 
                   <div className="video-card__stats">
-                    ❤️ {video.likes}
-                    💬 {video.comments}
+                    <span className="video__statsWrapper">
+                    <img  className="video__statsIcon" src={profileIcons.heartVideo} alt="Лайк иконка" /> {video.likes}
+                    </span>
+                    <span className="video__statsWrapper">
+                    <img  className="video__statsIcon" src={profileIcons.commentsVideo} alt="Комментарий иконка" /> {video.comments}
+                    </span>
                   </div>
                 </div>
               </div>
