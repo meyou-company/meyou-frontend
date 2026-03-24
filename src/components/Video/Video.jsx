@@ -1,5 +1,6 @@
 import { useState } from "react";
 import "./Video.scss";
+import profileIcons from "../../constants/profileIcons";
 
 const videos = [
   {
@@ -83,12 +84,16 @@ const Video = () => {
     <div className="video">
       {/* HEADER */}
       <div className="video__header">
-        <h1 className="video__title">
-          Видео <span className="video__play">▶</span>
+        <h1 className="video__title"> Видео 
+        <img
+        className="video__titleIcon"
+        src={profileIcons.videoTitle}
+        alt="Видео иконка"
+      />
         </h1>
 
         <button className="video__addBtn">
-          + Добавить видео
+          +{"\u00a0"} Добавить видео
         </button>
       </div>
 
@@ -102,15 +107,26 @@ const Video = () => {
         </div>
 
         <div className="video__search">
-          <input placeholder="Поиск видео" />
+          <input className="video__searchInput" placeholder="Поиск видео" />
+          <img
+           className="video__searchIcon"
+           src={profileIcons.searchVideo}
+           alt="Поиск видео иконка"
+         />
         </div>
       </div>
 
       {/* SECTION */}
       <div className="video__section">
         <div className="video__sectionHeader">
-          <h2>Рекомендованные</h2>
-          <button className="video__showAll" onClick={() => setShowAll(true)}>Показать все</button>
+          <h2 className="video__subtitle">Рекомендованные</h2>
+          <button className="video__subtitle video__showAll" onClick={() => setShowAll(true)}>Показать все
+              <img
+        className="video__showAllIcon"
+        src={profileIcons.arrowVideo}
+        alt="Стрелочка вправо иконка"
+      />
+          </button>
         </div>
 
         <div className="video__grid">
