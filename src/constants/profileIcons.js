@@ -1,9 +1,12 @@
 /** Шляхи до іконок з public/home/ */
 
+import { comment } from "postcss";
+
 const HOME = "/home";
 const ICON1 = "/icon1";
 const BLACK = "/icon-black";
 const WALLET = "/balance";
+const VIDEO = "/video";
 
 const profileIcons = {
   /* === HOME === */
@@ -77,6 +80,15 @@ const profileIcons = {
   giftIcon: `${WALLET}/gift.svg`,
   starIcon: `${WALLET}/star.svg`,
   plusIcon: `${WALLET}/plus.svg`,
+
+  /* === VIDEO === */
+  commentsVideo: `${VIDEO}/comments.svg`,
+  heartVideo: `${VIDEO}/heart.svg`,
+  locationVideo: `${VIDEO}/location.svg`,
+  playVideo: `${VIDEO}/play.svg`,
+  searchVideo: `${VIDEO}/search.svg`,
+  videoTitle: `${VIDEO}/videoTitle.svg`,
+  arrowVideo: `${VIDEO}/arrowRightPink.svg`,
 };
 
 export default profileIcons;
