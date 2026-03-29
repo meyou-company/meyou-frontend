@@ -1,0 +1,84 @@
+/* Узгоджено з ProfileHeader.scss: .iconBtn / .searchBtn — іконки верхнього рядка */
+
+.app-header-icon-btn {
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  -webkit-tap-highlight-color: transparent;
+
+  img {
+    width: 36px;
+    height: 36px;
+    object-fit: contain;
+  }
+}
+
+@media (max-width: 360px) {
+  .app-header-icon-btn {
+    width: 32px;
+    height: 32px;
+
+    img {
+      width: 32px;
+      height: 32px;
+    }
+  }
+}
+
+@media (min-width: 1024px) {
+  .app-header-icon-btn img {
+    width: 34px;
+    height: 34px;
+  }
+}
+
+/* Другий ряд навігації (як .profile-header .navBtn img на мобільному) */
+.app-header-tablet-nav__icon {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+}
+
+/* Theme toggle у шапці — як .profile-header .themeBtn */
+button.theme-toggle.app-header-theme-toggle {
+  width: 36px !important;
+  height: 36px !important;
+  min-width: 36px !important;
+  min-height: 36px !important;
+  padding: 0 !important;
+  border-radius: 10px !important;
+  border: 0 !important;
+  background: transparent !important;
+  backdrop-filter: none !important;
+  font-size: 30px !important;
+  color: #ff4fb1 !important;
+}
+
+body.dark button.theme-toggle.app-header-theme-toggle,
+html[data-theme="dark"] button.theme-toggle.app-header-theme-toggle {
+  color: #e0bbe4 !important;
+}
+
+@media (max-width: 360px) {
+  button.theme-toggle.app-header-theme-toggle {
+    width: 32px !important;
+    height: 32px !important;
+    min-width: 32px !important;
+    min-height: 32px !important;
+    font-size: 26px !important;
+  }
+}
+
+@media (min-width: 1024px) {
+  button.theme-toggle.app-header-theme-toggle {
+    font-size: 31px !important;
+  }
+}

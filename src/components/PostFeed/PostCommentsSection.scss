@@ -1,0 +1,250 @@
+/* Facebook-like: thread + bubble + composer docked at bottom */
+
+.postCommentsSection {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  max-height: min(420px, 55vh);
+  border-radius: 8px;
+  background: #f0f2f5;
+  border: 1px solid #e4e6eb;
+  overflow: hidden;
+}
+
+.postCommentsSection--firstPage {
+  background: #f0f2f5;
+  border-color: #e4e6eb;
+}
+
+.postCommentsSection__toolbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+  padding: 8px 10px 6px;
+  border-bottom: 1px solid #e4e6eb;
+  background: #f0f2f5;
+}
+
+.postCommentsSection__title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #050505;
+}
+
+.postCommentsSection__count {
+  font-size: 12px;
+  font-weight: 600;
+  color: #65676b;
+}
+
+.postCommentsSection__scroll {
+  flex: 1 1 auto;
+  min-height: 72px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 6px 8px 8px;
+  -webkit-overflow-scrolling: touch;
+}
+
+.postCommentsSection__placeholder {
+  margin: 0;
+  padding: 12px 8px;
+  font-size: 13px;
+  color: #65676b;
+  text-align: center;
+}
+
+.postCommentsSection__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.postCommentsSection__row {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  margin-bottom: 8px;
+}
+
+.postCommentsSection__row:last-child {
+  margin-bottom: 0;
+}
+
+.postCommentsSection__avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+  background: #e4e6eb;
+}
+
+.postCommentsSection__thread {
+  min-width: 0;
+  flex: 1;
+}
+
+.postCommentsSection__bubble {
+  display: inline-block;
+  max-width: 100%;
+  padding: 8px 12px 10px;
+  border-radius: 18px;
+  background: #fff;
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.06);
+}
+
+.postCommentsSection__bubbleHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 6px 10px;
+  margin-bottom: 2px;
+}
+
+.postCommentsSection__name {
+  font-size: 13px;
+  font-weight: 600;
+  color: #050505;
+}
+
+.postCommentsSection__when {
+  font-size: 11px;
+  color: #65676b;
+}
+
+.postCommentsSection__text {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.4;
+  color: #050505;
+  word-break: break-word;
+  white-space: pre-wrap;
+}
+
+.postCommentsSection__composer {
+  flex-shrink: 0;
+  padding: 8px 10px 10px;
+  border-top: 1px solid #e4e6eb;
+  background: #fff;
+}
+
+.postCommentsSection__input {
+  width: 100%;
+  box-sizing: border-box;
+  border-radius: 20px;
+  border: 1px solid #ccd0d5;
+  padding: 10px 14px;
+  font-size: 13px;
+  font-family: inherit;
+  line-height: 1.35;
+  resize: vertical;
+  min-height: 44px;
+  max-height: 120px;
+  background: #f0f2f5;
+  color: #050505;
+}
+
+.postCommentsSection__input:focus {
+  outline: none;
+  border-color: #1877f2;
+  background: #fff;
+  box-shadow: 0 0 0 2px rgba(24, 119, 242, 0.2);
+}
+
+.postCommentsSection__composerActions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.postCommentsSection__hint {
+  font-size: 11px;
+  color: #8a8d91;
+}
+
+@media (max-width: 520px) {
+  .postCommentsSection__hint {
+    display: none;
+  }
+}
+
+.postCommentsSection__submit {
+  border: 0;
+  border-radius: 6px;
+  padding: 6px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  background: #1877f2;
+  color: #fff;
+}
+
+.postCommentsSection__submit:hover {
+  filter: brightness(1.05);
+}
+
+.postCommentsSection--firstPage .postCommentsSection__submit {
+  font-family: inherit;
+}
+
+/* Dark */
+body.dark .postCommentsSection,
+html[data-theme="dark"] .postCommentsSection {
+  background: rgba(36, 37, 38, 0.95);
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+body.dark .postCommentsSection__toolbar,
+html[data-theme="dark"] .postCommentsSection__toolbar {
+  border-bottom-color: rgba(255, 255, 255, 0.12);
+  background: rgba(36, 37, 38, 0.95);
+}
+
+body.dark .postCommentsSection__title,
+html[data-theme="dark"] .postCommentsSection__title,
+body.dark .postCommentsSection__name,
+html[data-theme="dark"] .postCommentsSection__name,
+body.dark .postCommentsSection__text,
+html[data-theme="dark"] .postCommentsSection__text {
+  color: rgba(255, 255, 255, 0.92);
+}
+
+body.dark .postCommentsSection__when,
+html[data-theme="dark"] .postCommentsSection__when,
+body.dark .postCommentsSection__count,
+html[data-theme="dark"] .postCommentsSection__count,
+body.dark .postCommentsSection__placeholder,
+html[data-theme="dark"] .postCommentsSection__placeholder,
+body.dark .postCommentsSection__hint,
+html[data-theme="dark"] .postCommentsSection__hint {
+  color: rgba(255, 255, 255, 0.55);
+}
+
+body.dark .postCommentsSection__bubble,
+html[data-theme="dark"] .postCommentsSection__bubble {
+  background: rgba(58, 59, 60, 0.98);
+  box-shadow: none;
+}
+
+body.dark .postCommentsSection__composer,
+html[data-theme="dark"] .postCommentsSection__composer {
+  border-top-color: rgba(255, 255, 255, 0.12);
+  background: rgba(24, 25, 26, 0.98);
+}
+
+body.dark .postCommentsSection__input,
+html[data-theme="dark"] .postCommentsSection__input {
+  background: rgba(58, 59, 60, 0.95);
+  border-color: rgba(255, 255, 255, 0.15);
+  color: rgba(255, 255, 255, 0.92);
+}
+
+body.dark .postCommentsSection__input:focus,
+html[data-theme="dark"] .postCommentsSection__input:focus {
+  background: rgba(58, 59, 60, 1);
+  border-color: #1877f2;
+}

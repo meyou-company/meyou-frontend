@@ -57,15 +57,26 @@ $bp-desktop: 1440px;
 .wallet__bell {
   border: none;
   background: transparent;
-  padding: 6px;
-  border-radius: 999px;
+  padding: 0;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
 
   &:hover {
     background: rgba(255, 255, 255, 0.5);
+  }
+}
+
+@media (max-width: 360px) {
+  .wallet__back,
+  .wallet__bell {
+    width: 32px;
+    height: 32px;
   }
 }
 
@@ -83,11 +94,26 @@ $bp-desktop: 1440px;
   }
 }
 
-.wallet__back-icon {
-  height: 35px;
+.wallet__back-icon,
+.wallet__bell img {
+  width: 36px;
+  height: 36px;
+  object-fit: contain;
+}
 
-  @media (min-width: $bp-tablet) { 
-    height: 20px;
+@media (min-width: 1024px) {
+  .wallet__back-icon,
+  .wallet__bell img {
+    width: 34px;
+    height: 34px;
+  }
+}
+
+@media (max-width: 360px) {
+  .wallet__back-icon,
+  .wallet__bell img {
+    width: 32px;
+    height: 32px;
   }
 }
 

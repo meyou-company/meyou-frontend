@@ -143,6 +143,9 @@
 }
 
 .editBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   height: 28px;
   padding: 0 14px;
   border-radius: 10px;
@@ -153,10 +156,22 @@
   font-weight: 500;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.editBtnText {
+  display: block;
+  width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: center;
 }
 
 .editBtnDesktop {
-  margin-left: 70px;
+  margin-left: 7px;
 }
 
 /* badges / actions (desktop hidden by default) */
@@ -456,6 +471,16 @@ font-size: 60px;
   margin-bottom: 10px;
 }
 
+.friendsEmpty {
+  width: 100%;
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  background: rgba(255, 255, 255, 0.12);
+  padding: 16px;
+  display: flex;
+  justify-content: center;
+}
+
 .showMoreBtn {
   margin: 14px auto 0;
   display: block;
@@ -483,38 +508,302 @@ font-size: 60px;
 .newPostHead {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  margin-bottom: 10px;
+  justify-content: flex-start;
+  margin-bottom: 8px;
 }
 
 .newPostTitle {
   margin: 0;
-  font-size: 13px;
-  font-weight: 700;
-  color: rgba(0, 0, 0, 0.65);
-}
-
-.newPostFilter {
-  width: 32px;
-  height: 32px;
-  padding: 0;
-  border: 0;
-  background: transparent;
-  cursor: pointer;
-  opacity: 0.65;
+  font-size: 14px;
+  font-weight: 600;
+  color: rgba(0, 0, 0, 0.62);
 }
 
 .postInput {
   width: 100%;
-  min-height: 62px;
+  min-height: 90px;
   resize: none;
-  padding: 12px 12px;
-  border-radius: 10px;
-  border: 0;
-  background: rgba(255, 255, 255, 0.55);
+  padding: 14px 14px;
+  border-radius: 14px;
+  border: 1px solid rgba(123, 88, 176, 0.14);
+  background: rgba(255, 255, 255, 0.78);
   outline: none;
   font: inherit;
   color: inherit;
+}
+
+.postInputTrigger {
+  width: 100%;
+  min-height: 64px;
+  border: 1px solid rgba(123, 88, 176, 0.14);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.74);
+  text-align: left;
+  padding: 14px;
+  color: rgba(74, 50, 106, 0.6);
+  font-size: 15px;
+  cursor: text;
+}
+
+.postMediaInput {
+  display: none;
+}
+
+.postMediaPreviewGrid {
+  margin-top: 10px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 10px;
+}
+
+.postMediaPreviewItem {
+  position: relative;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid rgba(123, 88, 176, 0.18);
+  background: rgba(255, 255, 255, 0.35);
+}
+
+.postMediaPreview {
+  width: 100%;
+  height: 120px;
+  object-fit: cover;
+  display: block;
+}
+
+.removeMediaBtn {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 24px;
+  height: 24px;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.55);
+  color: #fff;
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.composerCard .postMediaPreviewGrid {
+  margin-top: 14px;
+}
+
+.newPostActions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.composerModal {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(19, 12, 30, 0.45);
+  backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px 16px;
+}
+
+.composerCard {
+  width: min(560px, 100%);
+  border-radius: 28px;
+  border: 1px solid rgba(255, 255, 255, 0.65);
+  background: linear-gradient(
+    165deg,
+    #f3ecff 0%,
+    #fce9f2 45%,
+    #efe6ff 100%
+  );
+  box-shadow:
+    0 24px 56px rgba(88, 48, 120, 0.22),
+    0 0 0 1px rgba(255, 255, 255, 0.4) inset;
+  padding: 22px 22px 20px;
+}
+
+.composerHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  gap: 12px;
+}
+
+.composerTitle {
+  margin: 0;
+  font-family: "Montserrat", sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: #2a183d;
+  letter-spacing: -0.02em;
+}
+
+.composerClose {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  border: 2px solid #a78bfa;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.85);
+  color: #5b4d7a;
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  transition: background 0.2s ease, transform 0.15s ease;
+
+  &:hover {
+    background: #fff;
+    transform: scale(1.03);
+  }
+
+  &:focus-visible {
+    outline: 2px solid #8b5cf6;
+    outline-offset: 2px;
+  }
+}
+
+.composerInputShell {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 16px 16px 14px;
+  border-radius: 18px;
+  background: #fff;
+  border: 1px solid rgba(167, 139, 250, 0.22);
+  box-shadow: 0 2px 12px rgba(120, 80, 160, 0.06);
+}
+
+.composerAvatarRing {
+  position: relative;
+  flex: 0 0 auto;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  padding: 2px;
+  background: linear-gradient(135deg, #b05cff, #ff4fb1, #4f6bff);
+}
+
+.composerAvatarImg {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  display: block;
+  background: #e8e0f2;
+}
+
+.composerAvatarStatus {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #22c55e;
+  border: 2px solid #fff;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.06);
+}
+
+.composerInputShell .postInput.composerTextarea {
+  flex: 1;
+  min-width: 0;
+  min-height: 112px;
+  margin: 0;
+  padding: 4px 2px 8px 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  font-size: 16px;
+  line-height: 1.45;
+  color: #2a183d;
+  resize: vertical;
+
+  &::placeholder {
+    color: rgba(90, 75, 110, 0.55);
+  }
+
+  &:focus {
+    outline: none;
+  }
+}
+
+.composerActions {
+  margin-top: 18px;
+  padding-top: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.composerActionBtn {
+  height: 46px;
+  min-height: 46px;
+  border: 1px solid rgba(167, 139, 250, 0.35);
+  background: #fff;
+  border-radius: 999px;
+  padding: 0 18px 0 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: #7c3aed;
+  font-family: "Montserrat", sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(124, 58, 237, 0.08);
+  transition: box-shadow 0.2s ease, transform 0.15s ease;
+
+  &:hover {
+    box-shadow: 0 4px 14px rgba(124, 58, 237, 0.14);
+  }
+
+  &:focus-visible {
+    outline: 2px solid #a78bfa;
+    outline-offset: 2px;
+  }
+}
+
+.composerActionIcon {
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+  flex-shrink: 0;
+  filter: brightness(0) saturate(100%) invert(27%) sepia(85%) saturate(2000%)
+    hue-rotate(250deg) brightness(0.95);
+}
+
+.publishBtn {
+  min-height: 48px;
+  height: auto;
+  padding: 12px 28px;
+  border-radius: 999px;
+  border: 0;
+  background: linear-gradient(90deg, #6d5cff 0%, #a855f7 48%, #ff4fb1 100%);
+  color: #fff;
+  font-family: "Montserrat", sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.2s ease, transform 0.15s ease;
+  box-shadow: 0 6px 20px rgba(168, 85, 247, 0.35);
+
+  &:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 8px 24px rgba(168, 85, 247, 0.42);
+  }
+
+  &:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+  }
 }
 
 .feed {
@@ -620,15 +909,33 @@ font-size: 60px;
   text-overflow: ellipsis;
 }
 
-.postMoreBtn {
-  width: 28px;
-  height: 20px;
+.postDeleteBtn {
+  flex: 0 0 auto;
   border: 0;
-  background: transparent;
+  border-radius: 6px;
+  padding: 4px 8px;
+  background: rgba(220, 38, 38, 0.12);
+  color: #b91c1c;
+  font-size: 11px;
+  font-weight: 600;
   cursor: pointer;
-  font-size: 18px;
-  line-height: 1;
-  color: rgba(0, 0, 0, 0.55);
+  white-space: nowrap;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.postDeleteBtn:hover {
+  background: rgba(220, 38, 38, 0.2);
+}
+
+body.dark .profile-home .postDeleteBtn,
+html[data-theme="dark"] .profile-home .postDeleteBtn {
+  background: rgba(248, 113, 113, 0.18);
+  color: #fecaca;
+}
+
+body.dark .profile-home .postDeleteBtn:hover,
+html[data-theme="dark"] .profile-home .postDeleteBtn:hover {
+  background: rgba(248, 113, 113, 0.28);
 }
 
 /* TEXT */
@@ -656,6 +963,20 @@ font-size: 60px;
   background: rgba(0, 0, 0, 0.12);
 }
 
+.postMediaImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.feedLoadingHint,
+.feedEmptyHint {
+  margin: 0 0 12px;
+  font-size: 13px;
+  color: rgba(74, 50, 106, 0.65);
+}
+
 /* ACTIONS */
 .postActions {
   display: flex;
@@ -667,6 +988,23 @@ font-size: 60px;
   border-radius: 10px;
 }
 
+.postActionBtn--active {
+  opacity: 1;
+}
+
+.postActionBtn--active .postActionIcon {
+  filter: none;
+}
+
+.profile-home .postActionBtn.postActionBtn--active .postActionCount {
+  color: rgba(255, 79, 177, 0.95);
+  font-weight: 600;
+}
+
+body.dark .profile-home .postActionBtn.postActionBtn--active .postActionCount {
+  color: rgba(255, 150, 210, 0.95);
+}
+
 .postActionBtn {
   border: 0;
   background: transparent;
@@ -675,6 +1013,16 @@ font-size: 60px;
   gap: 6px;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
+}
+
+/* Збереження: лише відображення лічильника / стану, без кліку (немає API) */
+.postActionBtn--static {
+  cursor: default;
+  pointer-events: none;
+}
+
+.postActionBtn .postActionIcon {
+  pointer-events: none;
 }
 
 .postActionIcon {
@@ -688,7 +1036,6 @@ font-size: 60px;
   font-weight: 600;
   color: rgba(0, 0, 0, 0.6);
 }
-
 
 /* =========================
    🌙 DARK MODE — текст видно
@@ -757,6 +1104,58 @@ body.dark .profile-home .postInput {
 
 body.dark .profile-home .postInput::placeholder {
   color: rgba(255, 255, 255, 0.5);
+}
+
+body.dark .profile-home .composerCard {
+  background: linear-gradient(
+    165deg,
+    rgba(38, 26, 58, 0.98) 0%,
+    rgba(32, 22, 48, 0.99) 50%,
+    rgba(28, 18, 42, 1) 100%
+  );
+  border-color: rgba(255, 255, 255, 0.12);
+  box-shadow:
+    0 24px 56px rgba(0, 0, 0, 0.45),
+    0 0 0 1px rgba(255, 255, 255, 0.06) inset;
+}
+
+body.dark .profile-home .composerTitle {
+  color: rgba(245, 240, 255, 0.95);
+}
+
+body.dark .profile-home .composerClose {
+  background: rgba(40, 32, 58, 0.9);
+  border-color: rgba(167, 139, 250, 0.55);
+  color: rgba(230, 220, 255, 0.95);
+}
+
+body.dark .profile-home .composerInputShell {
+  background: rgba(18, 12, 28, 0.75);
+  border-color: rgba(255, 255, 255, 0.12);
+  box-shadow: none;
+}
+
+body.dark .profile-home .composerInputShell .postInput.composerTextarea {
+  color: rgba(255, 255, 255, 0.92);
+
+  &::placeholder {
+    color: rgba(255, 255, 255, 0.45);
+  }
+}
+
+body.dark .profile-home .composerAvatarRing {
+  background: linear-gradient(135deg, #8b5cf6, #ec4899, #6366f1);
+}
+
+body.dark .profile-home .composerActionBtn {
+  background: rgba(30, 22, 44, 0.85);
+  border-color: rgba(167, 139, 250, 0.35);
+  color: #c4b5fd;
+  box-shadow: none;
+}
+
+body.dark .profile-home .composerActionIcon {
+  filter: brightness(0) invert(1) opacity(0.85);
 }
 
 body.dark .profile-home .postAuthor {
@@ -975,6 +1374,10 @@ html[data-theme="dark"] .profile-home .postActionCount {
 }
 
 @media (max-width: 768px) {
+  .badgeItemMyVideo {
+    display: none;
+  }
+
   .profile-container {
     width: 100%;
     max-width: 100%;
@@ -1003,7 +1406,12 @@ html[data-theme="dark"] .profile-home .postActionCount {
   }
 
   .editBtnDesktop {
-    display: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 10px;
+    margin-left: 0;
+    max-width: 120px;
   }
 
   /* AVATAR мобільний — більший для мобілки */
@@ -1102,8 +1510,8 @@ html[data-theme="dark"] .profile-home .postActionCount {
 
   /* ✅ маленькі іконки як у Figma */
   .badgeIcon {
-    width: 14px;
-    height: 14px;
+    width: 16px;
+    height: 16px;
     object-fit: contain;
     display: block;
   }
@@ -1374,8 +1782,8 @@ html[data-theme="dark"] .profile-home .postActionCount {
   }
 
   .badgeIcon {
-    width: 14px;   /* на 320 іконки мають бути видимі */
-    height: 14px;
+    width: 16px;   /* трохи більші іконки saved / my balance */
+    height: 16px;
     display: block;
     object-fit: contain;
   }
@@ -1545,8 +1953,8 @@ html[data-theme="dark"] .profile-home .postActionCount {
   }
 
   .badgeIcon {
-    width: 12px;
-    height: 12px;
+    width: 14px;
+    height: 14px;
   }
 
   .badgeText {
@@ -1738,4 +2146,284 @@ html[data-theme="dark"] .profile-home .postActionCount {
   cursor: default;
   border-radius: 8px;
   box-shadow: 0 8px 40px rgba(0, 0, 0, 0.5);
+}
+
+.actionsRowDesktop {
+  display: none;
+}
+
+/* Один ряд з трьома кнопками: на мобілці/планшеті — короткі підписи, на великому екрані — повні */
+.actionLabel--desktop {
+  display: none;
+}
+
+@media (min-width: 1024px) {
+  .actionBtnDesktop .actionLabel--mobile {
+    display: none;
+  }
+
+  .actionBtnDesktop .actionLabel--desktop {
+    display: inline;
+  }
+}
+
+/* До 1023px: той самий ряд з трьох кнопок (actionsRowDesktop), що й на десктопі */
+@media (max-width: 1023px) {
+  .actionsRowDesktop {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+    align-items: stretch;
+  }
+
+  .actionsRow1,
+  .actionsRow2,
+  .actionBig,
+  .actionsRow {
+    display: none;
+  }
+
+  .actionBtnDesktop {
+    height: 46px;
+    border-radius: 14px;
+    border: 1px solid rgba(121, 86, 175, 0.2);
+    background: rgba(255, 255, 255, 0.82);
+    padding: 0 10px;
+    justify-content: space-between;
+  }
+
+  .actionBtnDesktop span {
+    font-size: 12px;
+    font-weight: 500;
+    color: rgba(74, 50, 106, 0.82);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .actionBtnLeft {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+  }
+
+  .actionRound {
+    width: 24px;
+    height: 24px;
+    flex: 0 0 24px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    background: linear-gradient(135deg, #ff6cc2, #8d75ff);
+  }
+
+  .actionRound img {
+    width: 12px;
+    height: 12px;
+    filter: brightness(0) invert(1);
+  }
+
+  .actionRightDots,
+  .actionRightArrow {
+    font-size: 16px;
+    line-height: 1;
+    margin-left: 4px;
+    color: rgba(94, 72, 126, 0.62);
+  }
+}
+
+/* =========================
+   Desktop only: full mock-style tune
+   ========================= */
+@media (min-width: 1024px) {
+  .profile-container {
+    max-width: 1360px;
+    padding: 14px 18px 26px;
+    gap: 14px;
+  }
+
+  .profileBlock,
+  .actionsSection,
+  .vipCard {
+    border-radius: 26px;
+    border: 1px solid rgba(255, 255, 255, 0.46);
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0.05));
+    box-shadow: 0 6px 18px rgba(126, 92, 176, 0.1);
+    backdrop-filter: blur(4px);
+  }
+
+  .profileBlock {
+    padding: 20px 22px 14px;
+    gap: 26px;
+    align-items: flex-start;
+  }
+
+  .avatarWrap {
+    width: 284px;
+    height: 284px;
+  }
+
+  .editBtn {
+    height: 46px;
+    border-radius: 999px;
+    padding: 0 24px;
+    font-size: 16px;
+    font-weight: 500;
+    border: 1px solid rgba(124, 90, 177, 0.22);
+    background: rgba(255, 255, 255, 0.82);
+    color: rgba(86, 61, 121, 0.76);
+  }
+
+  .editBtnDesktop {
+    margin-left: 4px;
+  }
+
+  .name {
+    font-size: 64px;
+    line-height: 1;
+    margin-bottom: 8px;
+  }
+
+  .bio {
+    font-size: 16px;
+    color: rgba(67, 43, 97, 0.8);
+    line-height: 1.28;
+  }
+
+  .profileRight {
+    align-items: flex-start;
+    padding-top: 12px;
+    justify-content: flex-end;
+    flex: 0 0 240px;
+  }
+
+  .btnMessages {
+    transform: none;
+    height: 78px;
+    min-width: 214px;
+    border-radius: 24px;
+    padding: 0 18px;
+    background: rgba(255, 255, 255, 0.36);
+    gap: 10px;
+  }
+
+  .msgIcon {
+    width: 30px;
+    height: 30px;
+  }
+
+  .msgText {
+    font-size: 14px;
+    font-weight: 500;
+    color: rgba(74, 50, 106, 0.82);
+    white-space: nowrap;
+  }
+
+  .actionsSection {
+    padding: 10px 12px;
+  }
+
+  .actionsBlock {
+    display: block;
+  }
+
+  .actionsRowDesktop {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+    align-items: stretch;
+  }
+
+  .actionsRow1,
+  .actionsRow2,
+  .actionBig,
+  .actionsRow {
+    display: none;
+  }
+
+  .actionBtnDesktop {
+    height: 74px;
+    max-width: none;
+    border-radius: 22px;
+    border: 1px solid rgba(121, 86, 175, 0.2);
+    background: rgba(255, 255, 255, 0.75);
+    padding: 0 18px;
+    justify-content: space-between;
+  }
+
+  .actionBtnDesktop span {
+    font-size: 17px;
+    font-weight: 500;
+    color: rgba(74, 50, 106, 0.8);
+  }
+
+  .actionBtnDesktop img {
+    width: 28px;
+    height: 28px;
+    filter: none;
+  }
+
+  .actionBtnLeft {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+  }
+
+  .actionRound {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    background: linear-gradient(135deg, #ff6cc2, #8d75ff);
+    flex: 0 0 32px;
+  }
+
+  .actionRound img {
+    width: 16px;
+    height: 16px;
+    filter: brightness(0) invert(1);
+  }
+
+  .actionRightDots,
+  .actionRightArrow {
+    color: rgba(94, 72, 126, 0.6);
+    font-size: 22px;
+    line-height: 1;
+    margin-left: 6px;
+  }
+
+  .vipCard {
+    padding: 16px 14px 14px;
+  }
+
+  .vipHeader,
+  .vipDivider {
+    display: none;
+  }
+
+  .friendsTitle {
+    font-size: 36px;
+    margin: 0 0 8px;
+    color: rgba(71, 46, 102, 0.84);
+  }
+
+  .vipRow {
+    gap: 12px;
+  }
+
+  .vipAvatarWrap {
+    width: 78px;
+    height: 78px;
+  }
+
+  .showMoreBtn {
+    display: block;
+    margin-top: 12px;
+    height: 52px;
+    padding: 0 24px;
+    font-size: 18px;
+  }
 }

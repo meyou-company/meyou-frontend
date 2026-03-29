@@ -173,7 +173,7 @@ export default function ProfileVisitorVip({
               className="profile-visitor-vip__btnDelete"
               onClick={onUnsubscribe}
             >
-              Удалить
+              Отписаться
             </button>
           )}
         </div>

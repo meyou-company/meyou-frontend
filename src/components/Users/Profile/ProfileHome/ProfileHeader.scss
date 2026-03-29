@@ -31,6 +31,10 @@
   align-items: center;
   gap: 14px;
 }
+
+.profile-header .iconBtnSearchMobile {
+  display: none;
+}
 .profile-header {
   display: flex;
   flex-direction: column;
@@ -90,19 +94,7 @@
   -webkit-tap-highlight-color: transparent;
 }
 
-.profile-header .logoText {
-  font-family: "Montserrat", sans-serif;
-  font-size: 46px;
-  font-weight: 800;
-  color: #ff4fb1;
-  line-height: 1;
-}
-
-@media (max-width: 480px) {
-  .profile-header .logoText {
-    font-size: 28px;
-  }
-}
+/* типографіка логотипа — .app-brand-wordmark у index.css */
 
 /* -------------------------
    ICON BUTTONS
@@ -160,6 +152,11 @@
   display: none;
   align-items: center;
   gap: 12px;
+}
+
+/* by default (tablet/mobile) keep old header behavior */
+.profile-header .searchForm {
+  display: none;
 }
 
 /* -------------------------
@@ -233,13 +230,30 @@ body.dark .profile-header .desktopNavRow::before {
   }
 
   .profile-header .topRow {
+    position: relative;
     padding: 0 16px;
     height: 52px;
+  }
+
+  /* Центруємо ME YOU в мобільному хедері незалежно від іконок з боків */
+  .profile-header .logo {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1;
   }
 
   /* На сторінці іншого юзера зверху не показувати домик */
   .profile-header--visitor .leftGroup [data-button="home"] {
     display: none;
+  }
+
+  .profile-header .iconBtnHomeDesktop {
+    display: none;
+  }
+
+  .profile-header .iconBtnSearchMobile {
+    display: inline-flex;
   }
 
   /* show mobile top right */
@@ -428,13 +442,6 @@ body.dark .profile-header .topRow {
     gap: 10px;
   }
 
-  /* Лого менше */
-  .profile-header .logoText {
-    font-size: 30px;  /* 28-30 виглядає як у макеті */
-    line-height: 1;
-    padding-bottom: 6px;
-  }
-
   /* кнопки не стискаються */
   .profile-header .searchBtn,
   .profile-header .iconBtn,
@@ -503,4 +510,100 @@ body.dark .profile-header .topRow {
     height: 28px;
   }
 
+}
+
+/* =========================
+   Desktop-only redesigned header
+   ========================= */
+@media (min-width: 1024px) {
+  /* Не виходити за ширину в’юпорту (100vw + скролбар давали горизонтальний скрол) */
+  .profile-header {
+    width: 100%;
+    max-width: 100%;
+    margin-left: 0;
+    overflow-x: clip;
+  }
+
+  .profile-header .iconBtnHomeDesktop {
+    display: inline-flex;
+  }
+
+  .profile-header .iconBtnSearchMobile {
+    display: none;
+  }
+
+  .profile-header .topRow {
+    height: 72px;
+    padding: 0 20px;
+    display: grid;
+    grid-template-columns: minmax(0, max-content) minmax(0, 1fr) minmax(0, max-content);
+    align-items: center;
+    gap: 14px;
+    min-width: 0;
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .profile-header .leftGroup {
+    gap: 8px;
+    flex: 0 1 auto;
+    min-width: 0;
+  }
+
+  .profile-header .rightGroup {
+    gap: 8px;
+    flex: 0 1 auto;
+    min-width: 0;
+  }
+
+  .profile-header .desktopNavRow {
+    display: none;
+  }
+
+  .profile-header .searchForm {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    max-width: 640px;
+    min-width: 0;
+    margin: 0 auto;
+    height: 42px;
+    border-radius: 999px;
+    border: 1px solid rgba(133, 102, 180, 0.28);
+    background: rgba(255, 255, 255, 0.72);
+    padding: 0 14px;
+  }
+
+  .profile-header .searchIcon {
+    width: 21px;
+    height: 21px;
+    margin-right: 8px;
+    opacity: 0.7;
+  }
+
+  .profile-header .searchInput {
+    width: 100%;
+    border: 0;
+    outline: none;
+    background: transparent;
+    color: #654f7f;
+    font-size: 17px;
+  }
+
+  .profile-header .searchInput::placeholder {
+    color: #9f8ab8;
+  }
+
+  .profile-header .logo {
+    flex: 0 0 auto;
+  }
+
+  .profile-header .iconBtn img {
+    width: 34px;
+    height: 34px;
+  }
+
+  .profile-header .themeBtn {
+    font-size: 31px;
+  }
 }

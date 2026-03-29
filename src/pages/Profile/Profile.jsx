@@ -123,7 +123,7 @@ export default function Profile() {
     return () => { cancelled = true; };
   }, [urlUsernameNorm, urlUsername, user]);
 
-  /** Якщо в профілі є friendsCount, але списку друзів немає — підтягуємо список окремим запитом і мержимо з аватарами/даними */
+  /** Якщо в профілі є friendsCount, але списку друзів немає — підтягуємо список підписок користувача (following) */
   useEffect(() => {
     if (!urlUsernameNorm || !fetchedUser) return;
     const friendsFromProfile = getFriendsFromUser(fetchedUser);
@@ -148,14 +148,7 @@ export default function Profile() {
         mergeFriendsList(items);
       });
 
-    /** Список підписників з isFollowingMe, amIFollowing, isFriend, isVip — щоб видно було друзів у підписниках */
-    const tryFollowers = () =>
-      usersApi.getUserFollowers(urlUsernameNorm).then((res) => {
-        const items = normalizeFriendsApiResponse(res);
-        mergeFriendsList(items);
-      });
-
-    tryFollowing().catch(() => tryFriends().catch(() => tryFollowers().catch(() => {})));
+    tryFollowing().catch(() => tryFriends().catch(() => {}));
 
     return () => { cancelled = true; };
   }, [urlUsernameNorm, fetchedUser]);
@@ -292,6 +285,7 @@ export default function Profile() {
       return (
         <ProfileHome
           user={profileUser}
+          postsAuthorId={profileUser.id}
           followingList={followingList}
           onOpenUser={onOpenUser}
           onShowMore={onShowMore}

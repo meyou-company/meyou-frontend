@@ -316,7 +316,7 @@ export default function EditProfileForm({ onBack, onSave }) {
             />
           </button>
 
-          <div className="ep-topbar__brand">ME YOU</div>
+          <div className="ep-topbar__brand app-brand-wordmark">ME YOU</div>
 
           <div className="ep-topbar__right">
             <ThemeToggleDark />

@@ -1,27 +1,30 @@
 // ProfileHome.jsx
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
 import AvatarCropModal from "../../../AvatarCropModal/AvatarCropModal";
 import { cropImageToFile } from "../../../../utils/cropImageToFile";
 import { authApi } from "../../../../services/auth";
+import { postsApi } from "../../../../services/postsApi";
+import {
+  isPostImageUploadEnabled,
+  uploadPostImage,
+} from "../../../../services/postImageUploadApi";
 
 import profileIcons from "../../../../constants/profileIcons";
 import { getFriendsCountNumber } from "../../../../utils/profileFriends";
+import { mapApiPostToFeedItem } from "../../../../utils/mapApiPostToFeedItem";
+import { usePostFeedActions } from "../../../../hooks/usePostFeedActions";
+import PostCommentsSection from "../../../PostFeed/PostCommentsSection";
 import "./ProfileHome.scss";
 
 /** Іконки тільки для actionsBlock (чорно-білі SVG) */
 const actionIcons = {
   plus: "/icon-black/plus.svg",
   video: "/icon-black/videocamera.svg",
-  live: "/icon-black/Group.svg",
   pencil: "/icon-black/pencil.svg",
 };
-
-const MOCK_VIP = Array.from({ length: 12 }, (_, i) => ({
-  id: i + 1,
-  avatar: i % 3 === 0 ? "/Logo/photo.png" : null,
-}));
 
 /** Форма друга для відображення в кружечках (підтримка полів з GET /users/:username/followers) */
 const toFriendItem = (f) => ({
@@ -35,24 +38,10 @@ const toFriendItem = (f) => ({
   isFriend: f?.isFriend === true,
   isVip: f?.isVip === true,
 });
-const MOCK_POSTS = [
-  {
-    id: 1,
-    time: "new post",
-    location: "Рим, Италия",
-    text: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-    image: true,
-    likes: 125,
-    comments: 256,
-    saved: 21,
-    shares: 60,
-  },
-];
-
-
-
 export default function ProfileHome({
   user,
+  /** User id whose posts to show — must match profile owner (GET /users/:id/posts) */
+  postsAuthorId,
   /** Список з GET /subscriptions/following — для блоку «Друзья» на своєму профілі */
   followingList,
   /** Відкрити профіль користувача за username (клік по аватару друга) */
@@ -67,13 +56,50 @@ export default function ProfileHome({
   onSaved,
   onWallet,
 }) {
+  const navigate = useNavigate();
   const fileInputRef = useRef(null);
+  const postMediaInputRef = useRef(null);
 
   const [newPostText, setNewPostText] = useState("");
+  const [postMediaFiles, setPostMediaFiles] = useState([]);
+  const [isComposerOpen, setIsComposerOpen] = useState(false);
+  const [isPublishingPost, setIsPublishingPost] = useState(false);
   const [cropModalSrc, setCropModalSrc] = useState(null);
   const [isSaving, setIsSaving] = useState(false);
   /** URL фото для перегляду в повному розмірі (null = закрито) */
   const [viewImageUrl, setViewImageUrl] = useState(null);
+
+  const [feedPosts, setFeedPosts] = useState([]);
+  const [feedLoading, setFeedLoading] = useState(true);
+  const feedActions = usePostFeedActions(setFeedPosts);
+
+  useEffect(() => {
+    let cancelled = false;
+    if (!postsAuthorId) {
+      setFeedPosts([]);
+      setFeedLoading(false);
+      return () => {
+        cancelled = true;
+      };
+    }
+    (async () => {
+      try {
+        setFeedLoading(true);
+        const list = await postsApi.listByAuthor(postsAuthorId);
+        const mapped = (Array.isArray(list) ? list : [])
+          .map(mapApiPostToFeedItem)
+          .filter(Boolean);
+        if (!cancelled) setFeedPosts(mapped);
+      } catch {
+        if (!cancelled) setFeedPosts([]);
+      } finally {
+        if (!cancelled) setFeedLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [postsAuthorId]);
 
   useEffect(() => {
     if (!viewImageUrl) return;
@@ -81,6 +107,14 @@ export default function ProfileHome({
     window.addEventListener("keydown", onEscape);
     return () => window.removeEventListener("keydown", onEscape);
   }, [viewImageUrl]);
+
+  useEffect(() => {
+    return () => {
+      postMediaFiles.forEach((f) => {
+        if (f?.previewUrl) URL.revokeObjectURL(f.previewUrl);
+      });
+    };
+  }, [postMediaFiles]);
 
   const username =
     user?.username || user?.nick || user?.nickname || user?.login || "";
@@ -90,6 +124,14 @@ export default function ProfileHome({
 
   const titleName = username || fullNameReal || "User";
   const displayAvatar = user?.avatarUrl || user?.avatar || "/Logo/photo.png";
+
+  const composerFirstName =
+    (user?.firstName && String(user.firstName).trim()) ||
+    (fullNameReal ? fullNameReal.split(/\s+/)[0] : "") ||
+    (username || "");
+  const composerPlaceholder = composerFirstName
+    ? `Що у вас нового, ${composerFirstName}?`
+    : "Що у вас нового?";
 
   const location = [user?.city, user?.country].filter(Boolean).join(", ") || "";
   const bioLine1 = fullNameReal ? `${fullNameReal}.` : "";
@@ -116,6 +158,115 @@ export default function ProfileHome({
     reader.readAsDataURL(file);
 
     e.target.value = "";
+  };
+
+  const onPostMediaSelect = (e) => {
+    const files = Array.from(e.target.files ?? []);
+    if (!files.length) return;
+
+    setPostMediaFiles((prev) => {
+      const next = files.map((file) => ({
+        id: `${file.name}-${file.size}-${file.lastModified}`,
+        file,
+        type: file.type.startsWith("video/") ? "video" : "image",
+        previewUrl: URL.createObjectURL(file),
+      }));
+      return [...prev, ...next];
+    });
+
+    e.target.value = "";
+  };
+
+  const removePostMedia = (id) => {
+    setPostMediaFiles((prev) => {
+      const fileToRemove = prev.find((item) => item.id === id);
+      if (fileToRemove?.previewUrl) URL.revokeObjectURL(fileToRemove.previewUrl);
+      return prev.filter((item) => item.id !== id);
+    });
+  };
+
+  const handlePublishPost = async () => {
+    const trimmedText = newPostText.trim();
+    if (!trimmedText) {
+      toast.error("Введіть текст поста");
+      return;
+    }
+
+    try {
+      setIsPublishingPost(true);
+      let imageUrl;
+
+      if (postMediaFiles.length > 0) {
+        const firstImage = postMediaFiles.find(
+          (item) => item?.type === "image" && item?.file
+        );
+        const hasVideoOnly =
+          !firstImage &&
+          postMediaFiles.some((item) => item?.type === "video");
+
+        if (hasVideoOnly) {
+          toast.info(
+            "Відео для постів поки не підтримується. Пост буде опубліковано лише з текстом."
+          );
+        } else if (firstImage) {
+          if (isPostImageUploadEnabled()) {
+            try {
+              imageUrl = await uploadPostImage(firstImage.file);
+            } catch (uploadErr) {
+              const status = uploadErr?.response?.status;
+              const isUnavailable =
+                status === 404 || status === 405 || status === 501;
+              toast.warning(
+                isUnavailable
+                  ? "Завантаження зображень тимчасово недоступне. Пост опубліковано лише з текстом."
+                  : "Не вдалося завантажити зображення. Пост опубліковано лише з текстом."
+              );
+            }
+          } else {
+            toast.info(
+              "Завантаження зображень тимчасово недоступне. Пост буде опубліковано лише з текстом."
+            );
+          }
+        }
+      }
+
+      const created = await postsApi.create({
+        fullText: trimmedText,
+        imageUrl,
+        location: location || undefined,
+        visibility: "PUBLIC",
+      });
+
+      const feedItem = mapApiPostToFeedItem(created);
+      const createdAuthorId = created?.author?.id;
+      const belongsOnThisProfile =
+        !postsAuthorId ||
+        !createdAuthorId ||
+        createdAuthorId === postsAuthorId;
+      if (feedItem && belongsOnThisProfile) {
+        setFeedPosts((prev) => {
+          const withoutDup = prev.filter((p) => p.id !== feedItem.id);
+          return [feedItem, ...withoutDup];
+        });
+      }
+
+      toast.success("Пост опубліковано");
+      setNewPostText("");
+      postMediaFiles.forEach((f) => {
+        if (f?.previewUrl) URL.revokeObjectURL(f.previewUrl);
+      });
+      setPostMediaFiles([]);
+      setIsComposerOpen(false);
+    } catch (err) {
+      const msg =
+        err?.response?.data?.message?.[0] ||
+        err?.response?.data?.message ||
+        err?.message ||
+        "Не вдалося опублікувати пост";
+      toast.error(String(msg));
+    } finally {
+      setIsPublishingPost(false);
+    }
   };
 
   const handleAvatarConfirm = async (croppedPixels) => {
@@ -182,13 +333,6 @@ export default function ProfileHome({
                 </button>
               </div>
 
-              <button
-                type="button"
-                className="editBtn editBtnDesktop"
-                onClick={onEditProfile}
-              >
-                Редактировать профиль
-              </button>
             </div>
           </div>
 
@@ -202,11 +346,6 @@ export default function ProfileHome({
             {bioLine2 && <p className="bio bioLocation">{bioLine2}</p>}
 
             <div className="badgesRow">
-              <button type="button" className="badgeItem" aria-label="my video">
-                <img className="badgeIcon" src={profileIcons.video} alt="" />
-                <span className="badgeText">my video</span>
-              </button>
-
               <button type="button" className="badgeItem" aria-label="saved">
                 <img className="badgeIcon" src={profileIcons.saved} alt="" />
                 <span className="badgeText">saved</span>
@@ -245,88 +384,90 @@ export default function ProfileHome({
 
         {/* ================= ACTIONS ================= */}
         <section className="actionsSection">
-            <div className="actionsBlock">
-              <div className="actionsRow1">
-                <button className="actionBtn" type="button">
-                  <span>Дополнить историю</span>
-                  <span className="actionPlus">
+          <div className="actionsBlock">
+            <div className="actionsRowDesktop">
+              <button className="actionBtn actionBtnDesktop" type="button">
+                <span className="actionBtnLeft">
+                  <span className="actionRound">
                     <img src={actionIcons.plus} alt="" />
                   </span>
-                </button>
+                  <span className="actionLabel actionLabel--mobile">Історія</span>
+                  <span className="actionLabel actionLabel--desktop">Доповнити історію</span>
+                </span>
+                <span className="actionRightDots" aria-hidden="true">•••</span>
+              </button>
 
-                <button
-                  type="button"
-                  className="actionBtn"
-                  onClick={onEditProfile}
-                >
-                  <span>Редактировать профиль</span>
-                  <img src={actionIcons.pencil} alt="" />
-                </button>
+              <button
+                className="actionBtn actionBtnDesktop"
+                type="button"
+                onClick={() => navigate("/video")}
+                aria-label="Відео, рілси"
+              >
+                <span className="actionBtnLeft">
+                  <span className="actionRound">
+                    <img src={actionIcons.video} alt="" />
+                  </span>
+                  <span className="actionLabel actionLabel--mobile">Reels</span>
+                  <span className="actionLabel actionLabel--desktop">Додати рілс</span>
+                </span>
+              </button>
 
-                <button className="actionBtn actionMore" type="button" aria-label="Більше">
-                  …
-                </button>
-              </div>
+              <button className="actionBtn actionBtnDesktop" type="button">
+                <span className="actionBtnLeft">
+                  <span className="actionRound">
+                    <img src={actionIcons.video} alt="" />
+                  </span>
+                  <span className="actionLabel actionLabel--mobile">Ефір</span>
+                  <span className="actionLabel actionLabel--desktop">Прямий ефір</span>
+                </span>
+                <span className="actionRightArrow" aria-hidden="true">›</span>
+              </button>
+            </div>
 
-              <div className="actionsRow2">
-                <button className="actionBtn" type="button">
-                  <span>Добавить рилс</span>
-                  <img src={actionIcons.video} alt="" />
-                </button>
+            <div className="actionsRow1">
+              <button
+                className="actionBtn"
+                type="button"
+                onClick={() => navigate("/video")}
+                aria-label="Відео, рілси"
+              >
+                <span>Reels</span>
+                <img src={actionIcons.video} alt="" />
+              </button>
 
-                <button className="actionBtn" type="button">
-                  <span>Прямой эфир</span>
-                  <img src={actionIcons.live} alt="" />
-                </button>
-              </div>
+              <button
+                type="button"
+                className="actionBtn"
+                onClick={onEditProfile}
+              >
+                <span>Редактировать профиль</span>
+                <img src={actionIcons.pencil} alt="" />
+              </button>
 
-              <button className="actionBtn actionBig" type="button">
-                <span>Дополнить историю</span>
+              <button className="actionBtn actionMore" type="button" aria-label="Більше">
+                …
+              </button>
+            </div>
+
+            <div className="actionsRow2">
+              <button className="actionBtn" type="button">
+                <span>Історія</span>
                 <span className="actionPlus">
                   <img src={actionIcons.plus} alt="" />
                 </span>
               </button>
 
-              <div className="actionsRow">
-                <button className="actionBtn" type="button">
-                  <span>Добавить рилс</span>
-                  <img src={actionIcons.video} alt="" />
-                </button>
-                <button className="actionBtn" type="button">
-                  <span>Прямой эфир</span>
-                  <img src={actionIcons.live} alt="" />
-                </button>
-              </div>
+              <button className="actionBtn" type="button">
+                <span>Ефір</span>
+                <img src={actionIcons.video} alt="" />
+              </button>
             </div>
-          </section>
+          </div>
+        </section>
 
         {/* ================= VIP / FRIENDS ================= */}
         <section className="vipCard">
-          {hasFriends && (
-            <>
-              <div className="vipHeader">
-                <span className="vipTitle">VIP 👑 0</span>
-              </div>
-              <div className="vipRow">
-              {MOCK_VIP.map((v) => (
-                <div key={v.id} className="vipItem">
-                  <div className="vipAvatarWrap">
-                    <img
-                      src={v.avatar || "/icon1/image0.png"}
-                      className="vipAvatar"
-                      alt=""
-                    />
-                    <span className="onlineDot" />
-                  </div>
-                </div>
-              ))}
-              </div>
-            </>
-          )}
-
-          {hasFriends && <div className="vipDivider" />}
-
-          <div className="friendsTitle">Друзья {displayFriendsCount}</div>
+          {hasFriends && <div className="friendsTitle">Друзі {displayFriendsCount}</div>}
 
           {hasFriends ? (
             <>
@@ -354,41 +495,54 @@ export default function ProfileHome({
                 type="button"
                 onClick={onShowMore}
               >
-                Показать больше
+                Переглянути друзів
               </button>
             </>
           ) : (
-            <button
-              type="button"
-              className="showMoreBtn"
-              onClick={onFindFriends ?? onShowMore}
-            >
-              Показать больше
-            </button>
+            <div className="friendsEmpty">
+              <button
+                type="button"
+                className="showMoreBtn"
+                onClick={onFindFriends ?? onShowMore}
+              >
+                Знайти друзів
+              </button>
+            </div>
           )}
         </section>
 
         {/* ================= NEW POST ================= */}
         <section className="newPost">
           <div className="newPostHead">
-            <h3 className="newPostTitle">Что у вас нового?</h3>
-            <button className="newPostFilter" type="button" aria-label="filter">
-              ☰
-            </button>
+            <h3 className="newPostTitle">Створити допис</h3>
           </div>
 
-          <textarea
-            className="postInput"
-            value={newPostText}
-            onChange={(e) => setNewPostText(e.target.value)}
-            placeholder="Lorem ipsum dolor sit amet..."
-          />
+          <button
+            type="button"
+            className="postInputTrigger"
+            onClick={() => setIsComposerOpen(true)}
+          >
+            {composerPlaceholder}
+          </button>
         </section>
 
         {/* ================= FEED ================= */}
 <section className="feed">
-  {MOCK_POSTS.map((post) => (
-    <article key={post.id} className="postCard">
+  {feedLoading && (
+    <p className="feedLoadingHint" aria-live="polite">
+      Завантаження постів…
+    </p>
+  )}
+  {!feedLoading && feedPosts.length === 0 && (
+    <p className="feedEmptyHint">Поки немає постів</p>
+  )}
+  {feedPosts.map((post) => (
+    <article
+      key={post.id}
+      className={`postCard${post.permissions?.canEdit ? " postCard--canEdit" : ""}${post.permissions?.canDelete ? " postCard--canDelete" : ""}`}
+      data-can-edit={post.permissions?.canEdit === true ? "true" : "false"}
+      data-can-delete={post.permissions?.canDelete === true ? "true" : "false"}
+    >
       {/* TOP ROW */}
       <div className="postTop">
         <div className="postTopLeft">
@@ -414,12 +568,19 @@ export default function ProfileHome({
               src={profileIcons.location || "/home/location.svg"}
               alt=""
             />
-            <span className="postLocationText">{post.location}</span>
+            <span className="postLocationText">{post.location || "—"}</span>
           </div>
 
-          <button className="postMoreBtn" type="button" aria-label="more">
-            …
-          </button>
+          {post.permissions?.canDelete === true && (
+            <button
+              className="postDeleteBtn"
+              type="button"
+              aria-label="Видалити пост"
+              onClick={() => feedActions.onDeletePost(post)}
+            >
+              Видалити
+            </button>
+          )}
         </div>
       </div>
 
@@ -427,51 +588,87 @@ export default function ProfileHome({
       <p className="postText">{post.text}</p>
 
       {/* IMAGE */}
-      {post.image && (
+      {post.image && post.imageUrl && (
         <div className="postMedia">
-          {/* якщо потім буде реальне фото -> заміниш на <img src=... /> */}
+          <img src={post.imageUrl} alt="" className="postMediaImg" />
+        </div>
+      )}
+      {post.image && !post.imageUrl && (
+        <div className="postMedia">
           <div className="postMediaMock" />
         </div>
       )}
 
-      {/* ACTIONS */}
+      {/* ACTIONS — counts from post.counts.*; active state from post.viewerState.* */}
       <div className="postActions">
-        <button className="postActionBtn" type="button" aria-label="like">
+        <button
+          className={`postActionBtn ${post.viewerState?.isLiked ? "postActionBtn--active" : ""}`}
+          type="button"
+          aria-label="like"
+          aria-pressed={post.viewerState?.isLiked === true}
+          onClick={() => feedActions.onLike(post)}
+        >
           <img
             src={profileIcons.like || "/home/like.svg"}
             className="postActionIcon"
             alt=""
           />
-          <span className="postActionCount">{post.likes}</span>
+          <span className="postActionCount">{post.counts?.likes ?? 0}</span>
         </button>
 
-        <button className="postActionBtn" type="button" aria-label="comment">
+        <button
+          className="postActionBtn"
+          type="button"
+          aria-label="comment"
+          onClick={() => feedActions.toggleCommentsOpen(post.id)}
+        >
           <img
             src={profileIcons.comments || "/home/comments.svg"}
             className="postActionIcon"
             alt=""
           />
-          <span className="postActionCount">{post.comments}</span>
+          <span className="postActionCount">{post.counts?.comments ?? 0}</span>
         </button>
 
-        <button className="postActionBtn" type="button" aria-label="save">
+        <span
+          className={`postActionBtn postActionBtn--static ${post.viewerState?.isSaved ? "postActionBtn--active" : ""}`}
+          aria-hidden="true"
+        >
           <img
             src={profileIcons.saved || "/icon1/saved.svg"}
             className="postActionIcon"
             alt=""
           />
-          <span className="postActionCount">{post.saved ?? 21}</span>
-        </button>
+          <span className="postActionCount">{post.counts?.saves ?? 0}</span>
+        </span>
 
-        <button className="postActionBtn" type="button" aria-label="share">
+        <button
+          className={`postActionBtn ${post.viewerState?.isReposted ? "postActionBtn--active" : ""}`}
+          type="button"
+          aria-label="repost"
+          aria-pressed={post.viewerState?.isReposted === true}
+          onClick={() => feedActions.onRepost(post)}
+        >
           <img
             src={profileIcons.share || "/home/to-share.svg"}
             className="postActionIcon"
             alt=""
           />
-          <span className="postActionCount">{post.shared ?? 60}</span>
+          <span className="postActionCount">{post.counts?.reposts ?? 0}</span>
         </button>
       </div>
+
+      {feedActions.isCommentsOpen(post.id) && (
+        <PostCommentsSection
+          comments={post.comments}
+          commentDraft={feedActions.commentDraft}
+          onCommentDraftChange={feedActions.setCommentDraft}
+          onSubmitComment={() =>
+            feedActions.submitComment(post, feedActions.commentDraft)
+          }
+          variant="profile"
+        />
+      )}
     </article>
   ))}
 </section>
@@ -485,6 +682,107 @@ export default function ProfileHome({
           onClose={() => setCropModalSrc(null)}
           onConfirm={handleAvatarConfirm}
         />
+      )}
+
+      {isComposerOpen && (
+        <div
+          className="composerModal"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Створити допис"
+          onClick={() => setIsComposerOpen(false)}
+        >
+          <div className="composerCard" onClick={(e) => e.stopPropagation()}>
+            <div className="composerHeader">
+              <h3 className="composerTitle" id="composer-dialog-title">
+                Створити допис
+              </h3>
+              <button
+                type="button"
+                className="composerClose"
+                onClick={() => setIsComposerOpen(false)}
+                aria-label="Закрити"
+              >
+                ×
+              </button>
+            </div>
+
+            <div className="composerInputShell">
+              <div className="composerAvatarRing" aria-hidden="true">
+                <img src={displayAvatar} alt="" className="composerAvatarImg" />
+                <span className="composerAvatarStatus" />
+              </div>
+              <textarea
+                className="postInput composerTextarea"
+                value={newPostText}
+                onChange={(e) => setNewPostText(e.target.value)}
+                placeholder={composerPlaceholder}
+                aria-labelledby="composer-dialog-title"
+              />
+            </div>
+
+            <input
+              ref={postMediaInputRef}
+              type="file"
+              accept="image/*"
+              multiple
+              className="postMediaInput"
+              onChange={onPostMediaSelect}
+            />
+
+            {postMediaFiles.length > 0 && (
+              <div className="postMediaPreviewGrid">
+                {postMediaFiles.map((media) => (
+                  <div key={media.id} className="postMediaPreviewItem">
+                    {media.type === "video" ? (
+                      <video src={media.previewUrl} className="postMediaPreview" controls />
+                    ) : (
+                      <img src={media.previewUrl} alt="" className="postMediaPreview" />
+                    )}
+                    <button
+                      type="button"
+                      className="removeMediaBtn"
+                      onClick={() => removePostMedia(media.id)}
+                      aria-label="Видалити файл"
+                    >
+                      ×
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            <div className="composerActions">
+              <button
+                type="button"
+                className="composerActionBtn"
+                onClick={() => postMediaInputRef.current?.click()}
+              >
+                <img
+                  src={profileIcons.live}
+                  alt=""
+                  className="composerActionIcon"
+                  aria-hidden="true"
+                />
+                <span>Фото</span>
+              </button>
+
+              <div className="newPostActions">
+                <button
+                  type="button"
+                  className="publishBtn"
+                  disabled={
+                    isPublishingPost || (!newPostText.trim() && postMediaFiles.length === 0)
+                  }
+                  onClick={handlePublishPost}
+                  aria-label="Опублікувати"
+                >
+                  {isPublishingPost ? "Публікуємо..." : "Опублікувати"}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
       )}
 
       {/* Перегляд фото в повному розмірі */}

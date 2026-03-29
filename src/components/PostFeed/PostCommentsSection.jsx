@@ -1,0 +1,132 @@
+import profileIcons from "../../constants/profileIcons";
+import "./PostCommentsSection.scss";
+
+/** Як у Facebook: короткий відносний час або дата. */
+function formatCommentWhen(iso) {
+  if (!iso) return "";
+  try {
+    const d = new Date(iso);
+    const diff = Date.now() - d.getTime();
+    if (diff < 60_000) return "щойно";
+    if (diff < 3600_000) return `${Math.floor(diff / 60_000)} хв`;
+    if (diff < 86_400_000) return `${Math.floor(diff / 3600_000)} год`;
+    if (diff < 7 * 86_400_000) return `${Math.floor(diff / 86_400_000)} д`;
+    return d.toLocaleString(undefined, {
+      day: "numeric",
+      month: "short",
+      year:
+        d.getFullYear() !== new Date().getFullYear() ? "numeric" : undefined,
+    });
+  } catch {
+    return "";
+  }
+}
+
+function commentDisplayName(c) {
+  const a = c?.author;
+  if (!a) return "User";
+  const full = [a.firstName, a.lastName].filter(Boolean).join(" ").trim();
+  if (full) return full;
+  if (a.username) return a.username;
+  return "User";
+}
+
+function commentAvatarSrc(c) {
+  return c?.author?.avatarUrl || profileIcons.userStory;
+}
+
+/**
+ * Секція коментарів (як у Facebook): список зверху, поле вводу знизу в одному блоці.
+ * Відкривається/закривається ззовні по кліку на іконку коментарів.
+ */
+export default function PostCommentsSection({
+  comments = [],
+  commentDraft,
+  onCommentDraftChange,
+  onSubmitComment,
+  variant = "profile",
+}) {
+  const list = Array.isArray(comments) ? comments : [];
+  const rootClass =
+    variant === "firstPage"
+      ? "postCommentsSection postCommentsSection--firstPage"
+      : "postCommentsSection";
+
+  const handleComposerKeyDown = (e) => {
+    if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) {
+      e.preventDefault();
+      onSubmitComment();
+    }
+  };
+
+  return (
+    <div className={rootClass} role="region" aria-label="Коментарі до поста">
+      <div className="postCommentsSection__toolbar">
+        <span className="postCommentsSection__title">Коментарі</span>
+        {list.length > 0 && (
+          <span className="postCommentsSection__count">{list.length}</span>
+        )}
+      </div>
+
+      <div className="postCommentsSection__scroll">
+        {list.length === 0 ? (
+          <p className="postCommentsSection__placeholder">No comments yet</p>
+        ) : (
+          <ul className="postCommentsSection__list">
+            {list.map((c) => (
+              <li key={c.id} className="postCommentsSection__row">
+                <img
+                  className="postCommentsSection__avatar"
+                  src={commentAvatarSrc(c)}
+                  alt=""
+                />
+                <div className="postCommentsSection__thread">
+                  <div className="postCommentsSection__bubble">
+                    <div className="postCommentsSection__bubbleHead">
+                      <span className="postCommentsSection__name">
+                        {commentDisplayName(c)}
+                      </span>
+                      <span
+                        className="postCommentsSection__when"
+                        title={
+                          c.createdAt
+                            ? new Date(c.createdAt).toLocaleString()
+                            : ""
+                        }
+                      >
+                        {formatCommentWhen(c.createdAt)}
+                      </span>
+                    </div>
+                    <p className="postCommentsSection__text">{c.content}</p>
+                  </div>
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+
+      <div className="postCommentsSection__composer">
+        <textarea
+          className="postCommentsSection__input"
+          value={commentDraft}
+          onChange={(e) => onCommentDraftChange(e.target.value)}
+          onKeyDown={handleComposerKeyDown}
+          rows={2}
+          placeholder="Написати коментар…"
+          aria-label="Текст нового коментаря"
+        />
+        <div className="postCommentsSection__composerActions">
+          <span className="postCommentsSection__hint">Ctrl+Enter — надіслати</span>
+          <button
+            type="button"
+            className="postCommentsSection__submit"
+            onClick={onSubmitComment}
+          >
+            Надіслати
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}

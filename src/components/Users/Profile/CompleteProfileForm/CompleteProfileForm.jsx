@@ -295,24 +295,6 @@ export default function CompleteProfileForm({ onBack, onSuccess }) {
     setErrors(nextErrors);
     if (Object.keys(nextErrors).length > 0) return;
 
-    const username = normalized.username?.trim();
-    if (username) {
-      try {
-        const res = await usersApi.getByUsername(username);
-        const data = res?.data ?? res;
-        const currentUserId = user?.id;
-        if (data?.id && data.id !== currentUserId) {
-          setErrors((prev) => ({ ...prev, username: "Цей нік вже зайнятий" }));
-          return;
-        }
-      } catch (err) {
-        if (err?.response?.status !== 404) {
-          setSubmitError(err?.message || "Помилка перевірки ніка");
-          return;
-        }
-      }
-    }
-
     const payload = toBackendPayload(values);
     console.log("PAYLOAD >>>", payload);
 
@@ -377,7 +359,7 @@ const toYMDLocal = (d) => {
             />
           </button>
 
-          <div className="cp-topbar__brand">ME YOU</div>
+          <div className="cp-topbar__brand app-brand-wordmark">ME YOU</div>
 
           <div className="cp-topbar__right">
             <ThemeToggleDark />

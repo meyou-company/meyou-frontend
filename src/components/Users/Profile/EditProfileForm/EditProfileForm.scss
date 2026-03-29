@@ -49,15 +49,11 @@
   height: 34px;
 }
 
-/* brand centered */
+/* brand centered — типографіка: .app-brand-wordmark */
 .ep-topbar__brand {
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
-  font-size: 60px;
-  font-weight: 800;
-  letter-spacing: 0.8px;
-  color: #ff4fb1;
   pointer-events: none;
 }
 
@@ -1394,9 +1390,6 @@ body.dark .phone-wrap .react-international-phone-country-selector-dropdown,
   .select-wrap .rs__indicators {
     padding-top: 0px;
   }
-  .ep-topbar__brand {
-    font-size: 40px;
-  }
   .ep-head__title {
     font-size: 28px;
     font-weight: 400;
@@ -1444,12 +1437,6 @@ body.dark .phone-wrap .react-international-phone-country-selector-dropdown,
   /* top bar */
   .ep-topbar {
     height: 46px;
-  }
-
-  .ep-topbar__brand {
-    font-size: 20px;
-    font-weight: 700;
-    letter-spacing: 0.6px;
   }
 
   .ep-topbar__right {
@@ -1608,10 +1595,6 @@ body.dark .phone-wrap .react-international-phone-country-selector-dropdown,
 
   .edit-profile__form {
     gap: 14px;
-  }
-  .ep-topbar__brand {
-    font-size: 18px;
-    letter-spacing: 0.6px;
   }
 
   .ep-head__title {

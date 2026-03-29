@@ -45,9 +45,38 @@
   align-items: center;
   justify-content: center;
 }
-  .themeBtn {
-    display: none;
-  }
+
+/* Секція «Истории» — напівпрозорий фон + розмиття, просвічує фон сторінки */
+.first-page-stories {
+  background: rgba(252, 233, 233, 0.5);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+html[data-theme="light"] .first-page-stories {
+  background: rgba(255, 248, 250, 0.55);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+}
+
+/* Пости на first-page: напівпрозорий фон, просвічує сторінку */
+.first-page-post {
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  border-radius: 10px;
+}
+
+html[data-theme="light"] .first-page-post {
+  background: rgba(255, 255, 255, 0.28);
+  border-color: rgba(255, 255, 255, 0.55);
+}
+
+.themeBtn {
+  display: none;
+}
 
 @media only screen and (min-width: 768px) { 
   .themeBtn {
@@ -76,12 +105,6 @@
   padding: 3px;
   }
 
-  .themeBtn {
-    font-size: 44px;
-    margin-left: -40px;
-    padding-bottom: 2px;
-  }
-
 }
 
 /* =========================
@@ -103,6 +126,12 @@ body.dark {
     background: rgba(20, 10, 30, 0.65);
   }
 
+  .first-page-stories {
+    background: rgba(20, 10, 30, 0.38);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+  }
+
   section.border-gray-900 {
     border-color: rgba(255, 255, 255, 0.15);
   }
@@ -118,28 +147,29 @@ body.dark {
     background: #2a1a35;
   }
 
-  /* ---------- FeedCard ---------- */
-  article {
-    background: #1e102a;
-    box-shadow: 0 0 0 1px rgba(255,255,255,0.06);
+  /* ---------- Пости стрічки (скло / прозорість) ---------- */
+  .first-page-post {
+    background: rgba(30, 16, 42, 0.28);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.1);
   }
 
-  article p {
+  .first-page-post p {
     color: #e5e5e5;
   }
 
-  article span,
-  article button {
+  .first-page-post span,
+  .first-page-post button {
     color: #f0f0f0;
   }
 
-  /* placeholder image */
-  article div.bg-black\/5 {
-    background: rgba(255,255,255,0.05);
+  .first-page-post div.bg-black\/5 {
+    background: rgba(255, 255, 255, 0.06);
   }
 
-  /* underline time text */
-  .underline {
+  .first-page-post .underline {
     color: #e0e0e0;
   }
 

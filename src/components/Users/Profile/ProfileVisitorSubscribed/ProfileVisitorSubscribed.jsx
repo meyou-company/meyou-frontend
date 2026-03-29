@@ -170,7 +170,7 @@ export default function ProfileVisitorSubscribed({
           className="profile-visitor-subscribed__btnDelete"
           onClick={() => onTabClick("delete")}
         >
-          Удалить
+          Отписаться
         </button>
         <button
           type="button"

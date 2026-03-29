@@ -1,8 +1,39 @@
-@import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap");
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* ME YOU — один розмір як у шапці профілю (ProfileHeader .logoText) */
+.app-brand-wordmark {
+  font-family: "Montserrat", sans-serif;
+  font-size: 46px;
+  font-weight: 800;
+  color: #ff4fb1;
+  line-height: 1;
+}
+
+@media (max-width: 480px) {
+  .app-brand-wordmark {
+    font-size: 28px;
+  }
+}
+
+@media (max-width: 360px) {
+  .app-brand-wordmark {
+    font-size: 30px;
+    line-height: 1;
+    padding-bottom: 6px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .app-brand-wordmark {
+    font-size: 40px;
+    white-space: nowrap;
+    color: #f064bd;
+  }
+}
 
 /* =========================
    BASE
@@ -70,8 +101,8 @@
     --app-bg: 241 231 255;
     --app-text: 23 10 40;
 
-    --app-bg-image: none;
-    --app-bg-image-opacity: 0;
+    --app-bg-image: url("/foonDen.png");
+    --app-bg-image-opacity: 0.95;
 
     --app-overlay-1: rgba(255, 255, 255, 0.35);
     --app-overlay-2: rgba(255, 255, 255, 0.15);
@@ -97,6 +128,12 @@
       #b05cff 55%,
       #ff4fb1 100%
     );
+  }
+
+  html {
+    /* Щоб вертикальний скролбар не зміщував контент вліво/вправо */
+  
+     scrollbar-gutter: stable both-edges;
   }
 
   body {
@@ -160,6 +197,7 @@
   .app-page {
     @apply w-full flex justify-center;
     min-height: 100dvh;
+  
   }
 
   /* контейнер контенту */

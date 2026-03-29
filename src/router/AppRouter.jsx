@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 
 import AppBottomNav from "../components/AppBottomNav/AppBottomNav";
+import { useAuthStore } from "../zustand/useAuthStore";
 import HomePage from "../pages/HomeFeed/HomePage";
 import Explore from "../pages/Explore/Explore";
 import Friends from "../pages/Friends/Friends";
@@ -21,10 +22,10 @@ import ResetNewPasswordPage from "../pages/Auth/ResetNewPassword/ResetNewPasswor
 
 import CompleteProfilePage from "../pages/Users/Profile/CompleteProfilePage";
 import EditProfilePage from "../pages/Users/Profile/EditProfilePage";
+import VideoPage from "../pages/Video/VideoPage";
 
 import FirstPage from "../pages/FirstPage/FirstPage";
 import WalletPage from "../pages/Wallet/WalletPage";
-import VideoPage from "../pages/Video/VideoPage";
 
 import ProfileGuard from "./ProfileGuard";
 import BurgerMenu from "../components/BurgerMenu/BurgerMenu";
@@ -43,9 +44,25 @@ function GlobalBurgerMenu() {
 
 function AppLayout() {
   const location = useLocation();
+  const user = useAuthStore((s) => s.user);
+  const isAuthed = useAuthStore((s) => s.isAuthed);
+
   const isAuthRoute =
     location.pathname.startsWith("/auth") || location.pathname === "/auth/callback";
-  const showBottomNav = !isAuthRoute;
+  const hideBottomNavRoutes = new Set([
+    "/users/profile/complete",
+  ]);
+  const isLanding = location.pathname === "/";
+  /** Нижня навігація (mobile): лише після завершення профілю, не на головній з входом/реєстрацією. */
+  const profileComplete = user?.profileCompleted === true;
+  const shouldHideBottomNav =
+    isAuthRoute ||
+    hideBottomNavRoutes.has(location.pathname) ||
+    !isAuthed ||
+    !user ||
+    !profileComplete ||
+    isLanding;
+  const showBottomNav = !shouldHideBottomNav;
 
   return (
     <>
@@ -63,7 +80,6 @@ function AppLayout() {
               <Route path="/first-page" element={<FirstPage />} />
               <Route path="/wallet" element={<WalletPage />} />
               <Route path="/video" element={<VideoPage />} />
-
               <Route
                 path="/users/profile/complete"
                 element={<CompleteProfilePage />}

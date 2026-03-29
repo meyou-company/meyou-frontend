@@ -50,15 +50,11 @@
   height: 34px;
 }
 
-/* brand centered */
+/* brand centered — типографіка: .app-brand-wordmark */
 .cp-topbar__brand {
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
-  font-size: 30px;
-  font-weight: 800;
-  letter-spacing: 0.8px;
-  color: #ff4fb1;
   pointer-events: none;
 }
 
@@ -1218,11 +1214,6 @@ html[data-theme="dark"] .phone-wrap .react-international-phone-country-selector-
     height: 46px;
   }
 
-  .cp-topbar__brand {
-    font-size: 22px;
-    letter-spacing: 0.6px;
-  }
-
   .cp-topbar__right {
     width: 40px;
     height: 40px;
@@ -1363,11 +1354,6 @@ html[data-theme="dark"] .phone-wrap .react-international-phone-country-selector-
 
   .complete-profile__form {
     gap: 14px;
-  }
-
-  .cp-topbar__brand {
-    font-size: 18px;
-    letter-spacing: 0.6px;
   }
 
   .cp-head__title {
