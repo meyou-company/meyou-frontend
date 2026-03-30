@@ -552,9 +552,6 @@ body.dark .explore-content__filterBtnInInput:hover {
 .explore-content__btnSecondary {
   flex: 1;
   min-width: 0;
-  // height: 38px;
-  // min-height: 38px;
-  // max-height: 38px;
   padding: 0 12px;
   border-radius: 10px;
   font-size: 12px;
@@ -570,7 +567,7 @@ body.dark .explore-content__filterBtnInInput:hover {
   
   height: auto;
   min-height: 38px;
-  padding: 8px 10px;
+  padding: 2px 10px;
   display: flex;
   text-align: center;
   line-height: 1.2;
@@ -910,7 +907,7 @@ body.dark .explore-content__viewBtnActive {
 /* Ще компактніше для вузьких екранів 320–360px */
 @media (max-width: 360px) {
   .explore-content {
-    padding: 6px 8px;
+    padding: 6px 0px;
   }
 
   .explore-content__tab {
@@ -945,6 +942,12 @@ body.dark .explore-content__viewBtnActive {
   .explore-content__resultsList .explore-content__btnSecondary {
     font-size: 9px;
   }
+
+  .explore-content__cardActions {
+    margin-top: 6px;
+    gap: 3px !important;
+  }
+
 }
 
 /* 2) iPhone / великі телефони 420–767px */
@@ -1020,9 +1023,6 @@ body.dark .explore-content__viewBtnActive {
 
   .explore-content__resultsList .explore-content__btnPrimary,
   .explore-content__resultsList .explore-content__btnSecondary {
-    // height: 38px;
-    // min-height: 38px;
-    // max-height: 38px;
     font-size: 11px;
   }
 
@@ -1075,18 +1075,6 @@ body.dark .explore-content__viewBtnActive {
     font-size: 12px;
   }
 
-  .explore-content__resultsGrid .explore-content__cardRight {
-    padding: 0 12px 12px;
-  }
-
-  .explore-content__resultsGrid .explore-content__btnPrimary,
-  .explore-content__resultsGrid .explore-content__btnSecondary {
-    // height: 38px;
-    // min-height: 38px;
-    // max-height: 38px;
-    font-size: 12px;
-  }
-
   .explore-content__resultsList .explore-content__cardPhotoBtn {
     max-width: 180px;
   }
@@ -1096,14 +1084,20 @@ body.dark .explore-content__viewBtnActive {
     height: 40px;
     min-height: 40px;
     max-height: 40px;
-    font-size: 13px;
+    font-size: clamp(11px, 1.2vw, 14px);
+  }
+
+  .explore-content__btnPrimary,
+  .explore-content__btnSecondary {
+    white-space: nowrap;      // ← запрещаем перенос
+    overflow: hidden;
   }
 }
 
 /* 4) Desktop 1049+ — більші розміри, картки крупніші */
 @media (min-width: 1049px) {
   .explore-content {
-    padding: 40px 48px;
+    padding: 40px 20px;
     max-width: 1200px;
   }
 
@@ -1155,8 +1149,7 @@ body.dark .explore-content__viewBtnActive {
   }
 
   .explore-content__resultsGrid {
-    grid-template-columns: repeat(4, 1fr);
-    gap: 32px;
+    gap: 20px;
   }
 
   .explore-content__userCard {
@@ -1191,7 +1184,7 @@ body.dark .explore-content__viewBtnActive {
   }
 
   .explore-content__resultsGrid .explore-content__cardRight {
-    padding: 0 16px 16px;
+    padding: 0 10px 10px;
   }
 
   .explore-content__resultsGrid .explore-content__cardActions {
@@ -1205,8 +1198,9 @@ body.dark .explore-content__viewBtnActive {
     min-height: 44px;
     max-height: 44px;
     padding: 0 16px;
-    font-size: 15px;
+    font-size: 14px;
     border-radius: 12px;
+    white-space: nowrap;
   }
 
   .explore-content__resultsList .explore-content__userCard {
@@ -1252,5 +1246,20 @@ body.dark .explore-content__viewBtnActive {
 
   .explore-content__emptyText {
     font-size: 18px;
+  }
+
+  .explore-content__resultsGrid {
+    padding: 10px 20px;
+}
+}
+
+
+@media only screen and (min-width: 1180px) {
+   .explore-content__resultsGrid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .explore-content__resultsGrid .explore-content__cardActions {
+    gap: 12px;
   }
 }
