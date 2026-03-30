@@ -369,7 +369,7 @@ body.dark .explore-content__filterBtnInInput:hover {
 }
 
 .explore-content__userCard:hover {
-  transform: scale(1.03);
+  transform: scale(1.02);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12), 0 14px 34px rgba(176, 92, 255, 0.22);
 }
 
@@ -450,7 +450,6 @@ body.dark .explore-content__filterBtnInInput:hover {
   bottom: 0;
   display: flex;
   flex-direction: column;
-  gap: 4px;
   z-index: 1;
   padding-bottom: 8px;
 }
@@ -477,34 +476,34 @@ body.dark .explore-content__filterBtnInInput:hover {
 }
 
 /* Чипи на фото (над градієнтом, напівпрозорий фіолетовий фон) */
-.explore-content__cardTags--onPhoto {
-  position: absolute;
-  left: 12px;
-  right: 12px;
-  bottom: 0;
-  padding: 8px 0 12px;
-  z-index: 1;
-  flex-wrap: wrap;
-  gap: 6px;
-}
+// .explore-content__cardTags--onPhoto {
+//   position: absolute;
+//   left: 12px;
+//   right: 12px;
+//   bottom: 0;
+//   padding: 8px 0 12px;
+//   z-index: 1;
+//   flex-wrap: wrap;
+//   gap: 6px;
+// }
 
-.explore-content__cardTags--onPhoto .explore-content__cardTag {
-  background: linear-gradient(90deg, #4f6bff 0%, #b05cff 52%, #ff4fb1 100%);
-  color: #fff;
-  padding: 5px 12px;
-  font-size: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.25);
-}
+// .explore-content__cardTags--onPhoto .explore-content__cardTag {
+//   background: linear-gradient(90deg, #4f6bff 0%, #b05cff 52%, #ff4fb1 100%);
+//   color: #fff;
+//   padding: 5px 12px;
+//   font-size: 12px;
+//   border: 1px solid rgba(255, 255, 255, 0.25);
+// }
 
-.explore-content__cardTags--onPhoto .explore-content__cardTag--more {
-  background: linear-gradient(90deg, #b05cff 0%, #ff4fb1 100%);
-  opacity: 0.95;
-}
+// .explore-content__cardTags--onPhoto .explore-content__cardTag--more {
+//   background: linear-gradient(90deg, #b05cff 0%, #ff4fb1 100%);
+//   opacity: 0.95;
+// }
 
 /* Якщо є чипи — caption вище чипів */
-.explore-content__cardPhoto:has(.explore-content__cardTags--onPhoto) .explore-content__cardCaption {
-  bottom: 52px;
-}
+// .explore-content__cardPhoto:has(.explore-content__cardTags--onPhoto) .explore-content__cardCaption {
+//   bottom: 52px;
+// }
 
 .explore-content__cardPhoto:has(.explore-content__cardTags--onPhoto) .explore-content__cardTags--onPhoto {
   padding-bottom: 10px;
@@ -574,20 +573,20 @@ body.dark .explore-content__filterBtnInInput:hover {
 }
 
 /* Chips (на фото) — градієнт як на інших сторінках */
-.explore-content__cardTag {
-  padding: 4px 10px;
-  border-radius: 999px;
-  font-size: 11px;
-  font-weight: 600;
-  background: linear-gradient(90deg, #4f6bff 0%, #b05cff 52%, #ff4fb1 100%);
-  color: #fff;
-  white-space: nowrap;
-}
+// .explore-content__cardTag {
+//   padding: 4px 10px;
+//   border-radius: 999px;
+//   font-size: 11px;
+//   font-weight: 600;
+//   background: linear-gradient(90deg, #4f6bff 0%, #b05cff 52%, #ff4fb1 100%);
+//   color: #fff;
+//   white-space: nowrap;
+// }
 
-.explore-content__cardTag--more {
-  background: linear-gradient(90deg, #b05cff 0%, #ff4fb1 100%);
-  opacity: 0.95;
-}
+// .explore-content__cardTag--more {
+//   background: linear-gradient(90deg, #b05cff 0%, #ff4fb1 100%);
+//   opacity: 0.95;
+// }
 
 /* Grid: картка колонка, компактні кнопки */
 .explore-content__resultsGrid .explore-content__userCard {
@@ -631,7 +630,7 @@ body.dark .explore-content__filterBtnInInput:hover {
 
 .explore-content__resultsList .explore-content__cardPhoto {
   aspect-ratio: 1;
-  min-height: 100px;
+  min-height: 160px;
 }
 
 .explore-content__resultsList .explore-content__cardRight {
@@ -717,10 +716,10 @@ body.dark .explore-content__btnSecondary:hover {
   background: rgba(176, 92, 255, 0.15);
 }
 
-body.dark .explore-content__cardTag--more {
-  background: linear-gradient(90deg, #b05cff 0%, #ff4fb1 100%);
-  opacity: 0.9;
-}
+// body.dark .explore-content__cardTag--more {
+//   background: linear-gradient(90deg, #b05cff 0%, #ff4fb1 100%);
+//   opacity: 0.9;
+// }
 
 body.dark .explore-content__subtitle {
   color: rgba(255, 255, 255, 0.55);
@@ -841,6 +840,11 @@ body.dark .explore-content__viewBtnActive {
     gap: 6px;
   }
 
+  .explore-content__resultsList .explore-content__cardActions {
+  flex-direction: column;
+  align-items: stretch;
+}
+
   .explore-content__resultsGrid .explore-content__btnPrimary,
   .explore-content__resultsGrid .explore-content__btnSecondary {
     height: 34px;
@@ -851,7 +855,7 @@ body.dark .explore-content__viewBtnActive {
   }
 
   .explore-content__resultsList .explore-content__cardPhotoBtn {
-    max-width: 120px;
+    max-width: 140px;
   }
 
   .explore-content__resultsList .explore-content__userCard {
@@ -1120,7 +1124,7 @@ body.dark .explore-content__viewBtnActive {
   }
 
   .explore-content__resultsGrid {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(4, 1fr);
     gap: 32px;
   }
 
@@ -1205,10 +1209,10 @@ body.dark .explore-content__viewBtnActive {
     border-radius: 12px;
   }
 
-  .explore-content__cardTag {
-    font-size: 12px;
-    padding: 5px 12px;
-  }
+  // .explore-content__cardTag {
+  //   font-size: 12px;
+  //   padding: 5px 12px;
+  // }
 
   .explore-content__vipBadge {
     font-size: 11px;
