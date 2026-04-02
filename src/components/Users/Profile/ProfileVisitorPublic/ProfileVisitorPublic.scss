@@ -338,7 +338,6 @@ $phVisitorTabBeige: #FCE9E9;
 
 .profile-visitor-public .ph-visitor-actions__block {
   grid-area: block;
-  // width: 286px;
   flex-shrink: 0;
   height: 56px;
   padding: 0 24px;
@@ -998,10 +997,6 @@ html[data-theme="dark"] .profile-visitor-public .ph-visitor-avatarInfoBtn {
 
 
 @media only screen and (min-width: 1280px) {
-
-  // .profile-visitor-public .ph-visitor-right { 
-  //    gap: 22px 10px;
-  // }
 
   .profile-visitor-public .ph-visitor-right {
     grid-template-columns: minmax(260px, 1fr) 220px 260px;
