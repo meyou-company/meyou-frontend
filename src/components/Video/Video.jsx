@@ -149,7 +149,7 @@ const Video = () => {
                     <p className="video-card__name">{video.name}</p>
                     <div className="video-card__location">
                      <img  className="video__locationIcon" src={profileIcons.locationVideo} alt="Локация Видео иконка" />
-                    <p>{video.location}</p>
+                    <p className="video__locationText">{video.location}</p>
                     </div>
                   </div>
 

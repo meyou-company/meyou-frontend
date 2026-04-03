@@ -369,7 +369,7 @@ body.dark .explore-content__filterBtnInInput:hover {
 }
 
 .explore-content__userCard:hover {
-  transform: scale(1.03);
+  transform: scale(1.02);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12), 0 14px 34px rgba(176, 92, 255, 0.22);
 }
 
@@ -450,7 +450,6 @@ body.dark .explore-content__filterBtnInInput:hover {
   bottom: 0;
   display: flex;
   flex-direction: column;
-  gap: 4px;
   z-index: 1;
   padding-bottom: 8px;
 }
@@ -477,34 +476,34 @@ body.dark .explore-content__filterBtnInInput:hover {
 }
 
 /* Чипи на фото (над градієнтом, напівпрозорий фіолетовий фон) */
-.explore-content__cardTags--onPhoto {
-  position: absolute;
-  left: 12px;
-  right: 12px;
-  bottom: 0;
-  padding: 8px 0 12px;
-  z-index: 1;
-  flex-wrap: wrap;
-  gap: 6px;
-}
+// .explore-content__cardTags--onPhoto {
+//   position: absolute;
+//   left: 12px;
+//   right: 12px;
+//   bottom: 0;
+//   padding: 8px 0 12px;
+//   z-index: 1;
+//   flex-wrap: wrap;
+//   gap: 6px;
+// }
 
-.explore-content__cardTags--onPhoto .explore-content__cardTag {
-  background: linear-gradient(90deg, #4f6bff 0%, #b05cff 52%, #ff4fb1 100%);
-  color: #fff;
-  padding: 5px 12px;
-  font-size: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.25);
-}
+// .explore-content__cardTags--onPhoto .explore-content__cardTag {
+//   background: linear-gradient(90deg, #4f6bff 0%, #b05cff 52%, #ff4fb1 100%);
+//   color: #fff;
+//   padding: 5px 12px;
+//   font-size: 12px;
+//   border: 1px solid rgba(255, 255, 255, 0.25);
+// }
 
-.explore-content__cardTags--onPhoto .explore-content__cardTag--more {
-  background: linear-gradient(90deg, #b05cff 0%, #ff4fb1 100%);
-  opacity: 0.95;
-}
+// .explore-content__cardTags--onPhoto .explore-content__cardTag--more {
+//   background: linear-gradient(90deg, #b05cff 0%, #ff4fb1 100%);
+//   opacity: 0.95;
+// }
 
 /* Якщо є чипи — caption вище чипів */
-.explore-content__cardPhoto:has(.explore-content__cardTags--onPhoto) .explore-content__cardCaption {
-  bottom: 52px;
-}
+// .explore-content__cardPhoto:has(.explore-content__cardTags--onPhoto) .explore-content__cardCaption {
+//   bottom: 52px;
+// }
 
 .explore-content__cardPhoto:has(.explore-content__cardTags--onPhoto) .explore-content__cardTags--onPhoto {
   padding-bottom: 10px;
@@ -527,13 +526,32 @@ body.dark .explore-content__filterBtnInInput:hover {
   flex-shrink: 0;
 }
 
+.explore-content__resultsGrid .explore-content__cardActions {
+  align-items: stretch;
+}
+
+.explore-content__resultsList .explore-content__btnPrimary,
+.explore-content__resultsList .explore-content__btnSecondary {
+  width: 100%;
+}
+
+.explore-content__btnPrimary,
+.explore-content__btnSecondary {
+  font-size: clamp(10px, 2.5vw, 14px);
+}
+
+.explore-content__btnPrimary,
+.explore-content__btnSecondary {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
 .explore-content__btnPrimary,
 .explore-content__btnSecondary {
   flex: 1;
   min-width: 0;
-  height: 38px;
-  min-height: 38px;
-  max-height: 38px;
   padding: 0 12px;
   border-radius: 10px;
   font-size: 12px;
@@ -541,11 +559,20 @@ body.dark .explore-content__filterBtnInInput:hover {
   cursor: pointer;
   font-family: inherit;
   -webkit-tap-highlight-color: transparent;
-  white-space: nowrap;
+  // white-space: nowrap;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   transition: box-shadow 0.2s ease, background 0.2s ease;
+  
+  height: auto;
+  min-height: 38px;
+  padding: 2px 10px;
+  display: flex;
+  text-align: center;
+  line-height: 1.2;
+  white-space: normal;
+  word-break: normal;
 }
 
 .explore-content__btnPrimary {
@@ -574,20 +601,20 @@ body.dark .explore-content__filterBtnInInput:hover {
 }
 
 /* Chips (на фото) — градієнт як на інших сторінках */
-.explore-content__cardTag {
-  padding: 4px 10px;
-  border-radius: 999px;
-  font-size: 11px;
-  font-weight: 600;
-  background: linear-gradient(90deg, #4f6bff 0%, #b05cff 52%, #ff4fb1 100%);
-  color: #fff;
-  white-space: nowrap;
-}
+// .explore-content__cardTag {
+//   padding: 4px 10px;
+//   border-radius: 999px;
+//   font-size: 11px;
+//   font-weight: 600;
+//   background: linear-gradient(90deg, #4f6bff 0%, #b05cff 52%, #ff4fb1 100%);
+//   color: #fff;
+//   white-space: nowrap;
+// }
 
-.explore-content__cardTag--more {
-  background: linear-gradient(90deg, #b05cff 0%, #ff4fb1 100%);
-  opacity: 0.95;
-}
+// .explore-content__cardTag--more {
+//   background: linear-gradient(90deg, #b05cff 0%, #ff4fb1 100%);
+//   opacity: 0.95;
+// }
 
 /* Grid: картка колонка, компактні кнопки */
 .explore-content__resultsGrid .explore-content__userCard {
@@ -631,7 +658,7 @@ body.dark .explore-content__filterBtnInInput:hover {
 
 .explore-content__resultsList .explore-content__cardPhoto {
   aspect-ratio: 1;
-  min-height: 100px;
+  min-height: 160px;
 }
 
 .explore-content__resultsList .explore-content__cardRight {
@@ -717,10 +744,10 @@ body.dark .explore-content__btnSecondary:hover {
   background: rgba(176, 92, 255, 0.15);
 }
 
-body.dark .explore-content__cardTag--more {
-  background: linear-gradient(90deg, #b05cff 0%, #ff4fb1 100%);
-  opacity: 0.9;
-}
+// body.dark .explore-content__cardTag--more {
+//   background: linear-gradient(90deg, #b05cff 0%, #ff4fb1 100%);
+//   opacity: 0.9;
+// }
 
 body.dark .explore-content__subtitle {
   color: rgba(255, 255, 255, 0.55);
@@ -841,6 +868,11 @@ body.dark .explore-content__viewBtnActive {
     gap: 6px;
   }
 
+  .explore-content__resultsList .explore-content__cardActions {
+  flex-direction: column;
+  align-items: stretch;
+}
+
   .explore-content__resultsGrid .explore-content__btnPrimary,
   .explore-content__resultsGrid .explore-content__btnSecondary {
     height: 34px;
@@ -851,7 +883,7 @@ body.dark .explore-content__viewBtnActive {
   }
 
   .explore-content__resultsList .explore-content__cardPhotoBtn {
-    max-width: 120px;
+    max-width: 140px;
   }
 
   .explore-content__resultsList .explore-content__userCard {
@@ -875,7 +907,7 @@ body.dark .explore-content__viewBtnActive {
 /* Ще компактніше для вузьких екранів 320–360px */
 @media (max-width: 360px) {
   .explore-content {
-    padding: 6px 8px;
+    padding: 6px 0px;
   }
 
   .explore-content__tab {
@@ -910,6 +942,12 @@ body.dark .explore-content__viewBtnActive {
   .explore-content__resultsList .explore-content__btnSecondary {
     font-size: 9px;
   }
+
+  .explore-content__cardActions {
+    margin-top: 6px;
+    gap: 3px !important;
+  }
+
 }
 
 /* 2) iPhone / великі телефони 420–767px */
@@ -985,9 +1023,6 @@ body.dark .explore-content__viewBtnActive {
 
   .explore-content__resultsList .explore-content__btnPrimary,
   .explore-content__resultsList .explore-content__btnSecondary {
-    height: 38px;
-    min-height: 38px;
-    max-height: 38px;
     font-size: 11px;
   }
 
@@ -1040,18 +1075,6 @@ body.dark .explore-content__viewBtnActive {
     font-size: 12px;
   }
 
-  .explore-content__resultsGrid .explore-content__cardRight {
-    padding: 0 12px 12px;
-  }
-
-  .explore-content__resultsGrid .explore-content__btnPrimary,
-  .explore-content__resultsGrid .explore-content__btnSecondary {
-    height: 38px;
-    min-height: 38px;
-    max-height: 38px;
-    font-size: 12px;
-  }
-
   .explore-content__resultsList .explore-content__cardPhotoBtn {
     max-width: 180px;
   }
@@ -1061,14 +1084,20 @@ body.dark .explore-content__viewBtnActive {
     height: 40px;
     min-height: 40px;
     max-height: 40px;
-    font-size: 13px;
+    font-size: clamp(11px, 1.2vw, 14px);
+  }
+
+  .explore-content__btnPrimary,
+  .explore-content__btnSecondary {
+    white-space: nowrap;      // ← запрещаем перенос
+    overflow: hidden;
   }
 }
 
 /* 4) Desktop 1049+ — більші розміри, картки крупніші */
 @media (min-width: 1049px) {
   .explore-content {
-    padding: 40px 48px;
+    padding: 40px 20px;
     max-width: 1200px;
   }
 
@@ -1120,8 +1149,7 @@ body.dark .explore-content__viewBtnActive {
   }
 
   .explore-content__resultsGrid {
-    grid-template-columns: repeat(3, 1fr);
-    gap: 32px;
+    gap: 20px;
   }
 
   .explore-content__userCard {
@@ -1156,12 +1184,12 @@ body.dark .explore-content__viewBtnActive {
   }
 
   .explore-content__resultsGrid .explore-content__cardRight {
-    padding: 0 16px 16px;
+    padding: 0 10px 10px;
   }
 
   .explore-content__resultsGrid .explore-content__cardActions {
     margin-top: 14px;
-    gap: 14px;
+    gap: 12px;
   }
 
   .explore-content__resultsGrid .explore-content__btnPrimary,
@@ -1170,8 +1198,9 @@ body.dark .explore-content__viewBtnActive {
     min-height: 44px;
     max-height: 44px;
     padding: 0 16px;
-    font-size: 15px;
+    font-size: 14px;
     border-radius: 12px;
+    white-space: nowrap;
   }
 
   .explore-content__resultsList .explore-content__userCard {
@@ -1205,10 +1234,10 @@ body.dark .explore-content__viewBtnActive {
     border-radius: 12px;
   }
 
-  .explore-content__cardTag {
-    font-size: 12px;
-    padding: 5px 12px;
-  }
+  // .explore-content__cardTag {
+  //   font-size: 12px;
+  //   padding: 5px 12px;
+  // }
 
   .explore-content__vipBadge {
     font-size: 11px;
@@ -1217,5 +1246,20 @@ body.dark .explore-content__viewBtnActive {
 
   .explore-content__emptyText {
     font-size: 18px;
+  }
+
+  .explore-content__resultsGrid {
+    padding: 10px 20px;
+}
+}
+
+
+@media only screen and (min-width: 1180px) {
+   .explore-content__resultsGrid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .explore-content__resultsGrid .explore-content__cardActions {
+    gap: 12px;
   }
 }

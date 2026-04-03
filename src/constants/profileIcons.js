@@ -89,6 +89,7 @@ const profileIcons = {
   searchVideo: `${VIDEO}/search.svg`,
   videoTitle: `${VIDEO}/videoTitle.svg`,
   arrowVideo: `${VIDEO}/arrowRightPink.svg`,
+  searchVideoPink: `${VIDEO}/searchPink.svg`,
 };
 
 export default profileIcons;
