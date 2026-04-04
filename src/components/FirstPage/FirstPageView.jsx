@@ -61,7 +61,7 @@ export default function FirstPageView({
       <div className="relative z-10 flex flex-col flex-1 w-full min-w-0">
         {/* HEADER */}
         <header className="w-full min-w-0 max-w-full overflow-x-clip border-gray-900">
-            <div className="mx-auto grid w-full max-w-[1340px] min-w-0 grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-x-2 md:gap-x-3 xl:gap-x-4 px-[10px] md:px-[41px] xl:px-[60px] pb-5 md:pb-5 xl:pb-8 xl:pt-[10px]">
+            <div className="grid w-full min-w-0 grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-x-2 md:gap-x-3 xl:gap-x-4 px-[10px] md:px-[41px] lg:px-9 min-[1440px]:px-[66px] pb-5 md:pb-5 xl:pb-8 xl:pt-[10px]">
             {/* LEFT */}
             <div className="flex min-w-0 items-center justify-start gap-2 md:gap-3 xl:gap-4">
               <button
@@ -129,7 +129,7 @@ export default function FirstPageView({
 
         {/* TABLET / DESKTOP NAV  */}
         <section className="hidden md:block min-w-0 max-w-full overflow-x-clip border-t-[0.1px] border-gray-900 bg-[#FCE9E9]">
-        <div className="flex w-full min-w-0 justify-between items-center px-[10px] md:px-[41px] xl:px-[60px] py-3">
+        <div className="flex w-full min-w-0 justify-between items-center px-[10px] md:px-[41px] lg:px-9 min-[1440px]:px-[66px] py-3">
 
           <TabletNav />
 
@@ -139,11 +139,11 @@ export default function FirstPageView({
         {/* STORIES — фон на ширину first-page (уже без px контейнера додатку) */}
         <section className="first-page-stories w-full border-b-[0.1px] border-t-[0.1px] border-gray-900">
           <div className="mx-auto w-full max-w-[1340px] pt-4 md:pt-[23px] md:pb-[19px] xl:pt-4 xl:pb-[13px]">
-            <h2 className="mb-1 md:mb-2 xl:mb-4 px-[10px] md:px-[41px] xl:px-[60px] text-black font-[Montserrat] text-base md:text-xl xl:text-[28px]">
+            <h2 className="mb-1 md:mb-2 xl:mb-4 px-[10px] md:px-[41px] lg:px-9 min-[1440px]:px-[66px] text-black font-[Montserrat] text-base md:text-xl xl:text-[28px]">
               Истории
             </h2>
 
-            <div className="flex gap-3 md:gap-[23px] xl:gap-10 overflow-x-auto pb-2 md:pb-0 snap-x snap-mandatory snap-center scrollbarHide pl-[10px] pr-[10px] md:pl-[41px] md:pr-[41px] xl:pl-[60px] xl:pr-[60px]">
+            <div className="flex gap-3 md:gap-[23px] xl:gap-10 overflow-x-auto pb-2 md:pb-0 snap-x snap-mandatory snap-center scrollbarHide pl-[10px] pr-[10px] md:pl-[41px] md:pr-[41px] lg:pl-9 lg:pr-9 min-[1440px]:pl-[66px] min-[1440px]:pr-[66px]">
               <StoryCircle type="add" />
               <StoryCircle status="online" />
               <StoryCircle status="offline" />
@@ -156,7 +156,7 @@ export default function FirstPageView({
 
         {/* FEED */}
         <main className="flex-1">
-          <div className="max-w-[1340px] mx-auto my-[10px] md:my-5 xl:my-[46px] px-[10px] md:px-[41px] xl:px-[60px] space-y-[10px] md:space-y-5">
+          <div className="max-w-[1340px] mx-auto my-[10px] md:my-5 xl:my-[46px] px-[10px] md:px-[41px] lg:px-9 min-[1440px]:px-[66px] space-y-[10px] md:space-y-5">
             {feedLoading && (
               <p className="text-center text-sm md:text-base font-[Montserrat] text-gray-600 py-6">
                 Завантаження стрічки…
@@ -478,7 +478,7 @@ const TabletNav = () => {
   
         <button
           type="button"
-          onClick={() => navigate("/")}
+          onClick={() => navigate("/video")}
           className="flex flex-col items-center gap-2 group"
         >
           <img

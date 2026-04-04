@@ -22,7 +22,7 @@ export const desktopTopActionsFriend = [
 export const desktopNavItems = [
   { key: "home", path: "/first-page", label: "Home", icon: icons.home },
   { key: "add", path: "/create", label: "Add", icon: icons.plus },
-  { key: "reels", path: "/reels", label: "Reels", icon: icons.video },
+  { key: "reels", path: "/video", label: "Reels", icon: icons.video },
   { key: "friends", path: "/friends", label: "Friends", icon: icons.friends },
   { key: "notifications", path: "/notifications", label: "Notifications", icon: icons.bell },
 ];

@@ -24,7 +24,7 @@ export default function BurgerMenu({ isOpen, onClose, onItemClick, toggleTheme }
     );
   }, [user]);
 
-   const handleItemClick = async (id) => {
+  const handleItemClick = async (id) => {
     if (id === "logout") {
       try {
         await logout();
@@ -32,11 +32,19 @@ export default function BurgerMenu({ isOpen, onClose, onItemClick, toggleTheme }
       } catch (error) {
         console.error("Logout error:", error);
       }
-    } 
-     if (id === "dark") {
-      toggleTheme(); 
-    } 
-    else {
+      onClose();
+      return;
+    }
+
+    if (id === "edit") {
+      navigate("/users/profile/edit");
+      onClose();
+      return;
+    }
+
+    if (id === "dark") {
+      toggleTheme();
+    } else {
       onItemClick?.(id);
     }
     onClose();
