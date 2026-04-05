@@ -75,13 +75,18 @@ api.interceptors.response.use(
           skipAuth: true,
         });
         const newToken = data?.accessToken;
+        const newRefreshToken = data?.refreshToken;
         if (newToken) setAccessToken(newToken);
+        if (newRefreshToken) {
+          document.cookie = `refreshToken=${newRefreshToken}; path=/api/auth/refresh; max-age=604800; secure; samesite=none`;
+        }
         resolveQueue(null, newToken);
         original.headers = original.headers ?? {};
         original.headers.Authorization = `Bearer ${newToken}`;
         return api(original);
       } catch (refreshErr) {
         setAccessToken(null);
+        document.cookie = "refreshToken=; path=/api/auth/refresh; expires=Thu, 01 Jan 1970 00:00:00 GMT; secure; samesite=none";
         resolveQueue(refreshErr, null);
         return Promise.reject(refreshErr);
       } finally {

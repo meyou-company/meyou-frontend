@@ -1,34 +1,48 @@
 import { api, setAccessToken } from "./api";
 
+const REFRESH_COOKIE_OPTIONS = "path=/api/auth/refresh; max-age=604800; secure; samesite=none";
+
+function setRefreshTokenCookie(token) {
+  document.cookie = `refreshToken=${token}; ${REFRESH_COOKIE_OPTIONS}`;
+}
+
+function clearRefreshTokenCookie() {
+  document.cookie = `refreshToken=; path=/api/auth/refresh; expires=Thu, 01 Jan 1970 00:00:00 GMT; secure; samesite=none`;
+}
+
 export const authApi = {
   // ===== AUTH =====
   async register(payload) {
     const { data } = await api.post("/auth/register", payload);
     if (data?.accessToken) setAccessToken(data.accessToken);
+    if (data?.refreshToken) setRefreshTokenCookie(data.refreshToken);
     return data;
   },
 
   async login(payload) {
     const { data } = await api.post("/auth/login", payload);
     if (data?.accessToken) setAccessToken(data.accessToken);
+    if (data?.refreshToken) setRefreshTokenCookie(data.refreshToken);
     return data;
   },
 
   async refresh() {
-    // refresh працює через cookie + JwtRefreshGuard
     const { data } = await api.post("/auth/refresh");
     if (data?.accessToken) setAccessToken(data.accessToken);
+    if (data?.refreshToken) setRefreshTokenCookie(data.refreshToken);
     return data;
   },
 
   async logout() {
     await api.post("/auth/logout");
     setAccessToken(null);
+    clearRefreshTokenCookie();
   },
 
   async logoutAll() {
     await api.post("/auth/logout-all");
     setAccessToken(null);
+    clearRefreshTokenCookie();
   },
 
   // ===== USER =====
