@@ -26,13 +26,10 @@ export default function ProfileGuard({ children }) {
     // ✅ якщо ще завантажується — не редіректимо
     if (isAuthLoading) return;
 
-    console.log("[ProfileGuard] isAuthLoading=false, isAuthed=", isAuthed, "user=", user);
-
     const isPublicPage = publicPaths.includes(pathname);
 
     // ✅ якщо не залогінений і це не public сторінка → редірект на логін
     if ((!isAuthed || !user) && !isPublicPage) {
-      console.log("[ProfileGuard] Redirect to login: !isAuthed=", !isAuthed, "!user=", !user);
       navigate("/auth/login", { replace: true });
       return;
     }
