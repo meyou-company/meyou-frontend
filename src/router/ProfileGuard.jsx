@@ -23,6 +23,9 @@ export default function ProfileGuard({ children }) {
       "/users/profile/complete", // дозволяємо доступ
     ];
 
+    // ✅ якщо ще завантажується — не редіректимо
+    if (isAuthLoading) return;
+
     const isPublicPage = publicPaths.includes(pathname);
 
     // ✅ якщо не залогінений і це не public сторінка → редірект на логін
