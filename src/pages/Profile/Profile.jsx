@@ -84,7 +84,7 @@ export default function Profile() {
 
   useEffect(() => {
     if (!urlUsername) {
-      if (!user && !isAuthLoading) refreshMe?.().catch(() => {});
+      // Не вызываем refreshMe здесь — init() в App.jsx уже делает это
       return;
     }
     if (!urlUsernameNorm) {
@@ -153,11 +153,12 @@ export default function Profile() {
     return () => { cancelled = true; };
   }, [urlUsernameNorm, fetchedUser]);
 
-  useEffect(() => {
-    if (!urlUsername && !isAuthLoading && !user) {
-      navigate("/auth/login", { replace: true });
-    }
-  }, [urlUsername, isAuthLoading, user, navigate]);
+  // Редирект делает ProfileGuard в AppRouter, здесь не нужен
+  // useEffect(() => {
+  //   if (!urlUsername && !isAuthLoading && !user) {
+  //     navigate("/auth/login", { replace: true });
+  //   }
+  // }, [urlUsername, isAuthLoading, user, navigate]);
 
   const profileUser = useMemo(() => {
     if (urlUsername && fetchedUser) return normalizeProfile(fetchedUser);

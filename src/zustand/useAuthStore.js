@@ -26,14 +26,18 @@ export const useAuthStore = create((set) => ({
         return;
       } catch (e) {
         const status = e?.response?.status;
+        console.log("[init] me() failed:", status, e?.message);
         if (status !== 401) throw e;
       }
 
       // якщо me() 401 → пробуємо refresh → me()
+      console.log("[init] Trying refresh...");
       await authApi.refresh();
+      console.log("[init] refresh() success");
       const user = await authApi.me();
       set({ user, isAuthed: true });
-    } catch {
+    } catch (err) {
+      console.log("[init] refresh failed, logging out:", err?.response?.status, err?.message);
       set({ user: null, isAuthed: false });
     } finally {
       set({ isAuthLoading: false });
