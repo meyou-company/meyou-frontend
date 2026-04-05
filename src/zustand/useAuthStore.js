@@ -4,7 +4,7 @@ import { passwordApi } from "../services/passwordApi";
 
 export const useAuthStore = create((set) => ({
   user: null,
-  isAuthLoading: false,
+  isAuthLoading: true, // По умолчанию true - ждём завершения init()
   isAuthed: false,
 
   // ✅ допоміжне: локально оновити user частково (без запитів)
