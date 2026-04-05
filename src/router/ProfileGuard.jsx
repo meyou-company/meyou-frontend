@@ -25,8 +25,13 @@ export default function ProfileGuard({ children }) {
 
     const isPublicPage = publicPaths.includes(pathname);
 
-    // ✅ якщо не залогінений — не редіректимо (або можеш редіректити на /auth/login)
-    if (!isAuthed || !user) return;
+    // ✅ якщо не залогінений і це не public сторінка → редірект на логін
+    if ((!isAuthed || !user) && !isPublicPage) {
+      navigate("/auth/login", { replace: true });
+      return;
+    }
+
+    // ✅ якщо не залогінений на public — не чіпаємо
 
     // ✅ факт email-верифікації
     const isVerified =
