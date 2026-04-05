@@ -4,23 +4,14 @@ const API_URL = import.meta.env.VITE_API_URL;
 
 export const api = axios.create({
   baseURL: API_URL,
-  withCredentials: true, 
+  withCredentials: true,
 });
 
-let accessToken = localStorage.getItem("accessToken");
+// Access token берется из cookie автоматически бэкендом
+// Фронтенд не хранит токены в localStorage
 
-export const setAccessToken = (token) => {
-  accessToken = token;
-  if (token) localStorage.setItem("accessToken", token);
-  else localStorage.removeItem("accessToken");
-};
-
-// ✅ додаємо Authorization тільки якщо НЕ skipAuth
 api.interceptors.request.use((config) => {
-  if (!config.skipAuth && accessToken) {
-    config.headers = config.headers ?? {};
-    config.headers.Authorization = `Bearer ${accessToken}`;
-  }
+  // Куки отправляются автоматически через withCredentials
   return config;
 });
 
@@ -42,9 +33,7 @@ api.interceptors.response.use(
   async (err) => {
     const original = err.config;
 
-    // ✅ не retry refresh — якщо це refresh request або skipAuth
     if (original?.skipAuth || isRefreshEndpoint(original)) {
-      if (isRefreshEndpoint(original)) setAccessToken(null);
       return Promise.reject(err);
     }
 
@@ -55,13 +44,7 @@ api.interceptors.response.use(
         return new Promise((resolve, reject) => {
           queue.push({
             resolve: (token) => {
-              if (token) {
-                original.headers = original.headers ?? {};
-                original.headers.Authorization = `Bearer ${token}`;
-                resolve(api(original));
-              } else {
-                reject(new Error("Session expired"));
-              }
+              resolve(api(original));
             },
             reject,
           });
@@ -71,22 +54,10 @@ api.interceptors.response.use(
       isRefreshing = true;
 
       try {
-        const { data } = await api.post("/auth/refresh", null, {
-          skipAuth: true,
-        });
-        const newToken = data?.accessToken;
-        const newRefreshToken = data?.refreshToken;
-        if (newToken) setAccessToken(newToken);
-        if (newRefreshToken) {
-          document.cookie = `refreshToken=${newRefreshToken}; path=/api/auth/refresh; max-age=604800; secure; samesite=none`;
-        }
-        resolveQueue(null, newToken);
-        original.headers = original.headers ?? {};
-        original.headers.Authorization = `Bearer ${newToken}`;
+        await api.post("/auth/refresh", null, { skipAuth: true });
+        resolveQueue(null, true);
         return api(original);
       } catch (refreshErr) {
-        setAccessToken(null);
-        document.cookie = "refreshToken=; path=/api/auth/refresh; expires=Thu, 01 Jan 1970 00:00:00 GMT; secure; samesite=none";
         resolveQueue(refreshErr, null);
         return Promise.reject(refreshErr);
       } finally {
@@ -97,3 +68,6 @@ api.interceptors.response.use(
     return Promise.reject(err);
   }
 );
+
+// Legacy compatibility - ничего не делает, токены в куках
+export const setAccessToken = () => {};
