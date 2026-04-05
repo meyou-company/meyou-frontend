@@ -31,7 +31,8 @@ export default function ProfileGuard({ children }) {
       return;
     }
 
-    // ✅ якщо не залогінений на public — не чіпаємо
+    // ✅ якщо не залогінений на public — не чіпаємо (але виходимо, бо user=null)
+    if (!user) return;
 
     // ✅ факт email-верифікації
     const isVerified =
