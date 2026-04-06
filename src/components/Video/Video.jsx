@@ -77,13 +77,22 @@ const videos = [
   },
 ];
 
+const navItems = [
+  { label: "Главная", icon: "home" },
+  { label: "Люди", icon: "people" },
+  { label: "Видео", icon: "video" },
+  { label: "Сообщения", icon: "messages" },
+  { label: "Профиль", icon: "profile" },
+];
+
 const Video = () => {
    const [showAll, setShowAll] = useState(false);
+  
 
   return (
     <div className="video">
       {/* DESKTOP NAVBAR */}
-      <div className="video__desktopHeader">
+      {/* <div className="video__desktopHeader">
         <div className="video__navItem">
           <img src={profileIcons.home} alt="" />
           <span>Главная</span>
@@ -95,7 +104,10 @@ const Video = () => {
         </div>
 
         <div className="video__navItem active">
-          <img src={profileIcons.videoNav} alt="" />
+          <img
+  src={isActive ? profileIcons.video : profileIcons.liveBlack}
+  alt=""
+/>
           <span>Видео</span>
         </div>
 
@@ -108,7 +120,33 @@ const Video = () => {
           <img src={profileIcons.profile} alt="" />
           <span>Профиль</span>
         </div>
+      </div> */}
+
+      <div className="video__desktopHeader">
+  {navItems.map((item) => {
+     const currentPage = "video";
+const isActive = item.icon === currentPage;
+
+    return (
+      <div
+        key={item.label}
+        className={`video__navItem ${isActive ? "active" : ""}`}
+      >
+        <img
+          src={
+            isActive
+              ? profileIcons[`${item.icon}Active`]
+              : profileIcons[item.icon]
+          }
+          alt={item.label}
+        />
+        <span>{item.label}</span>
       </div>
+    );
+  })}
+</div>
+
+
       {/* HEADER */}
       <div className="video__header">
         <h1 className="video__title"> Видео 
