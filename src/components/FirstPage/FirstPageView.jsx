@@ -61,7 +61,7 @@ export default function FirstPageView({
       <div className="relative z-10 flex flex-col flex-1 w-full min-w-0">
         {/* HEADER */}
         <header className="w-full min-w-0 max-w-full overflow-x-clip border-gray-900">
-            <div className="grid w-full min-w-0 grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-x-2 md:gap-x-3 xl:gap-x-4 px-[10px] md:px-[41px] lg:px-9 min-[1440px]:px-[66px] pb-5 md:pb-5 xl:pb-8 xl:pt-[10px]">
+            <div className="grid w-full min-w-0 grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-x-2 md:gap-x-3 xl:gap-x-4 px-[10px] md:px-[41px] lg:px-9 min-[1440px]:px-[66px] pb-2 md:pb-5 xl:pb-4">
             {/* LEFT */}
             <div className="flex min-w-0 items-center justify-start gap-2 md:gap-3 xl:gap-4">
               <button

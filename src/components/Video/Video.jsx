@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import "./Video.scss";
 import profileIcons from "../../constants/profileIcons";
 
@@ -77,67 +77,59 @@ const videos = [
   },
 ];
 
-const navItems = [
-  { label: "Главная", icon: "home" },
-  { label: "Люди", icon: "people" },
-  { label: "Видео", icon: "video" },
-  { label: "Сообщения", icon: "messages" },
-  { label: "Профиль", icon: "profile" },
+const currentPage = "video";
+
+const Video = ({
+  onGoHome,
+  onGoPeople,
+  onGoVideo,
+  onGoMessages,
+  onGoProfile,
+}) => {
+   const [showAll, setShowAll] = useState(false);
+   const [isSearchOpen, setIsSearchOpen] = useState(false);
+
+   const [isDesktop, setIsDesktop] = useState(window.innerWidth >= 1440);
+
+useEffect(() => {
+  const handleResize = () => {
+    setIsDesktop(window.innerWidth >= 1440);
+  };
+
+  window.addEventListener("resize", handleResize);
+  return () => window.removeEventListener("resize", handleResize);
+}, []);
+
+   const navItems = [
+  { label: "Главная", icon: "homeGreyVideo", onClick: onGoHome },
+  { label: "Люди", icon: "peopleGreyVideo", onClick: onGoPeople },
+  { label: "Видео", icon: "video", onClick: onGoVideo },
+  { label: "Сообщения", icon: "chatGreyVideo", onClick: onGoMessages },
+  { label: "Профиль", icon: "profileGreyVideo", onClick: onGoProfile },
 ];
 
-const Video = () => {
-   const [showAll, setShowAll] = useState(false);
-  
 
   return (
     <div className="video">
+
       {/* DESKTOP NAVBAR */}
-      {/* <div className="video__desktopHeader">
-        <div className="video__navItem">
-          <img src={profileIcons.home} alt="" />
-          <span>Главная</span>
-       </div>
-      
-        <div className="video__navItem">
-          <img src={profileIcons.people} alt="" />
-          <span>Люди</span>
-        </div>
-
-        <div className="video__navItem active">
-          <img
-  src={isActive ? profileIcons.video : profileIcons.liveBlack}
-  alt=""
-/>
-          <span>Видео</span>
-        </div>
-
-        <div className="video__navItem">
-          <img src={profileIcons.messages} alt="" />
-          <span>Сообщения</span>
-        </div>
-
-        <div className="video__navItem">
-          <img src={profileIcons.profile} alt="" />
-          <span>Профиль</span>
-        </div>
-      </div> */}
-
       <div className="video__desktopHeader">
-  {navItems.map((item) => {
-     const currentPage = "video";
-const isActive = item.icon === currentPage;
+    {navItems.map((item) => {
+    const isActive = item.icon === currentPage;
 
     return (
       <div
         key={item.label}
+        onClick={item.onClick}
         className={`video__navItem ${isActive ? "active" : ""}`}
       >
         <img
           src={
             isActive
-              ? profileIcons[`${item.icon}Active`]
+              ? profileIcons[item.icon + "Active"] || profileIcons[item.icon]
               : profileIcons[item.icon]
           }
+          className="video__navigationIcon"
           alt={item.label}
         />
         <span>{item.label}</span>
@@ -145,7 +137,6 @@ const isActive = item.icon === currentPage;
     );
   })}
 </div>
-
 
       {/* HEADER */}
       <div className="video__header">
@@ -173,15 +164,51 @@ const isActive = item.icon === currentPage;
 
         <div className="video__search">
           <input className="video__searchInput" placeholder="Поиск видео" />
-          <button className="video__searchBtn">
+          {/* <button  className={`video__searchBtn ${isSearchOpen ? "hidden" : ""}`} onClick={() => setIsSearchOpen(true)}> */}
+          <button
+  className={`video__searchBtn ${
+    isSearchOpen && !isDesktop ? "hidden" : ""
+  }`}
+  onClick={() => setIsSearchOpen(true)}
+>
+
             <img
            className="video__searchIcon"
            src={profileIcons.searchVideo}
-           alt="Поиск видео иконка"
+           alt="Поиск видео иконка" 
          />
           </button>
         </div>
       </div>
+
+      {isSearchOpen && (
+  <div className="video__searchOverlay">
+    <div className="video__searchBox">
+      <img
+        className="video__searchIconLeft"
+        src={profileIcons.searchVideoPink}
+        alt=""
+      />
+
+      <input
+        className="video__searchInputMobile"
+        placeholder="Я ищу..."
+        autoFocus
+      />
+
+      <button
+        className="video__searchClose"
+        onClick={() => setIsSearchOpen(false)}
+      >
+        <img
+        className="video__searchCloseIcon"
+        src={profileIcons.close}
+        alt=""
+      />
+      </button>
+    </div>
+  </div>
+)}
 
       {/* SECTION */}
       <div className="video__section">
@@ -194,6 +221,13 @@ const isActive = item.icon === currentPage;
         alt="Стрелочка вправо иконка"
       />
           </button>
+
+            <button
+      className={`video__searchMobileBtn ${isSearchOpen ? "hidden" : ""}`} 
+      onClick={() => setIsSearchOpen(true)}
+    >
+      <img src={profileIcons.searchVideoPink} alt="search" />
+    </button>
         </div>
 
         <div className="video__grid">

@@ -25,16 +25,40 @@ export default function BurgerMenu({ isOpen, onClose, onItemClick, toggleTheme }
   }, [user]);
 
   const handleItemClick = async (id) => {
+
     if (id === "logout") {
-      try {
-        await logout();
-        navigate("/auth/login", { replace: true });
-      } catch (error) {
-        console.error("Logout error:", error);
-      }
-      onClose();
-      return;
-    }
+   try {
+    await logout();
+
+    localStorage.clear();
+    sessionStorage.clear();
+
+    document.cookie.split(";").forEach((cookie) => {
+       document.cookie = cookie
+         .replace(/^ +/, "")
+         .replace(/=.*/, "=;expires=" + new Date(0).toUTCString() + ";path=/");
+     });
+ 
+     navigate("/auth/login", { replace: true });
+   } catch (error) {
+     console.error("Logout error:", error);
+   }
+ 
+   onClose();
+   return;
+ }
+
+    if (id === "profile") {
+    navigate("/profile");
+    onClose();
+    return;
+  }
+
+    if (id === "security") {
+    navigate("/auth/forgot-password");
+    onClose();
+    return;
+  }
 
     if (id === "edit") {
       navigate("/users/profile/edit");
