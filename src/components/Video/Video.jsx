@@ -82,6 +82,33 @@ const Video = () => {
 
   return (
     <div className="video">
+      {/* DESKTOP NAVBAR */}
+      <div className="video__desktopHeader">
+        <div className="video__navItem">
+          <img src={profileIcons.home} alt="" />
+          <span>Главная</span>
+       </div>
+      
+        <div className="video__navItem">
+          <img src={profileIcons.people} alt="" />
+          <span>Люди</span>
+        </div>
+
+        <div className="video__navItem active">
+          <img src={profileIcons.videoNav} alt="" />
+          <span>Видео</span>
+        </div>
+
+        <div className="video__navItem">
+          <img src={profileIcons.messages} alt="" />
+          <span>Сообщения</span>
+        </div>
+
+        <div className="video__navItem">
+          <img src={profileIcons.profile} alt="" />
+          <span>Профиль</span>
+        </div>
+      </div>
       {/* HEADER */}
       <div className="video__header">
         <h1 className="video__title"> Видео 
