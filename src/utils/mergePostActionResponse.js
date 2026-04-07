@@ -9,6 +9,18 @@ function mergeMappedFullPost(prev, raw) {
   const payload = unwrapPayload(raw);
   if (!payload || typeof payload !== "object") return null;
   if (!payload.id) return null;
+  // Guard: do not treat plain comment payload as a full post.
+  const looksLikePost =
+    payload.fullText != null ||
+    payload.shortText != null ||
+    payload.location != null ||
+    payload.author != null ||
+    payload.viewerState != null ||
+    payload.permissions != null ||
+    payload.counts != null ||
+    Array.isArray(payload.media) ||
+    payload.imageUrl != null;
+  if (!looksLikePost) return null;
   const mapped = mapApiPostToFeedItem(payload);
   if (!mapped) return null;
   const prevComments = Array.isArray(prev.comments) ? prev.comments : [];

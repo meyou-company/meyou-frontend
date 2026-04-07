@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import ThemeToggleDark from "../ThemeToggleDark/ThemeToggleDark";
 import profileIcons from "../../constants/profileIcons";
@@ -8,6 +8,20 @@ import { postsApi } from "../../services/postsApi";
 import { mapApiPostToFeedItem } from "../../utils/mapApiPostToFeedItem";
 import { usePostFeedActions } from "../../hooks/usePostFeedActions";
 import PostCommentsSection from "../PostFeed/PostCommentsSection";
+import { getApiErrorMessage } from "../../utils/getApiErrorMessage";
+import { applyPersistedLikes } from "../../utils/postLikePersistence";
+
+const getReadableFeedError = (error) => {
+  const text = getApiErrorMessage(error);
+  if (!text) return "Не вдалося завантажити стрічку";
+  if (text === "Request failed with status code 500") {
+    return "Тимчасова помилка сервера при завантаженні стрічки";
+  }
+  return text;
+};
+const PAGE_SIZE = 10;
+const byNewestPost = (a, b) =>
+  new Date(b?.createdAt || 0).getTime() - new Date(a?.createdAt || 0).getTime();
 
 export default function FirstPageView({
   onGoProfile,
@@ -31,32 +45,110 @@ export default function FirstPageView({
   const [feedPosts, setFeedPosts] = useState([]);
   const [feedLoading, setFeedLoading] = useState(true);
   const [feedError, setFeedError] = useState(null);
+  const [feedPage, setFeedPage] = useState(1);
+  const [hasMoreFeed, setHasMoreFeed] = useState(true);
+  const [feedLoadingMore, setFeedLoadingMore] = useState(false);
+  const loadMoreRef = useRef(null);
+  const FEED_CACHE_KEY = "first-page-feed-cache";
   const feedActions = usePostFeedActions(setFeedPosts);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try {
+      const raw = window.localStorage.getItem(FEED_CACHE_KEY);
+      if (!raw) return;
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        setFeedPosts(parsed);
+      }
+    } catch {
+      // ignore broken cache
+    }
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try {
+      window.localStorage.setItem(FEED_CACHE_KEY, JSON.stringify(feedPosts));
+    } catch {
+      // ignore storage errors
+    }
+  }, [feedPosts]);
+
+  const fetchFeedPage = useCallback(async (page, { append } = { append: false }) => {
+    try {
+      if (append) setFeedLoadingMore(true);
+      else {
+        setFeedLoading(true);
+        setFeedError(null);
+      }
+
+      const list = await postsApi.list({ page, limit: PAGE_SIZE });
+      const mapped = (Array.isArray(list) ? list : [])
+        .map(mapApiPostToFeedItem)
+        .filter(Boolean);
+      const withPersistedLikes = applyPersistedLikes(mapped);
+
+      setFeedPosts((prev) => {
+        if (!append) return [...withPersistedLikes].sort(byNewestPost);
+        const merged = [...prev, ...withPersistedLikes];
+        const seen = new Set();
+        return merged
+          .filter((p) => {
+          const id = String(p?.id ?? "");
+          if (!id || seen.has(id)) return false;
+          seen.add(id);
+          return true;
+          })
+          .sort(byNewestPost);
+      });
+      setFeedPage(page);
+      setHasMoreFeed(mapped.length === PAGE_SIZE);
+    } catch (e) {
+      setFeedError(getReadableFeedError(e));
+      // Keep already loaded posts (or cache) on error to avoid blanking the feed.
+      setHasMoreFeed(false);
+    } finally {
+      if (append) setFeedLoadingMore(false);
+      else setFeedLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
     (async () => {
       try {
-        setFeedLoading(true);
-        setFeedError(null);
-        const list = await postsApi.list();
-        const mapped = (Array.isArray(list) ? list : [])
-          .map(mapApiPostToFeedItem)
-          .filter(Boolean);
-        if (!cancelled) setFeedPosts(mapped);
-      } catch (e) {
         if (!cancelled) {
-          setFeedPosts([]);
-          setFeedError(e?.message || "Не вдалося завантажити стрічку");
+          await fetchFeedPage(1, { append: false });
         }
-      } finally {
-        if (!cancelled) setFeedLoading(false);
+      } catch {
+        if (!cancelled) {
+          // handled inside fetchFeedPage
+        }
       }
     })();
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [fetchFeedPage]);
+
+  useEffect(() => {
+    if (!hasMoreFeed || feedLoading || feedLoadingMore) return;
+    const node = loadMoreRef.current;
+    if (!node) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const first = entries[0];
+        if (first?.isIntersecting) {
+          fetchFeedPage(feedPage + 1, { append: true });
+        }
+      },
+      { rootMargin: "300px 0px" }
+    );
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [hasMoreFeed, feedLoading, feedLoadingMore, feedPage, fetchFeedPage]);
 
   return (
     <div className="first-page-view relative -mx-4 flex min-h-screen w-[calc(100%+2rem)] max-w-[100vw] flex-col overflow-x-hidden pb-10 md:pb-0">
@@ -170,12 +262,7 @@ export default function FirstPageView({
                 Завантаження стрічки…
               </p>
             )}
-            {feedError && !feedLoading && (
-              <p className="text-center text-sm md:text-base font-[Montserrat] text-red-600 py-6">
-                {feedError}
-              </p>
-            )}
-            {!feedLoading && !feedError && feedPosts.length === 0 && (
+            {!feedLoading && feedPosts.length === 0 && (
               <p className="text-center text-sm md:text-base font-[Montserrat] text-gray-600 py-6">
                 Поки що немає постів
               </p>
@@ -189,6 +276,12 @@ export default function FirstPageView({
                   onOpenProfile={goProfileByUsername}
                 />
               ))}
+            {!feedLoading && feedLoadingMore && (
+              <p className="text-center text-sm md:text-base font-[Montserrat] text-gray-600 py-4">
+                Завантаження ще постів…
+              </p>
+            )}
+            {!feedLoading && hasMoreFeed && <div ref={loadMoreRef} className="h-2 w-full" aria-hidden="true" />}
           </div>
         </main>
 
@@ -344,14 +437,28 @@ const handleOpenProfile = () => {
         {post.text}
       </p>
 
-      {post.imageUrl ? (
-        <div className="!mt-[19px] md:!mt-[10px] overflow-hidden rounded-sm">
-          <img
-            src={post.imageUrl}
-            alt=""
-            className="w-full max-h-80 object-cover bg-black/5"
-          />
-        </div>
+      {Array.isArray(post.media) && post.media.length > 0 ? (
+        post.media.map((mediaItem) => (
+          <div
+            className="!mt-[19px] md:!mt-[10px] overflow-hidden rounded-sm"
+            key={`${post.id}-${mediaItem.order}-${mediaItem.url}`}
+          >
+            {mediaItem.type === "VIDEO" ? (
+              <video
+                src={mediaItem.url}
+                className="w-full max-h-80 object-cover bg-black/5"
+                controls
+                preload="metadata"
+              />
+            ) : (
+              <img
+                src={mediaItem.url}
+                alt=""
+                className="w-full max-h-80 object-cover bg-black/5"
+              />
+            )}
+          </div>
+        ))
       ) : (
         <div className="!mt-[19px] md:!mt-[10px] h-80 bg-black/5" />
       )}
@@ -362,6 +469,7 @@ const handleOpenProfile = () => {
             icon={profileIcons.like}
             label={String(post.counts.likes)}
             active={post.viewerState.isLiked}
+            liked={post.viewerState.isLiked}
             onClick={() => feedActions.onLike(post)}
           />
           <ActionIcon
@@ -463,14 +571,18 @@ export const FeedCard = ({ name, time, location, status, text }) => {
   );
 };
 
-function ActionIcon({ icon, label, active, onClick }) {
+function ActionIcon({ icon, label, active, liked, onClick }) {
   const className = `flex flex-col items-center text-[10px] md:text-xs font-[Montserrat] text-black ${
     onClick ? "cursor-pointer" : "cursor-default opacity-95"
   } ${active ? "opacity-100" : "opacity-90"}`;
   const inner = (
     <>
-      <img src={icon} alt="" className="h-6 md:h-9 xl:h-11 pointer-events-none" />
-      <span className="text-black text-[8px] md:text-xs xl:text-xl font-normal xl:font-bold font-['Montserrat']">
+      <img
+        src={icon}
+        alt=""
+        className={`h-6 md:h-9 xl:h-11 pointer-events-none ${active ? "opacity-100" : "opacity-80"} ${liked ? "brightness-0 saturate-100 [filter:brightness(0)_saturate(100%)_invert(55%)_sepia(42%)_saturate(2211%)_hue-rotate(299deg)_brightness(103%)_contrast(97%)]" : ""}`}
+      />
+      <span className={`text-[8px] md:text-xs xl:text-xl font-normal xl:font-bold font-['Montserrat'] ${active ? "text-pink-500" : "text-black"}`}>
         {label}
       </span>
     </>

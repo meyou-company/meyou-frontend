@@ -3,6 +3,7 @@ import { toast } from "sonner";
 import { useAuthStore } from "../../../zustand/useAuthStore";
 import { useForceDarkTheme } from "../../../hooks/useForceDarkTheme";
 import { validateRegister, isEmptyErrors, PASSWORD_HINT } from "../../../utils/validationRegister";
+import { getApiErrorMessage } from "../../../utils/getApiErrorMessage";
 import "./RegisterForm.scss";
 
 export default function RegisterForm({ onBack, onGoLogin, onSuccess }) {
@@ -95,11 +96,7 @@ const onSubmit = async (e) => {
     const res = await register(payload);
 
     if (!res?.ok) {
-      const msg =
-        res?.error?.response?.data?.message?.[0] ||
-        res?.error?.response?.data?.message ||
-        res?.error?.message ||
-        "Помилка реєстрації";
+      const msg = getApiErrorMessage(res?.error) || "Помилка реєстрації";
       toast.error(msg);
       setSubmitError(msg);
       return;
@@ -108,11 +105,7 @@ const onSubmit = async (e) => {
     toast.success("Реєстрація успішна. Перевірте email для підтвердження.");
     onSuccess?.();
   } catch (err) {
-    const msg =
-      err?.response?.data?.message?.[0] ||
-      err?.response?.data?.message ||
-      err?.message ||
-      "Помилка реєстрації";
+    const msg = getApiErrorMessage(err) || "Помилка реєстрації";
     toast.error(msg);
     setSubmitError(msg || "Щось пішло не так");
   } finally {

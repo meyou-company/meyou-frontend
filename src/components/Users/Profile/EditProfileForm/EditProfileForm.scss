@@ -840,6 +840,33 @@ body.night .birthDate-picker .react-datepicker__year-read-view,
   color: var(--select-text);
 }
 
+/* Chrome/Safari: нативні select (місяць/рік) у datepicker теж робимо темними */
+body.dark .birthDate-picker .react-datepicker__month-select,
+body.dark .birthDate-picker .react-datepicker__year-select,
+body.night .birthDate-picker .react-datepicker__month-select,
+body.night .birthDate-picker .react-datepicker__year-select,
+[data-theme='dark'] .birthDate-picker .react-datepicker__month-select,
+[data-theme='dark'] .birthDate-picker .react-datepicker__year-select,
+[data-theme='night'] .birthDate-picker .react-datepicker__month-select,
+[data-theme='night'] .birthDate-picker .react-datepicker__year-select {
+  background: #111216 !important;
+  color: #f4f6ff !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  border-radius: 8px;
+}
+
+body.dark .birthDate-picker .react-datepicker__month-select option,
+body.dark .birthDate-picker .react-datepicker__year-select option,
+body.night .birthDate-picker .react-datepicker__month-select option,
+body.night .birthDate-picker .react-datepicker__year-select option,
+[data-theme='dark'] .birthDate-picker .react-datepicker__month-select option,
+[data-theme='dark'] .birthDate-picker .react-datepicker__year-select option,
+[data-theme='night'] .birthDate-picker .react-datepicker__month-select option,
+[data-theme='night'] .birthDate-picker .react-datepicker__year-select option {
+  background: #111216;
+  color: #f4f6ff;
+}
+
 /* Стрілки навігації календаря (місяць/рік) — темна тема */
 body.dark .birthDate-picker .react-datepicker__navigation-icon::before,
 body.night .birthDate-picker .react-datepicker__navigation-icon::before,
@@ -1153,6 +1180,37 @@ html[data-theme='dark'] .rs__menu {
 body.dark .rs__option,
 html[data-theme='dark'] .rs__option {
   color: rgba(255, 255, 255, 0.95) !important;
+}
+
+/* Dark theme: selected tags (interests/hobbies) keep dark background */
+body.dark .rs__multi-value,
+body.night .rs__multi-value,
+html[data-theme='dark'] .rs__multi-value,
+html[data-theme='night'] .rs__multi-value {
+  background: #12131a !important;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+}
+
+body.dark .rs__multi-value__label,
+body.night .rs__multi-value__label,
+html[data-theme='dark'] .rs__multi-value__label,
+html[data-theme='night'] .rs__multi-value__label {
+  color: rgba(245, 247, 255, 0.95) !important;
+}
+
+body.dark .rs__multi-value__remove,
+body.night .rs__multi-value__remove,
+html[data-theme='dark'] .rs__multi-value__remove,
+html[data-theme='night'] .rs__multi-value__remove {
+  color: rgba(255, 255, 255, 0.85) !important;
+}
+
+body.dark .rs__multi-value__remove:hover,
+body.night .rs__multi-value__remove:hover,
+html[data-theme='dark'] .rs__multi-value__remove:hover,
+html[data-theme='night'] .rs__multi-value__remove:hover {
+  background: rgba(255, 79, 177, 0.25) !important;
+  color: #fff !important;
 }
 
 .more-badge {

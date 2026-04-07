@@ -2,6 +2,7 @@ import { useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import { useAuthStore } from "../../../zustand/useAuthStore";
 import { useForceDarkTheme } from "../../../hooks/useForceDarkTheme";
+import { getApiErrorMessage } from "../../../utils/getApiErrorMessage";
 import "../VerifyResetCodeForm/VerifyResetCodeForm.scss";
 
 const CODE_LEN = 4;
@@ -97,11 +98,7 @@ const res = await verifyResetCode({ email, code: codeValue });
 
    
       if (!res?.ok) {
-        const msg =
-          res?.error?.response?.data?.message?.[0] ||
-          res?.error?.response?.data?.message ||
-          res?.error?.message ||
-          "Ошибка верификации";
+        const msg = getApiErrorMessage(res?.error) || "Ошибка верификации";
         toast.error(msg);
         setSubmitError(msg);
         return;
@@ -110,11 +107,7 @@ const res = await verifyResetCode({ email, code: codeValue });
       toast.success("Код підтверджено");
       onSuccess?.(codeValue);
     } catch (err) {
-      const msg =
-        err?.response?.data?.message?.[0] ||
-        err?.response?.data?.message ||
-        err?.message ||
-        "Ошибка верификации";
+      const msg = getApiErrorMessage(err) || "Ошибка верификации";
       toast.error(msg);
       setSubmitError(msg);
     } finally {
@@ -138,22 +131,14 @@ const res = await verifyResetCode({ email, code: codeValue });
       const res = await forgotPassword(email); // ✅ повторна відправка коду
 
       if (res && !res?.ok) {
-        const msg =
-          res?.error?.response?.data?.message?.[0] ||
-          res?.error?.response?.data?.message ||
-          res?.error?.message ||
-          "Ошибка отправки кода";
+        const msg = getApiErrorMessage(res?.error) || "Ошибка отправки кода";
         toast.error(msg);
         setSubmitError(msg);
       } else if (res?.ok) {
         toast.success("Код відправлено повторно");
       }
     } catch (e) {
-      const msg =
-        e?.response?.data?.message?.[0] ||
-        e?.response?.data?.message ||
-        e?.message ||
-        "Ошибка отправки кода";
+      const msg = getApiErrorMessage(e) || "Ошибка отправки кода";
       toast.error(msg);
       setSubmitError(msg);
     } finally {

@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { useAuthStore } from "../../../zustand/useAuthStore";
 import { useForceDarkTheme } from "../../../hooks/useForceDarkTheme";
+import { getApiErrorMessage } from "../../../utils/getApiErrorMessage";
 import "./LoginForm.scss";
 
 export default function LoginForm({ onBack, onForgot, onSuccess }) {
@@ -55,20 +56,12 @@ export default function LoginForm({ onBack, onForgot, onSuccess }) {
         toast.success("Успішний вхід");
         onSuccess?.();
       } else {
-        const msg =
-          res?.error?.response?.data?.message?.[0] ||
-          res?.error?.response?.data?.message ||
-          res?.error?.message ||
-          "Помилка входу";
+        const msg = getApiErrorMessage(res?.error) || "Помилка входу";
         toast.error(msg);
         setSubmitError(msg);
       }
     } catch (err) {
-      const msg =
-        err?.response?.data?.message?.[0] ||
-        err?.response?.data?.message ||
-        err?.message ||
-        "Помилка входу";
+      const msg = getApiErrorMessage(err) || "Помилка входу";
       toast.error(msg);
       setSubmitError(msg || "Щось пішло не так");
     } finally {

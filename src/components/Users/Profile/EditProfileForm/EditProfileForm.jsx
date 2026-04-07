@@ -22,6 +22,7 @@ import { maritalStatusOptions } from '../../../../utils/profileOptions';
 import { validateCompleteProfile } from '../../../../utils/validationCompleteProfile';
 import { normalizePhone } from '../../../../utils/normalizePhone';
 import { cropImageToFile } from '../../../../utils/cropImageToFile';
+import { getApiErrorMessage } from '../../../../utils/getApiErrorMessage';
 
 import { interestOptions } from '../../../../constants/interests';
 import { profileHobbyOptions } from '../../../../constants/hobbies';
@@ -283,11 +284,7 @@ export default function EditProfileForm({ onBack, onSave }) {
       await onSave?.(payload);
     } catch (err) {
       console.log('ERR RAW', err);
-      const msg =
-        err?.response?.data?.message?.[0] ||
-        err?.response?.data?.message ||
-        err?.message ||
-        'Помилка оновлення профілю';
+      const msg = getApiErrorMessage(err) || 'Помилка оновлення профілю';
       setSubmitError(msg);
     } finally {
       setIsSubmitting(false);

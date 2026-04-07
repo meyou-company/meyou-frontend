@@ -11,6 +11,7 @@ export default defineConfig({
         target: 'https://meyou-backend-0xsz.onrender.com',
         changeOrigin: true,
         secure: true,
+        cookieDomainRewrite: 'localhost',
       },
     },
   },

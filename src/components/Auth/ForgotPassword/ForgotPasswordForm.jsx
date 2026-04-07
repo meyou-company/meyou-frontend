@@ -3,6 +3,7 @@ import { toast } from "sonner";
 import "./ForgotPasswordForm.scss";
 import { useAuthStore } from "../../../zustand/useAuthStore";
 import { useForceDarkTheme } from "../../../hooks/useForceDarkTheme";
+import { getApiErrorMessage } from "../../../utils/getApiErrorMessage";
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/i;
 
@@ -53,9 +54,7 @@ export default function ForgotPasswordForm({ onBack, onSuccess }) {
 
       if (!res?.ok) {
         const msg =
-          res?.error?.response?.data?.message?.[0] ||
-          res?.error?.response?.data?.message ||
-          res?.error?.message ||
+          getApiErrorMessage(res?.error) ||
           "Ошибка отправки кода. Попробуйте ещё раз.";
         toast.error(msg);
         setSubmitError(msg);
@@ -66,9 +65,7 @@ export default function ForgotPasswordForm({ onBack, onSuccess }) {
       onSuccess?.(email);
     } catch (err) {
       const msg =
-        err?.response?.data?.message?.[0] ||
-        err?.response?.data?.message ||
-        err?.message ||
+        getApiErrorMessage(err) ||
         "Ошибка отправки кода. Попробуйте ещё раз.";
       toast.error(msg);
       setSubmitError(msg);
