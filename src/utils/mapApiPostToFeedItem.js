@@ -40,14 +40,31 @@ export function normalizeComment(c) {
 
 export function mapApiPostToFeedItem(p) {
   if (!p) return null;
-  const imageUrl = p.imageUrl || null;
+  const media = (() => {
+    const raw = Array.isArray(p.media) ? p.media : [];
+    const normalized = raw
+      .map((m, idx) => {
+        const url = m?.url || m?.mediaUrl || m?.imageUrl || "";
+        const typeRaw = String(m?.type || "").toUpperCase();
+        const type = typeRaw === "VIDEO" ? "VIDEO" : "IMAGE";
+        const order = Number.isFinite(m?.order) ? Number(m.order) : idx;
+        return url ? { url, type, order } : null;
+      })
+      .filter(Boolean)
+      .sort((a, b) => a.order - b.order);
+
+    // Backward compatibility for old posts with single imageUrl.
+    if (normalized.length === 0 && p.imageUrl) {
+      return [{ url: p.imageUrl, type: "IMAGE", order: 0 }];
+    }
+    return normalized;
+  })();
   const a = p.author;
   return {
     id: p.id,
     text: p.fullText ?? p.shortText ?? "",
     location: p.location || "",
-    imageUrl,
-    image: Boolean(imageUrl),
+    media,
     createdAt: p.createdAt ?? null,
     author: a
       ? {

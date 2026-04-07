@@ -977,6 +977,12 @@ html[data-theme="dark"] .profile-home .postDeleteBtn:hover {
   color: rgba(74, 50, 106, 0.65);
 }
 
+.feedErrorHint {
+  margin: 0 0 12px;
+  font-size: 13px;
+  color: #b42318;
+}
+
 /* ACTIONS */
 .postActions {
   display: flex;
@@ -994,6 +1000,11 @@ html[data-theme="dark"] .profile-home .postDeleteBtn:hover {
 
 .postActionBtn--active .postActionIcon {
   filter: none;
+}
+
+.postActionBtn--liked .postActionIcon {
+  filter: brightness(0) saturate(100%) invert(55%) sepia(42%) saturate(2211%)
+    hue-rotate(299deg) brightness(103%) contrast(97%);
 }
 
 .profile-home .postActionBtn.postActionBtn--active .postActionCount {

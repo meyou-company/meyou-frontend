@@ -2,7 +2,7 @@ import { api } from "./api";
 
 /**
  * GET /users/:username — публічний профіль (відповідає бекенду).
- * Без токена → публічні поля. З токеном (Bearer або cookie) →
+ * Без авторизаційної cookie → публічні поля. З cookie-сесією →
  * viewType: 'OWNER' | 'VISITOR', subscriptionStatus: { isSubscribed, isBlocked }.
  */
 export const usersApi = {

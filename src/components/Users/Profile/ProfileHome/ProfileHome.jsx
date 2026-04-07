@@ -17,6 +17,8 @@ import { getFriendsCountNumber } from "../../../../utils/profileFriends";
 import { mapApiPostToFeedItem } from "../../../../utils/mapApiPostToFeedItem";
 import { usePostFeedActions } from "../../../../hooks/usePostFeedActions";
 import PostCommentsSection from "../../../PostFeed/PostCommentsSection";
+import { getApiErrorMessage } from "../../../../utils/getApiErrorMessage";
+import { applyPersistedLikes } from "../../../../utils/postLikePersistence";
 import "./ProfileHome.scss";
 
 /** Іконки тільки для actionsBlock (чорно-білі SVG) */
@@ -71,12 +73,41 @@ export default function ProfileHome({
 
   const [feedPosts, setFeedPosts] = useState([]);
   const [feedLoading, setFeedLoading] = useState(true);
+  const [feedError, setFeedError] = useState("");
   const feedActions = usePostFeedActions(setFeedPosts);
+  const feedCacheKey = postsAuthorId
+    ? `profile-feed-cache:${String(postsAuthorId)}`
+    : "";
+
+  useEffect(() => {
+    if (!feedCacheKey || typeof window === "undefined") return;
+    try {
+      const raw = window.localStorage.getItem(feedCacheKey);
+      if (!raw) return;
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        setFeedPosts(parsed);
+        setFeedError("");
+      }
+    } catch {
+      // ignore invalid cache
+    }
+  }, [feedCacheKey]);
+
+  useEffect(() => {
+    if (!feedCacheKey || typeof window === "undefined") return;
+    try {
+      window.localStorage.setItem(feedCacheKey, JSON.stringify(feedPosts));
+    } catch {
+      // ignore storage errors
+    }
+  }, [feedCacheKey, feedPosts]);
 
   useEffect(() => {
     let cancelled = false;
     if (!postsAuthorId) {
       setFeedPosts([]);
+      setFeedError("");
       setFeedLoading(false);
       return () => {
         cancelled = true;
@@ -85,13 +116,26 @@ export default function ProfileHome({
     (async () => {
       try {
         setFeedLoading(true);
+        setFeedError("");
         const list = await postsApi.listByAuthor(postsAuthorId);
         const mapped = (Array.isArray(list) ? list : [])
           .map(mapApiPostToFeedItem)
           .filter(Boolean);
-        if (!cancelled) setFeedPosts(mapped);
-      } catch {
-        if (!cancelled) setFeedPosts([]);
+        if (!cancelled) setFeedPosts(applyPersistedLikes(mapped));
+      } catch (err) {
+        if (!cancelled) {
+          const raw = getApiErrorMessage(err);
+          const pretty = /^Cannot GET\s+/i.test(raw || "")
+            ? "Не вдалося завантажити пости профілю (маршрут недоступний на бекенді)."
+            : /^Internal server error$/i.test(raw || "")
+              ? "Тимчасова помилка сервера при завантаженні постів."
+              : raw;
+          setFeedError(
+            pretty
+              ? pretty
+              : "Не вдалося завантажити пости. Спробуйте оновити сторінку."
+          );
+        }
       } finally {
         if (!cancelled) setFeedLoading(false);
       }
@@ -194,45 +238,47 @@ export default function ProfileHome({
 
     try {
       setIsPublishingPost(true);
-      let imageUrl;
-
+      const media = [];
       if (postMediaFiles.length > 0) {
-        const firstImage = postMediaFiles.find(
-          (item) => item?.type === "image" && item?.file
-        );
-        const hasVideoOnly =
-          !firstImage &&
-          postMediaFiles.some((item) => item?.type === "video");
-
-        if (hasVideoOnly) {
+        if (!isPostImageUploadEnabled()) {
           toast.info(
-            "Відео для постів поки не підтримується. Пост буде опубліковано лише з текстом."
+            "Завантаження медіа тимчасово недоступне. Пост буде опубліковано лише з текстом."
           );
-        } else if (firstImage) {
-          if (isPostImageUploadEnabled()) {
+        } else {
+          for (const [index, item] of postMediaFiles.entries()) {
+            if (!item?.file) continue;
             try {
-              imageUrl = await uploadPostImage(firstImage.file);
+              const url = await uploadPostImage(item.file);
+              media.push({
+                url,
+                type: item.file.type?.startsWith("video") ? "VIDEO" : "IMAGE",
+                order: index,
+              });
             } catch (uploadErr) {
               const status = uploadErr?.response?.status;
               const isUnavailable =
                 status === 404 || status === 405 || status === 501;
+              const details = getApiErrorMessage(uploadErr);
+              console.error("[post-media-upload] failed", {
+                status,
+                details,
+                raw: uploadErr,
+              });
               toast.warning(
                 isUnavailable
-                  ? "Завантаження зображень тимчасово недоступне. Пост опубліковано лише з текстом."
-                  : "Не вдалося завантажити зображення. Пост опубліковано лише з текстом."
+                  ? "Завантаження медіа тимчасово недоступне. Частина файлів не додана."
+                  : details
+                    ? `Не вдалося завантажити файл: ${details}`
+                    : "Не вдалося завантажити один із файлів. Пост опубліковано без нього."
               );
             }
-          } else {
-            toast.info(
-              "Завантаження зображень тимчасово недоступне. Пост буде опубліковано лише з текстом."
-            );
           }
         }
       }
 
       const created = await postsApi.create({
         fullText: trimmedText,
-        imageUrl,
+        media,
         location: location || undefined,
         visibility: "PUBLIC",
       });
@@ -249,6 +295,23 @@ export default function ProfileHome({
           return [feedItem, ...withoutDup];
         });
       }
+      // Also inject new post into global first-page cache so it appears at the top there.
+      if (feedItem && typeof window !== "undefined") {
+        try {
+          const key = "first-page-feed-cache";
+          const raw = window.localStorage.getItem(key);
+          const parsed = raw ? JSON.parse(raw) : [];
+          const prevList = Array.isArray(parsed) ? parsed : [];
+          const withoutDup = prevList.filter((p) => String(p?.id) !== String(feedItem.id));
+          const next = [feedItem, ...withoutDup].sort(
+            (a, b) =>
+              new Date(b?.createdAt || 0).getTime() - new Date(a?.createdAt || 0).getTime()
+          );
+          window.localStorage.setItem(key, JSON.stringify(next.slice(0, 100)));
+        } catch {
+          // ignore cache write errors
+        }
+      }
 
       toast.success("Пост опубліковано");
       setNewPostText("");
@@ -258,11 +321,7 @@ export default function ProfileHome({
       setPostMediaFiles([]);
       setIsComposerOpen(false);
     } catch (err) {
-      const msg =
-        err?.response?.data?.message?.[0] ||
-        err?.response?.data?.message ||
-        err?.message ||
-        "Не вдалося опублікувати пост";
+      const msg = getApiErrorMessage(err) || "Не вдалося опублікувати пост";
       toast.error(String(msg));
     } finally {
       setIsPublishingPost(false);
@@ -280,13 +339,10 @@ export default function ProfileHome({
       setCropModalSrc(null);
       toast.success("Аватар оновлено");
     } catch (err) {
-      const raw = err?.response?.data?.message;
       const msg =
         err?.response?.status === 401
           ? "Сесія закінчилась. Увійди знову."
-          : (Array.isArray(raw) ? raw[0] : raw) ||
-            err?.message ||
-            "Не вдалося зберегти фото";
+          : getApiErrorMessage(err) || "Не вдалося зберегти фото";
       toast.error(String(msg));
     } finally {
       setIsSaving(false);
@@ -587,13 +643,18 @@ export default function ProfileHome({
       {/* TEXT */}
       <p className="postText">{post.text}</p>
 
-      {/* IMAGE */}
-      {post.image && post.imageUrl && (
-        <div className="postMedia">
-          <img src={post.imageUrl} alt="" className="postMediaImg" />
-        </div>
-      )}
-      {post.image && !post.imageUrl && (
+      {/* MEDIA */}
+      {Array.isArray(post.media) && post.media.length > 0 ? (
+        post.media.map((mediaItem) => (
+          <div className="postMedia" key={`${post.id}-${mediaItem.order}-${mediaItem.url}`}>
+            {mediaItem.type === "VIDEO" ? (
+              <video src={mediaItem.url} className="postMediaImg" controls preload="metadata" />
+            ) : (
+              <img src={mediaItem.url} alt="" className="postMediaImg" />
+            )}
+          </div>
+        ))
+      ) : (
         <div className="postMedia">
           <div className="postMediaMock" />
         </div>
@@ -602,7 +663,7 @@ export default function ProfileHome({
       {/* ACTIONS — counts from post.counts.*; active state from post.viewerState.* */}
       <div className="postActions">
         <button
-          className={`postActionBtn ${post.viewerState?.isLiked ? "postActionBtn--active" : ""}`}
+          className={`postActionBtn ${post.viewerState?.isLiked ? "postActionBtn--active postActionBtn--liked" : ""}`}
           type="button"
           aria-label="like"
           aria-pressed={post.viewerState?.isLiked === true}

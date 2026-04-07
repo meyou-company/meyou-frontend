@@ -2,6 +2,23 @@ import { create } from "zustand";
 import { authApi } from "../services/auth";
 import { passwordApi } from "../services/passwordApi";
 
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+async function loadMeWithRetry(retries = 2, delayMs = 200) {
+  let lastErr;
+  for (let attempt = 0; attempt <= retries; attempt += 1) {
+    try {
+      return await authApi.me();
+    } catch (e) {
+      lastErr = e;
+      const status = e?.response?.status;
+      if (status !== 401 || attempt === retries) break;
+      await sleep(delayMs);
+    }
+  }
+  throw lastErr;
+}
+
 export const useAuthStore = create((set) => ({
   user: null,
   isAuthLoading: true, // По умолчанию true - ждём завершения init()
@@ -48,11 +65,10 @@ export const useAuthStore = create((set) => ({
     set({ isAuthLoading: true });
     try {
       await authApi.login(payload);
-      const user = await authApi.me();
+      const user = await loadMeWithRetry(3, 250);
       set({ user, isAuthed: true });
       return { ok: true };
     } catch (e) {
-      set({ user: null, isAuthed: false });
       return { ok: false, error: e };
     } finally {
       set({ isAuthLoading: false });
@@ -63,11 +79,11 @@ export const useAuthStore = create((set) => ({
     set({ isAuthLoading: true });
     try {
       await authApi.register(payload);
-      const user = await authApi.me();
-      set({ user, isAuthed: true });
-      return { ok: true };
-    } catch (e) {
+      // Cookie-based auth flow: after register user must verify email first.
+      // Do not call /users/me here (can fail before verification).
       set({ user: null, isAuthed: false });
+      return { ok: true, requiresEmailVerification: true };
+    } catch (e) {
       return { ok: false, error: e };
     } finally {
       set({ isAuthLoading: false });
@@ -78,7 +94,7 @@ export const useAuthStore = create((set) => ({
     set({ isAuthLoading: true });
     try {
       await authApi.verifyEmail(code);
-      const user = await authApi.me();
+      const user = await loadMeWithRetry(3, 250);
       set({ user, isAuthed: true });
       return { ok: true };
     } catch (e) {

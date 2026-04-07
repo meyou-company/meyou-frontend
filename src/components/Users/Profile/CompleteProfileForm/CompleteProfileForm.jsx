@@ -22,6 +22,7 @@ import { usePrefillProfile } from "../../../../hooks/usePrefillProfile";
 
 import { normalizeForValidation, toBackendPayload } from "../../../../utils/profilePayload";
 import { normalizePhone } from "../../../../utils/normalizePhone";
+import { getApiErrorMessage } from "../../../../utils/getApiErrorMessage";
 
 import AvatarCropModal from "../../../../components/AvatarCropModal/AvatarCropModal";
 import { cropImageToFile } from "../../../../utils/cropImageToFile";
@@ -316,11 +317,7 @@ export default function CompleteProfileForm({ onBack, onSuccess }) {
       console.log("ERR STATUS", err?.response?.status);
       console.log("ERR DATA", err?.response?.data);
       console.log("ERR RAW", err);
-      const msg =
-        err?.response?.data?.message?.[0] ||
-        err?.response?.data?.message ||
-        err?.message ||
-        "Помилка збереження профілю";
+      const msg = getApiErrorMessage(err) || "Помилка збереження профілю";
       toast.error(msg);
       setSubmitError(msg);
     } finally {
