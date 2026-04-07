@@ -16,9 +16,17 @@ export default function FirstPageView({
   onGoVipChat,
   onGoFriends,
   onGoNotifications,
-  onGoHome,
+  onGoHome, onOpenProfile,
 }) {
   const { open } = useBurgerMenu();
+
+    const navigate = useNavigate();
+
+  const goProfileByUsername = (username) => {
+  const value = (username || "").trim();
+  if (!value) return;
+  navigate(`/profile/${value}`);
+};
 
   const [feedPosts, setFeedPosts] = useState([]);
   const [feedLoading, setFeedLoading] = useState(true);
@@ -178,6 +186,7 @@ export default function FirstPageView({
                   key={post.id}
                   post={post}
                   feedActions={feedActions}
+                  onOpenProfile={goProfileByUsername}
                 />
               ))}
           </div>
@@ -241,7 +250,10 @@ function formatPostTime(iso) {
   }
 }
 
-function GlobalFeedPostCard({ post, feedActions }) {
+const list = await postsApi.list();
+console.log("RAW POSTS:", list);
+
+function GlobalFeedPostCard({ post, feedActions, onOpenProfile}) {
   const name =
     [post.author?.firstName, post.author?.lastName].filter(Boolean).join(" ").trim() ||
     post.author?.username ||
@@ -251,25 +263,56 @@ function GlobalFeedPostCard({ post, feedActions }) {
   const location = post.location?.trim() || "—";
   const commentsOpen = feedActions.isCommentsOpen(post.id);
 
+function getAuthorUsername(author) {
+  if (!author) return "";
+
+  return (
+    (author.username || "").trim() ||
+    (author.nick || "").trim() ||
+    (author.userName || "").trim()
+  );
+}
+
+
+
+const handleOpenProfile = () => {
+  const username = getAuthorUsername(post.author);
+
+  console.log("CLICK USER:", post.author, "→ username:", username);
+
+  if (!username) {
+    console.warn("Нет username у пользователя", post.author);
+    return;
+  }
+
+  onOpenProfile(username);
+};
+
   return (
     <article className="first-page-post px-[6px] pt-[6px] pb-[11px] md:p-[10px] xl:!mb-[29px] space-y-3 relative">
       <div className="flex justify-between items-start">
         <div className="flex gap-[7px]">
-          <div className="relative">
+        
+            <button onClick={handleOpenProfile} className="flex gap-[7px] text-left" >
+
+        
             <img
               src={avatarSrc}
               alt=""
-              className=" h-10  md:h-[60px] xl:h-20 rounded-full object-cover bg-gray-300"
+              className=" h-10  md:h-[60px] xl:h-20 rounded-full object-cover bg-gray-300 cursor-pointer"
+        
             />
-          </div>
+    
           <div className="flex flex-col mt-[5px] gap-[3px]">
             <span className="text-[8px] md:text-xs xl:text-xl text-black font-[Montserrat] underline">
               {timeLabel}
             </span>
-            <span className="text-xs md:text-sm xl:text-xl font-[Montserrat] underline bg-gradient-to-r from-[#FF4FB1] to-[#4F6BFF] bg-clip-text text-transparent">
+            <span className="text-xs md:text-sm xl:text-xl font-[Montserrat] underline bg-gradient-to-r from-[#FF4FB1] to-[#4F6BFF] bg-clip-text text-transparent cursor-pointer">
               {name}
             </span>
           </div>
+              </button>
+          
         </div>
 
         <div className="flex flex-col items-end gap-1 mr-[2px] md:mr-[19px] mt-[6px]">
@@ -313,7 +356,7 @@ function GlobalFeedPostCard({ post, feedActions }) {
         <div className="!mt-[19px] md:!mt-[10px] h-80 bg-black/5" />
       )}
 
-      <div className="flex justify-center mt-3 xl:!mt-[52px] xl:!mb-[38px]">
+      <div className="flex justify-center mt-3 xl:!mt-[32px] xl:!mb-[18px]">
         <div className="flex gap-[41px] md:gap-[60px] xl:gap-36">
           <ActionIcon
             icon={profileIcons.like}
