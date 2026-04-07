@@ -13,6 +13,7 @@ export default function FirstPagePage() {
       onGoFriends={() => navigate("/friends")}
       onGoNotifications={() => navigate("/notifications")}
       onGoHome={() => navigate("/")}
+      onOpenProfile={(username) => username && navigate(`/profile/${username}`)}
     />
   );
 }

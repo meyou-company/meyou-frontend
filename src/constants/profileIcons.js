@@ -1,6 +1,7 @@
 /** Шляхи до іконок з public/home/ */
 
 import { comment } from "postcss";
+import { check } from "prettier";
 
 const HOME = "/home";
 const ICON1 = "/icon1";
@@ -82,10 +83,14 @@ const profileIcons = {
   plusIcon: `${WALLET}/plus.svg`,
 
   /* === VIDEO === */
+  chatGreyVideo: `${VIDEO}/chatGrey.svg`,
   commentsVideo: `${VIDEO}/comments.svg`,
   heartVideo: `${VIDEO}/heart.svg`,
+  homeGreyVideo: `${VIDEO}/homeGrey.svg`,
   locationVideo: `${VIDEO}/location.svg`,
+  peopleGreyVideo: `${VIDEO}/peopleGrey.svg`,
   playVideo: `${VIDEO}/play.svg`,
+  profileGreyVideo: `${VIDEO}/profileGrey.svg`,
   searchVideo: `${VIDEO}/search.svg`,
   videoTitle: `${VIDEO}/videoTitle.svg`,
   arrowVideo: `${VIDEO}/arrowRightPink.svg`,
