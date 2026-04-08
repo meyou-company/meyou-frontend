@@ -224,6 +224,36 @@ export function usePostFeedActions(setFeedPosts) {
     [patchPost, run, loadComments, dropPostEverywhere]
   );
 
+  const onDeleteComment = useCallback(
+    (post, commentId) => {
+      if (!post?.id || !commentId) return;
+      run(`comment-delete-${post.id}-${commentId}`, async () => {
+        try {
+          await postsApi.deleteComment(commentId);
+          patchPost(post.id, (p) => {
+            const prevComments = Array.isArray(p.comments) ? p.comments : [];
+            const nextComments = prevComments.filter(
+              (c) => String(c?.id) !== String(commentId)
+            );
+            return {
+              ...p,
+              comments: nextComments,
+              counts: {
+                ...p.counts,
+                comments: Math.max(0, (p.counts?.comments ?? prevComments.length) - 1),
+              },
+            };
+          });
+          loadComments(post.id);
+        } catch (e) {
+          const msg = getApiErrorMessage(e) || "Не вдалося видалити коментар";
+          toast.error(msg);
+        }
+      });
+    },
+    [run, patchPost, loadComments, dropPostEverywhere]
+  );
+
   const openComments = useCallback(
     (postId) => {
       setCommentsOpenPostId((id) => {
@@ -281,6 +311,7 @@ export function usePostFeedActions(setFeedPosts) {
     setCommentDraft,
     toggleCommentsOpen: openComments,
     submitComment,
+    onDeleteComment,
     loadComments,
     onLike,
     onRepost,

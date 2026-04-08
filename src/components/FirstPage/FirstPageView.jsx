@@ -343,10 +343,18 @@ function formatPostTime(iso) {
   }
 }
 
-const list = await postsApi.list();
-console.log("RAW POSTS:", list);
+function getAuthorUsername(author) {
+  if (!author) return "";
+  return (
+    (author.username || "").trim() ||
+    (author.nick || "").trim() ||
+    (author.userName || "").trim() ||
+    (author.nickname || "").trim() ||
+    (author.login || "").trim()
+  );
+}
 
-function GlobalFeedPostCard({ post, feedActions, onOpenProfile}) {
+function GlobalFeedPostCard({ post, feedActions, onOpenProfile }) {
   const name =
     [post.author?.firstName, post.author?.lastName].filter(Boolean).join(" ").trim() ||
     post.author?.username ||
@@ -355,57 +363,38 @@ function GlobalFeedPostCard({ post, feedActions, onOpenProfile}) {
   const timeLabel = formatPostTime(post.createdAt);
   const location = post.location?.trim() || "—";
   const commentsOpen = feedActions.isCommentsOpen(post.id);
-
-function getAuthorUsername(author) {
-  if (!author) return "";
-
-  return (
-    (author.username || "").trim() ||
-    (author.nick || "").trim() ||
-    (author.userName || "").trim()
-  );
-}
-
-
-
-const handleOpenProfile = () => {
-  const username = getAuthorUsername(post.author);
-
-  console.log("CLICK USER:", post.author, "→ username:", username);
-
-  if (!username) {
-    console.warn("Нет username у пользователя", post.author);
-    return;
-  }
-
-  onOpenProfile(username);
-};
+  const handleOpenProfile = () => {
+    const username = getAuthorUsername(post.author);
+    if (!username) return;
+    onOpenProfile?.(username);
+  };
+  const hasProfileLink = Boolean(getAuthorUsername(post.author));
 
   return (
     <article className="first-page-post px-[6px] pt-[6px] pb-[11px] md:p-[10px] xl:!mb-[29px] space-y-3 relative">
       <div className="flex justify-between items-start">
         <div className="flex gap-[7px]">
-        
-            <button onClick={handleOpenProfile} className="flex gap-[7px] text-left" >
-
-        
+          <button
+            type="button"
+            onClick={handleOpenProfile}
+            disabled={!hasProfileLink}
+            className={`flex gap-[7px] text-left ${hasProfileLink ? "cursor-pointer" : "cursor-default"}`}
+            aria-label={hasProfileLink ? `Відкрити профіль ${name}` : "Профіль недоступний"}
+          >
             <img
               src={avatarSrc}
               alt=""
-              className=" h-10  md:h-[60px] xl:h-20 rounded-full object-cover bg-gray-300 cursor-pointer"
-        
+              className=" h-10  md:h-[60px] xl:h-20 rounded-full object-cover bg-gray-300"
             />
-    
-          <div className="flex flex-col mt-[5px] gap-[3px]">
-            <span className="text-[8px] md:text-xs xl:text-xl text-black font-[Montserrat] underline">
-              {timeLabel}
-            </span>
-            <span className="text-xs md:text-sm xl:text-xl font-[Montserrat] underline bg-gradient-to-r from-[#FF4FB1] to-[#4F6BFF] bg-clip-text text-transparent cursor-pointer">
-              {name}
-            </span>
-          </div>
-              </button>
-          
+            <div className="flex flex-col mt-[5px] gap-[3px]">
+              <span className="text-[8px] md:text-xs xl:text-xl text-black font-[Montserrat] underline">
+                {timeLabel}
+              </span>
+              <span className="text-xs md:text-sm xl:text-xl font-[Montserrat] underline bg-gradient-to-r from-[#FF4FB1] to-[#4F6BFF] bg-clip-text text-transparent">
+                {name}
+              </span>
+            </div>
+          </button>
         </div>
 
         <div className="flex flex-col items-end gap-1 mr-[2px] md:mr-[19px] mt-[6px]">
@@ -499,6 +488,7 @@ const handleOpenProfile = () => {
           onSubmitComment={() =>
             feedActions.submitComment(post, feedActions.commentDraft)
           }
+          onDeleteComment={(commentId) => feedActions.onDeleteComment(post, commentId)}
           variant="firstPage"
         />
       )}

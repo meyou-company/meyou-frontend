@@ -727,6 +727,7 @@ export default function ProfileHome({
           onSubmitComment={() =>
             feedActions.submitComment(post, feedActions.commentDraft)
           }
+          onDeleteComment={(commentId) => feedActions.onDeleteComment(post, commentId)}
           variant="profile"
         />
       )}

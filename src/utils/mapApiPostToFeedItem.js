@@ -25,13 +25,22 @@ function mapCommentAuthor(a) {
 
 export function normalizeComment(c) {
   if (!c || typeof c !== "object") return null;
+  const resolvedId =
+    c.commentId ??
+    c.id ??
+    c._id ??
+    c.uuid ??
+    c.comment?.commentId ??
+    c.comment?.id ??
+    c.comment?._id ??
+    null;
   const content = String(
     c.content ?? c.text ?? c.body ?? c.message ?? ""
   ).trim();
   if (!content) return null;
   const authorRaw = c.author ?? c.user;
   return {
-    id: c.id ?? c._id ?? `c-${Math.random().toString(36).slice(2, 11)}`,
+    id: resolvedId,
     content,
     createdAt: c.createdAt ?? c.created_at ?? null,
     author: mapCommentAuthor(authorRaw),
@@ -71,7 +80,7 @@ export function mapApiPostToFeedItem(p) {
           id: a.id,
           firstName: a.firstName ?? "",
           lastName: a.lastName ?? "",
-          username: a.username ?? "",
+          username: a.username ?? a.nick ?? a.nickname ?? a.login ?? "",
           avatarUrl: a.avatarUrl ?? a.avatar ?? null,
         }
       : null,

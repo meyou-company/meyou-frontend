@@ -1,4 +1,5 @@
 import profileIcons from "../../constants/profileIcons";
+import { useAuthStore } from "../../zustand/useAuthStore";
 import "./PostCommentsSection.scss";
 
 /** Як у Facebook: короткий відносний час або дата. */
@@ -44,8 +45,10 @@ export default function PostCommentsSection({
   commentDraft,
   onCommentDraftChange,
   onSubmitComment,
+  onDeleteComment,
   variant = "profile",
 }) {
+  const currentUserId = useAuthStore((s) => s.user?.id);
   const list = Array.isArray(comments) ? comments : [];
   const rootClass =
     variant === "firstPage"
@@ -96,6 +99,17 @@ export default function PostCommentsSection({
                       >
                         {formatCommentWhen(c.createdAt)}
                       </span>
+                      {currentUserId &&
+                        c?.id &&
+                        String(c?.author?.id ?? "") === String(currentUserId) && (
+                        <button
+                          type="button"
+                          className="postCommentsSection__deleteBtn"
+                          onClick={() => onDeleteComment?.(c.id)}
+                        >
+                          Видалити
+                        </button>
+                      )}
                     </div>
                     <p className="postCommentsSection__text">{c.content}</p>
                   </div>

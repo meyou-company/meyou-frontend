@@ -114,6 +114,17 @@
   color: #65676b;
 }
 
+.postCommentsSection__deleteBtn {
+  border: 0;
+  background: transparent;
+  padding: 0;
+  margin-left: auto;
+  font-size: 11px;
+  color: #d12a4f;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
 .postCommentsSection__text {
   margin: 0;
   font-size: 13px;
@@ -222,6 +233,11 @@ html[data-theme="dark"] .postCommentsSection__placeholder,
 body.dark .postCommentsSection__hint,
 html[data-theme="dark"] .postCommentsSection__hint {
   color: rgba(255, 255, 255, 0.55);
+}
+
+body.dark .postCommentsSection__deleteBtn,
+html[data-theme="dark"] .postCommentsSection__deleteBtn {
+  color: rgba(255, 130, 165, 0.95);
 }
 
 body.dark .postCommentsSection__bubble,
