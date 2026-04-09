@@ -56,22 +56,12 @@ export const postsApi = {
   async listByAuthor(authorId) {
     if (!authorId) return [];
     const encodedId = encodeURIComponent(authorId);
-    const candidates = [
-      `/posts/users/${encodedId}/posts`,
-      `/users/${encodedId}/posts`,
-    ];
-
     let lastError;
-    for (const url of candidates) {
-      try {
-        const { data } = await api.get(url);
-        return extractPostsList(data);
-      } catch (e) {
-        const status = e?.response?.status;
-        // If backend says "server error", do not mask it with another route.
-        if (status >= 500) throw e;
-        lastError = e;
-      }
+    try {
+      const { data } = await api.get(`/posts/users/${encodedId}/posts`);
+      return extractPostsList(data);
+    } catch (e) {
+      lastError = e;
     }
 
     // Last-resort fallback: load global feed and filter by author on frontend.
@@ -132,9 +122,10 @@ export const postsApi = {
     return extractCommentsList(data);
   },
 
-  /** DELETE /posts/comments/:commentId — видалити коментар */
+  /** DELETE /posts/comments/:commentId */
   async deleteComment(commentId) {
-    await api.delete(`/posts/comments/${encodeURIComponent(commentId)}`);
+    const cid = encodeURIComponent(commentId);
+    await api.delete(`/posts/comments/${cid}`);
   },
 
   /** POST /posts/:id/repost */

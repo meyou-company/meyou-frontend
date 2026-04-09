@@ -2,7 +2,7 @@
  * Maps GET/POST posts API item (backend mapPostResponse) → feed card model.
  * Used by:
  * - Global feed (GET /posts) — first-page
- * - Profile feed (GET /users/:authorId/posts) — profile page
+ * - Profile feed (GET /posts/users/:authorId/posts) — profile page
  *
  * currentUserId is not used here — visibility / viewerState / permissions come from the API.
  * Profile filtering is done by endpoint (list vs listByAuthor), not in this mapper.

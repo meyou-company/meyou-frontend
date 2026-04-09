@@ -10,9 +10,10 @@ export function isPostImageUploadEnabled() {
   return flag !== "false";
 }
 
-const PRESIGNED_PATH =
+const UPLOAD_URL_PATH =
   import.meta.env.VITE_POST_IMAGE_UPLOAD_PATH ||
   "/uploads/post-media/presigned-url";
+const MAX_FILE_SIZE_BYTES = 5 * 1024 * 1024;
 
 function firstString(...values) {
   for (const v of values) {
@@ -21,16 +22,16 @@ function firstString(...values) {
   return null;
 }
 
-function extractUploadTarget(payload) {
+function extractSignedUrl(payload) {
   if (!payload || typeof payload !== "object") return null;
   return firstString(
     payload.uploadUrl,
-    payload.presignedUrl,
     payload.signedUrl,
+    payload.presignedUrl,
     payload.url,
     payload.data?.uploadUrl,
-    payload.data?.presignedUrl,
     payload.data?.signedUrl,
+    payload.data?.presignedUrl,
     payload.data?.url
   );
 }
@@ -42,11 +43,13 @@ function extractUploadTarget(payload) {
 function extractPublicMediaUrl(payload, uploadTargetUrl) {
   const fromPayload = firstString(
     payload?.fileUrl,
+    payload?.finalUrl,
     payload?.publicUrl,
     payload?.mediaUrl,
     payload?.imageUrl,
     payload?.cdnUrl,
     payload?.data?.fileUrl,
+    payload?.data?.finalUrl,
     payload?.data?.publicUrl,
     payload?.data?.mediaUrl,
     payload?.data?.imageUrl,
@@ -67,72 +70,45 @@ function extractPublicMediaUrl(payload, uploadTargetUrl) {
  */
 export async function uploadPostImage(file) {
   if (!file) throw new Error("No media file provided");
-  if (!file.type) throw new Error("File type is required for media upload");
-
-  const ext =
-    file.type === "video/mp4"
-      ? "mp4"
-      : file.type === "video/webm"
-        ? "webm"
-        : file.type?.startsWith("video/")
-          ? "mp4"
-          : "jpg";
-  const fileName = file.name || `post-${Date.now()}.${ext}`;
-  const contentType = file.type || "application/octet-stream";
-  const paramVariants = [
-    { fileName, fileType: contentType },
-    { fileName, contentType },
-    { filename: fileName, contentType },
-    { filename: fileName, fileType: contentType },
-    { fileName, mimeType: contentType },
-  ];
-
-  let data;
-  let presignError;
-  for (const params of paramVariants) {
-    try {
-      const res = await api.get(PRESIGNED_PATH, { params });
-      data = res.data;
-      break;
-    } catch (e) {
-      presignError = e;
-    }
+  if (!file.type) throw new Error("File type is required for image upload");
+  if (!file.type.startsWith("image/")) {
+    throw new Error("Only image files are supported");
   }
-  if (!data) throw presignError || new Error("Failed to get presigned URL");
+  if (file.size > MAX_FILE_SIZE_BYTES) {
+    throw new Error("Image size must be 5MB or less");
+  }
 
-  const uploadTargetUrl = extractUploadTarget(data);
-  if (!uploadTargetUrl) {
+  const ext = (file.name?.split(".").pop() || "").trim().toLowerCase() || "jpg";
+  const fileName = file.name && file.name.includes(".")
+    ? file.name
+    : `post-${Date.now()}.${ext}`;
+
+  const { data } = await api.get(UPLOAD_URL_PATH, {
+    params: {
+      fileName,
+      fileType: file.type,
+    },
+  });
+
+  const signedUrl = extractSignedUrl(data);
+  if (!signedUrl) {
     throw new Error(
-      "Presigned upload URL is missing. Backend should return uploadUrl/presignedUrl."
+      "Signed upload URL is missing. Backend should return signedUrl."
     );
   }
+  const publicUrl = extractPublicMediaUrl(data, null);
+  if (!publicUrl) throw new Error("Public file URL is missing in upload-url response.");
 
-  let uploadRes = await fetch(uploadTargetUrl, {
+  const uploadRes = await fetch(signedUrl, {
     method: "PUT",
-    credentials: "include",
     headers: {
-      "Content-Type": contentType,
+      "Content-Type": file.type,
     },
     body: file,
   });
   if (!uploadRes.ok) {
-    // Some presigned URLs are signed without Content-Type header.
-    uploadRes = await fetch(uploadTargetUrl, {
-      method: "PUT",
-      credentials: "include",
-      body: file,
-    });
-  }
-  if (!uploadRes.ok) {
     throw new Error(`Media upload failed: ${uploadRes.status}`);
   }
 
-  const imageUrl = extractPublicMediaUrl(data, uploadTargetUrl);
-  if (!imageUrl || typeof imageUrl !== "string") {
-    throw new Error(
-      "Upload response missing public media URL."
-    );
-  }
-
-  return imageUrl;
+  return publicUrl;
 }

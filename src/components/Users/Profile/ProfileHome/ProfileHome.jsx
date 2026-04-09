@@ -17,6 +17,8 @@ import { getFriendsCountNumber } from "../../../../utils/profileFriends";
 import { mapApiPostToFeedItem } from "../../../../utils/mapApiPostToFeedItem";
 import { usePostFeedActions } from "../../../../hooks/usePostFeedActions";
 import PostCommentsSection from "../../../PostFeed/PostCommentsSection";
+import PostMediaGallery from "../../../PostFeed/PostMediaGallery";
+import ImageLightbox from "../../../PostFeed/ImageLightbox";
 import { getApiErrorMessage } from "../../../../utils/getApiErrorMessage";
 import { applyPersistedLikes } from "../../../../utils/postLikePersistence";
 import "./ProfileHome.scss";
@@ -42,7 +44,7 @@ const toFriendItem = (f) => ({
 });
 export default function ProfileHome({
   user,
-  /** User id whose posts to show — must match profile owner (GET /users/:id/posts) */
+  /** User id whose posts to show — must match profile owner (GET /posts/users/:id/posts) */
   postsAuthorId,
   /** Список з GET /subscriptions/following — для блоку «Друзья» на своєму профілі */
   followingList,
@@ -66,10 +68,14 @@ export default function ProfileHome({
   const [postMediaFiles, setPostMediaFiles] = useState([]);
   const [isComposerOpen, setIsComposerOpen] = useState(false);
   const [isPublishingPost, setIsPublishingPost] = useState(false);
+  const [openPostMenuId, setOpenPostMenuId] = useState(null);
   const [cropModalSrc, setCropModalSrc] = useState(null);
   const [isSaving, setIsSaving] = useState(false);
   /** URL фото для перегляду в повному розмірі (null = закрито) */
   const [viewImageUrl, setViewImageUrl] = useState(null);
+  const [isLightboxOpen, setIsLightboxOpen] = useState(false);
+  const [lightboxImages, setLightboxImages] = useState([]);
+  const [lightboxIndex, setLightboxIndex] = useState(0);
 
   const [feedPosts, setFeedPosts] = useState([]);
   const [feedLoading, setFeedLoading] = useState(true);
@@ -151,6 +157,20 @@ export default function ProfileHome({
     window.addEventListener("keydown", onEscape);
     return () => window.removeEventListener("keydown", onEscape);
   }, [viewImageUrl]);
+
+  useEffect(() => {
+    if (openPostMenuId == null) return;
+    const onDocClick = () => setOpenPostMenuId(null);
+    const onEscape = (e) => {
+      if (e.key === "Escape") setOpenPostMenuId(null);
+    };
+    document.addEventListener("click", onDocClick);
+    document.addEventListener("keydown", onEscape);
+    return () => {
+      document.removeEventListener("click", onDocClick);
+      document.removeEventListener("keydown", onEscape);
+    };
+  }, [openPostMenuId]);
 
   useEffect(() => {
     return () => {
@@ -347,6 +367,26 @@ export default function ProfileHome({
     } finally {
       setIsSaving(false);
     }
+  };
+
+  const openPostImageViewer = (images, startIndex = 0) => {
+    const list = Array.isArray(images) ? images.filter(Boolean) : [];
+    if (!list.length) return;
+    const safeIndex = Math.min(Math.max(Number(startIndex) || 0, 0), list.length - 1);
+    setLightboxImages(list);
+    setLightboxIndex(safeIndex);
+    setIsLightboxOpen(true);
+  };
+
+  const closeLightbox = () => {
+    setIsLightboxOpen(false);
+    setLightboxImages([]);
+    setLightboxIndex(0);
+  };
+
+  const moveLightbox = (delta) => {
+    if (!lightboxImages.length) return;
+    setLightboxIndex((prev) => (prev + delta + lightboxImages.length) % lightboxImages.length);
   };
 
   return (
@@ -618,6 +658,40 @@ export default function ProfileHome({
         </div>
 
         <div className="postTopRight">
+          {post.permissions?.canDelete === true && (
+            <div
+              className="postMenuWrap"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <button
+                className="postMenuBtn"
+                type="button"
+                aria-label="Меню поста"
+                aria-expanded={openPostMenuId === post.id}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setOpenPostMenuId((prev) => (prev === post.id ? null : post.id));
+                }}
+              >
+                •••
+              </button>
+              {openPostMenuId === post.id && (
+                <div className="postMenuDropdown" role="menu" aria-label="Дії з постом">
+                  <button
+                    className="postMenuDeleteBtn"
+                    type="button"
+                    role="menuitem"
+                    onClick={() => {
+                      setOpenPostMenuId(null);
+                      feedActions.onDeletePost(post);
+                    }}
+                  >
+                    Видалити
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
           <div className="postLocation">
             <img
               className="postLocationIcon"
@@ -626,17 +700,6 @@ export default function ProfileHome({
             />
             <span className="postLocationText">{post.location || "—"}</span>
           </div>
-
-          {post.permissions?.canDelete === true && (
-            <button
-              className="postDeleteBtn"
-              type="button"
-              aria-label="Видалити пост"
-              onClick={() => feedActions.onDeletePost(post)}
-            >
-              Видалити
-            </button>
-          )}
         </div>
       </div>
 
@@ -645,15 +708,25 @@ export default function ProfileHome({
 
       {/* MEDIA */}
       {Array.isArray(post.media) && post.media.length > 0 ? (
-        post.media.map((mediaItem) => (
-          <div className="postMedia" key={`${post.id}-${mediaItem.order}-${mediaItem.url}`}>
-            {mediaItem.type === "VIDEO" ? (
-              <video src={mediaItem.url} className="postMediaImg" controls preload="metadata" />
-            ) : (
-              <img src={mediaItem.url} alt="" className="postMediaImg" />
-            )}
-          </div>
-        ))
+        (() => {
+          const images = post.media.filter((m) => m?.type !== "VIDEO" && m?.url);
+          const videos = post.media.filter((m) => m?.type === "VIDEO" && m?.url);
+          return (
+            <>
+              {images.length > 0 && (
+                <PostMediaGallery
+                  mediaItems={images}
+                  onOpenLightbox={openPostImageViewer}
+                />
+              )}
+              {videos.map((mediaItem) => (
+                <div className="postMedia" key={`${post.id}-${mediaItem.order}-${mediaItem.url}`}>
+                  <video src={mediaItem.url} className="postMediaImg" controls preload="metadata" />
+                </div>
+              ))}
+            </>
+          );
+        })()
       ) : (
         <div className="postMedia">
           <div className="postMediaMock" />
@@ -873,6 +946,14 @@ export default function ProfileHome({
           />
         </div>
       )}
+      <ImageLightbox
+        isOpen={isLightboxOpen}
+        images={lightboxImages}
+        index={lightboxIndex}
+        onClose={closeLightbox}
+        onPrev={() => moveLightbox(-1)}
+        onNext={() => moveLightbox(1)}
+      />
     </div>
   );
 }

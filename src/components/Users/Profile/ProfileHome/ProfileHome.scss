@@ -821,6 +821,7 @@ font-size: 60px;
   border-radius: 14px;
   border: 1px solid rgba(0, 0, 0, 0.14);
   background: rgba(255, 255, 255, 0.55);
+  overflow: hidden;
 }
 
 /* TOP ROW */
@@ -837,6 +838,8 @@ font-size: 60px;
   align-items: center;
   gap: 10px;
   min-width: 0;
+  flex: 1 1 auto;
+  padding-top: 6px;
 }
 
 .postAvatarBtn {
@@ -882,9 +885,64 @@ font-size: 60px;
 /* RIGHT SIDE */
 .postTopRight {
   display: flex;
-  align-items: center;
-  gap: 8px;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
   flex: 0 0 auto;
+  min-width: 0;
+  max-width: 45%;
+}
+
+.postMenuWrap {
+  position: relative;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.postMenuBtn {
+  border: 0;
+  background: transparent;
+  color: rgba(0, 0, 0, 0.62);
+  font-size: 18px;
+  line-height: 1;
+  padding: 2px 4px;
+  border-radius: 6px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.postMenuBtn:hover {
+  background: rgba(0, 0, 0, 0.08);
+}
+
+.postMenuDropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 0;
+  z-index: 5;
+  min-width: 120px;
+  padding: 6px;
+  border-radius: 10px;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  background: rgba(255, 255, 255, 0.98);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.16);
+}
+
+.postMenuDeleteBtn {
+  width: 100%;
+  border: 0;
+  border-radius: 8px;
+  padding: 8px 10px;
+  background: rgba(220, 38, 38, 0.1);
+  color: #b91c1c;
+  font-size: 12px;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+}
+
+.postMenuDeleteBtn:hover {
+  background: rgba(220, 38, 38, 0.18);
 }
 
 .postLocation {
@@ -892,6 +950,8 @@ font-size: 60px;
   align-items: center;
   gap: 6px;
   max-width: 170px;
+  min-width: 0;
+  flex: 1 1 auto;
 }
 
 .postLocationIcon {
@@ -904,6 +964,7 @@ font-size: 60px;
   font-size: 11px;
   font-weight: 600;
   color: #ff4fb1;
+  display: block;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -938,6 +999,28 @@ html[data-theme="dark"] .profile-home .postDeleteBtn:hover {
   background: rgba(248, 113, 113, 0.28);
 }
 
+body.dark .profile-home .postMenuBtn,
+html[data-theme="dark"] .profile-home .postMenuBtn {
+  color: rgba(255, 255, 255, 0.88);
+}
+
+body.dark .profile-home .postMenuBtn:hover,
+html[data-theme="dark"] .profile-home .postMenuBtn:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+body.dark .profile-home .postMenuDropdown,
+html[data-theme="dark"] .profile-home .postMenuDropdown {
+  border-color: rgba(255, 255, 255, 0.14);
+  background: rgba(18, 12, 28, 0.96);
+}
+
+body.dark .profile-home .postMenuDeleteBtn,
+html[data-theme="dark"] .profile-home .postMenuDeleteBtn {
+  background: rgba(248, 113, 113, 0.16);
+  color: #fecaca;
+}
+
 /* TEXT */
 .postText {
   margin: 0 0 8px;
@@ -949,11 +1032,15 @@ html[data-theme="dark"] .profile-home .postDeleteBtn:hover {
 /* IMAGE */
 .postMedia {
   width: 100%;
-  height: 320px;
+  height: 420px;
   border-radius: 8px;
   overflow: hidden;
   border: 1px solid rgba(0, 0, 0, 0.12);
   margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.14);
 }
 
 .postMediaMock {
@@ -966,8 +1053,180 @@ html[data-theme="dark"] .profile-home .postDeleteBtn:hover {
 .postMediaImg {
   width: 100%;
   height: 100%;
+  object-fit: contain;
+  object-position: center;
+  display: block;
+}
+
+.postMediaOpenBtn {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  cursor: zoom-in;
+}
+
+.postMediaGallery {
+  width: 100%;
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.postMediaGalleryMain {
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 8px;
+  overflow: hidden;
+  background: rgba(0, 0, 0, 0.14);
+  min-height: 160px;
+  width: 100%;
+  padding: 0;
+  cursor: zoom-in;
+}
+
+.postMediaGallerySide {
+  display: grid;
+  grid-template-rows: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  min-height: 160px;
+}
+
+.postMediaGalleryThumbWrap {
+  position: relative;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 8px;
+  overflow: hidden;
+  background: rgba(0, 0, 0, 0.14);
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  cursor: zoom-in;
+}
+
+.postMediaGalleryThumb {
+  width: 100%;
+  height: 100%;
   object-fit: cover;
   display: block;
+}
+
+.postMediaGalleryMore {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  font-weight: 700;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.45);
+}
+
+@media (min-width: 1024px) {
+  .postMedia {
+    height: 420px;
+    max-height: 420px;
+  }
+
+  .postMediaImg {
+    width: 100%;
+    height: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    object-position: center;
+  }
+}
+
+/* Mobile post card parity with first-page */
+@media (max-width: 768px) {
+  .postMediaGallery {
+    grid-template-columns: 1fr;
+  }
+
+  .postMediaGalleryMain,
+  .postMediaGallerySide {
+    min-height: 220px;
+  }
+
+  .postMediaGallerySide {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-rows: none;
+  }
+
+  .profile-home .postCard {
+    padding: 6px 6px 11px;
+    border-radius: 10px;
+  }
+
+  .profile-home .postTop {
+    margin-bottom: 4px;
+    gap: 8px;
+  }
+
+  .profile-home .postTopLeft {
+    gap: 7px;
+    padding-top: 8px;
+  }
+
+  .profile-home .postAvatar {
+    width: 40px;
+    height: 40px;
+    flex: 0 0 40px;
+  }
+
+  .profile-home .postLabel {
+    font-size: 8px;
+    margin-bottom: 2px;
+  }
+
+  .profile-home .postAuthor {
+    font-size: 12px;
+    line-height: 1.1;
+  }
+
+  .profile-home .postLocation {
+    gap: 4px;
+    max-width: 120px;
+  }
+
+  .profile-home .postLocationIcon {
+    width: 4px;
+    height: 5px;
+  }
+
+  .profile-home .postLocationText {
+    font-size: 10px;
+  }
+
+  .profile-home .postText {
+    margin: 0 0 8px;
+    font-size: 12px;
+    font-weight: 500;
+    text-decoration: underline;
+  }
+
+  .profile-home .postActions {
+    justify-content: center;
+    gap: 41px;
+    padding: 8px 6px 2px;
+    border-radius: 8px;
+  }
+
+  .profile-home .postActionBtn {
+    gap: 4px;
+  }
+
+  .profile-home .postActionIcon {
+    width: 24px;
+    height: 24px;
+  }
+
+  .profile-home .postActionCount {
+    font-size: 8px;
+    font-weight: 400;
+  }
 }
 
 .feedLoadingHint,
@@ -2159,6 +2418,32 @@ html[data-theme="dark"] .profile-home .postActionCount {
   box-shadow: 0 8px 40px rgba(0, 0, 0, 0.5);
 }
 
+.profile-home__imageViewerNav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 48px;
+  height: 48px;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.25);
+  color: #fff;
+  font-size: 34px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.profile-home__imageViewerNav--prev {
+  left: 16px;
+}
+
+.profile-home__imageViewerNav--next {
+  right: 16px;
+}
+
 .actionsRowDesktop {
   display: none;
 }
@@ -2249,7 +2534,7 @@ html[data-theme="dark"] .profile-home .postActionCount {
    ========================= */
 @media (min-width: 1024px) {
   .profile-container {
-    max-width: 1360px;
+    max-width: 1340px;
     padding: 14px 18px 26px;
     gap: 14px;
   }

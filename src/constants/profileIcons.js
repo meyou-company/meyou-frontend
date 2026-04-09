@@ -1,8 +1,5 @@
 /** Шляхи до іконок з public/home/ */
 
-import { comment } from "postcss";
-import { check } from "prettier";
-
 const HOME = "/home";
 const ICON1 = "/icon1";
 const BLACK = "/icon-black";

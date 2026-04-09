@@ -435,7 +435,7 @@ function GlobalFeedPostCard({ post, feedActions, onOpenProfile }) {
             {mediaItem.type === "VIDEO" ? (
               <video
                 src={mediaItem.url}
-                className="w-full max-h-80 object-cover bg-black/5"
+                className="w-full h-80 object-contain object-center bg-black/15 lg:object-cover"
                 controls
                 preload="metadata"
               />
@@ -443,7 +443,7 @@ function GlobalFeedPostCard({ post, feedActions, onOpenProfile }) {
               <img
                 src={mediaItem.url}
                 alt=""
-                className="w-full max-h-80 object-cover bg-black/5"
+                className="w-full h-80 object-contain object-center bg-black/15 lg:object-cover"
               />
             )}
           </div>

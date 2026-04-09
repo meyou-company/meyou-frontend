@@ -1,0 +1,78 @@
+.ilb {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.88);
+  padding: 48px;
+}
+
+.ilb__img {
+  max-width: 100%;
+  max-height: calc(100vh - 96px);
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  border-radius: 10px;
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.5);
+}
+
+.ilb__close,
+.ilb__nav {
+  position: absolute;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.22);
+  color: #fff;
+  cursor: pointer;
+}
+
+.ilb__close {
+  top: 16px;
+  right: 16px;
+  width: 46px;
+  height: 46px;
+  font-size: 30px;
+  line-height: 1;
+}
+
+.ilb__nav {
+  top: 50%;
+  transform: translateY(-50%);
+  width: 46px;
+  height: 46px;
+  font-size: 34px;
+  line-height: 1;
+}
+
+.ilb__nav--prev {
+  left: 16px;
+}
+
+.ilb__nav--next {
+  right: 16px;
+}
+
+.ilb__counter {
+  position: absolute;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: rgba(255, 255, 255, 0.95);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+@media (max-width: 768px) {
+  .ilb {
+    padding: 16px;
+  }
+  .ilb__nav--prev {
+    left: 8px;
+  }
+  .ilb__nav--next {
+    right: 8px;
+  }
+}
