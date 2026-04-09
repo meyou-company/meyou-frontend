@@ -77,7 +77,23 @@ export default function PostMediaGallery({ mediaItems = [], onOpenLightbox }) {
     );
   }
 
-  const visible = images.slice(1, 5);
+  if (total === 5) {
+  return (
+    <div className="pmg pmg--five">
+      <button type="button" className="pmg__tile pmg__tile--main" onClick={() => openAt(0)}>
+        <img src={images[0]} alt="" className="pmg__img" />
+      </button>
+      <div className="pmg__side pmg__side--grid4">
+        {images.slice(1, 5).map((url, idx) => (
+          <button key={`${url}-${idx}`} type="button" className="pmg__tile" onClick={() => openAt(idx + 1)}>
+            <img src={url} alt="" className="pmg__img" />
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
   const hiddenDesktop = Math.max(0, total - 5);
   const hiddenMobile = Math.max(0, total - 3);
   return (
@@ -86,7 +102,7 @@ export default function PostMediaGallery({ mediaItems = [], onOpenLightbox }) {
         <img src={images[0]} alt="" className="pmg__img" />
       </button>
       <div className="pmg__side pmg__side--grid4">
-        {visible.map((url, idx) => (
+         {visible.map((url, idx) => (
           <button key={`${url}-${idx}`} type="button" className="pmg__tile" onClick={() => openAt(idx + 1)}>
             <img src={url} alt="" className="pmg__img" />
             {idx === visible.length - 1 && hiddenDesktop > 0 && (
@@ -96,7 +112,7 @@ export default function PostMediaGallery({ mediaItems = [], onOpenLightbox }) {
               <span className="pmg__overlay pmg__overlay--mobile">+{hiddenMobile}</span>
             )}
           </button>
-        ))}
+     ))}
       </div>
     </div>
   );
