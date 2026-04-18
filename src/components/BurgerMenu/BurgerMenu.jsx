@@ -97,25 +97,34 @@ export default function BurgerMenu({ isOpen, onClose, onItemClick, toggleTheme }
       <div className={`profile-menu ${isOpen ? "profile-menu--open" : ""}`}>
     <div className="profile-menu__header">
       <div className="profile-menu__user">
-       <div className="profile-menu__avatar-wrapper">
-      <img
-        className="profile-menu__avatar"
-        src={avatarUrl || profileIcons.user}
-        alt={displayName}
-      />
-      <span className="profile-menu__status-dot" />
-    </div>
+        <button
+          type="button"
+          className="profile-menu__userTap"
+          onClick={() => {
+            navigate("/profile");
+            onClose();
+          }}
+          aria-label="Мій профіль"
+        >
+          <div className="profile-menu__avatar-wrapper">
+            <img
+              className="profile-menu__avatar"
+              src={avatarUrl || profileIcons.user}
+              alt=""
+              aria-hidden="true"
+            />
+            <span className="profile-menu__status-dot" />
+          </div>
 
-    <div className="profile-menu__info">
-      <div className="profile-menu__name">{displayName}</div>
+          <span className="profile-menu__name">{displayName}</span>
+        </button>
 
-      {email && (
-        <a href={`mailto:${email}`} className="profile-menu__email">
-          {email}
-        </a>
-      )}
-    </div>
-  </div>
+        {email ? (
+          <a href={`mailto:${email}`} className="profile-menu__email profile-menu__email--belowTap">
+            {email}
+          </a>
+        ) : null}
+      </div>
 
   <button onClick={onClose} className="profile-menu__close">
     <img src={CLOSE_ITEM.icon} alt="Close menu" className="profile-menu__close--icon" />

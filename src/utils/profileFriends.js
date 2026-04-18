@@ -31,7 +31,15 @@ export function normalizeFriendsApiResponse(response) {
     if (!u || typeof u !== "object") return null;
     return {
       id: u.id ?? u._id ?? u.userId ?? u.username,
-      username: u.username ?? u.userName ?? u.nick ?? u.nickname,
+      username:
+        u.username ??
+        u.userName ??
+        u.nick ??
+        u.nickname ??
+        u.login ??
+        u.slug ??
+        u.handle ??
+        null,
       firstName: u.firstName ?? u.first_name,
       lastName: u.lastName ?? u.last_name,
       avatarUrl: u.avatarUrl ?? u.avatar ?? u.avatar_url ?? u.profileImage,
@@ -76,7 +84,15 @@ export function getFriendsFromUser(u) {
     return {
       ...f,
       id: f?.id ?? f?._id ?? f?.userId ?? f?.username,
-      username: f?.username ?? f?.userName ?? f?.nick ?? f?.nickname,
+      username:
+        f?.username ??
+        f?.userName ??
+        f?.nick ??
+        f?.nickname ??
+        f?.login ??
+        f?.slug ??
+        f?.handle ??
+        null,
       firstName: f?.firstName ?? f?.first_name,
       lastName: f?.lastName ?? f?.last_name,
       avatarUrl: f?.avatarUrl ?? f?.avatar ?? f?.avatar_url ?? f?.profileImage,

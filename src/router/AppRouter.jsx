@@ -24,14 +24,18 @@ import CompleteProfilePage from '../pages/Users/Profile/CompleteProfilePage';
 import EditProfilePage from '../pages/Users/Profile/EditProfilePage';
 import VideoPage from '../pages/Video/VideoPage';
 
+
 import FirstPage from '../pages/FirstPage/FirstPage';
 import WalletPage from '../pages/Wallet/WalletPage';
 import NotificationsPage from '../pages/Notifications/NotificationsPage';
-
+import MyGiftsPage from "../pages/MyGifts/MyGiftsPage";
 import ProfileGuard from './ProfileGuard';
+
+import { UserProfileNavProvider } from "../context/UserProfileNavContext";
 import BurgerMenu from '../components/BurgerMenu/BurgerMenu';
 import { useBurgerMenuStore } from '../zustand/useBurgerMenuStore';
 import { useThemeStore } from '../zustand/useThemeStore';
+
 
 /** Глобальне бургер-меню — рендериться один раз, відкривається з будь-якої сторінки */
 function GlobalBurgerMenu() {
@@ -76,7 +80,11 @@ function AppLayout() {
               <Route path="/vip-chat" element={<VipChat />} />
               <Route path="/first-page" element={<FirstPage />} />
               <Route path="/wallet" element={<WalletPage />} />
+
               <Route path="/notifications" element={<NotificationsPage />} />
+
+              <Route path="/my-gifts" element={<MyGiftsPage />} />
+
               <Route path="/video" element={<VideoPage />} />
               <Route path="/users/profile/complete" element={<CompleteProfilePage />} />
               <Route path="/users/profile/edit" element={<EditProfilePage />} />
@@ -103,10 +111,12 @@ function AppLayout() {
 export default function AppRouter() {
   return (
     <BrowserRouter>
-      <ProfileGuard>
-        <GlobalBurgerMenu />
-        <AppLayout />
-      </ProfileGuard>
+      <UserProfileNavProvider>
+        <ProfileGuard>
+          <GlobalBurgerMenu />
+          <AppLayout />
+        </ProfileGuard>
+      </UserProfileNavProvider>
     </BrowserRouter>
   );
 }

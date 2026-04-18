@@ -61,14 +61,14 @@ export const authApi = {
   async uploadAvatar(file) {
     const fd = new FormData();
     fd.append("avatar", file);
-    const { data } = await api.post("/users/avatar", fd, {
+    const { data } = await api.patch("/users/me/avatar", fd, {
       headers: { "Content-Type": "multipart/form-data" },
     });
     return data;
   },
 
   async deleteAvatar() {
-    const { data } = await api.delete("/users/avatar");
+    const { data } = await api.delete("/users/me/avatar");
     return data;
   },
 };

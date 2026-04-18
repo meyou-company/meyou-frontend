@@ -10,6 +10,10 @@ import { usePostFeedActions } from "../../hooks/usePostFeedActions";
 import PostCommentsSection from "../PostFeed/PostCommentsSection";
 import { getApiErrorMessage } from "../../utils/getApiErrorMessage";
 import { applyPersistedLikes } from "../../utils/postLikePersistence";
+import { getProfileRouteHandle } from "../../utils/profileFriendNav";
+import PostMediaGallery from "../../components/PostFeed/PostMediaGallery";
+import ImageLightbox from "../../components/PostFeed/ImageLightbox";
+import "../Users/Profile/ProfileHome/ProfileHome.scss";
 
 const getReadableFeedError = (error) => {
   const text = getApiErrorMessage(error);
@@ -32,6 +36,29 @@ export default function FirstPageView({
   onGoNotifications,
   onGoHome, onOpenProfile,
 }) {
+  const [isLightboxOpen, setIsLightboxOpen] = useState(false);
+  const [lightboxImages, setLightboxImages] = useState([]);
+  const [lightboxIndex, setLightboxIndex] = useState(0);
+
+  const openLightbox = (images, startIndex = 0) => {
+  if (!images?.length) return;
+  setLightboxImages(images);
+  setLightboxIndex(startIndex);
+  setIsLightboxOpen(true);
+};
+
+const closeLightbox = () => {
+  setIsLightboxOpen(false);
+  setLightboxImages([]);
+  setLightboxIndex(0);
+};
+
+const moveLightbox = (delta) => {
+  setLightboxIndex((prev) =>
+    (prev + delta + lightboxImages.length) % lightboxImages.length
+  );
+}; 
+
   const { open } = useBurgerMenu();
 
     const navigate = useNavigate();
@@ -158,7 +185,7 @@ export default function FirstPageView({
         style={{ minHeight: "100dvh" }} aria-hidden="true"
       />
 
-      <div className="relative z-10 flex flex-col flex-1 w-full min-w-0">
+      <div className="relative flex flex-col flex-1 w-full min-w-0">
         {/* HEADER */}
         <header className="w-full min-w-0 max-w-full overflow-x-clip border-gray-900">
             <div className="grid w-full min-w-0 grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-x-2 md:gap-x-3 xl:gap-x-4 px-[10px] md:px-[41px] lg:px-9 min-[1440px]:px-[66px] pb-2 md:pb-5 xl:pb-4">
@@ -256,7 +283,7 @@ export default function FirstPageView({
 
         {/* FEED */}
         <main className="flex-1">
-          <div className="max-w-[1340px] mx-auto my-[10px] md:my-5 xl:my-[46px] px-[10px] md:px-[41px] lg:px-9 min-[1440px]:px-[66px] space-y-[10px] md:space-y-5">
+          <div className="max-w-[1340px] mx-auto my-[10px] md:my-5 xl:my-[46px] px-7 md:px-[41px] lg:px-9 min-[1440px]:px-[66px] space-y-[10px] md:space-y-5">
             {feedLoading && (
               <p className="text-center text-sm md:text-base font-[Montserrat] text-gray-600 py-6">
                 Завантаження стрічки…
@@ -274,6 +301,7 @@ export default function FirstPageView({
                   post={post}
                   feedActions={feedActions}
                   onOpenProfile={goProfileByUsername}
+                  onOpenLightbox={openLightbox}
                 />
               ))}
             {!feedLoading && feedLoadingMore && (
@@ -284,9 +312,18 @@ export default function FirstPageView({
             {!feedLoading && hasMoreFeed && <div ref={loadMoreRef} className="h-2 w-full" aria-hidden="true" />}
           </div>
         </main>
-
+        <ImageLightbox
+           isOpen={isLightboxOpen}
+           images={lightboxImages}
+           index={lightboxIndex}
+           onClose={closeLightbox}
+           onPrev={() => moveLightbox(-1)}
+           onNext={() => moveLightbox(1)} 
+        />
       </div>
     </div>
+
+    
   );
 }
 
@@ -343,18 +380,7 @@ function formatPostTime(iso) {
   }
 }
 
-function getAuthorUsername(author) {
-  if (!author) return "";
-  return (
-    (author.username || "").trim() ||
-    (author.nick || "").trim() ||
-    (author.userName || "").trim() ||
-    (author.nickname || "").trim() ||
-    (author.login || "").trim()
-  );
-}
-
-function GlobalFeedPostCard({ post, feedActions, onOpenProfile }) {
+function GlobalFeedPostCard({ post, feedActions, onOpenProfile, onOpenLightbox }) {
   const name =
     [post.author?.firstName, post.author?.lastName].filter(Boolean).join(" ").trim() ||
     post.author?.username ||
@@ -363,15 +389,15 @@ function GlobalFeedPostCard({ post, feedActions, onOpenProfile }) {
   const timeLabel = formatPostTime(post.createdAt);
   const location = post.location?.trim() || "—";
   const commentsOpen = feedActions.isCommentsOpen(post.id);
+  const authorHandle = getProfileRouteHandle(post.author);
   const handleOpenProfile = () => {
-    const username = getAuthorUsername(post.author);
-    if (!username) return;
-    onOpenProfile?.(username);
+    if (!authorHandle) return;
+    onOpenProfile?.(authorHandle);
   };
-  const hasProfileLink = Boolean(getAuthorUsername(post.author));
+  const hasProfileLink = Boolean(authorHandle);
 
   return (
-    <article className="first-page-post px-[6px] pt-[6px] pb-[11px] md:p-[10px] xl:!mb-[29px] space-y-3 relative">
+    <article className="first-page-post px-1.5 pt-1.5 pb-[11px] md:p-2.5 xl:!mb-[29px] my-4 space-y-3 relative">
       <div className="flex justify-between items-start">
         <div className="flex gap-[7px]">
           <button
@@ -384,7 +410,7 @@ function GlobalFeedPostCard({ post, feedActions, onOpenProfile }) {
             <img
               src={avatarSrc}
               alt=""
-              className=" h-10  md:h-[60px] xl:h-20 rounded-full object-cover bg-gray-300"
+              className=" h-10 md:h-[60px] xl:h-20 rounded-full object-cover bg-gray-300"
             />
             <div className="flex flex-col mt-[5px] gap-[3px]">
               <span className="text-[8px] md:text-xs xl:text-xl text-black font-[Montserrat] underline">
@@ -427,30 +453,57 @@ function GlobalFeedPostCard({ post, feedActions, onOpenProfile }) {
       </p>
 
       {Array.isArray(post.media) && post.media.length > 0 ? (
-        post.media.map((mediaItem) => (
-          <div
-            className="!mt-[19px] md:!mt-[10px] overflow-hidden rounded-sm"
-            key={`${post.id}-${mediaItem.order}-${mediaItem.url}`}
-          >
-            {mediaItem.type === "VIDEO" ? (
-              <video
-                src={mediaItem.url}
-                className="w-full h-80 object-contain object-center bg-black/15 lg:object-cover"
-                controls
-                preload="metadata"
-              />
-            ) : (
-              <img
-                src={mediaItem.url}
-                alt=""
-                className="w-full h-80 object-contain object-center bg-black/15 lg:object-cover"
-              />
-            )}
-          </div>
-        ))
-      ) : (
-        <div className="!mt-[19px] md:!mt-[10px] h-80 bg-black/5" />
-      )}
+  // (() => {
+  //   const images = post.media.filter((m) => m?.type !== "VIDEO" && m?.url);
+  //   const videos = post.media.filter((m) => m?.type === "VIDEO" && m?.url);
+
+  //   return (
+  //     <>
+  //       {images.length > 0 && (
+  //         <PostMediaGallery
+  //           mediaItems={images}
+  //            onOpenLightbox={onOpenLightbox}
+  //         />
+  //       )}
+
+  //       {videos.map((mediaItem) => (
+  //         <div
+  //           className="!mt-[19px] md:!mt-2.5 overflow-hidden rounded-sm"
+  //           key={`${post.id}-${mediaItem.order}-${mediaItem.url}`}
+  //         >
+  //           <video
+  //             src={mediaItem.url}
+  //             className="w-full h-80 object-contain object-center bg-black/15 lg:object-cover"
+  //             controls
+  //             preload="metadata"
+  //           />
+  //         </div>
+  //       ))}
+  //     </>
+  //   );
+  // })()
+   (() => {
+            const images = post.media.filter((m) => m?.type !== "VIDEO" && m?.url);
+            const videos = post.media.filter((m) => m?.type === "VIDEO" && m?.url);
+            return (
+              <>
+                {images.length > 0 && (
+                  <PostMediaGallery
+                    mediaItems={images}
+                    onOpenLightbox={onOpenLightbox}
+                  />
+                )}
+                {videos.map((mediaItem) => (
+                  <div className="postMedia" key={`${post.id}-${mediaItem.order}-${mediaItem.url}`}>
+                    <video src={mediaItem.url} className="postMediaImg" controls preload="metadata" />
+                  </div>
+                ))}
+              </>
+            );
+          })()
+) : (
+  <div className="!mt-[19px] md:!mt-2.5 h-80 bg-black/5" />
+)}
 
       <div className="flex justify-center mt-3 xl:!mt-[32px] xl:!mb-[18px]">
         <div className="flex gap-[41px] md:gap-[60px] xl:gap-36">
@@ -498,7 +551,7 @@ function GlobalFeedPostCard({ post, feedActions, onOpenProfile }) {
 
 export const FeedCard = ({ name, time, location, status, text }) => {
   return (
-    <article className="first-page-post px-[6px] pt-[6px] pb-[11px] md:p-[10px] xl:!mb-[29px] space-y-3 relative">
+    <article className="first-page-post px-1.5 pt-1.5 pb-[11px] md:p-[10px] xl:!mb-[29px] space-y-3 relative">
       {/* Header */}
       <div className="flex justify-between items-start">
         <div className="flex gap-[7px]">

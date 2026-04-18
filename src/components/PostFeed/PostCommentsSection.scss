@@ -81,6 +81,29 @@
   background: #e4e6eb;
 }
 
+.postCommentsSection__avatarBtn {
+  flex-shrink: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  border-radius: 50%;
+  cursor: pointer;
+  line-height: 0;
+  text-align: left;
+
+  &:disabled {
+    cursor: default;
+    opacity: 0.85;
+  }
+
+  &:not(:disabled):hover .postCommentsSection__avatar,
+  &:not(:disabled):focus-visible .postCommentsSection__avatar {
+    outline: 2px solid rgba(24, 119, 242, 0.45);
+    outline-offset: 1px;
+  }
+}
+
 .postCommentsSection__thread {
   min-width: 0;
   flex: 1;
@@ -107,6 +130,33 @@
   font-size: 13px;
   font-weight: 600;
   color: #050505;
+}
+
+.postCommentsSection__nameBtn {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  color: #050505;
+  text-align: left;
+  cursor: pointer;
+
+  &:disabled {
+    cursor: default;
+  }
+
+  &:not(:disabled):hover {
+    text-decoration: underline;
+  }
+
+  &:not(:disabled):focus-visible {
+    outline: 2px solid rgba(24, 119, 242, 0.45);
+    outline-offset: 1px;
+    border-radius: 2px;
+  }
 }
 
 .postCommentsSection__when {
@@ -172,17 +222,6 @@
   margin-top: 8px;
 }
 
-.postCommentsSection__hint {
-  font-size: 11px;
-  color: #8a8d91;
-}
-
-@media (max-width: 520px) {
-  .postCommentsSection__hint {
-    display: none;
-  }
-}
-
 .postCommentsSection__submit {
   border: 0;
   border-radius: 6px;
@@ -219,6 +258,8 @@ body.dark .postCommentsSection__title,
 html[data-theme="dark"] .postCommentsSection__title,
 body.dark .postCommentsSection__name,
 html[data-theme="dark"] .postCommentsSection__name,
+body.dark .postCommentsSection__nameBtn,
+html[data-theme="dark"] .postCommentsSection__nameBtn,
 body.dark .postCommentsSection__text,
 html[data-theme="dark"] .postCommentsSection__text {
   color: rgba(255, 255, 255, 0.92);
@@ -229,9 +270,7 @@ html[data-theme="dark"] .postCommentsSection__when,
 body.dark .postCommentsSection__count,
 html[data-theme="dark"] .postCommentsSection__count,
 body.dark .postCommentsSection__placeholder,
-html[data-theme="dark"] .postCommentsSection__placeholder,
-body.dark .postCommentsSection__hint,
-html[data-theme="dark"] .postCommentsSection__hint {
+html[data-theme="dark"] .postCommentsSection__placeholder {
   color: rgba(255, 255, 255, 0.55);
 }
 

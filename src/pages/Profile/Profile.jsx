@@ -21,7 +21,7 @@ const normalizeProfile = (u) => {
   const friendsCount = getFriendsCountNumber(rawFriendsCount);
 
   return {
-    id: u.id,
+    id: u.id ?? u._id,
     firstName: u.firstName || "",
     lastName: u.lastName || "",
     username: u.username || u.nick || u.nickname || u.login || "",
@@ -219,6 +219,7 @@ export default function Profile() {
   /** Якщо немає друзів — кнопка «Знайти друзів» веде на пошук */
   const onFindFriends = useCallback(() => navigate("/search"), [navigate]);
   const onAddToVip = useCallback(() => navigate("/friends"), [navigate]);
+  const onMyGifts = useCallback(() => navigate("/my-gifts"), [navigate]);
   const onGifts = useCallback(() => {}, []);
   const onReport = useCallback(() => {}, []);
   const onBlock = useCallback(() => {}, []);
@@ -294,6 +295,7 @@ export default function Profile() {
           refreshMe={refreshMe}
           onEditProfile={onEditProfile}
           onMessages={onMessages}
+          onGifts={onMyGifts}
           onSaved={onSaved}
           onWallet={onWallet}
         />
@@ -308,6 +310,7 @@ export default function Profile() {
           onGifts={onGifts}
           onReport={onReport}
           onShowMoreFriends={onShowMoreFriendFriends}
+          onOpenUser={onOpenUser}
           followingList={profileUser?.friends}
         />
       );
@@ -316,6 +319,7 @@ export default function Profile() {
       return (
         <ProfileVisitorSubscribed
           user={profileUser}
+          postsAuthorId={profileUser.id}
           friendsCount={profileUser?.friendsCount}
           onAddToVip={onAddToVip}
           onUnsubscribe={handleSubscribe}
@@ -331,6 +335,7 @@ export default function Profile() {
     return (
       <ProfileVisitorPublic
         user={profileUser}
+        postsAuthorId={profileUser.id}
         onSubscribe={handleSubscribe}
         subscriptionLoading={subscriptionLoading}
         onOpenUser={onOpenUser}

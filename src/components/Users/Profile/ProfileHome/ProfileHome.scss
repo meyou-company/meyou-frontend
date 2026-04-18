@@ -37,8 +37,19 @@
 .profileRight {
   flex: 0 0 180px;
   display: flex;
-  justify-content: center; 
+  justify-content: center;
   padding-top: 18px;
+}
+
+.profileRight__stack {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.profileRight__stack .btnMessages {
+  transform: none;
 }
 
 
@@ -403,10 +414,11 @@ font-size: 60px;
 
 .vipRow {
   display: flex;
-  align-items: center;
-  gap: 18px;
-  overflow-x: auto;
-  padding-bottom: 6px;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 28px 34px;
+  overflow: visible;
+  padding-bottom: 0;
   scrollbar-width: none;
   -ms-overflow-style: none;
 
@@ -421,8 +433,12 @@ font-size: 60px;
 
 .vipAvatarWrap {
   position: relative;
-  width: 153px;
-  height: 153px;
+  width: 126px;
+  height: 126px;
+  max-width: 126px;
+  min-width: 126px;
+  min-height: 126px;
+  flex: 0 0 126px;
   border-radius: 50%;
   padding: 2px;
   background: linear-gradient(135deg, #b05cff, #ff4fb1, #4f6bff);
@@ -465,10 +481,87 @@ font-size: 60px;
 }
 
 .friendsTitle {
-  font-size: 14px;
+  font-size: 20px;
+  font-weight: 400;
+  color: rgba(0, 0, 0, 0.82);
+  margin: 0 0 28px;
+}
+
+.friendsTitle__label {
+  display: inline-block;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+
+.friendsTitle__count {
+  display: inline-block;
+}
+
+/* Друг у vipRow: перехід на /profile/:username з аватара, іконки друзів або підпису */
+.vipFriendCell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+
+.vipFriendNameBtn {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  max-width: 100%;
+  padding: 4px 6px;
+  border-radius: 10px;
+  font: inherit;
+  font-size: 13px;
   font-weight: 500;
-  color: rgba(0, 0, 0, 0.7);
-  margin-bottom: 10px;
+  color: rgba(74, 50, 106, 0.92);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.vipFriendNameBtn:hover:not(:disabled) {
+  background: rgba(121, 86, 175, 0.12);
+}
+
+.vipFriendNameBtn:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.vipFriendNameIcon {
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.vipFriendNameText {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 120px;
+}
+
+/* Горизонтальний прев’ю-блок «Друзі» на картці профілю: на мобільних лише аватари (без імені, прізвища та іконки під фото). Повний список — на /friends та /profile/.../friends. */
+@media (max-width: 768px) {
+  .vipFriendNameBtn {
+    display: none !important;
+  }
+
+  .vipFriendCell {
+    gap: 0;
+  }
+}
+
+.vipAvatarWrap.vipAvatarWrap--clickable:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
 }
 
 .friendsEmpty {
@@ -1349,7 +1442,8 @@ html[data-theme="dark"] .profile-home .actionBtn .actionPlus img {
   filter: brightness(0);
 }
 
-body.dark .profile-home .msgText {
+body.dark .profile-home .msgText,
+html[data-theme="dark"] .profile-home .msgText {
   color: rgba(255, 255, 255, 0.9);
 }
 
@@ -1362,8 +1456,23 @@ body.dark .profile-home .postCard {
 
 body.dark .profile-home .vipTitle,
 body.dark .profile-home .friendsTitle,
-body.dark .profile-home .newPostTitle {
+body.dark .profile-home .friendsTitle__label,
+body.dark .profile-home .friendsTitle__count,
+body.dark .profile-home .newPostTitle,
+html[data-theme="dark"] .profile-home .friendsTitle,
+html[data-theme="dark"] .profile-home .friendsTitle__label,
+html[data-theme="dark"] .profile-home .friendsTitle__count {
   color: rgba(255, 255, 255, 0.9);
+}
+
+body.dark .profile-home .vipFriendNameBtn,
+html[data-theme="dark"] .profile-home .vipFriendNameBtn {
+  color: rgba(255, 255, 255, 0.88);
+}
+
+body.dark .profile-home .vipFriendNameBtn:hover:not(:disabled),
+html[data-theme="dark"] .profile-home .vipFriendNameBtn:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.08);
 }
 
 body.dark .profile-home .postInput {
@@ -1874,9 +1983,17 @@ html[data-theme="dark"] .profile-home .postActionCount {
     border-radius: 14px;
   }
 
-  /* VIP/Friends — горизонтальний скрол */
+  /* VIP/Friends — як на сторінці підписника: заголовок 17px; на мобільному — горизонтальний скрол */
+  .friendsTitle {
+    font-size: 17px;
+    font-weight: 400;
+    margin: 0 0 20px;
+    color: rgba(0, 0, 0, 0.82);
+  }
+
   .vipRow {
     flex-wrap: nowrap;
+    align-items: center;
     overflow-x: auto;
     gap: 12px;
     padding-bottom: 6px;
@@ -1899,6 +2016,9 @@ html[data-theme="dark"] .profile-home .postActionCount {
   .vipAvatarWrap {
     width: 54px;
     height: 54px;
+    max-width: 54px;
+    min-width: 54px;
+    min-height: 54px;
     padding: 2px;
     flex: 0 0 54px;
   }
@@ -2154,6 +2274,11 @@ html[data-theme="dark"] .profile-home .postActionCount {
   .profileRight {
     display: none;
   }
+
+  .friendsTitle {
+    font-size: 15px;
+    margin: 0 0 16px;
+  }
 }
 
 /* =========================
@@ -2284,9 +2409,15 @@ html[data-theme="dark"] .profile-home .postActionCount {
     border-radius: 12px;
   }
 
-  .vipTitle,
-  .friendsTitle {
+  .vipTitle {
     font-size: 12px;
+  }
+
+  .friendsTitle {
+    font-size: 14px;
+    font-weight: 400;
+    margin: 0 0 14px;
+    color: rgba(0, 0, 0, 0.82);
   }
 
   .vipRow {
@@ -2296,6 +2427,9 @@ html[data-theme="dark"] .profile-home .postActionCount {
   .vipAvatarWrap {
     width: 46px;
     height: 46px;
+    max-width: 46px;
+    min-width: 46px;
+    min-height: 46px;
     flex: 0 0 46px;
   }
 
@@ -2701,18 +2835,27 @@ html[data-theme="dark"] .profile-home .postActionCount {
   }
 
   .friendsTitle {
-    font-size: 36px;
-    margin: 0 0 8px;
-    color: rgba(71, 46, 102, 0.84);
+    font-size: 20px;
+    font-weight: 400;
+    margin: 0 0 28px;
+    color: rgba(0, 0, 0, 0.82);
   }
 
   .vipRow {
-    gap: 12px;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 28px 34px;
+    overflow: visible;
+    padding-bottom: 0;
   }
 
   .vipAvatarWrap {
-    width: 78px;
-    height: 78px;
+    width: 126px;
+    height: 126px;
+    max-width: 126px;
+    min-width: 126px;
+    min-height: 126px;
+    flex: 0 0 126px;
   }
 
   .showMoreBtn {
@@ -2721,5 +2864,37 @@ html[data-theme="dark"] .profile-home .postActionCount {
     height: 52px;
     padding: 0 24px;
     font-size: 18px;
+  }
+}
+
+/* Desktop dark: “My messages” + action row match editBtn / dark surfaces (no gray 0.36 fill) */
+@media (min-width: 1024px) {
+  body.dark .profile-home .btnMessages,
+  html[data-theme="dark"] .profile-home .btnMessages {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+
+  body.dark .profile-home .btnMessages::before,
+  html[data-theme="dark"] .profile-home .btnMessages::before {
+    display: none;
+  }
+
+  body.dark .profile-home .actionBtnDesktop,
+  html[data-theme="dark"] .profile-home .actionBtnDesktop {
+    border-color: rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  body.dark .profile-home .actionBtnDesktop span,
+  html[data-theme="dark"] .profile-home .actionBtnDesktop span {
+    color: rgba(255, 255, 255, 0.88);
+  }
+
+  body.dark .profile-home .actionBtnDesktop .actionRightDots,
+  body.dark .profile-home .actionBtnDesktop .actionRightArrow,
+  html[data-theme="dark"] .profile-home .actionBtnDesktop .actionRightDots,
+  html[data-theme="dark"] .profile-home .actionBtnDesktop .actionRightArrow {
+    color: rgba(255, 255, 255, 0.55);
   }
 }

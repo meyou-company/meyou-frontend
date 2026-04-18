@@ -3,38 +3,19 @@ import { useEffect, useMemo, useState } from "react";
 
 import profileIcons from "../../../../constants/profileIcons";
 import { getFriendsCountNumber } from "../../../../utils/profileFriends";
+import {
+  normalizeFriendListItem,
+  getFriendRouteHandle,
+  getFriendDisplayLabel,
+} from "../../../../utils/profileFriendNav";
+import { useProfileAuthorFeed } from "../../../../hooks/useProfileAuthorFeed";
+import ProfilePostsFeed from "../ProfilePostsFeed/ProfilePostsFeed";
+import "../ProfileHome/ProfileHome.scss";
 import "./ProfileVisitorSubscribed.scss";
-
-/** Мок постів для відображення на сторінці друга (поки немає API) */
-const MOCK_POSTS = [
-  {
-    id: 1,
-    time: "new post",
-    location: "Рим, Италия",
-    text: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-    image: true,
-    likes: 125,
-    comments: 256,
-    saved: 21,
-    shared: 60,
-  },
-];
-
-const toFriendItem = (f) => ({
-  id: f?.id ?? f?._id ?? f,
-  username: f?.username,
-  firstName: f?.firstName,
-  lastName: f?.lastName,
-  avatar: f?.avatarUrl ?? f?.avatar ?? null,
-  online: f?.online ?? true,
-  isFollowingMe: f?.isFollowingMe === true,
-  amIFollowing: f?.amIFollowing === true,
-  isFriend: f?.isFriend === true,
-  isVip: f?.isVip === true,
-});
 
 export default function ProfileVisitorSubscribed({
   user,
+  postsAuthorId,
   /** Загальна кількість друзів у цієї людини (з API GET /users/:username); показується, коли ти на неї підписана */
   friendsCount: friendsCountProp,
   onAddToVip,
@@ -69,10 +50,10 @@ export default function ProfileVisitorSubscribed({
   const displayAvatar = user?.avatarUrl || user?.avatar || "/Logo/photo.png";
   const isOnline = user?.online !== false;
 
-  const friends = useMemo(
-    () => (Array.isArray(user?.friends) ? user.friends.map(toFriendItem) : []),
-    [user?.friends]
-  );
+  const friends = useMemo(() => {
+    if (!Array.isArray(user?.friends)) return [];
+    return user.friends.map(normalizeFriendListItem).filter(Boolean);
+  }, [user?.friends]);
   /** Загальна кількість друзів з бекенду (friendsCount: { followers, following } або число); інакше — довжина списку */
   const apiCount = getFriendsCountNumber(friendsCountProp ?? user?.friendsCount ?? user?.friends_count);
   const displayFriendsCount =
@@ -82,9 +63,14 @@ export default function ProfileVisitorSubscribed({
         ? user.friends.length
         : 0;
 
+  const authorId = postsAuthorId ?? user?.id ?? user?._id;
+  const feedTitleName = nickname || displayName;
+  const { feedPosts, feedLoading, feedError, feedActions } =
+    useProfileAuthorFeed(authorId);
+
   /** Таби як у макеті: спочатку Удалить (з градієнтом коли активний), потім Інформація, Історії, Відео, Фото */
   const tabs = [
-    { id: "delete", label: "Удалить", locked: false },
+    { id: "delete", label: "Отписаться", locked: false },
     { id: "info", label: "Информация", locked: false },
     { id: "stories", label: "Истории", locked: false },
     { id: "video", label: "Видео", locked: true },
@@ -98,6 +84,11 @@ export default function ProfileVisitorSubscribed({
       return;
     }
     setActiveTab(tabId);
+  };
+
+  const openFriendProfile = (f) => {
+    const h = getFriendRouteHandle(f);
+    if (h) onOpenUser?.(h);
   };
 
   return (
@@ -116,7 +107,6 @@ export default function ProfileVisitorSubscribed({
             <img src={displayAvatar} alt="" className="profile-visitor-subscribed__avatar" />
             {isOnline && <span className="profile-visitor-subscribed__onlineDot" aria-hidden="true" />}
           </div>
-          {isOnline && <p className="profile-visitor-subscribed__onlineLabel">Online</p>}
           {/* На мобілці нік/ім'я/локація під аватаром */}
           <div className="profile-visitor-subscribed__nameBlock profile-visitor-subscribed__nameBlock--mobile">
             <h1 className="profile-visitor-subscribed__nickname">{nickname || displayName}</h1>
@@ -234,23 +224,54 @@ export default function ProfileVisitorSubscribed({
               {(friends.length > 0
                 ? friends.slice(0, 7)
                 : Array.from({ length: Math.min(displayFriendsCount, 7) }, (_, i) => ({ id: `placeholder-${i}`, avatar: null, username: null }))
-              ).map((f) => (
-                <div key={f.id} className="vipItem">
-                  <button
-                    type="button"
-                    className="vipAvatarWrap vipAvatarWrap--clickable"
-                    onClick={() => f.username && onOpenUser?.(f.username)}
-                    aria-label={f.username ? `Профіль ${f.username}` : "Профіль"}
-                  >
-                    <img
-                      src={f.avatar || "/icon1/image0.png"}
-                      className="vipAvatar"
-                      alt=""
-                    />
-                    <span className="onlineDot" aria-hidden="true" />
-                  </button>
-                </div>
-              ))}
+              ).map((f) => {
+                const handle = getFriendRouteHandle(f);
+                const canOpen = Boolean(handle);
+                const label = friends.length > 0 ? getFriendDisplayLabel(f) : "";
+                return (
+                  <div key={f.id} className="vipItem">
+                    <div className="vipFriendCell">
+                      <button
+                        type="button"
+                        className="vipAvatarWrap vipAvatarWrap--clickable"
+                        onClick={() => openFriendProfile(f)}
+                        disabled={!canOpen}
+                        aria-label={
+                          canOpen ? `Профіль ${handle}` : "Профіль недоступний"
+                        }
+                      >
+                        <img
+                          src={f.avatar || "/icon1/image0.png"}
+                          className="vipAvatar"
+                          alt=""
+                        />
+                        <span className="onlineDot" aria-hidden="true" />
+                      </button>
+                      {friends.length > 0 && (label || canOpen) && (
+                        <button
+                          type="button"
+                          className="vipFriendNameBtn"
+                          onClick={() => openFriendProfile(f)}
+                          disabled={!canOpen}
+                          aria-label={
+                            canOpen ? `Відкрити профіль ${handle}` : undefined
+                          }
+                        >
+                          <img
+                            src={profileIcons.friends}
+                            alt=""
+                            className="vipFriendNameIcon"
+                            aria-hidden="true"
+                          />
+                          <span className="vipFriendNameText">
+                            {label || handle || "—"}
+                          </span>
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
             </div>
             <button
               type="button"
@@ -267,82 +288,16 @@ export default function ProfileVisitorSubscribed({
         )}
       </section>
 
-      {/* ===== ПОСТИ: під секцією Друзья, як на особистому профілі ===== */}
-      <section className="profile-visitor-subscribed__feed feed">
-        {MOCK_POSTS.map((post) => (
-          <article key={post.id} className="postCard">
-            <div className="postTop">
-              <div className="postTopLeft">
-                <button
-                  type="button"
-                  className="postAvatarBtn"
-                  onClick={() => onViewPhoto?.(displayAvatar)}
-                  aria-label="Переглянути фото"
-                >
-                  <img src={displayAvatar} className="postAvatar" alt="" />
-                </button>
-                <div className="postHeadText">
-                  <div className="postLabel">{post.time}</div>
-                  <div className="postAuthor">{displayName}</div>
-                </div>
-              </div>
-              <div className="postTopRight">
-                <div className="postLocation">
-                  <img
-                    className="postLocationIcon"
-                    src={profileIcons.location || "/home/location.svg"}
-                    alt=""
-                  />
-                  <span className="postLocationText">{post.location}</span>
-                </div>
-                <button className="postMoreBtn" type="button" aria-label="more">
-                  …
-                </button>
-              </div>
-            </div>
-            <p className="postText">{post.text}</p>
-            {post.image && (
-              <div className="postMedia">
-                <div className="postMediaMock" />
-              </div>
-            )}
-            <div className="postActions">
-              <button className="postActionBtn" type="button" aria-label="like">
-                <img
-                  src={profileIcons.like || "/home/like.svg"}
-                  className="postActionIcon"
-                  alt=""
-                />
-                <span className="postActionCount">{post.likes}</span>
-              </button>
-              <button className="postActionBtn" type="button" aria-label="comment">
-                <img
-                  src={profileIcons.comments || "/home/comments.svg"}
-                  className="postActionIcon"
-                  alt=""
-                />
-                <span className="postActionCount">{post.comments}</span>
-              </button>
-              <button className="postActionBtn" type="button" aria-label="save">
-                <img
-                  src={profileIcons.saved || "/icon1/saved.svg"}
-                  className="postActionIcon"
-                  alt=""
-                />
-                <span className="postActionCount">{post.saved ?? 21}</span>
-              </button>
-              <button className="postActionBtn" type="button" aria-label="share">
-                <img
-                  src={profileIcons.share || "/home/to-share.svg"}
-                  className="postActionIcon"
-                  alt=""
-                />
-                <span className="postActionCount">{post.shared ?? 60}</span>
-              </button>
-            </div>
-          </article>
-        ))}
-      </section>
+      <ProfilePostsFeed
+        sectionClassName="profile-visitor-subscribed__feed feed"
+        feedPosts={feedPosts}
+        feedLoading={feedLoading}
+        feedError={feedError}
+        feedActions={feedActions}
+        displayAvatar={displayAvatar}
+        titleName={feedTitleName}
+        onViewProfileAvatar={() => onViewPhoto?.(displayAvatar)}
+      />
 
       {/* ===== IMAGE VIEWER ===== */}
       {viewImageUrl && (

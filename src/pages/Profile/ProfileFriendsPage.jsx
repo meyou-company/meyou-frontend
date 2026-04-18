@@ -2,18 +2,20 @@ import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { usersApi } from "../../services/usersApi";
 import { getFriendsFromUser } from "../../utils/profileFriends";
+import { getProfileRouteHandle } from "../../utils/profileFriendNav";
+import FriendsListRows from "../../components/Friends/FriendsListRows";
 import "../../components/Friends/FriendsContent.scss";
-
-const DEFAULT_AVATAR = "/icon1/image0.png";
 
 function matchQuery(user, q) {
   if (!q || !q.trim()) return true;
   const lower = q.trim().toLowerCase();
+  const handle = (getProfileRouteHandle(user) || "").toLowerCase();
   const username = (user.username || "").toLowerCase();
   const first = (user.firstName || "").toLowerCase();
   const last = (user.lastName || "").toLowerCase();
   const full = `${first} ${last}`.trim();
   return (
+    handle.includes(lower) ||
     username.includes(lower) ||
     first.includes(lower) ||
     last.includes(lower) ||
@@ -94,6 +96,16 @@ export default function ProfileFriendsPage() {
         />
       </div>
 
+      <div className="friends-content__tabs" role="tablist" aria-label="Розділи">
+        <div
+          className="friends-content__tab friends-content__tabActive friends-content__tabSingle"
+          role="tab"
+          aria-selected="true"
+        >
+          Друзі
+        </div>
+      </div>
+
       <div className="friends-content__listWrap">
         {loading ? (
           <p className="friends-content__empty">Завантаження…</p>
@@ -104,33 +116,10 @@ export default function ProfileFriendsPage() {
             {query.trim() ? "Нікого не знайдено за запитом" : "У цього користувача ще немає друзів"}
           </p>
         ) : (
-          <ul className="friends-content__list" role="list">
-            {filtered.map((user) => (
-              <li key={user.id} className="friends-content__item">
-                <button
-                  type="button"
-                  className="friends-content__userBtn"
-                  onClick={() => user.username && navigate(`/profile/${user.username}`)}
-                >
-                  <div className="friends-content__avatarWrap">
-                    <img
-                      src={user.avatarUrl || user.avatar || DEFAULT_AVATAR}
-                      alt=""
-                      className="friends-content__avatar"
-                    />
-                  </div>
-                  <div className="friends-content__userInfo">
-                    <span className="friends-content__name">
-                      {[user.firstName, user.lastName].filter(Boolean).join(" ") || user.username || "Користувач"}
-                    </span>
-                    {user.username && (
-                      <span className="friends-content__username">@{user.username}</span>
-                    )}
-                  </div>
-                </button>
-              </li>
-            ))}
-          </ul>
+          <FriendsListRows
+            users={filtered}
+            onOpenProfile={(h) => h && navigate(`/profile/${h}`)}
+          />
         )}
       </div>
     </div>

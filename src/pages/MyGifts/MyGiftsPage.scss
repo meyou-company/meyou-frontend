@@ -1,0 +1,121 @@
+.my-gifts-page {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 16px 18px 24px;
+  box-sizing: border-box;
+}
+
+.my-gifts-page__header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 28px;
+}
+
+.my-gifts-page__back {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: none;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.75);
+  box-shadow: 0 2px 10px rgba(126, 92, 176, 0.12);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+
+  img {
+    display: block;
+  }
+}
+
+.my-gifts-page__title {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 700;
+  color: rgba(74, 50, 106, 0.92);
+}
+
+.my-gifts-page__body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  text-align: center;
+  padding: 24px 12px;
+}
+
+.my-gifts-page__iconWrap {
+  width: 88px;
+  height: 88px;
+  border-radius: 24px;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(135deg, rgba(79, 107, 255, 0.12), rgba(255, 79, 177, 0.12));
+  border: 1px solid rgba(121, 86, 175, 0.2);
+}
+
+.my-gifts-page__icon {
+  width: 44px;
+  height: 44px;
+  object-fit: contain;
+}
+
+.my-gifts-page__hint {
+  margin: 0;
+  max-width: 320px;
+  font-size: 15px;
+  line-height: 1.45;
+  color: rgba(74, 50, 106, 0.72);
+}
+
+body.dark .my-gifts-page__back {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: none;
+
+  img {
+    filter: grayscale(100%) invert(1);
+  }
+}
+
+body.dark .my-gifts-page__title {
+  color: rgba(255, 255, 255, 0.92);
+}
+
+body.dark .my-gifts-page__iconWrap {
+  border-color: rgba(255, 255, 255, 0.15);
+  background: rgba(20, 10, 30, 0.45);
+}
+
+body.dark .my-gifts-page__hint {
+  color: rgba(255, 255, 255, 0.65);
+}
+
+html[data-theme="dark"] .my-gifts-page__back {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: none;
+
+  img {
+    filter: grayscale(100%) invert(1);
+  }
+}
+
+html[data-theme="dark"] .my-gifts-page__title {
+  color: rgba(255, 255, 255, 0.92);
+}
+
+html[data-theme="dark"] .my-gifts-page__iconWrap {
+  border-color: rgba(255, 255, 255, 0.15);
+  background: rgba(20, 10, 30, 0.45);
+}
+
+html[data-theme="dark"] .my-gifts-page__hint {
+  color: rgba(255, 255, 255, 0.65);
+}
