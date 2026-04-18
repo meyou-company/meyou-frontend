@@ -5,6 +5,7 @@ import profileIcons from "../../constants/profileIcons";
 import { getInterestLabel } from "../../constants/interests";
 import { getHobbyLabel } from "../../constants/hobbies";
 import { usersApi } from "../../services/usersApi";
+import { getProfileRouteHandle } from "../../utils/profileFriendNav";
 import { subscriptionsApi } from "../../services/subscriptionsApi";
 import SearchFilterModal from "./SearchFilterModal";
 import "./ExploreContent.scss";
@@ -278,7 +279,12 @@ export default function ExploreContent({ onBack, onOpenProfile }) {
                     <button
                       type="button"
                       className="explore-content__cardPhotoBtn"
-                      onClick={() => { if (!user?.username) return; navigate(`/profile/${user.username}`); }}
+                      onClick={() => {
+                        const h = getProfileRouteHandle(user);
+                        if (!h) return;
+                        if (onOpenProfile) onOpenProfile(h);
+                        else navigate(`/profile/${h}`);
+                      }}
                     >
                       <div className="explore-content__cardPhoto">
                         <img

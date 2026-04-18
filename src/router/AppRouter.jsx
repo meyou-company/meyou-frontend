@@ -26,8 +26,10 @@ import VideoPage from "../pages/Video/VideoPage";
 
 import FirstPage from "../pages/FirstPage/FirstPage";
 import WalletPage from "../pages/Wallet/WalletPage";
+import MyGiftsPage from "../pages/MyGifts/MyGiftsPage";
 
 import ProfileGuard from "./ProfileGuard";
+import { UserProfileNavProvider } from "../context/UserProfileNavContext";
 import BurgerMenu from "../components/BurgerMenu/BurgerMenu";
 import { useBurgerMenuStore } from "../zustand/useBurgerMenuStore";
 import { useThemeStore } from "../zustand/useThemeStore";
@@ -79,6 +81,7 @@ function AppLayout() {
               <Route path="/vip-chat" element={<VipChat />} />
               <Route path="/first-page" element={<FirstPage />} />
               <Route path="/wallet" element={<WalletPage />} />
+              <Route path="/my-gifts" element={<MyGiftsPage />} />
               <Route path="/video" element={<VideoPage />} />
               <Route
                 path="/users/profile/complete"
@@ -114,10 +117,12 @@ function AppLayout() {
 export default function AppRouter() {
   return (
     <BrowserRouter>
-      <ProfileGuard>
-        <GlobalBurgerMenu />
-        <AppLayout />
-      </ProfileGuard>
+      <UserProfileNavProvider>
+        <ProfileGuard>
+          <GlobalBurgerMenu />
+          <AppLayout />
+        </ProfileGuard>
+      </UserProfileNavProvider>
     </BrowserRouter>
   );
 }

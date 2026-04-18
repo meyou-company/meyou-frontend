@@ -97,8 +97,41 @@ $accent-logout: #e53333;
 
 .profile-menu__user {
   display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  min-width: 0;
+}
+
+.profile-menu__userTap {
+  display: flex;
   align-items: center;
   gap: 10px;
+  max-width: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+  font: inherit;
+  color: inherit;
+  min-width: 0;
+
+  &:focus-visible {
+    outline: 2px solid rgba(79, 107, 255, 0.55);
+    outline-offset: 2px;
+    border-radius: 8px;
+  }
+}
+
+.profile-menu__email--belowTap {
+  margin-left: calc(72px + 10px);
+  align-self: stretch;
+
+  @media (min-width: $bp-tablet) {
+    margin-left: calc(70px + 10px);
+  }
 }
 
 .profile-menu__avatar-wrapper {
@@ -138,6 +171,12 @@ $accent-logout: #e53333;
   gap: 4px;
 
   @media only screen and (max-width: 1439.98px) {
+    text-decoration: underline 0.6px rgb(0, 0, 0);
+  }
+}
+
+@media only screen and (max-width: 1439.98px) {
+  .profile-menu__userTap .profile-menu__name {
     text-decoration: underline 0.6px rgb(0, 0, 0);
   }
 }

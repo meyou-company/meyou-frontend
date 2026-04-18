@@ -445,7 +445,7 @@ html[data-theme="dark"] .pvs-tools__vip .pvs-tools__label {
   margin-top: 18px;
 }
 
-/* Блок друзів — ті самі класи й стилі що в ProfileHome */
+/* Блок «Друзі» — фірмовий вигляд сторінки підписника (не спрощений стиль картки «мій профіль») */
 .profile-visitor-subscribed .vipCard {
   width: 100%;
   padding: 22px 24px 28px;
@@ -501,6 +501,7 @@ html[data-theme="dark"] .pvs-tools__vip .pvs-tools__label {
   padding: 2px;
   background: linear-gradient(135deg, #b05cff, #ff4fb1, #4f6bff);
 }
+
 .profile-visitor-subscribed .vipAvatarWrap--clickable {
   border: none;
   cursor: pointer;
@@ -555,6 +556,17 @@ html[data-theme="dark"] .pvs-tools__vip .pvs-tools__label {
   font-weight: 500;
   color: rgba(0, 0, 0, 0.6);
   line-height: 1.4;
+}
+
+/* На мобільних ProfileHome ховає vipFriendNameBtn; для сторінки підписника залишаємо повний вигляд (ім’я + іконка під фото). */
+@media (max-width: 768px) {
+  .profile-visitor-subscribed .vipFriendNameBtn {
+    display: inline-flex !important;
+  }
+
+  .profile-visitor-subscribed .vipFriendCell {
+    gap: 8px;
+  }
 }
 
 /* ===== IMAGE VIEWER ===== */
@@ -1215,6 +1227,16 @@ html[data-theme="dark"] .profile-visitor-subscribed .friendsTitle {
 body.dark .profile-visitor-subscribed__friendsEmpty,
 html[data-theme="dark"] .profile-visitor-subscribed__friendsEmpty {
   color: $dark-text-muted;
+}
+
+body.dark .profile-visitor-subscribed .vipFriendNameBtn,
+html[data-theme="dark"] .profile-visitor-subscribed .vipFriendNameBtn {
+  color: rgba(255, 255, 255, 0.88);
+}
+
+body.dark .profile-visitor-subscribed .vipFriendNameBtn:hover:not(:disabled),
+html[data-theme="dark"] .profile-visitor-subscribed .vipFriendNameBtn:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.08);
 }
 
 body.dark .profile-visitor-subscribed .showMoreBtn,

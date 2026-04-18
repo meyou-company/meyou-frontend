@@ -1,5 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
 import profileIcons from "../../../../constants/profileIcons";
+import {
+  normalizeFriendListItem,
+  getFriendRouteHandle,
+} from "../../../../utils/profileFriendNav";
 import "./ProfileVisitorVip.scss";
 import { FeedCard } from "../../../FirstPage/FirstPageView";
 
@@ -17,6 +21,7 @@ export default function ProfileVisitorVip({
   onGifts,
   onReport,
   onShowMoreFriends,
+  onOpenUser,
   followingList,
 }) {
   const [activeTab, setActiveTab] = useState("info");
@@ -68,54 +73,29 @@ export default function ProfileVisitorVip({
 
   const isOnline = user?.online !== false;
 
-  const toFriendItem = (f) => ({
-  id: f?.id ?? f,
-  username: f?.username,
-  avatar: f?.avatarUrl ?? f?.avatar ?? null,
-});
-
   const friends = useMemo(() => {
       if (Array.isArray(followingList) && followingList.length > 0) {
-        return followingList.map(toFriendItem);
+        return followingList.map(normalizeFriendListItem).filter(Boolean);
       }
-      return Array.isArray(user?.friends) ? user.friends.map(toFriendItem) : [];
+      return Array.isArray(user?.friends)
+        ? user.friends.map(normalizeFriendListItem).filter(Boolean)
+        : [];
     }, [followingList, user?.friends]);
+
+  const openFriendOrPhoto = (friend) => {
+    const h = getFriendRouteHandle(friend);
+    if (h) {
+      onOpenUser?.(h);
+      return;
+    }
+    if (friend?.avatar) {
+      setIsFriendImage(true);
+      setViewImageUrl(friend.avatar);
+    }
+  };
     
 
-    const mockFriends = [
-  {
-    id: "1",
-    username: "anna_smith",
-    avatar: "https://i.pravatar.cc/150?img=1",
-  },
-  {
-    id: "2",
-    username: "john_doe",
-    avatar: "https://i.pravatar.cc/150?img=2",
-  },
-  {
-    id: "3",
-    username: "kate_m",
-    avatar: "https://i.pravatar.cc/150?img=3",
-  },
-  {
-    id: "4",
-    username: "alex_dev",
-    avatar: "https://i.pravatar.cc/150?img=4",
-  },
-  {
-    id: "5",
-    username: "lisa_star",
-    avatar: "https://i.pravatar.cc/150?img=5",
-  },
-  {
-    id: "6",
-    username: "mike_x",
-    avatar: "https://i.pravatar.cc/150?img=6",
-  },
-];
-
-    const friendsToRender = friends.length > 0 ? friends : mockFriends;
+    const friendsToRender = friends;
 
   const actions = [
     {
@@ -162,11 +142,6 @@ export default function ProfileVisitorVip({
             )}
           </div>
 
-          {isOnline && (
-            <p className="profile-visitor-vip__onlineLabel">
-              Online
-            </p>
-          )}
 
           {onUnsubscribe && (
             <button
@@ -255,13 +230,13 @@ export default function ProfileVisitorVip({
         <div
           key={`vip-${friend.id}`}
           className="profile-visitor-vip__friendCard profile-visitor-vip__friendCard--vip"
-          onClick={() => {
-  setIsFriendImage(true);
-  setViewImageUrl(friend.avatar);
-}}
+          role="button"
+          tabIndex={0}
+          onClick={() => openFriendOrPhoto(friend)}
+          onKeyDown={(e) => e.key === "Enter" && openFriendOrPhoto(friend)}
         >
           <div className="profile-visitor-vip__friendAvatar profile-visitor-vip__friendAvatar--vip">
-            <img src={friend.avatar} alt="" />
+            <img src={friend.avatar || "/icon1/image0.png"} alt="" />
             {isOnline && ( <span className="profile-visitor-vip__onlineDot--friend" /> )}
           </div>
         </div>
@@ -279,13 +254,13 @@ export default function ProfileVisitorVip({
     <div
       key={friend.id}
       className="profile-visitor-vip__friendCard"
-      onClick={() => {
-  setIsFriendImage(true);
-  setViewImageUrl(friend.avatar);
-}}
+      role="button"
+      tabIndex={0}
+      onClick={() => openFriendOrPhoto(friend)}
+      onKeyDown={(e) => e.key === "Enter" && openFriendOrPhoto(friend)}
     >
       <div className="profile-visitor-vip__friendAvatar">
-         <img src={friend.avatar} alt="" />
+         <img src={friend.avatar || "/icon1/image0.png"} alt="" />
         {isOnline && ( <span className="profile-visitor-vip__onlineDot--friend" /> )}
       </div>
     </div>

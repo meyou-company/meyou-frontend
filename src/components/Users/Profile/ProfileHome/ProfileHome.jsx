@@ -14,13 +14,15 @@ import {
 
 import profileIcons from "../../../../constants/profileIcons";
 import { getFriendsCountNumber } from "../../../../utils/profileFriends";
+import {
+  normalizeFriendListItem,
+  getFriendRouteHandle,
+  getFriendDisplayLabel,
+} from "../../../../utils/profileFriendNav";
 import { mapApiPostToFeedItem } from "../../../../utils/mapApiPostToFeedItem";
-import { usePostFeedActions } from "../../../../hooks/usePostFeedActions";
-import PostCommentsSection from "../../../PostFeed/PostCommentsSection";
-import PostMediaGallery from "../../../PostFeed/PostMediaGallery";
-import ImageLightbox from "../../../PostFeed/ImageLightbox";
+import { useProfileAuthorFeed } from "../../../../hooks/useProfileAuthorFeed";
+import ProfilePostsFeed from "../ProfilePostsFeed/ProfilePostsFeed";
 import { getApiErrorMessage } from "../../../../utils/getApiErrorMessage";
-import { applyPersistedLikes } from "../../../../utils/postLikePersistence";
 import "./ProfileHome.scss";
 
 /** Іконки тільки для actionsBlock (чорно-білі SVG) */
@@ -30,18 +32,6 @@ const actionIcons = {
   pencil: "/icon-black/pencil.svg",
 };
 
-/** Форма друга для відображення в кружечках (підтримка полів з GET /users/:username/followers) */
-const toFriendItem = (f) => ({
-  id: f?.id ?? f?._id ?? f,
-  username: f?.username,
-  firstName: f?.firstName,
-  lastName: f?.lastName,
-  avatar: f?.avatarUrl ?? f?.avatar ?? null,
-  isFollowingMe: f?.isFollowingMe === true,
-  amIFollowing: f?.amIFollowing === true,
-  isFriend: f?.isFriend === true,
-  isVip: f?.isVip === true,
-});
 export default function ProfileHome({
   user,
   /** User id whose posts to show — must match profile owner (GET /posts/users/:id/posts) */
@@ -57,6 +47,7 @@ export default function ProfileHome({
   refreshMe,
   onEditProfile,
   onMessages,
+  onGifts,
   onSaved,
   onWallet,
 }) {
@@ -68,88 +59,18 @@ export default function ProfileHome({
   const [postMediaFiles, setPostMediaFiles] = useState([]);
   const [isComposerOpen, setIsComposerOpen] = useState(false);
   const [isPublishingPost, setIsPublishingPost] = useState(false);
-  const [openPostMenuId, setOpenPostMenuId] = useState(null);
   const [cropModalSrc, setCropModalSrc] = useState(null);
   const [isSaving, setIsSaving] = useState(false);
   /** URL фото для перегляду в повному розмірі (null = закрито) */
   const [viewImageUrl, setViewImageUrl] = useState(null);
-  const [isLightboxOpen, setIsLightboxOpen] = useState(false);
-  const [lightboxImages, setLightboxImages] = useState([]);
-  const [lightboxIndex, setLightboxIndex] = useState(0);
 
-  const [feedPosts, setFeedPosts] = useState([]);
-  const [feedLoading, setFeedLoading] = useState(true);
-  const [feedError, setFeedError] = useState("");
-  const feedActions = usePostFeedActions(setFeedPosts);
-  const feedCacheKey = postsAuthorId
-    ? `profile-feed-cache:${String(postsAuthorId)}`
-    : "";
-
-  useEffect(() => {
-    if (!feedCacheKey || typeof window === "undefined") return;
-    try {
-      const raw = window.localStorage.getItem(feedCacheKey);
-      if (!raw) return;
-      const parsed = JSON.parse(raw);
-      if (Array.isArray(parsed) && parsed.length > 0) {
-        setFeedPosts(parsed);
-        setFeedError("");
-      }
-    } catch {
-      // ignore invalid cache
-    }
-  }, [feedCacheKey]);
-
-  useEffect(() => {
-    if (!feedCacheKey || typeof window === "undefined") return;
-    try {
-      window.localStorage.setItem(feedCacheKey, JSON.stringify(feedPosts));
-    } catch {
-      // ignore storage errors
-    }
-  }, [feedCacheKey, feedPosts]);
-
-  useEffect(() => {
-    let cancelled = false;
-    if (!postsAuthorId) {
-      setFeedPosts([]);
-      setFeedError("");
-      setFeedLoading(false);
-      return () => {
-        cancelled = true;
-      };
-    }
-    (async () => {
-      try {
-        setFeedLoading(true);
-        setFeedError("");
-        const list = await postsApi.listByAuthor(postsAuthorId);
-        const mapped = (Array.isArray(list) ? list : [])
-          .map(mapApiPostToFeedItem)
-          .filter(Boolean);
-        if (!cancelled) setFeedPosts(applyPersistedLikes(mapped));
-      } catch (err) {
-        if (!cancelled) {
-          const raw = getApiErrorMessage(err);
-          const pretty = /^Cannot GET\s+/i.test(raw || "")
-            ? "Не вдалося завантажити пости профілю (маршрут недоступний на бекенді)."
-            : /^Internal server error$/i.test(raw || "")
-              ? "Тимчасова помилка сервера при завантаженні постів."
-              : raw;
-          setFeedError(
-            pretty
-              ? pretty
-              : "Не вдалося завантажити пости. Спробуйте оновити сторінку."
-          );
-        }
-      } finally {
-        if (!cancelled) setFeedLoading(false);
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, [postsAuthorId]);
+  const {
+    feedPosts,
+    setFeedPosts,
+    feedLoading,
+    feedError,
+    feedActions,
+  } = useProfileAuthorFeed(postsAuthorId);
 
   useEffect(() => {
     if (!viewImageUrl) return;
@@ -157,20 +78,6 @@ export default function ProfileHome({
     window.addEventListener("keydown", onEscape);
     return () => window.removeEventListener("keydown", onEscape);
   }, [viewImageUrl]);
-
-  useEffect(() => {
-    if (openPostMenuId == null) return;
-    const onDocClick = () => setOpenPostMenuId(null);
-    const onEscape = (e) => {
-      if (e.key === "Escape") setOpenPostMenuId(null);
-    };
-    document.addEventListener("click", onDocClick);
-    document.addEventListener("keydown", onEscape);
-    return () => {
-      document.removeEventListener("click", onDocClick);
-      document.removeEventListener("keydown", onEscape);
-    };
-  }, [openPostMenuId]);
 
   useEffect(() => {
     return () => {
@@ -203,10 +110,17 @@ export default function ProfileHome({
 
   const friends = useMemo(() => {
     if (Array.isArray(followingList) && followingList.length > 0) {
-      return followingList.map(toFriendItem);
+      return followingList.map(normalizeFriendListItem).filter(Boolean);
     }
-    return Array.isArray(user?.friends) ? user.friends.map(toFriendItem) : [];
+    return Array.isArray(user?.friends)
+      ? user.friends.map(normalizeFriendListItem).filter(Boolean)
+      : [];
   }, [followingList, user?.friends]);
+
+  const openFriendProfile = (f) => {
+    const h = getFriendRouteHandle(f);
+    if (h) onOpenUser?.(h);
+  };
   const hasFriends = friends.length > 0;
   /** Загальна кількість друзів з бекенду (friendsCount: { followers, following } або число); інакше — довжина списку */
   const apiCount = getFriendsCountNumber(user?.friendsCount ?? user?.friends_count);
@@ -369,26 +283,6 @@ export default function ProfileHome({
     }
   };
 
-  const openPostImageViewer = (images, startIndex = 0) => {
-    const list = Array.isArray(images) ? images.filter(Boolean) : [];
-    if (!list.length) return;
-    const safeIndex = Math.min(Math.max(Number(startIndex) || 0, 0), list.length - 1);
-    setLightboxImages(list);
-    setLightboxIndex(safeIndex);
-    setIsLightboxOpen(true);
-  };
-
-  const closeLightbox = () => {
-    setIsLightboxOpen(false);
-    setLightboxImages([]);
-    setLightboxIndex(0);
-  };
-
-  const moveLightbox = (delta) => {
-    if (!lightboxImages.length) return;
-    setLightboxIndex((prev) => (prev + delta + lightboxImages.length) % lightboxImages.length);
-  };
-
   return (
     <div className="profile-home">
       <div className="profile-container">
@@ -456,15 +350,26 @@ export default function ProfileHome({
 
           {/* RIGHT */}
           <div className="profileRight">
-            <button
-              type="button"
-              className="btnMessages"
-              onClick={onMessages}
-              aria-label="My messages"
-            >
-              <img src={profileIcons.chat} alt="" className="msgIcon" />
-              <span className="msgText">my messages</span>
-            </button>
+            <div className="profileRight__stack">
+              <button
+                type="button"
+                className="btnMessages"
+                onClick={onMessages}
+                aria-label="My messages"
+              >
+                <img src={profileIcons.chat} alt="" className="msgIcon" />
+                <span className="msgText">my messages</span>
+              </button>
+              <button
+                type="button"
+                className="btnMessages"
+                onClick={onGifts}
+                aria-label="My gifts"
+              >
+                <img src={profileIcons.giftIcon} alt="" className="msgIcon" />
+                <span className="msgText">my gifts</span>
+              </button>
+            </div>
 
             <button
               type="button"
@@ -563,28 +468,62 @@ export default function ProfileHome({
 
         {/* ================= VIP / FRIENDS ================= */}
         <section className="vipCard">
-          {hasFriends && <div className="friendsTitle">Друзі {displayFriendsCount}</div>}
+          <div className="friendsTitle">
+            <span className="friendsTitle__label">Друзья</span>{" "}
+            <span className="friendsTitle__count">{displayFriendsCount}</span>
+          </div>
 
           {hasFriends ? (
             <>
               <div className="vipRow">
-                {friends.slice(0, 7).map((v) => (
-                  <div key={v.id} className="vipItem">
-                    <button
-                      type="button"
-                      className="vipAvatarWrap vipAvatarWrap--clickable"
-                      onClick={() => v.username && onOpenUser?.(v.username)}
-                      aria-label={v.username ? `Профіль ${v.username}` : "Користувач"}
-                    >
-                      <img
-                        src={v.avatar || "/icon1/image0.png"}
-                        className="vipAvatar"
-                        alt=""
-                      />
-                      <span className="onlineDot" />
-                    </button>
-                  </div>
-                ))}
+                {friends.slice(0, 7).map((v) => {
+                  const handle = getFriendRouteHandle(v);
+                  const canOpen = Boolean(handle);
+                  const label = getFriendDisplayLabel(v);
+                  return (
+                    <div key={v.id} className="vipItem">
+                      <div className="vipFriendCell">
+                        <button
+                          type="button"
+                          className="vipAvatarWrap vipAvatarWrap--clickable"
+                          onClick={() => openFriendProfile(v)}
+                          disabled={!canOpen}
+                          aria-label={
+                            canOpen ? `Профіль ${handle}` : "Профіль недоступний"
+                          }
+                        >
+                          <img
+                            src={v.avatar || "/icon1/image0.png"}
+                            className="vipAvatar"
+                            alt=""
+                          />
+                          <span className="onlineDot" />
+                        </button>
+                        {(label || canOpen) && (
+                          <button
+                            type="button"
+                            className="vipFriendNameBtn"
+                            onClick={() => openFriendProfile(v)}
+                            disabled={!canOpen}
+                            aria-label={
+                              canOpen ? `Відкрити профіль ${handle}` : undefined
+                            }
+                          >
+                            <img
+                              src={profileIcons.friends}
+                              alt=""
+                              className="vipFriendNameIcon"
+                              aria-hidden="true"
+                            />
+                            <span className="vipFriendNameText">
+                              {label || handle || "—"}
+                            </span>
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
               <button
                 className="showMoreBtn"
@@ -622,192 +561,15 @@ export default function ProfileHome({
           </button>
         </section>
 
-        {/* ================= FEED ================= */}
-<section className="feed">
-  {feedLoading && (
-    <p className="feedLoadingHint" aria-live="polite">
-      Завантаження постів…
-    </p>
-  )}
-  {!feedLoading && feedPosts.length === 0 && (
-    <p className="feedEmptyHint">Поки немає постів</p>
-  )}
-  {feedPosts.map((post) => (
-    <article
-      key={post.id}
-      className={`postCard${post.permissions?.canEdit ? " postCard--canEdit" : ""}${post.permissions?.canDelete ? " postCard--canDelete" : ""}`}
-      data-can-edit={post.permissions?.canEdit === true ? "true" : "false"}
-      data-can-delete={post.permissions?.canDelete === true ? "true" : "false"}
-    >
-      {/* TOP ROW */}
-      <div className="postTop">
-        <div className="postTopLeft">
-          <button
-            type="button"
-            className="postAvatarBtn"
-            onClick={() => setViewImageUrl(displayAvatar)}
-            aria-label="Переглянути фото"
-          >
-            <img src={displayAvatar} className="postAvatar" alt="" />
-          </button>
-
-          <div className="postHeadText">
-            <div className="postLabel">new post</div>
-            <div className="postAuthor">{titleName}</div>
-          </div>
-        </div>
-
-        <div className="postTopRight">
-          {post.permissions?.canDelete === true && (
-            <div
-              className="postMenuWrap"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <button
-                className="postMenuBtn"
-                type="button"
-                aria-label="Меню поста"
-                aria-expanded={openPostMenuId === post.id}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setOpenPostMenuId((prev) => (prev === post.id ? null : post.id));
-                }}
-              >
-                •••
-              </button>
-              {openPostMenuId === post.id && (
-                <div className="postMenuDropdown" role="menu" aria-label="Дії з постом">
-                  <button
-                    className="postMenuDeleteBtn"
-                    type="button"
-                    role="menuitem"
-                    onClick={() => {
-                      setOpenPostMenuId(null);
-                      feedActions.onDeletePost(post);
-                    }}
-                  >
-                    Видалити
-                  </button>
-                </div>
-              )}
-            </div>
-          )}
-          <div className="postLocation">
-            <img
-              className="postLocationIcon"
-              src={profileIcons.location || "/home/location.svg"}
-              alt=""
-            />
-            <span className="postLocationText">{post.location || "—"}</span>
-          </div>
-        </div>
-      </div>
-
-      {/* TEXT */}
-      <p className="postText">{post.text}</p>
-
-      {/* MEDIA */}
-      {Array.isArray(post.media) && post.media.length > 0 ? (
-        (() => {
-          const images = post.media.filter((m) => m?.type !== "VIDEO" && m?.url);
-          const videos = post.media.filter((m) => m?.type === "VIDEO" && m?.url);
-          return (
-            <>
-              {images.length > 0 && (
-                <PostMediaGallery
-                  mediaItems={images}
-                  onOpenLightbox={openPostImageViewer}
-                />
-              )}
-              {videos.map((mediaItem) => (
-                <div className="postMedia" key={`${post.id}-${mediaItem.order}-${mediaItem.url}`}>
-                  <video src={mediaItem.url} className="postMediaImg" controls preload="metadata" />
-                </div>
-              ))}
-            </>
-          );
-        })()
-      ) : (
-        <div className="postMedia">
-          <div className="postMediaMock" />
-        </div>
-      )}
-
-      {/* ACTIONS — counts from post.counts.*; active state from post.viewerState.* */}
-      <div className="postActions">
-        <button
-          className={`postActionBtn ${post.viewerState?.isLiked ? "postActionBtn--active postActionBtn--liked" : ""}`}
-          type="button"
-          aria-label="like"
-          aria-pressed={post.viewerState?.isLiked === true}
-          onClick={() => feedActions.onLike(post)}
-        >
-          <img
-            src={profileIcons.like || "/home/like.svg"}
-            className="postActionIcon"
-            alt=""
-          />
-          <span className="postActionCount">{post.counts?.likes ?? 0}</span>
-        </button>
-
-        <button
-          className="postActionBtn"
-          type="button"
-          aria-label="comment"
-          onClick={() => feedActions.toggleCommentsOpen(post.id)}
-        >
-          <img
-            src={profileIcons.comments || "/home/comments.svg"}
-            className="postActionIcon"
-            alt=""
-          />
-          <span className="postActionCount">{post.counts?.comments ?? 0}</span>
-        </button>
-
-        <span
-          className={`postActionBtn postActionBtn--static ${post.viewerState?.isSaved ? "postActionBtn--active" : ""}`}
-          aria-hidden="true"
-        >
-          <img
-            src={profileIcons.saved || "/icon1/saved.svg"}
-            className="postActionIcon"
-            alt=""
-          />
-          <span className="postActionCount">{post.counts?.saves ?? 0}</span>
-        </span>
-
-        <button
-          className={`postActionBtn ${post.viewerState?.isReposted ? "postActionBtn--active" : ""}`}
-          type="button"
-          aria-label="repost"
-          aria-pressed={post.viewerState?.isReposted === true}
-          onClick={() => feedActions.onRepost(post)}
-        >
-          <img
-            src={profileIcons.share || "/home/to-share.svg"}
-            className="postActionIcon"
-            alt=""
-          />
-          <span className="postActionCount">{post.counts?.reposts ?? 0}</span>
-        </button>
-      </div>
-
-      {feedActions.isCommentsOpen(post.id) && (
-        <PostCommentsSection
-          comments={post.comments}
-          commentDraft={feedActions.commentDraft}
-          onCommentDraftChange={feedActions.setCommentDraft}
-          onSubmitComment={() =>
-            feedActions.submitComment(post, feedActions.commentDraft)
-          }
-          onDeleteComment={(commentId) => feedActions.onDeleteComment(post, commentId)}
-          variant="profile"
+        <ProfilePostsFeed
+          feedPosts={feedPosts}
+          feedLoading={feedLoading}
+          feedError={feedError}
+          feedActions={feedActions}
+          displayAvatar={displayAvatar}
+          titleName={titleName}
+          onViewProfileAvatar={() => setViewImageUrl(displayAvatar)}
         />
-      )}
-    </article>
-  ))}
-</section>
-
 
       </div>
 
@@ -946,14 +708,6 @@ export default function ProfileHome({
           />
         </div>
       )}
-      <ImageLightbox
-        isOpen={isLightboxOpen}
-        images={lightboxImages}
-        index={lightboxIndex}
-        onClose={closeLightbox}
-        onPrev={() => moveLightbox(-1)}
-        onNext={() => moveLightbox(1)}
-      />
     </div>
   );
 }

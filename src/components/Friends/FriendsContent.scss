@@ -149,6 +149,17 @@ body.dark .friends-content__tabActive {
   color: #fff;
 }
 
+/* Один активний таб (сторінка друзів чужого профілю — той самий вигляд, що й на /friends) */
+.friends-content__tabSingle {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: default;
+  pointer-events: none;
+  user-select: none;
+}
+
 .friends-content__listWrap {
   flex: 1;
   min-height: 200px;
@@ -199,6 +210,15 @@ body.dark .friends-content__item {
   &:hover {
     background: rgba(255, 79, 177, 0.06);
   }
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.55;
+  }
+
+  &:disabled:hover {
+    background: transparent;
+  }
 }
 
 body.dark .friends-content__userBtn:hover {
@@ -228,10 +248,72 @@ body.dark .friends-content__userBtn:hover {
   gap: 2px;
 }
 
+.friends-content__nameRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
 .friends-content__name {
   font-size: 16px;
   font-weight: 600;
   color: inherit;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.friends-content__verified {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+}
+
+.friends-content__verifiedIcon {
+  display: block;
+  width: 16px;
+  height: 16px;
+}
+
+.friends-content__nameInlineIcon {
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+  flex-shrink: 0;
+  opacity: 0.72;
+}
+
+.friends-content__trail {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  margin-left: 8px;
+}
+
+.friends-content__chevron {
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+  opacity: 0.42;
+}
+
+/* Декоративні іконки в рядку — приховано на мобільних (до 768px) */
+.friends-content__desktopOnly {
+  @media (max-width: 767.98px) {
+    display: none !important;
+  }
+}
+
+body.dark .friends-content__nameInlineIcon {
+  opacity: 0.85;
+  filter: brightness(0) invert(1);
+}
+
+body.dark .friends-content__chevron {
+  filter: invert(1);
+  opacity: 0.5;
 }
 
 .friends-content__username {

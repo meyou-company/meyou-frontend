@@ -1,5 +1,7 @@
 import profileIcons from "../../constants/profileIcons";
 import { useAuthStore } from "../../zustand/useAuthStore";
+import { useUserProfileNav } from "../../context/UserProfileNavContext";
+import { getProfileRouteHandle } from "../../utils/profileFriendNav";
 import "./PostCommentsSection.scss";
 
 /** Як у Facebook: короткий відносний час або дата. */
@@ -49,6 +51,7 @@ export default function PostCommentsSection({
   variant = "profile",
 }) {
   const currentUserId = useAuthStore((s) => s.user?.id);
+  const profileNav = useUserProfileNav();
   const list = Array.isArray(comments) ? comments : [];
   const rootClass =
     variant === "firstPage"
@@ -76,19 +79,44 @@ export default function PostCommentsSection({
           <p className="postCommentsSection__placeholder">No comments yet</p>
         ) : (
           <ul className="postCommentsSection__list">
-            {list.map((c) => (
+            {list.map((c) => {
+              const authorHandle = c?.author
+                ? getProfileRouteHandle(c.author)
+                : null;
+              const canOpenAuthor = Boolean(authorHandle && profileNav?.openProfile);
+              const goAuthor = () => {
+                if (canOpenAuthor) profileNav.openProfile(c.author);
+              };
+              return (
               <li key={c.id} className="postCommentsSection__row">
-                <img
-                  className="postCommentsSection__avatar"
-                  src={commentAvatarSrc(c)}
-                  alt=""
-                />
+                <button
+                  type="button"
+                  className="postCommentsSection__avatarBtn"
+                  disabled={!canOpenAuthor}
+                  onClick={goAuthor}
+                  aria-label={
+                    canOpenAuthor
+                      ? `Профіль ${authorHandle}`
+                      : "Автор коментаря"
+                  }
+                >
+                  <img
+                    className="postCommentsSection__avatar"
+                    src={commentAvatarSrc(c)}
+                    alt=""
+                  />
+                </button>
                 <div className="postCommentsSection__thread">
                   <div className="postCommentsSection__bubble">
                     <div className="postCommentsSection__bubbleHead">
-                      <span className="postCommentsSection__name">
+                      <button
+                        type="button"
+                        className="postCommentsSection__nameBtn"
+                        disabled={!canOpenAuthor}
+                        onClick={goAuthor}
+                      >
                         {commentDisplayName(c)}
-                      </span>
+                      </button>
                       <span
                         className="postCommentsSection__when"
                         title={
@@ -115,7 +143,8 @@ export default function PostCommentsSection({
                   </div>
                 </div>
               </li>
-            ))}
+            );
+            })}
           </ul>
         )}
       </div>
@@ -131,7 +160,6 @@ export default function PostCommentsSection({
           aria-label="Текст нового коментаря"
         />
         <div className="postCommentsSection__composerActions">
-          <span className="postCommentsSection__hint">Ctrl+Enter — надіслати</span>
           <button
             type="button"
             className="postCommentsSection__submit"

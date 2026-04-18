@@ -10,6 +10,7 @@ import { usePostFeedActions } from "../../hooks/usePostFeedActions";
 import PostCommentsSection from "../PostFeed/PostCommentsSection";
 import { getApiErrorMessage } from "../../utils/getApiErrorMessage";
 import { applyPersistedLikes } from "../../utils/postLikePersistence";
+import { getProfileRouteHandle } from "../../utils/profileFriendNav";
 import PostMediaGallery from "../../components/PostFeed/PostMediaGallery";
 import ImageLightbox from "../../components/PostFeed/ImageLightbox";
 import "../Users/Profile/ProfileHome/ProfileHome.scss";
@@ -379,17 +380,6 @@ function formatPostTime(iso) {
   }
 }
 
-function getAuthorUsername(author) {
-  if (!author) return "";
-  return (
-    (author.username || "").trim() ||
-    (author.nick || "").trim() ||
-    (author.userName || "").trim() ||
-    (author.nickname || "").trim() ||
-    (author.login || "").trim()
-  );
-}
-
 function GlobalFeedPostCard({ post, feedActions, onOpenProfile, onOpenLightbox }) {
   const name =
     [post.author?.firstName, post.author?.lastName].filter(Boolean).join(" ").trim() ||
@@ -399,12 +389,12 @@ function GlobalFeedPostCard({ post, feedActions, onOpenProfile, onOpenLightbox }
   const timeLabel = formatPostTime(post.createdAt);
   const location = post.location?.trim() || "—";
   const commentsOpen = feedActions.isCommentsOpen(post.id);
+  const authorHandle = getProfileRouteHandle(post.author);
   const handleOpenProfile = () => {
-    const username = getAuthorUsername(post.author);
-    if (!username) return;
-    onOpenProfile?.(username);
+    if (!authorHandle) return;
+    onOpenProfile?.(authorHandle);
   };
-  const hasProfileLink = Boolean(getAuthorUsername(post.author));
+  const hasProfileLink = Boolean(authorHandle);
 
   return (
     <article className="first-page-post px-1.5 pt-1.5 pb-[11px] md:p-2.5 xl:!mb-[29px] my-4 space-y-3 relative">

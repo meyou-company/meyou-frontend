@@ -1,17 +1,19 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { subscriptionsApi } from "../../services/subscriptionsApi";
+import { getProfileRouteHandle } from "../../utils/profileFriendNav";
+import FriendsListRows from "./FriendsListRows";
 import "./FriendsContent.scss";
-
-const DEFAULT_AVATAR = "/icon1/image0.png";
 
 function matchQuery(user, q) {
   if (!q || !q.trim()) return true;
   const lower = q.trim().toLowerCase();
+  const handle = (getProfileRouteHandle(user) || "").toLowerCase();
   const username = (user.username || "").toLowerCase();
   const first = (user.firstName || "").toLowerCase();
   const last = (user.lastName || "").toLowerCase();
   const full = `${first} ${last}`.trim();
   return (
+    handle.includes(lower) ||
     username.includes(lower) ||
     first.includes(lower) ||
     last.includes(lower) ||
@@ -105,33 +107,7 @@ export default function FriendsContent({ onBack, onOpenProfile }) {
             {query.trim() ? "Нікого не знайдено за запитом" : tab === "friends" ? "У вас ще немає друзів" : "У вас ще немає VIP"}
           </p>
         ) : (
-          <ul className="friends-content__list" role="list">
-            {filtered.map((user) => (
-              <li key={user.id} className="friends-content__item">
-                <button
-                  type="button"
-                  className="friends-content__userBtn"
-                  onClick={() => onOpenProfile(user.username)}
-                >
-                  <div className="friends-content__avatarWrap">
-                    <img
-                      src={user.avatarUrl || user.avatar || DEFAULT_AVATAR}
-                      alt=""
-                      className="friends-content__avatar"
-                    />
-                  </div>
-                  <div className="friends-content__userInfo">
-                    <span className="friends-content__name">
-                      {[user.firstName, user.lastName].filter(Boolean).join(" ") || user.username || "Користувач"}
-                    </span>
-                    {user.username && (
-                      <span className="friends-content__username">@{user.username}</span>
-                    )}
-                  </div>
-                </button>
-              </li>
-            ))}
-          </ul>
+          <FriendsListRows users={filtered} onOpenProfile={onOpenProfile} />
         )}
       </div>
     </div>
