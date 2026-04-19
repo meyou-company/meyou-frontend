@@ -9,6 +9,7 @@ import {
   getFriendDisplayLabel,
 } from "../../../../utils/profileFriendNav";
 import { useProfileAuthorFeed } from "../../../../hooks/useProfileAuthorFeed";
+import { useUserProfileNav } from "../../../../context/UserProfileNavContext";
 import ProfilePostsFeed from "../ProfilePostsFeed/ProfilePostsFeed";
 import "../ProfileHome/ProfileHome.scss";
 import "./ProfileVisitorSubscribed.scss";
@@ -67,6 +68,7 @@ export default function ProfileVisitorSubscribed({
   const feedTitleName = nickname || displayName;
   const { feedPosts, feedLoading, feedError, feedActions } =
     useProfileAuthorFeed(authorId);
+  const userProfileNav = useUserProfileNav();
 
   /** Таби як у макеті: спочатку Удалить (з градієнтом коли активний), потім Інформація, Історії, Відео, Фото */
   const tabs = [
@@ -88,7 +90,12 @@ export default function ProfileVisitorSubscribed({
 
   const openFriendProfile = (f) => {
     const h = getFriendRouteHandle(f);
-    if (h) onOpenUser?.(h);
+    if (!h) return;
+    if (typeof onOpenUser === "function") {
+      onOpenUser(h);
+      return;
+    }
+    userProfileNav?.openProfile?.(h);
   };
 
   return (

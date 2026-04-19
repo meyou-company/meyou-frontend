@@ -193,6 +193,20 @@
   margin-top: 4px;
 }
 
+/* Ряд «Подарунки» — лише мобільна сітка (див. @media max-width 768px) */
+.profileMobileGifts {
+  display: none;
+}
+
+.profileBioWrap {
+  min-width: 0;
+}
+
+/* Десктоп: бейджі + подарунки логічно в одному блоці без зайвої обгортки в потоку */
+.profileInfoAside {
+  display: contents;
+}
+
 .badgeItem {
   font-size: 12px;
   font-weight: 500;
@@ -1830,13 +1844,29 @@ html[data-theme="dark"] .profile-home .postActionCount {
     display: grid;
     grid-template-columns: 1fr auto;
     grid-template-areas:
-      "name badges"
-      "bio bio"
-      "actions actions";
+      "name aside"
+      "bio aside";
     column-gap: 14px;
-    row-gap: 14px;
+    row-gap: 10px;
+    align-items: start;
 
     padding-top: 0;
+    min-width: 0;
+  }
+
+  .profileInfoAside {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 10px;
+    grid-area: aside;
+    min-width: 0;
+    padding-top: 4px;
+  }
+
+  .profileBioWrap {
+    grid-area: bio;
     min-width: 0;
   }
 
@@ -1848,26 +1878,66 @@ html[data-theme="dark"] .profile-home .postActionCount {
     word-break: break-word;
   }
 
-  .bio {
-    grid-area: bio;
+  .profileBioWrap .bio {
     font-size: 12px;
     line-height: 1.25;
     margin: 0;
   }
 
-  .bioLocation {
+  .profileBioWrap .bioLocation {
     margin-top: 14px;
   }
 
-  /* ✅ badges навпроти ніку (НЕ під фото) */
+  /* ✅ badges у колонці навпроти імені та біо */
   .badgesRow {
-    grid-area: badges;
-    display: flex;          /* ❗️перекриває desktop display:none */
+    display: flex;
     align-items: flex-start;
     gap: 18px;
     margin: 0;
-    padding-top: 6px;       /* трохи опустили як у макеті */
+    padding-top: 0;
     flex-wrap: nowrap;
+  }
+
+  .profileMobileGifts {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+  }
+
+  .profileMobileGifts__btn {
+    border: 0;
+    background: transparent;
+    padding: 6px 10px;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+  }
+
+  .profileMobileGifts__icon {
+    width: 20px;
+    height: 20px;
+    object-fit: contain;
+    display: block;
+  }
+
+  .profileMobileGifts__label {
+    font-size: 10px;
+    font-weight: 500;
+    line-height: 1.1;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    color: rgba(0, 0, 0, 0.62);
+  }
+
+  body.dark .profileMobileGifts__label {
+    color: rgba(255, 255, 255, 0.72);
   }
 
   /* кнопка-бейдж: іконка зверху + підпис */
@@ -2101,14 +2171,29 @@ html[data-theme="dark"] .profile-home .postActionCount {
     display: grid;
     grid-template-columns: 1fr auto;
     grid-template-areas:
-      "name badges"
-      "bio  bio"
-      "actions actions";
+      "name aside"
+      "bio aside";
     column-gap: 10px;
     row-gap: 10px;
     padding-top: 0;
     min-width: 0;
     align-items: start;
+  }
+
+  .profileInfoAside {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 10px;
+    grid-area: aside;
+    min-width: 0;
+    padding-top: 4px;
+  }
+
+  .profileBioWrap {
+    grid-area: bio;
+    min-width: 0;
   }
 
   /* Fix "9999" vertical issue */
@@ -2124,30 +2209,30 @@ html[data-theme="dark"] .profile-home .postActionCount {
     text-underline-offset: 4px;
     text-decoration-thickness: 1px;
   }
-.nameText {
-  font-size: 20px;
 
-  background: linear-gradient(236.31deg, #FF4FB1 11.54%, #4F6BFF 88.46%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  .nameText {
+    font-size: 20px;
 
-  white-space: nowrap;
-}
-  .bio {
-    grid-area: bio;
+    background: linear-gradient(236.31deg, #FF4FB1 11.54%, #4F6BFF 88.46%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+
+    white-space: nowrap;
+  }
+
+  .profileBioWrap .bio {
     margin: 0;
     font-size: 12px;
     line-height: 1.75;
   }
 
-  .bioLocation {
+  .profileBioWrap .bioLocation {
     margin-top: 12px;
   }
 
-  /* ===== badges row (my video / saved / my balance) ===== */
+  /* ===== badges row (balance / saved) + gifts у колонці aside ===== */
   .badgesRow {
-    grid-area: badges;
     display: flex;
     gap: 14px;
     margin: 0;
@@ -2179,7 +2264,7 @@ html[data-theme="dark"] .profile-home .postActionCount {
   }
 
   .badgeText {
-    font-size: 8px;
+    font-size: 9px;
     font-weight: 500;
     line-height: 1;
     text-decoration: underline;
@@ -2188,7 +2273,6 @@ html[data-theme="dark"] .profile-home .postActionCount {
 
   /* ===== Actions buttons: pills like Figma ===== */
   .actionsBlock {
-    grid-area: actions;
     margin-top: 4px;
     gap: 12px;
   }
@@ -2197,6 +2281,10 @@ html[data-theme="dark"] .profile-home .postActionCount {
   .actionBig,
   .actionsRow {
     display: none;
+  }
+
+  .profileMobileGifts__label {
+    font-size: 9px;
   }
 
   .actionsRow1 {
@@ -2333,12 +2421,12 @@ html[data-theme="dark"] .profile-home .postActionCount {
     font-size: 18px;
   }
 
-  .bio {
+  .profileBioWrap .bio {
     font-size: 11px;
     line-height: 1.5;
   }
 
-  .bioLocation {
+  .profileBioWrap .bioLocation {
     margin-top: 8px;
   }
 

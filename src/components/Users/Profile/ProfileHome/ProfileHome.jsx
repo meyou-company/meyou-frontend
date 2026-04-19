@@ -332,19 +332,30 @@ export default function ProfileHome({
               <span className="nameText">{titleName}</span>
             </h1>
 
-            {bioLine1 && <p className="bio bioName">{bioLine1}</p>}
-            {bioLine2 && <p className="bio bioLocation">{bioLine2}</p>}
+            <div className="profileBioWrap">
+              {bioLine1 && <p className="bio bioName">{bioLine1}</p>}
+              {bioLine2 && <p className="bio bioLocation">{bioLine2}</p>}
+            </div>
 
-            <div className="badgesRow">
-              <button type="button" className="badgeItem" aria-label="saved">
-                <img className="badgeIcon" src={profileIcons.saved} alt="" />
-                <span className="badgeText">saved</span>
-              </button>
+            <div className="profileInfoAside">
+              <div className="badgesRow">
+                <button type="button" className="badgeItem" onClick={onWallet} aria-label="Мій баланс">
+                  <img className="badgeIcon" src={profileIcons.balance} alt="" />
+                  <span className="badgeText">Мій баланс</span>
+                </button>
 
-              <button type="button" className="badgeItem" onClick={onWallet} aria-label="my balance">
-                <img className="badgeIcon" src={profileIcons.balance} alt="" />
-                <span className="badgeText">my balance</span>
-              </button>
+                <button type="button" className="badgeItem" onClick={onSaved} aria-label="Збережені">
+                  <img className="badgeIcon" src={profileIcons.saved} alt="" />
+                  <span className="badgeText">Збережені</span>
+                </button>
+              </div>
+
+              <div className="profileMobileGifts">
+                <button type="button" className="profileMobileGifts__btn" onClick={onGifts} aria-label="Подарунки">
+                  <img src={profileIcons.giftIcon} alt="" className="profileMobileGifts__icon" />
+                  <span className="profileMobileGifts__label">Подарунки</span>
+                </button>
+              </div>
             </div>
           </div>
 
