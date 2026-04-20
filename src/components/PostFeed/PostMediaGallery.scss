@@ -14,11 +14,6 @@
   z-index: 2;
 }
 
-.pmg__img {
-  position: relative;
-  z-index: 1;
-}
-
 .pmg__tile {
   position: relative;
   width: 100%;
@@ -33,11 +28,13 @@
 }
 
 .pmg__img {
+  position: relative;
+  z-index: 1;
   width: 100%;
   height: 100%;
   display: block;
   object-fit: cover;
-  object-position: center top;
+  object-position: center;
 }
 
 .pmg__side {
@@ -93,11 +90,6 @@
     display: none;
   }
 
-  .pmg--fivePlus .pmg__side--grid4 .pmg__tile:nth-child(n+3) {
-  visibility: hidden;
-  pointer-events: none;
-}
-
   .pmg__overlay--desktop { display: none; }
   .pmg__overlay--mobile { display: flex; }
 }
@@ -111,7 +103,7 @@
 
 @media (min-width: 768px) {
   .pmg--fivePlus {
-    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   }
   
   .pmg--fivePlus .pmg__side--grid4 {

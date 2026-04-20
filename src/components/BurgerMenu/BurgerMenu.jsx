@@ -116,14 +116,18 @@ export default function BurgerMenu({ isOpen, onClose, onItemClick, toggleTheme }
             <span className="profile-menu__status-dot" />
           </div>
 
-          <span className="profile-menu__name">{displayName}</span>
-        </button>
-
-        {email ? (
+          <div className="profile-menu__infoWrapper">
+            <span className="profile-menu__name">{displayName}</span>
+          {email ? (
           <a href={`mailto:${email}`} className="profile-menu__email profile-menu__email--belowTap">
             {email}
           </a>
         ) : null}
+          </div>
+
+          
+        </button>
+
       </div>
 
   <button onClick={onClose} className="profile-menu__close">
