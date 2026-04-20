@@ -126,12 +126,7 @@ $accent-logout: #e53333;
 }
 
 .profile-menu__email--belowTap {
-  margin-left: calc(72px + 10px);
   align-self: stretch;
-
-  @media (min-width: $bp-tablet) {
-    margin-left: calc(70px + 10px);
-  }
 }
 
 .profile-menu__avatar-wrapper {
@@ -163,6 +158,11 @@ $accent-logout: #e53333;
   height: 12px;
   border-radius: 50%;
   background: rgba(11, 134, 4, 1);
+}
+
+.profile-menu__infoWrapper {
+  display: flex;
+  flex-direction: column;
 }
 
 .profile-menu__info {

@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import "./PostMediaGallery.scss";
 
 function normalizeImages(mediaItems = []) {
@@ -7,6 +8,15 @@ function normalizeImages(mediaItems = []) {
 }
 
 export default function PostMediaGallery({ mediaItems = [], onOpenLightbox }) {
+
+const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+
+useEffect(() => {
+  const handleResize = () => setIsMobile(window.innerWidth < 768);
+  window.addEventListener("resize", handleResize);
+  return () => window.removeEventListener("resize", handleResize);
+}, []);
+
   const images = normalizeImages(mediaItems);
   if (!images.length) return null;
 
@@ -95,7 +105,12 @@ export default function PostMediaGallery({ mediaItems = [], onOpenLightbox }) {
 }
 
   const hiddenDesktop = Math.max(0, total - 5);
-  const hiddenMobile = Math.max(0, total - 3);
+  const hiddenMobile = Math.max(0, total - 5);
+
+const visible = isMobile
+  ? images.slice(1, 3)
+  : images.slice(1, 5);
+
   return (
     <div className="pmg pmg--fivePlus">
       <button type="button" className="pmg__tile pmg__tile--main" onClick={() => openAt(0)}>
