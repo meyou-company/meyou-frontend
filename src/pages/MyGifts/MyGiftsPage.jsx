@@ -1,6 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import profileIcons from "../../constants/profileIcons";
-import "./MyGiftsPage.scss";
+import MyGifts from "../../components/MyGifts/MyGifts";
 
 export default function MyGiftsPage() {
   const navigate = useNavigate();
@@ -14,25 +13,6 @@ export default function MyGiftsPage() {
   };
 
   return (
-    <div className="my-gifts-page">
-      <header className="my-gifts-page__header">
-        <button
-          type="button"
-          className="my-gifts-page__back"
-          onClick={goBack}
-          aria-label="Назад"
-        >
-          <img src={profileIcons.arrowLeftBlack} alt="" width={22} height={22} />
-        </button>
-        <h1 className="my-gifts-page__title">My gifts</h1>
-      </header>
-
-      <div className="my-gifts-page__body">
-        <div className="my-gifts-page__iconWrap" aria-hidden="true">
-          <img src={profileIcons.giftIcon} alt="" className="my-gifts-page__icon" />
-        </div>
-        <p className="my-gifts-page__hint">Тут з’явиться список ваших подарунків.</p>
-      </div>
-    </div>
+    <MyGifts goBack={goBack}/>
   );
 }

@@ -1,0 +1,447 @@
+.my-gifts-page {
+    position: relative;
+    min-height: 100vh;
+    padding: 16px;
+    overflow: hidden;
+    margin: -30px -16px;
+  }
+  
+  .my-gifts-page__bg {
+    position: absolute;
+    inset: 0;
+    background: url("/gifts/bg.jpg") center/cover no-repeat;
+    opacity: 1;
+    pointer-events: none;
+  }
+  
+  .my-gifts-page__header {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    grid-template-columns: 48px 1fr 48px;
+    align-items: center;
+    gap: 12px;
+    max-width: 760px;
+    margin: 0 auto 12px;
+    padding: 14px 16px;
+    border-radius: 18px;
+    background: rgba(255, 255, 255, 0.72);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 10px 30px rgba(102, 56, 120, 0.15);
+  }
+  
+  .my-gifts-page__back,
+  .my-gifts-page__giftBtn {
+    border: 0;
+    border-radius: 999px;
+    background: transparent;
+    place-items: center;
+  }
+
+  .my-gifts-page__backIcon {
+    width: 20px;
+    height: 23px;
+  }
+
+  .my-gifts-page__giftIcon {
+    width: 30px;
+    height: 30px;
+  }
+  
+  .my-gifts-page__title {
+    margin: 0;
+    font-size: 28px;
+    line-height: 1;
+    font-weight: 800;
+    text-align: center;
+    color: #2f2435;
+    visibility: hidden;
+  }
+  
+  .my-gifts-page__main {
+    position: relative;
+    z-index: 1;
+    max-width: 760px;
+    margin: 0 auto;
+  }
+  
+  .my-gifts-page__hero {
+    border-radius: 28px;
+    overflow: hidden;
+    box-shadow: 0 16px 50px rgba(68, 24, 77, 0.22);
+  }
+  
+  .my-gifts-page__heroImg {
+    width: 100%;
+    height: clamp(360px, 50vw, 560px);
+    object-fit: cover;
+    object-position: center top;
+    display: block;
+  }
+  
+  .my-gifts-page__panel {
+    margin-top: -34px;
+    padding: 16px;
+    border-radius: 28px;
+    background: rgba(255, 255, 255, 0.5);
+    backdrop-filter: blur(14px);
+    border: 1px solid rgba(255, 255, 255, 0.7);
+    box-shadow: 0 20px 50px rgba(92, 42, 102, 0.18);
+  }
+  
+  .my-gifts-page__sectionTop {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+  
+  .my-gifts-page__sectionTitle {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 800;
+    color: #1f1724;
+  }
+  
+  .my-gifts-page__linkBtn {
+    border: 1px solid rgba(168, 120, 255, 0.4);
+    background: linear-gradient(180deg, #f3e8ff 0%, #e9d9ff 100%);
+    box-shadow: 0 4px 12px rgba(140, 90, 200, 0.25);
+    color: #FF4FB1;
+    border-radius: 14px;
+    padding: 10px 14px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  .my-gifts-page__previousList {
+    display: grid;
+    gap: 12px;
+    margin-bottom: 18px;
+  }
+  
+  .my-gifts-page__previousCard {
+    display: grid;
+    grid-template-columns: 92px 1fr auto;
+    gap: 14px;
+    align-items: center;
+    padding: 12px;
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.82);
+    border: 1px solid rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(12px);
+    box-shadow: 0 10px 30px rgba(120, 60, 140, 0.18);
+  }
+  
+  .my-gifts-page__previousImg {
+    width: 92px;
+    height: 92px;
+    border-radius: 16px;
+    object-fit: cover;
+  }
+  
+  .my-gifts-page__previousInfo {
+    min-width: 0;
+    display: flex;
+  }
+  
+  .my-gifts-page__previousTitle {
+    margin: 0 0 10px;
+    font-size: 22px;
+    font-weight: 800;
+    color: #2d2430;
+  }
+  
+  .my-gifts-page__previousName,
+  .my-gifts-page__previousDate {
+    margin: 0;
+    font-size: 16px;
+    color: #3e3542;
+  }
+  
+  .my-gifts-page__previousDate {
+    opacity: 0.75;
+  }
+  
+  .my-gifts-page__previousActions {
+    display: grid;
+    gap: 10px;
+  }
+  
+  .my-gifts-page__action {
+    min-width: 160px;
+    border: 0;
+    border-radius: 18px;
+    padding: 12px 18px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 6px 16px rgba(88, 50, 94, 0.18);
+  }
+  
+  .action--yellow {
+    background: linear-gradient(180deg, #f4dd93 0%, #e9c969 100%);
+    color: #4e3b14;
+  }
+  
+  .action--pink {
+    background: linear-gradient(180deg, #ff8bd2 0%, #ea5eb1 100%);
+    color: #fff;
+  }
+  
+  .my-gifts-page__send {
+    margin-top: 8px;
+  }
+  
+  .my-gifts-page__giftGrid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px;
+  }
+  
+  .my-gifts-page__giftCard {
+    position: relative;
+    min-height: 220px;
+    padding: 0;
+    border: 1px solid rgba(255, 255, 255, 0.85);
+    border-radius: 22px;
+    overflow: hidden;
+    background: rgba(255, 255, 255, 0.72);
+    box-shadow: 0 10px 25px rgba(180, 100, 200, 0.25);
+    transition: transform 0.2s ease;
+    cursor: pointer;
+  }
+  
+  .my-gifts-page__giftCard:hover {
+    transform: translateY(-4px);
+  }
+  
+  .my-gifts-page__giftImg {
+    width: 100%;
+    height: 100%;
+    min-height: 220px;
+    object-fit: cover;
+    display: block;
+  }
+  
+  .my-gifts-page__giftOverlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    justify-content: space-between;
+    padding: 12px;
+    color: #8c115e;
+    font-weight: 800;
+    pointer-events: none;
+  }
+  
+  .my-gifts-page__giftTitle {
+    font-size: 18px;
+  }
+  
+  .my-gifts-page__giftSubtitle {
+    font-size: 14px;
+    align-self: flex-start;
+  }
+  
+  .my-gifts-page__chooseBtn {
+    position: absolute;
+    left: 50%;
+    bottom: 12px;
+    transform: translateX(-50%);
+    padding: 10px 18px;
+    border-radius: 999px;
+    background: #e9d68b;
+    color: #443316;
+    font-size: 14px;
+    font-weight: 700;
+    box-shadow: 0 6px 16px rgba(86, 53, 23, 0.15);
+  }
+  
+  @media (max-width: 767.98px) {
+    .my-gifts-page {
+      padding: 0 12px 18px;
+    }
+  
+    .my-gifts-page__header {
+      margin: 12px auto 10px;
+      padding: 12px 14px;
+      border-radius: 16px;
+    }
+  
+    .my-gifts-page__title {
+      font-size: 20px;
+    }
+  
+    .my-gifts-page__heroImg {
+      height: 300px;
+    }
+  
+    .my-gifts-page__panel {
+      margin-top: -18px;
+      padding: 12px;
+      border-radius: 22px;
+    }
+  
+    .my-gifts-page__sectionTitle {
+      font-size: 16px;
+    }
+  
+    .my-gifts-page__linkBtn {
+      padding: 8px 10px;
+      font-size: 12px;
+    }
+  
+    .my-gifts-page__previousCard {
+      grid-template-columns: 64px 1fr;
+      grid-template-areas:
+        "img info"
+        "img actions";
+      align-items: start;
+    }
+  
+    .my-gifts-page__previousImg {
+      grid-area: img;
+      width: 64px;
+      height: 64px;
+    }
+  
+    .my-gifts-page__previousInfo {
+      grid-area: info;
+    }
+  
+    .my-gifts-page__previousTitle {
+      font-size: 16px;
+      margin-bottom: 6px;
+    }
+  
+    .my-gifts-page__previousName,
+    .my-gifts-page__previousDate {
+      font-size: 13px;
+    }
+  
+    .my-gifts-page__previousActions {
+      grid-area: actions;
+      grid-template-columns: 1fr 1fr;
+    }
+  
+    .my-gifts-page__action {
+      min-width: 0;
+      padding: 10px 12px;
+      font-size: 12px;
+    }
+  
+    .my-gifts-page__giftGrid {
+      grid-template-columns: repeat(3, minmax(140px, 1fr));
+      overflow-x: auto;
+      padding-bottom: 4px;
+    }
+  
+    .my-gifts-page__giftCard {
+      min-width: 140px;
+      min-height: 160px;
+    }
+  
+    .my-gifts-page__giftImg {
+      min-height: 160px;
+    }
+  
+    .my-gifts-page__giftTitle {
+      font-size: 14px;
+    }
+  
+    .my-gifts-page__giftSubtitle {
+      font-size: 12px;
+    }
+  }
+
+  @media (min-width: 768px) {
+    .my-gifts-page__title {
+        visibility: visible;
+    }
+
+    
+    .my-gifts-page__previousInfo {
+        flex-direction: column;
+    }
+  }
+  
+  @media (min-width: 768px) and (max-width: 1279.98px) {
+    .my-gifts-page__main,
+    .my-gifts-page__header {
+      max-width: 920px;
+    }
+  
+    .my-gifts-page__heroImg {
+      height: clamp(420px, 45vw, 620px);
+    }
+  
+    .my-gifts-page__giftGrid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+  
+  @media (min-width: 1280px) {
+    .my-gifts-page__main,
+    .my-gifts-page__header {
+      max-width: 1120px;
+    }
+  
+    .my-gifts-page__heroImg {
+      height: 680px;
+    }
+  
+    .my-gifts-page__giftGrid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
+
+
+  body.dark .my-gifts-page__back {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    box-shadow: none;
+  
+    img {
+      filter: grayscale(100%) invert(1);
+    }
+  }
+  
+  body.dark .my-gifts-page__title {
+    color: rgba(255, 255, 255, 0.92);
+  }
+  
+  body.dark .my-gifts-page__iconWrap {
+    border-color: rgba(255, 255, 255, 0.15);
+    background: rgba(20, 10, 30, 0.45);
+  }
+  
+  body.dark .my-gifts-page__hint {
+    color: rgba(255, 255, 255, 0.65);
+  }
+  
+  html[data-theme="dark"] .my-gifts-page__back {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    box-shadow: none;
+  
+    img {
+      filter: grayscale(100%) invert(1);
+    }
+  }
+  
+  html[data-theme="dark"] .my-gifts-page__title {
+    color: rgba(255, 255, 255, 0.92);
+  }
+  
+  html[data-theme="dark"] .my-gifts-page__iconWrap {
+    border-color: rgba(255, 255, 255, 0.15);
+    background: rgba(20, 10, 30, 0.45);
+  }
+  
+  html[data-theme="dark"] .my-gifts-page__hint {
+    color: rgba(255, 255, 255, 0.65);
+  }
