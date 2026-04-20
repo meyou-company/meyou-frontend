@@ -81,9 +81,7 @@ export default function MyGifts({ goBack }) {
 
       <main className="my-gifts-page__main">
         <section className="my-gifts-page__hero">
-          <img
-            src="/gifts/hero-gift.jpg"
-            alt=""
+          <span
             className="my-gifts-page__heroImg"
           />
         </section>

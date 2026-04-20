@@ -9,33 +9,27 @@
   .my-gifts-page__bg {
     position: absolute;
     inset: 0;
-    background: url("/gifts/bg.jpg") center/cover no-repeat;
+    background: url("/gifts/bg.jpg") center top / cover no-repeat;
     opacity: 1;
     pointer-events: none;
   }
   
   .my-gifts-page__header {
-    position: relative;
-    z-index: 1;
-    display: grid;
-    grid-template-columns: 48px 1fr 48px;
+    position: fixed;
+    z-index: 2;
+    display: flex;
     align-items: center;
+    justify-self: center;
+    justify-content: space-between;
     gap: 12px;
+    min-width: 300px;
     max-width: 760px;
     margin: 0 auto 12px;
     padding: 14px 16px;
     border-radius: 18px;
-    background: rgba(255, 255, 255, 0.72);
     backdrop-filter: blur(10px);
-    box-shadow: 0 10px 30px rgba(102, 56, 120, 0.15);
-  }
-  
-  .my-gifts-page__back,
-  .my-gifts-page__giftBtn {
-    border: 0;
-    border-radius: 999px;
-    background: transparent;
-    place-items: center;
+    background: linear-gradient(181deg, #FCFAFF 0%, #F1E7FF 46%, #E1CBFF 100%);
+    box-shadow: 0px 12px 20px rgba(0, 0, 0, 0.35);
   }
 
   .my-gifts-page__backIcon {
@@ -65,12 +59,6 @@
     margin: 0 auto;
   }
   
-  .my-gifts-page__hero {
-    border-radius: 28px;
-    overflow: hidden;
-    box-shadow: 0 16px 50px rgba(68, 24, 77, 0.22);
-  }
-  
   .my-gifts-page__heroImg {
     width: 100%;
     height: clamp(360px, 50vw, 560px);
@@ -84,7 +72,7 @@
     padding: 16px;
     border-radius: 28px;
     background: rgba(255, 255, 255, 0.5);
-    backdrop-filter: blur(14px);
+    backdrop-filter: blur(3px);
     border: 1px solid rgba(255, 255, 255, 0.7);
     box-shadow: 0 20px 50px rgba(92, 42, 102, 0.18);
   }
@@ -105,7 +93,7 @@
   }
   
   .my-gifts-page__linkBtn {
-    border: 1px solid rgba(168, 120, 255, 0.4);
+    border: 2px solid #9B7AE6;
     background: linear-gradient(180deg, #f3e8ff 0%, #e9d9ff 100%);
     box-shadow: 0 4px 12px rgba(140, 90, 200, 0.25);
     color: #FF4FB1;
@@ -113,7 +101,6 @@
     padding: 10px 14px;
     font-size: 14px;
     font-weight: 700;
-    cursor: pointer;
   }
 
   .my-gifts-page__previousList {
@@ -177,18 +164,16 @@
     padding: 12px 18px;
     font-size: 14px;
     font-weight: 700;
-    cursor: pointer;
     box-shadow: 0 6px 16px rgba(88, 50, 94, 0.18);
+    color: rgba(0, 0, 0, 0.8);
   }
   
   .action--yellow {
     background: linear-gradient(180deg, #f4dd93 0%, #e9c969 100%);
-    color: #4e3b14;
   }
   
   .action--pink {
     background: linear-gradient(180deg, #ff8bd2 0%, #ea5eb1 100%);
-    color: #fff;
   }
   
   .my-gifts-page__send {
@@ -205,10 +190,8 @@
     position: relative;
     min-height: 220px;
     padding: 0;
-    border: 1px solid rgba(255, 255, 255, 0.85);
     border-radius: 22px;
     overflow: hidden;
-    background: rgba(255, 255, 255, 0.72);
     box-shadow: 0 10px 25px rgba(180, 100, 200, 0.25);
     transition: transform 0.2s ease;
     cursor: pointer;
@@ -266,8 +249,8 @@
     }
   
     .my-gifts-page__header {
-      margin: 12px auto 10px;
-      padding: 12px 14px;
+      margin: 16px auto 10px;
+      padding: 6px 24px;
       border-radius: 16px;
     }
   
@@ -276,7 +259,7 @@
     }
   
     .my-gifts-page__heroImg {
-      height: 300px;
+      height: 366px;
     }
   
     .my-gifts-page__panel {
@@ -286,12 +269,13 @@
     }
   
     .my-gifts-page__sectionTitle {
-      font-size: 16px;
+      font-size: 12px;
     }
   
     .my-gifts-page__linkBtn {
-      padding: 8px 10px;
+      padding: 8px 9px;
       font-size: 12px;
+      font-weight: 400;
     }
   
     .my-gifts-page__previousCard {
