@@ -7,14 +7,14 @@ const previousGifts = [
     title: "Цветы",
     name: "Karina",
     date: "22 апреля",
-    image: "/gifts/flowers.jpg",
+    image: "/gifts/flowers.png",
   },
   {
     id: 2,
     title: "+20$",
     name: "Mark",
     date: "20 апреля",
-    image: "/gifts/money.jpg",
+    image: "/gifts/money.png",
   },
   {
     id: 3,
@@ -29,13 +29,13 @@ const giftOptions = [
     id: 1,
     title: "+20$",
     subtitle: "20 монет",
-    image: "/gifts/money.jpg",
+    image: "/gifts/money.png",
   },
   {
     id: 2,
     title: "Цветы",
     subtitle: "",
-    image: "/gifts/flowers.jpg",
+    image: "/gifts/flowers.png",
   },
   {
     id: 3,
