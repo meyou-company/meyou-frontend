@@ -59,7 +59,8 @@ export default function MyGifts({ goBack }) {
       </div> */}
 
       <div className="my-gifts-page__bg">
-      <img src="/gifts/bg.jpg" alt="" className="my-gifts-page__bgImg" />
+        <img src="/gifts/bg.jpg" alt="" className="my-gifts-page__bgImg my-gifts-page__bgImg--mobile" />
+        <img src="/gifts/bg-desktop.jpg" alt="" className="my-gifts-page__bgImg--desktop" />
       </div>
 
       <header className="my-gifts-page__header">
@@ -105,8 +106,11 @@ export default function MyGifts({ goBack }) {
 
                 <div className="my-gifts-page__previousInfo">
                   <h3 className="my-gifts-page__previousTitle">{gift.title}</h3>
-                  <p className="my-gifts-page__previousName">{gift.name}</p>
+                  <div className="my-gifts-page__previousDetails">
+                    <p className="my-gifts-page__previousName">{gift.name}</p>
                   <p className="my-gifts-page__previousDate">{gift.date}</p>
+                  </div>
+                  
                 </div>
 
                 <div className="my-gifts-page__previousActions">
