@@ -56,7 +56,9 @@ export default function MyGifts({ goBack }) {
         <p className="my-gifts-page__hint">Тут з’явиться список ваших подарунків.</p>
       </div> */}
 
-      <div className="my-gifts-page__bg" />
+      <div className="my-gifts-page__bg">
+      <img src="/gifts/bg.jpg" alt="" className="my-gifts-page__bgImg" />
+      </div>
 
       <header className="my-gifts-page__header">
         <button
