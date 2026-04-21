@@ -18,8 +18,9 @@ const previousGifts = [
   },
   {
     id: 3,
-    title: "",
-    subtitle: "",
+    title: "Smile",
+    name: "Mark",
+    date: "20 апреля",
     image: "/gifts/smile.jpg",
   },
 ];
@@ -27,13 +28,14 @@ const previousGifts = [
 const giftOptions = [
   {
     id: 1,
+    type: "money",
     title: "+20$",
     subtitle: "20 монет",
     image: "/gifts/money.png",
   },
   {
     id: 2,
-    title: "Цветы",
+    title: "",
     subtitle: "",
     image: "/gifts/flowers.png",
   },
@@ -120,7 +122,7 @@ export default function MyGifts({ goBack }) {
           </div>
 
           <div className="my-gifts-page__send">
-            <h2 className="my-gifts-page__sectionTitle">Послать подарок</h2>
+            <h2 className="my-gifts-page__sectionTitle section--send">Послать подарок</h2>
 
             <div className="my-gifts-page__giftGrid">
               {giftOptions.map((gift) => (
@@ -128,11 +130,15 @@ export default function MyGifts({ goBack }) {
                   <img src={gift.image} alt="" className="my-gifts-page__giftImg" />
                   <div className="my-gifts-page__giftOverlay">
                     <span className="my-gifts-page__giftTitle">{gift.title}</span>
+                    <div className="my-gifts-page__giftInfo">
+                      {gift.type === "money" && (
+                       <img src={profileIcons.coin} alt="" className="my-gifts-page__coinIcon" /> )}
                     {gift.subtitle ? (
-                      <span className="my-gifts-page__giftSubtitle">{gift.subtitle}</span>
+                      <p className="my-gifts-page__giftSubtitle">{gift.subtitle}</p>
                     ) : null}
+                    </div>
                   </div>
-                  <span className="my-gifts-page__chooseBtn">Выбрать</span>
+                  <span className="my-gifts-page__chooseBtn action--yellow">Выбрать</span>
                 </button>
               ))}
             </div>

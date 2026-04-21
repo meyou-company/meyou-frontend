@@ -1,28 +1,29 @@
-.my-gifts-page {
-    position: relative;
-    min-height: 100vh;
-    padding: 16px;
-    overflow: hidden;
-    margin: -30px -16px;
-  }
-
   .my-gifts-page__bg {
-    position: absolute;
+    position: fixed;
     inset: 0;
     overflow: hidden;
     pointer-events: none;
+    z-index: 0;
   }
   
   .my-gifts-page__bgImg {
     position: absolute;
-    top: -4%;
+    top: -5%;
     left: 0;
     width: 100%;
-    height: 105%;
+    height: 100%;
     object-fit: cover;
     object-position: center top;
-    transform-origin: top center;
     display: block;
+  }
+
+  .my-gifts-page {
+    position: relative;
+    min-height: 100vh;
+    padding: 16px;
+    margin: -30px -16px;
+    overflow-x: hidden;
+    overflow-y: auto;
   }
   
   .my-gifts-page__header {
@@ -79,12 +80,15 @@
   }
   
   .my-gifts-page__panel {
-    margin-top: -34px;
     padding: 16px;
     border-radius: 28px;
-    background: rgba(255, 255, 255, 0.5);
-    backdrop-filter: blur(3px);
-    border: 1px solid rgba(255, 255, 255, 0.7);
+    background: linear-gradient(
+      181deg,
+      rgba(252, 250, 255, 0.7) 0%,
+      rgba(241, 231, 255, 0.7) 46%,
+      rgba(225, 203, 255, 0.7) 100%
+    );
+    border: 2px solid #F4FDFF;
     box-shadow: 0 20px 50px rgba(92, 42, 102, 0.18);
   }
   
@@ -93,7 +97,7 @@
     align-items: center;
     justify-content: space-between;
     gap: 12px;
-    margin-bottom: 12px;
+    margin-bottom: 7px;
   }
   
   .my-gifts-page__sectionTitle {
@@ -105,8 +109,8 @@
   
   .my-gifts-page__linkBtn {
     border: 2px solid #9B7AE6;
-    background: linear-gradient(180deg, #f3e8ff 0%, #e9d9ff 100%);
-    box-shadow: 0 4px 12px rgba(140, 90, 200, 0.25);
+    background: linear-gradient(181deg, #FCFAFF 0%, #F1E7FF 46%, #E1CBFF 100%);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
     color: #FF4FB1;
     border-radius: 14px;
     padding: 10px 14px;
@@ -117,7 +121,6 @@
   .my-gifts-page__previousList {
     display: grid;
     gap: 12px;
-    margin-bottom: 18px;
   }
   
   .my-gifts-page__previousCard {
@@ -125,10 +128,10 @@
     grid-template-columns: 92px 1fr auto;
     gap: 14px;
     align-items: center;
-    padding: 12px;
-    border-radius: 20px;
-    background: rgba(255, 255, 255, 0.82);
-    border: 1px solid rgba(255, 255, 255, 0.85);
+    padding: 7px 12px 7px 7px;
+    border-radius: 12px;
+    background: linear-gradient(181deg,#E1CBFF 0%, #F1E7FF 46%, #FCFAFF 100%);
+    border: 2px solid #F4FDFF;
     backdrop-filter: blur(12px);
     box-shadow: 0 10px 30px rgba(120, 60, 140, 0.18);
   }
@@ -136,27 +139,31 @@
   .my-gifts-page__previousImg {
     width: 92px;
     height: 92px;
-    border-radius: 16px;
+    border-radius: 6px;
     object-fit: cover;
   }
   
   .my-gifts-page__previousInfo {
     min-width: 0;
     display: flex;
+    text-decoration: underline 1px solid;
+    gap: 18px;
+    color: rgba(0, 0, 0, 0.8);
   }
   
   .my-gifts-page__previousTitle {
-    margin: 0 0 10px;
     font-size: 22px;
-    font-weight: 800;
-    color: #2d2430;
+    font-weight: 700;
+  }
+
+  .my-gifts-page__previousName {
+    font-weight: 500;
   }
   
   .my-gifts-page__previousName,
   .my-gifts-page__previousDate {
     margin: 0;
     font-size: 16px;
-    color: #3e3542;
   }
   
   .my-gifts-page__previousDate {
@@ -165,13 +172,13 @@
   
   .my-gifts-page__previousActions {
     display: grid;
-    gap: 10px;
+    gap: 17px;
   }
   
   .my-gifts-page__action {
     min-width: 160px;
     border: 0;
-    border-radius: 18px;
+    border-radius: 8px;
     padding: 12px 18px;
     font-size: 14px;
     font-weight: 700;
@@ -180,15 +187,17 @@
   }
   
   .action--yellow {
-    background: linear-gradient(180deg, #f4dd93 0%, #e9c969 100%);
+    background: linear-gradient(
+  80deg,
+  #E7C577 0%,
+  #FFE9B1 50%,
+  #F4D695 75%,
+  #D8B66D 100%
+);
   }
   
   .action--pink {
-    background: linear-gradient(180deg, #ff8bd2 0%, #ea5eb1 100%);
-  }
-  
-  .my-gifts-page__send {
-    margin-top: 8px;
+    background: rgba(255, 79, 177, 0.8);
   }
   
   .my-gifts-page__giftGrid {
@@ -199,11 +208,9 @@
   
   .my-gifts-page__giftCard {
     position: relative;
-    min-height: 220px;
     padding: 0;
-    border-radius: 22px;
+    border-radius: 10px;
     overflow: hidden;
-    box-shadow: 0 10px 25px rgba(180, 100, 200, 0.25);
     transition: transform 0.2s ease;
   }
   
@@ -214,7 +221,6 @@
   .my-gifts-page__giftImg {
     width: 100%;
     height: 100%;
-    min-height: 220px;
     object-fit: cover;
     display: block;
   }
@@ -224,14 +230,19 @@
     inset: 0;
     display: flex;
     justify-content: space-between;
-    padding: 12px;
-    color: #8c115e;
-    font-weight: 800;
+    padding: 4px;
+    color: #C0006B;
     pointer-events: none;
   }
   
   .my-gifts-page__giftTitle {
     font-size: 18px;
+    font-weight: 700;
+  }
+
+  .my-gifts-page__coinIcon {
+    width: 8px;
+    height: 11px;
   }
   
   .my-gifts-page__giftSubtitle {
@@ -244,10 +255,10 @@
     left: 50%;
     bottom: 12px;
     transform: translateX(-50%);
-    padding: 10px 18px;
-    border-radius: 999px;
-    background: #e9d68b;
-    color: #443316;
+    padding: 4px 9px;
+    border: 1px solid rgba(194, 184, 184, 1);
+    border-radius: 10px;
+    color: rgba(0, 0, 0, 0.8);
     font-size: 14px;
     font-weight: 700;
     box-shadow: 0 6px 16px rgba(86, 53, 23, 0.15);
@@ -269,37 +280,40 @@
     }
   
     .my-gifts-page__heroImg {
-      height: 366px;
+      height: 400px;
     }
   
     .my-gifts-page__panel {
-      margin-top: -18px;
-      padding: 12px;
-      border-radius: 22px;
+      padding: 5px 10px 9px;
+      border-radius: 10px;
     }
   
     .my-gifts-page__sectionTitle {
-      font-size: 12px;
+      font-size: 11px;
+    }
+
+    .section--send {
+      margin: 13px 0;
     }
   
     .my-gifts-page__linkBtn {
-      padding: 8px 9px;
-      font-size: 12px;
+      padding: 6px 8px;
+      font-size: 10px;
       font-weight: 400;
+      border-radius: 10px;
     }
   
     .my-gifts-page__previousCard {
-      grid-template-columns: 64px 1fr;
+      grid-template-columns: 56px 1fr;
       grid-template-areas:
         "img info"
         "img actions";
-      align-items: start;
     }
   
     .my-gifts-page__previousImg {
       grid-area: img;
-      width: 64px;
-      height: 64px;
+      width: 56px;
+      height: 56px;
     }
   
     .my-gifts-page__previousInfo {
@@ -307,47 +321,65 @@
     }
   
     .my-gifts-page__previousTitle {
-      font-size: 16px;
-      margin-bottom: 6px;
+      font-size: 14px;
     }
   
-    .my-gifts-page__previousName,
+    .my-gifts-page__previousName {
+      font-size: 12px;
+    }
+
     .my-gifts-page__previousDate {
-      font-size: 13px;
+      font-size: 9px;
     }
   
     .my-gifts-page__previousActions {
       grid-area: actions;
       grid-template-columns: 1fr 1fr;
+      margin-left: 10px;
+      margin-top: -7px;
     }
   
     .my-gifts-page__action {
       min-width: 0;
-      padding: 10px 12px;
-      font-size: 12px;
+      padding: 6px 6px;
+      font-size: 7px;
+      font-weight: 400;
+      text-decoration: underline 0.1px;
     }
   
     .my-gifts-page__giftGrid {
-      grid-template-columns: repeat(3, minmax(140px, 1fr));
+      grid-template-columns: repeat(3, minmax(100px, 1fr));
       overflow-x: auto;
       padding-bottom: 4px;
     }
   
     .my-gifts-page__giftCard {
-      min-width: 140px;
-      min-height: 160px;
+      width: 100px;
+      height: 100px;
     }
   
     .my-gifts-page__giftImg {
-      min-height: 160px;
+      min-height: 100px;
     }
   
     .my-gifts-page__giftTitle {
-      font-size: 14px;
+      font-size: 16px;
+    }
+
+    .my-gifts-page__giftInfo {
+      display: flex;
+      margin-top: 5px;
+      gap: 3px;
     }
   
     .my-gifts-page__giftSubtitle {
-      font-size: 12px;
+      font-size: 7px;
+    }
+
+    .my-gifts-page__chooseBtn {
+      font-size: 8px;
+      font-weight: 400;
+      text-decoration: underline;
     }
   }
 
@@ -389,6 +421,10 @@
   
     .my-gifts-page__giftGrid {
       grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .my-gifts-page__previousImg {
+      border-radius: 30px;
     }
   }
 

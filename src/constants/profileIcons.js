@@ -96,6 +96,7 @@ const profileIcons = {
 
   /* === GIFTS === */
   gift: `${GIFTS}/gift.svg`,
+  coin: `${GIFTS}/coin.svg`
 };
 
 export default profileIcons;
