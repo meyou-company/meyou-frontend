@@ -5,6 +5,7 @@ const ICON1 = "/icon1";
 const BLACK = "/icon-black";
 const WALLET = "/balance";
 const VIDEO = "/video";
+const GIFTS = "/gifts/icon";
 
 const profileIcons = {
   /* === HOME === */
@@ -92,6 +93,10 @@ const profileIcons = {
   videoTitle: `${VIDEO}/videoTitle.svg`,
   arrowVideo: `${VIDEO}/arrowRightPink.svg`,
   searchVideoPink: `${VIDEO}/searchPink.svg`,
+
+  /* === GIFTS === */
+  gift: `${GIFTS}/gift.svg`,
+  coin: `${GIFTS}/coin.svg`
 };
 
 export default profileIcons;

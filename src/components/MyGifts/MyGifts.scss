@@ -1,0 +1,745 @@
+  .my-gifts-page__bg {
+    position: fixed;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+    z-index: 0;
+  }
+  
+  .my-gifts-page__bgImg {
+    position: absolute;
+    top: -5%;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center top;
+    display: block;
+  }
+
+  .my-gifts-page {
+    position: relative;
+    min-height: 100vh;
+    padding: 16px;
+    margin: -30px -16px;
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
+  
+  .my-gifts-page__header {
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    justify-self: center;
+    justify-content: space-between;
+    gap: 12px;
+    min-width: 300px;
+    max-width: 760px;
+    margin: 0 auto 12px;
+    padding: 14px 16px;
+    border-radius: 18px;
+    backdrop-filter: blur(10px);
+    background: linear-gradient(181deg, #FCFAFF 0%, #F1E7FF 46%, #E1CBFF 100%);
+    box-shadow: 0px 12px 20px rgba(0, 0, 0, 0.35);
+  }
+
+  .my-gifts-page__backIcon {
+    width: 20px;
+    height: 23px;
+  }
+
+  .my-gifts-page__giftIcon {
+    width: 30px;
+    height: 30px;
+  }
+  
+  .my-gifts-page__title {
+    margin: 0;
+    font-size: 28px;
+    line-height: 1;
+    font-weight: 700;
+    text-align: center;
+    color: #2f2435;
+    visibility: hidden;
+  }
+  
+  .my-gifts-page__main {
+    position: relative;
+    z-index: 1;
+    max-width: 760px;
+    margin: 0 auto;
+  }
+  
+  .my-gifts-page__heroImg {
+    width: 100%;
+    height: clamp(360px, 50vw, 560px);
+    object-fit: cover;
+    object-position: center top;
+    display: block;
+  }
+  
+  .my-gifts-page__panel {
+    padding: 16px;
+    border-radius: 28px;
+    background: linear-gradient(
+      181deg,
+      rgba(252, 250, 255, 0.7) 0%,
+      rgba(241, 231, 255, 0.7) 46%,
+      rgba(225, 203, 255, 0.7) 100%
+    );
+    border: 2px solid #F4FDFF;
+  }
+  
+  .my-gifts-page__sectionTop {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 7px;
+  }
+  
+  .my-gifts-page__sectionTitle {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 700;
+    color: #1f1724;
+  }
+  
+  .my-gifts-page__linkBtn {
+    border: 2px solid #9B7AE6;
+    background: linear-gradient(181deg, #FCFAFF 0%, #F1E7FF 46%, #E1CBFF 100%);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+    color: #FF4FB1;
+    border-radius: 14px;
+    padding: 10px 14px;
+    font-size: 14px;
+    font-weight: 700;
+  }
+
+  .my-gifts-page__previousList {
+    display: grid;
+    gap: 12px;
+  }
+
+  .my-gifts-page__previousDetails {
+    display: flex;
+    gap: 20px;
+  }
+  
+  .my-gifts-page__previousCard {
+    display: grid;
+    grid-template-columns: 90px 1fr auto;
+    gap: 14px;
+    align-items: center;
+    padding: 7px 12px 7px 7px;
+    border-radius: 12px;
+    background: linear-gradient(181deg,#E1CBFF 0%, #F1E7FF 46%, #FCFAFF 100%);
+    border: 2px solid #F4FDFF;
+    backdrop-filter: blur(12px);
+    box-shadow: 0 10px 30px rgba(120, 60, 140, 0.18);
+  }
+  
+  .my-gifts-page__previousImg {
+    width: 90px;
+    height: 90px;
+    border-radius: 6px;
+    object-fit: cover;
+  }
+  
+  .my-gifts-page__previousInfo {
+    min-width: 0;
+    display: flex;
+    text-decoration: underline 1px solid;
+    gap: 18px;
+    color: rgba(0, 0, 0, 0.8);
+  }
+  
+  .my-gifts-page__previousTitle {
+    font-size: 26px;
+    font-weight: 700;
+  }
+
+  .my-gifts-page__previousName {
+    font-weight: 500;
+    font-size: 22px;
+  }
+  
+  .my-gifts-page__previousDate {
+    opacity: 0.75;
+    font-size: 16px;
+  }
+  
+  .my-gifts-page__previousActions {
+    display: grid;
+    gap: 17px;
+  }
+  
+  .my-gifts-page__action {
+    min-width: 160px;
+    border: 0;
+    border-radius: 8px;
+    padding: 12px 18px;
+    font-size: 14px;
+    font-weight: 700;
+    box-shadow: 0 6px 16px rgba(88, 50, 94, 0.18);
+    color: rgba(0, 0, 0, 0.8);
+  }
+  
+  .action--yellow {
+    background: linear-gradient(
+  80deg,
+  #E7C577 0%,
+  #FFE9B1 50%,
+  #F4D695 75%,
+  #D8B66D 100%
+);
+  }
+  
+  .action--pink {
+    background: rgba(255, 79, 177, 0.8);
+  }
+  
+  .my-gifts-page__giftGrid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px;
+  }
+  
+  .my-gifts-page__giftCard {
+    position: relative;
+    padding: 0;
+    border-radius: 10px;
+    overflow: hidden;
+    transition: transform 0.2s ease;
+  }
+  
+  .my-gifts-page__giftCard:hover {
+    transform: translateY(-4px);
+  }
+  
+  .my-gifts-page__giftImg {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  
+  .my-gifts-page__giftOverlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    justify-content: space-between;
+    padding: 4px;
+    color: #C0006B;
+    pointer-events: none;
+  }
+  
+  .my-gifts-page__giftTitle {
+    font-size: 18px;
+    font-weight: 700;
+  }
+
+  .my-gifts-page__giftInfo {
+    display: flex;
+    margin-top: 5px;
+    gap: 3px;
+  }
+
+  .my-gifts-page__coinIcon {
+    width: 8px;
+    height: 11px;
+  }
+  
+  .my-gifts-page__giftSubtitle {
+    font-size: 14px;
+    align-self: flex-start;
+  }
+  
+  .my-gifts-page__chooseBtn {
+    position: absolute;
+    left: 50%;
+    bottom: 12px;
+    transform: translateX(-50%);
+    padding: 4px 9px;
+    border: 1px solid rgba(194, 184, 184, 1);
+    border-radius: 10px;
+    color: rgba(0, 0, 0, 0.8);
+    font-size: 14px;
+    box-shadow: 0 6px 16px rgba(86, 53, 23, 0.15);
+  }
+  
+  @media (max-width: 767.98px) {
+    .my-gifts-page {
+      padding: 0 12px 18px;
+    }
+  
+    .my-gifts-page__header {
+      position: fixed;
+      margin: 16px auto 10px;
+      padding: 6px 24px;
+      border-radius: 16px;
+    }
+  
+    .my-gifts-page__title {
+      font-size: 20px;
+    }
+  
+    .my-gifts-page__heroImg {
+      height: 400px;
+    }
+  
+    .my-gifts-page__panel {
+      padding: 5px 10px 9px;
+      border-radius: 10px;
+    }
+  
+    .my-gifts-page__sectionTitle {
+      font-size: 11px;
+    }
+
+    .section--send {
+      margin: 13px 0;
+    }
+  
+    .my-gifts-page__linkBtn {
+      padding: 6px 8px;
+      font-size: 10px;
+      font-weight: 400;
+      border-radius: 10px;
+    }
+  
+    .my-gifts-page__previousCard {
+      grid-template-columns: 56px 1fr;
+      grid-template-areas:
+        "img info"
+        "img actions";
+    }
+  
+    .my-gifts-page__previousImg {
+      grid-area: img;
+      width: 56px;
+      height: 56px;
+    }
+  
+    .my-gifts-page__previousInfo {
+      grid-area: info;
+    }
+  
+    .my-gifts-page__previousTitle {
+      font-size: 14px;
+    }
+  
+    .my-gifts-page__previousName {
+      font-size: 12px;
+    }
+
+    .my-gifts-page__previousDate {
+      font-size: 9px;
+    }
+  
+    .my-gifts-page__previousActions {
+      grid-area: actions;
+      grid-template-columns: 1fr 1fr;
+      margin-left: 10px;
+      margin-top: -7px;
+    }
+  
+    .my-gifts-page__action {
+      min-width: 0;
+      padding: 6px 6px;
+      font-size: 7px;
+      font-weight: 400;
+      text-decoration: underline 0.1px;
+    }
+  
+    .my-gifts-page__giftGrid {
+      grid-template-columns: repeat(3, minmax(100px, 1fr));
+      overflow-x: auto;
+      padding-bottom: 4px;
+    }
+  
+    .my-gifts-page__giftCard {
+      width: 100px;
+      height: 100px;
+    }
+  
+    .my-gifts-page__giftImg {
+      min-height: 100px;
+    }
+  
+    .my-gifts-page__giftTitle {
+      font-size: 16px;
+    }
+  
+    .my-gifts-page__giftSubtitle {
+      font-size: 7px;
+    }
+
+    .my-gifts-page__chooseBtn {
+      font-size: 8px;
+      font-weight: 400;
+      text-decoration: underline;
+    }
+  }
+
+  @media (min-width: 768px) {
+    .my-gifts-page__title {
+        visibility: visible;
+    }
+
+    .my-gifts-page__header {
+      width: 480px;
+      padding: 17px 20px;
+      margin-top: 50px;
+    }
+
+    .my-gifts-page__sectionTitle,
+    .my-gifts-page__linkBtn {
+      text-decoration: underline 0.1px solid;
+    }
+
+    .my-gifts-page__linkBtn {
+      font-size: 20px;
+    }
+
+    .my-gifts-page__action {
+      font-weight: 500;
+      border-radius: 16px;
+      padding: 10px 25px;
+    }
+
+    .section--send {
+      margin: 8px 0;
+    }
+    
+    .my-gifts-page__previousInfo {
+      flex-direction: column;
+      gap: 10px;
+      text-decoration: none;
+    }
+
+    .my-gifts-page__previousCard {
+      padding: 15px;
+    }
+
+    .my-gifts-page__giftGrid {
+      gap: 100px;
+    }
+
+    .my-gifts-page__giftIcon  {
+      width: 32px;
+      height: 32px;
+    }
+
+    .my-gifts-page__coinIcon {
+      width: 20px;
+      height: 20px;
+    }
+
+    .my-gifts-page__chooseBtn {
+      padding: 4px 22px;
+      border-radius: 30px;
+      border: 2px solid rgb(194, 184, 184);
+      font-size: 16px;
+    }
+  }
+  
+  @media (min-width: 768px) and (max-width: 1279.98px) {
+    .my-gifts-page__main,
+    .my-gifts-page__header {
+      max-width: 920px;
+    }
+  
+    .my-gifts-page__heroImg {
+      height: clamp(320px, 40vw, 620px);
+    }
+
+    .my-gifts-page__bgImg {
+      top: -12%;
+      height: 112%;
+    }
+
+    .my-gifts-page__action {
+      text-decoration: underline 0.1px solid;
+    }
+  
+    .my-gifts-page__giftGrid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .my-gifts-page__previousDetails {
+     align-items: center;
+     gap: 24px;
+    }
+  }
+  
+  @media (min-width: 1280px) {
+    .my-gifts-page__bgImg--mobile {
+      display: none;
+    }
+
+    .my-gifts-page__bgImg--desktop {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center 20%;
+      display: block;
+    }
+
+    .my-gifts-page__main,
+    .my-gifts-page__header {
+      max-width: 1120px;
+    }
+
+    .my-gifts-page__header {
+      width: 880px;
+    }
+
+    .my-gifts-page__heroImg {
+      height: 700px;
+    }
+
+    .my-gifts-page__title {
+      font-size: 32px;
+    }
+
+    .my-gifts-page__backIcon {
+      height: 26px;
+      width: 46px;
+    }
+
+    .my-gifts-page__giftIcon {
+      height: 45px;
+      width: 45px;
+    }
+
+    .my-gifts-page__panel {
+      padding: 20px 33px;
+      border-radius: 40px;
+    }
+
+    .my-gifts-page__action {
+      font-size: 20px;
+      border-radius: 24px;
+    }
+
+    .my-gifts-page__sectionTitle {
+      font-size: 24px;
+    }
+
+    .my-gifts-page__linkBtn {
+      border-radius: 20px;
+    }
+
+    .my-gifts-page__chooseBtn {
+      font-size: 24px;
+    }
+
+    .my-gifts-page__giftGrid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .my-gifts-page__giftCard {
+      border-radius: 26px;
+      border: 4px solid rgba(244, 253, 255, 1);
+    }
+
+    .my-gifts-page__giftTitle {
+      font-size: 30px;
+      margin-left: 4px;
+    }
+
+    .my-gifts-page__giftSubtitle {
+      font-size: 24px;
+    }
+
+    .my-gifts-page__coinIcon {
+      width: 36px;
+      height: 36px;
+    }
+
+    .my-gifts-page__sectionTop {
+      margin-bottom: 14px;
+    }
+
+    .section--send {
+      margin: 23px 0;
+    }
+
+    .my-gifts-page__previousCard {
+      grid-template-columns: 160px 1fr auto;
+    }
+
+    .my-gifts-page__previousActions {
+      gap: 24px;
+    }
+
+    .my-gifts-page__previousImg {
+      width: 160px;
+      height: 160px;
+      border-radius: 30px;
+    }
+
+    .my-gifts-page__previousInfo {
+      gap: 23px;
+      margin-bottom: 20px;
+    }
+
+    .my-gifts-page__previousDetails {
+      flex-direction: column;
+      gap: 0;
+      color: rgba(0, 0, 0, 1);
+    }
+
+    .my-gifts-page__previousName,
+    .my-gifts-page__previousDate {
+      font-size: 22px;
+    }
+
+    .my-gifts-page__previousTitle {
+      font-size: 30px;
+      margin-top: 4px;
+    }
+  }
+
+
+  body.dark .my-gifts-page__back {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    box-shadow: none;
+  
+    img {
+      filter: grayscale(100%) invert(1);
+    }
+  }
+  
+  body.dark .my-gifts-page__title {
+    color: rgba(255, 255, 255, 0.92);
+  }
+  
+  body.dark .my-gifts-page__iconWrap {
+    border-color: rgba(255, 255, 255, 0.15);
+    background: rgba(20, 10, 30, 0.45);
+  }
+  
+  body.dark .my-gifts-page__hint {
+    color: rgba(255, 255, 255, 0.65);
+  }
+  
+  html[data-theme="dark"] .my-gifts-page__back {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    box-shadow: none;
+  
+    img {
+      filter: grayscale(100%) invert(1);
+    }
+  }
+  
+  html[data-theme="dark"] .my-gifts-page__title {
+    color: rgba(255, 255, 255, 0.92);
+  }
+  
+  html[data-theme="dark"] .my-gifts-page__iconWrap {
+    border-color: rgba(255, 255, 255, 0.15);
+    background: rgba(20, 10, 30, 0.45);
+  }
+  
+  html[data-theme="dark"] .my-gifts-page__hint {
+    color: rgba(255, 255, 255, 0.65);
+  }
+
+  html[data-theme="dark"] .my-gifts-page {
+    color: #f5efff;
+  }
+  
+  html[data-theme="dark"] .my-gifts-page__header {
+    background: linear-gradient(
+      181deg,
+      rgba(48, 28, 63, 0.92) 0%,
+      rgba(69, 43, 90, 0.92) 46%,
+      rgba(96, 63, 121, 0.92) 100%
+    );
+    box-shadow: 0 12px 20px rgba(0, 0, 0, 0.45);
+  }
+  
+  html[data-theme="dark"] .my-gifts-page__title {
+    color: #f8f3ff;
+  }
+  
+  html[data-theme="dark"] .my-gifts-page__panel {
+    background: linear-gradient(
+      181deg,
+      rgba(43, 23, 58, 0.75) 0%,
+      rgba(58, 34, 78, 0.75) 46%,
+      rgba(75, 46, 99, 0.75) 100%
+    );
+    border: 2px solid rgba(255, 255, 255, 0.12);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.35);
+  }
+  
+  html[data-theme="dark"] .my-gifts-page__sectionTitle {
+    color: #f8f3ff;
+  }
+  
+  html[data-theme="dark"] .my-gifts-page__linkBtn {
+    background: linear-gradient(
+      181deg,
+      rgba(71, 49, 96, 0.95) 0%,
+      rgba(90, 61, 120, 0.95) 46%,
+      rgba(108, 74, 140, 0.95) 100%
+    );
+    color: #ff8ed0;
+    border: 2px solid rgba(255, 255, 255, 0.14);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
+  }
+  
+  html[data-theme="dark"] .my-gifts-page__previousCard {
+    background: linear-gradient(
+      181deg,
+      rgba(54, 33, 73, 0.85) 0%,
+      rgba(67, 41, 88, 0.85) 46%,
+      rgba(83, 52, 108, 0.85) 100%
+    );
+    border: 2px solid rgba(255, 255, 255, 0.12);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.28);
+  }
+  
+  html[data-theme="dark"] .my-gifts-page__previousInfo,
+  html[data-theme="dark"] .my-gifts-page__previousTitle,
+  html[data-theme="dark"] .my-gifts-page__previousName,
+  html[data-theme="dark"] .my-gifts-page__previousDate {
+    color: rgba(255, 255, 255, 0.92);
+  }
+  
+  html[data-theme="dark"] .my-gifts-page__action {
+    color: #fff;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.22);
+  }
+  
+  html[data-theme="dark"] .action--yellow {
+    background: linear-gradient(
+      80deg,
+      #9d7a2c 0%,
+      #caa24c 50%,
+      #b68f3d 75%,
+      #8c6920 100%
+    );
+  }
+  
+  html[data-theme="dark"] .action--pink {
+    background: rgba(255, 79, 177, 0.65);
+  }
+  
+  html[data-theme="dark"] .my-gifts-page__chooseBtn {
+    background: rgba(255, 223, 131, 0.95);
+    color: #3b2c16;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+  }
+  
+  html[data-theme="dark"] .my-gifts-page__coinIcon {
+    filter: brightness(1.1) contrast(1.05);
+  }
