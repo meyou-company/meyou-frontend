@@ -33,7 +33,7 @@ export const authApi = {
 
   // ===== EMAIL VERIFICATION =====
   async verifyEmail(code) {
-    const { data } = await api.post("/verification/verify", { code });
+    const { data } = await api.post("/verification/confirm", { code });
     return data;
   },
 
@@ -61,14 +61,14 @@ export const authApi = {
   async uploadAvatar(file) {
     const fd = new FormData();
     fd.append("avatar", file);
-    const { data } = await api.patch("/users/me/avatar", fd, {
+    const { data } = await api.post("/users/avatar", fd, {
       headers: { "Content-Type": "multipart/form-data" },
     });
     return data;
   },
 
   async deleteAvatar() {
-    const { data } = await api.delete("/users/me/avatar");
+    const { data } = await api.delete("/users/avatar");
     return data;
   },
 };
