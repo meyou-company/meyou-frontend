@@ -72,7 +72,7 @@
   
   .my-gifts-page__heroImg {
     width: 100%;
-    height: clamp(360px, 50vw, 560px);
+    // height: clamp(360px, 50vw, 560px);
     object-fit: cover;
     object-position: center top;
     display: block;
@@ -285,7 +285,8 @@
     }
   
     .my-gifts-page__heroImg {
-      height: 400px;
+      // height: 400px;
+      height: 200px;
     }
   
     .my-gifts-page__panel {
@@ -451,7 +452,8 @@
     }
   
     .my-gifts-page__heroImg {
-      height: clamp(320px, 40vw, 620px);
+      // height: clamp(320px, 40vw, 620px);
+      height: 30px;
     }
 
     .my-gifts-page__bgImg {
@@ -474,6 +476,7 @@
   }
   
   @media (min-width: 1280px) {
+
     .my-gifts-page__bgImg--mobile {
       display: none;
     }
@@ -491,7 +494,7 @@
 
     .my-gifts-page__main,
     .my-gifts-page__header {
-      max-width: 1120px;
+      max-width: 1000px;
     }
 
     .my-gifts-page__header {
@@ -499,7 +502,8 @@
     }
 
     .my-gifts-page__heroImg {
-      height: 700px;
+      // height: 700px;
+      margin-bottom: 30px;
     }
 
     .my-gifts-page__title {
@@ -522,7 +526,7 @@
     }
 
     .my-gifts-page__action {
-      font-size: 20px;
+      font-size: 18px;
       border-radius: 24px;
     }
 
@@ -570,22 +574,13 @@
     }
 
     .my-gifts-page__previousCard {
-      grid-template-columns: 160px 1fr auto;
-    }
-
-    .my-gifts-page__previousActions {
-      gap: 24px;
+      grid-template-columns: 130px 1fr auto;
     }
 
     .my-gifts-page__previousImg {
-      width: 160px;
-      height: 160px;
+      width: 130px;
+      height: 130px;
       border-radius: 30px;
-    }
-
-    .my-gifts-page__previousInfo {
-      gap: 23px;
-      margin-bottom: 20px;
     }
 
     .my-gifts-page__previousDetails {
@@ -600,7 +595,7 @@
     }
 
     .my-gifts-page__previousTitle {
-      font-size: 30px;
+      font-size: 26px;
       margin-top: 4px;
     }
   }
