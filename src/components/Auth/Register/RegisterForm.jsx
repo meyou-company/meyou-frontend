@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { useAuthStore } from "../../../zustand/useAuthStore";
+import { resolvedApiBaseUrl } from "../../../services/api";
 import { useForceDarkTheme } from "../../../hooks/useForceDarkTheme";
 import { validateRegister, isEmptyErrors, PASSWORD_HINT } from "../../../utils/validationRegister";
 import { getApiErrorMessage } from "../../../utils/getApiErrorMessage";
@@ -41,7 +42,7 @@ export default function RegisterForm({ onBack, onGoLogin, onSuccess }) {
   const errors = useMemo(() => validateRegister(form), [form]);
 
   const handleGoogle = () => {
-    window.location.href = `${import.meta.env.VITE_API_URL}/auth/google`;
+    window.location.href = `${resolvedApiBaseUrl}/auth/google`;
   };
 
   const onChange = (e) => {

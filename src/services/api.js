@@ -1,6 +1,34 @@
 import axios from "axios";
 
-const API_URL = import.meta.env.VITE_API_URL;
+/**
+ * `VITE_API_URL` задає базу під глобальний префікс `/api` на Nest.
+ * Prod (рекомендовано): абсолютний URL https://meyou-api.onrender.com/api — запити напряму на Render (CORS + credentials).
+ * Альтернатива: порожньо або `/api` — тоді на Vercel спрацює rewrite з vercel.json (той же хост під `/api/...`).
+ */
+function resolveApiBaseUrl() {
+  const raw = String(import.meta.env.VITE_API_URL ?? "")
+    .trim()
+    .replace(/\/$/, "");
+  if (raw) {
+    const absolute = /^https?:\/\//i.test(raw);
+    if (!absolute && import.meta.env.PROD) {
+      console.warn(
+        `[meyou-frontend] VITE_API_URL is relative (${raw}). With Vercel, vercel.json must rewrite /api → API host. Recommended: absolute https://YOUR-API.onrender.com/api`,
+      );
+    }
+    return raw;
+  }
+  if (import.meta.env.DEV) {
+    return "/api";
+  }
+  console.error(
+    "[meyou-frontend] VITE_API_URL is unset in production. Defaulting to /api — ensure vercel.json proxies /api to meyou-api on Render.",
+  );
+  return "/api";
+}
+
+/** Базова URL API (ті самі що axios `baseURL`) — для Google OAuth redirect тощо. */
+export const resolvedApiBaseUrl = resolveApiBaseUrl();
 
 const SESSION_ACCESS_KEY = "meyou_session_access_token";
 const SESSION_REFRESH_KEY = "meyou_session_refresh_token";
@@ -67,7 +95,7 @@ function bootstrapOAuthQueryTokens() {
 bootstrapOAuthQueryTokens();
 
 export const api = axios.create({
-  baseURL: API_URL,
+  baseURL: resolvedApiBaseUrl,
   withCredentials: true,
 });
 

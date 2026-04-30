@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { useAuthStore } from "../../../zustand/useAuthStore";
+import { resolvedApiBaseUrl } from "../../../services/api";
 import { useForceDarkTheme } from "../../../hooks/useForceDarkTheme";
 import { getApiErrorMessage } from "../../../utils/getApiErrorMessage";
 import "./LoginForm.scss";
@@ -35,7 +36,7 @@ export default function LoginForm({ onBack, onForgot, onSuccess }) {
   const onBlur = (e) => setTouched((p) => ({ ...p, [e.target.name]: true }));
 
   const handleGoogle = () => {
-    window.location.href = `${import.meta.env.VITE_API_URL}/auth/google`;
+    window.location.href = `${resolvedApiBaseUrl}/auth/google`;
   };
 
   const onSubmit = async (e) => {
