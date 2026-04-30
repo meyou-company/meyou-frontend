@@ -30,6 +30,7 @@ import FirstPage from '../pages/FirstPage/FirstPage';
 import WalletPage from '../pages/Wallet/WalletPage';
 import NotificationsPage from '../pages/Notifications/NotificationsPage';
 import MyGiftsPage from "../pages/MyGifts/MyGiftsPage";
+import NotFoundPage from '../pages/NotFound/NotFoundPage';
 import ProfileGuard from './ProfileGuard';
 
 import { UserProfileNavProvider } from "../context/UserProfileNavContext";
@@ -102,6 +103,7 @@ function AppLayout() {
               <Route path="/auth/reset/new-password" element={<ResetNewPasswordPage />} />
 
               <Route path="/auth/callback" element={<AuthCallback />} />
+              <Route path="*" element={<NotFoundPage />} />
             </Routes>
           </div>
         </div>
