@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
-import "./Video.scss";
+import { NAV_ITEMS } from "../../constants/navigation";
 import profileIcons from "../../constants/profileIcons";
+import "./Video.scss";
+import { useNavigate } from "react-router-dom";
 
 const videos = [
   {
@@ -79,13 +81,38 @@ const videos = [
 
 const currentPage = "video";
 
-const Video = ({
-  onGoHome,
-  onGoPeople,
-  onGoVideo,
-  onGoMessages,
-  onGoProfile,
-}) => {
+function Header({ currentPage, alwaysVisible = false }) {
+  const navigate = useNavigate();
+
+  return (
+    <div className={`video__desktopHeader ${alwaysVisible ? "always" : ""}`}>
+      {NAV_ITEMS.map((item) => {
+        const isActive = item.key === currentPage;
+
+        return (
+          <div
+            key={item.key}
+            onClick={() => navigate(item.path)}
+            className={`video__navItem ${isActive ? "active" : ""}`}
+          >
+            <img
+              src={
+                isActive
+                  ? profileIcons[item.icon + "Active"] || profileIcons[item.icon]
+                  : profileIcons[item.icon]
+              }
+              className="video__navigationIcon"
+              alt={item.label}
+            />
+            <span className="video__navigationTitle">{item.label}</span>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+const Video = () => {
    const [showAll, setShowAll] = useState(false);
    const [isSearchOpen, setIsSearchOpen] = useState(false);
 
@@ -100,43 +127,11 @@ useEffect(() => {
   return () => window.removeEventListener("resize", handleResize);
 }, []);
 
-   const navItems = [
-  { label: "Главная", icon: "homeGreyVideo", onClick: onGoHome },
-  { label: "Люди", icon: "peopleGreyVideo", onClick: onGoPeople },
-  { label: "Видео", icon: "video", onClick: onGoVideo },
-  { label: "Сообщения", icon: "chatGreyVideo", onClick: onGoMessages },
-  { label: "Профиль", icon: "profileGreyVideo", onClick: onGoProfile },
-];
-
-
   return (
     <div className="video">
 
       {/* DESKTOP NAVBAR */}
-      <div className="video__desktopHeader">
-    {navItems.map((item) => {
-    const isActive = item.icon === currentPage;
-
-    return (
-      <div
-        key={item.label}
-        onClick={item.onClick}
-        className={`video__navItem ${isActive ? "active" : ""}`}
-      >
-        <img
-          src={
-            isActive
-              ? profileIcons[item.icon + "Active"] || profileIcons[item.icon]
-              : profileIcons[item.icon]
-          }
-          className="video__navigationIcon"
-          alt={item.label}
-        />
-        <span>{item.label}</span>
-      </div>
-    );
-  })}
-</div>
+      <Header currentPage="video" />
 
       {/* HEADER */}
       <div className="video__header">
@@ -271,3 +266,4 @@ useEffect(() => {
 };
 
 export default Video;
+export { Header };

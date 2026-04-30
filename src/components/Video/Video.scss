@@ -2,15 +2,29 @@
 .video__desktopHeader {
   display: none;
 } 
- 
 
+.video__desktopHeader.always {
+  display: flex;
+  justify-content: space-evenly;
+  align-items: center;
+  padding: 10px 0;
+  background: rgba(244, 253, 255, 1);
+  box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.35);
+}
+ 
   /* HEADER */
 .video__header {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
-    gap: 12px;
     align-items: center;
+    gap: 12px;
+  }
+
+  .video__navItem {
+     display: flex;
+     flex-direction: column;
+    justify-content: center;
   }
 
 .video__title {
@@ -280,6 +294,16 @@
   height: 12px;
 }
 
+.video__navigationIcon {
+  height: 20px;
+  transition: 0.3s ease;
+}
+
+.video__navigationTitle {
+  font-size: 12px;
+}
+
+
 @media (max-width: 350px) {
   .video__addBtn {
     padding: 7px 10px;
@@ -322,6 +346,16 @@
   .video {
   padding: 16px;
   }
+
+  .video__navigationIcon {
+    height: 24px;
+  }
+
+   .video__navItem {
+    flex-direction: row;
+    align-items: center; 
+    gap: 6px;
+   }
 
   .video__title {
     font-size: 30px;
@@ -479,9 +513,11 @@
   box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.35);
 }
 
+  .video__desktopHeader.always {
+    padding: 18px 0;
+  }
+
   .video__navItem {
-    display: flex;
-    align-items: center;
     gap: 8px;
 
     font-size: 16px;
@@ -501,7 +537,10 @@
 
 .video__navigationIcon {
   height: 30px;
-  transition: 0.3s ease;
+}
+
+.video__navigationTitle {
+  font-size: 16px;
 }
 
 .video__navItem.active {
