@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { clearOAuthSessionTokens } from "../services/api";
 import { authApi } from "../services/auth";
 import { passwordApi } from "../services/passwordApi";
 
@@ -183,6 +184,7 @@ export const useAuthStore = create((set) => ({
     try {
       await authApi.logout();
     } finally {
+      clearOAuthSessionTokens();
       set({ user: null, isAuthed: false });
     }
   },

@@ -12,6 +12,7 @@ import VipChat from '../pages/VipChat/VipChat';
 import LoginPage from '../pages/Auth/Login/LoginPage';
 import RegisterPage from '../pages/Auth/Register/RegisterPage';
 import VerifyEmailPage from '../pages/Auth/VerifyEmail/VerifyEmailPage';
+import GoogleOAuthSuccess from '../pages/Auth/GoogleOAuthSuccess';
 
 import VerifyResetCodePage from '../pages/Auth/VerifyEmail/VerifyResetCodePage';
 
@@ -93,6 +94,8 @@ function AppLayout() {
               <Route path="/auth/register" element={<RegisterPage />} />
 
               <Route path="/auth/verify-email" element={<VerifyEmailPage />} />
+
+              <Route path="/auth/google/success" element={<GoogleOAuthSuccess />} />
 
               <Route path="/auth/forgot-password" element={<ForgotPassword />} />
               <Route path="/auth/reset/verify-code" element={<VerifyResetCodePage />} />

@@ -16,6 +16,7 @@ export default function ProfileGuard({ children }) {
       "/auth/login",
       "/auth/register",
       "/auth/callback",
+      "/auth/google/success",
       "/auth/forgot-password",
       "/auth/reset/verify-code",
       "/auth/reset/new-password",

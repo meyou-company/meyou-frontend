@@ -2,16 +2,98 @@ import axios from "axios";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
+const SESSION_ACCESS_KEY = "meyou_session_access_token";
+const SESSION_REFRESH_KEY = "meyou_session_refresh_token";
+
+/** Bearer для cross-origin або dev (порт фронту ≠ API), доповнює httpOnly cookies після OAuth. */
+export function persistOAuthSessionTokens(accessToken, refreshToken) {
+  try {
+    if (accessToken) sessionStorage.setItem(SESSION_ACCESS_KEY, accessToken);
+    if (refreshToken) sessionStorage.setItem(SESSION_REFRESH_KEY, refreshToken);
+  } catch (_) {
+    /* ignore */
+  }
+}
+
+export function clearOAuthSessionTokens() {
+  try {
+    sessionStorage.removeItem(SESSION_ACCESS_KEY);
+    sessionStorage.removeItem(SESSION_REFRESH_KEY);
+  } catch (_) {
+    /* ignore */
+  }
+}
+
+function readSessionAccess() {
+  try {
+    return sessionStorage.getItem(SESSION_ACCESS_KEY);
+  } catch {
+    return null;
+  }
+}
+
+function readSessionRefresh() {
+  try {
+    return sessionStorage.getItem(SESSION_REFRESH_KEY);
+  } catch {
+    return null;
+  }
+}
+
+function persistTokensFromResponseBody(data) {
+  if (!data || typeof data !== "object") return;
+  const access = data.accessToken ?? data.access_token;
+  const refresh = data.refreshToken ?? data.refresh_token;
+  persistOAuthSessionTokens(access, refresh);
+}
+
+/**
+ * Одразу при завантаженні бандлу: забрати токени з query до React useEffect —
+ * щоб паралельний init() уже міг зробити /users/me з Authorization.
+ */
+function bootstrapOAuthQueryTokens() {
+  if (typeof window === "undefined") return;
+  const path = window.location.pathname.replace(/\/$/, "") || "/";
+  if (path !== "/auth/google/success") return;
+  const q = window.location.search;
+  if (!q) return;
+  const params = new URLSearchParams(q);
+  const access = params.get("access_token");
+  const refresh = params.get("refresh_token");
+  if (!access && !refresh) return;
+  persistOAuthSessionTokens(access ?? undefined, refresh ?? undefined);
+}
+
+bootstrapOAuthQueryTokens();
+
 export const api = axios.create({
   baseURL: API_URL,
   withCredentials: true,
 });
 
-// Access token берется из cookie автоматически бэкендом
-// Фронтенд не хранит токены в localStorage
+const isRefreshEndpoint = (config) => {
+  const url = config?.url ?? "";
+  const base = config?.baseURL ?? "";
+  return (
+    String(url).includes("/auth/refresh") ||
+    String(base).includes("/auth/refresh")
+  );
+};
 
 api.interceptors.request.use((config) => {
-  // Куки отправляются автоматически через withCredentials
+  if (config.headers?.Authorization) return config;
+
+  if (isRefreshEndpoint(config)) {
+    const rt = readSessionRefresh();
+    if (rt) {
+      config.headers.Authorization = `Bearer ${rt}`;
+    }
+  } else {
+    const at = readSessionAccess();
+    if (at) {
+      config.headers.Authorization = `Bearer ${at}`;
+    }
+  }
   return config;
 });
 
@@ -23,13 +105,14 @@ const resolveQueue = (error, token = null) => {
   queue = [];
 };
 
-const isRefreshEndpoint = (config) => {
-  const url = config?.url ?? config?.baseURL ?? "";
-  return String(url).includes("/auth/refresh");
-};
-
 api.interceptors.response.use(
-  (res) => res,
+  (res) => {
+    const url = res.config?.url ?? "";
+    if (String(url).includes("/auth/refresh") && res.config?.method === "post") {
+      persistTokensFromResponseBody(res.data);
+    }
+    return res;
+  },
   async (err) => {
     const original = err.config;
 
@@ -43,9 +126,7 @@ api.interceptors.response.use(
       if (isRefreshing) {
         return new Promise((resolve, reject) => {
           queue.push({
-            resolve: (token) => {
-              resolve(api(original));
-            },
+            resolve: () => resolve(api(original)),
             reject,
           });
         });
@@ -54,7 +135,10 @@ api.interceptors.response.use(
       isRefreshing = true;
 
       try {
-        await api.post("/auth/refresh", null, { skipAuth: true });
+        const refreshRes = await api.post("/auth/refresh", null, {
+          skipAuth: true,
+        });
+        persistTokensFromResponseBody(refreshRes?.data);
         resolveQueue(null, true);
         return api(original);
       } catch (refreshErr) {
@@ -69,5 +153,5 @@ api.interceptors.response.use(
   }
 );
 
-// Legacy compatibility - ничего не делает, токены в куках
+/** @deprecated порожній заглушок; Bearer береться з sessionStorage або cookies */
 export const setAccessToken = () => {};

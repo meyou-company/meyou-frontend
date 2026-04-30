@@ -1,14 +1,17 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { authApi } from "../../services/auth";
+import { useAuthStore } from "../../zustand/useAuthStore";
 
 export default function AuthCallback() {
   const navigate = useNavigate();
+  const setUser = useAuthStore((s) => s.setUser);
 
   useEffect(() => {
     // Проверяем что куки работают — делаем запрос me()
     authApi.me()
       .then((user) => {
+        setUser(user);
         // Успех — редирект на профиль или complete profile
         if (user.profileCompleted === false) {
           navigate("/users/profile/complete", { replace: true });
@@ -21,6 +24,7 @@ export default function AuthCallback() {
         authApi.refresh()
           .then(() => authApi.me())
           .then((user) => {
+            setUser(user);
             if (user.profileCompleted === false) {
               navigate("/users/profile/complete", { replace: true });
             } else {
