@@ -1,5 +1,5 @@
 export const NAV_ITEMS = [
-  { key: "home", label: "Главная", icon: "homeGreyVideo", path: "/" },
+  { key: "home", label: "Главная", icon: "homeGreyVideo", path: "/first-page" },
   { key: "people", label: "Люди", icon: "peopleGreyVideo", path: "/friends" },
   { key: "video", label: "Видео", icon: "video", path: "/video" },
   { key: "messages", label: "Сообщения", icon: "chatGreyVideo", path: "/vip-chat" },

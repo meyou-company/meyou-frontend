@@ -6,6 +6,7 @@ const BLACK = "/icon-black";
 const WALLET = "/balance";
 const VIDEO = "/video";
 const GIFTS = "/gifts/icon";
+const PROFILE_INFO = "/ProfileInfo";
 
 const profileIcons = {
   /* === HOME === */
@@ -97,7 +98,21 @@ const profileIcons = {
 
   /* === GIFTS === */
   gift: `${GIFTS}/gift.svg`,
-  coin: `${GIFTS}/coin.svg`
+  coin: `${GIFTS}/coin.svg`,
+
+   /* === PROFILE INFO === */
+  profileInfoUser: `${PROFILE_INFO}/profile.svg`,
+  profileInfoStar: `${PROFILE_INFO}/pink_star.svg`,
+  profileInfoList: `${PROFILE_INFO}/list.svg`,
+  profileInfoLocation: `${PROFILE_INFO}/purple_location.svg`,
+  profileInfoPeople: `${PROFILE_INFO}/people.svg`,
+  profileInfoVip: `${PROFILE_INFO}/vip.svg`,
+  profileInfoPresent: `${PROFILE_INFO}/present.svg`,
+  profileInfoPencil: `${PROFILE_INFO}/pensil.svg`,
+  profileInfoPhone: `${PROFILE_INFO}/phone.svg`,
+  profileInfoTelegram: `${PROFILE_INFO}/telegram.svg`,
+  profileInfoInstagram: `${PROFILE_INFO}/instagram.svg`,
+  profileInfoLock: `${PROFILE_INFO}/light_lock.svg`,
 };
 
 export default profileIcons;

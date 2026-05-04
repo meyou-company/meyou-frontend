@@ -2,15 +2,6 @@
 .video__desktopHeader {
   display: none;
 } 
-
-.video__desktopHeader.always {
-  display: flex;
-  justify-content: space-evenly;
-  align-items: center;
-  padding: 10px 0;
-  background: rgba(244, 253, 255, 1);
-  box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.35);
-}
  
   /* HEADER */
 .video__header {
@@ -346,6 +337,15 @@
   .video {
   padding: 16px;
   }
+
+  .video__desktopHeader.always {
+  display: flex;
+  justify-content: space-evenly;
+  align-items: center;
+  padding: 10px 0;
+  background: rgba(244, 253, 255, 1);
+  box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.35);
+}
 
   .video__navigationIcon {
     height: 24px;

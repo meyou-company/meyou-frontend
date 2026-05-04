@@ -11,6 +11,7 @@ import {
 import { useProfileAuthorFeed } from "../../../../hooks/useProfileAuthorFeed";
 import { useUserProfileNav } from "../../../../context/UserProfileNavContext";
 import ProfilePostsFeed from "../ProfilePostsFeed/ProfilePostsFeed";
+import ProfileInfoPanel from "../ProfileInfoPanel/ProfileInfoPanel";
 import "../ProfileHome/ProfileHome.scss";
 import "./ProfileVisitorSubscribed.scss";
 
@@ -216,7 +217,11 @@ export default function ProfileVisitorSubscribed({
       </div>
 
       {/* ===== TAB CONTENT: для табів «Удалить» / «Информация» нічого не показуємо ===== */}
-      {(activeTab === "info" || activeTab === "delete") && null}
+      {/* {(activeTab === "info" || activeTab === "delete") && null} */}
+      <ProfileInfoPanel
+  user={user}
+  isOpen={activeTab === "info"}
+/>
 
       {/* ===== FRIENDS: такий самий блок як у моєму профілі (vipCard, friendsTitle, vipRow, showMoreBtn) — тільки з його друзями ===== */}
       <section className="vipCard profile-visitor-subscribed__friends" aria-label={displayFriendsCount > 0 ? `Друзья, всього ${displayFriendsCount}` : "Друзья"}>
