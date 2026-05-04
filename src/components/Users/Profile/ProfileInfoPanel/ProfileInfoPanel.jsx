@@ -102,19 +102,41 @@ export default function ProfileInfoPanel({ user, isOpen }) {
 
       {/* Социальная активность */}
       <div className="infoSection stats">
-        <div className="statCard">👥 {social.friends} Друзья</div>
-        <div className="statCard">👑 VIP</div>
-        <div className="statCard">🎁 {social.gifts} Подарки</div>
-        <div className="statCard">✏️ {social.posts} Посты</div>
+         <h3 className="">
+      <img src={profileIcons.profileInfoPeople} alt="" />
+      Социальная активность
+      </h3>
+        <div className="statCard"> 
+          <img src={profileIcons.profileInfoPeople} alt="" /> 
+          {social.friends} 
+          Друзья
+        </div>
+        <div className="statCard">  
+          <img src={profileIcons.profileInfoVip} alt="" /> 
+          <span>VIP</span>
+          <p>Статус</p>
+        </div>
+        <div className="statCard">
+           <img src={profileIcons.profileInfoPresent} alt="" /> 
+           {social.gifts} 
+           Подарки
+        </div>
+        <div className="statCard">
+          <img src={profileIcons.profileInfoPencil} alt="" />  
+          {social.posts} 
+          Посты
+          </div>
       </div>
 
       {/* Контакты */}
       <div className="infoSection">
-        <h3>Контакты</h3>
+        <h3>
+            <img src={profileIcons.profileInfoPhone} alt="" />
+          Контакты</h3>
         <div className="contacts">
-          <button>Telegram</button>
-          <button>Instagram</button>
-          <button disabled>Email (скрыт)</button>
+          <button>  <img src={profileIcons.profileInfoTelegram} alt="" />Telegram</button>
+          <button>  <img src={profileIcons.profileInfoInstagram} alt="" />Instagram</button>
+          <button disabled>  <img src={profileIcons.profileInfoLock} alt="" />Email (скрыт)</button>
         </div>
       </div>
     </div>

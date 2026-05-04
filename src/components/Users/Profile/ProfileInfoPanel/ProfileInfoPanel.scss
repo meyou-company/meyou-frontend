@@ -25,7 +25,7 @@
 
 /* === ЗАГОЛОВОК С ИКОНКОЙ === */
 .infoSection h3 {
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 600;
   color: #7b61ff;
   margin-bottom: 10px;
@@ -36,9 +36,14 @@
 
 /* === ТЕКСТ === */
 .infoSection p {
-  font-size: 14px;
+  font-size: 11px;
   color: #2f2f2f;
   line-height: 1.5;
+}
+
+.infoSection img {
+  width: 20px;
+  height: 20px;
 }
 
 /* === INTERESTS === */
@@ -147,7 +152,7 @@
 
 @media (max-width: 600px) {
   .infoSection {
-    padding: 14px;
+    padding: 14px 18px;
   }
 
   .gridRow {
