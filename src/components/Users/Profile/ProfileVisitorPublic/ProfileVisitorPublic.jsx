@@ -9,6 +9,7 @@ import {
 } from "../../../../utils/profileFriendNav";
 import { useProfileAuthorFeed } from "../../../../hooks/useProfileAuthorFeed";
 import ProfilePostsFeed from "../ProfilePostsFeed/ProfilePostsFeed";
+import ProfileInfoPanel from "../ProfileInfoPanel/ProfileInfoPanel";
 import "../ProfileHome/ProfileHome.scss";
 import "./ProfileVisitorPublic.scss";
 
@@ -353,6 +354,11 @@ export default function ProfileVisitorPublic({
             </button>
           ))}
         </section>
+
+        <ProfileInfoPanel
+         user={user}
+         isOpen={visitorTab === "info"}
+        />
 
         <ProfilePostsFeed
           feedPosts={feedPosts}

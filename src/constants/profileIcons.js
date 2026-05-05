@@ -105,6 +105,7 @@ const profileIcons = {
   profileInfoStar: `${PROFILE_INFO}/pink_star.svg`,
   profileInfoList: `${PROFILE_INFO}/list.svg`,
   profileInfoLocation: `${PROFILE_INFO}/purple_location.svg`,
+  profileInfoSocial: `${PROFILE_INFO}/social_activity.svg`,
   profileInfoPeople: `${PROFILE_INFO}/people.svg`,
   profileInfoVip: `${PROFILE_INFO}/vip.svg`,
   profileInfoPresent: `${PROFILE_INFO}/present.svg`,
