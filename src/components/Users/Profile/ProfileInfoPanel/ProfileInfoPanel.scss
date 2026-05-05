@@ -15,12 +15,13 @@
 
 /* === ОБЩАЯ КАРТОЧКА === */
 .infoSection {
-  background: linear-gradient(181deg,#E1CBFF 0%, #F1E7FF 46%, #FCFAFF 100%);
-  backdrop-filter: blur(12px);
-  border-radius: 14px;
-  border: 2px solid rgba(244, 253, 255, 1);
   padding: 18px 20px;
   margin-bottom: 16px;
+  border: 2px solid rgba(244, 253, 255, 1);
+  background: linear-gradient(181deg,#E1CBFF 0%, #F1E7FF 46%, #FCFAFF 100%);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.25);
+  backdrop-filter: blur(12px);
+  border-radius: 14px;
 }
 
 /* === ЗАГОЛОВОК С ИКОНКОЙ === */
@@ -59,7 +60,6 @@
   border-radius: 999px;
   font-size: 13px;
   font-weight: 500;
-
   background: linear-gradient(180deg, #f3ecff 0%, #e6dbff 100%);
   border: 1px solid rgba(164, 140, 255, 0.35);
   color: #7b61ff;
