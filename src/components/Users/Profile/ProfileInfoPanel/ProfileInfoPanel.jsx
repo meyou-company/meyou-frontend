@@ -3,13 +3,27 @@ import "./ProfileInfoPanel.scss";
 
 
 export default function ProfileInfoPanel({ user, isOpen }) {
-  const interests = user?.interests || [
+
+  const interests = (() => {
+  if (Array.isArray(user?.interests)) {
+    return user.interests;
+  }
+
+  if (typeof user?.interests === "string" && user.interests.trim() !== "") {
+    return user.interests
+      .split(",")
+      .map(i => i.trim())
+      .filter(Boolean);
+  }
+
+  return [
     "Путешествия",
     "Кофе",
     "Спорт",
     "Кино",
     "Музыка",
   ];
+})();
 
   const info = {
     gender: "Женский",
@@ -30,6 +44,9 @@ export default function ProfileInfoPanel({ user, isOpen }) {
     gifts: 154,
     posts: 45,
   };
+
+  console.log("RAW:", user?.interests);
+console.log("FINAL:", interests);
 
   return (
     <div className={`infoPanel ${isOpen ? "isOpen" : ""}`}>
@@ -52,18 +69,29 @@ export default function ProfileInfoPanel({ user, isOpen }) {
         <img src={profileIcons.profileInfoStar} alt="" />
         Интересы
         </h3>
-        <div className="chips">
-          {interests.map((item) => (
-            <span key={item} className="chip">
-              {item}
-            </span>
-          ))}
-          <span className="chip">+2</span>
-        </div>
+          
+          <div className="chips">
+            
+  {interests.length ? (
+    
+    interests.map((item) => (
+      <span key={item} className="chip">
+        {item}
+      </span>
+    ))
+    
+  ) : (
+    <span className="chip">Нет интересов</span>
+  )}
+
+  {interests.length > 4 && (
+    <span className="chip">+{interests.length - 4}</span>
+  )}
+</div>
       </div>
 
       {/* Личная информация */}
-      <div className="infoSection grid">
+      <div className="infoSection grid gridBlock">
         <h3>
        <img src={profileIcons.profileInfoList} alt="" />
        Личная информация
@@ -87,7 +115,7 @@ export default function ProfileInfoPanel({ user, isOpen }) {
       </div>
 
       {/* Локация */}
-      <div className="infoSection grid">
+      <div className="infoSection grid gridBlock">
         <h3>
       <img src={profileIcons.profileInfoLocation} alt="" />
       Локация
@@ -101,31 +129,33 @@ export default function ProfileInfoPanel({ user, isOpen }) {
       </div>
 
       {/* Социальная активность */}
-      <div className="infoSection stats">
-         <h3 className="">
-      <img src={profileIcons.profileInfoPeople} alt="" />
+      <div  className="infoSection">
+        <h3 className="">
+      <img src={profileIcons.profileInfoSocial} alt="" />
       Социальная активность
       </h3>
+<div className="stats"> 
         <div className="statCard"> 
           <img src={profileIcons.profileInfoPeople} alt="" /> 
-          {social.friends} 
-          Друзья
+          <p className="statText">{social.friends}</p>
+         <p className="statText">Друзья</p>
         </div>
         <div className="statCard">  
           <img src={profileIcons.profileInfoVip} alt="" /> 
-          <span>VIP</span>
-          <p>Статус</p>
+          <span className="statText">VIP</span>
+          <p className="statText">Статус</p>
         </div>
         <div className="statCard">
            <img src={profileIcons.profileInfoPresent} alt="" /> 
-           {social.gifts} 
-           Подарки
+            <p className="statText">{social.gifts} </p>
+           <p className="statText">Подарки</p>
         </div>
         <div className="statCard">
-          <img src={profileIcons.profileInfoPencil} alt="" />  
-          {social.posts} 
-          Посты
+          <img src={profileIcons.profileInfoPencil} alt="" />
+          <p className="statText">{social.posts}</p> 
+          <p className="statText">Посты</p>
           </div>
+      </div>
       </div>
 
       {/* Контакты */}
@@ -134,9 +164,9 @@ export default function ProfileInfoPanel({ user, isOpen }) {
             <img src={profileIcons.profileInfoPhone} alt="" />
           Контакты</h3>
         <div className="contacts">
-          <button>  <img src={profileIcons.profileInfoTelegram} alt="" />Telegram</button>
-          <button>  <img src={profileIcons.profileInfoInstagram} alt="" />Instagram</button>
-          <button disabled>  <img src={profileIcons.profileInfoLock} alt="" />Email (скрыт)</button>
+          <button className="contactsText">  <img src={profileIcons.profileInfoTelegram} alt="" />Telegram</button>
+          <button className="contactsText">  <img src={profileIcons.profileInfoInstagram} alt="" />Instagram</button>
+          <button className="contactsText" disabled>  <img src={profileIcons.profileInfoLock} alt="" />Email (скрыт)</button>
         </div>
       </div>
     </div>

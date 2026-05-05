@@ -27,9 +27,9 @@
 /* === ЗАГОЛОВОК С ИКОНКОЙ === */
 .infoSection h3 {
   font-size: 14px;
-  font-weight: 600;
-  color: #7b61ff;
-  margin-bottom: 10px;
+  font-weight: 700;
+  color: #9B7AE6;
+  margin-bottom: 7px;
   display: flex;
   align-items: center;
   gap: 8px;
@@ -37,101 +37,114 @@
 
 /* === ТЕКСТ === */
 .infoSection p {
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 600;
   color: #2f2f2f;
   line-height: 1.5;
 }
 
 .infoSection img {
-  width: 20px;
-  height: 20px;
+  width: 23px;
+  height: 23px;
 }
 
 /* === INTERESTS === */
 .chips {
   display: flex;
   flex-wrap: wrap;
+  width: 100%;
   gap: 10px;
+  margin-left: 30px;
 }
 
 .chip {
+  display: inline-flex;
+  align-items: center;
+  white-space: nowrap;
   padding: 6px 14px;
-  border-radius: 999px;
+  border-radius: 24px;
   font-size: 13px;
-  font-weight: 500;
+  font-weight: 600;
   background: linear-gradient(180deg, #f3ecff 0%, #e6dbff 100%);
   border: 1px solid rgba(164, 140, 255, 0.35);
-  color: #7b61ff;
+  color: #9B7AE6;
 }
 
 /* === GRID (личная инфа + локация) === */
 .gridRow {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  padding: 6px 0;
+  justify-items: start;
+  margin-left: 33px;
+  padding: 3px 0;
   font-size: 14px;
+  font-weight: 500;
 }
 
 .gridRow span:first-child {
-  color: #555;
+  color: rgba(0, 0, 0, 0.5);
+;
 }
 
 .gridRow span:last-child {
-  color: #111;
-  text-align: right;
-  font-weight: 500;
+  color: rgba(0, 0, 0, 1);
+  font-weight: 600;
 }
 
 /* === SOCIAL STATS === */
 .stats {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 14px;
+  display: flex;
+  justify-content: center;
+  gap: 10px;
 }
 
 .statCard {
-  background: linear-gradient(180deg, #f6f1ff 0%, #e9deff 100%);
-  border-radius: 20px;
-  padding: 16px 12px;
-  text-align: center;
-
-  border: 1px solid rgba(164, 140, 255, 0.25);
-  box-shadow: 0 4px 12px rgba(123, 97, 255, 0.08);
-
-  font-size: 13px;
-  color: #333;
-
   display: flex;
   flex-direction: column;
-  gap: 6px;
   align-items: center;
   justify-content: center;
+  width: 100%;
+  padding: 16px 12px;
+  text-align: center;
+  font-size: 13px;
+  border: 1.5px solid #E1D1EA;
+  border-radius: 20px;
+  background: linear-gradient(181deg,#E1CBFF 0%, #F1E7FF 46%, #FCFAFF 100%);
+  box-shadow: 0 4px 12px rgba(123, 97, 255, 0.08);
+  color: #333;
+}
+
+.statText {
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.statCard img {
+  width: 20px;
+  height: 20px;
+  margin-top: 3px;
+
 }
 
 /* === CONTACTS === */
 .contacts {
   display: flex;
-  gap: 12px;
-  flex-wrap: wrap;
+  width: 100%;
+  gap: 4px;
 }
 
 .contacts button {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
-
   padding: 10px 16px;
   border-radius: 14px;
-
   border: 1px solid rgba(164, 140, 255, 0.3);
-
-  background: linear-gradient(180deg, #f3ecff 0%, #e6dbff 100%);
-
+  background: linear-gradient(181deg,#E1CBFF 0%, #F1E7FF 46%, #FCFAFF 100%);
   font-size: 14px;
-  font-weight: 500;
+  font-weight: 700;
   color: #6f55ff;
-
   transition: 0.2s;
 }
 
@@ -143,36 +156,66 @@
   opacity: 0.5;
 }
 
-/* === RESPONSIVE === */
+.contactsText {
+   display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
 
-@media (max-width: 1024px) {
+/* === RESPONSIVE === */
+@media only screen and (min-width: 375px) {
   .stats {
-    grid-template-columns: repeat(2, 1fr);
+    gap: 6px;
+  }
+
+  .contacts {
+    gap: 8px;
+  }
+
+  .contacts button {
+    gap: 4px;
   }
 }
 
-@media (max-width: 600px) {
+@media (max-width: 767.98px) {
   .infoSection {
-    padding: 14px 18px;
+    padding: 10px 14px;
   }
 
   .gridRow {
-    font-size: 13px;
+    font-size: 11px;
+    gap: 8px;
   }
 
-  .stats {
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
+  .gridBlock {
+    padding: 10px;
   }
 
   .statCard {
-    padding: 12px;
+    padding: 2px 10px 6px;
     font-size: 12px;
+    border-radius: 12px;
+  }
+
+  .contacts button {
+  gap: 8px;
+  padding: 2px 6px;
+  font-size: 10px;
+
+  :first-child {
+    color: #2AAAED;
+  }
+}
+
+  .contacts button img {
+    width: 10px;
+    height: 10px;
   }
 
   .chip {
-    font-size: 12px;
-    padding: 5px 10px;
+    font-size: 10px;
+    padding: 3px 7px;
   }
 }
 
@@ -181,7 +224,7 @@
   border-radius: 20px; 
   }
 
-  .infoSection p {
-  font-weight: 500;
-}
+  .stats {
+    gap: 12px;
+  }
  }
