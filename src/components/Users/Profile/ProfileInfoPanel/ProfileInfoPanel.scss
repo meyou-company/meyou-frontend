@@ -15,13 +15,17 @@
 
 /* === ОБЩАЯ КАРТОЧКА === */
 .infoSection {
-  padding: 18px 20px;
+  padding: 12px 14px;
   margin-bottom: 16px;
   border: 2px solid rgba(244, 253, 255, 1);
   background: linear-gradient(181deg,#E1CBFF 0%, #F1E7FF 46%, #FCFAFF 100%);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.25);
   backdrop-filter: blur(12px);
   border-radius: 14px;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
 }
 
 /* === ЗАГОЛОВОК С ИКОНКОЙ === */
@@ -61,7 +65,7 @@
   display: inline-flex;
   align-items: center;
   white-space: nowrap;
-  padding: 6px 14px;
+  padding: 3px 7px;
   border-radius: 24px;
   font-size: 13px;
   font-weight: 600;
@@ -75,9 +79,9 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   justify-items: start;
-  margin-left: 33px;
+  margin-left: 30px;
   padding: 3px 0;
-  font-size: 14px;
+  font-size: 12px;
   font-weight: 500;
 }
 
@@ -129,7 +133,6 @@
 /* === CONTACTS === */
 .contacts {
   display: flex;
-  width: 100%;
   gap: 4px;
 }
 
@@ -137,8 +140,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
   padding: 10px 16px;
+  gap: 8px;
   border-radius: 14px;
   border: 1px solid rgba(164, 140, 255, 0.3);
   background: linear-gradient(181deg,#E1CBFF 0%, #F1E7FF 46%, #FCFAFF 100%);
@@ -146,6 +149,20 @@
   font-weight: 700;
   color: #6f55ff;
   transition: 0.2s;
+  white-space: nowrap;
+}
+
+/* === CONTACTS COLORS === */
+.contacts button:nth-child(1) {
+  color: #29AAEC; /* Telegram */
+}
+
+.contacts button:nth-child(2) {
+  color: #F44E55; /* Instagram */
+}
+
+.contacts button:nth-child(3) {
+  color: #C2B8B8; /* Email */
 }
 
 .contacts button:hover {
@@ -157,7 +174,7 @@
 }
 
 .contactsText {
-   display: flex;
+  display: flex;
   align-items: center;
   justify-content: center;
   width: 100%;
@@ -198,14 +215,14 @@
     border-radius: 12px;
   }
 
+  .contacts {
+  width: 100%;
+}
+
   .contacts button {
   padding: 2px 6px;
   font-size: 10px;
-
-  :first-child {
-    color: #2AAAED;
-  }
-}
+ }
 
   .contacts button img {
     width: 10px;
@@ -214,7 +231,6 @@
 
   .chip {
     font-size: 10px;
-    padding: 3px 7px;
   }
 }
 
@@ -223,7 +239,186 @@
   border-radius: 20px; 
   }
 
+  .infoSection p {
+  font-size: 12px;
+  margin-left: 40px;
+}
+
+.infoSection h3 {
+  font-size: 16px;
+}  
+  
+  .infoSection img {
+  width: 32px;
+  height: 32px;
+}
+
+   .chip {
+    margin-left: 7px;
+    font-size: 14px;
+  }
+
+  .gridRow {
+    margin-left: 45px;
+  }   
+
   .stats {
-    gap: 12px;
+    gap: 60px;
+    margin: 0 40px;
+  }
+
+  .statCard {
+    padding: 5px 10px 12px;
+    gap: 4px;
+    border-radius: 16px;
+    background: linear-gradient(
+    180deg,
+    #fcfaff 0%,
+    #f1e7ff 45%,
+    #e1cbff 100%
+  );
+  }
+
+   .statCard img {
+    width: 24px;
+    height: 24px;
+  }
+
+  .infoSection .statText {
+    margin-left: 0;
+    font-size: 12px;
+  }
+
+   .contacts {
+    margin: 0 30px;
+    gap: 40px;
+   }
+
+  .contacts .contactsText {
+    padding: 5px 10px;
+    gap: 20px;
+    font-weight: 600;
+  }
+
+  .contactsText img {
+    width: 26px;
+    height: 26px;
   }
  }
+ 
+ @media only screen and (min-width: 1440px) {
+    .infoSection {
+      padding: 16px 20px;
+    }
+
+    .infoSection h3 {
+      font-size: 20px;
+    }
+
+    .infoSection p {
+      font-size: 16px;
+      margin-left: 44px;
+    }
+
+     .infoSection img {
+       width: 36px;
+       height: 36px;
+    }
+
+    .chip {
+      margin-left: 13px;
+      padding: 5px 10px;
+      font-size: 16px;
+      border-radius: 12px;
+    }
+
+    .gridRow {
+      font-size: 16px;
+    }
+
+    .infoSection .statText {
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    .gridRow {
+    grid-template-columns: 1fr 2fr;
+  }
+
+    .contacts {
+      margin: 0 45px;
+      gap: 80px;
+    }
+
+    .contacts button {
+      font-size: 16px;
+    }
+  }
+
+
+  /* === DARK MODE === */
+.dark {
+
+  .infoSection {
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: linear-gradient(180deg, #1f1f2b 0%, #181824 100%);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
+  }
+
+  .infoSection h3 {
+    color: #b9a6ff;
+  }
+
+  .infoSection p {
+    color: #e6e6f0;
+  }
+
+  /* GRID */
+  .gridRow span:first-child {
+    color: rgba(255, 255, 255, 0.5);
+  }
+
+  .gridRow span:last-child {
+    color: #ffffff;
+  }
+
+  /* CHIPS */
+  .chip {
+    background: linear-gradient(180deg, #2a2a3a 0%, #222230 100%);
+    border: 1px solid rgba(140, 120, 255, 0.3);
+    color: #c5baff;
+  }
+
+  /* STATS */
+  .statCard {
+    background: linear-gradient(180deg, #26263a 0%, #1c1c2b 100%);
+    border: 1px solid rgba(140, 120, 255, 0.2);
+    color: #fff;
+  }
+
+  .statText {
+    color: #dcdcf5;
+  }
+
+  /* CONTACTS */
+  .contacts button {
+    background: linear-gradient(180deg, #26263a 0%, #1c1c2b 100%);
+    border: 1px solid rgba(140, 120, 255, 0.2);
+  }
+
+  .contacts button:nth-child(1) {
+    color: #4fc3ff;
+  }
+
+  .contacts button:nth-child(2) {
+    color: #ff6b73;
+  }
+
+  .contacts button:nth-child(3) {
+    color: #8a8a8a;
+  }
+
+  .contacts button:disabled {
+    opacity: 0.4;
+  }
+}

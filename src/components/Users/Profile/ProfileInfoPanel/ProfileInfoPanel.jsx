@@ -45,9 +45,6 @@ export default function ProfileInfoPanel({ user, isOpen }) {
     posts: 45,
   };
 
-  console.log("RAW:", user?.interests);
-console.log("FINAL:", interests);
-
   return (
     <div className={`infoPanel ${isOpen ? "isOpen" : ""}`}>
 
@@ -134,7 +131,7 @@ console.log("FINAL:", interests);
       <img src={profileIcons.profileInfoSocial} alt="" />
       Социальная активность
       </h3>
-<div className="stats"> 
+       <div className="stats"> 
         <div className="statCard"> 
           <img src={profileIcons.profileInfoPeople} alt="" /> 
           <p className="statText">{social.friends}</p>
