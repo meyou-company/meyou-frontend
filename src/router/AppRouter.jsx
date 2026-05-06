@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 
 import AppBottomNav from '../components/AppBottomNav/AppBottomNav';
+// import RouterLoaderSync from "./RouterLoaderSync";
 import { useAuthStore } from '../zustand/useAuthStore';
 import HomePage from '../pages/HomeFeed/HomePage';
 import Explore from '../pages/Explore/Explore';
@@ -49,8 +50,10 @@ function GlobalBurgerMenu() {
 
 function AppLayout() {
   const location = useLocation();
+
   const user = useAuthStore((s) => s.user);
   const isAuthed = useAuthStore((s) => s.isAuthed);
+
 
   const isAuthRoute =
     location.pathname.startsWith('/auth') || location.pathname === '/auth/callback';
@@ -116,6 +119,7 @@ function AppLayout() {
 export default function AppRouter() {
   return (
     <BrowserRouter>
+    {/* <RouterLoaderSync /> */}
       <UserProfileNavProvider>
         <ProfileGuard>
           <GlobalBurgerMenu />

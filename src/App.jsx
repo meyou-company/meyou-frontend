@@ -3,6 +3,9 @@ import { useEffect } from "react";
 import { toast, Toaster } from "sonner";
 import { useAuthStore } from "./zustand/useAuthStore";
 import AppRouter from "./router/AppRouter";
+import { GlobalLoaderProvider } from "./context/GlobalLoaderContext";
+import GlobalLoader from "./components/GlobalLoader/GlobalLoader";
+
 export default function App() {
   const init = useAuthStore((s) => s.init);
 
@@ -16,12 +19,11 @@ export default function App() {
     })();
   }, [init]);
 
-  return    <>
-      <Toaster
-        position="top-center"
-        richColors
-        closeButton
-      />
+  return (
+    <GlobalLoaderProvider>
+      <Toaster position="top-center" richColors closeButton />
+      <GlobalLoader />
       <AppRouter />
-    </>
+    </GlobalLoaderProvider>
+  );
 }
