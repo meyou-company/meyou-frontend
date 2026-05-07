@@ -1,53 +1,122 @@
 .global-loader {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  inset: 0;
 
   display: flex;
   align-items: center;
   justify-content: center;
 
-  background: rgba(0, 0, 0, 0.4);
-  backdrop-filter: blur(6px);
-
-  z-index: 999999;
+  background: white;
+  z-index: 99;
+  overflow: hidden;
 }
 
-/* контейнер орбиты */
+/* =========================
+   ORBIT CONTAINER
+========================= */
+
 .orbit {
   position: relative;
-  width: 120px;
-  height: 120px;
+  width: 250px;
+  height: 250px;
 }
 
+/* =========================
+   EARTH
+========================= */
+
 .earth {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+/* =========================
+   ROTATING LAYER
+========================= */
+
+.cometOrbit {
   position: absolute;
+  inset: 0;
+  animation: orbit 3.2s linear infinite reverse;
+}
+
+/* =========================
+   COMET
+========================= */
+
+.comet {
+  position: absolute;
+
+  /* mobile */
   width: 60px;
   height: 60px;
   top: 50%;
   left: 50%;
-  transform: translate(-50%, -50%);
+  transform:
+    translate(-50%, -50%)
+    translateY(-140px);
 }
 
-.comet {
-  position: absolute;
-  width: 24px;
-  height: 24px;
-
-  top: 50%;
-  left: 50%;
-
-  transform-origin: -40px center;
-  animation: orbit 1.5s linear infinite;
-}
+/* =========================
+   ANIMATION
+========================= */
 
 @keyframes orbit {
   from {
-    transform: rotate(0deg) translateX(40px);
+    transform: rotate(0deg);
   }
+
   to {
-    transform: rotate(360deg) translateX(40px);
+    transform: rotate(360deg);
   }
+}
+
+/* =========================
+   TABLET
+========================= */
+
+@media (min-width: 768px) {
+
+  .orbit {
+    width: 360px;
+    height: 360px;
+  }
+
+  .comet {
+    width: 80px;
+    height: 80px;
+
+    transform:
+      translate(-50%, -50%)
+      translateY(-200px);
+  }
+}
+
+/* =========================
+   DESKTOP
+========================= */
+
+@media (min-width: 1024px) {
+
+  .orbit {
+    width: 400px;
+    height: 400px;
+  }
+
+  .comet {
+    width: 100px;
+    height: 100px;
+
+    transform:
+      translate(-50%, -50%)
+      translateY(-220px);
+  }
+}
+
+body.dark {
+    .global-loader {
+  background: rgba(0, 0, 0);
+    }
 }

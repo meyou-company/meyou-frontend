@@ -1,7 +1,7 @@
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 
 import AppBottomNav from '../components/AppBottomNav/AppBottomNav';
-// import RouterLoaderSync from "./RouterLoaderSync";
+import RouterLoaderSync from "../components/RouterLoaderSync";
 import { useAuthStore } from '../zustand/useAuthStore';
 import HomePage from '../pages/HomeFeed/HomePage';
 import Explore from '../pages/Explore/Explore';
@@ -19,14 +19,11 @@ import VerifyResetCodePage from '../pages/Auth/VerifyEmail/VerifyResetCodePage';
 
 import AuthCallback from '../pages/AuthCallback/AuthCallback';
 import ForgotPassword from '../pages/Auth/ForgotPassword/ForgotPasswordPage';
-
 import ResetNewPasswordPage from '../pages/Auth/ResetNewPassword/ResetNewPasswordPage';
 
 import CompleteProfilePage from '../pages/Users/Profile/CompleteProfilePage';
 import EditProfilePage from '../pages/Users/Profile/EditProfilePage';
 import VideoPage from '../pages/Video/VideoPage';
-
-
 import FirstPage from '../pages/FirstPage/FirstPage';
 import WalletPage from '../pages/Wallet/WalletPage';
 import NotificationsPage from '../pages/Notifications/NotificationsPage';
@@ -53,7 +50,6 @@ function AppLayout() {
 
   const user = useAuthStore((s) => s.user);
   const isAuthed = useAuthStore((s) => s.isAuthed);
-
 
   const isAuthRoute =
     location.pathname.startsWith('/auth') || location.pathname === '/auth/callback';
@@ -119,7 +115,7 @@ function AppLayout() {
 export default function AppRouter() {
   return (
     <BrowserRouter>
-    {/* <RouterLoaderSync /> */}
+    <RouterLoaderSync />
       <UserProfileNavProvider>
         <ProfileGuard>
           <GlobalBurgerMenu />
