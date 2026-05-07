@@ -11,11 +11,10 @@ export default function RouterLoaderSync() {
 
     const timeout = setTimeout(() => {
       setLoading(false);
-    }, 600);
+    }, 400);
 
     return () => clearTimeout(timeout);
   }, [location.pathname]);
 
   return null;
 }
-
