@@ -165,9 +165,10 @@ export default function ProfileHome({
 
   const handlePublishPost = async () => {
     const trimmedText = newPostText.trim();
-    if (!trimmedText) {
-      toast.error("Введіть текст поста");
-      return;
+
+    if (!trimmedText && postMediaFiles.length === 0) {
+    toast.error("Додайте текст або фото");
+    return;
     }
 
     try {
@@ -211,7 +212,7 @@ export default function ProfileHome({
       }
 
       const created = await postsApi.create({
-        fullText: trimmedText,
+        fullText: trimmedText || "\u200B",
         media,
         location: location || undefined,
         visibility: "PUBLIC",
