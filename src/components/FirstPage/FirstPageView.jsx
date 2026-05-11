@@ -237,7 +237,7 @@ const moveLightbox = (delta) => {
                 onClick={onGoVipChat}
                 aria-label="Чат"
               >
-                <img src={profileIcons.sms} alt="" aria-hidden="true" />
+                <img src={profileIcons.chat} alt="" aria-hidden="true" />
               </button>
 
               <ThemeToggleDark className="themeBtn app-header-theme-toggle" />

@@ -199,7 +199,7 @@ export default function Profile() {
   const onGoHome = useCallback(() => navigate("/"), [navigate]);
   /** На сторінці іншого юзера клік по домику — повернути на мій профіль */
   const onGoToMyProfile = useCallback(() => navigate("/profile"), [navigate]);
-  const onMessagesTop = useCallback(() => navigate("/messages"), [navigate]);
+  const onMessagesTop = useCallback(() => navigate("/vip-chat"), [navigate]);
   const onWallet = useCallback(() => navigate("/wallet"), [navigate]);
 
   const onNav = useCallback((path) => navigate(path), [navigate]);

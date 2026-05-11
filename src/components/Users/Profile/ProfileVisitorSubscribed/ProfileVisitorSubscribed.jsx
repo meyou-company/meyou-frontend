@@ -104,7 +104,8 @@ export default function ProfileVisitorSubscribed({
       {/* ===== TOP як у макеті: зліва аватар + Online, по центру нік + ім'я + локація, справа VIP Chat + Подарки + Пожаловаться + Добавить в VIP ===== */}
       <section className="profile-visitor-subscribed__top">
         <div className="profile-visitor-subscribed__left">
-          <div
+          <div className="profile-visitor-subscribed__avatarContainer">
+            <div
             className="profile-visitor-subscribed__avatarWrap"
             role="button"
             tabIndex={0}
@@ -113,8 +114,10 @@ export default function ProfileVisitorSubscribed({
             aria-label="Переглянути фото"
           >
             <img src={displayAvatar} alt="" className="profile-visitor-subscribed__avatar" />
+          </div>
             {isOnline && <span className="profile-visitor-subscribed__onlineDot" aria-hidden="true" />}
           </div>
+          
           {/* На мобілці нік/ім'я/локація під аватаром */}
           <div className="profile-visitor-subscribed__nameBlock profile-visitor-subscribed__nameBlock--mobile">
             <h1 className="profile-visitor-subscribed__nickname">{nickname || displayName}</h1>
