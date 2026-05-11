@@ -34,13 +34,6 @@
   gap: 12px;
 }
 
-.profileRight {
-  flex: 0 0 180px;
-  display: flex;
-  justify-content: center;
-  padding-top: 18px;
-}
-
 .profileRight__stack {
   display: flex;
   flex-direction: column;
@@ -55,7 +48,6 @@
 
 /* LEFT */
 .profileLeft {
-  flex: 0 0 313px; /* як в макеті (313x313 аватар) */
   display: flex;
   justify-content: flex-start;
 }
@@ -70,8 +62,6 @@
 /* AVATAR */
 .avatarWrap {
   position: relative;
-  width: 313px;
-  height: 313px;
 }
 
 .fileInput {
@@ -82,14 +72,14 @@
 .avatarWrap::before {
   content: "";
   position: absolute;
-  top: 8px;
-  left: 72%;
+  top: 10px;
+  left: 78%;
   transform: translateX(-50%);
   width: 16px;
   height: 16px;
   border-radius: 50%;
   background: #22c55e;
-  border: 3px solid #fff;
+  border: 2px solid #fff;
   z-index: 2;
 }
 
@@ -342,13 +332,6 @@ font-size: 60px;
     height: 14px;
     filter: grayscale(100%);
   }
-}
-
-.profileRight {
-  flex: 0 0 180px;
-  display: flex;
-  justify-content: center;
-  padding-top: 18px;
 }
 
 .btnMessages {
@@ -1611,23 +1594,17 @@ html[data-theme="dark"] .profile-home .postActionCount {
     align-items: flex-start;
   }
 
-  /* avatar smaller than desktop, like iPad mock */
-  .profileLeft {
-    flex: 0 0 240px;
-  }
-
   .avatarWrap {
-    width: 180px;
-    height: 180px;
+    width: 170px;
+    height: 170px;
   }
 
   /* online dot — correct for smaller avatar */
   .avatarWrap::before {
-    top: 7px;
-    left: 72%;
-    width: 14px;
-    height: 14px;
-    border-width: 3px;
+    top: 22px;
+    left: 87%;
+    width: 16px;
+    height: 16px;
   }
 
   .profileInfo {
@@ -1818,8 +1795,6 @@ html[data-theme="dark"] .profile-home .postActionCount {
   .avatarWrap::before {
     width: 14px;
     height: 14px;
-    top: 6px;
-    left: 98px;
     transform: none;
     border-width: 2px;
   }
@@ -2144,8 +2119,7 @@ html[data-theme="dark"] .profile-home .postActionCount {
   .avatarWrap::before {
     width: 13px;
     height: 13px;
-    top: 5px;
-    left: 88px;
+    top: 8px;
     transform: none;
     border-width: 2px;
   }
@@ -2786,9 +2760,11 @@ html[data-theme="dark"] .profile-home .postActionCount {
   }
 
   .avatarWrap {
-    width: 284px;
-    height: 284px;
+    width: 210px;
+    height: 210px;
   }
+
+  
 
   .editBtn {
     height: 46px;
