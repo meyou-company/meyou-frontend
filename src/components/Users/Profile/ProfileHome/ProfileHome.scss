@@ -1617,8 +1617,8 @@ html[data-theme="dark"] .profile-home .postActionCount {
   }
 
   .avatarWrap {
-    width: 240px;
-    height: 240px;
+    width: 180px;
+    height: 180px;
   }
 
   /* online dot — correct for smaller avatar */
@@ -1638,7 +1638,7 @@ html[data-theme="dark"] .profile-home .postActionCount {
   }
 
   .name {
-    font-size: 44px; /* was 60 */
+    font-size: 36px;
     gap: 10px;
   }
 
@@ -2135,9 +2135,9 @@ html[data-theme="dark"] .profile-home .postActionCount {
   }
 
   .avatarWrap {
-    width: 108px;
-    height: 108px;
-    flex: 0 0 108px;
+    width: 100px;
+    height: 100px;
+    flex: 0 0 100px;
   }
 
   /* online dot top-left like mock */
@@ -2588,6 +2588,14 @@ html[data-theme="dark"] .profile-home .postActionCount {
   }
 }
 
+@media only screen and (max-width: 360px) {
+  .avatarWrap {
+    width: 90px;
+    height: 90px;
+    flex: 0 0 90px;
+  }
+}
+
 /* =========================
    Перегляд фото в повному розмірі (lightbox)
    ========================= */
@@ -2798,7 +2806,7 @@ html[data-theme="dark"] .profile-home .postActionCount {
   }
 
   .name {
-    font-size: 64px;
+    font-size: 48px;
     line-height: 1;
     margin-bottom: 8px;
   }

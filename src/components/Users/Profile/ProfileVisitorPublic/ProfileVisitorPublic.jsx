@@ -266,6 +266,32 @@ export default function ProfileVisitorPublic({
           </div>
         </section>
 
+        
+        {/* ================= TABS ================= */}
+        <section className="ph-visitor-tabs ph-visitor-tabs--mobile" role="tablist" aria-label="Табы профиля">
+          {TABS_VISITOR_NOT_SUB.map((tab) => (
+            <button
+              key={tab.id}
+              type="button"
+              role="tab"
+              aria-selected={visitorTab === tab.id}
+              aria-disabled={tab.locked}
+              className={`ph-visitor-tabs__tab${visitorTab === tab.id ? " is-active" : ""}${tab.locked ? " is-locked" : ""}`}
+              onClick={() => !tab.locked && setVisitorTab(tab.id)}
+            >
+              <span>{tab.label}</span>
+              {tab.locked && (
+                <img src={profileIcons.lockBlack} alt="" className="ph-visitor-tabs__lock" aria-hidden />
+              )}
+            </button>
+          ))}
+        </section>
+
+         <ProfileInfoPanel
+         user={user}
+         isOpen={visitorTab === "info"}
+        />
+
         {/* ================= FRIENDS ================= */}
         <section className="vipCard">
           <div className="friendsTitle">
@@ -334,31 +360,6 @@ export default function ProfileVisitorPublic({
             </button>
           )}
         </section>
-
-        {/* ================= TABS ================= */}
-        <section className="ph-visitor-tabs ph-visitor-tabs--mobile" role="tablist" aria-label="Табы профиля">
-          {TABS_VISITOR_NOT_SUB.map((tab) => (
-            <button
-              key={tab.id}
-              type="button"
-              role="tab"
-              aria-selected={visitorTab === tab.id}
-              aria-disabled={tab.locked}
-              className={`ph-visitor-tabs__tab${visitorTab === tab.id ? " is-active" : ""}${tab.locked ? " is-locked" : ""}`}
-              onClick={() => !tab.locked && setVisitorTab(tab.id)}
-            >
-              <span>{tab.label}</span>
-              {tab.locked && (
-                <img src={profileIcons.lockBlack} alt="" className="ph-visitor-tabs__lock" aria-hidden />
-              )}
-            </button>
-          ))}
-        </section>
-
-        <ProfileInfoPanel
-         user={user}
-         isOpen={visitorTab === "info"}
-        />
 
         <ProfilePostsFeed
           feedPosts={feedPosts}

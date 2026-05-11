@@ -23,7 +23,6 @@ $phVisitorTabBeige: #FCE9E9;
 
 .profile-visitor-public .profileBlock--visitorNotSub .profileLeft {
   grid-area: left;
-  flex: 0 0 236px;
 }
 
 .profile-visitor-public .ph-visitor-avatarBlock {
@@ -262,7 +261,7 @@ $phVisitorTabBeige: #FCE9E9;
 
 .profile-visitor-public .ph-visitor-name {
   margin: 0;
-  font-size: 52px;
+  font-size: 48px;
   font-weight: 800;
   line-height: 1.05;
   background: $phVisitorGradient;
@@ -597,10 +596,6 @@ html[data-theme="dark"] .profile-visitor-public .ph-visitor-avatarInfoBtn {
     gap: 14px;
   }
 
-  .profile-visitor-public .profileBlock--visitorNotSub .profileLeft {
-    flex: 0 0 148px;
-  }
-
   .profile-visitor-public .ph-visitor-avatarWrap {
     width: 138px;
     height: 138px;
@@ -753,13 +748,9 @@ html[data-theme="dark"] .profile-visitor-public .ph-visitor-avatarInfoBtn {
     gap: 12px;
   }
 
-  .profile-visitor-public .profileBlock--visitorNotSub .profileLeft {
-    flex: 0 0 132px;
-  }
-
   .profile-visitor-public .ph-visitor-avatarWrap {
-    width: 122px;
-    height: 122px;
+    width: 100px;
+    height: 100px;
   }
 
   .profile-visitor-public .ph-visitor-onlineDot {
@@ -778,7 +769,7 @@ html[data-theme="dark"] .profile-visitor-public .ph-visitor-avatarInfoBtn {
   }
 
   .profile-visitor-public .ph-visitor-name {
-    font-size: 30px;
+    font-size: 23px;
   }
 
   .profile-visitor-public .ph-visitor-bio {
@@ -882,8 +873,8 @@ html[data-theme="dark"] .profile-visitor-public .ph-visitor-avatarInfoBtn {
   }
 
   .profile-visitor-public .ph-visitor-avatarWrap {
-    width: 112px;
-    height: 112px;
+    width: 90px;
+    height: 90px;
     padding: 2px;
   }
 
@@ -905,7 +896,7 @@ html[data-theme="dark"] .profile-visitor-public .ph-visitor-avatarInfoBtn {
   }
 
   .profile-visitor-public .ph-visitor-name {
-    font-size: 26px;
+    font-size: 20px;
     line-height: 1;
   }
 

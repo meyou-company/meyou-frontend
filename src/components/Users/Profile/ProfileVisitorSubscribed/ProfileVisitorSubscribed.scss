@@ -35,7 +35,7 @@ $tabBgMobile: #f5f0e8; // світло-бежеві таби
 
 .profile-visitor-subscribed__nickname {
   margin: 0;
-  font-size: 52px;
+  font-size: 48px;
   font-weight: 800;
   line-height: 1.1;
   background: $gradient;
@@ -68,7 +68,6 @@ $tabBgMobile: #f5f0e8; // світло-бежеві таби
 .profile-visitor-subscribed__left {
   display: flex;
   flex-direction: column;
-  align-items: center;
   gap: 14px;
 }
 
@@ -86,7 +85,7 @@ $tabBgMobile: #f5f0e8; // світло-бежеві таби
 
 .profile-visitor-subscribed__nickname--center {
   margin: 0;
-  font-size: 52px;
+  font-size: 36px;
   font-weight: 800;
   line-height: 1.15;
   background: $gradient;
@@ -133,8 +132,8 @@ $tabBgMobile: #f5f0e8; // світло-бежеві таби
 /* avatar */
 .profile-visitor-subscribed__avatarWrap {
   position: relative;
-  width: 210px;
-  height: 210px;
+  width: 180px;
+  height: 180px;
   border-radius: 50%;
   overflow: hidden;
   border: 4px solid transparent;
@@ -608,7 +607,6 @@ html[data-theme="dark"] .pvs-tools__vip .pvs-tools__label {
 /* ===== responsive ===== */
 @media (max-width: 900px) {
   .profile-visitor-subscribed__top {
-    grid-template-columns: 240px 1fr;
     gap: 18px;
   }
 
@@ -1134,6 +1132,12 @@ html[data-theme="dark"] .pvs-tools__vip .pvs-tools__label {
   .profile-visitor-subscribed__friendsEmpty {
     font-size: 12px;
   }
+}
+
+@media only screen and (min-width: 1024px) {
+ .profile-visitor-subscribed__nickname--center {
+  font-size: 48px;
+ }
 }
 
 /* ===== ТЕМНА ТЕМА — профіль друга (body.dark і data-theme) ===== */
