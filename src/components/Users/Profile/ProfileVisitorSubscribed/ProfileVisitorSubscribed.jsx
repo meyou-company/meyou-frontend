@@ -144,12 +144,12 @@ export default function ProfileVisitorSubscribed({
                 title="VIP Chat (заблоковано)"
               >
                 <div className="pvs-tools__vipIconWrap">
-                  <img src={profileIcons.vipChat} alt="" className="pvs-tools__vipIcon pvs-tools__vipIcon--full" aria-hidden="true" />
+                  <img src={profileIcons.chat} alt="" className="pvs-tools__vipIcon pvs-tools__vipIcon--full" aria-hidden="true" />
                 </div>
                 <span className="pvs-tools__label">VIP Chat</span>
               </button>
               <button type="button" className="pvs-tools__small" onClick={onGifts} aria-label="Подарки">
-                <img src={profileIcons.present} alt="" className="pvs-tools__smallIcon" aria-hidden="true" />
+                <img src={profileIcons.giftIcon} alt="" className="pvs-tools__smallIcon" aria-hidden="true" />
                 <span className="pvs-tools__smallLabel">Подарки</span>
               </button>
               <button type="button" className="pvs-tools__small" onClick={onReport} aria-label="Пожаловаться">
