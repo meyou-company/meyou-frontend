@@ -50,11 +50,15 @@ $tabBgMobile: #f5f0e8; // світло-бежеві таби
 
 .profile-visitor-subscribed__fullName,
 .profile-visitor-subscribed__location {
-  margin: 0;
-  font-size: 22px;
+  font-size: 18px;
   color: rgba(0, 0, 0, 0.85);
   text-decoration: underline;
   text-underline-offset: 3px;
+  line-height: 1.5;
+
+  &:not(:last-child) {
+    margin-bottom: 4px;
+  }
 }
 
 /* ===== TOP: 3 колонки як у макеті — зліва аватар+Online, центр нік+ім'я+локація, справа VIP Chat+Подарки+Пожаловаться+Добавить в VIP ===== */
@@ -78,13 +82,13 @@ $tabBgMobile: #f5f0e8; // світло-бежеві таби
 .profile-visitor-subscribed__center {
   display: flex;
   flex-direction: column;
-  gap: 10px;
   min-width: 0;
   padding-top: 18px;
 }
 
 .profile-visitor-subscribed__nickname--center {
   margin: 0;
+  margin-bottom: 8px;
   font-size: 36px;
   font-weight: 800;
   line-height: 1.15;
@@ -99,8 +103,7 @@ $tabBgMobile: #f5f0e8; // світло-бежеві таби
 
 .profile-visitor-subscribed__center .profile-visitor-subscribed__fullName,
 .profile-visitor-subscribed__center .profile-visitor-subscribed__location {
-  margin: 0;
-  font-size: 22px;
+  font-size: 18px;
   color: rgba(0, 0, 0, 0.8);
   text-decoration: underline;
   text-underline-offset: 3px;
@@ -684,7 +687,6 @@ html[data-theme="dark"] .pvs-tools__vip .pvs-tools__label {
     grid-area: center;
     display: flex;
     flex-direction: column;
-    gap: 4px;
     min-width: 0;
     padding-top: 0;
   }
@@ -934,7 +936,7 @@ html[data-theme="dark"] .pvs-tools__vip .pvs-tools__label {
 
   .profile-visitor-subscribed__center .profile-visitor-subscribed__fullName,
   .profile-visitor-subscribed__center .profile-visitor-subscribed__location {
-    font-size: 12px;
+    font-size: 13px;
   }
 
   .profile-visitor-subscribed__onlineLabel {
@@ -1053,7 +1055,7 @@ html[data-theme="dark"] .pvs-tools__vip .pvs-tools__label {
 
   .profile-visitor-subscribed__center .profile-visitor-subscribed__fullName,
   .profile-visitor-subscribed__center .profile-visitor-subscribed__location {
-    font-size: 10px;
+    font-size: 12px;
   }
 
   .profile-visitor-subscribed__onlineLabel {
@@ -1156,7 +1158,12 @@ html[data-theme="dark"] .pvs-tools__vip .pvs-tools__label {
   width: 210px;
   height: 210px;
  }
+
+  .profile-visitor-subscribed__top {
+    grid-template-columns: 200px minmax(260px, 1fr) auto;
+  }
 }
+
 
 /* ===== ТЕМНА ТЕМА — профіль друга (body.dark і data-theme) ===== */
 $dark-bg-card: rgba(25, 18, 35, 0.6);

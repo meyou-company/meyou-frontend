@@ -468,10 +468,6 @@ html[data-theme="dark"] .profile-visitor-public .ph-visitor-avatarInfoBtn {
     gap: 22px 0px;
   }
 
-  .profile-visitor-public .profileBlock--visitorNotSub .profileLeft {
-    flex: 0 0 200px;
-  }
-
   .profile-visitor-public .ph-visitor-avatarWrap {
     width: 170px;
     height: 170px;
@@ -499,7 +495,8 @@ html[data-theme="dark"] .profile-visitor-public .ph-visitor-avatarInfoBtn {
   }
 
   .profile-visitor-public .ph-visitor-name {
-    font-size:36px;
+    font-size: 36px;
+    margin-bottom: 10px;
   }
 
   .profile-visitor-public .ph-visitor-bio {
@@ -507,7 +504,7 @@ html[data-theme="dark"] .profile-visitor-public .ph-visitor-avatarInfoBtn {
   }
 
   .profile-visitor-public .ph-visitor-bio__line {
-    font-size: 18px;
+    font-size: 18px; 
   }
 
   .profile-visitor-public .ph-visitor-tools__reportIconWrap {
@@ -862,10 +859,6 @@ html[data-theme="dark"] .profile-visitor-public .ph-visitor-avatarInfoBtn {
     gap: 10px;
   }
 
-  .profile-visitor-public .profileBlock--visitorNotSub .profileLeft {
-    flex: 0 0 120px;
-  }
-
   .profile-visitor-public .ph-visitor-avatarWrap {
     width: 90px;
     height: 90px;
@@ -968,6 +961,12 @@ html[data-theme="dark"] .profile-visitor-public .ph-visitor-avatarInfoBtn {
   }
 }
 
+@media only screen and (min-width: 768px) and (max-width: 1023.98px) {
+    .profile-visitor-public .profileBlock--visitorNotSub .profileLeft {
+    flex: 0 0 200px;
+  }
+}
+
 @media (min-width: 1045px) and (max-width: 1279px) {
     .profile-visitor-public .ph-visitor-right {
     grid-template-columns: minmax(150px, 1fr) 180px 180px;
@@ -978,13 +977,25 @@ html[data-theme="dark"] .profile-visitor-public .ph-visitor-avatarInfoBtn {
   .profile-visitor-public .ph-visitor-tools__vip {
     white-space: nowrap;
   }
+}
 
+@media only screen and (min-width: 1024px) {
+    .profile-visitor-public .ph-visitor-name {
+      margin-bottom: 20px;
+    }
+}
+
+@media only screen and (min-width: 1045px) {
   .profile-visitor-public .ph-visitor-avatarWrap {
     width: 210px;
     height: 210px;
   }
-}
 
+  .profile-visitor-public .ph-visitor-onlineDot {
+    top: 22px;
+    right: 18px;
+  }
+}
 
 @media only screen and (min-width: 1280px) {
 

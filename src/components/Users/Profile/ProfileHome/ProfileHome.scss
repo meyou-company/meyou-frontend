@@ -263,10 +263,10 @@ font-size: 60px;
   margin: 0;
   font-size: 16px;
   line-height: 1.25;
-  color: rgba(0, 0, 0, 0.62);
+  color: rgba(0, 0, 0, 0.8);
+  text-decoration: underline 1px;
+  text-underline-offset: 3px;
 }
-
-
 
 .actionsBlock {
 
@@ -1620,7 +1620,7 @@ html[data-theme="dark"] .profile-home .postActionCount {
   }
 
   .bio {
-    font-size: 14px;
+    font-size: 18px;
     line-height: 1.25;
   }
 
@@ -1804,10 +1804,10 @@ html[data-theme="dark"] .profile-home .postActionCount {
   }
 
   .avatarEdit {
-    width: 36px;
-    height: 36px;
+    width: 28px;
+    height: 28px;
     right: 2px;
-    bottom: 2px;
+    bottom: 6px;
 
     img {
       width: 20px;
@@ -1859,8 +1859,8 @@ html[data-theme="dark"] .profile-home .postActionCount {
     margin: 0;
   }
 
-  .profileBioWrap .bioLocation {
-    margin-top: 14px;
+   .profileBioWrap .bioLocation {
+    margin-top: 8px;
   }
 
   /* ✅ badges у колонці навпроти імені та біо */
@@ -2197,12 +2197,8 @@ html[data-theme="dark"] .profile-home .postActionCount {
 
   .profileBioWrap .bio {
     margin: 0;
-    font-size: 12px;
+    font-size: 13px;
     line-height: 1.75;
-  }
-
-  .profileBioWrap .bioLocation {
-    margin-top: 12px;
   }
 
   /* ===== badges row (balance / saved) + gifts у колонці aside ===== */
@@ -2340,6 +2336,14 @@ html[data-theme="dark"] .profile-home .postActionCount {
   .friendsTitle {
     font-size: 15px;
     margin: 0 0 16px;
+  }
+}
+
+@media only screen and (max-width: 360px) {
+   .profileBioWrap .bio {
+    margin: 0;
+    font-size: 12px;
+    line-height: 1.75;
   }
 }
 
@@ -2764,8 +2768,6 @@ html[data-theme="dark"] .profile-home .postActionCount {
     height: 210px;
   }
 
-  
-
   .editBtn {
     height: 46px;
     border-radius: 999px;
@@ -2788,8 +2790,6 @@ html[data-theme="dark"] .profile-home .postActionCount {
   }
 
   .bio {
-    font-size: 16px;
-    color: rgba(67, 43, 97, 0.8);
     line-height: 1.28;
   }
 
