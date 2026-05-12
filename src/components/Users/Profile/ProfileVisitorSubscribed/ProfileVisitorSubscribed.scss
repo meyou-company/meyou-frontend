@@ -264,7 +264,7 @@ html[data-theme="dark"] .profile-visitor-subscribed__friendsCountLabel {
   inset: 0;
   padding: 0.5px; /* товщина рамки */
   border-radius: 0;
-  background: linear-gradient(90deg, #4f6bff 0%, #b05cff 52%, #ff4fb1 100%);
+ 
   -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
   -webkit-mask-composite: xor;
   mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
@@ -305,7 +305,7 @@ html[data-theme="dark"] .pvs-tools__vip .pvs-tools__label {
 
 .pvs-tools__small {
   width: 90px;
-  height: 90px;
+  height: 20px;
   border: 0;
   padding: 0;
   background: transparent;
@@ -747,11 +747,14 @@ html[data-theme="dark"] .pvs-tools__vip .pvs-tools__label {
     height: 36px;
     object-fit: contain;
   }
-
-  .pvs-tools__label {
-    font-size: 0;
-    line-height: 0;
-  }
+.pvs-tools__label {
+  display: block;
+  font-size: 8px;
+  line-height: 1.1;
+  text-align: center;
+  white-space: nowrap;
+}
+ 
 
   .pvs-tools__small {
     width: 42px;
@@ -766,8 +769,8 @@ html[data-theme="dark"] .pvs-tools__vip .pvs-tools__label {
 
   .pvs-tools__smallIcon,
   .pvs-tools__warn {
-    width: 22px;
-    height: 22px;
+    width: 26px;
+    height: 26px;
     font-size: 11px;
   }
 
@@ -944,7 +947,7 @@ html[data-theme="dark"] .pvs-tools__vip .pvs-tools__label {
   }
 
   .pvs-tools__row {
-    gap: 10px;
+    gap: 20px;
   }
 
   .pvs-tools__vipIconWrap {
@@ -965,13 +968,13 @@ html[data-theme="dark"] .pvs-tools__vip .pvs-tools__label {
 
   .pvs-tools__smallIcon,
   .pvs-tools__warn {
-    width: 18px;
-    height: 18px;
+    width: 26px;
+    height: 26px;
     font-size: 10px;
   }
 
   .pvs-tools__smallLabel {
-    font-size: 6px;
+    font-size: 8px;
   }
 
   .pvs-actions__vipBtn {

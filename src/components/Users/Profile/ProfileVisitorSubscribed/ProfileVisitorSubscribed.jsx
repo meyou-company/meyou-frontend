@@ -145,8 +145,9 @@ export default function ProfileVisitorSubscribed({
               >
                 <div className="pvs-tools__vipIconWrap">
                   <img src={profileIcons.chat} alt="" className="pvs-tools__vipIcon pvs-tools__vipIcon--full" aria-hidden="true" />
+                 <span className="pvs-tools__label">VIP Chat</span>
                 </div>
-                <span className="pvs-tools__label">VIP Chat</span>
+               
               </button>
               <button type="button" className="pvs-tools__small" onClick={onGifts} aria-label="Подарки">
                 <img src={profileIcons.giftIcon} alt="" className="pvs-tools__smallIcon" aria-hidden="true" />
