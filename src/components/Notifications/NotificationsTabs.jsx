@@ -12,18 +12,18 @@ export default function NotificationsTabs({ onChange, onMarkAllRead }) {
     <div className="tabs">
       <div className="group">
         <button className={active === 'all' ? 'active' : ''} onClick={() => handleClick('all')}>
-          Всі
+          Все
         </button>
 
         <button
           className={active === 'unread' ? 'active' : ''}
           onClick={() => handleClick('unread')}
         >
-          Непрочитані
+          Непрочитанные
         </button>
       </div>
 
-      <button onClick={onMarkAllRead}>Прочитати все</button>
+      <button onClick={onMarkAllRead}>Прочитать все</button>
     </div>
   );
 }

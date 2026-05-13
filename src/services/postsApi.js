@@ -1,4 +1,4 @@
-import { api } from "./api";
+import { api } from './api';
 
 function extractPostsList(payload) {
   if (!payload) return [];
@@ -27,7 +27,7 @@ export const postsApi = {
    * GET /posts
    */
   async list({ page = 1, limit = 10 } = {}) {
-    const { data } = await api.get("/posts", {
+    const { data } = await api.get('/posts', {
       params: { page, limit },
       skipAuth: true,
     });
@@ -36,7 +36,7 @@ export const postsApi = {
     // Backend compatibility: some environments use 0-based paging.
     // If first page is empty, retry with page=0 once.
     if (Number(page) === 1 && list.length === 0) {
-      const { data: dataZero } = await api.get("/posts", {
+      const { data: dataZero } = await api.get('/posts', {
         params: { page: 0, limit },
         skipAuth: true,
       });
@@ -69,7 +69,7 @@ export const postsApi = {
     try {
       const all = await this.list({ page: 1, limit: 100 });
       return (Array.isArray(all) ? all : []).filter(
-        (p) => String(p?.author?.id ?? "") === String(authorId)
+        (p) => String(p?.author?.id ?? '') === String(authorId)
       );
     } catch {
       // keep original route error for diagnostics
@@ -77,48 +77,54 @@ export const postsApi = {
     }
   },
 
-  async create({
-    fullText,
-    media = [],
-    location,
-    originalPostId,
-    visibility = "PUBLIC",
-  }) {
+  /**
+   * Отримати один пост по ID
+   * GET /posts/:id
+   */
+  async getById(postId) {
+    if (!postId) {
+      throw new Error('postId is required');
+    }
+
+    const encodedId = encodeURIComponent(postId);
+
+    const { data } = await api.get(`/posts/${encodedId}`);
+
+    return data;
+  },
+
+  async create({ fullText, media = [], location, originalPostId, visibility = 'PUBLIC' }) {
     const payload = {
-      fullText: fullText?.trim() || "",
+      fullText: fullText?.trim() || '',
       media: Array.isArray(media) ? media : [],
       location: location || undefined,
       originalPostId: originalPostId || undefined,
       visibility,
     };
 
-    const { data } = await api.post("/posts", payload);
+    const { data } = await api.post('/posts', payload);
     return data;
   },
 
   /** POST /posts/:id/like */
   async like(postId) {
-    const { data } = await api.post(
-      `/posts/${encodeURIComponent(postId)}/like`
-    );
+    const { data } = await api.post(`/posts/${encodeURIComponent(postId)}/like`);
     return data;
   },
 
   /** POST /posts/:id/comments — body { content: string } */
   async addComment(postId, content) {
-    const { data } = await api.post(
-      `/posts/${encodeURIComponent(postId)}/comments`,
-      { content: String(content ?? "").trim() }
-    );
+    const { data } = await api.post(`/posts/${encodeURIComponent(postId)}/comments`, {
+      content: String(content ?? '').trim(),
+    });
     return data;
   },
 
   /** GET /posts/:id/comments — список коментарів (пагінація на бекенді) */
   async listComments(postId, { page = 1, limit = 50 } = {}) {
-    const { data } = await api.get(
-      `/posts/${encodeURIComponent(postId)}/comments`,
-      { params: { page, limit } }
-    );
+    const { data } = await api.get(`/posts/${encodeURIComponent(postId)}/comments`, {
+      params: { page, limit },
+    });
     return extractCommentsList(data);
   },
 
@@ -130,9 +136,7 @@ export const postsApi = {
 
   /** POST /posts/:id/repost */
   async repost(postId) {
-    const { data } = await api.post(
-      `/posts/${encodeURIComponent(postId)}/repost`
-    );
+    const { data } = await api.post(`/posts/${encodeURIComponent(postId)}/repost`);
     return data;
   },
 

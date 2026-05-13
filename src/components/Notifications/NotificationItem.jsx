@@ -1,62 +1,113 @@
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { formatTime } from './utils';
+import { useFollowingStore } from '../../zustand/useFollowingStore';
 
-const NOTIFICATION_TYPES = {
-  FOLLOW: 'follow',
-  LIKE: 'like',
-  COMMENT: 'comment',
-};
+export default function NotificationItem({ item, onRead }) {
+  const navigate = useNavigate();
 
-function getVerb(type, gender) {
-  const isFemale = gender === 'female';
+  const isFollowing = useFollowingStore((s) => s.isFollowing);
+  const follow = useFollowingStore((s) => s.follow);
+  const unfollow = useFollowingStore((s) => s.unfollow);
 
-  switch (type) {
-    case NOTIFICATION_TYPES.FOLLOW:
-      return isFemale ? 'підписалась' : 'підписався';
+  const isSubscribed = isFollowing(item.actor.id);
 
-    case NOTIFICATION_TYPES.LIKE:
-      return isFemale ? 'лайкнула' : 'лайкнув';
+  const [loadingFollow, setLoadingFollow] = useState(false);
 
-    case NOTIFICATION_TYPES.COMMENT:
-      return isFemale ? 'прокоментувала' : 'прокоментував';
+  const handleClick = () => {
+    if (!item.isRead) onRead(item.id);
+    navigate(buildLink(item));
+  };
 
-    default:
-      return '';
-  }
-}
+  const handleFollow = async (e) => {
+    e.stopPropagation();
 
-export default function NotificationItem({ item }) {
-  const { type, user, createdAt, isRead } = item;
+    if (loadingFollow) return;
+    setLoadingFollow(true);
+
+    try {
+      if (isSubscribed) {
+        await unfollow(item.actor.id);
+      } else {
+        await follow(item.actor.id);
+      }
+      if (!item.isRead) {
+        await onRead(item.id);
+      }
+    } finally {
+      setLoadingFollow(false);
+    }
+  };
+
+  const action = renderAction(item, isSubscribed, handleFollow, loadingFollow);
 
   return (
-    <div className={`notification ${!isRead ? 'unread' : ''}`}>
-      <div className="notification__avatar">
-        <img src={user.avatar} alt="" />
-        {!isRead && <span className="notification__dot" />}
+    <div className={`notification ${!item.isRead ? 'unread' : ''}`}>
+      <div className="notification__avatar" onClick={handleClick}>
+        <img src={item.actor.avatar} alt={item.actor.name} />
+        {!item.isRead && <span className="notification__dot" />}
       </div>
 
       <div className="notification__content">
-        <div className="notification__group">
-          <p className="notification__text">
-            <b>{user.name}</b> {getVerb(type, user.gender)}{' '}
-            {type === NOTIFICATION_TYPES.FOLLOW && 'на вас'}
-            {type === NOTIFICATION_TYPES.LIKE && 'ваш пост'}
-          </p>
+        <div className="notification__main" onClick={handleClick}>
+          <p className="notification__text">{item.text}</p>
 
-          {type === NOTIFICATION_TYPES.COMMENT && (
-            <p className="notification__comment">“{item.comment}”</p>
-          )}
+          {item.previewText && <p className="notification__comment">“{item.previewText}”</p>}
+
+          <span className="notification__time">{formatTime(item.createdAt)}</span>
         </div>
 
-        <span className="notification__time">{formatTime(createdAt)}</span>
-      </div>
+        <div className="notification__right">
+          {action && <div className="notification__actions">{action}</div>}
 
-      <div className="notification__actions">
-        {type === NOTIFICATION_TYPES.FOLLOW && <button className="followBtn">Підписатись</button>}
-
-        {type === NOTIFICATION_TYPES.LIKE && <span className="notification__icon">❤️</span>}
-
-        {type === NOTIFICATION_TYPES.COMMENT && <span className="notification__icon">💬</span>}
+          {item.previewImage && (
+            <div
+              className="notification__preview"
+              onClick={item.type !== 'newFollower' ? handleClick : undefined}
+            >
+              <img src={item.previewImage} alt="" />
+              {renderOverlayIcon(item)}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
+}
+
+function buildLink(item) {
+  switch (item.targetType) {
+    case 'postLike':
+      return `/profile?post=${item.targetId}`;
+    case 'postComment':
+      return `/profile?post=${item.targetId}&focus=comments`;
+    case 'newFollower':
+      return `/profile/${item.actor.username}`;
+    default:
+      return '/notifications';
+  }
+}
+
+function renderAction(item, isSubscribed, onFollow, loading) {
+  if (item.type !== 'newFollower') return null;
+
+  return (
+    <button className="follow-btn" onClick={onFollow} disabled={loading}>
+      {loading ? 'Загрузка...' : isSubscribed ? 'Отписаться' : 'Подписаться'}
+    </button>
+  );
+}
+
+function renderOverlayIcon(item) {
+  switch (item.type) {
+    case 'postLike':
+      return <span className="notification__overlay">❤️</span>;
+
+    case 'postComment':
+    case 'commentReply':
+      return <span className="notification__overlay">💬</span>;
+
+    default:
+      return null;
+  }
 }
