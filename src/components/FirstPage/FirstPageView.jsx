@@ -1,25 +1,26 @@
-import { useCallback, useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import ThemeToggleDark from "../ThemeToggleDark/ThemeToggleDark";
-import profileIcons from "../../constants/profileIcons";
-import "./FirstPageView.scss";
-import { useBurgerMenu } from "../../hooks/useBurgerMenu";
-import { postsApi } from "../../services/postsApi";
-import { mapApiPostToFeedItem } from "../../utils/mapApiPostToFeedItem";
-import { usePostFeedActions } from "../../hooks/usePostFeedActions";
-import PostCommentsSection from "../PostFeed/PostCommentsSection";
-import { getApiErrorMessage } from "../../utils/getApiErrorMessage";
-import { applyPersistedLikes } from "../../utils/postLikePersistence";
-import { getProfileRouteHandle } from "../../utils/profileFriendNav";
-import PostMediaGallery from "../../components/PostFeed/PostMediaGallery";
-import ImageLightbox from "../../components/PostFeed/ImageLightbox";
-import "../Users/Profile/ProfileHome/ProfileHome.scss";
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import ThemeToggleDark from '../ThemeToggleDark/ThemeToggleDark';
+import profileIcons from '../../constants/profileIcons';
+import './FirstPageView.scss';
+import { useBurgerMenu } from '../../hooks/useBurgerMenu';
+import { postsApi } from '../../services/postsApi';
+import { mapApiPostToFeedItem } from '../../utils/mapApiPostToFeedItem';
+import { usePostFeedActions } from '../../hooks/usePostFeedActions';
+import PostCommentsSection from '../PostFeed/PostCommentsSection';
+import { getApiErrorMessage } from '../../utils/getApiErrorMessage';
+import { applyPersistedLikes } from '../../utils/postLikePersistence';
+import { getProfileRouteHandle } from '../../utils/profileFriendNav';
+import NotificationBell from '../../components/Notifications/NotificationBell';
+import PostMediaGallery from '../../components/PostFeed/PostMediaGallery';
+import ImageLightbox from '../../components/PostFeed/ImageLightbox';
+import '../Users/Profile/ProfileHome/ProfileHome.scss';
 
 const getReadableFeedError = (error) => {
   const text = getApiErrorMessage(error);
-  if (!text) return "Не вдалося завантажити стрічку";
-  if (text === "Request failed with status code 500") {
-    return "Тимчасова помилка сервера при завантаженні стрічки";
+  if (!text) return 'Не вдалося завантажити стрічку';
+  if (text === 'Request failed with status code 500') {
+    return 'Тимчасова помилка сервера при завантаженні стрічки';
   }
   return text;
 };
@@ -34,40 +35,39 @@ export default function FirstPageView({
   onGoVipChat,
   onGoFriends,
   onGoNotifications,
-  onGoHome, onOpenProfile,
+  onGoHome,
+  onOpenProfile,
 }) {
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const [lightboxImages, setLightboxImages] = useState([]);
   const [lightboxIndex, setLightboxIndex] = useState(0);
 
   const openLightbox = (images, startIndex = 0) => {
-  if (!images?.length) return;
-  setLightboxImages(images);
-  setLightboxIndex(startIndex);
-  setIsLightboxOpen(true);
-};
+    if (!images?.length) return;
+    setLightboxImages(images);
+    setLightboxIndex(startIndex);
+    setIsLightboxOpen(true);
+  };
 
-const closeLightbox = () => {
-  setIsLightboxOpen(false);
-  setLightboxImages([]);
-  setLightboxIndex(0);
-};
+  const closeLightbox = () => {
+    setIsLightboxOpen(false);
+    setLightboxImages([]);
+    setLightboxIndex(0);
+  };
 
-const moveLightbox = (delta) => {
-  setLightboxIndex((prev) =>
-    (prev + delta + lightboxImages.length) % lightboxImages.length
-  );
-}; 
+  const moveLightbox = (delta) => {
+    setLightboxIndex((prev) => (prev + delta + lightboxImages.length) % lightboxImages.length);
+  };
 
   const { open } = useBurgerMenu();
 
-    const navigate = useNavigate();
+  const navigate = useNavigate();
 
   const goProfileByUsername = (username) => {
-  const value = (username || "").trim();
-  if (!value) return;
-  navigate(`/profile/${value}`);
-};
+    const value = (username || '').trim();
+    if (!value) return;
+    navigate(`/profile/${value}`);
+  };
 
   const [feedPosts, setFeedPosts] = useState([]);
   const [feedLoading, setFeedLoading] = useState(true);
@@ -76,11 +76,11 @@ const moveLightbox = (delta) => {
   const [hasMoreFeed, setHasMoreFeed] = useState(true);
   const [feedLoadingMore, setFeedLoadingMore] = useState(false);
   const loadMoreRef = useRef(null);
-  const FEED_CACHE_KEY = "first-page-feed-cache";
+  const FEED_CACHE_KEY = 'first-page-feed-cache';
   const feedActions = usePostFeedActions(setFeedPosts);
 
   useEffect(() => {
-    if (typeof window === "undefined") return;
+    if (typeof window === 'undefined') return;
     try {
       const raw = window.localStorage.getItem(FEED_CACHE_KEY);
       if (!raw) return;
@@ -94,7 +94,7 @@ const moveLightbox = (delta) => {
   }, []);
 
   useEffect(() => {
-    if (typeof window === "undefined") return;
+    if (typeof window === 'undefined') return;
     try {
       window.localStorage.setItem(FEED_CACHE_KEY, JSON.stringify(feedPosts));
     } catch {
@@ -111,9 +111,7 @@ const moveLightbox = (delta) => {
       }
 
       const list = await postsApi.list({ page, limit: PAGE_SIZE });
-      const mapped = (Array.isArray(list) ? list : [])
-        .map(mapApiPostToFeedItem)
-        .filter(Boolean);
+      const mapped = (Array.isArray(list) ? list : []).map(mapApiPostToFeedItem).filter(Boolean);
       const withPersistedLikes = applyPersistedLikes(mapped);
 
       setFeedPosts((prev) => {
@@ -122,10 +120,10 @@ const moveLightbox = (delta) => {
         const seen = new Set();
         return merged
           .filter((p) => {
-          const id = String(p?.id ?? "");
-          if (!id || seen.has(id)) return false;
-          seen.add(id);
-          return true;
+            const id = String(p?.id ?? '');
+            if (!id || seen.has(id)) return false;
+            seen.add(id);
+            return true;
           })
           .sort(byNewestPost);
       });
@@ -171,7 +169,7 @@ const moveLightbox = (delta) => {
           fetchFeedPage(feedPage + 1, { append: true });
         }
       },
-      { rootMargin: "300px 0px" }
+      { rootMargin: '300px 0px' }
     );
     observer.observe(node);
     return () => observer.disconnect();
@@ -182,13 +180,14 @@ const moveLightbox = (delta) => {
       {/* background */}
       <div
         className="backgroundDark fixed inset-0 z-0 "
-        style={{ minHeight: "100dvh" }} aria-hidden="true"
+        style={{ minHeight: '100dvh' }}
+        aria-hidden="true"
       />
 
       <div className="relative flex flex-col flex-1 w-full min-w-0">
         {/* HEADER */}
         <header className="w-full min-w-0 max-w-full overflow-x-clip border-gray-900">
-            <div className="grid w-full min-w-0 grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-x-2 md:gap-x-3 xl:gap-x-4 px-[10px] md:px-[41px] lg:px-9 min-[1440px]:px-[66px] pb-2 md:pb-5 xl:pb-4">
+          <div className="grid w-full min-w-0 grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-x-2 md:gap-x-3 xl:gap-x-4 px-[10px] md:px-[41px] lg:px-9 min-[1440px]:px-[66px] pb-2 md:pb-5 xl:pb-4">
             {/* LEFT */}
             <div className="flex min-w-0 items-center justify-start gap-2 md:gap-3 xl:gap-4">
               <button
@@ -256,12 +255,10 @@ const moveLightbox = (delta) => {
 
         {/* TABLET / DESKTOP NAV  */}
         <section className="hidden md:block min-w-0 max-w-full overflow-x-clip border-t-[0.1px] border-gray-900 bg-[#FCE9E9]">
-        <div className="flex w-full min-w-0 justify-between items-center px-[10px] md:px-[41px] lg:px-9 min-[1440px]:px-[66px] py-3">
-
-          <TabletNav />
-
-        </div>
-      </section>
+          <div className="flex w-full min-w-0 justify-between items-center px-[10px] md:px-[41px] lg:px-9 min-[1440px]:px-[66px] py-3">
+            <TabletNav onGoNotifications={onGoNotifications} />
+          </div>
+        </section>
 
         {/* STORIES — фон на ширину first-page (уже без px контейнера додатку) */}
         <section className="first-page-stories w-full border-b-[0.1px] border-t-[0.1px] border-gray-900">
@@ -309,21 +306,21 @@ const moveLightbox = (delta) => {
                 Завантаження ще постів…
               </p>
             )}
-            {!feedLoading && hasMoreFeed && <div ref={loadMoreRef} className="h-2 w-full" aria-hidden="true" />}
+            {!feedLoading && hasMoreFeed && (
+              <div ref={loadMoreRef} className="h-2 w-full" aria-hidden="true" />
+            )}
           </div>
         </main>
         <ImageLightbox
-           isOpen={isLightboxOpen}
-           images={lightboxImages}
-           index={lightboxIndex}
-           onClose={closeLightbox}
-           onPrev={() => moveLightbox(-1)}
-           onNext={() => moveLightbox(1)} 
+          isOpen={isLightboxOpen}
+          images={lightboxImages}
+          index={lightboxIndex}
+          onClose={closeLightbox}
+          onPrev={() => moveLightbox(-1)}
+          onNext={() => moveLightbox(1)}
         />
       </div>
     </div>
-
-    
   );
 }
 
@@ -331,33 +328,43 @@ const moveLightbox = (delta) => {
 
 function NavBtn({ icon, onClick }) {
   return (
-    <button onClick={onClick} className=" p-2 rounded-xl hover:bg-rose-200 active:bg-rose-300 transition-colors">
-      <img src={icon} className="w-[30px] h-[30px]"/>
+    <button
+      onClick={onClick}
+      className=" p-2 rounded-xl hover:bg-rose-200 active:bg-rose-300 transition-colors"
+    >
+      <img src={icon} className="w-[30px] h-[30px]" />
     </button>
   );
 }
 
 function StoryCircle({ status, type }) {
-  const isAdd = type === "add";
+  const isAdd = type === 'add';
 
   return (
     <button className="flex flex-col items-center gap-1">
       {isAdd ? (
         <div className="gradientBorder">
           <div className="relative flex items-center justify-center rounded-full w-14 h-14 md:w-[77px] md:h-[77px] xl:w-[97px] xl:h-[97px] bg-[#D5D5D5]">
-            <img src={profileIcons.plus}  alt="add story"
-                 aria-hidden="true"
-                 className="h-8 md:h-12" />
+            <img
+              src={profileIcons.plus}
+              alt="add story"
+              aria-hidden="true"
+              className="h-8 md:h-12"
+            />
           </div>
         </div>
       ) : (
         <div className="relative rounded-full w-14 h-14 border bg-[#D5D5D5] border-[#FF0B0B] flex items-center justify-center md:w-20 md:h-20 xl:w-[100px] xl:h-[100px] xl:border-[3px]">
-          <img src={profileIcons.userStory} alt="user story" className="w-[26px] h-[26px] md:w-12 md:h-12"/>
+          <img
+            src={profileIcons.userStory}
+            alt="user story"
+            className="w-[26px] h-[26px] md:w-12 md:h-12"
+          />
 
           {status && (
             <span
               className={`absolute right-[2px] top-[2px] md:top-[10px] xl:top-[3px]  w-2.5 h-2.5 md:w-3 md:h-3 xl:w-5 xl:h-5  rounded-full ${
-                status === "online" ? "bg-green-700" : "bg-zinc-300 border border-black/40"
+                status === 'online' ? 'bg-green-700' : 'bg-zinc-300 border border-black/40'
               }`}
             />
           )}
@@ -365,29 +372,29 @@ function StoryCircle({ status, type }) {
       )}
 
       <span className="text-[8px] md:text-xs xl:text-xl font-[Montserrat] text-black underline">
-        {isAdd ? "добавить" : status === "online" ? "online" : "offline"}
+        {isAdd ? 'добавить' : status === 'online' ? 'online' : 'offline'}
       </span>
     </button>
   );
 }
 
 function formatPostTime(iso) {
-  if (!iso) return "";
+  if (!iso) return '';
   try {
     return new Date(iso).toLocaleString();
   } catch {
-    return "";
+    return '';
   }
 }
 
 function GlobalFeedPostCard({ post, feedActions, onOpenProfile, onOpenLightbox }) {
   const name =
-    [post.author?.firstName, post.author?.lastName].filter(Boolean).join(" ").trim() ||
+    [post.author?.firstName, post.author?.lastName].filter(Boolean).join(' ').trim() ||
     post.author?.username ||
-    "User";
+    'User';
   const avatarSrc = post.author?.avatarUrl || profileIcons.userStory;
   const timeLabel = formatPostTime(post.createdAt);
-  const location = post.location?.trim() || "—";
+  const location = post.location?.trim() || '—';
   const commentsOpen = feedActions.isCommentsOpen(post.id);
   const authorHandle = getProfileRouteHandle(post.author);
   const handleOpenProfile = () => {
@@ -404,8 +411,8 @@ function GlobalFeedPostCard({ post, feedActions, onOpenProfile, onOpenLightbox }
             type="button"
             onClick={handleOpenProfile}
             disabled={!hasProfileLink}
-            className={`flex gap-[7px] text-left ${hasProfileLink ? "cursor-pointer" : "cursor-default"}`}
-            aria-label={hasProfileLink ? `Відкрити профіль ${name}` : "Профіль недоступний"}
+            className={`flex gap-[7px] text-left ${hasProfileLink ? 'cursor-pointer' : 'cursor-default'}`}
+            aria-label={hasProfileLink ? `Відкрити профіль ${name}` : 'Профіль недоступний'}
           >
             <img
               src={avatarSrc}
@@ -453,57 +460,54 @@ function GlobalFeedPostCard({ post, feedActions, onOpenProfile, onOpenLightbox }
       </p>
 
       {Array.isArray(post.media) && post.media.length > 0 ? (
-  // (() => {
-  //   const images = post.media.filter((m) => m?.type !== "VIDEO" && m?.url);
-  //   const videos = post.media.filter((m) => m?.type === "VIDEO" && m?.url);
+        // (() => {
+        //   const images = post.media.filter((m) => m?.type !== "VIDEO" && m?.url);
+        //   const videos = post.media.filter((m) => m?.type === "VIDEO" && m?.url);
 
-  //   return (
-  //     <>
-  //       {images.length > 0 && (
-  //         <PostMediaGallery
-  //           mediaItems={images}
-  //            onOpenLightbox={onOpenLightbox}
-  //         />
-  //       )}
+        //   return (
+        //     <>
+        //       {images.length > 0 && (
+        //         <PostMediaGallery
+        //           mediaItems={images}
+        //            onOpenLightbox={onOpenLightbox}
+        //         />
+        //       )}
 
-  //       {videos.map((mediaItem) => (
-  //         <div
-  //           className="!mt-[19px] md:!mt-2.5 overflow-hidden rounded-sm"
-  //           key={`${post.id}-${mediaItem.order}-${mediaItem.url}`}
-  //         >
-  //           <video
-  //             src={mediaItem.url}
-  //             className="w-full h-80 object-contain object-center bg-black/15 lg:object-cover"
-  //             controls
-  //             preload="metadata"
-  //           />
-  //         </div>
-  //       ))}
-  //     </>
-  //   );
-  // })()
-   (() => {
-            const images = post.media.filter((m) => m?.type !== "VIDEO" && m?.url);
-            const videos = post.media.filter((m) => m?.type === "VIDEO" && m?.url);
-            return (
-              <>
-                {images.length > 0 && (
-                  <PostMediaGallery
-                    mediaItems={images}
-                    onOpenLightbox={onOpenLightbox}
-                  />
-                )}
-                {videos.map((mediaItem) => (
-                  <div className="postMedia" key={`${post.id}-${mediaItem.order}-${mediaItem.url}`}>
-                    <video src={mediaItem.url} className="postMediaImg" controls preload="metadata" />
-                  </div>
-                ))}
-              </>
-            );
-          })()
-) : (
-  <div className="!mt-[19px] md:!mt-2.5 h-80 bg-black/5" />
-)}
+        //       {videos.map((mediaItem) => (
+        //         <div
+        //           className="!mt-[19px] md:!mt-2.5 overflow-hidden rounded-sm"
+        //           key={`${post.id}-${mediaItem.order}-${mediaItem.url}`}
+        //         >
+        //           <video
+        //             src={mediaItem.url}
+        //             className="w-full h-80 object-contain object-center bg-black/15 lg:object-cover"
+        //             controls
+        //             preload="metadata"
+        //           />
+        //         </div>
+        //       ))}
+        //     </>
+        //   );
+        // })()
+        (() => {
+          const images = post.media.filter((m) => m?.type !== 'VIDEO' && m?.url);
+          const videos = post.media.filter((m) => m?.type === 'VIDEO' && m?.url);
+          return (
+            <>
+              {images.length > 0 && (
+                <PostMediaGallery mediaItems={images} onOpenLightbox={onOpenLightbox} />
+              )}
+              {videos.map((mediaItem) => (
+                <div className="postMedia" key={`${post.id}-${mediaItem.order}-${mediaItem.url}`}>
+                  <video src={mediaItem.url} className="postMediaImg" controls preload="metadata" />
+                </div>
+              ))}
+            </>
+          );
+        })()
+      ) : (
+        <div className="!mt-[19px] md:!mt-2.5 h-80 bg-black/5" />
+      )}
 
       <div className="flex justify-center mt-3 xl:!mt-[32px] xl:!mb-[18px]">
         <div className="flex gap-[41px] md:gap-[60px] xl:gap-36">
@@ -538,9 +542,7 @@ function GlobalFeedPostCard({ post, feedActions, onOpenProfile, onOpenLightbox }
           comments={post.comments}
           commentDraft={feedActions.commentDraft}
           onCommentDraftChange={feedActions.setCommentDraft}
-          onSubmitComment={() =>
-            feedActions.submitComment(post, feedActions.commentDraft)
-          }
+          onSubmitComment={() => feedActions.submitComment(post, feedActions.commentDraft)}
           onDeleteComment={(commentId) => feedActions.onDeleteComment(post, commentId)}
           variant="firstPage"
         />
@@ -563,34 +565,34 @@ export const FeedCard = ({ name, time, location, status, text }) => {
             />
             <span
               className={`absolute right-[2px] top-[3px] w-[6px] h-[6px] md:w-2 md:h-2 md:top-[7px] md:right-[3px] rounded-full ${
-                status === "online"
-                  ? "bg-green-700"
-                  : "bg-zinc-300 border border-gray-900/50"
+                status === 'online' ? 'bg-green-700' : 'bg-zinc-300 border border-gray-900/50'
               }`}
             />
           </div>
           <div className="flex flex-col mt-[5px] gap-[3px]">
-            
             <span className="text-[8px] md:text-xs xl:text-xl text-black font-[Montserrat] underline">
               {time}
             </span>
             <span className="text-xs md:text-sm xl:text-xl font-[Montserrat] underline bg-gradient-to-r from-[#FF4FB1] to-[#4F6BFF] bg-clip-text text-transparent">
-             {name}
+              {name}
             </span>
-
           </div>
         </div>
 
-    <div>
-        <div className="flex items-center mt-[13px] mr-[19px]">
-          <img src={profileIcons.location} alt="location" className="w-[4px] h-[5px] mr-1 mt-[1px] md:w-[10px] md:h-[13px]" />
-          <span className="relative text-[10px] md:text-xs text-pink-500 font-[Montserrat] mr-[7px] inline-block">
-          {location}
-          <span className="absolute bottom-[2px] left-0 right-0 h-[0.5px] bg-pink-500"></span>
-          </span>
+        <div>
+          <div className="flex items-center mt-[13px] mr-[19px]">
+            <img
+              src={profileIcons.location}
+              alt="location"
+              className="w-[4px] h-[5px] mr-1 mt-[1px] md:w-[10px] md:h-[13px]"
+            />
+            <span className="relative text-[10px] md:text-xs text-pink-500 font-[Montserrat] mr-[7px] inline-block">
+              {location}
+              <span className="absolute bottom-[2px] left-0 right-0 h-[0.5px] bg-pink-500"></span>
+            </span>
+          </div>
         </div>
-       </div>
-    </div>
+      </div>
 
       {/* Text */}
       <p className="text-xs text-gray-900 font-[Montserrat] font-medium md:font-normal xl:text-xl underline">
@@ -604,28 +606,29 @@ export const FeedCard = ({ name, time, location, status, text }) => {
       <div className="flex justify-center mt-3 xl:!mt-[52px] xl:!mb-[38px]">
         <div className="flex gap-[41px] md:gap-[60px] xl:gap-36">
           <ActionIcon icon={profileIcons.like} label="125" />
-          <ActionIcon icon={profileIcons.comments} label="256" /> 
+          <ActionIcon icon={profileIcons.comments} label="256" />
           <ActionIcon icon={profileIcons.savedPost} label="21" />
           <ActionIcon icon={profileIcons.share} label="24" />
         </div>
       </div>
-
     </article>
   );
 };
 
 function ActionIcon({ icon, label, active, liked, onClick }) {
   const className = `flex flex-col items-center text-[10px] md:text-xs font-[Montserrat] text-black ${
-    onClick ? "cursor-pointer" : "cursor-default opacity-95"
-  } ${active ? "opacity-100" : "opacity-90"}`;
+    onClick ? 'cursor-pointer' : 'cursor-default opacity-95'
+  } ${active ? 'opacity-100' : 'opacity-90'}`;
   const inner = (
     <>
       <img
         src={icon}
         alt=""
-        className={`h-6 md:h-9 xl:h-11 pointer-events-none ${active ? "opacity-100" : "opacity-80"} ${liked ? "brightness-0 saturate-100 [filter:brightness(0)_saturate(100%)_invert(55%)_sepia(42%)_saturate(2211%)_hue-rotate(299deg)_brightness(103%)_contrast(97%)]" : ""}`}
+        className={`h-6 md:h-9 xl:h-11 pointer-events-none ${active ? 'opacity-100' : 'opacity-80'} ${liked ? 'brightness-0 saturate-100 [filter:brightness(0)_saturate(100%)_invert(55%)_sepia(42%)_saturate(2211%)_hue-rotate(299deg)_brightness(103%)_contrast(97%)]' : ''}`}
       />
-      <span className={`text-[8px] md:text-xs xl:text-xl font-normal xl:font-bold font-['Montserrat'] ${active ? "text-pink-500" : "text-black"}`}>
+      <span
+        className={`text-[8px] md:text-xs xl:text-xl font-normal xl:font-bold font-['Montserrat'] ${active ? 'text-pink-500' : 'text-black'}`}
+      >
         {label}
       </span>
     </>
@@ -644,17 +647,16 @@ function ActionIcon({ icon, label, active, liked, onClick }) {
   );
 }
 
-const TabletNav = () => {
+const TabletNav = ({ onGoNotifications }) => {
   const navigate = useNavigate();
 
   return (
     <nav className="w-full min-w-0">
       <div className="flex w-full min-w-0 justify-between gap-2 md:gap-4 lg:gap-8 xl:gap-10">
-
         {/* 1 кнопка */}
         <button
           type="button"
-          onClick={() => navigate("/profile")}
+          onClick={() => navigate('/profile')}
           className="flex flex-col items-center gap-2 group"
         >
           <img
@@ -672,11 +674,11 @@ const TabletNav = () => {
           />
         </button>
 
-       {/* Остальные без изменений */}
-  
+        {/* Остальные без изменений */}
+
         <button
           type="button"
-          onClick={() => navigate("/video")}
+          onClick={() => navigate('/video')}
           className="flex flex-col items-center gap-2 group"
         >
           <img
@@ -686,10 +688,10 @@ const TabletNav = () => {
             aria-hidden="true"
           />
         </button>
- 
+
         <button
           type="button"
-          onClick={() => navigate("/friends")}
+          onClick={() => navigate('/friends')}
           className="flex flex-col items-center gap-2 group"
         >
           <img
@@ -700,19 +702,7 @@ const TabletNav = () => {
           />
         </button>
 
-        <button
-          type="button"
-          onClick={() => navigate("/notifications")}
-          className="flex flex-col items-center gap-2 group"
-        >
-          <img
-            src={profileIcons.bell}
-            alt=""
-            className="app-header-tablet-nav__icon"
-            aria-hidden="true"
-          />
-        </button>
-
+        <NotificationBell onGoNotifications={onGoNotifications} />
       </div>
     </nav>
   );

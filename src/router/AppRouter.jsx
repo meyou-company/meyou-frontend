@@ -1,7 +1,7 @@
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 
 import AppBottomNav from '../components/AppBottomNav/AppBottomNav';
-import RouterLoaderSync from "../components/RouterLoaderSync";
+import RouterLoaderSync from '../components/RouterLoaderSync';
 import { useAuthStore } from '../zustand/useAuthStore';
 import HomePage from '../pages/HomeFeed/HomePage';
 import Explore from '../pages/Explore/Explore';
@@ -24,18 +24,19 @@ import ResetNewPasswordPage from '../pages/Auth/ResetNewPassword/ResetNewPasswor
 import CompleteProfilePage from '../pages/Users/Profile/CompleteProfilePage';
 import EditProfilePage from '../pages/Users/Profile/EditProfilePage';
 import VideoPage from '../pages/Video/VideoPage';
+
 import FirstPage from '../pages/FirstPage/FirstPage';
 import WalletPage from '../pages/Wallet/WalletPage';
 import NotificationsPage from '../pages/Notifications/NotificationsPage';
-import MyGiftsPage from "../pages/MyGifts/MyGiftsPage";
+import MyGiftsPage from '../pages/MyGifts/MyGiftsPage';
 import NotFoundPage from '../pages/NotFound/NotFoundPage';
 import ProfileGuard from './ProfileGuard';
 
-import { UserProfileNavProvider } from "../context/UserProfileNavContext";
+import { UserProfileNavProvider } from '../context/UserProfileNavContext';
 import BurgerMenu from '../components/BurgerMenu/BurgerMenu';
 import { useBurgerMenuStore } from '../zustand/useBurgerMenuStore';
 import { useThemeStore } from '../zustand/useThemeStore';
-
+import PostPage from '../pages/PostPage/PostPage';
 
 /** Глобальне бургер-меню — рендериться один раз, відкривається з будь-якої сторінки */
 function GlobalBurgerMenu() {
@@ -83,6 +84,7 @@ function AppLayout() {
               <Route path="/wallet" element={<WalletPage />} />
 
               <Route path="/notifications" element={<NotificationsPage />} />
+              <Route path="/posts/:postId" element={<PostPage />} />
 
               <Route path="/my-gifts" element={<MyGiftsPage />} />
 
@@ -115,7 +117,7 @@ function AppLayout() {
 export default function AppRouter() {
   return (
     <BrowserRouter>
-    <RouterLoaderSync />
+      <RouterLoaderSync />
       <UserProfileNavProvider>
         <ProfileGuard>
           <GlobalBurgerMenu />

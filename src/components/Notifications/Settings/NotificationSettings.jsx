@@ -1,66 +1,67 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import './NotificationSettings.scss';
-
-const settingsMock = [
-  {
-    id: 'comments',
-    title: 'Комментарии',
-    desc: 'Комментарии и ответы',
-    enabled: true,
-    icon: '💬',
-  },
-  {
-    id: 'activity',
-    title: 'Другие действия',
-    desc: 'Лайки и подписки',
-    enabled: true,
-    icon: '❤️',
-  },
-  {
-    id: 'friends',
-    title: 'Запросы на дружбу',
-    desc: 'Кто добавил вас в друзья',
-    enabled: true,
-    icon: '👥',
-  },
-  {
-    id: 'tags',
-    title: 'Отметки',
-    desc: 'Кто вас отметил',
-    enabled: true,
-    icon: '🏷',
-  },
-  {
-    id: 'account',
-    title: 'Оповещения аккаунта',
-    desc: 'Кто вас отметил',
-    enabled: true,
-    icon: '🛡',
-  },
-  {
-    id: 'security',
-    title: 'Оповещения безопасности',
-    desc: 'Попытки входа',
-    enabled: true,
-    icon: '🔒',
-  },
-  {
-    id: 'updates',
-    title: 'Важные обновления',
-    desc: 'Системные новости и обновления',
-    enabled: false,
-    icon: '❗',
-  },
-];
+import { notificationsApi } from '../../../services/notificationsApi';
 
 export default function NotificationSettings({ onClose }) {
-  const [settings, setSettings] = useState(settingsMock);
+  const [settings, setSettings] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  const toggle = (id) => {
-    setSettings((prev) =>
-      prev.map((item) => (item.id === id ? { ...item, enabled: !item.enabled } : item))
-    );
+  // 📥 load from backend
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const data = await notificationsApi.getSettings();
+        setSettings(data);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    load();
+  }, []);
+
+  // 🔁 toggle locally + save
+  const toggle = async (key) => {
+    const updated = {
+      ...settings,
+      [key]: !settings[key],
+    };
+
+    setSettings(updated);
+
+    await notificationsApi.updateSettings({
+      [key]: updated[key],
+    });
   };
+
+  if (loading || !settings) return <p>Loading...</p>;
+
+  const items = [
+    {
+      id: 'postComment',
+      title: 'Комментарии',
+      desc: 'Комментарии и ответы',
+      icon: '💬',
+    },
+    {
+      id: 'postLike',
+      title: 'Лайки и активность',
+      desc: 'Лайки и подписки',
+      icon: '❤️',
+    },
+    {
+      id: 'newFollower',
+      title: 'Подписки',
+      desc: 'Новые подписчики',
+      icon: '👥',
+    },
+    {
+      id: 'system',
+      title: 'Системные уведомления',
+      desc: 'Обновления и безопасность',
+      icon: '🔒',
+    },
+  ];
 
   return (
     <div className="ns-overlay">
@@ -75,7 +76,7 @@ export default function NotificationSettings({ onClose }) {
         <p className="ns-subtitle">Настройте оповещения, которые вы хотите получать</p>
 
         <div className="ns-list">
-          {settings.map((item) => (
+          {items.map((item) => (
             <div key={item.id} className="ns-item">
               <div className="ns-left">
                 <span className="ns-icon">{item.icon}</span>
@@ -87,7 +88,7 @@ export default function NotificationSettings({ onClose }) {
               </div>
 
               <button
-                className={`ns-toggle ${item.enabled ? 'active' : ''}`}
+                className={`ns-toggle ${settings[item.id] ? 'active' : ''}`}
                 onClick={() => toggle(item.id)}
               >
                 <span className="ns-thumb" />

@@ -1,9 +1,9 @@
-import { useEffect, useState } from "react";
-
-import profileIcons from "../../../../constants/profileIcons";
-import PostCommentsSection from "../../../PostFeed/PostCommentsSection";
-import PostMediaGallery from "../../../PostFeed/PostMediaGallery";
-import ImageLightbox from "../../../PostFeed/ImageLightbox";
+import { useEffect, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
+import profileIcons from '../../../../constants/profileIcons';
+import PostCommentsSection from '../../../PostFeed/PostCommentsSection';
+import PostMediaGallery from '../../../PostFeed/PostMediaGallery';
+import ImageLightbox from '../../../PostFeed/ImageLightbox';
 
 /**
  * Стрічка постів профілю (як у ProfileHome): завантаження даних — у useProfileAuthorFeed.
@@ -16,34 +16,59 @@ export default function ProfilePostsFeed({
   displayAvatar,
   titleName,
   onViewProfileAvatar,
-  sectionClassName = "feed",
+  sectionClassName = 'feed',
 }) {
   const [openPostMenuId, setOpenPostMenuId] = useState(null);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const [lightboxImages, setLightboxImages] = useState([]);
   const [lightboxIndex, setLightboxIndex] = useState(0);
 
+  const [searchParams] = useSearchParams();
+
+  console.log(searchParams.get('post'));
+  const targetPostId = searchParams.get('post');
+
   useEffect(() => {
     if (openPostMenuId == null) return;
     const onDocClick = () => setOpenPostMenuId(null);
     const onEscape = (e) => {
-      if (e.key === "Escape") setOpenPostMenuId(null);
+      if (e.key === 'Escape') setOpenPostMenuId(null);
     };
-    document.addEventListener("click", onDocClick);
-    document.addEventListener("keydown", onEscape);
+    document.addEventListener('click', onDocClick);
+    document.addEventListener('keydown', onEscape);
     return () => {
-      document.removeEventListener("click", onDocClick);
-      document.removeEventListener("keydown", onEscape);
+      document.removeEventListener('click', onDocClick);
+      document.removeEventListener('keydown', onEscape);
     };
   }, [openPostMenuId]);
+
+  useEffect(() => {
+    if (!targetPostId || !feedPosts.length) return;
+
+    const timeout = setTimeout(() => {
+      const element = document.getElementById(`post-${targetPostId}`);
+
+      if (element) {
+        element.scrollIntoView({
+          behavior: 'smooth',
+          block: 'center',
+        });
+
+        element.classList.add('highlight-post');
+
+        setTimeout(() => {
+          element.classList.remove('highlight-post');
+        }, 2000);
+      }
+    }, 100);
+
+    return () => clearTimeout(timeout);
+  }, [targetPostId, feedPosts]);
 
   const openPostImageViewer = (images, startIndex = 0) => {
     const list = Array.isArray(images) ? images.filter(Boolean) : [];
     if (!list.length) return;
-    const safeIndex = Math.min(
-      Math.max(Number(startIndex) || 0, 0),
-      list.length - 1
-    );
+    const safeIndex = Math.min(Math.max(Number(startIndex) || 0, 0), list.length - 1);
     setLightboxImages(list);
     setLightboxIndex(safeIndex);
     setIsLightboxOpen(true);
@@ -57,9 +82,7 @@ export default function ProfilePostsFeed({
 
   const moveLightbox = (delta) => {
     if (!lightboxImages.length) return;
-    setLightboxIndex(
-      (prev) => (prev + delta + lightboxImages.length) % lightboxImages.length
-    );
+    setLightboxIndex((prev) => (prev + delta + lightboxImages.length) % lightboxImages.length);
   };
 
   return (
@@ -80,12 +103,11 @@ export default function ProfilePostsFeed({
         )}
         {feedPosts.map((post) => (
           <article
+            id={`post-${post.id}`}
             key={post.id}
-            className={`postCard${post.permissions?.canEdit ? " postCard--canEdit" : ""}${post.permissions?.canDelete ? " postCard--canDelete" : ""}`}
-            data-can-edit={post.permissions?.canEdit === true ? "true" : "false"}
-            data-can-delete={
-              post.permissions?.canDelete === true ? "true" : "false"
-            }
+            className={`postCard${post.permissions?.canEdit ? ' postCard--canEdit' : ''}${post.permissions?.canDelete ? ' postCard--canDelete' : ''}`}
+            data-can-edit={post.permissions?.canEdit === true ? 'true' : 'false'}
+            data-can-delete={post.permissions?.canDelete === true ? 'true' : 'false'}
           >
             <div className="postTop">
               <div className="postTopLeft">
@@ -106,10 +128,7 @@ export default function ProfilePostsFeed({
 
               <div className="postTopRight">
                 {post.permissions?.canDelete === true && (
-                  <div
-                    className="postMenuWrap"
-                    onClick={(e) => e.stopPropagation()}
-                  >
+                  <div className="postMenuWrap" onClick={(e) => e.stopPropagation()}>
                     <button
                       className="postMenuBtn"
                       type="button"
@@ -117,19 +136,13 @@ export default function ProfilePostsFeed({
                       aria-expanded={openPostMenuId === post.id}
                       onClick={(e) => {
                         e.stopPropagation();
-                        setOpenPostMenuId((prev) =>
-                          prev === post.id ? null : post.id
-                        );
+                        setOpenPostMenuId((prev) => (prev === post.id ? null : post.id));
                       }}
                     >
                       •••
                     </button>
                     {openPostMenuId === post.id && (
-                      <div
-                        className="postMenuDropdown"
-                        role="menu"
-                        aria-label="Дії з постом"
-                      >
+                      <div className="postMenuDropdown" role="menu" aria-label="Дії з постом">
                         <button
                           className="postMenuDeleteBtn"
                           type="button"
@@ -148,10 +161,10 @@ export default function ProfilePostsFeed({
                 <div className="postLocation">
                   <img
                     className="postLocationIcon"
-                    src={profileIcons.location || "/home/location.svg"}
+                    src={profileIcons.location || '/home/location.svg'}
                     alt=""
                   />
-                  <span className="postLocationText">{post.location || "—"}</span>
+                  <span className="postLocationText">{post.location || '—'}</span>
                 </div>
               </div>
             </div>
@@ -160,19 +173,12 @@ export default function ProfilePostsFeed({
 
             {Array.isArray(post.media) && post.media.length > 0 ? (
               (() => {
-                const images = post.media.filter(
-                  (m) => m?.type !== "VIDEO" && m?.url
-                );
-                const videos = post.media.filter(
-                  (m) => m?.type === "VIDEO" && m?.url
-                );
+                const images = post.media.filter((m) => m?.type !== 'VIDEO' && m?.url);
+                const videos = post.media.filter((m) => m?.type === 'VIDEO' && m?.url);
                 return (
                   <>
                     {images.length > 0 && (
-                      <PostMediaGallery
-                        mediaItems={images}
-                        onOpenLightbox={openPostImageViewer}
-                      />
+                      <PostMediaGallery mediaItems={images} onOpenLightbox={openPostImageViewer} />
                     )}
                     {videos.map((mediaItem) => (
                       <div
@@ -198,14 +204,14 @@ export default function ProfilePostsFeed({
 
             <div className="postActions">
               <button
-                className={`postActionBtn ${post.viewerState?.isLiked ? "postActionBtn--active postActionBtn--liked" : ""}`}
+                className={`postActionBtn ${post.viewerState?.isLiked ? 'postActionBtn--active postActionBtn--liked' : ''}`}
                 type="button"
                 aria-label="like"
                 aria-pressed={post.viewerState?.isLiked === true}
                 onClick={() => feedActions.onLike(post)}
               >
                 <img
-                  src={profileIcons.like || "/home/like.svg"}
+                  src={profileIcons.like || '/home/like.svg'}
                   className="postActionIcon"
                   alt=""
                 />
@@ -219,21 +225,19 @@ export default function ProfilePostsFeed({
                 onClick={() => feedActions.toggleCommentsOpen(post.id)}
               >
                 <img
-                  src={profileIcons.comments || "/home/comments.svg"}
+                  src={profileIcons.comments || '/home/comments.svg'}
                   className="postActionIcon"
                   alt=""
                 />
-                <span className="postActionCount">
-                  {post.counts?.comments ?? 0}
-                </span>
+                <span className="postActionCount">{post.counts?.comments ?? 0}</span>
               </button>
 
               <span
-                className={`postActionBtn postActionBtn--static ${post.viewerState?.isSaved ? "postActionBtn--active" : ""}`}
+                className={`postActionBtn postActionBtn--static ${post.viewerState?.isSaved ? 'postActionBtn--active' : ''}`}
                 aria-hidden="true"
               >
                 <img
-                  src={profileIcons.saved || "/icon1/saved.svg"}
+                  src={profileIcons.saved || '/icon1/saved.svg'}
                   className="postActionIcon"
                   alt=""
                 />
@@ -241,20 +245,18 @@ export default function ProfilePostsFeed({
               </span>
 
               <button
-                className={`postActionBtn ${post.viewerState?.isReposted ? "postActionBtn--active" : ""}`}
+                className={`postActionBtn ${post.viewerState?.isReposted ? 'postActionBtn--active' : ''}`}
                 type="button"
                 aria-label="repost"
                 aria-pressed={post.viewerState?.isReposted === true}
                 onClick={() => feedActions.onRepost(post)}
               >
                 <img
-                  src={profileIcons.share || "/home/to-share.svg"}
+                  src={profileIcons.share || '/home/to-share.svg'}
                   className="postActionIcon"
                   alt=""
                 />
-                <span className="postActionCount">
-                  {post.counts?.reposts ?? 0}
-                </span>
+                <span className="postActionCount">{post.counts?.reposts ?? 0}</span>
               </button>
             </div>
 
@@ -263,12 +265,8 @@ export default function ProfilePostsFeed({
                 comments={post.comments}
                 commentDraft={feedActions.commentDraft}
                 onCommentDraftChange={feedActions.setCommentDraft}
-                onSubmitComment={() =>
-                  feedActions.submitComment(post, feedActions.commentDraft)
-                }
-                onDeleteComment={(commentId) =>
-                  feedActions.onDeleteComment(post, commentId)
-                }
+                onSubmitComment={() => feedActions.submitComment(post, feedActions.commentDraft)}
+                onDeleteComment={(commentId) => feedActions.onDeleteComment(post, commentId)}
                 variant="profile"
               />
             )}

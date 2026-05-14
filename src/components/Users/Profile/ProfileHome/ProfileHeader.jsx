@@ -1,16 +1,14 @@
 import { useLocation, matchPath } from 'react-router-dom';
-import ThemeToggleDark from '../../../ThemeToggleDark/ThemeToggleDark';
 import { useState } from 'react';
 
+import ThemeToggleDark from '../../../ThemeToggleDark/ThemeToggleDark';
 import profileIcons from '../../../../constants/profileIcons';
 import { HEADER_CONFIG } from '../../../../constants/profileNavigation';
 import { useBurgerMenu } from '../../../../hooks/useBurgerMenu';
+import NotificationBell from '../../../Notifications/NotificationBell';
 
 import './ProfileHeader.scss';
-import { notificationsMock } from '../../../Notifications/notificationsMock';
 
-const data = notificationsMock;
-const unreadCount = data.filter((n) => !n.isRead).length;
 const makeIsActive =
   (location) =>
   (path, end = false) =>
@@ -27,7 +25,9 @@ export default function ProfileHeader({
 }) {
   const location = useLocation();
   const { toggle } = useBurgerMenu();
+
   const [searchValue, setSearchValue] = useState('');
+
   const isActive = makeIsActive(location);
 
   const config = HEADER_CONFIG[variant] ?? HEADER_CONFIG.owner;
@@ -41,6 +41,10 @@ export default function ProfileHeader({
 
   const handleSearchOpen = () => {
     onSearch?.(searchValue.trim());
+  };
+
+  const handleNotificationsClick = () => {
+    onNav?.('/notifications');
   };
 
   return (
@@ -102,20 +106,7 @@ export default function ProfileHeader({
         </div>
 
         <div className="rightGroup" aria-label="Desktop actions">
-          <button
-            type="button"
-            className={`iconBtn ${isActive('/notifications', false) ? 'iconBtnActive' : ''}`}
-            onClick={() => onNav?.('/notifications')}
-            aria-label="Сповіщення"
-          >
-            <div className="iconWrapper">
-              <img src={profileIcons.notifications} alt="" aria-hidden="true" />
-
-              {unreadCount > 0 && (
-                <span className="badge">{unreadCount > 99 ? '99+' : unreadCount}</span>
-              )}
-            </div>
-          </button>
+          <NotificationBell onGoNotifications={handleNotificationsClick} />
 
           <button
             type="button"
