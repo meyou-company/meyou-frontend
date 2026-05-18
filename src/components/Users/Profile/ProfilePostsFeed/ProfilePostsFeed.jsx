@@ -232,17 +232,20 @@ export default function ProfilePostsFeed({
                 <span className="postActionCount">{post.counts?.comments ?? 0}</span>
               </button>
 
-              <span
-                className={`postActionBtn postActionBtn--static ${post.viewerState?.isSaved ? 'postActionBtn--active' : ''}`}
-                aria-hidden="true"
-              >
-                <img
+              <button
+  className={`postActionBtn ${post.viewerState?.isSaved ? 'postActionBtn--active' : ''}`}
+  type="button"
+  aria-label="save"
+  aria-pressed={post.viewerState?.isSaved === true}
+  onClick={() => feedActions.onSave(post)}
+>
+    <img
                   src={profileIcons.saved || '/icon1/saved.svg'}
                   className="postActionIcon"
                   alt=""
                 />
                 <span className="postActionCount">{post.counts?.saves ?? 0}</span>
-              </span>
+</button>
 
               <button
                 className={`postActionBtn ${post.viewerState?.isReposted ? 'postActionBtn--active' : ''}`}

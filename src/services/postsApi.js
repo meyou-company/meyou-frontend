@@ -144,4 +144,15 @@ export const postsApi = {
   async deletePost(postId) {
     await api.delete(`/posts/${encodeURIComponent(postId)}`);
   },
+
+
+  async save(postId) {
+  const { data } = await api.post(`/posts/${encodeURIComponent(postId)}/save`);
+  return data;
+  },
+
+  async unsave(postId) {
+  const { data } = await api.delete(`/posts/${encodeURIComponent(postId)}/save`);
+  return data;
+},
 };

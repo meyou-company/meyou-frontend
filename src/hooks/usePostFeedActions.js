@@ -304,6 +304,60 @@ export function usePostFeedActions(setFeedPosts) {
     [run, setFeedPosts, dropPostEverywhere]
   );
 
+  const onSave = async (post) => {
+  const isSaved = post.viewerState?.isSaved;
+
+  // optimistic UI update
+  setFeedPosts((prev) =>
+    prev.map((p) =>
+      p.id === post.id
+        ? {
+            ...p,
+            viewerState: {
+              ...p.viewerState,
+              isSaved: !isSaved,
+            },
+            counts: {
+              ...p.counts,
+              saves: isSaved
+                ? Math.max((p.counts?.saves ?? 1) - 1, 0)
+                : (p.counts?.saves ?? 0) + 1,
+            },
+          }
+        : p
+    )
+  );
+
+  try {
+    if (isSaved) {
+      await postsApi.unsave(post.id);
+    } else {
+      await postsApi.save(post.id);
+    }
+  } catch (e) {
+    console.error("Save toggle failed", e);
+
+    // rollback
+    setFeedPosts((prev) =>
+      prev.map((p) =>
+        p.id === post.id
+          ? {
+              ...p,
+              viewerState: {
+                ...p.viewerState,
+                isSaved,
+              },
+              counts: {
+                ...p.counts,
+                saves: p.counts?.saves ?? 0,
+              },
+            }
+          : p
+      )
+    );
+  }
+};
+  
   return {
     commentsOpenPostId,
     isCommentsOpen,
@@ -316,5 +370,6 @@ export function usePostFeedActions(setFeedPosts) {
     onLike,
     onRepost,
     onDeletePost,
+    onSave,
   };
 }
