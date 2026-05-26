@@ -175,6 +175,14 @@ $bp-desktop: 1440px;
   gap: 50px;
 }
 
+.notifications__empty {
+  padding: 40px 20px;
+  text-align: center;
+
+  font-size: 15px;
+  color: #777;
+}
+
 body.dark {
   .divider-top,
   .divider-bottom {
@@ -201,6 +209,10 @@ body.dark {
 
   .notifications__title {
     color: #ffffff;
+  }
+
+  .notifications__empty {
+    color: #aaa;
   }
 
   .notification {

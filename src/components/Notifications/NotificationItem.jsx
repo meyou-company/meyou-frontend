@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { formatTime } from './utils';
+import { formatTime } from '../../utils/utils';
+
+import { getNotificationDate } from '../../utils/getNotificationDate';
 import { useFollowingStore } from '../../zustand/useFollowingStore';
 
 export default function NotificationItem({ item, onRead }) {
@@ -15,7 +17,7 @@ export default function NotificationItem({ item, onRead }) {
   const [loadingFollow, setLoadingFollow] = useState(false);
 
   const handleClick = () => {
-    if (!item.isRead) onRead(item.id);
+    if (!item.readAt) onRead(item.id);
     navigate(buildLink(item));
   };
 
@@ -31,7 +33,7 @@ export default function NotificationItem({ item, onRead }) {
       } else {
         await follow(item.actor.id);
       }
-      if (!item.isRead) {
+      if (!item.readAt) {
         await onRead(item.id);
       }
     } finally {
@@ -42,19 +44,21 @@ export default function NotificationItem({ item, onRead }) {
   const action = renderAction(item, isSubscribed, handleFollow, loadingFollow);
 
   return (
-    <div className={`notification ${!item.isRead ? 'unread' : ''}`}>
+    <div className={`notification ${!item.readAt ? 'unread' : ''}`}>
       <div className="notification__avatar" onClick={handleClick}>
         <img src={item.actor.avatar} alt={item.actor.name} />
-        {!item.isRead && <span className="notification__dot" />}
+        {!item.readAt && <span className="notification__dot" />}
       </div>
 
       <div className="notification__content">
         <div className="notification__main" onClick={handleClick}>
-          <p className="notification__text">{item.text}</p>
+          <div className="notification__texts">
+            <p className="notification__text">{item.body}</p>
+          </div>
 
           {item.previewText && <p className="notification__comment">“{item.previewText}”</p>}
 
-          <span className="notification__time">{formatTime(item.createdAt)}</span>
+          <span className="notification__time">{formatTime(getNotificationDate(item))}</span>
         </div>
 
         <div className="notification__right">
@@ -78,6 +82,8 @@ export default function NotificationItem({ item, onRead }) {
 function buildLink(item) {
   switch (item.targetType) {
     case 'postLike':
+      return `/profile?post=${item.targetId}`;
+    case 'postShare':
       return `/profile?post=${item.targetId}`;
     case 'postComment':
       return `/profile?post=${item.targetId}&focus=comments`;
@@ -104,7 +110,6 @@ function renderOverlayIcon(item) {
       return <span className="notification__overlay">❤️</span>;
 
     case 'postComment':
-    case 'commentReply':
       return <span className="notification__overlay">💬</span>;
 
     default:
