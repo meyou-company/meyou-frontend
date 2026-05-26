@@ -13,18 +13,18 @@
  */
 
 function mapCommentAuthor(a) {
-  if (!a || typeof a !== "object") return null;
+  if (!a || typeof a !== 'object') return null;
   return {
     id: a.id ?? a._id,
-    firstName: a.firstName ?? "",
-    lastName: a.lastName ?? "",
-    username: a.username ?? a.nick ?? "",
+    firstName: a.firstName ?? '',
+    lastName: a.lastName ?? '',
+    username: a.username ?? a.nick ?? '',
     avatarUrl: a.avatarUrl ?? a.avatar ?? null,
   };
 }
 
 export function normalizeComment(c) {
-  if (!c || typeof c !== "object") return null;
+  if (!c || typeof c !== 'object') return null;
   const resolvedId =
     c.commentId ??
     c.id ??
@@ -34,9 +34,7 @@ export function normalizeComment(c) {
     c.comment?.id ??
     c.comment?._id ??
     null;
-  const content = String(
-    c.content ?? c.text ?? c.body ?? c.message ?? ""
-  ).trim();
+  const content = String(c.content ?? c.text ?? c.body ?? c.message ?? '').trim();
   if (!content) return null;
   const authorRaw = c.author ?? c.user;
   return {
@@ -53,9 +51,9 @@ export function mapApiPostToFeedItem(p) {
     const raw = Array.isArray(p.media) ? p.media : [];
     const normalized = raw
       .map((m, idx) => {
-        const url = m?.url || m?.mediaUrl || m?.imageUrl || "";
-        const typeRaw = String(m?.type || "").toUpperCase();
-        const type = typeRaw === "VIDEO" ? "VIDEO" : "IMAGE";
+        const url = m?.url || m?.mediaUrl || m?.imageUrl || '';
+        const typeRaw = String(m?.type || '').toUpperCase();
+        const type = typeRaw === 'VIDEO' ? 'VIDEO' : 'IMAGE';
         const order = Number.isFinite(m?.order) ? Number(m.order) : idx;
         return url ? { url, type, order } : null;
       })
@@ -64,36 +62,36 @@ export function mapApiPostToFeedItem(p) {
 
     // Backward compatibility for old posts with single imageUrl.
     if (normalized.length === 0 && p.imageUrl) {
-      return [{ url: p.imageUrl, type: "IMAGE", order: 0 }];
+      return [{ url: p.imageUrl, type: 'IMAGE', order: 0 }];
     }
     return normalized;
   })();
   const a = p.author;
   return {
     id: p.id,
-    text: p.fullText ?? p.shortText ?? "",
-    location: p.location || "",
+    text: p.fullText ?? p.shortText ?? '',
+    location: p.location || '',
     media,
     createdAt: p.createdAt ?? null,
     author: a
       ? {
           id: a.id,
-          firstName: a.firstName ?? "",
-          lastName: a.lastName ?? "",
-          username: a.username ?? a.nick ?? a.nickname ?? a.login ?? "",
+          firstName: a.firstName ?? '',
+          lastName: a.lastName ?? '',
+          username: a.username ?? a.nick ?? a.nickname ?? a.login ?? '',
           avatarUrl: a.avatarUrl ?? a.avatar ?? null,
         }
       : null,
     counts: {
-      likes: p.counts?.likes ?? 0,
-      comments: p.counts?.comments ?? 0,
-      reposts: p.counts?.reposts ?? 0,
-      saves: p.counts?.saves ?? 0,
+      likes: p.counts?.likes ?? p.likesCount ?? 0,
+      comments: p.counts?.comments ?? p.commentsCount ?? 0,
+      reposts: p.counts?.reposts ?? p.repostsCount ?? 0,
+      saves: p.counts?.saves ?? p.savedCount ?? p.savesCount ?? 0,
     },
     viewerState: {
-      isLiked: p.viewerState?.isLiked === true,
-      isSaved: p.viewerState?.isSaved === true,
-      isReposted: p.viewerState?.isReposted === true,
+      isLiked: p.viewerState?.isLiked === true || p.isLikedByMe === true,
+      isSaved: p.viewerState?.isSaved === true || p.isSavedByMe === true,
+      isReposted: p.viewerState?.isReposted === true || p.isRepostedByMe === true,
     },
     permissions: {
       canEdit: p.permissions?.canEdit === true,
@@ -102,9 +100,7 @@ export function mapApiPostToFeedItem(p) {
     },
     comments: (() => {
       const raw = p.comments ?? p.commentList ?? p.replies;
-      return Array.isArray(raw)
-        ? raw.map(normalizeComment).filter(Boolean)
-        : [];
+      return Array.isArray(raw) ? raw.map(normalizeComment).filter(Boolean) : [];
     })(),
   };
 }

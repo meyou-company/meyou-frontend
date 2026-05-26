@@ -233,26 +233,26 @@ export default function ProfilePostsFeed({
               </button>
 
               <button
-  className={`postActionBtn ${post.viewerState?.isSaved ? 'postActionBtn--active' : ''}`}
-  type="button"
-  aria-label="save"
-  aria-pressed={post.viewerState?.isSaved === true}
-  onClick={() => feedActions.onSave(post)}
->
-    <img
+                className={`postActionBtn ${post.viewerState?.isSaved ? 'postActionBtn--active' : ''}`}
+                type="button"
+                aria-label="save"
+                aria-pressed={post.viewerState?.isSaved === true}
+                onClick={() => feedActions.onSave(post)}
+              >
+                <img
                   src={profileIcons.saved || '/icon1/saved.svg'}
                   className="postActionIcon"
                   alt=""
                 />
                 <span className="postActionCount">{post.counts?.saves ?? 0}</span>
-</button>
+              </button>
 
               <button
                 className={`postActionBtn ${post.viewerState?.isReposted ? 'postActionBtn--active' : ''}`}
                 type="button"
-                aria-label="repost"
+                aria-label="share"
                 aria-pressed={post.viewerState?.isReposted === true}
-                onClick={() => feedActions.onRepost(post)}
+                onClick={() => feedActions.onSend(post)}
               >
                 <img
                   src={profileIcons.share || '/home/to-share.svg'}

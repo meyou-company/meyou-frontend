@@ -304,60 +304,76 @@ export function usePostFeedActions(setFeedPosts) {
     [run, setFeedPosts, dropPostEverywhere]
   );
 
-  const onSave = async (post) => {
-  const isSaved = post.viewerState?.isSaved;
+  const onSave = useCallback(
+  (post) => {
+    if (!post?.id) return;
 
-  // optimistic UI update
-  setFeedPosts((prev) =>
-    prev.map((p) =>
-      p.id === post.id
-        ? {
-            ...p,
-            viewerState: {
-              ...p.viewerState,
-              isSaved: !isSaved,
-            },
-            counts: {
-              ...p.counts,
-              saves: isSaved
-                ? Math.max((p.counts?.saves ?? 1) - 1, 0)
-                : (p.counts?.saves ?? 0) + 1,
-            },
-          }
-        : p
-    )
-  );
+    run(`save-${post.id}`, async () => {
+      const wasSaved = post.viewerState?.isSaved === true;
 
-  try {
-    if (isSaved) {
-      await postsApi.unsave(post.id);
-    } else {
-      await postsApi.save(post.id);
-    }
-  } catch (e) {
-    console.error("Save toggle failed", e);
+      try {
+        if (wasSaved) {
+          await postsApi.unsave(post.id);
+        } else {
+          await postsApi.save(post.id);
+        }
 
-    // rollback
-    setFeedPosts((prev) =>
-      prev.map((p) =>
-        p.id === post.id
-          ? {
-              ...p,
-              viewerState: {
-                ...p.viewerState,
-                isSaved,
-              },
-              counts: {
-                ...p.counts,
-                saves: p.counts?.saves ?? 0,
-              },
-            }
-          : p
-      )
-    );
-  }
-};
-  
+        patchPost(post.id, (p) => ({
+          ...p,
+          viewerState: {
+            ...p.viewerState,
+            isSaved: !wasSaved,
+          },
+          counts: {
+            ...p.counts,
+            saves: wasSaved
+              ? Math.max((p.counts?.saves ?? 1) - 1, 0)
+              : (p.counts?.saves ?? 0) + 1,
+          },
+        }));
+      } catch (e) {
+        const msg =
+          getApiErrorMessage(e) ||
+          (wasSaved
+            ? "Не вдалося прибрати пост зі збережених"
+            : "Не вдалося зберегти пост");
+
+        toast.error(msg);
+      }
+    });
+  },
+  [patchPost, run]
+); 
+
+  const onSend = useCallback(
+  (post) => {
+    if (!post?.id) return;
+
+    const recipientId = window.prompt("Введіть user id отримувача");
+
+    if (!recipientId?.trim()) return;
+
+    const message = window.prompt("Повідомлення (необов'язково)") || "";
+
+    run(`send-${post.id}`, async () => {
+      try {
+        await postsApi.send(post.id, {
+          recipientUserIds: [recipientId.trim()],
+          message,
+        });
+
+        toast.success("Пост відправлено");
+      } catch (e) {
+        const msg =
+          getApiErrorMessage(e) || "Не вдалося відправити пост";
+
+        toast.error(msg);
+      }
+    });
+  },
+  [run]
+);
+
   return {
     commentsOpenPostId,
     isCommentsOpen,
@@ -371,5 +387,6 @@ export function usePostFeedActions(setFeedPosts) {
     onRepost,
     onDeletePost,
     onSave,
+    onSend,
   };
 }

@@ -140,11 +140,19 @@ export const postsApi = {
     return data;
   },
 
+    /** POST /posts/:id/send — share/send post to user(s) */
+  async send(postId, payload = {}) {
+    const { data } = await api.post(
+      `/posts/${encodeURIComponent(postId)}/send`,
+      payload
+    );
+    return data;
+  },
+
   /** DELETE /posts/:id — лише для автора (перевірка на бекенді) */
   async deletePost(postId) {
     await api.delete(`/posts/${encodeURIComponent(postId)}`);
   },
-
 
   async save(postId) {
   const { data } = await api.post(`/posts/${encodeURIComponent(postId)}/save`);

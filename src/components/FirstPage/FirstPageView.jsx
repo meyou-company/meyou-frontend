@@ -276,20 +276,20 @@ export default function FirstPageView({
             <div className="flex gap-3 md:gap-[23px] xl:gap-10 overflow-x-auto pb-2 md:pb-0 snap-x snap-mandatory snap-center scrollbarHide pl-[10px] pr-[10px] md:pl-[41px] md:pr-[41px] lg:pl-9 lg:pr-9 min-[1440px]:pl-[66px] min-[1440px]:pr-[66px]">
               {/* <StoryCircle type="add" /> */}
               <StoryCircle
-               isMine
-               onAdd={() => console.log("OPEN UPLOAD MODAL")}
-             />
-
-            {/* Feed stories */}
-            {stories.map((s) => (
-              <StoryCircle
-                key={s.author.id}
-                story={s}
-                onClick={(storyGroup) =>
-                  console.log("OPEN STORY VIEWER", storyGroup)
-                }
+                isMine
+                onAdd={() => console.log("OPEN UPLOAD MODAL")}
               />
-            ))}
+
+              {/* Feed stories */}
+              {stories.map((s) => (
+                <StoryCircle
+                  key={s.author.id}
+                  story={s}
+                  onClick={(storyGroup) =>
+                    console.log("OPEN STORY VIEWER", storyGroup)
+                  }
+                />
+              ))}
               {/* <StoryCircle status="online" />
               <StoryCircle status="offline" />
               <StoryCircle status="online" />
@@ -548,12 +548,13 @@ function GlobalFeedPostCard({ post, feedActions, onOpenProfile, onOpenLightbox }
             icon={profileIcons.saved}
             label={String(post.counts?.saves ?? 0)}
             active={post.viewerState.isSaved}
+            onClick={() => feedActions.onSave(post)}
           />
           <ActionIcon
             icon={profileIcons.share}
             label={String(post.counts.reposts)}
             active={post.viewerState.isReposted}
-            onClick={() => feedActions.onRepost(post)}
+            onClick={() => feedActions.onSend(post)}
           />
         </div>
       </div>
@@ -585,9 +586,8 @@ export const FeedCard = ({ name, time, location, status, text }) => {
               className=" h-10  md:h-[60px] xl:h-20 rounded-full object-none bg-gray-300"
             />
             <span
-              className={`absolute right-[2px] top-[3px] w-[6px] h-[6px] md:w-2 md:h-2 md:top-[7px] md:right-[3px] rounded-full ${
-                status === 'online' ? 'bg-green-700' : 'bg-zinc-300 border border-gray-900/50'
-              }`}
+              className={`absolute right-[2px] top-[3px] w-[6px] h-[6px] md:w-2 md:h-2 md:top-[7px] md:right-[3px] rounded-full ${status === 'online' ? 'bg-green-700' : 'bg-zinc-300 border border-gray-900/50'
+                }`}
             />
           </div>
           <div className="flex flex-col mt-[5px] gap-[3px]">
@@ -637,9 +637,8 @@ export const FeedCard = ({ name, time, location, status, text }) => {
 };
 
 function ActionIcon({ icon, label, active, liked, onClick }) {
-  const className = `flex flex-col items-center text-[10px] md:text-xs font-[Montserrat] text-black ${
-    onClick ? 'cursor-pointer' : 'cursor-default opacity-95'
-  } ${active ? 'opacity-100' : 'opacity-90'}`;
+  const className = `flex flex-col items-center text-[10px] md:text-xs font-[Montserrat] text-black ${onClick ? 'cursor-pointer' : 'cursor-default opacity-95'
+    } ${active ? 'opacity-100' : 'opacity-90'}`;
   const inner = (
     <>
       <img
