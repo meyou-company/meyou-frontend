@@ -134,9 +134,46 @@ export const postsApi = {
     await api.delete(`/posts/comments/${cid}`);
   },
 
+  /** GET /posts/comments/:commentId/replies */
+  async listReplies(commentId, { page = 1, limit = 50 } = {}) {
+    const cid = encodeURIComponent(commentId);
+    const { data } = await api.get(`/posts/comments/${cid}/replies`, {
+      params: { page, limit },
+    });
+    return extractCommentsList(data);
+  },
+
+  /** POST /posts/comments/:commentId/replies — body { content: string } */
+  async addReply(commentId, content) {
+    const cid = encodeURIComponent(commentId);
+    const { data } = await api.post(`/posts/comments/${cid}/replies`, {
+      content: String(content ?? '').trim(),
+    });
+    return data;
+  },
+
   /** POST /posts/:id/repost */
   async repost(postId) {
     const { data } = await api.post(`/posts/${encodeURIComponent(postId)}/repost`);
+    return data;
+  },
+
+    /** POST /posts/:id/send — share/send post to user(s) */
+  async send(postId, payload = {}) {
+    const { data } = await api.post(
+      `/posts/${encodeURIComponent(postId)}/send`,
+      payload
+    );
+    return data;
+  },
+
+  /** PUT /posts/:id — редагування допису */
+  async update(postId, { fullText, media = [], location } = {}) {
+    const { data } = await api.put(`/posts/${encodeURIComponent(postId)}`, {
+      fullText: fullText?.trim() ?? "",
+      media: Array.isArray(media) ? media : [],
+      location: location || undefined,
+    });
     return data;
   },
 
@@ -144,4 +181,14 @@ export const postsApi = {
   async deletePost(postId) {
     await api.delete(`/posts/${encodeURIComponent(postId)}`);
   },
+
+  async save(postId) {
+  const { data } = await api.post(`/posts/${encodeURIComponent(postId)}/save`);
+  return data;
+  },
+
+  async unsave(postId) {
+  const { data } = await api.delete(`/posts/${encodeURIComponent(postId)}/save`);
+  return data;
+},
 };

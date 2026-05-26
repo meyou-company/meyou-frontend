@@ -1,0 +1,107 @@
+.commentMenuWrap {
+  position: relative;
+  z-index: 3;
+  flex-shrink: 0;
+  margin-left: auto;
+  align-self: flex-start;
+}
+
+.commentMenuBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
+  height: 24px;
+  margin: 0;
+  padding: 0 4px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: #65676b;
+  font-size: 16px;
+  line-height: 1;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.commentMenuBtn:hover {
+  background: rgba(0, 0, 0, 0.06);
+}
+
+.commentMenuDropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 0;
+  z-index: 20;
+  min-width: 132px;
+  padding: 6px;
+  border-radius: 10px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  background: #fff;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+}
+
+.commentMenuItem {
+  display: block;
+  width: 100%;
+  margin: 0;
+  padding: 8px 10px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  font-size: 13px;
+  font-weight: 500;
+  color: #050505;
+  text-align: left;
+  cursor: pointer;
+}
+
+.commentMenuItem:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.commentMenuItem--danger {
+  color: #d12a4f;
+}
+
+.commentMenuItem--danger:hover {
+  background: rgba(209, 42, 79, 0.08);
+}
+
+body.dark .commentMenuBtn,
+html[data-theme="dark"] .commentMenuBtn {
+  color: rgba(255, 255, 255, 0.55);
+}
+
+body.dark .commentMenuBtn:hover,
+html[data-theme="dark"] .commentMenuBtn:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+body.dark .commentMenuDropdown,
+html[data-theme="dark"] .commentMenuDropdown {
+  background: rgba(36, 37, 38, 0.98);
+  border-color: rgba(255, 255, 255, 0.12);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+}
+
+body.dark .commentMenuItem,
+html[data-theme="dark"] .commentMenuItem {
+  color: rgba(255, 255, 255, 0.92);
+}
+
+body.dark .commentMenuItem:hover,
+html[data-theme="dark"] .commentMenuItem:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+body.dark .commentMenuItem--danger,
+html[data-theme="dark"] .commentMenuItem--danger {
+  color: #ff8fab;
+}
+
+body.dark .commentMenuItem--danger:hover,
+html[data-theme="dark"] .commentMenuItem--danger:hover {
+  background: rgba(255, 143, 171, 0.12);
+}

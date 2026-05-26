@@ -22,6 +22,7 @@ import {
 import { mapApiPostToFeedItem } from "../../../../utils/mapApiPostToFeedItem";
 import { useProfileAuthorFeed } from "../../../../hooks/useProfileAuthorFeed";
 import ProfilePostsFeed from "../ProfilePostsFeed/ProfilePostsFeed";
+import EmojiPickerButton from "../../../EmojiPicker/EmojiPickerButton";
 import { getApiErrorMessage } from "../../../../utils/getApiErrorMessage";
 import "./ProfileHome.scss";
 
@@ -53,6 +54,7 @@ export default function ProfileHome({
 }) {
   const navigate = useNavigate();
   const fileInputRef = useRef(null);
+  const composerTextareaRef = useRef(null);
   const postMediaInputRef = useRef(null);
 
   const [newPostText, setNewPostText] = useState("");
@@ -622,11 +624,19 @@ export default function ProfileHome({
                 <span className="composerAvatarStatus" />
               </div>
               <textarea
+                ref={composerTextareaRef}
                 className="postInput composerTextarea"
                 value={newPostText}
                 onChange={(e) => setNewPostText(e.target.value)}
                 placeholder={composerPlaceholder}
                 aria-labelledby="composer-dialog-title"
+              />
+              <EmojiPickerButton
+                inputRef={composerTextareaRef}
+                value={newPostText}
+                onChange={setNewPostText}
+                className="composerEmojiBtn"
+                ariaLabel="Додати емодзі до допису"
               />
             </div>
 

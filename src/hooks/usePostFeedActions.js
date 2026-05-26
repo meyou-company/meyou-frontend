@@ -5,10 +5,24 @@ import { getApiErrorMessage } from "../utils/getApiErrorMessage";
 import {
   mergeCommentResponse,
   mergeLikeResponse,
-  mergeRepostResponse,
 } from "../utils/mergePostActionResponse";
-import { normalizeComment } from "../utils/mapApiPostToFeedItem";
+import {
+  extractCreatedRepostFromResponse,
+  mergeRepostIntoFeedList,
+} from "../utils/repostFeed";
+import {
+  normalizeComment,
+  organizeComments,
+  countPostReplies,
+  mapApiPostToFeedItem,
+} from "../utils/mapApiPostToFeedItem";
 import { clearPostLikeOverride, persistPostLike } from "../utils/postLikePersistence";
+import {
+  getDeleteTargetPostId,
+  getOriginalPostIdFromRepost,
+  isMyRepost,
+  resolvePostMenuPermissions,
+} from "../utils/postMenuPermissions";
 
 function removeDeletedPostFromCaches(postId) {
   if (typeof window === "undefined" || !postId) return;
@@ -67,14 +81,48 @@ function isPostNotFoundError(error) {
   return status === 404 || msg.includes("post not found");
 }
 
+function applyFeedAfterRepostRemoved(prev, repostPostId, originalPostId) {
+  const deletedId = String(repostPostId);
+  return prev
+    .filter((p) => String(p.id) !== deletedId)
+    .map((p) => {
+      if (!originalPostId || String(p.id) !== String(originalPostId)) {
+        return p;
+      }
+      return {
+        ...p,
+        viewerState: {
+          ...p.viewerState,
+          isReposted: false,
+        },
+        counts: {
+          ...p.counts,
+          reposts: Math.max(0, (p.counts?.reposts ?? 0) - 1),
+        },
+      };
+    });
+}
+
 /**
  * Спільна логіка like / comment / repost / delete для глобальної стрічки та профілю.
  * Оновлює пост локально після відповіді API (без повторного GET).
  */
-export function usePostFeedActions(setFeedPosts) {
+export function usePostFeedActions(
+  setFeedPosts,
+  { currentUserId, feedOwnerId, refetchFeed } = {}
+) {
   /** Який пост має відкриту секцію коментарів (toggle по іконці comments). */
   const [commentsOpenPostId, setCommentsOpenPostId] = useState(null);
   const [commentDraft, setCommentDraft] = useState("");
+  const [replyOpenCommentId, setReplyOpenCommentId] = useState(null);
+  const [replyDraft, setReplyDraft] = useState("");
+  const [sharePost, setSharePost] = useState(null);
+  const [editingPost, setEditingPost] = useState(null);
+  const [deleteConfirmPost, setDeleteConfirmPost] = useState(null);
+  const [isDeletingPost, setIsDeletingPost] = useState(false);
+  const [isSavingEditPost, setIsSavingEditPost] = useState(false);
+  const replyDraftsRef = useRef({});
+  const replyDraftSyncRef = useRef("");
   const inflight = useRef({});
 
   const patchPost = useCallback(
@@ -138,32 +186,62 @@ export function usePostFeedActions(setFeedPosts) {
     [patchPost, run, dropPostEverywhere]
   );
 
-  const onRepost = useCallback(
-    (post) => {
-      run(`repost-${post.id}`, async () => {
-        try {
-          const data = await postsApi.repost(post.id);
-          patchPost(post.id, (p) => mergeRepostResponse(p, data));
-        } catch (e) {
-          if (isPostNotFoundError(e)) {
-            dropPostEverywhere(post.id);
-            return;
+  const handleRepostToFeed = useCallback(
+    async (post) => {
+      if (!post?.id) throw new Error("post required");
+      if (post.viewerState?.isReposted) {
+        return null;
+      }
+      try {
+        const data = await postsApi.repost(post.id);
+        const created = extractCreatedRepostFromResponse(data, post);
+
+        setFeedPosts((prev) =>
+          mergeRepostIntoFeedList(prev, post, data, {
+            currentUserId,
+            feedOwnerId,
+          })
+        );
+
+        if (!created && typeof refetchFeed === "function") {
+          const shouldRefetch =
+            !feedOwnerId ||
+            (currentUserId &&
+              String(feedOwnerId) === String(currentUserId));
+          if (shouldRefetch) {
+            await refetchFeed();
           }
-          const msg = getApiErrorMessage(e) || "Не вдалося зробити репост";
-          toast.error(msg);
         }
-      });
+
+        return data;
+      } catch (e) {
+        if (isPostNotFoundError(e)) {
+          dropPostEverywhere(post.id);
+        }
+        const msg = getApiErrorMessage(e) || "Не вдалося зробити репост";
+        throw new Error(msg);
+      }
     },
-    [patchPost, run, dropPostEverywhere]
+    [
+      setFeedPosts,
+      currentUserId,
+      feedOwnerId,
+      refetchFeed,
+      dropPostEverywhere,
+    ]
   );
 
   const toggleCommentsOpen = useCallback((postId) => {
     setCommentsOpenPostId((id) => {
       if (id != null && String(id) === String(postId)) {
         setCommentDraft("");
+        setReplyOpenCommentId(null);
+        setReplyDraft("");
         return null;
       }
       setCommentDraft("");
+      setReplyOpenCommentId(null);
+      setReplyDraft("");
       return postId;
     });
   }, []);
@@ -181,15 +259,16 @@ export function usePostFeedActions(setFeedPosts) {
       run(`comments-load-${postId}`, async () => {
         try {
           const list = await postsApi.listComments(postId, { page: 1, limit: 50 });
-          const normalized = (Array.isArray(list) ? list : [])
-            .map(normalizeComment)
-            .filter(Boolean);
+          const organized = organizeComments(
+            Array.isArray(list) ? list : []
+          );
           patchPost(postId, (p) => ({
             ...p,
-            comments: normalized,
+            comments: organized,
             counts: {
               ...p.counts,
-              comments: Math.max(p.counts?.comments ?? 0, normalized.length),
+              comments: Math.max(p.counts?.comments ?? 0, organized.length),
+              replies: countPostReplies(organized),
             },
           }));
         } catch (e) {
@@ -224,34 +303,220 @@ export function usePostFeedActions(setFeedPosts) {
     [patchPost, run, loadComments, dropPostEverywhere]
   );
 
-  const onDeleteComment = useCallback(
+  const patchCommentOnPost = useCallback(
+    (postId, commentId, updater) => {
+      patchPost(postId, (p) => {
+        const prev = Array.isArray(p.comments) ? p.comments : [];
+        const next = prev.map((c) =>
+          String(c?.id) === String(commentId) ? updater(c) : c
+        );
+        return {
+          ...p,
+          comments: next,
+          counts: {
+            ...p.counts,
+            replies: countPostReplies(next),
+          },
+        };
+      });
+    },
+    [patchPost]
+  );
+
+  const loadReplies = useCallback(
+    (postId, commentId, { limit = 50 } = {}) => {
+      if (!postId || !commentId) return Promise.resolve();
+      return run(`replies-load-${commentId}`, async () => {
+        try {
+          const list = await postsApi.listReplies(commentId, { page: 1, limit });
+          const replies = (Array.isArray(list) ? list : [])
+            .map((r) => normalizeComment(r, { isReply: true }))
+            .filter(Boolean);
+          patchCommentOnPost(postId, commentId, (c) => ({
+            ...c,
+            replies,
+            repliesLoaded: true,
+            repliesCount: Math.max(c.repliesCount ?? 0, replies.length),
+          }));
+        } catch (e) {
+          const msg = getApiErrorMessage(e) || "Не вдалося завантажити відповіді";
+          toast.error(msg);
+        }
+      });
+    },
+    [run, patchCommentOnPost]
+  );
+
+  const openReplyComposer = useCallback(
     (post, commentId) => {
+      if (!commentId) return;
+      setReplyOpenCommentId((prev) => {
+        if (prev != null && String(prev) !== String(commentId)) {
+          replyDraftsRef.current[String(prev)] = replyDraftSyncRef.current;
+        }
+        const nextDraft = replyDraftsRef.current[String(commentId)] ?? "";
+        replyDraftSyncRef.current = nextDraft;
+        setReplyDraft(nextDraft);
+        return commentId;
+      });
+      const comment = (post?.comments ?? []).find(
+        (c) => String(c?.id) === String(commentId)
+      );
+      if (
+        comment &&
+        (comment.repliesCount ?? 0) > 0 &&
+        !comment.repliesLoaded
+      ) {
+        loadReplies(post.id, commentId, { limit: 50 });
+      }
+    },
+    [loadReplies]
+  );
+
+  const setReplyDraftForOpen = useCallback((text) => {
+    replyDraftSyncRef.current = text;
+    setReplyDraft(text);
+    setReplyOpenCommentId((openId) => {
+      if (openId != null) replyDraftsRef.current[String(openId)] = text;
+      return openId;
+    });
+  }, []);
+
+  const closeReplyComposer = useCallback(() => {
+    if (replyOpenCommentId != null) {
+      replyDraftsRef.current[String(replyOpenCommentId)] = replyDraft;
+    }
+    setReplyOpenCommentId(null);
+  }, [replyOpenCommentId, replyDraft]);
+
+  const submitReply = useCallback(
+    (post, parentCommentId, text) => {
+      const t = (text || "").trim();
+      if (!t || !post?.id || !parentCommentId) return;
+      run(`reply-${parentCommentId}`, async () => {
+        try {
+          await postsApi.addReply(parentCommentId, t);
+          await loadReplies(post.id, parentCommentId, { limit: 100 });
+          patchCommentOnPost(post.id, parentCommentId, (c) => ({
+            ...c,
+            repliesExpanded: true,
+          }));
+          replyDraftsRef.current[String(parentCommentId)] = "";
+          setReplyDraft("");
+          setReplyOpenCommentId(null);
+        } catch (e) {
+          if (isPostNotFoundError(e)) {
+            dropPostEverywhere(post.id);
+            return;
+          }
+          const msg = getApiErrorMessage(e) || "Не вдалося надіслати відповідь";
+          toast.error(msg);
+        }
+      });
+    },
+    [run, loadReplies, patchCommentOnPost, dropPostEverywhere]
+  );
+
+  const showMoreReplies = useCallback(
+    (post, commentId) => {
+      if (!post?.id || !commentId) return;
+      const comment = (post.comments ?? []).find(
+        (c) => String(c?.id) === String(commentId)
+      );
+      if (!comment) return;
+      patchCommentOnPost(post.id, commentId, (c) => ({
+        ...c,
+        repliesExpanded: true,
+      }));
+      if (!comment.repliesLoaded) {
+        loadReplies(post.id, commentId, { limit: 100 });
+      }
+    },
+    [patchCommentOnPost, loadReplies]
+  );
+
+  const onEditComment = useCallback(
+    (post, commentId, text, { parentId, isReply } = {}) => {
+      const t = (text || "").trim();
+      if (!t || !post?.id || !commentId) return;
+      patchPost(post.id, (p) => {
+        const prevComments = Array.isArray(p.comments) ? p.comments : [];
+        let nextComments;
+        if (isReply && parentId) {
+          nextComments = prevComments.map((c) => {
+            if (String(c?.id) !== String(parentId)) return c;
+            const replies = (c.replies ?? []).map((r) =>
+              String(r?.id) === String(commentId) ? { ...r, content: t } : r
+            );
+            return { ...c, replies };
+          });
+        } else {
+          nextComments = prevComments.map((c) =>
+            String(c?.id) === String(commentId) ? { ...c, content: t } : c
+          );
+        }
+        return {
+          ...p,
+          comments: nextComments,
+          counts: {
+            ...p.counts,
+            replies: countPostReplies(nextComments),
+          },
+        };
+      });
+    },
+    [patchPost]
+  );
+
+  const onDeleteComment = useCallback(
+    (post, commentId, { parentId, isReply } = {}) => {
       if (!post?.id || !commentId) return;
       run(`comment-delete-${post.id}-${commentId}`, async () => {
         try {
           await postsApi.deleteComment(commentId);
           patchPost(post.id, (p) => {
             const prevComments = Array.isArray(p.comments) ? p.comments : [];
-            const nextComments = prevComments.filter(
-              (c) => String(c?.id) !== String(commentId)
-            );
+            let nextComments;
+            if (isReply && parentId) {
+              nextComments = prevComments.map((c) => {
+                if (String(c?.id) !== String(parentId)) return c;
+                const replies = (c.replies ?? []).filter(
+                  (r) => String(r?.id) !== String(commentId)
+                );
+                return {
+                  ...c,
+                  replies,
+                  repliesCount: Math.max(0, (c.repliesCount ?? 0) - 1),
+                };
+              });
+            } else {
+              nextComments = prevComments.filter(
+                (c) => String(c?.id) !== String(commentId)
+              );
+            }
             return {
               ...p,
               comments: nextComments,
               counts: {
                 ...p.counts,
-                comments: Math.max(0, (p.counts?.comments ?? prevComments.length) - 1),
+                comments: isReply
+                  ? p.counts?.comments ?? prevComments.length
+                  : Math.max(
+                      0,
+                      (p.counts?.comments ?? prevComments.length) - 1
+                    ),
+                replies: countPostReplies(nextComments),
               },
             };
           });
-          loadComments(post.id);
+          if (!isReply) loadComments(post.id);
         } catch (e) {
           const msg = getApiErrorMessage(e) || "Не вдалося видалити коментар";
           toast.error(msg);
         }
       });
     },
-    [run, patchPost, loadComments, dropPostEverywhere]
+    [run, patchPost, loadComments]
   );
 
   const openComments = useCallback(
@@ -260,9 +525,13 @@ export function usePostFeedActions(setFeedPosts) {
         const willOpen = !(id != null && String(id) === String(postId));
         if (!willOpen) {
           setCommentDraft("");
+          setReplyOpenCommentId(null);
+          setReplyDraft("");
           return null;
         }
         setCommentDraft("");
+        setReplyOpenCommentId(null);
+        setReplyDraft("");
         loadComments(postId);
         return postId;
       });
@@ -270,38 +539,222 @@ export function usePostFeedActions(setFeedPosts) {
     [loadComments]
   );
 
-  const onDeletePost = useCallback(
+  const performDeletePost = useCallback(
     (post) => {
-      if (!post?.permissions?.canDelete) return;
-      if (typeof window !== "undefined" && !window.confirm("Видалити цей пост?")) {
-        return;
-      }
-      run(`delete-${post.id}`, async () => {
+      const perms = resolvePostMenuPermissions(post, currentUserId);
+      if (!perms.canDelete && !perms.canRemoveFromFeed) return;
+
+      const deleteId = getDeleteTargetPostId(post);
+      if (!deleteId) return;
+
+      const removingMyRepost = isMyRepost(post, currentUserId);
+      const originalPostId = removingMyRepost
+        ? getOriginalPostIdFromRepost(post)
+        : null;
+
+      run(`delete-${deleteId}`, async () => {
+        setIsDeletingPost(true);
         try {
-          await postsApi.deletePost(post.id);
+          await postsApi.deletePost(deleteId);
+
           setFeedPosts((prev) =>
-            prev.filter((p) => String(p.id) !== String(post.id))
+            removingMyRepost
+              ? applyFeedAfterRepostRemoved(prev, deleteId, originalPostId)
+              : prev.filter((p) => String(p.id) !== deleteId)
           );
-          clearPostLikeOverride(post.id);
-          removeDeletedPostFromCaches(post.id);
+
+          if (removingMyRepost && originalPostId) {
+            syncPostInCaches(originalPostId, (p) => ({
+              ...p,
+              viewerState: { ...p.viewerState, isReposted: false },
+              counts: {
+                ...p.counts,
+                reposts: Math.max(0, (p.counts?.reposts ?? 0) - 1),
+              },
+            }));
+          }
+
+          clearPostLikeOverride(deleteId);
+          removeDeletedPostFromCaches(deleteId);
+
           setCommentsOpenPostId((openId) => {
-            if (openId != null && String(openId) === String(post.id)) {
+            if (openId != null && String(openId) === deleteId) {
               setCommentDraft("");
               return null;
             }
             return openId;
           });
+          setDeleteConfirmPost(null);
+          toast.success(
+            removingMyRepost
+              ? "Допис прибрано зі стрічки"
+              : "Допис видалено"
+          );
         } catch (e) {
           if (isPostNotFoundError(e)) {
-            dropPostEverywhere(post.id);
+            dropPostEverywhere(deleteId);
+            setDeleteConfirmPost(null);
             return;
           }
-          const msg = getApiErrorMessage(e) || "Не вдалося видалити пост";
+          const status = e?.response?.status;
+          let msg = getApiErrorMessage(e) || "Не вдалося видалити пост";
+          if (
+            removingMyRepost &&
+            (status === 401 || status === 403) &&
+            /unauthorized|forbidden|доступ/i.test(msg)
+          ) {
+            msg =
+              "Сервер відхилив видалення репосту (401/403). Потрібно дозволити автору DELETE для власного repost (id картки репосту, не оригіналу).";
+          }
           toast.error(msg);
+        } finally {
+          setIsDeletingPost(false);
         }
       });
     },
-    [run, setFeedPosts, dropPostEverywhere]
+    [run, setFeedPosts, dropPostEverywhere, currentUserId]
+  );
+
+  const requestDeletePost = useCallback(
+    (post) => {
+      const perms = resolvePostMenuPermissions(post, currentUserId);
+      if (!perms.canDelete && !perms.canRemoveFromFeed) return;
+      setDeleteConfirmPost(post);
+    },
+    [currentUserId]
+  );
+
+  const cancelDeletePost = useCallback(() => {
+    if (!isDeletingPost) setDeleteConfirmPost(null);
+  }, [isDeletingPost]);
+
+  const confirmDeletePost = useCallback(() => {
+    if (deleteConfirmPost) performDeletePost(deleteConfirmPost);
+  }, [deleteConfirmPost, performDeletePost]);
+
+  const openEditPost = useCallback(
+    (post) => {
+      const { canEdit } = resolvePostMenuPermissions(post, currentUserId);
+      if (!canEdit) return;
+      setEditingPost(post);
+    },
+    [currentUserId]
+  );
+
+  const closeEditPost = useCallback(() => {
+    if (!isSavingEditPost) setEditingPost(null);
+  }, [isSavingEditPost]);
+
+  const saveEditPost = useCallback(
+    async ({ text, media, location }) => {
+      const post = editingPost;
+      const { canEdit } = resolvePostMenuPermissions(post, currentUserId);
+      if (!post?.id || !canEdit) return;
+      setIsSavingEditPost(true);
+      try {
+        const updated = await postsApi.update(post.id, {
+          fullText: text,
+          media,
+          location,
+        });
+        const mapped = mapApiPostToFeedItem(updated);
+        if (mapped) {
+          patchPost(post.id, (p) => ({
+            ...mapped,
+            comments: p.comments,
+            counts: {
+              ...mapped.counts,
+              comments: p.counts?.comments ?? mapped.counts?.comments,
+              replies: p.counts?.replies ?? mapped.counts?.replies,
+            },
+          }));
+        }
+        setEditingPost(null);
+        toast.success("Допис оновлено");
+      } catch (e) {
+        if (isPostNotFoundError(e)) {
+          dropPostEverywhere(post.id);
+          setEditingPost(null);
+          return;
+        }
+        const msg = getApiErrorMessage(e) || "Не вдалося оновити допис";
+        toast.error(msg);
+        throw e;
+      } finally {
+        setIsSavingEditPost(false);
+      }
+    },
+    [editingPost, patchPost, dropPostEverywhere, currentUserId]
+  );
+
+  const onSave = useCallback(
+  (post) => {
+    if (!post?.id) return;
+
+    run(`save-${post.id}`, async () => {
+      const wasSaved = post.viewerState?.isSaved === true;
+
+      try {
+        if (wasSaved) {
+          await postsApi.unsave(post.id);
+        } else {
+          await postsApi.save(post.id);
+        }
+
+        patchPost(post.id, (p) => ({
+          ...p,
+          viewerState: {
+            ...p.viewerState,
+            isSaved: !wasSaved,
+          },
+          counts: {
+            ...p.counts,
+            saves: wasSaved
+              ? Math.max((p.counts?.saves ?? 1) - 1, 0)
+              : (p.counts?.saves ?? 0) + 1,
+          },
+        }));
+      } catch (e) {
+        const msg =
+          getApiErrorMessage(e) ||
+          (wasSaved
+            ? "Не вдалося прибрати пост зі збережених"
+            : "Не вдалося зберегти пост");
+
+        toast.error(msg);
+      }
+    });
+  },
+  [patchPost, run]
+); 
+
+  const openSharePost = useCallback((post) => {
+    if (post?.id) setSharePost(post);
+  }, []);
+
+  const closeSharePost = useCallback(() => {
+    setSharePost(null);
+  }, []);
+
+  const handleSendToUsers = useCallback(
+    async ({ postId, recipientUserIds, message }) => {
+      if (!postId || !Array.isArray(recipientUserIds) || recipientUserIds.length === 0) {
+        throw new Error("Оберіть отримувачів");
+      }
+      try {
+        return await postsApi.send(postId, {
+          recipientUserIds,
+          message: String(message ?? "").trim(),
+        });
+      } catch (e) {
+        if (isPostNotFoundError(e)) {
+          dropPostEverywhere(postId);
+        }
+        const msg = getApiErrorMessage(e) || "Не вдалося надіслати пост";
+        throw new Error(msg);
+      }
+    },
+    [dropPostEverywhere]
   );
 
   return {
@@ -312,9 +765,37 @@ export function usePostFeedActions(setFeedPosts) {
     toggleCommentsOpen: openComments,
     submitComment,
     onDeleteComment,
+    onEditComment,
     loadComments,
+    replyOpenCommentId,
+    replyDraft,
+    setReplyDraft: setReplyDraftForOpen,
+    openReplyComposer,
+    closeReplyComposer,
+    submitReply,
+    showMoreReplies,
+    loadReplies,
+    countPostReplies,
     onLike,
-    onRepost,
-    onDeletePost,
+    handleRepostToFeed,
+    onDeletePost: requestDeletePost,
+    requestDeletePost,
+    cancelDeletePost,
+    confirmDeletePost,
+    deleteConfirmPost,
+    deleteConfirmIsRepost: deleteConfirmPost
+      ? isMyRepost(deleteConfirmPost, currentUserId)
+      : false,
+    isDeletingPost,
+    openEditPost,
+    closeEditPost,
+    saveEditPost,
+    editingPost,
+    isSavingEditPost,
+    onSave,
+    sharePost,
+    openSharePost,
+    closeSharePost,
+    handleSendToUsers,
   };
 }

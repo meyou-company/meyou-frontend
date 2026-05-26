@@ -2,19 +2,31 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ThemeToggleDark from '../ThemeToggleDark/ThemeToggleDark';
 import profileIcons from '../../constants/profileIcons';
-import './FirstPageView.scss';
 import { useBurgerMenu } from '../../hooks/useBurgerMenu';
+import { useStories } from "../../hooks/useStories";
 import { postsApi } from '../../services/postsApi';
+import { useAuthStore } from "../../zustand/useAuthStore";
 import { mapApiPostToFeedItem } from '../../utils/mapApiPostToFeedItem';
 import { usePostFeedActions } from '../../hooks/usePostFeedActions';
 import PostCommentsSection from '../PostFeed/PostCommentsSection';
 import { getApiErrorMessage } from '../../utils/getApiErrorMessage';
 import { applyPersistedLikes } from '../../utils/postLikePersistence';
 import { getProfileRouteHandle } from '../../utils/profileFriendNav';
+import StoryCircle from "../../components/Stories/StoryCircle";
 import NotificationBell from '../../components/Notifications/NotificationBell';
-import PostMediaGallery from '../../components/PostFeed/PostMediaGallery';
+import PostFeedBody from '../../components/PostFeed/PostFeedBody';
+import '../../components/PostFeed/PostFeedBody.scss';
+import '../../components/PostFeed/RepostUi.scss';
+import { isRepostCard, postAuthorDisplayName } from '../../utils/postShareContext';
+import { resolvePostMenuPermissions } from '../../utils/postMenuPermissions';
+import PostCardHeader from '../../components/PostFeed/PostCardHeader';
+import '../../components/PostFeed/PostCardHeader.scss';
+import SharePostModal from '../../components/PostFeed/SharePostModal';
+import EditPostModal from '../../components/PostFeed/EditPostModal';
+import DeletePostConfirmDialog from '../../components/PostFeed/DeletePostConfirmDialog';
 import ImageLightbox from '../../components/PostFeed/ImageLightbox';
 import '../Users/Profile/ProfileHome/ProfileHome.scss';
+import './FirstPageView.scss';
 
 const getReadableFeedError = (error) => {
   const text = getApiErrorMessage(error);
@@ -41,6 +53,9 @@ export default function FirstPageView({
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const [lightboxImages, setLightboxImages] = useState([]);
   const [lightboxIndex, setLightboxIndex] = useState(0);
+
+  const { stories, refresh } = useStories();
+  const currentUserId = useAuthStore((s) => s.user?.id);
 
   const openLightbox = (images, startIndex = 0) => {
     if (!images?.length) return;
@@ -77,7 +92,10 @@ export default function FirstPageView({
   const [feedLoadingMore, setFeedLoadingMore] = useState(false);
   const loadMoreRef = useRef(null);
   const FEED_CACHE_KEY = 'first-page-feed-cache';
-  const feedActions = usePostFeedActions(setFeedPosts);
+  const feedActions = usePostFeedActions(setFeedPosts, {
+    currentUserId,
+    refetchFeed: () => fetchFeedPage(1, { append: false }),
+  });
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -268,12 +286,27 @@ export default function FirstPageView({
             </h2>
 
             <div className="flex gap-3 md:gap-[23px] xl:gap-10 overflow-x-auto pb-2 md:pb-0 snap-x snap-mandatory snap-center scrollbarHide pl-[10px] pr-[10px] md:pl-[41px] md:pr-[41px] lg:pl-9 lg:pr-9 min-[1440px]:pl-[66px] min-[1440px]:pr-[66px]">
-              <StoryCircle type="add" />
-              <StoryCircle status="online" />
+              {/* <StoryCircle type="add" /> */}
+              <StoryCircle
+                isMine
+                onAdd={() => console.log("OPEN UPLOAD MODAL")}
+              />
+
+              {/* Feed stories */}
+              {stories.map((s) => (
+                <StoryCircle
+                  key={s.author.id}
+                  story={s}
+                  onClick={(storyGroup) =>
+                    console.log("OPEN STORY VIEWER", storyGroup)
+                  }
+                />
+              ))}
+              {/* <StoryCircle status="online" />
               <StoryCircle status="offline" />
               <StoryCircle status="online" />
               <StoryCircle status="online" />
-              <StoryCircle status="online" />
+              <StoryCircle status="online" /> */}
             </div>
           </div>
         </section>
@@ -297,6 +330,7 @@ export default function FirstPageView({
                   key={post.id}
                   post={post}
                   feedActions={feedActions}
+                  currentUserId={currentUserId}
                   onOpenProfile={goProfileByUsername}
                   onOpenLightbox={openLightbox}
                 />
@@ -319,6 +353,34 @@ export default function FirstPageView({
           onPrev={() => moveLightbox(-1)}
           onNext={() => moveLightbox(1)}
         />
+
+        <SharePostModal
+          post={feedActions.sharePost}
+          isOpen={Boolean(feedActions.sharePost)}
+          onClose={feedActions.closeSharePost}
+          onSendToUsers={feedActions.handleSendToUsers}
+          onRepostToFeed={feedActions.handleRepostToFeed}
+          isReposted={feedActions.sharePost?.viewerState?.isReposted === true}
+        />
+
+        <EditPostModal
+          post={feedActions.editingPost}
+          isOpen={Boolean(feedActions.editingPost)}
+          onClose={feedActions.closeEditPost}
+          onSave={feedActions.saveEditPost}
+          saving={feedActions.isSavingEditPost}
+          displayAvatar={
+            feedActions.editingPost?.author?.avatarUrl || profileIcons.userStory
+          }
+        />
+
+        <DeletePostConfirmDialog
+          isOpen={Boolean(feedActions.deleteConfirmPost)}
+          variant={feedActions.deleteConfirmIsRepost ? "repostRemove" : "delete"}
+          onCancel={feedActions.cancelDeletePost}
+          onConfirm={feedActions.confirmDeletePost}
+          confirming={feedActions.isDeletingPost}
+        />
       </div>
     </div>
   );
@@ -337,64 +399,56 @@ function NavBtn({ icon, onClick }) {
   );
 }
 
-function StoryCircle({ status, type }) {
-  const isAdd = type === 'add';
+// function StoryCircle({ status, type }) {
+//   const isAdd = type === 'add';
 
-  return (
-    <button className="flex flex-col items-center gap-1">
-      {isAdd ? (
-        <div className="gradientBorder">
-          <div className="relative flex items-center justify-center rounded-full w-14 h-14 md:w-[77px] md:h-[77px] xl:w-[97px] xl:h-[97px] bg-[#D5D5D5]">
-            <img
-              src={profileIcons.plus}
-              alt="add story"
-              aria-hidden="true"
-              className="h-8 md:h-12"
-            />
-          </div>
-        </div>
-      ) : (
-        <div className="relative rounded-full w-14 h-14 border bg-[#D5D5D5] border-[#FF0B0B] flex items-center justify-center md:w-20 md:h-20 xl:w-[100px] xl:h-[100px] xl:border-[3px]">
-          <img
-            src={profileIcons.userStory}
-            alt="user story"
-            className="w-[26px] h-[26px] md:w-12 md:h-12"
-          />
+//   return (
+//     <button className="flex flex-col items-center gap-1">
+//       {isAdd ? (
+//         <div className="gradientBorder">
+//           <div className="relative flex items-center justify-center rounded-full w-14 h-14 md:w-[77px] md:h-[77px] xl:w-[97px] xl:h-[97px] bg-[#D5D5D5]">
+//             <img
+//               src={profileIcons.plus}
+//               alt="add story"
+//               aria-hidden="true"
+//               className="h-8 md:h-12"
+//             />
+//           </div>
+//         </div>
+//       ) : (
+//         <div className="relative rounded-full w-14 h-14 border bg-[#D5D5D5] border-[#FF0B0B] flex items-center justify-center md:w-20 md:h-20 xl:w-[100px] xl:h-[100px] xl:border-[3px]">
+//           <img
+//             src={profileIcons.userStory}
+//             alt="user story"
+//             className="w-[26px] h-[26px] md:w-12 md:h-12"
+//           />
 
-          {status && (
-            <span
-              className={`absolute right-[2px] top-[2px] md:top-[10px] xl:top-[3px]  w-2.5 h-2.5 md:w-3 md:h-3 xl:w-5 xl:h-5  rounded-full ${
-                status === 'online' ? 'bg-green-700' : 'bg-zinc-300 border border-black/40'
-              }`}
-            />
-          )}
-        </div>
-      )}
+//           {status && (
+//             <span
+//               className={`absolute right-[2px] top-[2px] md:top-[10px] xl:top-[3px]  w-2.5 h-2.5 md:w-3 md:h-3 xl:w-5 xl:h-5  rounded-full ${
+//                 status === 'online' ? 'bg-green-700' : 'bg-zinc-300 border border-black/40'
+//               }`}
+//             />
+//           )}
+//         </div>
+//       )}
 
-      <span className="text-[8px] md:text-xs xl:text-xl font-[Montserrat] text-black underline">
-        {isAdd ? 'добавить' : status === 'online' ? 'online' : 'offline'}
-      </span>
-    </button>
-  );
-}
+//       <span className="text-[8px] md:text-xs xl:text-xl font-[Montserrat] text-black underline">
+//         {isAdd ? 'добавить' : status === 'online' ? 'online' : 'offline'}
+//       </span>
+//     </button>
+//   );
+// }
 
-function formatPostTime(iso) {
-  if (!iso) return '';
-  try {
-    return new Date(iso).toLocaleString();
-  } catch {
-    return '';
-  }
-}
-
-function GlobalFeedPostCard({ post, feedActions, onOpenProfile, onOpenLightbox }) {
-  const name =
-    [post.author?.firstName, post.author?.lastName].filter(Boolean).join(' ').trim() ||
-    post.author?.username ||
-    'User';
+function GlobalFeedPostCard({
+  post,
+  feedActions,
+  currentUserId,
+  onOpenProfile,
+  onOpenLightbox,
+}) {
+  const name = postAuthorDisplayName(post.author);
   const avatarSrc = post.author?.avatarUrl || profileIcons.userStory;
-  const timeLabel = formatPostTime(post.createdAt);
-  const location = post.location?.trim() || '—';
   const commentsOpen = feedActions.isCommentsOpen(post.id);
   const authorHandle = getProfileRouteHandle(post.author);
   const handleOpenProfile = () => {
@@ -402,112 +456,37 @@ function GlobalFeedPostCard({ post, feedActions, onOpenProfile, onOpenLightbox }
     onOpenProfile?.(authorHandle);
   };
   const hasProfileLink = Boolean(authorHandle);
+  const repost = isRepostCard(post);
+  const menuPerms = resolvePostMenuPermissions(post, currentUserId);
 
   return (
-    <article className="first-page-post px-1.5 pt-1.5 pb-[11px] md:p-2.5 xl:!mb-[29px] my-4 space-y-3 relative">
-      <div className="flex justify-between items-start">
-        <div className="flex gap-[7px]">
-          <button
-            type="button"
-            onClick={handleOpenProfile}
-            disabled={!hasProfileLink}
-            className={`flex gap-[7px] text-left ${hasProfileLink ? 'cursor-pointer' : 'cursor-default'}`}
-            aria-label={hasProfileLink ? `Відкрити профіль ${name}` : 'Профіль недоступний'}
-          >
-            <img
-              src={avatarSrc}
-              alt=""
-              className=" h-10 md:h-[60px] xl:h-20 rounded-full object-cover bg-gray-300"
-            />
-            <div className="flex flex-col mt-[5px] gap-[3px]">
-              <span className="text-[8px] md:text-xs xl:text-xl text-black font-[Montserrat] underline">
-                {timeLabel}
-              </span>
-              <span className="text-xs md:text-sm xl:text-xl font-[Montserrat] underline bg-gradient-to-r from-[#FF4FB1] to-[#4F6BFF] bg-clip-text text-transparent">
-                {name}
-              </span>
-            </div>
-          </button>
-        </div>
+    <article className="first-page-post px-1.5 pt-1.5 pb-[11px] md:p-2.5 xl:!mb-[29px] my-4 space-y-3 relative overflow-visible">
+      <PostCardHeader
+        avatarSrc={avatarSrc}
+        onAvatarClick={handleOpenProfile}
+        avatarDisabled={!hasProfileLink}
+        avatarAriaLabel={
+          hasProfileLink ? `Відкрити профіль ${name}` : 'Профіль недоступний'
+        }
+        authorName={name}
+        createdAt={post.createdAt}
+        location={post.location}
+        showRepostIcon={repost}
+        canShowMenu={menuPerms.canShowMenu}
+        canEdit={menuPerms.canEdit}
+        canDelete={menuPerms.canDelete}
+        canRemoveFromFeed={menuPerms.canRemoveFromFeed}
+        onEdit={() => feedActions.openEditPost(post)}
+        onDeleteRequest={() => feedActions.requestDeletePost(post)}
+        onRemoveFromFeedRequest={() => feedActions.requestDeletePost(post)}
+        variant="firstPage"
+      />
 
-        <div className="flex flex-col items-end gap-1 mr-[2px] md:mr-[19px] mt-[6px]">
-          <div className="flex items-center">
-            <img
-              src={profileIcons.location}
-              alt=""
-              className="w-[4px] h-[5px] mr-1 mt-[1px] md:w-[10px] md:h-[13px]"
-            />
-            <span className="relative text-[10px] md:text-xs text-pink-500 font-[Montserrat] mr-[7px] inline-block">
-              {location}
-              <span className="absolute bottom-[2px] left-0 right-0 h-[0.5px] bg-pink-500" />
-            </span>
-          </div>
-          {post.permissions?.canDelete === true && (
-            <button
-              type="button"
-              className="rounded-md bg-red-500/15 px-2 py-0.5 text-[9px] md:text-[10px] font-semibold text-red-700 font-[Montserrat] cursor-pointer hover:bg-red-500/25"
-              aria-label="Видалити пост"
-              onClick={() => feedActions.onDeletePost(post)}
-            >
-              Видалити
-            </button>
-          )}
-        </div>
-      </div>
-
-      <p className="text-xs text-gray-900 font-[Montserrat] font-medium md:font-normal xl:text-xl underline">
-        {post.text}
-      </p>
-
-      {Array.isArray(post.media) && post.media.length > 0 ? (
-        // (() => {
-        //   const images = post.media.filter((m) => m?.type !== "VIDEO" && m?.url);
-        //   const videos = post.media.filter((m) => m?.type === "VIDEO" && m?.url);
-
-        //   return (
-        //     <>
-        //       {images.length > 0 && (
-        //         <PostMediaGallery
-        //           mediaItems={images}
-        //            onOpenLightbox={onOpenLightbox}
-        //         />
-        //       )}
-
-        //       {videos.map((mediaItem) => (
-        //         <div
-        //           className="!mt-[19px] md:!mt-2.5 overflow-hidden rounded-sm"
-        //           key={`${post.id}-${mediaItem.order}-${mediaItem.url}`}
-        //         >
-        //           <video
-        //             src={mediaItem.url}
-        //             className="w-full h-80 object-contain object-center bg-black/15 lg:object-cover"
-        //             controls
-        //             preload="metadata"
-        //           />
-        //         </div>
-        //       ))}
-        //     </>
-        //   );
-        // })()
-        (() => {
-          const images = post.media.filter((m) => m?.type !== 'VIDEO' && m?.url);
-          const videos = post.media.filter((m) => m?.type === 'VIDEO' && m?.url);
-          return (
-            <>
-              {images.length > 0 && (
-                <PostMediaGallery mediaItems={images} onOpenLightbox={onOpenLightbox} />
-              )}
-              {videos.map((mediaItem) => (
-                <div className="postMedia" key={`${post.id}-${mediaItem.order}-${mediaItem.url}`}>
-                  <video src={mediaItem.url} className="postMediaImg" controls preload="metadata" />
-                </div>
-              ))}
-            </>
-          );
-        })()
-      ) : (
-        <div className="!mt-[19px] md:!mt-2.5 h-80 bg-black/5" />
-      )}
+      <PostFeedBody
+        post={post}
+        postId={post.id}
+        onOpenLightbox={onOpenLightbox}
+      />
 
       <div className="flex justify-center mt-3 xl:!mt-[32px] xl:!mb-[18px]">
         <div className="flex gap-[41px] md:gap-[60px] xl:gap-36">
@@ -527,23 +506,37 @@ function GlobalFeedPostCard({ post, feedActions, onOpenProfile, onOpenLightbox }
             icon={profileIcons.saved}
             label={String(post.counts?.saves ?? 0)}
             active={post.viewerState.isSaved}
+            onClick={() => feedActions.onSave(post)}
           />
           <ActionIcon
             icon={profileIcons.share}
             label={String(post.counts.reposts)}
-            active={post.viewerState.isReposted}
-            onClick={() => feedActions.onRepost(post)}
+            onClick={() => feedActions.openSharePost(post)}
           />
         </div>
       </div>
 
       {commentsOpen && (
         <PostCommentsSection
+          post={post}
           comments={post.comments}
           commentDraft={feedActions.commentDraft}
           onCommentDraftChange={feedActions.setCommentDraft}
-          onSubmitComment={() => feedActions.submitComment(post, feedActions.commentDraft)}
-          onDeleteComment={(commentId) => feedActions.onDeleteComment(post, commentId)}
+          onSubmitComment={() =>
+            feedActions.submitComment(post, feedActions.commentDraft)
+          }
+          onDeleteComment={(commentId, meta) =>
+            feedActions.onDeleteComment(post, commentId, meta)
+          }
+          onEditComment={(commentId, text, meta) =>
+            feedActions.onEditComment(post, commentId, text, meta)
+          }
+          replyOpenCommentId={feedActions.replyOpenCommentId}
+          replyDraft={feedActions.replyDraft}
+          onReplyDraftChange={feedActions.setReplyDraft}
+          onOpenReplyComposer={feedActions.openReplyComposer}
+          onSubmitReply={feedActions.submitReply}
+          onShowMoreReplies={feedActions.showMoreReplies}
           variant="firstPage"
         />
       )}
@@ -564,9 +557,8 @@ export const FeedCard = ({ name, time, location, status, text }) => {
               className=" h-10  md:h-[60px] xl:h-20 rounded-full object-none bg-gray-300"
             />
             <span
-              className={`absolute right-[2px] top-[3px] w-[6px] h-[6px] md:w-2 md:h-2 md:top-[7px] md:right-[3px] rounded-full ${
-                status === 'online' ? 'bg-green-700' : 'bg-zinc-300 border border-gray-900/50'
-              }`}
+              className={`absolute right-[2px] top-[3px] w-[6px] h-[6px] md:w-2 md:h-2 md:top-[7px] md:right-[3px] rounded-full ${status === 'online' ? 'bg-green-700' : 'bg-zinc-300 border border-gray-900/50'
+                }`}
             />
           </div>
           <div className="flex flex-col mt-[5px] gap-[3px]">
@@ -595,12 +587,7 @@ export const FeedCard = ({ name, time, location, status, text }) => {
       </div>
 
       {/* Text */}
-      <p className="text-xs text-gray-900 font-[Montserrat] font-medium md:font-normal xl:text-xl underline">
-        {text}
-      </p>
-
-      {/* Image placeholder */}
-      <div className="!mt-[19px] md:!mt-[10px] h-80 bg-black/5" />
+      <p className="postText">{text}</p>
 
       {/* Actions */}
       <div className="flex justify-center mt-3 xl:!mt-[52px] xl:!mb-[38px]">
@@ -616,9 +603,8 @@ export const FeedCard = ({ name, time, location, status, text }) => {
 };
 
 function ActionIcon({ icon, label, active, liked, onClick }) {
-  const className = `flex flex-col items-center text-[10px] md:text-xs font-[Montserrat] text-black ${
-    onClick ? 'cursor-pointer' : 'cursor-default opacity-95'
-  } ${active ? 'opacity-100' : 'opacity-90'}`;
+  const className = `flex flex-col items-center text-[10px] md:text-xs font-[Montserrat] text-black ${onClick ? 'cursor-pointer' : 'cursor-default opacity-95'
+    } ${active ? 'opacity-100' : 'opacity-90'}`;
   const inner = (
     <>
       <img

@@ -798,6 +798,12 @@ font-size: 60px;
   box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.06);
 }
 
+.composerEmojiBtn {
+  flex: 0 0 auto;
+  align-self: flex-end;
+  margin-bottom: 6px;
+}
+
 .composerInputShell .postInput.composerTextarea {
   flex: 1;
   min-width: 0;
@@ -911,7 +917,8 @@ font-size: 60px;
   border-radius: 14px;
   border: 1px solid rgba(0, 0, 0, 0.14);
   background: rgba(255, 255, 255, 0.55);
-  overflow: hidden;
+  overflow: visible;
+  position: relative;
 }
 
 /* TOP ROW */
@@ -963,10 +970,19 @@ font-size: 60px;
   margin-bottom: 2px;
 }
 
+.postAuthorRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-width: 0;
+}
+
 .postAuthor {
   font-size: 14px;
   font-weight: 700;
   color: #6b66ff;
+  min-width: 0;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -1111,12 +1127,16 @@ html[data-theme="dark"] .profile-home .postMenuDeleteBtn {
   color: #fecaca;
 }
 
-/* TEXT */
+/* TEXT — розмір як у Facebook (15px, line-height 20px) */
 .postText {
-  margin: 0 0 8px;
-  font-size: 11px;
-  line-height: 1.35;
-  color: rgba(0, 0, 0, 0.65);
+  margin: 0 0 10px;
+  font-size: 15px;
+  line-height: 1.3334;
+  font-weight: 400;
+  color: #050505;
+  word-break: break-word;
+  white-space: pre-wrap;
+  text-decoration: none;
 }
 
 /* IMAGE */
@@ -1291,10 +1311,10 @@ html[data-theme="dark"] .profile-home .postMenuDeleteBtn {
   }
 
   .profile-home .postText {
-    margin: 0 0 8px;
-    font-size: 12px;
-    font-weight: 500;
-    text-decoration: underline;
+    margin: 0 0 10px;
+    font-size: 15px;
+    font-weight: 400;
+    text-decoration: none;
   }
 
   .profile-home .postActions {
@@ -1389,6 +1409,22 @@ body.dark .profile-home .postActionBtn.postActionBtn--active .postActionCount {
   width: 40px;
   height: 40px;
   object-fit: contain;
+}
+
+.postActionReplies {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #65676b;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+body.dark .profile-home .postActionReplies,
+html[data-theme="dark"] .profile-home .postActionReplies {
+  color: rgba(255, 255, 255, 0.72);
 }
 
 .postActionCount {
@@ -2548,7 +2584,8 @@ html[data-theme="dark"] .profile-home .postActionCount {
   }
 
   .postText {
-    font-size: 10px;
+    font-size: 14px;
+    line-height: 1.3334;
   }
 
   .postMedia {

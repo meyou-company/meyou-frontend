@@ -48,6 +48,7 @@ const profileIcons = {
   eyeOff: `${ICON1}/oko-off.svg`,
   arrowGradient: `${ICON1}/Vector.png`,
   searchMagnifier: `${ICON1}/search.svg`,
+  repost: `${ICON1}/repost.svg`,
   /* ========= BLACK (actions, buttons) ========= */
   plusBlack: `${BLACK}/plus.svg`,
   videoBlack: `${BLACK}/videocamera.svg`,
