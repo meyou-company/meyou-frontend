@@ -24,6 +24,7 @@ import { useProfileAuthorFeed } from "../../../../hooks/useProfileAuthorFeed";
 import ProfilePostsFeed from "../ProfilePostsFeed/ProfilePostsFeed";
 import EmojiPickerButton from "../../../EmojiPicker/EmojiPickerButton";
 import { getApiErrorMessage } from "../../../../utils/getApiErrorMessage";
+import { detectCurrentLocationLabel } from "../../../../utils/postGeolocation";
 import "./ProfileHome.scss";
 
 /** Іконки тільки для actionsBlock (чорно-білі SVG) */
@@ -58,6 +59,8 @@ export default function ProfileHome({
   const postMediaInputRef = useRef(null);
 
   const [newPostText, setNewPostText] = useState("");
+  const [postLocation, setPostLocation] = useState("");
+  const [isDetectingLocation, setIsDetectingLocation] = useState(false);
   const [postMediaFiles, setPostMediaFiles] = useState([]);
   const [isComposerOpen, setIsComposerOpen] = useState(false);
   const [isPublishingPost, setIsPublishingPost] = useState(false);
@@ -106,9 +109,10 @@ export default function ProfileHome({
     ? `Що у вас нового, ${composerFirstName}?`
     : "Що у вас нового?";
 
-  const location = [user?.city, user?.country].filter(Boolean).join(", ") || "";
+  const profileLocation =
+    [user?.city, user?.country].filter(Boolean).join(", ") || "";
   const bioLine1 = fullNameReal ? `${fullNameReal}.` : "";
-  const bioLine2 = location ? `${location}.` : "";
+  const bioLine2 = profileLocation ? `${profileLocation}.` : "";
 
   const friends = useMemo(() => {
     if (Array.isArray(followingList) && followingList.length > 0) {
@@ -155,6 +159,24 @@ export default function ProfileHome({
     });
 
     e.target.value = "";
+  };
+
+  const closeComposer = () => {
+    setIsComposerOpen(false);
+    setIsDetectingLocation(false);
+  };
+
+  const handleUseCurrentLocation = async () => {
+    if (isDetectingLocation) return;
+    setIsDetectingLocation(true);
+    try {
+      const label = await detectCurrentLocationLabel();
+      if (label) setPostLocation(label);
+    } catch {
+      /* permission denied / unavailable — silent */
+    } finally {
+      setIsDetectingLocation(false);
+    }
   };
 
   const removePostMedia = (id) => {
@@ -213,10 +235,11 @@ export default function ProfileHome({
         }
       }
 
+      const locationName = postLocation.trim();
       const created = await postsApi.create({
         fullText: trimmedText || "\u200B",
         media,
-        location: location || undefined,
+        location: locationName || undefined,
         visibility: "PUBLIC",
       });
 
@@ -252,11 +275,12 @@ export default function ProfileHome({
 
       toast.success("Пост опубліковано");
       setNewPostText("");
+      setPostLocation("");
       postMediaFiles.forEach((f) => {
         if (f?.previewUrl) URL.revokeObjectURL(f.previewUrl);
       });
       setPostMediaFiles([]);
-      setIsComposerOpen(false);
+      closeComposer();
     } catch (err) {
       const msg = getApiErrorMessage(err) || "Не вдалося опублікувати пост";
       toast.error(String(msg));
@@ -601,7 +625,7 @@ export default function ProfileHome({
           role="dialog"
           aria-modal="true"
           aria-label="Створити допис"
-          onClick={() => setIsComposerOpen(false)}
+          onClick={closeComposer}
         >
           <div className="composerCard" onClick={(e) => e.stopPropagation()}>
             <div className="composerHeader">
@@ -611,7 +635,7 @@ export default function ProfileHome({
               <button
                 type="button"
                 className="composerClose"
-                onClick={() => setIsComposerOpen(false)}
+                onClick={closeComposer}
                 aria-label="Закрити"
               >
                 ×
@@ -670,6 +694,33 @@ export default function ProfileHome({
                 ))}
               </div>
             )}
+
+            <div className="composerLocation">
+              <label className="composerLocation__label" htmlFor="composer-location">
+                Локація <span className="composerLocation__optional">(необовʼязково)</span>
+              </label>
+              <div className="composerLocation__row">
+                <input
+                  id="composer-location"
+                  type="text"
+                  className="composerLocation__input"
+                  value={postLocation}
+                  onChange={(e) => setPostLocation(e.target.value)}
+                  placeholder="Місто, країна"
+                  autoComplete="off"
+                  enterKeyHint="done"
+                />
+                <button
+                  type="button"
+                  className="composerLocation__detectBtn"
+                  onClick={handleUseCurrentLocation}
+                  disabled={isDetectingLocation}
+                  aria-busy={isDetectingLocation}
+                >
+                  {isDetectingLocation ? "…" : "📍"} Use current location
+                </button>
+              </div>
+            </div>
 
             <div className="composerActions">
               <button
