@@ -5,9 +5,14 @@ import PostCommentsSection from '../../../PostFeed/PostCommentsSection';
 import PostFeedBody from '../../../PostFeed/PostFeedBody';
 import '../../../PostFeed/PostFeedBody.scss';
 import '../../../PostFeed/RepostUi.scss';
-import { RepostHeaderIcon } from '../../../PostFeed/RepostUi';
+import { useAuthStore } from '../../../../zustand/useAuthStore';
 import { isRepostCard, postAuthorDisplayName } from '../../../../utils/postShareContext';
+import { resolvePostMenuPermissions } from '../../../../utils/postMenuPermissions';
+import PostCardHeader from '../../../PostFeed/PostCardHeader';
+import '../../../PostFeed/PostCardHeader.scss';
 import SharePostModal from '../../../PostFeed/SharePostModal';
+import EditPostModal from '../../../PostFeed/EditPostModal';
+import DeletePostConfirmDialog from '../../../PostFeed/DeletePostConfirmDialog';
 import ImageLightbox from '../../../PostFeed/ImageLightbox';
 
 /**
@@ -23,28 +28,14 @@ export default function ProfilePostsFeed({
   onViewProfileAvatar,
   sectionClassName = 'feed',
 }) {
-  const [openPostMenuId, setOpenPostMenuId] = useState(null);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const [lightboxImages, setLightboxImages] = useState([]);
   const [lightboxIndex, setLightboxIndex] = useState(0);
 
   const [searchParams] = useSearchParams();
+  const currentUserId = useAuthStore((s) => s.user?.id);
 
   const targetPostId = searchParams.get('post');
-
-  useEffect(() => {
-    if (openPostMenuId == null) return;
-    const onDocClick = () => setOpenPostMenuId(null);
-    const onEscape = (e) => {
-      if (e.key === 'Escape') setOpenPostMenuId(null);
-    };
-    document.addEventListener('click', onDocClick);
-    document.addEventListener('keydown', onEscape);
-    return () => {
-      document.removeEventListener('click', onDocClick);
-      document.removeEventListener('keydown', onEscape);
-    };
-  }, [openPostMenuId]);
 
   useEffect(() => {
     if (!targetPostId || !feedPosts.length) return;
@@ -112,6 +103,7 @@ export default function ProfilePostsFeed({
             : titleName;
           const headerAvatar =
             (repost && post.author?.avatarUrl) || displayAvatar;
+          const menuPerms = resolvePostMenuPermissions(post, currentUserId);
 
           return (
           <article
@@ -121,68 +113,24 @@ export default function ProfilePostsFeed({
             data-can-edit={post.permissions?.canEdit === true ? 'true' : 'false'}
             data-can-delete={post.permissions?.canDelete === true ? 'true' : 'false'}
           >
-            <div className="postTop">
-              <div className="postTopLeft">
-                <button
-                  type="button"
-                  className="postAvatarBtn"
-                  onClick={() => onViewProfileAvatar?.()}
-                  aria-label="Переглянути фото"
-                >
-                  <img src={headerAvatar} className="postAvatar" alt="" />
-                </button>
-
-                <div className="postHeadText">
-                  {!repost && <div className="postLabel">new post</div>}
-                  <div className="postAuthorRow">
-                    <div className="postAuthor">{headerName}</div>
-                    {repost ? <RepostHeaderIcon /> : null}
-                  </div>
-                </div>
-              </div>
-
-              <div className="postTopRight">
-                {post.permissions?.canDelete === true && (
-                  <div className="postMenuWrap" onClick={(e) => e.stopPropagation()}>
-                    <button
-                      className="postMenuBtn"
-                      type="button"
-                      aria-label="Меню поста"
-                      aria-expanded={openPostMenuId === post.id}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setOpenPostMenuId((prev) => (prev === post.id ? null : post.id));
-                      }}
-                    >
-                      •••
-                    </button>
-                    {openPostMenuId === post.id && (
-                      <div className="postMenuDropdown" role="menu" aria-label="Дії з постом">
-                        <button
-                          className="postMenuDeleteBtn"
-                          type="button"
-                          role="menuitem"
-                          onClick={() => {
-                            setOpenPostMenuId(null);
-                            feedActions.onDeletePost(post);
-                          }}
-                        >
-                          Видалити
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                )}
-                <div className="postLocation">
-                  <img
-                    className="postLocationIcon"
-                    src={profileIcons.location || '/home/location.svg'}
-                    alt=""
-                  />
-                  <span className="postLocationText">{post.location || '—'}</span>
-                </div>
-              </div>
-            </div>
+            <PostCardHeader
+              avatarSrc={headerAvatar}
+              onAvatarClick={() => onViewProfileAvatar?.()}
+              avatarAriaLabel="Переглянути фото"
+              authorName={headerName}
+              createdAt={post.createdAt}
+              location={post.location}
+              showRepostIcon={repost}
+              showNewPostLabel={!repost}
+              canShowMenu={menuPerms.canShowMenu}
+              canEdit={menuPerms.canEdit}
+              canDelete={menuPerms.canDelete}
+              canRemoveFromFeed={menuPerms.canRemoveFromFeed}
+              onEdit={() => feedActions.openEditPost(post)}
+              onDeleteRequest={() => feedActions.requestDeletePost(post)}
+              onRemoveFromFeedRequest={() => feedActions.requestDeletePost(post)}
+              variant="profile"
+            />
 
             <PostFeedBody
               post={post}
@@ -262,6 +210,9 @@ export default function ProfilePostsFeed({
                 onDeleteComment={(commentId, meta) =>
                   feedActions.onDeleteComment(post, commentId, meta)
                 }
+                onEditComment={(commentId, text, meta) =>
+                  feedActions.onEditComment(post, commentId, text, meta)
+                }
                 replyOpenCommentId={feedActions.replyOpenCommentId}
                 replyDraft={feedActions.replyDraft}
                 onReplyDraftChange={feedActions.setReplyDraft}
@@ -292,6 +243,23 @@ export default function ProfilePostsFeed({
         onSendToUsers={feedActions.handleSendToUsers}
         onRepostToFeed={feedActions.handleRepostToFeed}
         isReposted={feedActions.sharePost?.viewerState?.isReposted === true}
+      />
+
+      <EditPostModal
+        post={feedActions.editingPost}
+        isOpen={Boolean(feedActions.editingPost)}
+        onClose={feedActions.closeEditPost}
+        onSave={feedActions.saveEditPost}
+        saving={feedActions.isSavingEditPost}
+        displayAvatar={displayAvatar}
+      />
+
+      <DeletePostConfirmDialog
+        isOpen={Boolean(feedActions.deleteConfirmPost)}
+        variant={feedActions.deleteConfirmIsRepost ? "repostRemove" : "delete"}
+        onCancel={feedActions.cancelDeletePost}
+        onConfirm={feedActions.confirmDeletePost}
+        confirming={feedActions.isDeletingPost}
       />
     </>
   );

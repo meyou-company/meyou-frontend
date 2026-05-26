@@ -17,9 +17,13 @@ import NotificationBell from '../../components/Notifications/NotificationBell';
 import PostFeedBody from '../../components/PostFeed/PostFeedBody';
 import '../../components/PostFeed/PostFeedBody.scss';
 import '../../components/PostFeed/RepostUi.scss';
-import { RepostHeaderIcon } from '../../components/PostFeed/RepostUi';
-import { isRepostCard } from '../../utils/postShareContext';
+import { isRepostCard, postAuthorDisplayName } from '../../utils/postShareContext';
+import { resolvePostMenuPermissions } from '../../utils/postMenuPermissions';
+import PostCardHeader from '../../components/PostFeed/PostCardHeader';
+import '../../components/PostFeed/PostCardHeader.scss';
 import SharePostModal from '../../components/PostFeed/SharePostModal';
+import EditPostModal from '../../components/PostFeed/EditPostModal';
+import DeletePostConfirmDialog from '../../components/PostFeed/DeletePostConfirmDialog';
 import ImageLightbox from '../../components/PostFeed/ImageLightbox';
 import '../Users/Profile/ProfileHome/ProfileHome.scss';
 import './FirstPageView.scss';
@@ -326,6 +330,7 @@ export default function FirstPageView({
                   key={post.id}
                   post={post}
                   feedActions={feedActions}
+                  currentUserId={currentUserId}
                   onOpenProfile={goProfileByUsername}
                   onOpenLightbox={openLightbox}
                 />
@@ -356,6 +361,25 @@ export default function FirstPageView({
           onSendToUsers={feedActions.handleSendToUsers}
           onRepostToFeed={feedActions.handleRepostToFeed}
           isReposted={feedActions.sharePost?.viewerState?.isReposted === true}
+        />
+
+        <EditPostModal
+          post={feedActions.editingPost}
+          isOpen={Boolean(feedActions.editingPost)}
+          onClose={feedActions.closeEditPost}
+          onSave={feedActions.saveEditPost}
+          saving={feedActions.isSavingEditPost}
+          displayAvatar={
+            feedActions.editingPost?.author?.avatarUrl || profileIcons.userStory
+          }
+        />
+
+        <DeletePostConfirmDialog
+          isOpen={Boolean(feedActions.deleteConfirmPost)}
+          variant={feedActions.deleteConfirmIsRepost ? "repostRemove" : "delete"}
+          onCancel={feedActions.cancelDeletePost}
+          onConfirm={feedActions.confirmDeletePost}
+          confirming={feedActions.isDeletingPost}
         />
       </div>
     </div>
@@ -416,23 +440,15 @@ function NavBtn({ icon, onClick }) {
 //   );
 // }
 
-function formatPostTime(iso) {
-  if (!iso) return '';
-  try {
-    return new Date(iso).toLocaleString();
-  } catch {
-    return '';
-  }
-}
-
-function GlobalFeedPostCard({ post, feedActions, onOpenProfile, onOpenLightbox }) {
-  const name =
-    [post.author?.firstName, post.author?.lastName].filter(Boolean).join(' ').trim() ||
-    post.author?.username ||
-    'User';
+function GlobalFeedPostCard({
+  post,
+  feedActions,
+  currentUserId,
+  onOpenProfile,
+  onOpenLightbox,
+}) {
+  const name = postAuthorDisplayName(post.author);
   const avatarSrc = post.author?.avatarUrl || profileIcons.userStory;
-  const timeLabel = formatPostTime(post.createdAt);
-  const location = post.location?.trim() || '—';
   const commentsOpen = feedActions.isCommentsOpen(post.id);
   const authorHandle = getProfileRouteHandle(post.author);
   const handleOpenProfile = () => {
@@ -441,63 +457,30 @@ function GlobalFeedPostCard({ post, feedActions, onOpenProfile, onOpenLightbox }
   };
   const hasProfileLink = Boolean(authorHandle);
   const repost = isRepostCard(post);
+  const menuPerms = resolvePostMenuPermissions(post, currentUserId);
 
   return (
-    <article className="first-page-post px-1.5 pt-1.5 pb-[11px] md:p-2.5 xl:!mb-[29px] my-4 space-y-3 relative">
-      <div className="flex justify-between items-start">
-        <div className="flex gap-[7px]">
-          <button
-            type="button"
-            onClick={handleOpenProfile}
-            disabled={!hasProfileLink}
-            className={`flex gap-[7px] text-left ${hasProfileLink ? 'cursor-pointer' : 'cursor-default'}`}
-            aria-label={hasProfileLink ? `Відкрити профіль ${name}` : 'Профіль недоступний'}
-          >
-            <img
-              src={avatarSrc}
-              alt=""
-              className=" h-10 md:h-[60px] xl:h-20 rounded-full object-cover bg-gray-300"
-            />
-            <div className="flex flex-col mt-[5px] gap-[3px] min-w-0 flex-1">
-              <div className="flex items-center justify-between gap-2 min-w-0">
-                <span className="text-xs md:text-sm xl:text-xl font-[Montserrat] underline bg-gradient-to-r from-[#FF4FB1] to-[#4F6BFF] bg-clip-text text-transparent truncate">
-                  {name}
-                </span>
-                {repost ? (
-                  <RepostHeaderIcon className="first-page-post__repostIcon" />
-                ) : null}
-              </div>
-              <span className="text-[8px] md:text-xs xl:text-xl text-black font-[Montserrat] underline">
-                {timeLabel}
-              </span>
-            </div>
-          </button>
-        </div>
-
-        <div className="flex flex-col items-end gap-1 mr-[2px] md:mr-[19px] mt-[6px]">
-          <div className="flex items-center">
-            <img
-              src={profileIcons.location}
-              alt=""
-              className="w-[4px] h-[5px] mr-1 mt-[1px] md:w-[10px] md:h-[13px]"
-            />
-            <span className="relative text-[10px] md:text-xs text-pink-500 font-[Montserrat] mr-[7px] inline-block">
-              {location}
-              <span className="absolute bottom-[2px] left-0 right-0 h-[0.5px] bg-pink-500" />
-            </span>
-          </div>
-          {post.permissions?.canDelete === true && (
-            <button
-              type="button"
-              className="rounded-md bg-red-500/15 px-2 py-0.5 text-[9px] md:text-[10px] font-semibold text-red-700 font-[Montserrat] cursor-pointer hover:bg-red-500/25"
-              aria-label="Видалити пост"
-              onClick={() => feedActions.onDeletePost(post)}
-            >
-              Видалити
-            </button>
-          )}
-        </div>
-      </div>
+    <article className="first-page-post px-1.5 pt-1.5 pb-[11px] md:p-2.5 xl:!mb-[29px] my-4 space-y-3 relative overflow-visible">
+      <PostCardHeader
+        avatarSrc={avatarSrc}
+        onAvatarClick={handleOpenProfile}
+        avatarDisabled={!hasProfileLink}
+        avatarAriaLabel={
+          hasProfileLink ? `Відкрити профіль ${name}` : 'Профіль недоступний'
+        }
+        authorName={name}
+        createdAt={post.createdAt}
+        location={post.location}
+        showRepostIcon={repost}
+        canShowMenu={menuPerms.canShowMenu}
+        canEdit={menuPerms.canEdit}
+        canDelete={menuPerms.canDelete}
+        canRemoveFromFeed={menuPerms.canRemoveFromFeed}
+        onEdit={() => feedActions.openEditPost(post)}
+        onDeleteRequest={() => feedActions.requestDeletePost(post)}
+        onRemoveFromFeedRequest={() => feedActions.requestDeletePost(post)}
+        variant="firstPage"
+      />
 
       <PostFeedBody
         post={post}
@@ -544,6 +527,9 @@ function GlobalFeedPostCard({ post, feedActions, onOpenProfile, onOpenLightbox }
           }
           onDeleteComment={(commentId, meta) =>
             feedActions.onDeleteComment(post, commentId, meta)
+          }
+          onEditComment={(commentId, text, meta) =>
+            feedActions.onEditComment(post, commentId, text, meta)
           }
           replyOpenCommentId={feedActions.replyOpenCommentId}
           replyDraft={feedActions.replyDraft}

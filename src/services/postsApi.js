@@ -167,6 +167,16 @@ export const postsApi = {
     return data;
   },
 
+  /** PUT /posts/:id — редагування допису */
+  async update(postId, { fullText, media = [], location } = {}) {
+    const { data } = await api.put(`/posts/${encodeURIComponent(postId)}`, {
+      fullText: fullText?.trim() ?? "",
+      media: Array.isArray(media) ? media : [],
+      location: location || undefined,
+    });
+    return data;
+  },
+
   /** DELETE /posts/:id — лише для автора (перевірка на бекенді) */
   async deletePost(postId) {
     await api.delete(`/posts/${encodeURIComponent(postId)}`);

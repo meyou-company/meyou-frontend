@@ -14,8 +14,15 @@ import {
   normalizeComment,
   organizeComments,
   countPostReplies,
+  mapApiPostToFeedItem,
 } from "../utils/mapApiPostToFeedItem";
 import { clearPostLikeOverride, persistPostLike } from "../utils/postLikePersistence";
+import {
+  getDeleteTargetPostId,
+  getOriginalPostIdFromRepost,
+  isMyRepost,
+  resolvePostMenuPermissions,
+} from "../utils/postMenuPermissions";
 
 function removeDeletedPostFromCaches(postId) {
   if (typeof window === "undefined" || !postId) return;
@@ -74,6 +81,28 @@ function isPostNotFoundError(error) {
   return status === 404 || msg.includes("post not found");
 }
 
+function applyFeedAfterRepostRemoved(prev, repostPostId, originalPostId) {
+  const deletedId = String(repostPostId);
+  return prev
+    .filter((p) => String(p.id) !== deletedId)
+    .map((p) => {
+      if (!originalPostId || String(p.id) !== String(originalPostId)) {
+        return p;
+      }
+      return {
+        ...p,
+        viewerState: {
+          ...p.viewerState,
+          isReposted: false,
+        },
+        counts: {
+          ...p.counts,
+          reposts: Math.max(0, (p.counts?.reposts ?? 0) - 1),
+        },
+      };
+    });
+}
+
 /**
  * Спільна логіка like / comment / repost / delete для глобальної стрічки та профілю.
  * Оновлює пост локально після відповіді API (без повторного GET).
@@ -88,6 +117,10 @@ export function usePostFeedActions(
   const [replyOpenCommentId, setReplyOpenCommentId] = useState(null);
   const [replyDraft, setReplyDraft] = useState("");
   const [sharePost, setSharePost] = useState(null);
+  const [editingPost, setEditingPost] = useState(null);
+  const [deleteConfirmPost, setDeleteConfirmPost] = useState(null);
+  const [isDeletingPost, setIsDeletingPost] = useState(false);
+  const [isSavingEditPost, setIsSavingEditPost] = useState(false);
   const replyDraftsRef = useRef({});
   const replyDraftSyncRef = useRef("");
   const inflight = useRef({});
@@ -402,6 +435,39 @@ export function usePostFeedActions(
     [patchCommentOnPost, loadReplies]
   );
 
+  const onEditComment = useCallback(
+    (post, commentId, text, { parentId, isReply } = {}) => {
+      const t = (text || "").trim();
+      if (!t || !post?.id || !commentId) return;
+      patchPost(post.id, (p) => {
+        const prevComments = Array.isArray(p.comments) ? p.comments : [];
+        let nextComments;
+        if (isReply && parentId) {
+          nextComments = prevComments.map((c) => {
+            if (String(c?.id) !== String(parentId)) return c;
+            const replies = (c.replies ?? []).map((r) =>
+              String(r?.id) === String(commentId) ? { ...r, content: t } : r
+            );
+            return { ...c, replies };
+          });
+        } else {
+          nextComments = prevComments.map((c) =>
+            String(c?.id) === String(commentId) ? { ...c, content: t } : c
+          );
+        }
+        return {
+          ...p,
+          comments: nextComments,
+          counts: {
+            ...p.counts,
+            replies: countPostReplies(nextComments),
+          },
+        };
+      });
+    },
+    [patchPost]
+  );
+
   const onDeleteComment = useCallback(
     (post, commentId, { parentId, isReply } = {}) => {
       if (!post?.id || !commentId) return;
@@ -473,38 +539,152 @@ export function usePostFeedActions(
     [loadComments]
   );
 
-  const onDeletePost = useCallback(
+  const performDeletePost = useCallback(
     (post) => {
-      if (!post?.permissions?.canDelete) return;
-      if (typeof window !== "undefined" && !window.confirm("Видалити цей пост?")) {
-        return;
-      }
-      run(`delete-${post.id}`, async () => {
+      const perms = resolvePostMenuPermissions(post, currentUserId);
+      if (!perms.canDelete && !perms.canRemoveFromFeed) return;
+
+      const deleteId = getDeleteTargetPostId(post);
+      if (!deleteId) return;
+
+      const removingMyRepost = isMyRepost(post, currentUserId);
+      const originalPostId = removingMyRepost
+        ? getOriginalPostIdFromRepost(post)
+        : null;
+
+      run(`delete-${deleteId}`, async () => {
+        setIsDeletingPost(true);
         try {
-          await postsApi.deletePost(post.id);
+          await postsApi.deletePost(deleteId);
+
           setFeedPosts((prev) =>
-            prev.filter((p) => String(p.id) !== String(post.id))
+            removingMyRepost
+              ? applyFeedAfterRepostRemoved(prev, deleteId, originalPostId)
+              : prev.filter((p) => String(p.id) !== deleteId)
           );
-          clearPostLikeOverride(post.id);
-          removeDeletedPostFromCaches(post.id);
+
+          if (removingMyRepost && originalPostId) {
+            syncPostInCaches(originalPostId, (p) => ({
+              ...p,
+              viewerState: { ...p.viewerState, isReposted: false },
+              counts: {
+                ...p.counts,
+                reposts: Math.max(0, (p.counts?.reposts ?? 0) - 1),
+              },
+            }));
+          }
+
+          clearPostLikeOverride(deleteId);
+          removeDeletedPostFromCaches(deleteId);
+
           setCommentsOpenPostId((openId) => {
-            if (openId != null && String(openId) === String(post.id)) {
+            if (openId != null && String(openId) === deleteId) {
               setCommentDraft("");
               return null;
             }
             return openId;
           });
+          setDeleteConfirmPost(null);
+          toast.success(
+            removingMyRepost
+              ? "Допис прибрано зі стрічки"
+              : "Допис видалено"
+          );
         } catch (e) {
           if (isPostNotFoundError(e)) {
-            dropPostEverywhere(post.id);
+            dropPostEverywhere(deleteId);
+            setDeleteConfirmPost(null);
             return;
           }
-          const msg = getApiErrorMessage(e) || "Не вдалося видалити пост";
+          const status = e?.response?.status;
+          let msg = getApiErrorMessage(e) || "Не вдалося видалити пост";
+          if (
+            removingMyRepost &&
+            (status === 401 || status === 403) &&
+            /unauthorized|forbidden|доступ/i.test(msg)
+          ) {
+            msg =
+              "Сервер відхилив видалення репосту (401/403). Потрібно дозволити автору DELETE для власного repost (id картки репосту, не оригіналу).";
+          }
           toast.error(msg);
+        } finally {
+          setIsDeletingPost(false);
         }
       });
     },
-    [run, setFeedPosts, dropPostEverywhere]
+    [run, setFeedPosts, dropPostEverywhere, currentUserId]
+  );
+
+  const requestDeletePost = useCallback(
+    (post) => {
+      const perms = resolvePostMenuPermissions(post, currentUserId);
+      if (!perms.canDelete && !perms.canRemoveFromFeed) return;
+      setDeleteConfirmPost(post);
+    },
+    [currentUserId]
+  );
+
+  const cancelDeletePost = useCallback(() => {
+    if (!isDeletingPost) setDeleteConfirmPost(null);
+  }, [isDeletingPost]);
+
+  const confirmDeletePost = useCallback(() => {
+    if (deleteConfirmPost) performDeletePost(deleteConfirmPost);
+  }, [deleteConfirmPost, performDeletePost]);
+
+  const openEditPost = useCallback(
+    (post) => {
+      const { canEdit } = resolvePostMenuPermissions(post, currentUserId);
+      if (!canEdit) return;
+      setEditingPost(post);
+    },
+    [currentUserId]
+  );
+
+  const closeEditPost = useCallback(() => {
+    if (!isSavingEditPost) setEditingPost(null);
+  }, [isSavingEditPost]);
+
+  const saveEditPost = useCallback(
+    async ({ text, media, location }) => {
+      const post = editingPost;
+      const { canEdit } = resolvePostMenuPermissions(post, currentUserId);
+      if (!post?.id || !canEdit) return;
+      setIsSavingEditPost(true);
+      try {
+        const updated = await postsApi.update(post.id, {
+          fullText: text,
+          media,
+          location,
+        });
+        const mapped = mapApiPostToFeedItem(updated);
+        if (mapped) {
+          patchPost(post.id, (p) => ({
+            ...mapped,
+            comments: p.comments,
+            counts: {
+              ...mapped.counts,
+              comments: p.counts?.comments ?? mapped.counts?.comments,
+              replies: p.counts?.replies ?? mapped.counts?.replies,
+            },
+          }));
+        }
+        setEditingPost(null);
+        toast.success("Допис оновлено");
+      } catch (e) {
+        if (isPostNotFoundError(e)) {
+          dropPostEverywhere(post.id);
+          setEditingPost(null);
+          return;
+        }
+        const msg = getApiErrorMessage(e) || "Не вдалося оновити допис";
+        toast.error(msg);
+        throw e;
+      } finally {
+        setIsSavingEditPost(false);
+      }
+    },
+    [editingPost, patchPost, dropPostEverywhere, currentUserId]
   );
 
   const onSave = useCallback(
@@ -585,6 +765,7 @@ export function usePostFeedActions(
     toggleCommentsOpen: openComments,
     submitComment,
     onDeleteComment,
+    onEditComment,
     loadComments,
     replyOpenCommentId,
     replyDraft,
@@ -597,7 +778,20 @@ export function usePostFeedActions(
     countPostReplies,
     onLike,
     handleRepostToFeed,
-    onDeletePost,
+    onDeletePost: requestDeletePost,
+    requestDeletePost,
+    cancelDeletePost,
+    confirmDeletePost,
+    deleteConfirmPost,
+    deleteConfirmIsRepost: deleteConfirmPost
+      ? isMyRepost(deleteConfirmPost, currentUserId)
+      : false,
+    isDeletingPost,
+    openEditPost,
+    closeEditPost,
+    saveEditPost,
+    editingPost,
+    isSavingEditPost,
     onSave,
     sharePost,
     openSharePost,

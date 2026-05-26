@@ -8,6 +8,9 @@ $pcs-input-bg: #f0f2f5;
   margin-top: 10px;
   display: flex;
   flex-direction: column;
+  width: 100%;
+  max-width: none;
+  box-sizing: border-box;
   max-height: min(420px, 55vh);
   border-radius: 8px;
   background: #f0f2f5;
@@ -63,12 +66,16 @@ $pcs-input-bg: #f0f2f5;
   list-style: none;
   margin: 0;
   padding: 0;
+  width: 100%;
 }
 
 .postCommentsSection__row {
   display: flex;
   gap: 8px;
   align-items: flex-start;
+  width: 100%;
+  max-width: none;
+  box-sizing: border-box;
   margin-bottom: 8px;
 }
 
@@ -110,24 +117,38 @@ $pcs-input-bg: #f0f2f5;
 
 .postCommentsSection__thread {
   min-width: 0;
-  flex: 1;
+  flex: 1 1 auto;
+  width: 100%;
+  max-width: none;
 }
 
 .postCommentsSection__bubble {
-  display: inline-block;
-  max-width: 100%;
+  display: block;
+  width: 100%;
+  max-width: none;
+  box-sizing: border-box;
   padding: 8px 12px 10px;
-  border-radius: 18px;
+  border-radius: 12px;
   background: #fff;
   box-shadow: 0 1px 0 rgba(0, 0, 0, 0.06);
 }
 
 .postCommentsSection__bubbleHead {
   display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+  margin-bottom: 4px;
+}
+
+.postCommentsSection__bubbleMeta {
+  display: flex;
   flex-wrap: wrap;
-  align-items: baseline;
+  align-items: center;
   gap: 6px 10px;
-  margin-bottom: 2px;
+  min-width: 0;
+  flex: 1 1 auto;
 }
 
 .postCommentsSection__name {
@@ -146,6 +167,8 @@ $pcs-input-bg: #f0f2f5;
   font-weight: 600;
   color: #050505;
   text-align: left;
+  flex-shrink: 0;
+  max-width: 100%;
   cursor: pointer;
 
   &:disabled {
@@ -166,24 +189,41 @@ $pcs-input-bg: #f0f2f5;
 .postCommentsSection__when {
   font-size: 11px;
   color: #65676b;
+  flex-shrink: 0;
+  white-space: nowrap;
 }
 
-.postCommentsSection__deleteBtn {
+.postCommentsSection__editComposer {
+  margin-top: 4px;
+  width: 100%;
+  max-width: none;
+}
+
+.postCommentsSection__editCancel {
+  margin: 6px 0 0;
+  padding: 0;
   border: 0;
   background: transparent;
-  padding: 0;
-  margin-left: auto;
-  font-size: 11px;
-  color: #d12a4f;
+  font-size: 12px;
+  font-weight: 600;
+  color: #65676b;
   cursor: pointer;
-  text-decoration: underline;
+
+  &:hover {
+    text-decoration: underline;
+    color: #b05cff;
+  }
 }
 
 .postCommentsSection__text {
   margin: 0;
+  width: 100%;
+  max-width: none;
   font-size: 13px;
-  line-height: 1.4;
+  line-height: 1.45;
   color: #050505;
+  overflow-wrap: anywhere;
+  word-wrap: break-word;
   word-break: break-word;
   white-space: pre-wrap;
 }
@@ -193,8 +233,11 @@ $pcs-input-bg: #f0f2f5;
   flex-wrap: wrap;
   align-items: center;
   gap: 8px 12px;
+  width: 100%;
+  max-width: none;
   margin-top: 4px;
   padding-left: 2px;
+  box-sizing: border-box;
 }
 
 .postCommentsSection__replyBtn {
@@ -222,8 +265,11 @@ $pcs-input-bg: #f0f2f5;
 
 .postCommentsSection__replies {
   list-style: none;
+  width: 100%;
+  max-width: none;
   margin: 8px 0 0;
-  padding: 0 0 0 12px;
+  padding: 0 0 0 14px;
+  box-sizing: border-box;
   border-left: 2px solid rgba(176, 92, 255, 0.35);
 }
 
@@ -231,10 +277,19 @@ $pcs-input-bg: #f0f2f5;
   display: flex;
   gap: 8px;
   align-items: flex-start;
+  width: 100%;
+  max-width: none;
+  box-sizing: border-box;
   margin-bottom: 8px;
 
   &:last-child {
     margin-bottom: 0;
+  }
+
+  .postCommentsSection__thread {
+    flex: 1 1 auto;
+    width: calc(100% - 36px);
+    max-width: none;
   }
 }
 
@@ -245,8 +300,11 @@ $pcs-input-bg: #f0f2f5;
 
 .postCommentsSection__showMoreReplies {
   display: block;
-  margin: 6px 0 0 12px;
-  padding: 0;
+  width: 100%;
+  max-width: none;
+  margin: 6px 0 0;
+  padding: 0 0 0 14px;
+  box-sizing: border-box;
   border: 0;
   background: transparent;
   font-size: 12px;
@@ -261,8 +319,23 @@ $pcs-input-bg: #f0f2f5;
 }
 
 .postCommentsSection__replyComposer {
+  width: 100%;
+  max-width: none;
   margin-top: 8px;
-  padding-left: 12px;
+  padding-left: 14px;
+  box-sizing: border-box;
+}
+
+.commentComposer {
+  width: 100%;
+  max-width: none;
+  box-sizing: border-box;
+}
+
+.commentComposer__inputWrapper {
+  width: 100%;
+  max-width: none;
+  box-sizing: border-box;
 }
 
 .commentComposer--compact .postCommentsSection__input {
@@ -274,6 +347,9 @@ $pcs-input-bg: #f0f2f5;
 
 .postCommentsSection__composer {
   flex-shrink: 0;
+  width: 100%;
+  max-width: none;
+  box-sizing: border-box;
   padding: 8px 10px 10px;
   border-top: 1px solid #e4e6eb;
   background: #fff;
@@ -428,9 +504,9 @@ html[data-theme="dark"] .postCommentsSection__placeholder {
   color: rgba(255, 255, 255, 0.55);
 }
 
-body.dark .postCommentsSection__deleteBtn,
-html[data-theme="dark"] .postCommentsSection__deleteBtn {
-  color: rgba(255, 130, 165, 0.95);
+body.dark .postCommentsSection__editCancel,
+html[data-theme="dark"] .postCommentsSection__editCancel {
+  color: rgba(255, 255, 255, 0.55);
 }
 
 body.dark .postCommentsSection__replyBtn,

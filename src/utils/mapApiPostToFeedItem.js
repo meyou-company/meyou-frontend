@@ -170,8 +170,11 @@ export function mapApiPostToFeedItem(p) {
   const originalPost = originalRaw ? mapApiPostToFeedItem(originalRaw) : null;
   const isRepost = Boolean(originalPostId || originalPost);
 
+  const authorId = a?.id ?? p.authorId ?? p.userId ?? p.author_id ?? null;
+
   return {
     id: p.id,
+    authorId: authorId != null ? String(authorId) : null,
     text: p.fullText ?? p.shortText ?? p.repostText ?? '',
     isRepost,
     originalPostId: originalPostId != null ? String(originalPostId) : null,
@@ -194,8 +197,14 @@ export function mapApiPostToFeedItem(p) {
       isReposted: p.viewerState?.isReposted === true || p.isRepostedByMe === true,
     },
     permissions: {
-      canEdit: p.permissions?.canEdit === true,
-      canDelete: p.permissions?.canDelete === true,
+      canEdit:
+        p.permissions?.canEdit === true ||
+        p.canEdit === true ||
+        p.permissions?.isOwner === true,
+      canDelete:
+        p.permissions?.canDelete === true ||
+        p.canDelete === true ||
+        p.permissions?.isOwner === true,
       isOwner: p.permissions?.isOwner === true,
     },
     comments: organizedComments,

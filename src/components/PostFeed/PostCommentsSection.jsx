@@ -1,9 +1,12 @@
+import { useState } from "react";
 import profileIcons from "../../constants/profileIcons";
 import { useAuthStore } from "../../zustand/useAuthStore";
 import { useUserProfileNav } from "../../context/UserProfileNavContext";
 import { getProfileRouteHandle } from "../../utils/profileFriendNav";
 import CommentComposer from "./CommentComposer";
+import CommentActionMenu from "./CommentActionMenu";
 import "./PostCommentsSection.scss";
+import "./CommentActionMenu.scss";
 
 const VISIBLE_REPLIES_DEFAULT = 2;
 
@@ -48,15 +51,27 @@ function repliesLabel(count) {
   return `${n} відповідей`;
 }
 
+function canManageComment(comment, currentUserId) {
+  return Boolean(
+    currentUserId &&
+      comment?.id &&
+      String(comment?.author?.id ?? "") === String(currentUserId)
+  );
+}
+
 function CommentBubble({
   comment,
   currentUserId,
   profileNav,
   onDeleteComment,
+  onEditComment,
   showReplyAction = false,
   repliesCount = 0,
   onReplyClick,
 }) {
+  const [isEditing, setIsEditing] = useState(false);
+  const [editDraft, setEditDraft] = useState(comment.content ?? "");
+
   const authorHandle = comment?.author
     ? getProfileRouteHandle(comment.author)
     : null;
@@ -64,47 +79,86 @@ function CommentBubble({
   const goAuthor = () => {
     if (canOpenAuthor) profileNav.openProfile(comment.author);
   };
+  const canManage = canManageComment(comment, currentUserId);
+
+  const startEdit = () => {
+    setEditDraft(comment.content ?? "");
+    setIsEditing(true);
+  };
+
+  const cancelEdit = () => {
+    setEditDraft(comment.content ?? "");
+    setIsEditing(false);
+  };
+
+  const saveEdit = () => {
+    const text = (editDraft ?? "").trim();
+    if (!text) return;
+    onEditComment?.(comment.id, text, {
+      isReply: comment.isReply,
+      parentId: comment.parentId,
+    });
+    setIsEditing(false);
+  };
 
   return (
     <>
       <div className="postCommentsSection__bubble">
         <div className="postCommentsSection__bubbleHead">
-          <button
-            type="button"
-            className="postCommentsSection__nameBtn"
-            disabled={!canOpenAuthor}
-            onClick={goAuthor}
-          >
-            {commentDisplayName(comment)}
-          </button>
-          <span
-            className="postCommentsSection__when"
-            title={
-              comment.createdAt
-                ? new Date(comment.createdAt).toLocaleString()
-                : ""
-            }
-          >
-            {formatCommentWhen(comment.createdAt)}
-          </span>
-          {currentUserId &&
-            comment?.id &&
-            String(comment?.author?.id ?? "") === String(currentUserId) && (
-              <button
-                type="button"
-                className="postCommentsSection__deleteBtn"
-                onClick={() =>
-                  onDeleteComment?.(comment.id, {
-                    isReply: comment.isReply,
-                    parentId: comment.parentId,
-                  })
-                }
-              >
-                Видалити
-              </button>
-            )}
+          <div className="postCommentsSection__bubbleMeta">
+            <button
+              type="button"
+              className="postCommentsSection__nameBtn"
+              disabled={!canOpenAuthor}
+              onClick={goAuthor}
+            >
+              {commentDisplayName(comment)}
+            </button>
+            <span
+              className="postCommentsSection__when"
+              title={
+                comment.createdAt
+                  ? new Date(comment.createdAt).toLocaleString()
+                  : ""
+              }
+            >
+              {formatCommentWhen(comment.createdAt)}
+            </span>
+          </div>
+          {canManage && !isEditing && (
+            <CommentActionMenu
+              onEdit={startEdit}
+              onDelete={() =>
+                onDeleteComment?.(comment.id, {
+                  isReply: comment.isReply,
+                  parentId: comment.parentId,
+                })
+              }
+            />
+          )}
         </div>
-        <p className="postCommentsSection__text">{comment.content}</p>
+        {isEditing ? (
+          <div className="postCommentsSection__editComposer">
+            <CommentComposer
+              compact
+              value={editDraft}
+              onChange={setEditDraft}
+              onSubmit={saveEdit}
+              placeholder="Редагувати коментар…"
+              ariaLabel="Редагування коментаря"
+              sendAriaLabel="Зберегти"
+            />
+            <button
+              type="button"
+              className="postCommentsSection__editCancel"
+              onClick={cancelEdit}
+            >
+              Скасувати
+            </button>
+          </div>
+        ) : (
+          <p className="postCommentsSection__text">{comment.content}</p>
+        )}
       </div>
       {(showReplyAction || repliesCount > 0) && (
         <div className="postCommentsSection__commentActions">
@@ -128,7 +182,13 @@ function CommentBubble({
   );
 }
 
-function ReplyRow({ reply, currentUserId, profileNav, onDeleteComment }) {
+function ReplyRow({
+  reply,
+  currentUserId,
+  profileNav,
+  onDeleteComment,
+  onEditComment,
+}) {
   const authorHandle = reply?.author
     ? getProfileRouteHandle(reply.author)
     : null;
@@ -160,6 +220,7 @@ function ReplyRow({ reply, currentUserId, profileNav, onDeleteComment }) {
           currentUserId={currentUserId}
           profileNav={profileNav}
           onDeleteComment={onDeleteComment}
+          onEditComment={onEditComment}
         />
       </div>
     </li>
@@ -176,6 +237,7 @@ export default function PostCommentsSection({
   onCommentDraftChange,
   onSubmitComment,
   onDeleteComment,
+  onEditComment,
   replyOpenCommentId,
   replyDraft,
   onReplyDraftChange,
@@ -262,6 +324,7 @@ export default function PostCommentsSection({
                       currentUserId={currentUserId}
                       profileNav={profileNav}
                       onDeleteComment={onDeleteComment}
+                      onEditComment={onEditComment}
                       showReplyAction
                       repliesCount={totalReplies}
                       onReplyClick={() => onOpenReplyComposer?.(post, c.id)}
@@ -276,6 +339,7 @@ export default function PostCommentsSection({
                             currentUserId={currentUserId}
                             profileNav={profileNav}
                             onDeleteComment={onDeleteComment}
+                            onEditComment={onEditComment}
                           />
                         ))}
                       </ul>
