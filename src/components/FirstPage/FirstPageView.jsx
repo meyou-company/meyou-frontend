@@ -14,7 +14,12 @@ import { applyPersistedLikes } from '../../utils/postLikePersistence';
 import { getProfileRouteHandle } from '../../utils/profileFriendNav';
 import StoryCircle from "../../components/Stories/StoryCircle";
 import NotificationBell from '../../components/Notifications/NotificationBell';
-import PostFeedMedia from '../../components/PostFeed/PostFeedMedia';
+import PostFeedBody from '../../components/PostFeed/PostFeedBody';
+import '../../components/PostFeed/PostFeedBody.scss';
+import '../../components/PostFeed/RepostUi.scss';
+import { RepostHeaderIcon } from '../../components/PostFeed/RepostUi';
+import { isRepostCard } from '../../utils/postShareContext';
+import SharePostModal from '../../components/PostFeed/SharePostModal';
 import ImageLightbox from '../../components/PostFeed/ImageLightbox';
 import '../Users/Profile/ProfileHome/ProfileHome.scss';
 import './FirstPageView.scss';
@@ -83,7 +88,10 @@ export default function FirstPageView({
   const [feedLoadingMore, setFeedLoadingMore] = useState(false);
   const loadMoreRef = useRef(null);
   const FEED_CACHE_KEY = 'first-page-feed-cache';
-  const feedActions = usePostFeedActions(setFeedPosts);
+  const feedActions = usePostFeedActions(setFeedPosts, {
+    currentUserId,
+    refetchFeed: () => fetchFeedPage(1, { append: false }),
+  });
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -340,6 +348,15 @@ export default function FirstPageView({
           onPrev={() => moveLightbox(-1)}
           onNext={() => moveLightbox(1)}
         />
+
+        <SharePostModal
+          post={feedActions.sharePost}
+          isOpen={Boolean(feedActions.sharePost)}
+          onClose={feedActions.closeSharePost}
+          onSendToUsers={feedActions.handleSendToUsers}
+          onRepostToFeed={feedActions.handleRepostToFeed}
+          isReposted={feedActions.sharePost?.viewerState?.isReposted === true}
+        />
       </div>
     </div>
   );
@@ -423,6 +440,7 @@ function GlobalFeedPostCard({ post, feedActions, onOpenProfile, onOpenLightbox }
     onOpenProfile?.(authorHandle);
   };
   const hasProfileLink = Boolean(authorHandle);
+  const repost = isRepostCard(post);
 
   return (
     <article className="first-page-post px-1.5 pt-1.5 pb-[11px] md:p-2.5 xl:!mb-[29px] my-4 space-y-3 relative">
@@ -440,12 +458,17 @@ function GlobalFeedPostCard({ post, feedActions, onOpenProfile, onOpenLightbox }
               alt=""
               className=" h-10 md:h-[60px] xl:h-20 rounded-full object-cover bg-gray-300"
             />
-            <div className="flex flex-col mt-[5px] gap-[3px]">
+            <div className="flex flex-col mt-[5px] gap-[3px] min-w-0 flex-1">
+              <div className="flex items-center justify-between gap-2 min-w-0">
+                <span className="text-xs md:text-sm xl:text-xl font-[Montserrat] underline bg-gradient-to-r from-[#FF4FB1] to-[#4F6BFF] bg-clip-text text-transparent truncate">
+                  {name}
+                </span>
+                {repost ? (
+                  <RepostHeaderIcon className="first-page-post__repostIcon" />
+                ) : null}
+              </div>
               <span className="text-[8px] md:text-xs xl:text-xl text-black font-[Montserrat] underline">
                 {timeLabel}
-              </span>
-              <span className="text-xs md:text-sm xl:text-xl font-[Montserrat] underline bg-gradient-to-r from-[#FF4FB1] to-[#4F6BFF] bg-clip-text text-transparent">
-                {name}
               </span>
             </div>
           </button>
@@ -476,9 +499,7 @@ function GlobalFeedPostCard({ post, feedActions, onOpenProfile, onOpenLightbox }
         </div>
       </div>
 
-      <p className="postText">{post.text}</p>
-
-      <PostFeedMedia
+      <PostFeedBody
         post={post}
         postId={post.id}
         onOpenLightbox={onOpenLightbox}
@@ -507,8 +528,7 @@ function GlobalFeedPostCard({ post, feedActions, onOpenProfile, onOpenLightbox }
           <ActionIcon
             icon={profileIcons.share}
             label={String(post.counts.reposts)}
-            active={post.viewerState.isReposted}
-            onClick={() => feedActions.onSend(post)}
+            onClick={() => feedActions.openSharePost(post)}
           />
         </div>
       </div>

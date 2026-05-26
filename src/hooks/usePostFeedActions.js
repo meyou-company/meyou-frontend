@@ -5,8 +5,11 @@ import { getApiErrorMessage } from "../utils/getApiErrorMessage";
 import {
   mergeCommentResponse,
   mergeLikeResponse,
-  mergeRepostResponse,
 } from "../utils/mergePostActionResponse";
+import {
+  extractCreatedRepostFromResponse,
+  mergeRepostIntoFeedList,
+} from "../utils/repostFeed";
 import {
   normalizeComment,
   organizeComments,
@@ -75,12 +78,16 @@ function isPostNotFoundError(error) {
  * Спільна логіка like / comment / repost / delete для глобальної стрічки та профілю.
  * Оновлює пост локально після відповіді API (без повторного GET).
  */
-export function usePostFeedActions(setFeedPosts) {
+export function usePostFeedActions(
+  setFeedPosts,
+  { currentUserId, feedOwnerId, refetchFeed } = {}
+) {
   /** Який пост має відкриту секцію коментарів (toggle по іконці comments). */
   const [commentsOpenPostId, setCommentsOpenPostId] = useState(null);
   const [commentDraft, setCommentDraft] = useState("");
   const [replyOpenCommentId, setReplyOpenCommentId] = useState(null);
   const [replyDraft, setReplyDraft] = useState("");
+  const [sharePost, setSharePost] = useState(null);
   const replyDraftsRef = useRef({});
   const replyDraftSyncRef = useRef("");
   const inflight = useRef({});
@@ -146,23 +153,49 @@ export function usePostFeedActions(setFeedPosts) {
     [patchPost, run, dropPostEverywhere]
   );
 
-  const onRepost = useCallback(
-    (post) => {
-      run(`repost-${post.id}`, async () => {
-        try {
-          const data = await postsApi.repost(post.id);
-          patchPost(post.id, (p) => mergeRepostResponse(p, data));
-        } catch (e) {
-          if (isPostNotFoundError(e)) {
-            dropPostEverywhere(post.id);
-            return;
+  const handleRepostToFeed = useCallback(
+    async (post) => {
+      if (!post?.id) throw new Error("post required");
+      if (post.viewerState?.isReposted) {
+        return null;
+      }
+      try {
+        const data = await postsApi.repost(post.id);
+        const created = extractCreatedRepostFromResponse(data, post);
+
+        setFeedPosts((prev) =>
+          mergeRepostIntoFeedList(prev, post, data, {
+            currentUserId,
+            feedOwnerId,
+          })
+        );
+
+        if (!created && typeof refetchFeed === "function") {
+          const shouldRefetch =
+            !feedOwnerId ||
+            (currentUserId &&
+              String(feedOwnerId) === String(currentUserId));
+          if (shouldRefetch) {
+            await refetchFeed();
           }
-          const msg = getApiErrorMessage(e) || "Не вдалося зробити репост";
-          toast.error(msg);
         }
-      });
+
+        return data;
+      } catch (e) {
+        if (isPostNotFoundError(e)) {
+          dropPostEverywhere(post.id);
+        }
+        const msg = getApiErrorMessage(e) || "Не вдалося зробити репост";
+        throw new Error(msg);
+      }
     },
-    [patchPost, run, dropPostEverywhere]
+    [
+      setFeedPosts,
+      currentUserId,
+      feedOwnerId,
+      refetchFeed,
+      dropPostEverywhere,
+    ]
   );
 
   const toggleCommentsOpen = useCallback((postId) => {
@@ -515,34 +548,34 @@ export function usePostFeedActions(setFeedPosts) {
   [patchPost, run]
 ); 
 
-  const onSend = useCallback(
-  (post) => {
-    if (!post?.id) return;
+  const openSharePost = useCallback((post) => {
+    if (post?.id) setSharePost(post);
+  }, []);
 
-    const recipientId = window.prompt("Введіть user id отримувача");
+  const closeSharePost = useCallback(() => {
+    setSharePost(null);
+  }, []);
 
-    if (!recipientId?.trim()) return;
-
-    const message = window.prompt("Повідомлення (необов'язково)") || "";
-
-    run(`send-${post.id}`, async () => {
-      try {
-        await postsApi.send(post.id, {
-          recipientUserIds: [recipientId.trim()],
-          message,
-        });
-
-        toast.success("Пост відправлено");
-      } catch (e) {
-        const msg =
-          getApiErrorMessage(e) || "Не вдалося відправити пост";
-
-        toast.error(msg);
+  const handleSendToUsers = useCallback(
+    async ({ postId, recipientUserIds, message }) => {
+      if (!postId || !Array.isArray(recipientUserIds) || recipientUserIds.length === 0) {
+        throw new Error("Оберіть отримувачів");
       }
-    });
-  },
-  [run]
-);
+      try {
+        return await postsApi.send(postId, {
+          recipientUserIds,
+          message: String(message ?? "").trim(),
+        });
+      } catch (e) {
+        if (isPostNotFoundError(e)) {
+          dropPostEverywhere(postId);
+        }
+        const msg = getApiErrorMessage(e) || "Не вдалося надіслати пост";
+        throw new Error(msg);
+      }
+    },
+    [dropPostEverywhere]
+  );
 
   return {
     commentsOpenPostId,
@@ -563,9 +596,12 @@ export function usePostFeedActions(setFeedPosts) {
     loadReplies,
     countPostReplies,
     onLike,
-    onRepost,
+    handleRepostToFeed,
     onDeletePost,
     onSave,
-    onSend,
+    sharePost,
+    openSharePost,
+    closeSharePost,
+    handleSendToUsers,
   };
 }

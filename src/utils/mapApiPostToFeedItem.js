@@ -163,9 +163,19 @@ export function mapApiPostToFeedItem(p) {
     return Array.isArray(raw) ? organizeComments(raw) : [];
   })();
 
+  const originalPostId =
+    p.originalPostId ?? p.original_post_id ?? p.repostOfId ?? null;
+  const originalRaw =
+    p.originalPost ?? p.original ?? p.repostedPost ?? p.sourcePost ?? null;
+  const originalPost = originalRaw ? mapApiPostToFeedItem(originalRaw) : null;
+  const isRepost = Boolean(originalPostId || originalPost);
+
   return {
     id: p.id,
-    text: p.fullText ?? p.shortText ?? '',
+    text: p.fullText ?? p.shortText ?? p.repostText ?? '',
+    isRepost,
+    originalPostId: originalPostId != null ? String(originalPostId) : null,
+    originalPost,
     location: p.location || '',
     media,
     createdAt: p.createdAt ?? null,

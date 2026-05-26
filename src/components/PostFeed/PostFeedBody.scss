@@ -1,0 +1,32 @@
+.postShare {
+  margin-top: 2px;
+}
+
+.postShare__embed {
+  border: 1px solid #e4e6eb;
+  border-radius: 12px;
+  padding: 10px 12px 8px;
+  background: rgba(255, 255, 255, 0.65);
+}
+
+.postShare__embedAuthor {
+  margin: 0 0 4px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #050505;
+}
+
+.postShare__embedText {
+  margin-bottom: 8px;
+}
+
+body.dark .postShare__embed,
+html[data-theme="dark"] .postShare__embed {
+  border-color: rgba(255, 255, 255, 0.12);
+  background: rgba(36, 37, 38, 0.55);
+}
+
+body.dark .postShare__embedAuthor,
+html[data-theme="dark"] .postShare__embedAuthor {
+  color: rgba(255, 255, 255, 0.92);
+}

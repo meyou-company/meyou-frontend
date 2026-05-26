@@ -973,10 +973,19 @@ font-size: 60px;
   margin-bottom: 2px;
 }
 
+.postAuthorRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-width: 0;
+}
+
 .postAuthor {
   font-size: 14px;
   font-weight: 700;
   color: #6b66ff;
+  min-width: 0;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;

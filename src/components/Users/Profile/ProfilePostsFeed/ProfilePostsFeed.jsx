@@ -2,7 +2,12 @@ import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import profileIcons from '../../../../constants/profileIcons';
 import PostCommentsSection from '../../../PostFeed/PostCommentsSection';
-import PostFeedMedia from '../../../PostFeed/PostFeedMedia';
+import PostFeedBody from '../../../PostFeed/PostFeedBody';
+import '../../../PostFeed/PostFeedBody.scss';
+import '../../../PostFeed/RepostUi.scss';
+import { RepostHeaderIcon } from '../../../PostFeed/RepostUi';
+import { isRepostCard, postAuthorDisplayName } from '../../../../utils/postShareContext';
+import SharePostModal from '../../../PostFeed/SharePostModal';
 import ImageLightbox from '../../../PostFeed/ImageLightbox';
 
 /**
@@ -100,7 +105,15 @@ export default function ProfilePostsFeed({
         {!feedLoading && !feedError && feedPosts.length === 0 && (
           <p className="feedEmptyHint">Поки немає постів</p>
         )}
-        {feedPosts.map((post) => (
+        {feedPosts.map((post) => {
+          const repost = isRepostCard(post);
+          const headerName = repost
+            ? postAuthorDisplayName(post.author)
+            : titleName;
+          const headerAvatar =
+            (repost && post.author?.avatarUrl) || displayAvatar;
+
+          return (
           <article
             id={`post-${post.id}`}
             key={post.id}
@@ -116,12 +129,15 @@ export default function ProfilePostsFeed({
                   onClick={() => onViewProfileAvatar?.()}
                   aria-label="Переглянути фото"
                 >
-                  <img src={displayAvatar} className="postAvatar" alt="" />
+                  <img src={headerAvatar} className="postAvatar" alt="" />
                 </button>
 
                 <div className="postHeadText">
-                  <div className="postLabel">new post</div>
-                  <div className="postAuthor">{titleName}</div>
+                  {!repost && <div className="postLabel">new post</div>}
+                  <div className="postAuthorRow">
+                    <div className="postAuthor">{headerName}</div>
+                    {repost ? <RepostHeaderIcon /> : null}
+                  </div>
                 </div>
               </div>
 
@@ -168,9 +184,7 @@ export default function ProfilePostsFeed({
               </div>
             </div>
 
-            <p className="postText">{post.text}</p>
-
-            <PostFeedMedia
+            <PostFeedBody
               post={post}
               postId={post.id}
               onOpenLightbox={openPostImageViewer}
@@ -222,11 +236,10 @@ export default function ProfilePostsFeed({
               </button>
 
               <button
-                className={`postActionBtn ${post.viewerState?.isReposted ? 'postActionBtn--active' : ''}`}
+                className="postActionBtn"
                 type="button"
-                aria-label="share"
-                aria-pressed={post.viewerState?.isReposted === true}
-                onClick={() => feedActions.onSend(post)}
+                aria-label="Поділитися"
+                onClick={() => feedActions.openSharePost(post)}
               >
                 <img
                   src={profileIcons.share || '/home/to-share.svg'}
@@ -259,7 +272,8 @@ export default function ProfilePostsFeed({
               />
             )}
           </article>
-        ))}
+          );
+        })}
       </section>
 
       <ImageLightbox
@@ -269,6 +283,15 @@ export default function ProfilePostsFeed({
         onClose={closeLightbox}
         onPrev={() => moveLightbox(-1)}
         onNext={() => moveLightbox(1)}
+      />
+
+      <SharePostModal
+        post={feedActions.sharePost}
+        isOpen={Boolean(feedActions.sharePost)}
+        onClose={feedActions.closeSharePost}
+        onSendToUsers={feedActions.handleSendToUsers}
+        onRepostToFeed={feedActions.handleRepostToFeed}
+        isReposted={feedActions.sharePost?.viewerState?.isReposted === true}
       />
     </>
   );
