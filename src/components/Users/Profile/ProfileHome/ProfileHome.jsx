@@ -22,7 +22,7 @@ import {
 import { mapApiPostToFeedItem } from "../../../../utils/mapApiPostToFeedItem";
 import { useProfileAuthorFeed } from "../../../../hooks/useProfileAuthorFeed";
 import ProfilePostsFeed from "../ProfilePostsFeed/ProfilePostsFeed";
-import EmojiPickerButton from "../../../EmojiPicker/EmojiPickerButton";
+import CreatePostModal from "../../../PostFeed/CreatePostModal";
 import { getApiErrorMessage } from "../../../../utils/getApiErrorMessage";
 import { detectCurrentLocationLabel } from "../../../../utils/postGeolocation";
 import "./ProfileHome.scss";
@@ -57,12 +57,14 @@ export default function ProfileHome({
   const fileInputRef = useRef(null);
   const composerTextareaRef = useRef(null);
   const postMediaInputRef = useRef(null);
+  const postVideoMediaInputRef = useRef(null);
 
   const [newPostText, setNewPostText] = useState("");
   const [postLocation, setPostLocation] = useState("");
   const [isDetectingLocation, setIsDetectingLocation] = useState(false);
   const [postMediaFiles, setPostMediaFiles] = useState([]);
   const [isComposerOpen, setIsComposerOpen] = useState(false);
+  const [locationPanelOpen, setLocationPanelOpen] = useState(false);
   const [isPublishingPost, setIsPublishingPost] = useState(false);
   const [cropModalSrc, setCropModalSrc] = useState(null);
   const [isSaving, setIsSaving] = useState(false);
@@ -164,6 +166,7 @@ export default function ProfileHome({
   const closeComposer = () => {
     setIsComposerOpen(false);
     setIsDetectingLocation(false);
+    setLocationPanelOpen(false);
   };
 
   const handleUseCurrentLocation = async () => {
@@ -171,7 +174,10 @@ export default function ProfileHome({
     setIsDetectingLocation(true);
     try {
       const label = await detectCurrentLocationLabel();
-      if (label) setPostLocation(label);
+      if (label) {
+        setPostLocation(label);
+        setLocationPanelOpen(true);
+      }
     } catch {
       /* permission denied / unavailable — silent */
     } finally {
@@ -620,139 +626,34 @@ export default function ProfileHome({
       )}
 
       {isComposerOpen && (
-        <div
-          className="composerModal"
-          role="dialog"
-          aria-modal="true"
-          aria-label="Створити допис"
-          onClick={closeComposer}
-        >
-          <div className="composerCard" onClick={(e) => e.stopPropagation()}>
-            <div className="composerHeader">
-              <h3 className="composerTitle" id="composer-dialog-title">
-                Створити допис
-              </h3>
-              <button
-                type="button"
-                className="composerClose"
-                onClick={closeComposer}
-                aria-label="Закрити"
-              >
-                ×
-              </button>
-            </div>
-
-            <div className="composerInputShell">
-              <div className="composerAvatarRing" aria-hidden="true">
-                <img src={displayAvatar} alt="" className="composerAvatarImg" />
-                <span className="composerAvatarStatus" />
-              </div>
-              <textarea
-                ref={composerTextareaRef}
-                className="postInput composerTextarea"
-                value={newPostText}
-                onChange={(e) => setNewPostText(e.target.value)}
-                placeholder={composerPlaceholder}
-                aria-labelledby="composer-dialog-title"
-              />
-              <EmojiPickerButton
-                inputRef={composerTextareaRef}
-                value={newPostText}
-                onChange={setNewPostText}
-                className="composerEmojiBtn"
-                ariaLabel="Додати емодзі до допису"
-              />
-            </div>
-
-            <input
-              ref={postMediaInputRef}
-              type="file"
-              accept="image/*"
-              multiple
-              className="postMediaInput"
-              onChange={onPostMediaSelect}
-            />
-
-            {postMediaFiles.length > 0 && (
-              <div className="postMediaPreviewGrid">
-                {postMediaFiles.map((media) => (
-                  <div key={media.id} className="postMediaPreviewItem">
-                    {media.type === "video" ? (
-                      <video src={media.previewUrl} className="postMediaPreview" controls />
-                    ) : (
-                      <img src={media.previewUrl} alt="" className="postMediaPreview" />
-                    )}
-                    <button
-                      type="button"
-                      className="removeMediaBtn"
-                      onClick={() => removePostMedia(media.id)}
-                      aria-label="Видалити файл"
-                    >
-                      ×
-                    </button>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            <div className="composerLocation">
-              <label className="composerLocation__label" htmlFor="composer-location">
-                Локація <span className="composerLocation__optional">(необовʼязково)</span>
-              </label>
-              <div className="composerLocation__row">
-                <input
-                  id="composer-location"
-                  type="text"
-                  className="composerLocation__input"
-                  value={postLocation}
-                  onChange={(e) => setPostLocation(e.target.value)}
-                  placeholder="Місто, країна"
-                  autoComplete="off"
-                  enterKeyHint="done"
-                />
-                <button
-                  type="button"
-                  className="composerLocation__detectBtn"
-                  onClick={handleUseCurrentLocation}
-                  disabled={isDetectingLocation}
-                  aria-busy={isDetectingLocation}
-                >
-                  {isDetectingLocation ? "…" : "📍"} Use current location
-                </button>
-              </div>
-            </div>
-
-            <div className="composerActions">
-              <button
-                type="button"
-                className="composerActionBtn"
-                onClick={() => postMediaInputRef.current?.click()}
-              >
-                <img
-                  src={profileIcons.live}
-                  alt=""
-                  className="composerActionIcon"
-                  aria-hidden="true"
-                />
-                <span>Фото</span>
-              </button>
-
-              <div className="newPostActions">
-                <button
-                  type="button"
-                  className="publishBtn"
-                  disabled={
-                    isPublishingPost || (!newPostText.trim() && postMediaFiles.length === 0)
-                  }
-                  onClick={handlePublishPost}
-                  aria-label="Опублікувати"
-                >
-                  {isPublishingPost ? "Публікуємо..." : "Опублікувати"}
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
+        <CreatePostModal
+          authorName={titleName}
+          displayAvatar={displayAvatar}
+          showOnlineDot={user?.online !== false}
+          text={newPostText}
+          onTextChange={setNewPostText}
+          placeholder="Що у вас нового?"
+          textareaRef={composerTextareaRef}
+          postMediaFiles={postMediaFiles}
+          onRemoveMedia={removePostMedia}
+          postMediaInputRef={postMediaInputRef}
+          postVideoInputRef={postVideoMediaInputRef}
+          onPhotoSelect={onPostMediaSelect}
+          onVideoSelect={onPostMediaSelect}
+          postLocation={postLocation}
+          onPostLocationChange={setPostLocation}
+          onClearLocation={() => setPostLocation("")}
+          locationPanelOpen={locationPanelOpen}
+          onToggleLocationPanel={() => setLocationPanelOpen((v) => !v)}
+          onUseCurrentLocation={handleUseCurrentLocation}
+          isDetectingLocation={isDetectingLocation}
+          isPublishing={isPublishingPost}
+          onPublish={handlePublishPost}
+          onClose={closeComposer}
+          canPublish={
+            Boolean(newPostText.trim()) || postMediaFiles.length > 0
+          }
+        />
       )}
 
       {/* Перегляд фото в повному розмірі */}
