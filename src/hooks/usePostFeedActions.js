@@ -7,7 +7,11 @@ import {
   mergeLikeResponse,
   mergeRepostResponse,
 } from "../utils/mergePostActionResponse";
-import { normalizeComment } from "../utils/mapApiPostToFeedItem";
+import {
+  normalizeComment,
+  organizeComments,
+  countPostReplies,
+} from "../utils/mapApiPostToFeedItem";
 import { clearPostLikeOverride, persistPostLike } from "../utils/postLikePersistence";
 
 function removeDeletedPostFromCaches(postId) {
@@ -75,6 +79,10 @@ export function usePostFeedActions(setFeedPosts) {
   /** Який пост має відкриту секцію коментарів (toggle по іконці comments). */
   const [commentsOpenPostId, setCommentsOpenPostId] = useState(null);
   const [commentDraft, setCommentDraft] = useState("");
+  const [replyOpenCommentId, setReplyOpenCommentId] = useState(null);
+  const [replyDraft, setReplyDraft] = useState("");
+  const replyDraftsRef = useRef({});
+  const replyDraftSyncRef = useRef("");
   const inflight = useRef({});
 
   const patchPost = useCallback(
@@ -161,9 +169,13 @@ export function usePostFeedActions(setFeedPosts) {
     setCommentsOpenPostId((id) => {
       if (id != null && String(id) === String(postId)) {
         setCommentDraft("");
+        setReplyOpenCommentId(null);
+        setReplyDraft("");
         return null;
       }
       setCommentDraft("");
+      setReplyOpenCommentId(null);
+      setReplyDraft("");
       return postId;
     });
   }, []);
@@ -181,15 +193,16 @@ export function usePostFeedActions(setFeedPosts) {
       run(`comments-load-${postId}`, async () => {
         try {
           const list = await postsApi.listComments(postId, { page: 1, limit: 50 });
-          const normalized = (Array.isArray(list) ? list : [])
-            .map(normalizeComment)
-            .filter(Boolean);
+          const organized = organizeComments(
+            Array.isArray(list) ? list : []
+          );
           patchPost(postId, (p) => ({
             ...p,
-            comments: normalized,
+            comments: organized,
             counts: {
               ...p.counts,
-              comments: Math.max(p.counts?.comments ?? 0, normalized.length),
+              comments: Math.max(p.counts?.comments ?? 0, organized.length),
+              replies: countPostReplies(organized),
             },
           }));
         } catch (e) {
@@ -224,34 +237,187 @@ export function usePostFeedActions(setFeedPosts) {
     [patchPost, run, loadComments, dropPostEverywhere]
   );
 
-  const onDeleteComment = useCallback(
+  const patchCommentOnPost = useCallback(
+    (postId, commentId, updater) => {
+      patchPost(postId, (p) => {
+        const prev = Array.isArray(p.comments) ? p.comments : [];
+        const next = prev.map((c) =>
+          String(c?.id) === String(commentId) ? updater(c) : c
+        );
+        return {
+          ...p,
+          comments: next,
+          counts: {
+            ...p.counts,
+            replies: countPostReplies(next),
+          },
+        };
+      });
+    },
+    [patchPost]
+  );
+
+  const loadReplies = useCallback(
+    (postId, commentId, { limit = 50 } = {}) => {
+      if (!postId || !commentId) return Promise.resolve();
+      return run(`replies-load-${commentId}`, async () => {
+        try {
+          const list = await postsApi.listReplies(commentId, { page: 1, limit });
+          const replies = (Array.isArray(list) ? list : [])
+            .map((r) => normalizeComment(r, { isReply: true }))
+            .filter(Boolean);
+          patchCommentOnPost(postId, commentId, (c) => ({
+            ...c,
+            replies,
+            repliesLoaded: true,
+            repliesCount: Math.max(c.repliesCount ?? 0, replies.length),
+          }));
+        } catch (e) {
+          const msg = getApiErrorMessage(e) || "Не вдалося завантажити відповіді";
+          toast.error(msg);
+        }
+      });
+    },
+    [run, patchCommentOnPost]
+  );
+
+  const openReplyComposer = useCallback(
     (post, commentId) => {
+      if (!commentId) return;
+      setReplyOpenCommentId((prev) => {
+        if (prev != null && String(prev) !== String(commentId)) {
+          replyDraftsRef.current[String(prev)] = replyDraftSyncRef.current;
+        }
+        const nextDraft = replyDraftsRef.current[String(commentId)] ?? "";
+        replyDraftSyncRef.current = nextDraft;
+        setReplyDraft(nextDraft);
+        return commentId;
+      });
+      const comment = (post?.comments ?? []).find(
+        (c) => String(c?.id) === String(commentId)
+      );
+      if (
+        comment &&
+        (comment.repliesCount ?? 0) > 0 &&
+        !comment.repliesLoaded
+      ) {
+        loadReplies(post.id, commentId, { limit: 50 });
+      }
+    },
+    [loadReplies]
+  );
+
+  const setReplyDraftForOpen = useCallback((text) => {
+    replyDraftSyncRef.current = text;
+    setReplyDraft(text);
+    setReplyOpenCommentId((openId) => {
+      if (openId != null) replyDraftsRef.current[String(openId)] = text;
+      return openId;
+    });
+  }, []);
+
+  const closeReplyComposer = useCallback(() => {
+    if (replyOpenCommentId != null) {
+      replyDraftsRef.current[String(replyOpenCommentId)] = replyDraft;
+    }
+    setReplyOpenCommentId(null);
+  }, [replyOpenCommentId, replyDraft]);
+
+  const submitReply = useCallback(
+    (post, parentCommentId, text) => {
+      const t = (text || "").trim();
+      if (!t || !post?.id || !parentCommentId) return;
+      run(`reply-${parentCommentId}`, async () => {
+        try {
+          await postsApi.addReply(parentCommentId, t);
+          await loadReplies(post.id, parentCommentId, { limit: 100 });
+          patchCommentOnPost(post.id, parentCommentId, (c) => ({
+            ...c,
+            repliesExpanded: true,
+          }));
+          replyDraftsRef.current[String(parentCommentId)] = "";
+          setReplyDraft("");
+          setReplyOpenCommentId(null);
+        } catch (e) {
+          if (isPostNotFoundError(e)) {
+            dropPostEverywhere(post.id);
+            return;
+          }
+          const msg = getApiErrorMessage(e) || "Не вдалося надіслати відповідь";
+          toast.error(msg);
+        }
+      });
+    },
+    [run, loadReplies, patchCommentOnPost, dropPostEverywhere]
+  );
+
+  const showMoreReplies = useCallback(
+    (post, commentId) => {
+      if (!post?.id || !commentId) return;
+      const comment = (post.comments ?? []).find(
+        (c) => String(c?.id) === String(commentId)
+      );
+      if (!comment) return;
+      patchCommentOnPost(post.id, commentId, (c) => ({
+        ...c,
+        repliesExpanded: true,
+      }));
+      if (!comment.repliesLoaded) {
+        loadReplies(post.id, commentId, { limit: 100 });
+      }
+    },
+    [patchCommentOnPost, loadReplies]
+  );
+
+  const onDeleteComment = useCallback(
+    (post, commentId, { parentId, isReply } = {}) => {
       if (!post?.id || !commentId) return;
       run(`comment-delete-${post.id}-${commentId}`, async () => {
         try {
           await postsApi.deleteComment(commentId);
           patchPost(post.id, (p) => {
             const prevComments = Array.isArray(p.comments) ? p.comments : [];
-            const nextComments = prevComments.filter(
-              (c) => String(c?.id) !== String(commentId)
-            );
+            let nextComments;
+            if (isReply && parentId) {
+              nextComments = prevComments.map((c) => {
+                if (String(c?.id) !== String(parentId)) return c;
+                const replies = (c.replies ?? []).filter(
+                  (r) => String(r?.id) !== String(commentId)
+                );
+                return {
+                  ...c,
+                  replies,
+                  repliesCount: Math.max(0, (c.repliesCount ?? 0) - 1),
+                };
+              });
+            } else {
+              nextComments = prevComments.filter(
+                (c) => String(c?.id) !== String(commentId)
+              );
+            }
             return {
               ...p,
               comments: nextComments,
               counts: {
                 ...p.counts,
-                comments: Math.max(0, (p.counts?.comments ?? prevComments.length) - 1),
+                comments: isReply
+                  ? p.counts?.comments ?? prevComments.length
+                  : Math.max(
+                      0,
+                      (p.counts?.comments ?? prevComments.length) - 1
+                    ),
+                replies: countPostReplies(nextComments),
               },
             };
           });
-          loadComments(post.id);
+          if (!isReply) loadComments(post.id);
         } catch (e) {
           const msg = getApiErrorMessage(e) || "Не вдалося видалити коментар";
           toast.error(msg);
         }
       });
     },
-    [run, patchPost, loadComments, dropPostEverywhere]
+    [run, patchPost, loadComments]
   );
 
   const openComments = useCallback(
@@ -260,9 +426,13 @@ export function usePostFeedActions(setFeedPosts) {
         const willOpen = !(id != null && String(id) === String(postId));
         if (!willOpen) {
           setCommentDraft("");
+          setReplyOpenCommentId(null);
+          setReplyDraft("");
           return null;
         }
         setCommentDraft("");
+        setReplyOpenCommentId(null);
+        setReplyDraft("");
         loadComments(postId);
         return postId;
       });
@@ -383,6 +553,15 @@ export function usePostFeedActions(setFeedPosts) {
     submitComment,
     onDeleteComment,
     loadComments,
+    replyOpenCommentId,
+    replyDraft,
+    setReplyDraft: setReplyDraftForOpen,
+    openReplyComposer,
+    closeReplyComposer,
+    submitReply,
+    showMoreReplies,
+    loadReplies,
+    countPostReplies,
     onLike,
     onRepost,
     onDeletePost,

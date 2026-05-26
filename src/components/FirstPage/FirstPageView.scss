@@ -60,6 +60,19 @@ html[data-theme="light"] .first-page-stories {
 }
 
 /* Пости на first-page: напівпрозорий фон, просвічує сторінку */
+.first-page-post__repliesStat {
+  display: inline-flex;
+  align-items: center;
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.85);
+  white-space: nowrap;
+}
+
+html[data-theme="light"] .first-page-post__repliesStat {
+  color: #4a3d66;
+}
+
 .first-page-post {
   background: rgba(255, 255, 255, 0.2);
   backdrop-filter: blur(12px);

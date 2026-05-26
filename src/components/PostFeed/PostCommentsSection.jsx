@@ -2,7 +2,10 @@ import profileIcons from "../../constants/profileIcons";
 import { useAuthStore } from "../../zustand/useAuthStore";
 import { useUserProfileNav } from "../../context/UserProfileNavContext";
 import { getProfileRouteHandle } from "../../utils/profileFriendNav";
+import CommentComposer from "./CommentComposer";
 import "./PostCommentsSection.scss";
+
+const VISIBLE_REPLIES_DEFAULT = 2;
 
 /** Як у Facebook: короткий відносний час або дата. */
 function formatCommentWhen(iso) {
@@ -38,32 +41,158 @@ function commentAvatarSrc(c) {
   return c?.author?.avatarUrl || profileIcons.userStory;
 }
 
+function repliesLabel(count) {
+  const n = Number(count) || 0;
+  if (n === 1) return "1 відповідь";
+  if (n >= 2 && n <= 4) return `${n} відповіді`;
+  return `${n} відповідей`;
+}
+
+function CommentBubble({
+  comment,
+  currentUserId,
+  profileNav,
+  onDeleteComment,
+  showReplyAction = false,
+  repliesCount = 0,
+  onReplyClick,
+}) {
+  const authorHandle = comment?.author
+    ? getProfileRouteHandle(comment.author)
+    : null;
+  const canOpenAuthor = Boolean(authorHandle && profileNav?.openProfile);
+  const goAuthor = () => {
+    if (canOpenAuthor) profileNav.openProfile(comment.author);
+  };
+
+  return (
+    <>
+      <div className="postCommentsSection__bubble">
+        <div className="postCommentsSection__bubbleHead">
+          <button
+            type="button"
+            className="postCommentsSection__nameBtn"
+            disabled={!canOpenAuthor}
+            onClick={goAuthor}
+          >
+            {commentDisplayName(comment)}
+          </button>
+          <span
+            className="postCommentsSection__when"
+            title={
+              comment.createdAt
+                ? new Date(comment.createdAt).toLocaleString()
+                : ""
+            }
+          >
+            {formatCommentWhen(comment.createdAt)}
+          </span>
+          {currentUserId &&
+            comment?.id &&
+            String(comment?.author?.id ?? "") === String(currentUserId) && (
+              <button
+                type="button"
+                className="postCommentsSection__deleteBtn"
+                onClick={() =>
+                  onDeleteComment?.(comment.id, {
+                    isReply: comment.isReply,
+                    parentId: comment.parentId,
+                  })
+                }
+              >
+                Видалити
+              </button>
+            )}
+        </div>
+        <p className="postCommentsSection__text">{comment.content}</p>
+      </div>
+      {(showReplyAction || repliesCount > 0) && (
+        <div className="postCommentsSection__commentActions">
+          {showReplyAction && (
+            <button
+              type="button"
+              className="postCommentsSection__replyBtn"
+              onClick={onReplyClick}
+            >
+              Відповісти
+            </button>
+          )}
+          {repliesCount > 0 && (
+            <span className="postCommentsSection__repliesStat">
+              {repliesLabel(repliesCount)}
+            </span>
+          )}
+        </div>
+      )}
+    </>
+  );
+}
+
+function ReplyRow({ reply, currentUserId, profileNav, onDeleteComment }) {
+  const authorHandle = reply?.author
+    ? getProfileRouteHandle(reply.author)
+    : null;
+  const canOpenAuthor = Boolean(authorHandle && profileNav?.openProfile);
+  const goAuthor = () => {
+    if (canOpenAuthor) profileNav.openProfile(reply.author);
+  };
+
+  return (
+    <li className="postCommentsSection__replyRow">
+      <button
+        type="button"
+        className="postCommentsSection__avatarBtn postCommentsSection__avatarBtn--reply"
+        disabled={!canOpenAuthor}
+        onClick={goAuthor}
+        aria-label={
+          canOpenAuthor ? `Профіль ${authorHandle}` : "Автор відповіді"
+        }
+      >
+        <img
+          className="postCommentsSection__avatar postCommentsSection__avatar--reply"
+          src={commentAvatarSrc(reply)}
+          alt=""
+        />
+      </button>
+      <div className="postCommentsSection__thread">
+        <CommentBubble
+          comment={reply}
+          currentUserId={currentUserId}
+          profileNav={profileNav}
+          onDeleteComment={onDeleteComment}
+        />
+      </div>
+    </li>
+  );
+}
+
 /**
  * Секція коментарів (як у Facebook): список зверху, поле вводу знизу в одному блоці.
- * Відкривається/закривається ззовні по кліку на іконку коментарів.
  */
 export default function PostCommentsSection({
+  post,
   comments = [],
   commentDraft,
   onCommentDraftChange,
   onSubmitComment,
   onDeleteComment,
+  replyOpenCommentId,
+  replyDraft,
+  onReplyDraftChange,
+  onOpenReplyComposer,
+  onSubmitReply,
+  onShowMoreReplies,
   variant = "profile",
 }) {
   const currentUserId = useAuthStore((s) => s.user?.id);
   const profileNav = useUserProfileNav();
-  const list = Array.isArray(comments) ? comments : [];
+  const list = (Array.isArray(comments) ? comments : []).filter(
+    (c) => !c?.isReply && !c?.parentId
+  );
   const rootClass =
     variant === "firstPage"
       ? "postCommentsSection postCommentsSection--firstPage"
       : "postCommentsSection";
-
-  const handleComposerKeyDown = (e) => {
-    if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) {
-      e.preventDefault();
-      onSubmitComment();
-    }
-  };
 
   return (
     <div className={rootClass} role="region" aria-label="Коментарі до поста">
@@ -80,94 +209,118 @@ export default function PostCommentsSection({
         ) : (
           <ul className="postCommentsSection__list">
             {list.map((c) => {
-              const authorHandle = c?.author
-                ? getProfileRouteHandle(c.author)
-                : null;
-              const canOpenAuthor = Boolean(authorHandle && profileNav?.openProfile);
-              const goAuthor = () => {
-                if (canOpenAuthor) profileNav.openProfile(c.author);
-              };
+              const replies = Array.isArray(c.replies) ? c.replies : [];
+              const totalReplies = Math.max(
+                c.repliesCount ?? 0,
+                replies.length
+              );
+              const expanded = c.repliesExpanded === true;
+              let visibleReplies = [];
+              let hiddenCount = 0;
+
+              if (!c.repliesLoaded && totalReplies > 0) {
+                hiddenCount = totalReplies;
+              } else if (expanded) {
+                visibleReplies = replies;
+                hiddenCount = 0;
+              } else {
+                visibleReplies = replies.slice(0, VISIBLE_REPLIES_DEFAULT);
+                hiddenCount = Math.max(
+                  0,
+                  totalReplies - visibleReplies.length
+                );
+              }
+              const isReplyOpen =
+                replyOpenCommentId != null &&
+                String(replyOpenCommentId) === String(c.id);
+
               return (
-              <li key={c.id} className="postCommentsSection__row">
-                <button
-                  type="button"
-                  className="postCommentsSection__avatarBtn"
-                  disabled={!canOpenAuthor}
-                  onClick={goAuthor}
-                  aria-label={
-                    canOpenAuthor
-                      ? `Профіль ${authorHandle}`
-                      : "Автор коментаря"
-                  }
-                >
-                  <img
-                    className="postCommentsSection__avatar"
-                    src={commentAvatarSrc(c)}
-                    alt=""
-                  />
-                </button>
-                <div className="postCommentsSection__thread">
-                  <div className="postCommentsSection__bubble">
-                    <div className="postCommentsSection__bubbleHead">
+                <li key={c.id} className="postCommentsSection__row">
+                  <button
+                    type="button"
+                    className="postCommentsSection__avatarBtn"
+                    disabled={
+                      !getProfileRouteHandle(c.author) || !profileNav?.openProfile
+                    }
+                    onClick={() => {
+                      const h = getProfileRouteHandle(c.author);
+                      if (h && profileNav?.openProfile) {
+                        profileNav.openProfile(c.author);
+                      }
+                    }}
+                    aria-label="Автор коментаря"
+                  >
+                    <img
+                      className="postCommentsSection__avatar"
+                      src={commentAvatarSrc(c)}
+                      alt=""
+                    />
+                  </button>
+                  <div className="postCommentsSection__thread">
+                    <CommentBubble
+                      comment={c}
+                      currentUserId={currentUserId}
+                      profileNav={profileNav}
+                      onDeleteComment={onDeleteComment}
+                      showReplyAction
+                      repliesCount={totalReplies}
+                      onReplyClick={() => onOpenReplyComposer?.(post, c.id)}
+                    />
+
+                    {visibleReplies.length > 0 && (
+                      <ul className="postCommentsSection__replies">
+                        {visibleReplies.map((r) => (
+                          <ReplyRow
+                            key={r.id}
+                            reply={{ ...r, isReply: true, parentId: c.id }}
+                            currentUserId={currentUserId}
+                            profileNav={profileNav}
+                            onDeleteComment={onDeleteComment}
+                          />
+                        ))}
+                      </ul>
+                    )}
+
+                    {hiddenCount > 0 && (
                       <button
                         type="button"
-                        className="postCommentsSection__nameBtn"
-                        disabled={!canOpenAuthor}
-                        onClick={goAuthor}
+                        className="postCommentsSection__showMoreReplies"
+                        onClick={() => onShowMoreReplies?.(post, c.id)}
                       >
-                        {commentDisplayName(c)}
+                        Показати ще ({hiddenCount})
                       </button>
-                      <span
-                        className="postCommentsSection__when"
-                        title={
-                          c.createdAt
-                            ? new Date(c.createdAt).toLocaleString()
-                            : ""
-                        }
-                      >
-                        {formatCommentWhen(c.createdAt)}
-                      </span>
-                      {currentUserId &&
-                        c?.id &&
-                        String(c?.author?.id ?? "") === String(currentUserId) && (
-                        <button
-                          type="button"
-                          className="postCommentsSection__deleteBtn"
-                          onClick={() => onDeleteComment?.(c.id)}
-                        >
-                          Видалити
-                        </button>
-                      )}
-                    </div>
-                    <p className="postCommentsSection__text">{c.content}</p>
+                    )}
+
+                    {isReplyOpen && (
+                      <div className="postCommentsSection__replyComposer">
+                        <CommentComposer
+                          compact
+                          value={replyDraft}
+                          onChange={onReplyDraftChange}
+                          onSubmit={() => onSubmitReply?.(post, c.id, replyDraft)}
+                          placeholder="Написати відповідь…"
+                          ariaLabel="Текст відповіді"
+                          sendAriaLabel="Надіслати відповідь"
+                        />
+                      </div>
+                    )}
                   </div>
-                </div>
-              </li>
-            );
+                </li>
+              );
             })}
           </ul>
         )}
       </div>
 
       <div className="postCommentsSection__composer">
-        <textarea
-          className="postCommentsSection__input"
+        <CommentComposer
           value={commentDraft}
-          onChange={(e) => onCommentDraftChange(e.target.value)}
-          onKeyDown={handleComposerKeyDown}
-          rows={2}
+          onChange={onCommentDraftChange}
+          onSubmit={onSubmitComment}
           placeholder="Написати коментар…"
-          aria-label="Текст нового коментаря"
+          ariaLabel="Текст нового коментаря"
+          sendAriaLabel="Надіслати коментар"
         />
-        <div className="postCommentsSection__composerActions">
-          <button
-            type="button"
-            className="postCommentsSection__submit"
-            onClick={onSubmitComment}
-          >
-            Надіслати
-          </button>
-        </div>
       </div>
     </div>
   );

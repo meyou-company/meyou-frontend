@@ -134,6 +134,24 @@ export const postsApi = {
     await api.delete(`/posts/comments/${cid}`);
   },
 
+  /** GET /posts/comments/:commentId/replies */
+  async listReplies(commentId, { page = 1, limit = 50 } = {}) {
+    const cid = encodeURIComponent(commentId);
+    const { data } = await api.get(`/posts/comments/${cid}/replies`, {
+      params: { page, limit },
+    });
+    return extractCommentsList(data);
+  },
+
+  /** POST /posts/comments/:commentId/replies — body { content: string } */
+  async addReply(commentId, content) {
+    const cid = encodeURIComponent(commentId);
+    const { data } = await api.post(`/posts/comments/${cid}/replies`, {
+      content: String(content ?? '').trim(),
+    });
+    return data;
+  },
+
   /** POST /posts/:id/repost */
   async repost(postId) {
     const { data } = await api.post(`/posts/${encodeURIComponent(postId)}/repost`);

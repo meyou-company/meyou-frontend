@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import profileIcons from '../../../../constants/profileIcons';
 import PostCommentsSection from '../../../PostFeed/PostCommentsSection';
-import PostMediaGallery from '../../../PostFeed/PostMediaGallery';
+import PostFeedMedia from '../../../PostFeed/PostFeedMedia';
 import ImageLightbox from '../../../PostFeed/ImageLightbox';
 
 /**
@@ -25,7 +25,6 @@ export default function ProfilePostsFeed({
 
   const [searchParams] = useSearchParams();
 
-  console.log(searchParams.get('post'));
   const targetPostId = searchParams.get('post');
 
   useEffect(() => {
@@ -171,36 +170,11 @@ export default function ProfilePostsFeed({
 
             <p className="postText">{post.text}</p>
 
-            {Array.isArray(post.media) && post.media.length > 0 ? (
-              (() => {
-                const images = post.media.filter((m) => m?.type !== 'VIDEO' && m?.url);
-                const videos = post.media.filter((m) => m?.type === 'VIDEO' && m?.url);
-                return (
-                  <>
-                    {images.length > 0 && (
-                      <PostMediaGallery mediaItems={images} onOpenLightbox={openPostImageViewer} />
-                    )}
-                    {videos.map((mediaItem) => (
-                      <div
-                        className="postMedia"
-                        key={`${post.id}-${mediaItem.order}-${mediaItem.url}`}
-                      >
-                        <video
-                          src={mediaItem.url}
-                          className="postMediaImg"
-                          controls
-                          preload="metadata"
-                        />
-                      </div>
-                    ))}
-                  </>
-                );
-              })()
-            ) : (
-              <div className="postMedia">
-                <div className="postMediaMock" />
-              </div>
-            )}
+            <PostFeedMedia
+              post={post}
+              postId={post.id}
+              onOpenLightbox={openPostImageViewer}
+            />
 
             <div className="postActions">
               <button
@@ -265,11 +239,22 @@ export default function ProfilePostsFeed({
 
             {feedActions.isCommentsOpen(post.id) && (
               <PostCommentsSection
+                post={post}
                 comments={post.comments}
                 commentDraft={feedActions.commentDraft}
                 onCommentDraftChange={feedActions.setCommentDraft}
-                onSubmitComment={() => feedActions.submitComment(post, feedActions.commentDraft)}
-                onDeleteComment={(commentId) => feedActions.onDeleteComment(post, commentId)}
+                onSubmitComment={() =>
+                  feedActions.submitComment(post, feedActions.commentDraft)
+                }
+                onDeleteComment={(commentId, meta) =>
+                  feedActions.onDeleteComment(post, commentId, meta)
+                }
+                replyOpenCommentId={feedActions.replyOpenCommentId}
+                replyDraft={feedActions.replyDraft}
+                onReplyDraftChange={feedActions.setReplyDraft}
+                onOpenReplyComposer={feedActions.openReplyComposer}
+                onSubmitReply={feedActions.submitReply}
+                onShowMoreReplies={feedActions.showMoreReplies}
                 variant="profile"
               />
             )}

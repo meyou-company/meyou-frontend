@@ -23,26 +23,117 @@ function mapCommentAuthor(a) {
   };
 }
 
-export function normalizeComment(c) {
-  if (!c || typeof c !== 'object') return null;
-  const resolvedId =
-    c.commentId ??
-    c.id ??
-    c._id ??
-    c.uuid ??
-    c.comment?.commentId ??
-    c.comment?.id ??
-    c.comment?._id ??
+function resolveCommentId(c) {
+  return (
+    c?.commentId ??
+    c?.id ??
+    c?._id ??
+    c?.uuid ??
+    c?.comment?.commentId ??
+    c?.comment?.id ??
+    c?.comment?._id ??
+    null
+  );
+}
+
+function resolveRepliesCount(c) {
+  const n =
+    c?.repliesCount ??
+    c?.replies_count ??
+    c?.replyCount ??
+    c?.reply_count ??
     null;
+  if (n != null && Number.isFinite(Number(n))) return Math.max(0, Number(n));
+  if (Array.isArray(c?.replies)) return c.replies.length;
+  return 0;
+}
+
+function resolveParentId(c) {
+  return (
+    c?.parentId ??
+    c?.parentCommentId ??
+    c?.parent_comment_id ??
+    c?.replyToId ??
+    c?.replyToCommentId ??
+    c?.parent?.id ??
+    null
+  );
+}
+
+/** Нормалізує один коментар або відповідь. */
+export function normalizeComment(c, { isReply = false } = {}) {
+  if (!c || typeof c !== 'object') return null;
+  const resolvedId = resolveCommentId(c);
   const content = String(c.content ?? c.text ?? c.body ?? c.message ?? '').trim();
   if (!content) return null;
   const authorRaw = c.author ?? c.user;
+  const parentId = resolveParentId(c);
+  const replyFlag = isReply || Boolean(parentId);
+
+  const embeddedReplies = Array.isArray(c.replies)
+    ? c.replies
+        .map((r) => normalizeComment(r, { isReply: true }))
+        .filter(Boolean)
+    : [];
+
   return {
     id: resolvedId,
     content,
     createdAt: c.createdAt ?? c.created_at ?? null,
     author: mapCommentAuthor(authorRaw),
+    parentId: replyFlag ? parentId : null,
+    isReply: replyFlag,
+    repliesCount: replyFlag ? 0 : resolveRepliesCount(c),
+    replies: embeddedReplies,
+    repliesLoaded: embeddedReplies.length > 0,
+    repliesExpanded: false,
   };
+}
+
+/** Кореневі коментарі + вкладені відповіді (макс. глибина 1). */
+export function organizeComments(flat) {
+  if (!Array.isArray(flat)) return [];
+  const normalized = flat.map((c) => normalizeComment(c)).filter(Boolean);
+  const roots = [];
+  const repliesByParent = new Map();
+
+  for (const item of normalized) {
+    if (item.isReply && item.parentId) {
+      const key = String(item.parentId);
+      if (!repliesByParent.has(key)) repliesByParent.set(key, []);
+      repliesByParent.get(key).push(item);
+      continue;
+    }
+    if (!item.isReply) roots.push({ ...item });
+  }
+
+  return roots.map((root) => {
+    const extra = repliesByParent.get(String(root.id)) ?? [];
+    const mergedReplies = [
+      ...(Array.isArray(root.replies) ? root.replies : []),
+      ...extra,
+    ];
+    const byId = new Map();
+    mergedReplies.forEach((r) => {
+      if (r?.id) byId.set(String(r.id), r);
+    });
+    const replies = [...byId.values()];
+    const repliesCount = Math.max(root.repliesCount ?? 0, replies.length);
+    return {
+      ...root,
+      replies,
+      repliesCount,
+      repliesLoaded: replies.length > 0 ? true : root.repliesLoaded,
+    };
+  });
+}
+
+export function countPostReplies(comments) {
+  if (!Array.isArray(comments)) return 0;
+  return comments.reduce((sum, c) => {
+    if (c?.isReply) return sum;
+    return sum + (c?.repliesCount ?? c?.replies?.length ?? 0);
+  }, 0);
 }
 
 export function mapApiPostToFeedItem(p) {
@@ -67,6 +158,11 @@ export function mapApiPostToFeedItem(p) {
     return normalized;
   })();
   const a = p.author;
+  const organizedComments = (() => {
+    const raw = p.comments ?? p.commentList;
+    return Array.isArray(raw) ? organizeComments(raw) : [];
+  })();
+
   return {
     id: p.id,
     text: p.fullText ?? p.shortText ?? '',
@@ -82,12 +178,6 @@ export function mapApiPostToFeedItem(p) {
           avatarUrl: a.avatarUrl ?? a.avatar ?? null,
         }
       : null,
-    counts: {
-      likes: p.counts?.likes ?? p.likesCount ?? 0,
-      comments: p.counts?.comments ?? p.commentsCount ?? 0,
-      reposts: p.counts?.reposts ?? p.repostsCount ?? 0,
-      saves: p.counts?.saves ?? p.savedCount ?? p.savesCount ?? 0,
-    },
     viewerState: {
       isLiked: p.viewerState?.isLiked === true || p.isLikedByMe === true,
       isSaved: p.viewerState?.isSaved === true || p.isSavedByMe === true,
@@ -98,9 +188,16 @@ export function mapApiPostToFeedItem(p) {
       canDelete: p.permissions?.canDelete === true,
       isOwner: p.permissions?.isOwner === true,
     },
-    comments: (() => {
-      const raw = p.comments ?? p.commentList ?? p.replies;
-      return Array.isArray(raw) ? raw.map(normalizeComment).filter(Boolean) : [];
-    })(),
+    comments: organizedComments,
+    counts: {
+      likes: p.counts?.likes ?? p.likesCount ?? 0,
+      comments: p.counts?.comments ?? p.commentsCount ?? 0,
+      reposts: p.counts?.reposts ?? p.repostsCount ?? 0,
+      saves: p.counts?.saves ?? p.savedCount ?? p.savesCount ?? 0,
+      replies:
+        p.counts?.replies ??
+        p.repliesCount ??
+        countPostReplies(organizedComments),
+    },
   };
 }

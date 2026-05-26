@@ -798,6 +798,12 @@ font-size: 60px;
   box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.06);
 }
 
+.composerEmojiBtn {
+  flex: 0 0 auto;
+  align-self: flex-end;
+  margin-bottom: 6px;
+}
+
 .composerInputShell .postInput.composerTextarea {
   flex: 1;
   min-width: 0;
@@ -912,6 +918,10 @@ font-size: 60px;
   border: 1px solid rgba(0, 0, 0, 0.14);
   background: rgba(255, 255, 255, 0.55);
   overflow: hidden;
+}
+
+.postCard:has(.postCommentsSection) {
+  overflow: visible;
 }
 
 /* TOP ROW */
@@ -1389,6 +1399,22 @@ body.dark .profile-home .postActionBtn.postActionBtn--active .postActionCount {
   width: 40px;
   height: 40px;
   object-fit: contain;
+}
+
+.postActionReplies {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #65676b;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+body.dark .profile-home .postActionReplies,
+html[data-theme="dark"] .profile-home .postActionReplies {
+  color: rgba(255, 255, 255, 0.72);
 }
 
 .postActionCount {

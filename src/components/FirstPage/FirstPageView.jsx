@@ -14,7 +14,7 @@ import { applyPersistedLikes } from '../../utils/postLikePersistence';
 import { getProfileRouteHandle } from '../../utils/profileFriendNav';
 import StoryCircle from "../../components/Stories/StoryCircle";
 import NotificationBell from '../../components/Notifications/NotificationBell';
-import PostMediaGallery from '../../components/PostFeed/PostMediaGallery';
+import PostFeedMedia from '../../components/PostFeed/PostFeedMedia';
 import ImageLightbox from '../../components/PostFeed/ImageLightbox';
 import '../Users/Profile/ProfileHome/ProfileHome.scss';
 import './FirstPageView.scss';
@@ -480,55 +480,11 @@ function GlobalFeedPostCard({ post, feedActions, onOpenProfile, onOpenLightbox }
         {post.text}
       </p>
 
-      {Array.isArray(post.media) && post.media.length > 0 ? (
-        // (() => {
-        //   const images = post.media.filter((m) => m?.type !== "VIDEO" && m?.url);
-        //   const videos = post.media.filter((m) => m?.type === "VIDEO" && m?.url);
-
-        //   return (
-        //     <>
-        //       {images.length > 0 && (
-        //         <PostMediaGallery
-        //           mediaItems={images}
-        //            onOpenLightbox={onOpenLightbox}
-        //         />
-        //       )}
-
-        //       {videos.map((mediaItem) => (
-        //         <div
-        //           className="!mt-[19px] md:!mt-2.5 overflow-hidden rounded-sm"
-        //           key={`${post.id}-${mediaItem.order}-${mediaItem.url}`}
-        //         >
-        //           <video
-        //             src={mediaItem.url}
-        //             className="w-full h-80 object-contain object-center bg-black/15 lg:object-cover"
-        //             controls
-        //             preload="metadata"
-        //           />
-        //         </div>
-        //       ))}
-        //     </>
-        //   );
-        // })()
-        (() => {
-          const images = post.media.filter((m) => m?.type !== 'VIDEO' && m?.url);
-          const videos = post.media.filter((m) => m?.type === 'VIDEO' && m?.url);
-          return (
-            <>
-              {images.length > 0 && (
-                <PostMediaGallery mediaItems={images} onOpenLightbox={onOpenLightbox} />
-              )}
-              {videos.map((mediaItem) => (
-                <div className="postMedia" key={`${post.id}-${mediaItem.order}-${mediaItem.url}`}>
-                  <video src={mediaItem.url} className="postMediaImg" controls preload="metadata" />
-                </div>
-              ))}
-            </>
-          );
-        })()
-      ) : (
-        <div className="!mt-[19px] md:!mt-2.5 h-80 bg-black/5" />
-      )}
+      <PostFeedMedia
+        post={post}
+        postId={post.id}
+        onOpenLightbox={onOpenLightbox}
+      />
 
       <div className="flex justify-center mt-3 xl:!mt-[32px] xl:!mb-[18px]">
         <div className="flex gap-[41px] md:gap-[60px] xl:gap-36">
@@ -561,11 +517,22 @@ function GlobalFeedPostCard({ post, feedActions, onOpenProfile, onOpenLightbox }
 
       {commentsOpen && (
         <PostCommentsSection
+          post={post}
           comments={post.comments}
           commentDraft={feedActions.commentDraft}
           onCommentDraftChange={feedActions.setCommentDraft}
-          onSubmitComment={() => feedActions.submitComment(post, feedActions.commentDraft)}
-          onDeleteComment={(commentId) => feedActions.onDeleteComment(post, commentId)}
+          onSubmitComment={() =>
+            feedActions.submitComment(post, feedActions.commentDraft)
+          }
+          onDeleteComment={(commentId, meta) =>
+            feedActions.onDeleteComment(post, commentId, meta)
+          }
+          replyOpenCommentId={feedActions.replyOpenCommentId}
+          replyDraft={feedActions.replyDraft}
+          onReplyDraftChange={feedActions.setReplyDraft}
+          onOpenReplyComposer={feedActions.openReplyComposer}
+          onSubmitReply={feedActions.submitReply}
+          onShowMoreReplies={feedActions.showMoreReplies}
           variant="firstPage"
         />
       )}
@@ -619,9 +586,6 @@ export const FeedCard = ({ name, time, location, status, text }) => {
       <p className="text-xs text-gray-900 font-[Montserrat] font-medium md:font-normal xl:text-xl underline">
         {text}
       </p>
-
-      {/* Image placeholder */}
-      <div className="!mt-[19px] md:!mt-[10px] h-80 bg-black/5" />
 
       {/* Actions */}
       <div className="flex justify-center mt-3 xl:!mt-[52px] xl:!mb-[38px]">

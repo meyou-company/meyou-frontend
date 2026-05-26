@@ -3,6 +3,7 @@ import { useParams, useLocation } from 'react-router-dom';
 import { postsApi } from '../../services/postsApi';
 import profileIcons from '../../constants/profileIcons';
 import { mapApiPostToFeedItem } from '../../utils/mapApiPostToFeedItem';
+import { getPostMediaItems } from '../../utils/postMedia';
 
 import './Post.scss';
 
@@ -103,7 +104,11 @@ function PostCard({ post }) {
       <p className="post__text">{post.fullText || post.shortText}</p>
 
       {/* картинка */}
-      {post.media?.length > 0 && <img className="post__image" src={post.media[0].url} alt="" />}
+      {(() => {
+        const media = getPostMediaItems(post);
+        if (media.length === 0) return null;
+        return <img className="post__image" src={media[0].url} alt="" />;
+      })()}
 
       {/* лайки */}
       <div className="post__meta">
