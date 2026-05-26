@@ -1121,12 +1121,16 @@ html[data-theme="dark"] .profile-home .postMenuDeleteBtn {
   color: #fecaca;
 }
 
-/* TEXT */
+/* TEXT — розмір як у Facebook (15px, line-height 20px) */
 .postText {
-  margin: 0 0 8px;
-  font-size: 11px;
-  line-height: 1.35;
-  color: rgba(0, 0, 0, 0.65);
+  margin: 0 0 10px;
+  font-size: 15px;
+  line-height: 1.3334;
+  font-weight: 400;
+  color: #050505;
+  word-break: break-word;
+  white-space: pre-wrap;
+  text-decoration: none;
 }
 
 /* IMAGE */
@@ -1301,10 +1305,10 @@ html[data-theme="dark"] .profile-home .postMenuDeleteBtn {
   }
 
   .profile-home .postText {
-    margin: 0 0 8px;
-    font-size: 12px;
-    font-weight: 500;
-    text-decoration: underline;
+    margin: 0 0 10px;
+    font-size: 15px;
+    font-weight: 400;
+    text-decoration: none;
   }
 
   .profile-home .postActions {
@@ -2574,7 +2578,8 @@ html[data-theme="dark"] .profile-home .postActionCount {
   }
 
   .postText {
-    font-size: 10px;
+    font-size: 14px;
+    line-height: 1.3334;
   }
 
   .postMedia {

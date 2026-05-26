@@ -476,9 +476,7 @@ function GlobalFeedPostCard({ post, feedActions, onOpenProfile, onOpenLightbox }
         </div>
       </div>
 
-      <p className="text-xs text-gray-900 font-[Montserrat] font-medium md:font-normal xl:text-xl underline">
-        {post.text}
-      </p>
+      <p className="postText">{post.text}</p>
 
       <PostFeedMedia
         post={post}
@@ -583,9 +581,7 @@ export const FeedCard = ({ name, time, location, status, text }) => {
       </div>
 
       {/* Text */}
-      <p className="text-xs text-gray-900 font-[Montserrat] font-medium md:font-normal xl:text-xl underline">
-        {text}
-      </p>
+      <p className="postText">{text}</p>
 
       {/* Actions */}
       <div className="flex justify-center mt-3 xl:!mt-[52px] xl:!mb-[38px]">
