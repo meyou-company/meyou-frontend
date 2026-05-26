@@ -1,12 +1,15 @@
 import { useState } from "react";
+import { toast } from "sonner";
 import profileIcons from "../../constants/profileIcons";
 import { useAuthStore } from "../../zustand/useAuthStore";
 import { useUserProfileNav } from "../../context/UserProfileNavContext";
 import { getProfileRouteHandle } from "../../utils/profileFriendNav";
 import CommentComposer from "./CommentComposer";
 import CommentActionMenu from "./CommentActionMenu";
+import CommentLikeButton from "./CommentLikeButton";
 import "./PostCommentsSection.scss";
 import "./CommentActionMenu.scss";
+import "./CommentLikeButton.scss";
 
 const VISIBLE_REPLIES_DEFAULT = 2;
 
@@ -65,6 +68,8 @@ function CommentBubble({
   profileNav,
   onDeleteComment,
   onEditComment,
+  onLikeComment,
+  likingCommentId = null,
   showReplyAction = false,
   repliesCount = 0,
   onReplyClick,
@@ -89,6 +94,10 @@ function CommentBubble({
   const cancelEdit = () => {
     setEditDraft(comment.content ?? "");
     setIsEditing(false);
+  };
+
+  const handleToggleCommentLike = (commentId) => {
+    onLikeComment?.(commentId);
   };
 
   const saveEdit = () => {
@@ -160,22 +169,33 @@ function CommentBubble({
           <p className="postCommentsSection__text">{comment.content}</p>
         )}
       </div>
-      {(showReplyAction || repliesCount > 0) && (
+      {!isEditing && (
         <div className="postCommentsSection__commentActions">
-          {showReplyAction && (
-            <button
-              type="button"
-              className="postCommentsSection__replyBtn"
-              onClick={onReplyClick}
-            >
-              Відповісти
-            </button>
-          )}
-          {repliesCount > 0 && (
-            <span className="postCommentsSection__repliesStat">
-              {repliesLabel(repliesCount)}
-            </span>
-          )}
+          <div className="postCommentsSection__actionsLeft">
+            {showReplyAction && (
+              <button
+                type="button"
+                className="postCommentsSection__replyBtn"
+                onClick={onReplyClick}
+              >
+                Відповісти
+              </button>
+            )}
+            {repliesCount > 0 && (
+              <span className="postCommentsSection__repliesStat">
+                {repliesLabel(repliesCount)}
+              </span>
+            )}
+          </div>
+          <CommentLikeButton
+            comment={comment}
+            onToggle={handleToggleCommentLike}
+            onMissingId={() => toast.error("Comment id is missing")}
+            busy={
+              likingCommentId != null &&
+              String(likingCommentId) === String(comment.id)
+            }
+          />
         </div>
       )}
     </>
@@ -184,10 +204,13 @@ function CommentBubble({
 
 function ReplyRow({
   reply,
+  post,
   currentUserId,
   profileNav,
   onDeleteComment,
   onEditComment,
+  onLikeComment,
+  likingCommentId,
 }) {
   const authorHandle = reply?.author
     ? getProfileRouteHandle(reply.author)
@@ -221,6 +244,8 @@ function ReplyRow({
           profileNav={profileNav}
           onDeleteComment={onDeleteComment}
           onEditComment={onEditComment}
+          onLikeComment={onLikeComment}
+          likingCommentId={likingCommentId}
         />
       </div>
     </li>
@@ -238,6 +263,8 @@ export default function PostCommentsSection({
   onSubmitComment,
   onDeleteComment,
   onEditComment,
+  onLikeComment,
+  likingCommentId = null,
   replyOpenCommentId,
   replyDraft,
   onReplyDraftChange,
@@ -325,6 +352,8 @@ export default function PostCommentsSection({
                       profileNav={profileNav}
                       onDeleteComment={onDeleteComment}
                       onEditComment={onEditComment}
+                      onLikeComment={onLikeComment}
+                      likingCommentId={likingCommentId}
                       showReplyAction
                       repliesCount={totalReplies}
                       onReplyClick={() => onOpenReplyComposer?.(post, c.id)}
@@ -336,10 +365,13 @@ export default function PostCommentsSection({
                           <ReplyRow
                             key={r.id}
                             reply={{ ...r, isReply: true, parentId: c.id }}
+                            post={post}
                             currentUserId={currentUserId}
                             profileNav={profileNav}
                             onDeleteComment={onDeleteComment}
                             onEditComment={onEditComment}
+                            onLikeComment={onLikeComment}
+                            likingCommentId={likingCommentId}
                           />
                         ))}
                       </ul>

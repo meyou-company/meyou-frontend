@@ -144,18 +144,7 @@ export function mergeCommentResponse(prev, raw, submittedContent) {
     }
   }
 
-  if (!added && text) {
-    base.comments = [
-      ...base.comments,
-      {
-        id: `local-${Date.now()}`,
-        content: text,
-        createdAt: new Date().toISOString(),
-        author: null,
-      },
-    ];
-    added = true;
-  }
+  // Без local-id: після POST коментарі підвантажуються через loadComments.
 
   const payload = unwrapPayload(raw) ?? (raw && typeof raw === "object" ? raw : null);
   if (payload && typeof payload === "object" && payload.counts) {

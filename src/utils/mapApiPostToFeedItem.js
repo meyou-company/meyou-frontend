@@ -23,17 +23,35 @@ function mapCommentAuthor(a) {
   };
 }
 
+/** Рядковий backend id (Mongo ObjectId тощо). */
+export function stringifyCommentId(raw) {
+  if (raw == null || raw === '') return null;
+  if (typeof raw === 'object') {
+    if (raw.$oid) return String(raw.$oid);
+    if (typeof raw.toString === 'function') {
+      const s = String(raw);
+      if (s && s !== '[object Object]') return s;
+    }
+    return stringifyCommentId(raw.id ?? raw._id);
+  }
+  const s = String(raw).trim();
+  if (!s || s === 'undefined' || s === 'null') return null;
+  return s;
+}
+
+/** Id коментаря для API (лайк, видалення, відповіді). */
+export function getCommentBackendId(c) {
+  if (!c || typeof c !== 'object') return null;
+  const id =
+    stringifyCommentId(c.id) ??
+    stringifyCommentId(c._id) ??
+    stringifyCommentId(c.commentId);
+  if (!id || id.startsWith('local-')) return null;
+  return id;
+}
+
 function resolveCommentId(c) {
-  return (
-    c?.commentId ??
-    c?.id ??
-    c?._id ??
-    c?.uuid ??
-    c?.comment?.commentId ??
-    c?.comment?.id ??
-    c?.comment?._id ??
-    null
-  );
+  return getCommentBackendId(c);
 }
 
 function resolveRepliesCount(c) {
@@ -65,7 +83,7 @@ export function normalizeComment(c, { isReply = false } = {}) {
   if (!c || typeof c !== 'object') return null;
   const resolvedId = resolveCommentId(c);
   const content = String(c.content ?? c.text ?? c.body ?? c.message ?? '').trim();
-  if (!content) return null;
+  if (!content || !resolvedId) return null;
   const authorRaw = c.author ?? c.user;
   const parentId = resolveParentId(c);
   const replyFlag = isReply || Boolean(parentId);
@@ -75,6 +93,21 @@ export function normalizeComment(c, { isReply = false } = {}) {
         .map((r) => normalizeComment(r, { isReply: true }))
         .filter(Boolean)
     : [];
+
+  const isLiked =
+    c.viewerState?.isLiked === true ||
+    c.isLikedByMe === true ||
+    c.isLiked === true;
+  const likesCount = Math.max(
+    0,
+    Number(
+      c.likesCount ??
+        c.likes_count ??
+        c.counts?.likes ??
+        c.likeCount ??
+        0
+    ) || 0
+  );
 
   return {
     id: resolvedId,
@@ -87,6 +120,9 @@ export function normalizeComment(c, { isReply = false } = {}) {
     replies: embeddedReplies,
     repliesLoaded: embeddedReplies.length > 0,
     repliesExpanded: false,
+    isLiked,
+    likesCount,
+    viewerState: { isLiked },
   };
 }
 

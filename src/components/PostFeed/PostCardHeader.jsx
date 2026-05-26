@@ -124,7 +124,6 @@ export default function PostCardHeader({
   createdAt,
   location,
   showRepostIcon = false,
-  showNewPostLabel = false,
   canShowMenu = false,
   canEdit = false,
   canDelete = false,
@@ -156,9 +155,6 @@ export default function PostCardHeader({
           <img src={avatarSrc} className="postCardHeader__avatar" alt="" />
         </button>
         <div className="postCardHeader__author">
-          {showNewPostLabel && (
-            <span className="postCardHeader__label">new post</span>
-          )}
           <div className="postCardHeader__nameLine">
             <div className="postCardHeader__nameBlock">
               <span className="postCardHeader__name">{authorName}</span>

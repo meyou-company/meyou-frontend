@@ -121,7 +121,6 @@ export default function ProfilePostsFeed({
               createdAt={post.createdAt}
               location={post.location}
               showRepostIcon={repost}
-              showNewPostLabel={!repost}
               canShowMenu={menuPerms.canShowMenu}
               canEdit={menuPerms.canEdit}
               canDelete={menuPerms.canDelete}
@@ -213,6 +212,10 @@ export default function ProfilePostsFeed({
                 onEditComment={(commentId, text, meta) =>
                   feedActions.onEditComment(post, commentId, text, meta)
                 }
+                onLikeComment={(commentId) =>
+                  feedActions.onLikeComment(post, commentId)
+                }
+                likingCommentId={feedActions.likingCommentId}
                 replyOpenCommentId={feedActions.replyOpenCommentId}
                 replyDraft={feedActions.replyDraft}
                 onReplyDraftChange={feedActions.setReplyDraft}

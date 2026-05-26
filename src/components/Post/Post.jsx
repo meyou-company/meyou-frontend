@@ -1,9 +1,23 @@
-import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useParams, useLocation } from 'react-router-dom';
+import { toast } from 'sonner';
 import { postsApi } from '../../services/postsApi';
 import profileIcons from '../../constants/profileIcons';
-import { mapApiPostToFeedItem } from '../../utils/mapApiPostToFeedItem';
+import {
+  getCommentBackendId,
+  mapApiPostToFeedItem,
+  organizeComments,
+} from '../../utils/mapApiPostToFeedItem';
+import { findCommentInTree, updateCommentInTree } from '../../utils/commentTree';
 import { getPostMediaItems } from '../../utils/postMedia';
+import CommentLikeButton from '../PostFeed/CommentLikeButton';
+import {
+  applyCommentLikeToggle,
+  mergeCommentLikeResponse,
+} from '../../utils/mergeCommentLikeResponse';
+import { getApiErrorMessage } from '../../utils/getApiErrorMessage';
+import { formatPostTime } from '../../utils/formatPostTime';
+import '../PostFeed/CommentLikeButton.scss';
 
 import './Post.scss';
 
@@ -19,7 +33,6 @@ export default function Post({ onGoBack, onGoProfile }) {
 
   const commentsRef = useRef(null);
 
-  // 🔥 1. load post
   useEffect(() => {
     if (!postId) return;
 
@@ -27,15 +40,12 @@ export default function Post({ onGoBack, onGoProfile }) {
       try {
         const data = await postsApi.getById(postId);
         setPost(mapApiPostToFeedItem(data));
-        console.log('RAW POST:', data);
-        console.log('MAPPED POST:', mapApiPostToFeedItem(data));
       } finally {
         setLoading(false);
       }
     })();
   }, [postId]);
 
-  // 🔥 2. scroll to comments WITHOUT animation
   useLayoutEffect(() => {
     if (focus === 'comments' && commentsRef.current) {
       commentsRef.current.scrollIntoView({
@@ -64,19 +74,16 @@ export default function Post({ onGoBack, onGoProfile }) {
 const Header = ({ onBack, onClick, post }) => {
   return (
     <header className="post-page__topbar">
-      {/* Кнопка для мобілки */}
       <button className="post-page__back post-page__back--mobile" onClick={onBack}>
         <img className="post-page__back-icon" src={profileIcons.arrowLeftFilledBlack} alt="Back" />
       </button>
 
-      {/* Кнопка для планшету і вище */}
       <button className="post-page__back post-page__back--tablet" onClick={onBack}>
         <img className="post-page__back-icon" src={profileIcons.arrowLeftBlack} alt="Back" />
       </button>
 
       <h1 className="post-page__title">Post</h1>
 
-      {/* 🔥 ІКОКА АКАУНТА */}
       <button className="post-page__account" onClick={onClick}>
         <img src={post.author.avatarUrl} alt="Account" />
       </button>
@@ -87,7 +94,6 @@ const Header = ({ onBack, onClick, post }) => {
 function PostCard({ post }) {
   return (
     <div className="post">
-      {/* автор */}
       <div className="post__header">
         <div className="p_1">
           <img className="post__avatar" src={post.author.avatarUrl} alt="" />
@@ -100,45 +106,103 @@ function PostCard({ post }) {
         </div>
       </div>
 
-      {/* текст */}
-      <p className="post__text">{post.fullText || post.shortText}</p>
+      <p className="post__text">{post.text || post.fullText || post.shortText}</p>
 
-      {/* картинка */}
       {(() => {
         const media = getPostMediaItems(post);
         if (media.length === 0) return null;
         return <img className="post__image" src={media[0].url} alt="" />;
       })()}
 
-      {/* лайки */}
       <div className="post__meta">
-        ❤️ {post.likesCount} · 💬 {post.commentsCount}
+        ❤️ {post.counts?.likes ?? post.likesCount ?? 0} · 💬{' '}
+        {post.counts?.comments ?? post.commentsCount ?? 0}
       </div>
     </div>
   );
-}
+};
 
 function Comments({ postId, autoOpen }) {
   const [open, setOpen] = useState(autoOpen);
 
   if (!open) {
-    return <button onClick={() => setOpen(true)}>Показати коментарі</button>;
+    return (
+      <button type="button" className="comments__openBtn" onClick={() => setOpen(true)}>
+        Показати коментарі
+      </button>
+    );
   }
 
   return <CommentsList postId={postId} />;
 }
 
+function CommentCard({ comment, onToggleLike, onMissingId, likingId }) {
+  const author = comment.author;
+  const name = author
+    ? [author.firstName, author.lastName].filter(Boolean).join(' ').trim() ||
+      author.username ||
+      'User'
+    : 'User';
+  const avatar =
+    author?.avatarUrl || profileIcons.userStory;
+  const timeLabel = formatPostTime(comment.createdAt);
+
+  return (
+    <div className="comments__item">
+      <img className="comments__avatar" src={avatar} alt="" />
+
+      <div className="comments__body">
+        <div className="comments__head">
+          <div className="comments__headMain">
+            <span className="comments__name">{name}</span>
+            {timeLabel ? (
+              <time
+                className="comments__time"
+                dateTime={comment.createdAt || undefined}
+                title={
+                  comment.createdAt
+                    ? new Date(comment.createdAt).toLocaleString()
+                    : ''
+                }
+              >
+                {timeLabel}
+              </time>
+            ) : null}
+          </div>
+        </div>
+
+        <p className="comments__text">{comment.content}</p>
+
+        <div className="comments__actions">
+          <button type="button" className="comments__replyBtn">
+            Відповісти
+          </button>
+          <CommentLikeButton
+            comment={comment}
+            onToggle={onToggleLike}
+            onMissingId={onMissingId}
+            busy={likingId != null && String(likingId) === String(comment.id)}
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function CommentsList({ postId }) {
   const [comments, setComments] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [likingId, setLikingId] = useState(null);
 
   useEffect(() => {
     if (!postId) return;
 
     const fetchComments = async () => {
       try {
-        const res = await postsApi.listComments(postId);
-        setComments(res.data || []);
+        const list = await postsApi.listComments(postId);
+        setComments(organizeComments(Array.isArray(list) ? list : []));
+      } catch (e) {
+        toast.error(getApiErrorMessage(e) || 'Не вдалося завантажити коментарі');
       } finally {
         setLoading(false);
       }
@@ -146,6 +210,39 @@ function CommentsList({ postId }) {
 
     fetchComments();
   }, [postId]);
+
+  const handleToggleCommentLike = useCallback(async (commentId) => {
+    if (!commentId || likingId) return;
+
+    const comment = findCommentInTree(comments, commentId);
+
+    const id = getCommentBackendId(comment);
+    if (!id) {
+      toast.error('Comment id is missing');
+      return;
+    }
+    if (!comment) return;
+
+    const snapshot = {
+      ...comment,
+      viewerState: { ...comment.viewerState },
+    };
+
+    setLikingId(id);
+    setComments((prev) => updateCommentInTree(prev, id, applyCommentLikeToggle));
+
+    try {
+      const res = await postsApi.likeComment(id);
+      setComments((prev) =>
+        updateCommentInTree(prev, id, (c) => mergeCommentLikeResponse(c, res))
+      );
+    } catch (e) {
+      setComments((prev) => updateCommentInTree(prev, id, () => snapshot));
+      toast.error(getApiErrorMessage(e) || 'Не вдалося поставити лайк');
+    } finally {
+      setLikingId(null);
+    }
+  }, [comments, likingId]);
 
   if (loading) return <p className="comments__loading">Loading comments...</p>;
 
@@ -156,19 +253,13 @@ function CommentsList({ postId }) {
   return (
     <div className="comments">
       {comments.map((c) => (
-        <div key={c.id} className="comments__item">
-          <img className="comments__avatar" src={c.user?.avatarUrl} alt="" />
-
-          <div className="comments__body">
-            <div className="comments__header">
-              <span className="comments__name">
-                {c.user?.firstName} {c.user?.lastName}
-              </span>
-            </div>
-
-            <p className="comments__text">{c.content}</p>
-          </div>
-        </div>
+        <CommentCard
+          key={c.id}
+          comment={c}
+          onToggleLike={handleToggleCommentLike}
+          onMissingId={() => toast.error('Comment id is missing')}
+          likingId={likingId}
+        />
       ))}
     </div>
   );

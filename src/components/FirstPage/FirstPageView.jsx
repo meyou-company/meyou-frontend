@@ -531,6 +531,10 @@ function GlobalFeedPostCard({
           onEditComment={(commentId, text, meta) =>
             feedActions.onEditComment(post, commentId, text, meta)
           }
+          onLikeComment={(commentId) =>
+            feedActions.onLikeComment(post, commentId)
+          }
+          likingCommentId={feedActions.likingCommentId}
           replyOpenCommentId={feedActions.replyOpenCommentId}
           replyDraft={feedActions.replyDraft}
           onReplyDraftChange={feedActions.setReplyDraft}
