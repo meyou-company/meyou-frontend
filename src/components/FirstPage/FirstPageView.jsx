@@ -2,19 +2,22 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ThemeToggleDark from '../ThemeToggleDark/ThemeToggleDark';
 import profileIcons from '../../constants/profileIcons';
-import './FirstPageView.scss';
 import { useBurgerMenu } from '../../hooks/useBurgerMenu';
+import { useStories } from "../../hooks/useStories";
 import { postsApi } from '../../services/postsApi';
+import { useAuthStore } from "../../zustand/useAuthStore";
 import { mapApiPostToFeedItem } from '../../utils/mapApiPostToFeedItem';
 import { usePostFeedActions } from '../../hooks/usePostFeedActions';
 import PostCommentsSection from '../PostFeed/PostCommentsSection';
 import { getApiErrorMessage } from '../../utils/getApiErrorMessage';
 import { applyPersistedLikes } from '../../utils/postLikePersistence';
 import { getProfileRouteHandle } from '../../utils/profileFriendNav';
+import StoryCircle from "../../components/Stories/StoryCircle";
 import NotificationBell from '../../components/Notifications/NotificationBell';
 import PostMediaGallery from '../../components/PostFeed/PostMediaGallery';
 import ImageLightbox from '../../components/PostFeed/ImageLightbox';
 import '../Users/Profile/ProfileHome/ProfileHome.scss';
+import './FirstPageView.scss';
 
 const getReadableFeedError = (error) => {
   const text = getApiErrorMessage(error);
@@ -41,6 +44,9 @@ export default function FirstPageView({
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const [lightboxImages, setLightboxImages] = useState([]);
   const [lightboxIndex, setLightboxIndex] = useState(0);
+
+  const { stories, refresh } = useStories();
+  const currentUserId = useAuthStore((s) => s.user?.id);
 
   const openLightbox = (images, startIndex = 0) => {
     if (!images?.length) return;
@@ -268,12 +274,27 @@ export default function FirstPageView({
             </h2>
 
             <div className="flex gap-3 md:gap-[23px] xl:gap-10 overflow-x-auto pb-2 md:pb-0 snap-x snap-mandatory snap-center scrollbarHide pl-[10px] pr-[10px] md:pl-[41px] md:pr-[41px] lg:pl-9 lg:pr-9 min-[1440px]:pl-[66px] min-[1440px]:pr-[66px]">
-              <StoryCircle type="add" />
-              <StoryCircle status="online" />
+              {/* <StoryCircle type="add" /> */}
+              <StoryCircle
+                isMine
+                onAdd={() => console.log("OPEN UPLOAD MODAL")}
+              />
+
+              {/* Feed stories */}
+              {stories.map((s) => (
+                <StoryCircle
+                  key={s.author.id}
+                  story={s}
+                  onClick={(storyGroup) =>
+                    console.log("OPEN STORY VIEWER", storyGroup)
+                  }
+                />
+              ))}
+              {/* <StoryCircle status="online" />
               <StoryCircle status="offline" />
               <StoryCircle status="online" />
               <StoryCircle status="online" />
-              <StoryCircle status="online" />
+              <StoryCircle status="online" /> */}
             </div>
           </div>
         </section>
@@ -337,46 +358,46 @@ function NavBtn({ icon, onClick }) {
   );
 }
 
-function StoryCircle({ status, type }) {
-  const isAdd = type === 'add';
+// function StoryCircle({ status, type }) {
+//   const isAdd = type === 'add';
 
-  return (
-    <button className="flex flex-col items-center gap-1">
-      {isAdd ? (
-        <div className="gradientBorder">
-          <div className="relative flex items-center justify-center rounded-full w-14 h-14 md:w-[77px] md:h-[77px] xl:w-[97px] xl:h-[97px] bg-[#D5D5D5]">
-            <img
-              src={profileIcons.plus}
-              alt="add story"
-              aria-hidden="true"
-              className="h-8 md:h-12"
-            />
-          </div>
-        </div>
-      ) : (
-        <div className="relative rounded-full w-14 h-14 border bg-[#D5D5D5] border-[#FF0B0B] flex items-center justify-center md:w-20 md:h-20 xl:w-[100px] xl:h-[100px] xl:border-[3px]">
-          <img
-            src={profileIcons.userStory}
-            alt="user story"
-            className="w-[26px] h-[26px] md:w-12 md:h-12"
-          />
+//   return (
+//     <button className="flex flex-col items-center gap-1">
+//       {isAdd ? (
+//         <div className="gradientBorder">
+//           <div className="relative flex items-center justify-center rounded-full w-14 h-14 md:w-[77px] md:h-[77px] xl:w-[97px] xl:h-[97px] bg-[#D5D5D5]">
+//             <img
+//               src={profileIcons.plus}
+//               alt="add story"
+//               aria-hidden="true"
+//               className="h-8 md:h-12"
+//             />
+//           </div>
+//         </div>
+//       ) : (
+//         <div className="relative rounded-full w-14 h-14 border bg-[#D5D5D5] border-[#FF0B0B] flex items-center justify-center md:w-20 md:h-20 xl:w-[100px] xl:h-[100px] xl:border-[3px]">
+//           <img
+//             src={profileIcons.userStory}
+//             alt="user story"
+//             className="w-[26px] h-[26px] md:w-12 md:h-12"
+//           />
 
-          {status && (
-            <span
-              className={`absolute right-[2px] top-[2px] md:top-[10px] xl:top-[3px]  w-2.5 h-2.5 md:w-3 md:h-3 xl:w-5 xl:h-5  rounded-full ${
-                status === 'online' ? 'bg-green-700' : 'bg-zinc-300 border border-black/40'
-              }`}
-            />
-          )}
-        </div>
-      )}
+//           {status && (
+//             <span
+//               className={`absolute right-[2px] top-[2px] md:top-[10px] xl:top-[3px]  w-2.5 h-2.5 md:w-3 md:h-3 xl:w-5 xl:h-5  rounded-full ${
+//                 status === 'online' ? 'bg-green-700' : 'bg-zinc-300 border border-black/40'
+//               }`}
+//             />
+//           )}
+//         </div>
+//       )}
 
-      <span className="text-[8px] md:text-xs xl:text-xl font-[Montserrat] text-black underline">
-        {isAdd ? 'добавить' : status === 'online' ? 'online' : 'offline'}
-      </span>
-    </button>
-  );
-}
+//       <span className="text-[8px] md:text-xs xl:text-xl font-[Montserrat] text-black underline">
+//         {isAdd ? 'добавить' : status === 'online' ? 'online' : 'offline'}
+//       </span>
+//     </button>
+//   );
+// }
 
 function formatPostTime(iso) {
   if (!iso) return '';
@@ -527,12 +548,13 @@ function GlobalFeedPostCard({ post, feedActions, onOpenProfile, onOpenLightbox }
             icon={profileIcons.saved}
             label={String(post.counts?.saves ?? 0)}
             active={post.viewerState.isSaved}
+            onClick={() => feedActions.onSave(post)}
           />
           <ActionIcon
             icon={profileIcons.share}
             label={String(post.counts.reposts)}
             active={post.viewerState.isReposted}
-            onClick={() => feedActions.onRepost(post)}
+            onClick={() => feedActions.onSend(post)}
           />
         </div>
       </div>
@@ -564,9 +586,8 @@ export const FeedCard = ({ name, time, location, status, text }) => {
               className=" h-10  md:h-[60px] xl:h-20 rounded-full object-none bg-gray-300"
             />
             <span
-              className={`absolute right-[2px] top-[3px] w-[6px] h-[6px] md:w-2 md:h-2 md:top-[7px] md:right-[3px] rounded-full ${
-                status === 'online' ? 'bg-green-700' : 'bg-zinc-300 border border-gray-900/50'
-              }`}
+              className={`absolute right-[2px] top-[3px] w-[6px] h-[6px] md:w-2 md:h-2 md:top-[7px] md:right-[3px] rounded-full ${status === 'online' ? 'bg-green-700' : 'bg-zinc-300 border border-gray-900/50'
+                }`}
             />
           </div>
           <div className="flex flex-col mt-[5px] gap-[3px]">
@@ -616,9 +637,8 @@ export const FeedCard = ({ name, time, location, status, text }) => {
 };
 
 function ActionIcon({ icon, label, active, liked, onClick }) {
-  const className = `flex flex-col items-center text-[10px] md:text-xs font-[Montserrat] text-black ${
-    onClick ? 'cursor-pointer' : 'cursor-default opacity-95'
-  } ${active ? 'opacity-100' : 'opacity-90'}`;
+  const className = `flex flex-col items-center text-[10px] md:text-xs font-[Montserrat] text-black ${onClick ? 'cursor-pointer' : 'cursor-default opacity-95'
+    } ${active ? 'opacity-100' : 'opacity-90'}`;
   const inner = (
     <>
       <img
