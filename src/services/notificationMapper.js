@@ -1,5 +1,19 @@
 import profileIcons from '../constants/profileIcons';
 
+const notificationTypeMap = {
+  FOLLOW: 'newFollower',
+  LIKE: 'postLike',
+  COMMENT: 'postComment',
+  MENTION: 'mention',
+  POST: 'newPost',
+  SHARE: 'postShare',
+  SYSTEM: 'system',
+};
+
+export function mapType(type) {
+  return notificationTypeMap[type] || 'system';
+}
+
 export function mapNotification(n) {
   const actor = n.actor || {};
   const post = n.post || {};
@@ -9,10 +23,22 @@ export function mapNotification(n) {
 
   return {
     id: n.id,
+
     type: mapType(n.type),
-    text: buildText(n.type, actorName),
+
+    rawType: n.type,
+
+    title: n.title || 'Уведомление',
+
+    body: n.body || 'Новое уведомление',
+
     createdAt: n.createdAt,
-    isRead: !!n.readAt,
+
+    updatedAt: n.updatedAt,
+
+    eventAt: n.eventAt,
+
+    readAt: n.readAt,
 
     actor: {
       id: actor.id,
@@ -28,58 +54,19 @@ export function mapNotification(n) {
   };
 }
 
-function mapType(type) {
-  switch (type) {
-    case 'FOLLOW':
-      return 'newFollower';
-    case 'LIKE':
-      return 'postLike';
-    case 'COMMENT':
-      return 'postComment';
-    case 'MENTION':
-      return 'mention';
-    case 'POST':
-      return 'newPost';
-    default:
-      return 'system';
-  }
-}
-
-function buildText(type, name) {
-  switch (type) {
-    case 'FOLLOW':
-      return `${name} подписался (-лась) на вас`;
-
-    case 'LIKE':
-      return `${name} лайкнул (-ла) ваш пост`;
-
-    case 'COMMENT':
-      return `${name} прокомментировал (-ла) ваш пост`;
-
-    case 'MENTION':
-      return `${name} отметил (-ла) вас`;
-
-    case 'POST':
-      return `${name} добавил (-ла) новый пост`;
-
-    default:
-      return `Новое сообщение`;
-  }
-}
-
 function getPreviewText(n) {
   if (n.type === 'COMMENT') {
-    return n.body || null;
+    return n.metadata?.previewText || null;
   }
 
-  return null; // ❗ не показуємо текст поста для лайків
+  return null; //  не показуємо текст поста для лайків
 }
 
 function getPreviewImage(post) {
   if (post?.imageUrl) return post.imageUrl;
 
   if (Array.isArray(post?.media) && post.media.length > 0) {
-    return post.media[0].url;
+    return post.media[0]?.url || null;
   }
 
   return null;

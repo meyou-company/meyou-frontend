@@ -36,7 +36,6 @@ import { UserProfileNavProvider } from '../context/UserProfileNavContext';
 import BurgerMenu from '../components/BurgerMenu/BurgerMenu';
 import { useBurgerMenuStore } from '../zustand/useBurgerMenuStore';
 import { useThemeStore } from '../zustand/useThemeStore';
-import PostPage from '../pages/PostPage/PostPage';
 
 /** Глобальне бургер-меню — рендериться один раз, відкривається з будь-якої сторінки */
 function GlobalBurgerMenu() {
@@ -84,7 +83,6 @@ function AppLayout() {
               <Route path="/wallet" element={<WalletPage />} />
 
               <Route path="/notifications" element={<NotificationsPage />} />
-              <Route path="/posts/:postId" element={<PostPage />} />
 
               <Route path="/my-gifts" element={<MyGiftsPage />} />
 
