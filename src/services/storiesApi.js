@@ -24,13 +24,22 @@ export const storiesApi = {
   },
 
   async create({ mediaUrl, mediaType, text = "" }) {
-    const { data } = await api.post(apiPath("/stories"), {
-      mediaUrl,
-      mediaType,
-      text,
-    });
-    return data;
-  },
+  const payload = {
+    mediaUrl,
+    mediaType,
+  };
+
+  const trimmedText = String(text ?? "").trim();
+
+  if (trimmedText) {
+    payload.text = trimmedText;
+  }
+
+  console.log("[create-story-payload]", payload);
+
+  const { data } = await api.post(apiPath("/stories"), payload);
+  return data;
+},
 
   async markViewed(storyId) {
     const { data } = await api.post(

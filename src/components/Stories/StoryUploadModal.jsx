@@ -51,7 +51,6 @@ export default function StoryUploadModal({ isOpen, onClose, onCreated }) {
 
   const handleSelectFile = (e) => {
     const file = e.target.files?.[0];
-
     e.target.value = "";
 
     if (!file) return;
@@ -103,87 +102,133 @@ export default function StoryUploadModal({ isOpen, onClose, onCreated }) {
   };
 
   return (
-    <div
-      className="storyUploadModal"
-      role="dialog"
-      aria-modal="true"
-      aria-label="Додати story"
-      onClick={handleClose}
-    >
-      <div className="storyUploadModal__card" onClick={(e) => e.stopPropagation()}>
-        <div className="storyUploadModal__header">
-          <h3 className="storyUploadModal__title">Додати story</h3>
+    <div className="storyUploadModal" role="dialog" aria-modal="true" aria-label="Додати story">
 
-          <button
-            type="button"
-            className="storyUploadModal__close"
-            onClick={handleClose}
-            aria-label="Закрити"
-          >
-            ×
-          </button>
-        </div>
+      <div className="storyUploadModal__page">
+        <div className="storyUploadModal__bgDots" aria-hidden="true" />
 
-        <input
-          ref={inputRef}
-          type="file"
-          accept="image/*,video/*"
-          className="storyUploadModal__file"
-          onChange={handleSelectFile}
-        />
+        <div className="storyUploadModal__content">
+          <div className="storyUploadModal__head">
+            <button
+              type="button"
+              className="storyUploadModal__close"
+              onClick={handleClose}
+              aria-label="Закрити"
+            >
+              ×
+            </button>
 
-        {!fileItem ? (
-          <button
-            type="button"
-            className="storyUploadModal__pick"
-            onClick={() => inputRef.current?.click()}
-          >
-            Вибрати фото або відео
-          </button>
-        ) : (
-          <div className="storyUploadModal__previewWrap">
-            {fileItem.type === "video" ? (
-              <video
-                src={fileItem.previewUrl}
-                className="storyUploadModal__preview"
-                controls
-              />
-            ) : (
-              <img
-                src={fileItem.previewUrl}
-                alt=""
-                className="storyUploadModal__preview"
-              />
-            )}
+            <h3 className="storyUploadModal__title">Дополнить историю</h3>
+
+            <button type="button" className="storyUploadModal__settings" aria-label="Настройки">
+              ⚙
+            </button>
+          </div>
+
+          <div className="storyUploadModal__tools" aria-label="Story tools">
+            <button type="button" className="storyUploadModal__tool">
+              <span className="storyUploadModal__toolIcon">Aa</span>
+              <span>Текст</span>
+            </button>
+
+            <button type="button" className="storyUploadModal__tool">
+              <span className="storyUploadModal__toolIcon">♫</span>
+              <span>Музыка</span>
+            </button>
+
+            <button type="button" className="storyUploadModal__tool">
+              <span className="storyUploadModal__toolIcon">▧</span>
+              <span>Шаблоны</span>
+            </button>
+
+            <button type="button" className="storyUploadModal__tool">
+              <span className="storyUploadModal__toolIcon">▥</span>
+              <span>Коллаж</span>
+            </button>
+          </div>
+
+          <div className="storyUploadModal__galleryHead">
+            <button type="button" className="storyUploadModal__galleryTitle">
+              Галерея <span>⌄</span>
+            </button>
 
             <button
               type="button"
-              className="storyUploadModal__replace"
+              className="storyUploadModal__selectBtn"
               onClick={() => inputRef.current?.click()}
               disabled={isPublishing}
             >
-              Замінити файл
+              Выбрать
+              <span className="storyUploadModal__selectIcon">▧</span>
             </button>
           </div>
-        )}
 
-        <textarea
-          className="storyUploadModal__text"
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-          placeholder="Текст до story (необов'язково)"
-          rows={3}
-          disabled={isPublishing}
-        />
+          <input
+            ref={inputRef}
+            type="file"
+            accept="image/*,video/*"
+            className="storyUploadModal__file"
+            onChange={handleSelectFile}
+          />
 
-        <button
-          type="button"
-          className="storyUploadModal__publish"
-          onClick={handlePublish}
-          disabled={isPublishing || !fileItem}
-        >
-          {isPublishing ? "Публікуємо..." : "Опублікувати story"}
-        </button>
+          {fileItem ? (
+            <div className="storyUploadModal__selectedPanel">
+              <div className="storyUploadModal__previewShell">
+                {fileItem.type === "video" ? (
+                  <video src={fileItem.previewUrl} className="storyUploadModal__preview" controls />
+                ) : (
+                  <img src={fileItem.previewUrl} alt="" className="storyUploadModal__preview" />
+                )}
+              </div>
+
+              <textarea
+                className="storyUploadModal__text"
+                value={text}
+                onChange={(e) => setText(e.target.value)}
+                placeholder="Текст до story (необов'язково)"
+                rows={2}
+                disabled={isPublishing}
+              />
+
+              <div className="storyUploadModal__publishRow">
+                <button
+                  type="button"
+                  className="storyUploadModal__replace"
+                  onClick={() => inputRef.current?.click()}
+                  disabled={isPublishing}
+                >
+                  Заменить
+                </button>
+
+                <button
+                  type="button"
+                  className="storyUploadModal__publish"
+                  onClick={handlePublish}
+                  disabled={isPublishing}
+                >
+                  {isPublishing ? "Публикуем..." : "Опубликовать"}
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div className="storyUploadModal__grid" onClick={() => inputRef.current?.click()}>
+              {Array.from({ length: 12 }).map((_, index) => (
+                <button
+                  type="button"
+                  key={index}
+                  className="storyUploadModal__tile"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    inputRef.current?.click();
+                  }}
+                  aria-label="Вибрати файл"
+                >
+                  {index === 0 && <span className="storyUploadModal__camera">▣</span>}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
