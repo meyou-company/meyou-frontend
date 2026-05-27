@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import ThemeToggleDark from '../ThemeToggleDark/ThemeToggleDark';
 import profileIcons from '../../constants/profileIcons';
 import { useBurgerMenu } from '../../hooks/useBurgerMenu';
-import { useStories } from "../../hooks/useStories";
+import { useStoriesFeed } from "../../hooks/useStoriesFeed";
 import { postsApi } from '../../services/postsApi';
 import { useAuthStore } from "../../zustand/useAuthStore";
 import { mapApiPostToFeedItem } from '../../utils/mapApiPostToFeedItem';
@@ -25,6 +25,7 @@ import SharePostModal from '../../components/PostFeed/SharePostModal';
 import EditPostModal from '../../components/PostFeed/EditPostModal';
 import DeletePostConfirmDialog from '../../components/PostFeed/DeletePostConfirmDialog';
 import ImageLightbox from '../../components/PostFeed/ImageLightbox';
+import StoryUploadModal from "../../components/Stories/StoryUploadModal";
 import '../Users/Profile/ProfileHome/ProfileHome.scss';
 import './FirstPageView.scss';
 
@@ -53,8 +54,8 @@ export default function FirstPageView({
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const [lightboxImages, setLightboxImages] = useState([]);
   const [lightboxIndex, setLightboxIndex] = useState(0);
+  const [isStoryUploadOpen, setIsStoryUploadOpen] = useState(false);
 
-  const { stories, refresh } = useStories();
   const currentUserId = useAuthStore((s) => s.user?.id);
 
   const openLightbox = (images, startIndex = 0) => {
@@ -84,6 +85,11 @@ export default function FirstPageView({
     navigate(`/profile/${value}`);
   };
 
+  const {
+    storiesGroups,
+    storiesLoading,
+    reloadStories,
+  } = useStoriesFeed();
   const [feedPosts, setFeedPosts] = useState([]);
   const [feedLoading, setFeedLoading] = useState(true);
   const [feedError, setFeedError] = useState(null);
@@ -286,28 +292,30 @@ export default function FirstPageView({
             </h2>
 
             <div className="flex gap-3 md:gap-[23px] xl:gap-10 overflow-x-auto pb-2 md:pb-0 snap-x snap-mandatory snap-center scrollbarHide pl-[10px] pr-[10px] md:pl-[41px] md:pr-[41px] lg:pl-9 lg:pr-9 min-[1440px]:pl-[66px] min-[1440px]:pr-[66px]">
-              {/* <StoryCircle type="add" /> */}
+
               <StoryCircle
-                isMine
-                onAdd={() => console.log("OPEN UPLOAD MODAL")}
+                type="add"
+                onClick={() => setIsStoryUploadOpen(true)}
               />
 
-              {/* Feed stories */}
-              {stories.map((s) => (
-                <StoryCircle
-                  key={s.author.id}
-                  story={s}
-                  onClick={(storyGroup) =>
-                    console.log("OPEN STORY VIEWER", storyGroup)
-                  }
-                />
-              ))}
-              {/* <StoryCircle status="online" />
-              <StoryCircle status="offline" />
-              <StoryCircle status="online" />
-              <StoryCircle status="online" />
-              <StoryCircle status="online" /> */}
+              {!storiesLoading &&
+                storiesGroups.map((group) => {
+                  const firstStory = group?.stories?.[0];
+
+                  if (!firstStory) return null;
+
+                  return (
+                    <StoryCircle
+                      key={group.author?.id || firstStory.id}
+                      username={group.author?.username}
+                      avatar={group.author?.avatarUrl}
+                      viewed={group.viewedByMe === true}
+                      storiesCount={group.stories?.length || 0}
+                    />
+                  );
+                })}
             </div>
+
           </div>
         </section>
 
@@ -352,6 +360,12 @@ export default function FirstPageView({
           onClose={closeLightbox}
           onPrev={() => moveLightbox(-1)}
           onNext={() => moveLightbox(1)}
+        />
+        
+        <StoryUploadModal
+          isOpen={isStoryUploadOpen}
+          onClose={() => setIsStoryUploadOpen(false)}
+          onCreated={() => reloadStories()}
         />
 
         <SharePostModal

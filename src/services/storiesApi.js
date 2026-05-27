@@ -1,34 +1,69 @@
-import { api as axios } from "./api";
+import { api, apiPath } from "./api";
 
-// получить feed (главный экран сторис)
-export const getStoriesFeed = () =>
-  axios.get("/api/stories/feed").then((r) => r.data);
+function extractList(payload) {
+  if (!payload) return [];
+  if (Array.isArray(payload)) return payload;
+  if (Array.isArray(payload.items)) return payload.items;
+  if (Array.isArray(payload.data)) return payload.data;
+  if (Array.isArray(payload.stories)) return payload.stories;
+  return [];
+}
 
-// создать story
-export const createStory = (data) =>
-  axios.post("/api/stories", data).then((r) => r.data);
+export const storiesApi = {
+  async getFeed() {
+    const { data } = await api.get(apiPath("/stories/feed"));
+    return extractList(data);
+  },
 
-// presigned url для загрузки медиа
-export const getStoryUploadUrl = (fileName, fileType) =>
-  axios
-    .post("/api/uploads/story-media/presigned-url", {
-      fileName,
-      fileType,
-    })
-    .then((r) => r.data);
+  async getUserStories(username) {
+    if (!username) return [];
+    const { data } = await api.get(
+      apiPath(`/users/${encodeURIComponent(username)}/stories`)
+    );
+    return extractList(data);
+  },
 
-// отметить просмотр
-export const viewStory = (id) =>
-  axios.post(`/api/stories/${id}/view`).then((r) => r.data);
+  async create({ mediaUrl, mediaType, text = "" }) {
+    const { data } = await api.post(apiPath("/stories"), {
+      mediaUrl,
+      mediaType,
+      text,
+    });
+    return data;
+  },
 
-// удалить свою story
-export const deleteStory = (id) =>
-  axios.delete(`/api/stories/${id}`).then((r) => r.data);
+  async markViewed(storyId) {
+    const { data } = await api.post(
+      apiPath(`/stories/${encodeURIComponent(storyId)}/view`)
+    );
+    return data;
+  },
 
-// views список (для автора)
-export const getStoryViews = (id) =>
-  axios.get(`/api/stories/${id}/views`).then((r) => r.data);
+  async deleteStory(storyId) {
+    const { data } = await api.delete(
+      apiPath(`/stories/${encodeURIComponent(storyId)}`)
+    );
+    return data;
+  },
 
-// сторис конкретного пользователя
-export const getUserStories = (username) =>
-  axios.get(`/api/stories/${username}`).then((r) => r.data);
+  async getViews(storyId) {
+    const { data } = await api.get(
+      apiPath(`/stories/${encodeURIComponent(storyId)}/views`)
+    );
+    return data;
+  },
+
+  async getPresignedUrl(file) {
+    const fileName = file?.name || `story-${Date.now()}`;
+    const fileType = file?.type || "application/octet-stream";
+
+    const { data } = await api.get(apiPath("/uploads/story-media/presigned-url"), {
+      params: {
+        fileName,
+        fileType,
+      },
+    });
+
+    return data;
+  },
+};
