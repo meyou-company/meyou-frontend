@@ -102,9 +102,11 @@
 .storyUploadModal__tool {
   min-height: 56px;
   gap: 4px;
-  border-radius: 16px;
-  background: linear-gradient(180deg, #fff 0%, #ddc2ff 100%);
-  box-shadow: 0 2px 7px rgba(54, 28, 84, 0.22);
+  border-radius: 12px;
+  background: linear-gradient(181deg,
+      #FCFAFF 0%,
+      #F1E7FF 46%,
+      #E1CBFF 100%);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -127,7 +129,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  margin-bottom: 24px;
+  margin-bottom: 14px;
 }
 
 .storyUploadModal__galleryTitle {
@@ -152,11 +154,12 @@
   width: 35px;
   height: 25px;
   rotate: 270deg;
+  margin-left: -5px;
 }
 
 .storyUploadModal__selectBtn {
   border: 0;
-  border-radius: 13px;
+  border-radius: 12px;
   background: linear-gradient(180deg, #fff 0%, #ddc2ff 100%);
   padding: 11px 14px;
   color: #111;
@@ -272,7 +275,7 @@
 }
 
 @media (min-width: 768px) {
-    .storyUploadModal__grid {
+  .storyUploadModal__grid {
     grid-template-columns: repeat(4, 1fr);
     gap: 5px;
   }
@@ -366,7 +369,7 @@
 
   .storyUploadModal__head {
     grid-template-columns: 40px 1fr 40px;
-    margin-bottom: 40px;
+    margin-bottom: 17px;
   }
 
   .storyUploadModal__close {
@@ -383,7 +386,7 @@
 
   .storyUploadModal__tools {
     gap: 14px;
-    margin-bottom: 51px;
+    margin-bottom: 26px;
   }
 
   .storyUploadModal__tool {
@@ -397,7 +400,7 @@
 
   .storyUploadModal__selectBtn {
     font-size: 17px;
-    padding: 10px 11px;
+    padding: 7px 11px;
   }
 
   .storyUploadModal__grid {
@@ -437,15 +440,15 @@
   }
 
   .storyUploadModal__tool {
-    font-size: 14px;
+    font-size: 13px;
   }
 
   .storyUploadModal__galleryTitle {
-    font-size: 22px;
+    font-size: 18px;
   }
 
   .storyUploadModal__selectBtn {
-    font-size: 14px;
+    font-size: 12px;
   }
 
   .storyUploadModal__tile {
