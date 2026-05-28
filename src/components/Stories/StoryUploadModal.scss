@@ -1,7 +1,7 @@
 .storyUploadModal {
   position: fixed;
   inset: 0;
-  z-index: 9999;
+  padding-top: 32px;
   overflow-y: auto;
   background: #fff;
   color: #111;
@@ -53,7 +53,7 @@
   z-index: 1;
   width: min(704px, calc(100% - 88px));
   margin: 0 auto;
-  padding: 38px 0 44px;
+  padding: 18px 0 44px;
 }
 
 .storyUploadModal__head {
@@ -74,9 +74,9 @@
   line-height: 1;
 }
 
-.storyUploadModal__close {
-  justify-self: start;
-  font-size: 52px;
+.storyUploadModal_closeIcon {
+  width: 18px;
+  height: 18px;
 }
 
 .storyUploadModal__settings {
@@ -88,7 +88,7 @@
   margin: 0;
   text-align: center;
   font-size: 38px;
-  font-weight: 900;
+  font-weight: 700;
   line-height: 1.1;
 }
 
@@ -100,8 +100,8 @@
 }
 
 .storyUploadModal__tool {
-  min-height: 108px;
-  border: 0;
+  min-height: 56px;
+  gap: 4px;
   border-radius: 16px;
   background: linear-gradient(180deg, #fff 0%, #ddc2ff 100%);
   box-shadow: 0 2px 7px rgba(54, 28, 84, 0.22);
@@ -109,7 +109,6 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 9px;
   color: #111;
   font-family: Montserrat, sans-serif;
   font-size: 22px;
@@ -119,8 +118,7 @@
 
 .storyUploadModal__toolIcon {
   color: #a077f3;
-  font-size: 24px;
-  font-weight: 800;
+  font-weight: 500;
   line-height: 1;
 }
 
@@ -133,19 +131,27 @@
 }
 
 .storyUploadModal__galleryTitle {
+  display: flex;
+  align-items: center;
   border: 0;
   background: transparent;
   padding: 0;
   color: #000;
   font-family: Montserrat, sans-serif;
   font-size: 32px;
-  font-weight: 900;
+  font-weight: 700;
   cursor: pointer;
 
   span {
     margin-left: 12px;
     font-size: 34px;
   }
+}
+
+.storyUploadModal__galleryArrowIcon {
+  width: 35px;
+  height: 25px;
+  rotate: 270deg;
 }
 
 .storyUploadModal__selectBtn {
@@ -265,6 +271,13 @@
   cursor: not-allowed;
 }
 
+@media (min-width: 768px) {
+    .storyUploadModal__grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 5px;
+  }
+}
+
 @media (min-width: 768px) and (max-width: 1199px) {
   .storyUploadModal__brand {
     font-size: 30px;
@@ -331,11 +344,6 @@
     padding: 10px 13px;
   }
 
-  .storyUploadModal__grid {
-    grid-template-columns: repeat(4, 1fr);
-    gap: 5px;
-  }
-
   .storyUploadModal__tile {
     min-height: 204px;
     aspect-ratio: 1 / 1.12;
@@ -354,7 +362,6 @@
 
   .storyUploadModal__content {
     width: calc(100% - 56px);
-    padding-top: 91px;
   }
 
   .storyUploadModal__head {
@@ -380,7 +387,6 @@
   }
 
   .storyUploadModal__tool {
-    min-height: 108px;
     border-radius: 16px;
     font-size: 17px;
   }
@@ -420,11 +426,10 @@
 @media (max-width: 480px) {
   .storyUploadModal__content {
     width: calc(100% - 32px);
-    padding-top: 72px;
   }
 
   .storyUploadModal__title {
-    font-size: 26px;
+    font-size: 20px;
   }
 
   .storyUploadModal__tools {
@@ -432,7 +437,6 @@
   }
 
   .storyUploadModal__tool {
-    min-height: 86px;
     font-size: 14px;
   }
 

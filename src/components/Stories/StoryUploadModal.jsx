@@ -1,7 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
 import { storiesApi } from "../../services/storiesApi";
 import { uploadStoryMedia } from "../../services/storyMediaUploadApi";
+import AppHeader from "../Layout/AppHeader";
+import profileIcons from "../../constants/profileIcons";
 import "./StoryUploadModal.scss";
 
 export default function StoryUploadModal({ isOpen, onClose, onCreated }) {
@@ -9,6 +12,8 @@ export default function StoryUploadModal({ isOpen, onClose, onCreated }) {
   const [fileItem, setFileItem] = useState(null);
   const [text, setText] = useState("");
   const [isPublishing, setIsPublishing] = useState(false);
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (!isOpen) return undefined;
@@ -103,6 +108,13 @@ export default function StoryUploadModal({ isOpen, onClose, onCreated }) {
 
   return (
     <div className="storyUploadModal" role="dialog" aria-modal="true" aria-label="Додати story">
+      <AppHeader
+        onGoProfile={() => navigate("/profile")}
+        onGoExplore={() => navigate("/explore")}
+        onGoWallet={() => navigate("/wallet")}
+        onGoVipChat={() => navigate("/vip-chat")}
+        onGoHome={() => navigate("/first-page")}
+      />
 
       <div className="storyUploadModal__page">
         <div className="storyUploadModal__bgDots" aria-hidden="true" />
@@ -115,13 +127,13 @@ export default function StoryUploadModal({ isOpen, onClose, onCreated }) {
               onClick={handleClose}
               aria-label="Закрити"
             >
-              ×
+              <img src={profileIcons.close} className="storyUploadModal_closeIcon" alt="" />
             </button>
 
             <h3 className="storyUploadModal__title">Дополнить историю</h3>
 
             <button type="button" className="storyUploadModal__settings" aria-label="Настройки">
-              ⚙
+              <img src={profileIcons.storySettings} alt="" />
             </button>
           </div>
 
@@ -132,24 +144,27 @@ export default function StoryUploadModal({ isOpen, onClose, onCreated }) {
             </button>
 
             <button type="button" className="storyUploadModal__tool">
-              <span className="storyUploadModal__toolIcon">♫</span>
+              <span className="storyUploadModal__toolIcon">
+                <img src={profileIcons.storyMusic} alt="" />
+              </span>
               <span>Музыка</span>
             </button>
 
             <button type="button" className="storyUploadModal__tool">
-              <span className="storyUploadModal__toolIcon">▧</span>
+              <img src={profileIcons.storyTemplate} alt="" />
               <span>Шаблоны</span>
             </button>
 
             <button type="button" className="storyUploadModal__tool">
-              <span className="storyUploadModal__toolIcon">▥</span>
+              <img src={profileIcons.storyCollage} alt="" />
               <span>Коллаж</span>
             </button>
           </div>
 
           <div className="storyUploadModal__galleryHead">
             <button type="button" className="storyUploadModal__galleryTitle">
-              Галерея <span>⌄</span>
+              Галерея
+              <img src={profileIcons.arrowLeftFilledBlack} className="storyUploadModal__galleryArrowIcon" alt="" />
             </button>
 
             <button
@@ -159,7 +174,9 @@ export default function StoryUploadModal({ isOpen, onClose, onCreated }) {
               disabled={isPublishing}
             >
               Выбрать
-              <span className="storyUploadModal__selectIcon">▧</span>
+              <span className="storyUploadModal__selectIcon">
+                <img src={profileIcons.storyGallery} alt="" />
+              </span>
             </button>
           </div>
 
@@ -223,7 +240,11 @@ export default function StoryUploadModal({ isOpen, onClose, onCreated }) {
                   }}
                   aria-label="Вибрати файл"
                 >
-                  {index === 0 && <span className="storyUploadModal__camera">▣</span>}
+                  {index === 0 && (
+                    <span className="storyUploadModal__camera">
+                      <img src={profileIcons.storyCamera} alt="" />
+                    </span>
+                  )}
                 </button>
               ))}
             </div>
