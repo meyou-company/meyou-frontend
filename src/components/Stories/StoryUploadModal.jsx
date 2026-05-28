@@ -110,7 +110,7 @@ export default function StoryUploadModal({ isOpen, onClose, onCreated }) {
     <div className="storyUploadModal" role="dialog" aria-modal="true" aria-label="Додати story">
       <AppHeader
         onGoProfile={() => navigate("/profile")}
-        onGoExplore={() => navigate("/explore")}
+        onGoExplore={() => navigate("/search")}
         onGoWallet={() => navigate("/wallet")}
         onGoVipChat={() => navigate("/vip-chat")}
         onGoHome={() => navigate("/first-page")}
