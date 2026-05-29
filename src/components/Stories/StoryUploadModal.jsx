@@ -16,18 +16,26 @@ export default function StoryUploadModal({ isOpen, onClose, onCreated }) {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!isOpen) return undefined;
+  if (!isOpen) return undefined;
 
-    const onEscape = (e) => {
-      if (e.key === "Escape") onClose?.();
-    };
+  const previousBodyOverflow = document.body.style.overflow;
+  const previousHtmlOverflow = document.documentElement.style.overflow;
 
-    window.addEventListener("keydown", onEscape);
+  document.body.style.overflow = "hidden";
+  document.documentElement.style.overflow = "hidden";
 
-    return () => {
-      window.removeEventListener("keydown", onEscape);
-    };
-  }, [isOpen, onClose]);
+  const onEscape = (e) => {
+    if (e.key === "Escape") onClose?.();
+  };
+
+  window.addEventListener("keydown", onEscape);
+
+  return () => {
+    window.removeEventListener("keydown", onEscape);
+    document.body.style.overflow = previousBodyOverflow;
+    document.documentElement.style.overflow = previousHtmlOverflow;
+  };
+}, [isOpen, onClose]);
 
   useEffect(() => {
     return () => {
