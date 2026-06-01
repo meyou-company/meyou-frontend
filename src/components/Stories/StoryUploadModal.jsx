@@ -141,13 +141,13 @@ export default function StoryUploadModal({ isOpen, onClose, onCreated }) {
             <h3 className="storyUploadModal__title">Дополнить историю</h3>
 
             <button type="button" className="storyUploadModal__settings" aria-label="Настройки">
-              <img src={profileIcons.storySettings} alt="" />
+              <img src={profileIcons.storySettings} alt="" className="storyUploadModal_settingsIcon"/>
             </button>
           </div>
 
           <div className="storyUploadModal__tools" aria-label="Story tools">
             <button type="button" className="storyUploadModal__tool">
-              <span className="storyUploadModal__toolIcon">Aa</span>
+              <span className="storyUploadModal__toolIcon storyUploadModal__toolIcon--text">Aa</span>
               <span>Текст</span>
             </button>
 
@@ -237,7 +237,7 @@ export default function StoryUploadModal({ isOpen, onClose, onCreated }) {
             </div>
           ) : (
             <div className="storyUploadModal__grid" onClick={() => inputRef.current?.click()}>
-              {Array.from({ length: 12 }).map((_, index) => (
+              {Array.from({ length: 15 }).map((_, index) => (
                 <button
                   type="button"
                   key={index}
