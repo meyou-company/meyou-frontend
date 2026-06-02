@@ -124,6 +124,13 @@ const profileIcons = {
   storyMusic: '/stories/music.svg',
   storySettings: '/stories/settings.svg',
   storyTemplate: '/stories/template.svg',
+
+  storyText: '/stories/aa.svg',
+  storySticker: '/stories/fluent_sticker-12-regular.svg',
+  storyBrush: '/stories/boxicons_brush-sparkles.svg',
+  storyEditorMusic: '/stories/music-note.svg',
+  storyBack: '/stories/mingcute_arrow-up-fill.svg',
+  storyArrowFilled: '/stories/weui_arrow-filled.svg',
 };
 
 export default profileIcons;
