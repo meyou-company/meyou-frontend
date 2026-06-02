@@ -24,7 +24,7 @@ export default function StoryCircle({
           </div>
         </div>
 
-        <span className="text-[8px] md:text-xs xl:text-xl font-[Montserrat] text-black underline">
+        <span className="story-text text-[8px] md:text-xs xl:text-xl font-[Montserrat] text-black underline">
           add story
         </span>
       </button>
