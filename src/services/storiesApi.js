@@ -35,8 +35,6 @@ export const storiesApi = {
     payload.text = trimmedText;
   }
 
-  console.log("[create-story-payload]", payload);
-
   const { data } = await api.post(apiPath("/stories"), payload);
   return data;
 },

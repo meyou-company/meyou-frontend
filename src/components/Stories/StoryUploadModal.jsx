@@ -16,26 +16,26 @@ export default function StoryUploadModal({ isOpen, onClose, onCreated }) {
   const navigate = useNavigate();
 
   useEffect(() => {
-  if (!isOpen) return undefined;
+    if (!isOpen) return undefined;
 
-  const previousBodyOverflow = document.body.style.overflow;
-  const previousHtmlOverflow = document.documentElement.style.overflow;
+    const previousBodyOverflow = document.body.style.overflow;
+    const previousHtmlOverflow = document.documentElement.style.overflow;
 
-  document.body.style.overflow = "hidden";
-  document.documentElement.style.overflow = "hidden";
+    document.body.style.overflow = "hidden";
+    document.documentElement.style.overflow = "hidden";
 
-  const onEscape = (e) => {
-    if (e.key === "Escape") onClose?.();
-  };
+    const onEscape = (e) => {
+      if (e.key === "Escape") onClose?.();
+    };
 
-  window.addEventListener("keydown", onEscape);
+    window.addEventListener("keydown", onEscape);
 
-  return () => {
-    window.removeEventListener("keydown", onEscape);
-    document.body.style.overflow = previousBodyOverflow;
-    document.documentElement.style.overflow = previousHtmlOverflow;
-  };
-}, [isOpen, onClose]);
+    return () => {
+      window.removeEventListener("keydown", onEscape);
+      document.body.style.overflow = previousBodyOverflow;
+      document.documentElement.style.overflow = previousHtmlOverflow;
+    };
+  }, [isOpen, onClose]);
 
   useEffect(() => {
     return () => {
@@ -60,6 +60,15 @@ export default function StoryUploadModal({ isOpen, onClose, onCreated }) {
   const handleClose = () => {
     reset();
     onClose?.();
+  };
+
+  const handleBackToPicker = () => {
+    if (fileItem?.previewUrl) {
+      URL.revokeObjectURL(fileItem.previewUrl);
+    }
+
+    setFileItem(null);
+    setText("");
   };
 
   const handleSelectFile = (e) => {
@@ -115,7 +124,12 @@ export default function StoryUploadModal({ isOpen, onClose, onCreated }) {
   };
 
   return (
-    <div className="storyUploadModal" role="dialog" aria-modal="true" aria-label="Додати story">
+    <div
+      className="storyUploadModal"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Додати story"
+    >
       <AppHeader
         onGoProfile={() => navigate("/profile")}
         onGoExplore={() => navigate("/search")}
@@ -127,66 +141,91 @@ export default function StoryUploadModal({ isOpen, onClose, onCreated }) {
       <div className="storyUploadModal__page">
         <div className="storyUploadModal__bgDots" aria-hidden="true" />
 
-        <div className="storyUploadModal__content">
-          <div className="storyUploadModal__head">
-            <button
-              type="button"
-              className="storyUploadModal__close"
-              onClick={handleClose}
-              aria-label="Закрити"
-            >
-              <img src={profileIcons.close} className="storyUploadModal_closeIcon" alt="" />
-            </button>
+        <div
+          className={`storyUploadModal__content ${fileItem ? "storyUploadModal__content--editor" : ""
+            }`}
+        >
+          {!fileItem && (
+            <>
+              <div className="storyUploadModal__head">
+                <button
+                  type="button"
+                  className="storyUploadModal__close"
+                  onClick={handleClose}
+                  aria-label="Закрити"
+                >
+                  <img
+                    src={profileIcons.close}
+                    className="storyUploadModal_closeIcon"
+                    alt=""
+                  />
+                </button>
 
-            <h3 className="storyUploadModal__title">Дополнить историю</h3>
+                <h3 className="storyUploadModal__title">Дополнить историю</h3>
 
-            <button type="button" className="storyUploadModal__settings" aria-label="Настройки">
-              <img src={profileIcons.storySettings} alt="" className="storyUploadModal_settingsIcon"/>
-            </button>
-          </div>
+                <button
+                  type="button"
+                  className="storyUploadModal__settings"
+                  aria-label="Настройки"
+                >
+                  <img
+                    src={profileIcons.storySettings}
+                    alt=""
+                    className="storyUploadModal_settingsIcon"
+                  />
+                </button>
+              </div>
 
-          <div className="storyUploadModal__tools" aria-label="Story tools">
-            <button type="button" className="storyUploadModal__tool">
-              <span className="storyUploadModal__toolIcon storyUploadModal__toolIcon--text">Aa</span>
-              <span>Текст</span>
-            </button>
+              <div className="storyUploadModal__tools" aria-label="Story tools">
+                <button type="button" className="storyUploadModal__tool">
+                  <span className="storyUploadModal__toolIcon storyUploadModal__toolIcon--text">
+                    Aa
+                  </span>
+                  <span>Текст</span>
+                </button>
 
-            <button type="button" className="storyUploadModal__tool">
-              <span className="storyUploadModal__toolIcon">
-                <img src={profileIcons.storyMusic} alt="" />
-              </span>
-              <span>Музыка</span>
-            </button>
+                <button type="button" className="storyUploadModal__tool">
+                  <span className="storyUploadModal__toolIcon">
+                    <img src={profileIcons.storyMusic} alt="" />
+                  </span>
+                  <span>Музыка</span>
+                </button>
 
-            <button type="button" className="storyUploadModal__tool">
-              <img src={profileIcons.storyTemplate} alt="" />
-              <span>Шаблоны</span>
-            </button>
+                <button type="button" className="storyUploadModal__tool">
+                  <img src={profileIcons.storyTemplate} alt="" />
+                  <span>Шаблоны</span>
+                </button>
 
-            <button type="button" className="storyUploadModal__tool">
-              <img src={profileIcons.storyCollage} alt="" />
-              <span>Коллаж</span>
-            </button>
-          </div>
+                <button type="button" className="storyUploadModal__tool">
+                  <img src={profileIcons.storyCollage} alt="" />
+                  <span>Коллаж</span>
+                </button>
+              </div>
 
-          <div className="storyUploadModal__galleryHead">
-            <button type="button" className="storyUploadModal__galleryTitle">
-              Галерея
-              <img src={profileIcons.arrowLeftFilledBlack} className="storyUploadModal__galleryArrowIcon" alt="" />
-            </button>
+              <div className="storyUploadModal__galleryHead">
+                <button type="button" className="storyUploadModal__galleryTitle">
+                  Галерея
+                  <img
+                    src={profileIcons.arrowLeftFilledBlack}
+                    className="storyUploadModal__galleryArrowIcon"
+                    alt=""
+                  />
+                </button>
 
-            <button
-              type="button"
-              className="storyUploadModal__selectBtn"
-              onClick={() => inputRef.current?.click()}
-              disabled={isPublishing}
-            >
-              Выбрать
-              <span className="storyUploadModal__selectIcon">
-                <img src={profileIcons.storyGallery} alt="" />
-              </span>
-            </button>
-          </div>
+                <button
+                  type="button"
+                  className="storyUploadModal__selectBtn"
+                  onClick={() => inputRef.current?.click()}
+                  disabled={isPublishing}
+                >
+                  Выбрать
+                  <span className="storyUploadModal__selectIcon">
+                    <img src={profileIcons.storyGallery} alt="" />
+                  </span>
+                </button>
+              </div>
+            </>
+          )}
 
           <input
             ref={inputRef}
@@ -197,64 +236,126 @@ export default function StoryUploadModal({ isOpen, onClose, onCreated }) {
           />
 
           {fileItem ? (
-            <div className="storyUploadModal__selectedPanel">
-              <div className="storyUploadModal__previewShell">
-                {fileItem.type === "video" ? (
-                  <video src={fileItem.previewUrl} className="storyUploadModal__preview" controls />
-                ) : (
-                  <img src={fileItem.previewUrl} alt="" className="storyUploadModal__preview" />
-                )}
+            <div className="storyUploadModal__editor">
+              <div className="storyUploadModal__editorCard">
+                <div className="storyUploadModal__editorTop">
+                  <button
+                    type="button"
+                    className="storyUploadModal__editorBack"
+                    onClick={handleBackToPicker}
+                    aria-label="Назад"
+                  >
+                    <img src={profileIcons.storyBack} alt=""/>
+                  </button>
+
+                  <div className="storyUploadModal__editorTools">
+                    <button
+                      type="button"
+                      className="storyUploadModal__editorTool"
+                    >
+                      <span className="storyUploadModal__editorToolIcon storyUploadModal__editorToolIcon--text">
+                        Aa
+                      </span>
+                    </button>
+
+                    <button
+                      type="button"
+                      className="storyUploadModal__editorTool"
+                    >
+                      <img src={profileIcons.storySticker} alt="" />
+                    </button>
+
+                    <button
+                      type="button"
+                      className="storyUploadModal__editorTool"
+                    >
+                      <img src={profileIcons.storyEditorMusic} alt="" />
+                    </button>
+
+                    <button
+                      type="button"
+                      className="storyUploadModal__editorTool"
+                    >
+                      <img src={profileIcons.storyBrush} alt="" />
+                    </button>
+
+                    <button
+                      type="button"
+                      className="storyUploadModal__editorTool storyUploadModal__editorTool--small"
+                    >
+                      <img src={profileIcons.storyArrowFilled} alt="" />
+                    </button>
+                  </div>
+                </div>
+
+                <div className="storyUploadModal__mediaFrame">
+                  {fileItem.type === "video" ? (
+                    <video
+                      src={fileItem.previewUrl}
+                      className="storyUploadModal__editorMedia"
+                      controls
+                    />
+                  ) : (
+                    <img
+                      src={fileItem.previewUrl}
+                      alt=""
+                      className="storyUploadModal__editorMedia"
+                    />
+                  )}
+                </div>
+
+                <textarea
+                  className="storyUploadModal__caption"
+                  value={text}
+                  onChange={(e) => setText(e.target.value)}
+                  placeholder="Добавьте подпись..."
+                  rows={1}
+                  disabled={isPublishing}
+                />
               </div>
 
-              <textarea
-                className="storyUploadModal__text"
-                value={text}
-                onChange={(e) => setText(e.target.value)}
-                placeholder="Текст до story (необов'язково)"
-                rows={2}
-                disabled={isPublishing}
-              />
+              <div className="storyUploadModal__bottomActions">
+                <button type="button" className="storyUploadModal__audienceBtn">
+                  <span className="storyUploadModal__audienceAvatar">
+                    <img src={profileIcons.userStory} alt="" />
+                  </span>
+                  <span>Ваша история</span>
+                </button>
 
-              <div className="storyUploadModal__publishRow">
-                <button
-                  type="button"
-                  className="storyUploadModal__replace"
-                  onClick={() => inputRef.current?.click()}
-                  disabled={isPublishing}
-                >
-                  Заменить
+                <button type="button" className="storyUploadModal__audienceBtn">
+                  <span className="storyUploadModal__closeFriendsIcon">  
+                    <img src={profileIcons.storyCloseFriends} alt="" /></span>
+                  <span>Близкие</span>
                 </button>
 
                 <button
                   type="button"
-                  className="storyUploadModal__publish"
+                  className="storyUploadModal__nextBtn"
                   onClick={handlePublish}
                   disabled={isPublishing}
+                  aria-label="Опубликовать"
                 >
-                  {isPublishing ? "Публикуем..." : "Опубликовать"}
+                  {isPublishing ? "..." : <img
+                      src={profileIcons.storyArrowFilled}
+                      alt=""
+                      className="storyUploadModal__nextIcon"
+                    />}
                 </button>
               </div>
             </div>
           ) : (
-            <div className="storyUploadModal__grid" onClick={() => inputRef.current?.click()}>
-              {Array.from({ length: 15 }).map((_, index) => (
-                <button
-                  type="button"
-                  key={index}
-                  className="storyUploadModal__tile"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    inputRef.current?.click();
-                  }}
-                  aria-label="Вибрати файл"
-                >
-                  {index === 0 && (
-                    <span className="storyUploadModal__camera">
-                      <img src={profileIcons.storyCamera} alt="" />
-                    </span>
-                  )}
-                </button>
-              ))}
+            <div className="storyUploadModal__pickOnly">
+              <button
+                type="button"
+                className="storyUploadModal__pickFileBtn"
+                onClick={() => inputRef.current?.click()}
+                disabled={isPublishing}
+              >
+                <span className="storyUploadModal__pickFileIcon">
+                  <img src={profileIcons.storyCamera} alt="" />
+                </span>
+                <span>Выбрать фото или видео</span>
+              </button>
             </div>
           )}
         </div>
