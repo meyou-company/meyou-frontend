@@ -10,7 +10,6 @@
 
 .storyUploadModal__page {
   position: relative;
-  min-height: calc(100vh - 84px);
   background: #fff;
   overflow: hidden;
 }
@@ -261,7 +260,8 @@
 .storyUploadModal__editor {
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 12px;
+  margin-bottom: 30px;
 }
 
 .storyUploadModal__editorCard {
@@ -273,18 +273,15 @@
 }
 
 .storyUploadModal__editorTop {
-  padding: 24px 24px 18px;
+  padding: 15px;
   display: flex;
   align-items: flex-start;
-  justify-content: space-between;
 }
 
 .storyUploadModal__editorBack {
   border: 0;
   background: transparent;
-  color: #9b6df0;
-  font-size: 34px;
-  font-weight: 900;
+  color: #9B7AE6;
   cursor: pointer;
 }
 
@@ -299,7 +296,7 @@
   height: 40px;
   border: 0;
   border-radius: 999px;
-  background: #9b6df0;
+  background: #9B7AE6;
   color: #fff;
   display: inline-flex;
   align-items: center;
@@ -348,11 +345,11 @@
   border: 0;
   resize: none;
   background: transparent;
-  padding: 18px 20px 0;
+  padding: 15px 15px 10px;
   color: #fff;
   font-family: Montserrat, sans-serif;
-  font-size: 22px;
-  font-weight: 800;
+  font-size: 14px;
+  font-weight: 500;
   outline: none;
 
   &::placeholder {
@@ -363,7 +360,7 @@
 
 .storyUploadModal__bottomActions {
   display: flex;
-  gap: 20px;
+  gap: 6px;
   align-items: center;
   justify-content: center;
 }
@@ -385,11 +382,14 @@
 
 .storyUploadModal__audienceBtn,
 .storyUploadModal__nextBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   min-height: 44px;
   border: 0;
   border-radius: 24px;
-  background: #9b6df0;
-  color: #fff;
+  background: #9B7AE6;
+  color: #FFFFFF;
   font-family: Montserrat, sans-serif;
   font-size: 14px;
   font-weight: 500;
@@ -397,15 +397,18 @@
 }
 
 .storyUploadModal__audienceBtn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 14px;
-  padding: 15px 7px;
+  gap: 8px;
+  padding: 10px 8px;
 }
 
 .storyUploadModal__nextBtn {
   width: 44px;
+}
+
+.storyUploadModal__nextIcon {
+  width: 20px;
+  height: 20px;
+  rotate: 270deg;
 }
 
 .storyUploadModal__audienceAvatar {
@@ -424,7 +427,6 @@
   width: 26px;
   height: 26px;
   border-radius: 999px;
-  background: #21c765;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -464,16 +466,82 @@
 }
 
 @media (min-width: 768px) {
+  .storyUploadModal__content {
+    padding: 0;
+  }
+
   .storyUploadModal__grid {
     grid-template-columns: repeat(5, 1fr);
     gap: 5px;
   }
 
+  .storyUploadModal__editorTop {
+    justify-content: center;
+  }
+
+  .storyUploadModal__editorTools {
+    gap: 20px;
+  }
+
+  .storyUploadModal__editorTool {
+    width: 49px;
+    height: 49px;
+  }
+
+  .storyUploadModal__editorTool img {
+    width: 24px;
+    height: 24px;
+  }
+
+  .storyUploadModal__editorTool--small {
+    height: 28px;
+    margin-left: -8px;
+    rotate: 270deg;
+  }
+
+  .storyUploadModal__editorBack {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+  }
+
+  .storyUploadModal__editorBack img {
+    width: 24px;
+    height: 24px;
+  }
+
+  .storyUploadModal__audienceBtn {
+    width: 240px;
+    height: 61px;
+    gap: 20px;
+    font-size: 16px;
+    font-weight: 600;
+  }
+
+  .storyUploadModal__nextBtn {
+    width: 61px;
+    height: 61px;
+    border-radius: 50%;
+  }
+
+  .storyUploadModal__audienceAvatar {
+    width: 40px;
+    height: 40px;
+  }
+
+  .storyUploadModal__closeFriendsIcon {
+    width: 32px;
+    height: 32px;
+  }
+
+  .storyUploadModal__caption {
+    font-size: 16px;
+    font-weight: 600;
+  }
+
   .storyUploadModal__tile {
     min-height: 180px
   }
-
-  ;
 
   .storyUploadModal_closeIcon {
     width: 23px;
@@ -484,16 +552,16 @@
     width: 33px;
     height: 33px;
   }
+
+  .storyUploadModal__bottomActions {
+    justify-content: space-evenly;
+    margin-top: 12px;
+  }
 }
 
-@media (min-width: 768px) and (max-width: 1199px) {
+@media (min-width: 768px) and (max-width: 1279.98px) {
   .storyUploadModal__brand {
     font-size: 30px;
-  }
-
-  .storyUploadModal__page {
-    min-height: calc(100vh - 73px);
-    background: #fff;
   }
 
   .storyUploadModal__bgDots {
@@ -503,7 +571,6 @@
 
   .storyUploadModal__content {
     width: calc(100% - 52px);
-    padding-top: 32px;
     padding-left: 8px;
     padding-right: 8px;
   }
@@ -545,10 +612,64 @@
   }
 }
 
-@media (min-width: 1200px) {
+@media (min-width: 1280px) {
+  .storyUploadModal__editorTool {
+    width: 60px;
+    height: 60px;
+  }
+
+  .storyUploadModal__editorTool img {
+    width: 30px;
+    height: 30px;
+  }
+
+  .storyUploadModal__editorTool--small {
+    margin-left: 0;
+    height: 30px;
+    rotate: 0deg;
+  }
+
+  .storyUploadModal__editorBack img {
+    width: 38px;
+    height: 38px;
+  }
+
+  .storyUploadModal__caption {
+    padding: 20px 60px 20px 20px;
+    font-size: 20px;
+  }
+
+  .storyUploadModal__audienceBtn {
+    width: 500px;
+    padding: 34px 20px;
+    gap: 40px;
+    font-size: 20px;
+  }
+
+  .storyUploadModal__audienceAvatar {
+    width: 50px;
+    height: 50px;
+  }
+
+  .storyUploadModal__nextBtn img {
+    width: 30px;
+    height: 30px;
+  }
+
+  .storyUploadModal__closeFriendsIcon,
+  .storyUploadModal__closeFriendsIcon img {
+    width: 45px;
+    height: 45px;
+  }
+
   .storyUploadModal_closeIcon {
     width: 26px;
     height: 26px;
+  }
+
+ .storyUploadModal__editorToolIcon--text {
+    font-size: 24px;
+    font-weight: 600;
   }
 
   .storyUploadModal_settingsIcon {
@@ -585,9 +706,8 @@
 }
 
 @media (max-width: 767px) {
-
   .storyUploadModal__page {
-    min-height: 100vh;
+    min-height: calc(100vh - 84px);
   }
 
   .storyUploadModal__bgDots {
@@ -642,6 +762,10 @@
   .storyUploadModal__tile {
     min-height: 195px;
     aspect-ratio: 1 / 1.34;
+  }
+
+  .storyUploadModal__editorTop {
+    justify-content: space-between;
   }
 
   .storyUploadModal__selectedPanel {

@@ -245,7 +245,7 @@ export default function StoryUploadModal({ isOpen, onClose, onCreated }) {
                     onClick={handleBackToPicker}
                     aria-label="Назад"
                   >
-                    <img src={profileIcons.storyBack} alt="" />
+                    <img src={profileIcons.storyBack} alt=""/>
                   </button>
 
                   <div className="storyUploadModal__editorTools">
@@ -309,7 +309,7 @@ export default function StoryUploadModal({ isOpen, onClose, onCreated }) {
                   value={text}
                   onChange={(e) => setText(e.target.value)}
                   placeholder="Добавьте подпись..."
-                  rows={2}
+                  rows={1}
                   disabled={isPublishing}
                 />
               </div>
@@ -323,7 +323,8 @@ export default function StoryUploadModal({ isOpen, onClose, onCreated }) {
                 </button>
 
                 <button type="button" className="storyUploadModal__audienceBtn">
-                  <span className="storyUploadModal__closeFriendsIcon">★</span>
+                  <span className="storyUploadModal__closeFriendsIcon">  
+                    <img src={profileIcons.storyCloseFriends} alt="" /></span>
                   <span>Близкие</span>
                 </button>
 
@@ -334,7 +335,11 @@ export default function StoryUploadModal({ isOpen, onClose, onCreated }) {
                   disabled={isPublishing}
                   aria-label="Опубликовать"
                 >
-                  {isPublishing ? "..." : "›"}
+                  {isPublishing ? "..." : <img
+                      src={profileIcons.storyArrowFilled}
+                      alt=""
+                      className="storyUploadModal__nextIcon"
+                    />}
                 </button>
               </div>
             </div>

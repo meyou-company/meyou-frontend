@@ -131,6 +131,7 @@ const profileIcons = {
   storyEditorMusic: '/stories/music-note.svg',
   storyBack: '/stories/mingcute_arrow-up-fill.svg',
   storyArrowFilled: '/stories/weui_arrow-filled.svg',
+  storyCloseFriends: '/stories/close_friends.svg',
 };
 
 export default profileIcons;
