@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
+import { useAuthStore } from "../../zustand/useAuthStore";
 import { storiesApi } from "../../services/storiesApi";
 import { uploadStoryMedia } from "../../services/storyMediaUploadApi";
 import AppHeader from "../Layout/AppHeader";
@@ -14,6 +15,12 @@ export default function StoryUploadModal({ isOpen, onClose, onCreated }) {
   const [isPublishing, setIsPublishing] = useState(false);
 
   const navigate = useNavigate();
+  const currentUser = useAuthStore((s) => s.user);
+  const currentUserAvatar =
+    currentUser?.avatarUrl ||
+    currentUser?.avatar ||
+    currentUser?.photoUrl ||
+    profileIcons.userStory;
 
   useEffect(() => {
     if (!isOpen) return undefined;
@@ -89,10 +96,41 @@ export default function StoryUploadModal({ isOpen, onClose, onCreated }) {
       URL.revokeObjectURL(fileItem.previewUrl);
     }
 
+    const previewUrl = URL.createObjectURL(file);
+
+    if (isImage) {
+      const img = new Image();
+
+      img.onload = () => {
+        const orientation =
+          img.naturalWidth >= img.naturalHeight ? "landscape" : "portrait";
+
+        setFileItem({
+          file,
+          type: "image",
+          previewUrl,
+          orientation,
+        });
+      };
+
+      img.onerror = () => {
+        setFileItem({
+          file,
+          type: "image",
+          previewUrl,
+          orientation: "unknown",
+        });
+      };
+
+      img.src = previewUrl;
+      return;
+    }
+
     setFileItem({
       file,
-      type: isVideo ? "video" : "image",
-      previewUrl: URL.createObjectURL(file),
+      type: "video",
+      previewUrl,
+      orientation: "unknown",
     });
   };
 
@@ -245,7 +283,7 @@ export default function StoryUploadModal({ isOpen, onClose, onCreated }) {
                     onClick={handleBackToPicker}
                     aria-label="Назад"
                   >
-                    <img src={profileIcons.storyBack} alt=""/>
+                    <img src={profileIcons.storyBack} alt="" />
                   </button>
 
                   <div className="storyUploadModal__editorTools">
@@ -288,7 +326,14 @@ export default function StoryUploadModal({ isOpen, onClose, onCreated }) {
                   </div>
                 </div>
 
-                <div className="storyUploadModal__mediaFrame">
+                <div
+                  className={`storyUploadModal__mediaFrame ${fileItem.orientation === "landscape"
+                      ? "storyUploadModal__mediaFrame--landscape"
+                      : fileItem.orientation === "portrait"
+                        ? "storyUploadModal__mediaFrame--portrait"
+                        : "storyUploadModal__mediaFrame--unknown"
+                    }`}
+                >
                   {fileItem.type === "video" ? (
                     <video
                       src={fileItem.previewUrl}
@@ -317,13 +362,13 @@ export default function StoryUploadModal({ isOpen, onClose, onCreated }) {
               <div className="storyUploadModal__bottomActions">
                 <button type="button" className="storyUploadModal__audienceBtn">
                   <span className="storyUploadModal__audienceAvatar">
-                    <img src={profileIcons.userStory} alt="" />
+                    <img src={currentUserAvatar} alt="" />
                   </span>
                   <span>Ваша история</span>
                 </button>
 
                 <button type="button" className="storyUploadModal__audienceBtn">
-                  <span className="storyUploadModal__closeFriendsIcon">  
+                  <span className="storyUploadModal__closeFriendsIcon">
                     <img src={profileIcons.storyCloseFriends} alt="" /></span>
                   <span>Близкие</span>
                 </button>
@@ -336,10 +381,10 @@ export default function StoryUploadModal({ isOpen, onClose, onCreated }) {
                   aria-label="Опубликовать"
                 >
                   {isPublishing ? "..." : <img
-                      src={profileIcons.storyArrowFilled}
-                      alt=""
-                      className="storyUploadModal__nextIcon"
-                    />}
+                    src={profileIcons.storyArrowFilled}
+                    alt=""
+                    className="storyUploadModal__nextIcon"
+                  />}
                 </button>
               </div>
             </div>
