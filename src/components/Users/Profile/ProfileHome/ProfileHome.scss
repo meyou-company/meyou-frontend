@@ -3065,6 +3065,12 @@ html[data-theme="dark"] .profile-home .postActionCount {
   }
 }
 
+.avatarBorder--hasStories {
+  padding: 3px;
+  border-radius: 50%;
+  background: linear-gradient(45deg, #ff4fb1, #ff2d55, #ffcc00);
+}
+
 /* Desktop dark: “My messages” + action row match editBtn / dark surfaces (no gray 0.36 fill) */
 @media (min-width: 1024px) {
   body.dark .profile-home .btnMessages,

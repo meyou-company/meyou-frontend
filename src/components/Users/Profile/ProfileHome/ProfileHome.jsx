@@ -7,6 +7,7 @@ import AvatarCropModal from "../../../AvatarCropModal/AvatarCropModal";
 import { cropImageToFile } from "../../../../utils/cropImageToFile";
 import { authApi } from "../../../../services/auth";
 import { postsApi } from "../../../../services/postsApi";
+import { storiesApi } from "../../../../services/storiesApi";
 import {
   isPostImageUploadEnabled,
   uploadPostImage,
@@ -25,6 +26,7 @@ import ProfilePostsFeed from "../ProfilePostsFeed/ProfilePostsFeed";
 import CreatePostModal from "../../../PostFeed/CreatePostModal";
 import { getApiErrorMessage } from "../../../../utils/getApiErrorMessage";
 import { detectCurrentLocationLabel } from "../../../../utils/postGeolocation";
+import StoryViewerModal from "../../../Stories/StoryViewerModal";
 import "./ProfileHome.scss";
 
 /** Іконки тільки для actionsBlock (чорно-білі SVG) */
@@ -70,6 +72,9 @@ export default function ProfileHome({
   const [isSaving, setIsSaving] = useState(false);
   /** URL фото для перегляду в повному розмірі (null = закрито) */
   const [viewImageUrl, setViewImageUrl] = useState(null);
+  const [profileStories, setProfileStories] = useState([]);
+  const [profileStoriesLoading, setProfileStoriesLoading] = useState(false);
+  const [isStoryViewerOpen, setIsStoryViewerOpen] = useState(false);
 
   const {
     feedPosts,
@@ -102,6 +107,62 @@ export default function ProfileHome({
 
   const titleName = username || fullNameReal || "User";
   const displayAvatar = user?.avatarUrl || user?.avatar || "/Logo/photo.png";
+  const profileUserId = user?.id || user?._id || postsAuthorId;
+  useEffect(() => {
+    let cancelled = false;
+
+    const loadProfileStories = async () => {
+      if (!profileUserId) {
+        setProfileStories([]);
+        return;
+      }
+
+      try {
+        setProfileStoriesLoading(true);
+
+        const list = await storiesApi.getUserStories(profileUserId);
+
+        if (cancelled) return;
+
+        const normalized = Array.isArray(list?.[0]?.stories)
+          ? list[0].stories
+          : Array.isArray(list)
+            ? list
+            : [];
+
+        setProfileStories(normalized);
+      } catch (e) {
+        if (!cancelled) {
+          console.error("[profile stories] failed", e);
+          setProfileStories([]);
+        }
+      } finally {
+        if (!cancelled) setProfileStoriesLoading(false);
+      }
+    };
+
+    loadProfileStories();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [profileUserId]);
+  const hasProfileStories = profileStories.length > 0;
+
+  const profileStoryGroups = hasProfileStories
+    ? [
+      {
+        author: {
+          id: profileUserId,
+          firstName: user?.firstName,
+          lastName: user?.lastName,
+          username,
+          avatarUrl: displayAvatar,
+        },
+        stories: profileStories,
+      },
+    ]
+    : [];
 
   const composerFirstName =
     (user?.firstName && String(user.firstName).trim()) ||
@@ -197,8 +258,8 @@ export default function ProfileHome({
     const trimmedText = newPostText.trim();
 
     if (!trimmedText && postMediaFiles.length === 0) {
-    toast.error("Додайте текст або фото");
-    return;
+      toast.error("Додайте текст або фото");
+      return;
     }
 
     try {
@@ -333,13 +394,34 @@ export default function ProfileHome({
                   onChange={onFileSelect}
                 />
 
-                <div className="avatarBorder">
+                <div className={`avatarBorder ${hasProfileStories ? "avatarBorder--hasStories" : ""}`}>
                   <div
                     className="avatarInner avatarInner--clickable"
                     role="button"
                     tabIndex={0}
-                    onClick={() => setViewImageUrl(displayAvatar)}
-                    onKeyDown={(e) => e.key === "Enter" && setViewImageUrl(displayAvatar)}
+                    onClick={() => {
+                      if (profileStoriesLoading) return;
+
+                      if (hasProfileStories) {
+                        setViewImageUrl(null);
+                        setIsStoryViewerOpen(true);
+                        return;
+                      }
+
+                      setViewImageUrl(displayAvatar);
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key !== "Enter") return;
+                      if (profileStoriesLoading) return;
+
+                      if (hasProfileStories) {
+                        setViewImageUrl(null);
+                        setIsStoryViewerOpen(true);
+                        return;
+                      }
+
+                      setViewImageUrl(displayAvatar);
+                    }}
                     aria-label="Переглянути фото в повному розмірі"
                   >
                     <img src={displayAvatar} alt={titleName} className="avatar" />
@@ -682,6 +764,20 @@ export default function ProfileHome({
           />
         </div>
       )}
+      <StoryViewerModal
+        isOpen={isStoryViewerOpen}
+        groups={profileStoryGroups}
+        initialGroupIndex={0}
+        onClose={() => setIsStoryViewerOpen(false)}
+        onViewed={() => {
+          setProfileStories((prev) =>
+            prev.map((story) => ({
+              ...story,
+              viewedByMe: true,
+            }))
+          );
+        }}
+      />
     </div>
   );
 }

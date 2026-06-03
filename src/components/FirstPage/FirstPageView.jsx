@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import profileIcons from '../../constants/profileIcons';
 import { useStoriesFeed } from "../../hooks/useStoriesFeed";
@@ -25,6 +25,7 @@ import EditPostModal from '../../components/PostFeed/EditPostModal';
 import DeletePostConfirmDialog from '../../components/PostFeed/DeletePostConfirmDialog';
 import ImageLightbox from '../../components/PostFeed/ImageLightbox';
 import StoryUploadModal from "../../components/Stories/StoryUploadModal";
+import StoryViewerModal from "../../components/Stories/StoryViewerModal";
 import '../Users/Profile/ProfileHome/ProfileHome.scss';
 import './FirstPageView.scss';
 
@@ -54,6 +55,8 @@ export default function FirstPageView({
   const [lightboxImages, setLightboxImages] = useState([]);
   const [lightboxIndex, setLightboxIndex] = useState(0);
   const [isStoryUploadOpen, setIsStoryUploadOpen] = useState(false);
+  const [isStoryViewerOpen, setIsStoryViewerOpen] = useState(false);
+const [storyViewerGroupIndex, setStoryViewerGroupIndex] = useState(0);
 
   const currentUserId = useAuthStore((s) => s.user?.id);
 
@@ -87,6 +90,27 @@ export default function FirstPageView({
     storiesLoading,
     reloadStories,
   } = useStoriesFeed();
+  const orderedStoriesGroups = useMemo(() => {
+  const list = Array.isArray(storiesGroups) ? [...storiesGroups] : [];
+
+  return list.sort((a, b) => {
+    const aIsMe = String(a?.author?.id ?? "") === String(currentUserId ?? "");
+    const bIsMe = String(b?.author?.id ?? "") === String(currentUserId ?? "");
+
+    if (aIsMe && !bIsMe) return -1;
+    if (!aIsMe && bIsMe) return 1;
+
+    return 0;
+  });
+}, [storiesGroups, currentUserId]);
+
+console.log("storiesGroups:", storiesGroups);
+console.log("orderedStoriesGroups:", orderedStoriesGroups);
+
+const openStoryViewer = (groupIndex) => {
+  setStoryViewerGroupIndex(groupIndex);
+  setIsStoryViewerOpen(true);
+};
   const [feedPosts, setFeedPosts] = useState([]);
   const [feedLoading, setFeedLoading] = useState(true);
   const [feedError, setFeedError] = useState(null);
@@ -237,7 +261,7 @@ export default function FirstPageView({
               />
 
               {!storiesLoading &&
-                storiesGroups.map((group) => {
+                orderedStoriesGroups.map((group, groupIndex) => {
                   const firstStory = group?.stories?.[0];
 
                   if (!firstStory) return null;
@@ -247,9 +271,11 @@ export default function FirstPageView({
                       key={group.author?.id || firstStory.id}
                       username={group.author?.username}
                       avatar={group.author?.avatarUrl}
-                      viewed={group.viewedByMe === true}
+                      viewed={firstStory.viewedByMe === true}
                       storiesCount={group.stories?.length || 0}
+                      onClick={() => openStoryViewer(groupIndex)}
                     />
+                    
                   );
                 })}
             </div>
@@ -305,6 +331,14 @@ export default function FirstPageView({
           onClose={() => setIsStoryUploadOpen(false)}
           onCreated={() => reloadStories()}
         />
+
+        <StoryViewerModal
+  isOpen={isStoryViewerOpen}
+  groups={orderedStoriesGroups}
+  initialGroupIndex={storyViewerGroupIndex}
+  onClose={() => setIsStoryViewerOpen(false)}
+  onViewed={reloadStories}
+/>
 
         <SharePostModal
           post={feedActions.sharePost}
