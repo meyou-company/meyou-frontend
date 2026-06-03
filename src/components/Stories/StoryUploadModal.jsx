@@ -96,10 +96,41 @@ export default function StoryUploadModal({ isOpen, onClose, onCreated }) {
       URL.revokeObjectURL(fileItem.previewUrl);
     }
 
+    const previewUrl = URL.createObjectURL(file);
+
+    if (isImage) {
+      const img = new Image();
+
+      img.onload = () => {
+        const orientation =
+          img.naturalWidth >= img.naturalHeight ? "landscape" : "portrait";
+
+        setFileItem({
+          file,
+          type: "image",
+          previewUrl,
+          orientation,
+        });
+      };
+
+      img.onerror = () => {
+        setFileItem({
+          file,
+          type: "image",
+          previewUrl,
+          orientation: "unknown",
+        });
+      };
+
+      img.src = previewUrl;
+      return;
+    }
+
     setFileItem({
       file,
-      type: isVideo ? "video" : "image",
-      previewUrl: URL.createObjectURL(file),
+      type: "video",
+      previewUrl,
+      orientation: "unknown",
     });
   };
 
@@ -295,7 +326,14 @@ export default function StoryUploadModal({ isOpen, onClose, onCreated }) {
                   </div>
                 </div>
 
-                <div className="storyUploadModal__mediaFrame">
+                <div
+                  className={`storyUploadModal__mediaFrame ${fileItem.orientation === "landscape"
+                      ? "storyUploadModal__mediaFrame--landscape"
+                      : fileItem.orientation === "portrait"
+                        ? "storyUploadModal__mediaFrame--portrait"
+                        : "storyUploadModal__mediaFrame--unknown"
+                    }`}
+                >
                   {fileItem.type === "video" ? (
                     <video
                       src={fileItem.previewUrl}
