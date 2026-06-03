@@ -10,6 +10,8 @@ import {
 import { useProfileAuthorFeed } from "../../../../hooks/useProfileAuthorFeed";
 import ProfilePostsFeed from "../ProfilePostsFeed/ProfilePostsFeed";
 import ProfileInfoPanel from "../ProfileInfoPanel/ProfileInfoPanel";
+import { storiesApi } from "../../../../services/storiesApi";
+import StoryViewerModal from "../../../Stories/StoryViewerModal";
 import "../ProfileHome/ProfileHome.scss";
 import "./ProfileVisitorPublic.scss";
 
@@ -38,6 +40,9 @@ export default function ProfileVisitorPublic({
 }) {
   const [visitorTab, setVisitorTab] = useState("info");
   const [viewImageUrl, setViewImageUrl] = useState(null);
+  const [profileStories, setProfileStories] = useState([]);
+  const [profileStoriesLoading, setProfileStoriesLoading] = useState(false);
+  const [isStoryViewerOpen, setIsStoryViewerOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const mobileMenuRef = useRef(null);
 
@@ -73,9 +78,66 @@ export default function ProfileVisitorPublic({
   }, [isMobileMenuOpen]);
 
   const username = user?.username || user?.nick || user?.nickname || user?.login || "";
+  useEffect(() => {
+    let cancelled = false;
+
+    const loadProfileStories = async () => {
+      if (!username) {
+        setProfileStories([]);
+        return;
+      }
+
+      try {
+        setProfileStoriesLoading(true);
+
+        const list = await storiesApi.getUserStories(profileUserId);
+
+        if (cancelled) return;
+
+        const normalized =
+          Array.isArray(list?.[0]?.stories)
+            ? list[0].stories
+            : Array.isArray(list)
+              ? list
+              : [];
+
+        setProfileStories(normalized);
+      } catch (e) {
+        if (!cancelled) {
+          console.error("[profile stories] failed", e);
+          setProfileStories([]);
+        }
+      } finally {
+        if (!cancelled) setProfileStoriesLoading(false);
+      }
+    };
+
+    loadProfileStories();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [profileUserId]);
   const fullNameReal = [user?.firstName, user?.lastName].filter(Boolean).join(" ") || "";
   const titleName = username || fullNameReal || "User";
   const displayAvatar = user?.avatarUrl || user?.avatar || "/Logo/photo.png";
+  const profileUserId = user?.id || user?._id || postsAuthorId;
+  const hasProfileStories = profileStories.length > 0;
+
+  const profileStoryGroups = hasProfileStories
+    ? [
+      {
+        author: {
+          id: user?.id,
+          firstName: user?.firstName,
+          lastName: user?.lastName,
+          username,
+          avatarUrl: displayAvatar,
+        },
+        stories: profileStories,
+      },
+    ]
+    : [];
   const location = [user?.city, user?.country].filter(Boolean).join(", ") || "";
   const bioLine1 = fullNameReal ? `${fullNameReal}.` : "";
   const bioLine2 = location ? `${location}.` : "";
@@ -110,11 +172,27 @@ export default function ProfileVisitorPublic({
           <div className="profileLeft">
             <div className="ph-visitor-avatarBlock">
               <div
-                className="ph-visitor-avatarWrap"
+                className={`ph-visitor-avatarWrap ${hasProfileStories ? "ph-visitor-avatarWrap--hasStories" : ""}`}
                 role="button"
                 tabIndex={0}
-                onClick={() => setViewImageUrl(displayAvatar)}
-                onKeyDown={(e) => e.key === "Enter" && setViewImageUrl(displayAvatar)}
+                onClick={() => {
+                  if (hasProfileStories) {
+                    setIsStoryViewerOpen(true);
+                    return;
+                  }
+
+                  setViewImageUrl(displayAvatar);
+                }}
+                onKeyDown={(e) => {
+                  if (e.key !== "Enter") return;
+
+                  if (hasProfileStories) {
+                    setIsStoryViewerOpen(true);
+                    return;
+                  }
+
+                  setViewImageUrl(displayAvatar);
+                }}
                 aria-label="Переглянути фото"
               >
                 <img src={displayAvatar} alt={titleName} className="avatar" />
@@ -266,7 +344,7 @@ export default function ProfileVisitorPublic({
           </div>
         </section>
 
-        
+
         {/* ================= TABS ================= */}
         <section className="ph-visitor-tabs ph-visitor-tabs--mobile" role="tablist" aria-label="Табы профиля">
           {TABS_VISITOR_NOT_SUB.map((tab) => (
@@ -287,9 +365,9 @@ export default function ProfileVisitorPublic({
           ))}
         </section>
 
-         <ProfileInfoPanel
-         user={user}
-         isOpen={visitorTab === "info"}
+        <ProfileInfoPanel
+          user={user}
+          isOpen={visitorTab === "info"}
         />
 
         {/* ================= FRIENDS ================= */}
@@ -397,6 +475,21 @@ export default function ProfileVisitorPublic({
           />
         </div>
       )}
+
+      <StoryViewerModal
+  isOpen={isStoryViewerOpen}
+  groups={profileStoryGroups}
+  initialGroupIndex={0}
+  onClose={() => setIsStoryViewerOpen(false)}
+  onViewed={() => {
+    setProfileStories((prev) =>
+      prev.map((story) => ({
+        ...story,
+        viewedByMe: true,
+      }))
+    );
+  }}
+/>
     </div>
   );
 }
