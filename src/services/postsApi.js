@@ -1,4 +1,4 @@
-import { api } from './api';
+import { api, apiPath } from './api';
 
 function extractPostsList(payload) {
   if (!payload) return [];
@@ -132,6 +132,27 @@ export const postsApi = {
   async deleteComment(commentId) {
     const cid = encodeURIComponent(commentId);
     await api.delete(`/posts/comments/${cid}`);
+  },
+
+  /** POST /api/comments/:commentId/like */
+  async likeComment(commentId) {
+    const cid = encodeURIComponent(commentId);
+    const { data } = await api.post(apiPath(`comments/${cid}/like`));
+    return data;
+  },
+
+  /** GET /api/comments/:commentId/likes */
+  async listCommentLikes(commentId, { page = 1, limit = 50 } = {}) {
+    const cid = encodeURIComponent(commentId);
+    const { data } = await api.get(apiPath(`comments/${cid}/likes`), {
+      params: { page, limit },
+    });
+    if (Array.isArray(data)) return data;
+    if (Array.isArray(data?.users)) return data.users;
+    if (Array.isArray(data?.likes)) return data.likes;
+    if (Array.isArray(data?.items)) return data.items;
+    if (Array.isArray(data?.data)) return data.data;
+    return [];
   },
 
   /** GET /posts/comments/:commentId/replies */

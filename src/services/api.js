@@ -30,6 +30,22 @@ function resolveApiBaseUrl() {
 /** Базова URL API (ті самі що axios `baseURL`) — для Google OAuth redirect тощо. */
 export const resolvedApiBaseUrl = resolveApiBaseUrl();
 
+/**
+ * Шлях для axios відносно baseURL.
+ * Якщо baseURL вже закінчується на /api — не додавати /api і не починати з "/" (інакше axios
+ * підставить шлях від кореня домену без /api). Інакше — префікс api/.
+ */
+export function apiPath(path) {
+  const stripped = String(path ?? "")
+    .trim()
+    .replace(/^\//, "")
+    .replace(/^api\//, "");
+  if (!stripped) return "";
+  const base = String(resolvedApiBaseUrl).replace(/\/$/, "");
+  const baseEndsWithApi = /\/api$/i.test(base);
+  return baseEndsWithApi ? stripped : `api/${stripped}`;
+}
+
 const SESSION_ACCESS_KEY = "meyou_session_access_token";
 const SESSION_REFRESH_KEY = "meyou_session_refresh_token";
 

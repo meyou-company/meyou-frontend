@@ -1,12 +1,13 @@
 /** Шляхи до іконок з public/home/ */
 
-const HOME = "/home";
-const ICON1 = "/icon1";
-const BLACK = "/icon-black";
-const WALLET = "/balance";
-const VIDEO = "/video";
-const GIFTS = "/gifts/icon";
-const PROFILE_INFO = "/ProfileInfo";
+const HOME = '/home';
+const ICON1 = '/icon1';
+const BLACK = '/icon-black';
+const WALLET = '/balance';
+const VIDEO = '/video';
+const GIFTS = '/gifts/icon';
+const PROFILE_INFO = '/ProfileInfo';
+const STORIES = '/stories';
 
 const profileIcons = {
   /* === HOME === */
@@ -69,7 +70,7 @@ const profileIcons = {
   heartBlack: `${BLACK}/heart.svg`,
   userBlockedBlack: `${BLACK}/user-blocked.svg`,
   confidentialityBlack: `${BLACK}/confidentiality.svg`,
-  settingsBlack: `${BLACK}/settings.svg`, 
+  settingsBlack: `${BLACK}/settings.svg`,
   privacyBlack: `${BLACK}/privacy.svg`,
   complainBlack: `${BLACK}/complain.svg`,
   helpBlack: `${BLACK}/help.svg`,
@@ -78,7 +79,7 @@ const profileIcons = {
   exitBlack: `${BLACK}/exit.svg`,
   lockBmBlack: `${BLACK}/lock-bm.svg`,
   arrowRightFilledBlack: `${BLACK}/arrow-right-filled.svg`,
-   /* === WALLET === */
+  /* === WALLET === */
   giftIcon: `${WALLET}/gift.svg`,
   starIcon: `${WALLET}/star.svg`,
   plusIcon: `${WALLET}/plus.svg`,
@@ -101,7 +102,7 @@ const profileIcons = {
   gift: `${GIFTS}/gift.svg`,
   coin: `${GIFTS}/coin.svg`,
 
-   /* === PROFILE INFO === */
+  /* === PROFILE INFO === */
   profileInfoUser: `${PROFILE_INFO}/profile.svg`,
   profileInfoStar: `${PROFILE_INFO}/pink_star.svg`,
   profileInfoList: `${PROFILE_INFO}/list.svg`,
@@ -115,6 +116,22 @@ const profileIcons = {
   profileInfoTelegram: `${PROFILE_INFO}/telegram.svg`,
   profileInfoInstagram: `${PROFILE_INFO}/instagram.svg`,
   profileInfoLock: `${PROFILE_INFO}/light_lock.svg`,
+
+  /* === STORIES === */
+  storyCamera: '/stories/camera.svg',
+  storyCollage: '/stories/collage.svg',
+  storyGallery: '/stories/gallery.svg',
+  storyMusic: '/stories/music.svg',
+  storySettings: '/stories/settings.svg',
+  storyTemplate: '/stories/template.svg',
+
+  storyText: '/stories/aa.svg',
+  storySticker: '/stories/fluent_sticker-12-regular.svg',
+  storyBrush: '/stories/boxicons_brush-sparkles.svg',
+  storyEditorMusic: '/stories/music-note.svg',
+  storyBack: '/stories/mingcute_arrow-up-fill.svg',
+  storyArrowFilled: '/stories/weui_arrow-filled.svg',
+  storyCloseFriends: '/stories/close_friends.svg',
 };
 
 export default profileIcons;

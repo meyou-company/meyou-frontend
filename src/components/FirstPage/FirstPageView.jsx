@@ -1,9 +1,7 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import ThemeToggleDark from '../ThemeToggleDark/ThemeToggleDark';
 import profileIcons from '../../constants/profileIcons';
-import { useBurgerMenu } from '../../hooks/useBurgerMenu';
-import { useStories } from "../../hooks/useStories";
+import { useStoriesFeed } from "../../hooks/useStoriesFeed";
 import { postsApi } from '../../services/postsApi';
 import { useAuthStore } from "../../zustand/useAuthStore";
 import { mapApiPostToFeedItem } from '../../utils/mapApiPostToFeedItem';
@@ -12,6 +10,7 @@ import PostCommentsSection from '../PostFeed/PostCommentsSection';
 import { getApiErrorMessage } from '../../utils/getApiErrorMessage';
 import { applyPersistedLikes } from '../../utils/postLikePersistence';
 import { getProfileRouteHandle } from '../../utils/profileFriendNav';
+import AppHeader from "../../components/Layout/AppHeader";
 import StoryCircle from "../../components/Stories/StoryCircle";
 import NotificationBell from '../../components/Notifications/NotificationBell';
 import PostFeedBody from '../../components/PostFeed/PostFeedBody';
@@ -25,6 +24,8 @@ import SharePostModal from '../../components/PostFeed/SharePostModal';
 import EditPostModal from '../../components/PostFeed/EditPostModal';
 import DeletePostConfirmDialog from '../../components/PostFeed/DeletePostConfirmDialog';
 import ImageLightbox from '../../components/PostFeed/ImageLightbox';
+import StoryUploadModal from "../../components/Stories/StoryUploadModal";
+import StoryViewerModal from "../../components/Stories/StoryViewerModal";
 import '../Users/Profile/ProfileHome/ProfileHome.scss';
 import './FirstPageView.scss';
 
@@ -53,8 +54,10 @@ export default function FirstPageView({
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const [lightboxImages, setLightboxImages] = useState([]);
   const [lightboxIndex, setLightboxIndex] = useState(0);
+  const [isStoryUploadOpen, setIsStoryUploadOpen] = useState(false);
+  const [isStoryViewerOpen, setIsStoryViewerOpen] = useState(false);
+const [storyViewerGroupIndex, setStoryViewerGroupIndex] = useState(0);
 
-  const { stories, refresh } = useStories();
   const currentUserId = useAuthStore((s) => s.user?.id);
 
   const openLightbox = (images, startIndex = 0) => {
@@ -74,8 +77,6 @@ export default function FirstPageView({
     setLightboxIndex((prev) => (prev + delta + lightboxImages.length) % lightboxImages.length);
   };
 
-  const { open } = useBurgerMenu();
-
   const navigate = useNavigate();
 
   const goProfileByUsername = (username) => {
@@ -84,6 +85,32 @@ export default function FirstPageView({
     navigate(`/profile/${value}`);
   };
 
+  const {
+    storiesGroups,
+    storiesLoading,
+    reloadStories,
+  } = useStoriesFeed();
+  const orderedStoriesGroups = useMemo(() => {
+  const list = Array.isArray(storiesGroups) ? [...storiesGroups] : [];
+
+  return list.sort((a, b) => {
+    const aIsMe = String(a?.author?.id ?? "") === String(currentUserId ?? "");
+    const bIsMe = String(b?.author?.id ?? "") === String(currentUserId ?? "");
+
+    if (aIsMe && !bIsMe) return -1;
+    if (!aIsMe && bIsMe) return 1;
+
+    return 0;
+  });
+}, [storiesGroups, currentUserId]);
+
+console.log("storiesGroups:", storiesGroups);
+console.log("orderedStoriesGroups:", orderedStoriesGroups);
+
+const openStoryViewer = (groupIndex) => {
+  setStoryViewerGroupIndex(groupIndex);
+  setIsStoryViewerOpen(true);
+};
   const [feedPosts, setFeedPosts] = useState([]);
   const [feedLoading, setFeedLoading] = useState(true);
   const [feedError, setFeedError] = useState(null);
@@ -204,72 +231,13 @@ export default function FirstPageView({
 
       <div className="relative flex flex-col flex-1 w-full min-w-0">
         {/* HEADER */}
-        <header className="w-full min-w-0 max-w-full overflow-x-clip border-gray-900">
-          <div className="grid w-full min-w-0 grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-x-2 md:gap-x-3 xl:gap-x-4 px-[10px] md:px-[41px] lg:px-9 min-[1440px]:px-[66px] pb-2 md:pb-5 xl:pb-4">
-            {/* LEFT */}
-            <div className="flex min-w-0 items-center justify-start gap-2 md:gap-3 xl:gap-4">
-              <button
-                type="button"
-                className="app-header-icon-btn hidden xl:flex"
-                onClick={onGoProfile}
-                aria-label="Профіль"
-              >
-                <img src={profileIcons.home} alt="" aria-hidden="true" />
-              </button>
-
-              <button
-                type="button"
-                className="app-header-icon-btn"
-                onClick={onGoExplore}
-                aria-label="Пошук"
-              >
-                <img src={profileIcons.search} alt="" aria-hidden="true" />
-              </button>
-            </div>
-
-            {/* LOGO */}
-            <button
-              type="button"
-              onClick={onGoHome}
-              className="logoText app-brand-wordmark max-w-full min-w-0 justify-self-center text-center"
-              aria-label="Головна"
-            >
-              ME YOU
-            </button>
-
-            {/* RIGHT */}
-            <div className="flex min-w-0 items-center justify-end gap-2 md:gap-3 xl:gap-4">
-              <button
-                type="button"
-                className="app-header-icon-btn hidden md:flex"
-                onClick={onGoWallet}
-                aria-label="Баланс"
-              >
-                <img src={profileIcons.balance} alt="" aria-hidden="true" />
-              </button>
-
-              <button
-                type="button"
-                className="app-header-icon-btn md:hidden"
-                onClick={onGoVipChat}
-                aria-label="Чат"
-              >
-                <img src={profileIcons.chat} alt="" aria-hidden="true" />
-              </button>
-
-              <ThemeToggleDark className="themeBtn app-header-theme-toggle" />
-
-              <button
-                type="button"
-                className="app-header-icon-btn hidden md:flex"
-                onClick={open}
-                aria-label="Меню"
-              >
-                <img src={profileIcons.menu} alt="" aria-hidden="true" />
-              </button>
-            </div>
-          </div>
-        </header>
+        <AppHeader
+          onGoProfile={onGoProfile}
+          onGoExplore={onGoExplore}
+          onGoWallet={onGoWallet}
+          onGoVipChat={onGoVipChat}
+          onGoHome={onGoHome}
+        />
 
         {/* TABLET / DESKTOP NAV  */}
         <section className="hidden md:block min-w-0 max-w-full overflow-x-clip border-t-[0.1px] border-gray-900 bg-[#FCE9E9]">
@@ -286,28 +254,32 @@ export default function FirstPageView({
             </h2>
 
             <div className="flex gap-3 md:gap-[23px] xl:gap-10 overflow-x-auto pb-2 md:pb-0 snap-x snap-mandatory snap-center scrollbarHide pl-[10px] pr-[10px] md:pl-[41px] md:pr-[41px] lg:pl-9 lg:pr-9 min-[1440px]:pl-[66px] min-[1440px]:pr-[66px]">
-              {/* <StoryCircle type="add" /> */}
+
               <StoryCircle
-                isMine
-                onAdd={() => console.log("OPEN UPLOAD MODAL")}
+                type="add"
+                onClick={() => setIsStoryUploadOpen(true)}
               />
 
-              {/* Feed stories */}
-              {stories.map((s) => (
-                <StoryCircle
-                  key={s.author.id}
-                  story={s}
-                  onClick={(storyGroup) =>
-                    console.log("OPEN STORY VIEWER", storyGroup)
-                  }
-                />
-              ))}
-              {/* <StoryCircle status="online" />
-              <StoryCircle status="offline" />
-              <StoryCircle status="online" />
-              <StoryCircle status="online" />
-              <StoryCircle status="online" /> */}
+              {!storiesLoading &&
+                orderedStoriesGroups.map((group, groupIndex) => {
+                  const firstStory = group?.stories?.[0];
+
+                  if (!firstStory) return null;
+
+                  return (
+                    <StoryCircle
+                      key={group.author?.id || firstStory.id}
+                      username={group.author?.username}
+                      avatar={group.author?.avatarUrl}
+                      viewed={firstStory.viewedByMe === true}
+                      storiesCount={group.stories?.length || 0}
+                      onClick={() => openStoryViewer(groupIndex)}
+                    />
+                    
+                  );
+                })}
             </div>
+
           </div>
         </section>
 
@@ -353,6 +325,20 @@ export default function FirstPageView({
           onPrev={() => moveLightbox(-1)}
           onNext={() => moveLightbox(1)}
         />
+
+        <StoryUploadModal
+          isOpen={isStoryUploadOpen}
+          onClose={() => setIsStoryUploadOpen(false)}
+          onCreated={() => reloadStories()}
+        />
+
+        <StoryViewerModal
+  isOpen={isStoryViewerOpen}
+  groups={orderedStoriesGroups}
+  initialGroupIndex={storyViewerGroupIndex}
+  onClose={() => setIsStoryViewerOpen(false)}
+  onViewed={reloadStories}
+/>
 
         <SharePostModal
           post={feedActions.sharePost}
@@ -531,6 +517,10 @@ function GlobalFeedPostCard({
           onEditComment={(commentId, text, meta) =>
             feedActions.onEditComment(post, commentId, text, meta)
           }
+          onLikeComment={(commentId) =>
+            feedActions.onLikeComment(post, commentId)
+          }
+          likingCommentId={feedActions.likingCommentId}
           replyOpenCommentId={feedActions.replyOpenCommentId}
           replyDraft={feedActions.replyDraft}
           onReplyDraftChange={feedActions.setReplyDraft}

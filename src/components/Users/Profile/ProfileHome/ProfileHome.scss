@@ -827,6 +827,95 @@ font-size: 60px;
   }
 }
 
+.composerLocation {
+  margin-top: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.composerLocation__label {
+  font-family: "Montserrat", sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: #4a3d5c;
+}
+
+.composerLocation__optional {
+  font-weight: 500;
+  color: rgba(74, 61, 92, 0.55);
+}
+
+.composerLocation__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  gap: 8px;
+}
+
+.composerLocation__input {
+  flex: 1 1 160px;
+  min-width: 0;
+  min-height: 44px;
+  margin: 0;
+  padding: 10px 14px;
+  border: 1px solid rgba(167, 139, 250, 0.35);
+  border-radius: 12px;
+  background: #fff;
+  font-family: "Montserrat", sans-serif;
+  font-size: 14px;
+  color: #2a183d;
+
+  &::placeholder {
+    color: rgba(90, 75, 110, 0.45);
+  }
+
+  &:focus {
+    outline: 2px solid #a78bfa;
+    outline-offset: 1px;
+  }
+}
+
+.composerLocation__detectBtn {
+  flex: 0 1 auto;
+  min-height: 44px;
+  margin: 0;
+  padding: 10px 14px;
+  border: 1px solid rgba(167, 139, 250, 0.35);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.92);
+  font-family: "Montserrat", sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: #7c3aed;
+  cursor: pointer;
+  white-space: nowrap;
+  -webkit-tap-highlight-color: transparent;
+  transition: background 0.2s ease, opacity 0.2s ease;
+
+  &:hover:not(:disabled) {
+    background: #fff;
+  }
+
+  &:disabled {
+    opacity: 0.65;
+    cursor: wait;
+  }
+
+  &:focus-visible {
+    outline: 2px solid #a78bfa;
+    outline-offset: 2px;
+  }
+}
+
+@media (max-width: 480px) {
+  .composerLocation__detectBtn {
+    flex: 1 1 100%;
+    white-space: normal;
+    text-align: center;
+  }
+}
+
 .composerActions {
   margin-top: 18px;
   padding-top: 0;
@@ -2974,6 +3063,12 @@ html[data-theme="dark"] .profile-home .postActionCount {
     padding: 0 24px;
     font-size: 18px;
   }
+}
+
+.avatarBorder--hasStories {
+  padding: 3px;
+  border-radius: 50%;
+  background: linear-gradient(45deg, #ff4fb1, #ff2d55, #ffcc00);
 }
 
 /* Desktop dark: “My messages” + action row match editBtn / dark surfaces (no gray 0.36 fill) */

@@ -70,11 +70,6 @@
   flex: 1 1 auto;
 }
 
-.postCardHeader__label {
-  font-size: 10px;
-  color: rgba(0, 0, 0, 0.55);
-}
-
 .postCardHeader__name {
   font-size: 14px;
   font-weight: 700;
@@ -256,9 +251,7 @@ html[data-theme="dark"] .postCardHeader__name {
 }
 
 body.dark .postCardHeader__time,
-html[data-theme="dark"] .postCardHeader__time,
-body.dark .postCardHeader__label,
-html[data-theme="dark"] .postCardHeader__label {
+html[data-theme="dark"] .postCardHeader__time {
   color: rgba(255, 255, 255, 0.55);
 }
 

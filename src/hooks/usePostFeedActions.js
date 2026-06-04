@@ -23,6 +23,15 @@ import {
   isMyRepost,
   resolvePostMenuPermissions,
 } from "../utils/postMenuPermissions";
+import { findCommentInTree, updateCommentInTree } from "../utils/commentTree";
+import {
+  applyCommentLikeToggle,
+  mergeCommentLikeResponse,
+} from "../utils/mergeCommentLikeResponse";
+import {
+  getCommentBackendId,
+  stringifyCommentId,
+} from "../utils/mapApiPostToFeedItem";
 
 function removeDeletedPostFromCaches(postId) {
   if (typeof window === "undefined" || !postId) return;
@@ -121,6 +130,7 @@ export function usePostFeedActions(
   const [deleteConfirmPost, setDeleteConfirmPost] = useState(null);
   const [isDeletingPost, setIsDeletingPost] = useState(false);
   const [isSavingEditPost, setIsSavingEditPost] = useState(false);
+  const [likingCommentId, setLikingCommentId] = useState(null);
   const replyDraftsRef = useRef({});
   const replyDraftSyncRef = useRef("");
   const inflight = useRef({});
@@ -468,6 +478,62 @@ export function usePostFeedActions(
     [patchPost]
   );
 
+  const onLikeComment = useCallback(
+    (post, commentId) => {
+      if (!post?.id || likingCommentId) return;
+
+      const id =
+        typeof commentId === "object" && commentId !== null
+          ? getCommentBackendId(commentId)
+          : stringifyCommentId(commentId);
+
+      if (!id || String(id) === String(post.id)) {
+        toast.error("Comment id is missing");
+        return;
+      }
+
+      const comment = findCommentInTree(post.comments, id);
+
+      if (!comment) {
+        toast.error("Comment not found");
+        return;
+      }
+
+      const apiId = getCommentBackendId(comment) ?? id;
+      const snapshot = {
+        ...comment,
+        viewerState: { ...comment.viewerState },
+      };
+
+      setLikingCommentId(apiId);
+      patchPost(post.id, (p) => ({
+        ...p,
+        comments: updateCommentInTree(p.comments, apiId, applyCommentLikeToggle),
+      }));
+
+      run(`comment-like-${apiId}`, async () => {
+        try {
+          const res = await postsApi.likeComment(apiId);
+          patchPost(post.id, (p) => ({
+            ...p,
+            comments: updateCommentInTree(p.comments, apiId, (c) =>
+              mergeCommentLikeResponse(c, res)
+            ),
+          }));
+        } catch (e) {
+          patchPost(post.id, (p) => ({
+            ...p,
+            comments: updateCommentInTree(p.comments, apiId, () => snapshot),
+          }));
+          toast.error(getApiErrorMessage(e) || "Не вдалося поставити лайк");
+        } finally {
+          setLikingCommentId(null);
+        }
+      });
+    },
+    [likingCommentId, patchPost, run]
+  );
+
   const onDeleteComment = useCallback(
     (post, commentId, { parentId, isReply } = {}) => {
       if (!post?.id || !commentId) return;
@@ -765,6 +831,8 @@ export function usePostFeedActions(
     toggleCommentsOpen: openComments,
     submitComment,
     onDeleteComment,
+    onLikeComment,
+    likingCommentId,
     onEditComment,
     loadComments,
     replyOpenCommentId,

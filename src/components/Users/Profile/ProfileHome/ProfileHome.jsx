@@ -7,6 +7,7 @@ import AvatarCropModal from "../../../AvatarCropModal/AvatarCropModal";
 import { cropImageToFile } from "../../../../utils/cropImageToFile";
 import { authApi } from "../../../../services/auth";
 import { postsApi } from "../../../../services/postsApi";
+import { storiesApi } from "../../../../services/storiesApi";
 import {
   isPostImageUploadEnabled,
   uploadPostImage,
@@ -22,8 +23,10 @@ import {
 import { mapApiPostToFeedItem } from "../../../../utils/mapApiPostToFeedItem";
 import { useProfileAuthorFeed } from "../../../../hooks/useProfileAuthorFeed";
 import ProfilePostsFeed from "../ProfilePostsFeed/ProfilePostsFeed";
-import EmojiPickerButton from "../../../EmojiPicker/EmojiPickerButton";
+import CreatePostModal from "../../../PostFeed/CreatePostModal";
 import { getApiErrorMessage } from "../../../../utils/getApiErrorMessage";
+import { detectCurrentLocationLabel } from "../../../../utils/postGeolocation";
+import StoryViewerModal from "../../../Stories/StoryViewerModal";
 import "./ProfileHome.scss";
 
 /** Іконки тільки для actionsBlock (чорно-білі SVG) */
@@ -56,15 +59,22 @@ export default function ProfileHome({
   const fileInputRef = useRef(null);
   const composerTextareaRef = useRef(null);
   const postMediaInputRef = useRef(null);
+  const postVideoMediaInputRef = useRef(null);
 
   const [newPostText, setNewPostText] = useState("");
+  const [postLocation, setPostLocation] = useState("");
+  const [isDetectingLocation, setIsDetectingLocation] = useState(false);
   const [postMediaFiles, setPostMediaFiles] = useState([]);
   const [isComposerOpen, setIsComposerOpen] = useState(false);
+  const [locationPanelOpen, setLocationPanelOpen] = useState(false);
   const [isPublishingPost, setIsPublishingPost] = useState(false);
   const [cropModalSrc, setCropModalSrc] = useState(null);
   const [isSaving, setIsSaving] = useState(false);
   /** URL фото для перегляду в повному розмірі (null = закрито) */
   const [viewImageUrl, setViewImageUrl] = useState(null);
+  const [profileStories, setProfileStories] = useState([]);
+  const [profileStoriesLoading, setProfileStoriesLoading] = useState(false);
+  const [isStoryViewerOpen, setIsStoryViewerOpen] = useState(false);
 
   const {
     feedPosts,
@@ -97,6 +107,62 @@ export default function ProfileHome({
 
   const titleName = username || fullNameReal || "User";
   const displayAvatar = user?.avatarUrl || user?.avatar || "/Logo/photo.png";
+  const profileUserId = user?.id || user?._id || postsAuthorId;
+  useEffect(() => {
+    let cancelled = false;
+
+    const loadProfileStories = async () => {
+      if (!profileUserId) {
+        setProfileStories([]);
+        return;
+      }
+
+      try {
+        setProfileStoriesLoading(true);
+
+        const list = await storiesApi.getUserStories(profileUserId);
+
+        if (cancelled) return;
+
+        const normalized = Array.isArray(list?.[0]?.stories)
+          ? list[0].stories
+          : Array.isArray(list)
+            ? list
+            : [];
+
+        setProfileStories(normalized);
+      } catch (e) {
+        if (!cancelled) {
+          console.error("[profile stories] failed", e);
+          setProfileStories([]);
+        }
+      } finally {
+        if (!cancelled) setProfileStoriesLoading(false);
+      }
+    };
+
+    loadProfileStories();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [profileUserId]);
+  const hasProfileStories = profileStories.length > 0;
+
+  const profileStoryGroups = hasProfileStories
+    ? [
+      {
+        author: {
+          id: profileUserId,
+          firstName: user?.firstName,
+          lastName: user?.lastName,
+          username,
+          avatarUrl: displayAvatar,
+        },
+        stories: profileStories,
+      },
+    ]
+    : [];
 
   const composerFirstName =
     (user?.firstName && String(user.firstName).trim()) ||
@@ -106,9 +172,10 @@ export default function ProfileHome({
     ? `Що у вас нового, ${composerFirstName}?`
     : "Що у вас нового?";
 
-  const location = [user?.city, user?.country].filter(Boolean).join(", ") || "";
+  const profileLocation =
+    [user?.city, user?.country].filter(Boolean).join(", ") || "";
   const bioLine1 = fullNameReal ? `${fullNameReal}.` : "";
-  const bioLine2 = location ? `${location}.` : "";
+  const bioLine2 = profileLocation ? `${profileLocation}.` : "";
 
   const friends = useMemo(() => {
     if (Array.isArray(followingList) && followingList.length > 0) {
@@ -157,6 +224,28 @@ export default function ProfileHome({
     e.target.value = "";
   };
 
+  const closeComposer = () => {
+    setIsComposerOpen(false);
+    setIsDetectingLocation(false);
+    setLocationPanelOpen(false);
+  };
+
+  const handleUseCurrentLocation = async () => {
+    if (isDetectingLocation) return;
+    setIsDetectingLocation(true);
+    try {
+      const label = await detectCurrentLocationLabel();
+      if (label) {
+        setPostLocation(label);
+        setLocationPanelOpen(true);
+      }
+    } catch {
+      /* permission denied / unavailable — silent */
+    } finally {
+      setIsDetectingLocation(false);
+    }
+  };
+
   const removePostMedia = (id) => {
     setPostMediaFiles((prev) => {
       const fileToRemove = prev.find((item) => item.id === id);
@@ -169,8 +258,8 @@ export default function ProfileHome({
     const trimmedText = newPostText.trim();
 
     if (!trimmedText && postMediaFiles.length === 0) {
-    toast.error("Додайте текст або фото");
-    return;
+      toast.error("Додайте текст або фото");
+      return;
     }
 
     try {
@@ -213,10 +302,11 @@ export default function ProfileHome({
         }
       }
 
+      const locationName = postLocation.trim();
       const created = await postsApi.create({
         fullText: trimmedText || "\u200B",
         media,
-        location: location || undefined,
+        location: locationName || undefined,
         visibility: "PUBLIC",
       });
 
@@ -252,11 +342,12 @@ export default function ProfileHome({
 
       toast.success("Пост опубліковано");
       setNewPostText("");
+      setPostLocation("");
       postMediaFiles.forEach((f) => {
         if (f?.previewUrl) URL.revokeObjectURL(f.previewUrl);
       });
       setPostMediaFiles([]);
-      setIsComposerOpen(false);
+      closeComposer();
     } catch (err) {
       const msg = getApiErrorMessage(err) || "Не вдалося опублікувати пост";
       toast.error(String(msg));
@@ -303,13 +394,34 @@ export default function ProfileHome({
                   onChange={onFileSelect}
                 />
 
-                <div className="avatarBorder">
+                <div className={`avatarBorder ${hasProfileStories ? "avatarBorder--hasStories" : ""}`}>
                   <div
                     className="avatarInner avatarInner--clickable"
                     role="button"
                     tabIndex={0}
-                    onClick={() => setViewImageUrl(displayAvatar)}
-                    onKeyDown={(e) => e.key === "Enter" && setViewImageUrl(displayAvatar)}
+                    onClick={() => {
+                      if (profileStoriesLoading) return;
+
+                      if (hasProfileStories) {
+                        setViewImageUrl(null);
+                        setIsStoryViewerOpen(true);
+                        return;
+                      }
+
+                      setViewImageUrl(displayAvatar);
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key !== "Enter") return;
+                      if (profileStoriesLoading) return;
+
+                      if (hasProfileStories) {
+                        setViewImageUrl(null);
+                        setIsStoryViewerOpen(true);
+                        return;
+                      }
+
+                      setViewImageUrl(displayAvatar);
+                    }}
                     aria-label="Переглянути фото в повному розмірі"
                   >
                     <img src={displayAvatar} alt={titleName} className="avatar" />
@@ -596,112 +708,34 @@ export default function ProfileHome({
       )}
 
       {isComposerOpen && (
-        <div
-          className="composerModal"
-          role="dialog"
-          aria-modal="true"
-          aria-label="Створити допис"
-          onClick={() => setIsComposerOpen(false)}
-        >
-          <div className="composerCard" onClick={(e) => e.stopPropagation()}>
-            <div className="composerHeader">
-              <h3 className="composerTitle" id="composer-dialog-title">
-                Створити допис
-              </h3>
-              <button
-                type="button"
-                className="composerClose"
-                onClick={() => setIsComposerOpen(false)}
-                aria-label="Закрити"
-              >
-                ×
-              </button>
-            </div>
-
-            <div className="composerInputShell">
-              <div className="composerAvatarRing" aria-hidden="true">
-                <img src={displayAvatar} alt="" className="composerAvatarImg" />
-                <span className="composerAvatarStatus" />
-              </div>
-              <textarea
-                ref={composerTextareaRef}
-                className="postInput composerTextarea"
-                value={newPostText}
-                onChange={(e) => setNewPostText(e.target.value)}
-                placeholder={composerPlaceholder}
-                aria-labelledby="composer-dialog-title"
-              />
-              <EmojiPickerButton
-                inputRef={composerTextareaRef}
-                value={newPostText}
-                onChange={setNewPostText}
-                className="composerEmojiBtn"
-                ariaLabel="Додати емодзі до допису"
-              />
-            </div>
-
-            <input
-              ref={postMediaInputRef}
-              type="file"
-              accept="image/*"
-              multiple
-              className="postMediaInput"
-              onChange={onPostMediaSelect}
-            />
-
-            {postMediaFiles.length > 0 && (
-              <div className="postMediaPreviewGrid">
-                {postMediaFiles.map((media) => (
-                  <div key={media.id} className="postMediaPreviewItem">
-                    {media.type === "video" ? (
-                      <video src={media.previewUrl} className="postMediaPreview" controls />
-                    ) : (
-                      <img src={media.previewUrl} alt="" className="postMediaPreview" />
-                    )}
-                    <button
-                      type="button"
-                      className="removeMediaBtn"
-                      onClick={() => removePostMedia(media.id)}
-                      aria-label="Видалити файл"
-                    >
-                      ×
-                    </button>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            <div className="composerActions">
-              <button
-                type="button"
-                className="composerActionBtn"
-                onClick={() => postMediaInputRef.current?.click()}
-              >
-                <img
-                  src={profileIcons.live}
-                  alt=""
-                  className="composerActionIcon"
-                  aria-hidden="true"
-                />
-                <span>Фото</span>
-              </button>
-
-              <div className="newPostActions">
-                <button
-                  type="button"
-                  className="publishBtn"
-                  disabled={
-                    isPublishingPost || (!newPostText.trim() && postMediaFiles.length === 0)
-                  }
-                  onClick={handlePublishPost}
-                  aria-label="Опублікувати"
-                >
-                  {isPublishingPost ? "Публікуємо..." : "Опублікувати"}
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
+        <CreatePostModal
+          authorName={titleName}
+          displayAvatar={displayAvatar}
+          showOnlineDot={user?.online !== false}
+          text={newPostText}
+          onTextChange={setNewPostText}
+          placeholder="Що у вас нового?"
+          textareaRef={composerTextareaRef}
+          postMediaFiles={postMediaFiles}
+          onRemoveMedia={removePostMedia}
+          postMediaInputRef={postMediaInputRef}
+          postVideoInputRef={postVideoMediaInputRef}
+          onPhotoSelect={onPostMediaSelect}
+          onVideoSelect={onPostMediaSelect}
+          postLocation={postLocation}
+          onPostLocationChange={setPostLocation}
+          onClearLocation={() => setPostLocation("")}
+          locationPanelOpen={locationPanelOpen}
+          onToggleLocationPanel={() => setLocationPanelOpen((v) => !v)}
+          onUseCurrentLocation={handleUseCurrentLocation}
+          isDetectingLocation={isDetectingLocation}
+          isPublishing={isPublishingPost}
+          onPublish={handlePublishPost}
+          onClose={closeComposer}
+          canPublish={
+            Boolean(newPostText.trim()) || postMediaFiles.length > 0
+          }
+        />
       )}
 
       {/* Перегляд фото в повному розмірі */}
@@ -730,6 +764,20 @@ export default function ProfileHome({
           />
         </div>
       )}
+      <StoryViewerModal
+        isOpen={isStoryViewerOpen}
+        groups={profileStoryGroups}
+        initialGroupIndex={0}
+        onClose={() => setIsStoryViewerOpen(false)}
+        onViewed={() => {
+          setProfileStories((prev) =>
+            prev.map((story) => ({
+              ...story,
+              viewedByMe: true,
+            }))
+          );
+        }}
+      />
     </div>
   );
 }

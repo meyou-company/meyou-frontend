@@ -2,45 +2,61 @@ import profileIcons from "../../constants/profileIcons";
 import '../FirstPage/FirstPageView.scss';
 
 export default function StoryCircle({
-  story,
-  isMine,
+  type,
+  avatar,
+  username,
+  viewed,
+  storiesCount,
   onClick,
-  onAdd,
 }) {
-  const hasUnseen = story?.stories?.some((s) => !s.viewedByMe);
+  const isAdd = type === "add";
 
-  const handleClick = () => {
-    if (isMine) return onAdd?.();
-    onClick?.(story);
-  };
+  if (isAdd) {
+    return (
+      <button className="flex flex-col items-center gap-1" onClick={onClick}>
+        <div className="gradientBorder">
+          <div className="relative flex items-center justify-center rounded-full w-14 h-14 md:w-[77px] md:h-[77px] xl:w-[97px] xl:h-[97px] bg-[#D5D5D5]">
+            <img
+              src={profileIcons.plus}
+              alt=""
+              className="h-8 md:h-12"
+            />
+          </div>
+        </div>
+
+        <span className="story-text text-[8px] md:text-xs xl:text-xl font-[Montserrat] text-black underline">
+          add story
+        </span>
+      </button>
+    );
+  }
 
   return (
-    <button
-      type="button"
-      onClick={handleClick}
-      className="flex flex-col items-center gap-1 " 
-    >
-        <div className="gradientBorder">
-           <div
-        className={`flex items-center justify-center rounded-full p-[2px] w-14 h-14 md:w-[77px] md:h-[77px] xl:w-[97px] xl:h-[97px] bg-[#D5D5D5] ${
-          isMine
-            ? "bg-gray-300"
-            : hasUnseen
-            ? "bg-gradient-to-tr from-pink-500 to-yellow-400"
-            : "bg-gray-400"
+    <button className="flex flex-col items-center gap-1" onClick={onClick}>
+      <div
+        className={`relative rounded-full p-[3px] ${
+          viewed
+            ? "bg-gray-400"
+            : "bg-gradient-to-tr from-pink-500 via-red-500 to-yellow-400"
         }`}
       >
-        <img
-          src={isMine ? profileIcons.plus || "/default-avatar.png" : story?.author?.avatarUrl || "/default-avatar.png"}
-          className="w-8 h-8 md:w-12 md:h-12 rounded-full object-cover"
-          alt=""
-        />
-      </div>  
+        <div className="rounded-full bg-white p-[2px]">
+          <img
+            src={avatar || profileIcons.userStory}
+            alt=""
+            className="w-14 h-14 md:w-[77px] md:h-[77px] xl:w-[97px] xl:h-[97px] rounded-full object-cover bg-[#D5D5D5]"
+          />
         </div>
-     
 
-      <span className="text-[8px] md:text-xs xl:text-xl font-[Montserrat] text-black underline">
-        {isMine ? "добавить" : story?.author?.username}
+        {storiesCount > 1 && (
+          <div className="absolute -bottom-1 -right-1 bg-black text-white text-[10px] rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1">
+            {storiesCount}
+          </div>
+        )}
+      </div>
+
+      <span className="text-[8px] md:text-xs xl:text-xl font-[Montserrat] text-black underline max-w-[80px] truncate">
+        {username || "user"}
       </span>
     </button>
   );
