@@ -80,15 +80,27 @@ export default function NotificationItem({ item, onRead }) {
 }
 
 function buildLink(item) {
-  switch (item.targetType) {
-    case 'postLike':
-      return `/profile?post=${item.targetId}`;
-    case 'postShare':
-      return `/profile?post=${item.targetId}`;
-    case 'postComment':
-      return `/profile?post=${item.targetId}&focus=comments`;
-    case 'newFollower':
+  const params = new URLSearchParams();
+
+  params.set('post', item.target.postId);
+
+  if (item.target.commentId) {
+    params.set('comment', item.target.commentId);
+  }
+
+  if (item.target.parentCommentId) {
+    params.set('parentComment', item.target.parentCommentId);
+  }
+  switch (item.target.type) {
+    case 'post':
+      return `/post/${item.target.postId}`;
+
+    case 'comment':
+      return `/post/${item.target.postId}?focus=comments&comment=${item.target.commentId}&parentComment=${item.target.parentCommentId}`;
+
+    case 'profile':
       return `/profile/${item.actor.username}`;
+
     default:
       return '/notifications';
   }
@@ -110,6 +122,7 @@ function renderOverlayIcon(item) {
       return <span className="notification__overlay">❤️</span>;
 
     case 'postComment':
+    case 'postCommentReply':
       return <span className="notification__overlay">💬</span>;
 
     default:

@@ -11,6 +11,7 @@ import {
 import './BurgerMenu.scss';
 import profileIcons from '../../constants/profileIcons';
 import { useMemo, useRef } from 'react';
+import { disconnectSocket } from '../../services/socket';
 
 export default function BurgerMenu({ isOpen, onClose, onItemClick, toggleTheme }) {
   const { logout, user } = useAuthStore();
@@ -31,6 +32,7 @@ export default function BurgerMenu({ isOpen, onClose, onItemClick, toggleTheme }
       try {
         await logout();
 
+        disconnectSocket();
         resetNotifications();
         localStorage.clear();
         sessionStorage.clear();

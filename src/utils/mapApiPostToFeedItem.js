@@ -12,6 +12,8 @@
  * не додасть comments у відповідь GET.
  */
 
+import profileIcons from '../constants/profileIcons';
+
 function mapCommentAuthor(a) {
   if (!a || typeof a !== 'object') return null;
   return {
@@ -37,12 +39,7 @@ function resolveCommentId(c) {
 }
 
 function resolveRepliesCount(c) {
-  const n =
-    c?.repliesCount ??
-    c?.replies_count ??
-    c?.replyCount ??
-    c?.reply_count ??
-    null;
+  const n = c?.repliesCount ?? c?.replies_count ?? c?.replyCount ?? c?.reply_count ?? null;
   if (n != null && Number.isFinite(Number(n))) return Math.max(0, Number(n));
   if (Array.isArray(c?.replies)) return c.replies.length;
   return 0;
@@ -71,9 +68,7 @@ export function normalizeComment(c, { isReply = false } = {}) {
   const replyFlag = isReply || Boolean(parentId);
 
   const embeddedReplies = Array.isArray(c.replies)
-    ? c.replies
-        .map((r) => normalizeComment(r, { isReply: true }))
-        .filter(Boolean)
+    ? c.replies.map((r) => normalizeComment(r, { isReply: true })).filter(Boolean)
     : [];
 
   return {
@@ -109,10 +104,7 @@ export function organizeComments(flat) {
 
   return roots.map((root) => {
     const extra = repliesByParent.get(String(root.id)) ?? [];
-    const mergedReplies = [
-      ...(Array.isArray(root.replies) ? root.replies : []),
-      ...extra,
-    ];
+    const mergedReplies = [...(Array.isArray(root.replies) ? root.replies : []), ...extra];
     const byId = new Map();
     mergedReplies.forEach((r) => {
       if (r?.id) byId.set(String(r.id), r);
@@ -163,10 +155,8 @@ export function mapApiPostToFeedItem(p) {
     return Array.isArray(raw) ? organizeComments(raw) : [];
   })();
 
-  const originalPostId =
-    p.originalPostId ?? p.original_post_id ?? p.repostOfId ?? null;
-  const originalRaw =
-    p.originalPost ?? p.original ?? p.repostedPost ?? p.sourcePost ?? null;
+  const originalPostId = p.originalPostId ?? p.original_post_id ?? p.repostOfId ?? null;
+  const originalRaw = p.originalPost ?? p.original ?? p.repostedPost ?? p.sourcePost ?? null;
   const originalPost = originalRaw ? mapApiPostToFeedItem(originalRaw) : null;
   const isRepost = Boolean(originalPostId || originalPost);
 
@@ -188,7 +178,7 @@ export function mapApiPostToFeedItem(p) {
           firstName: a.firstName ?? '',
           lastName: a.lastName ?? '',
           username: a.username ?? a.nick ?? a.nickname ?? a.login ?? '',
-          avatarUrl: a.avatarUrl ?? a.avatar ?? null,
+          avatarUrl: a.avatarUrl ?? a.avatar ?? profileIcons.user,
         }
       : null,
     viewerState: {
@@ -198,9 +188,7 @@ export function mapApiPostToFeedItem(p) {
     },
     permissions: {
       canEdit:
-        p.permissions?.canEdit === true ||
-        p.canEdit === true ||
-        p.permissions?.isOwner === true,
+        p.permissions?.canEdit === true || p.canEdit === true || p.permissions?.isOwner === true,
       canDelete:
         p.permissions?.canDelete === true ||
         p.canDelete === true ||
@@ -213,10 +201,7 @@ export function mapApiPostToFeedItem(p) {
       comments: p.counts?.comments ?? p.commentsCount ?? 0,
       reposts: p.counts?.reposts ?? p.repostsCount ?? 0,
       saves: p.counts?.saves ?? p.savedCount ?? p.savesCount ?? 0,
-      replies:
-        p.counts?.replies ??
-        p.repliesCount ??
-        countPostReplies(organizedComments),
+      replies: p.counts?.replies ?? p.repliesCount ?? countPostReplies(organizedComments),
     },
   };
 }

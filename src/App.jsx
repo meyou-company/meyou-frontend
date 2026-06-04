@@ -1,15 +1,13 @@
 import { useEffect } from 'react';
 import { toast, Toaster } from 'sonner';
 import { useAuthStore } from './zustand/useAuthStore';
-import { useNotificationsStore } from './zustand/useNotificationsStore';
 import AppRouter from './router/AppRouter';
 import { GlobalLoaderProvider } from './context/GlobalLoaderContext';
 import GlobalLoader from './components/GlobalLoader/GlobalLoader';
+import { NotificationsSocketProvider } from './providers/NotificationsSocketProvider';
 
 export default function App() {
   const init = useAuthStore((s) => s.init);
-  const user = useAuthStore((s) => s.user);
-  const fetchUnreadCount = useNotificationsStore((s) => s.fetchUnreadCount);
 
   useEffect(() => {
     (async () => {
@@ -21,14 +19,9 @@ export default function App() {
     })();
   }, [init]);
 
-  useEffect(() => {
-    if (!user) return;
-
-    fetchUnreadCount();
-  }, [user, fetchUnreadCount]);
-
   return (
     <GlobalLoaderProvider>
+      <NotificationsSocketProvider />
       <Toaster position="top-center" richColors closeButton />
       <GlobalLoader />
       <AppRouter />

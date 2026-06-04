@@ -3,6 +3,7 @@ import { notificationsApi } from '../services/notificationsApi';
 
 export const useNotificationsStore = create((set, get) => ({
   unreadCount: 0,
+  items: [],
   isLoading: false,
 
   // отримати кількість з бекенду
@@ -20,32 +21,56 @@ export const useNotificationsStore = create((set, get) => ({
     }
   },
 
-  // обнулити локально (для UX)
-  // clearUnreadLocal: () => set({ unreadCount: 0 }),
-
-  // прочитати всі (бек + фронт)
   markAllAsRead: async () => {
     try {
       await notificationsApi.markAllAsRead();
-      set({ unreadCount: 0 });
+      get().markAllReadLocal();
     } catch (e) {
       console.error('MARK ALL READ ERROR:', e);
     }
   },
 
-  // прочитати один
   markAsRead: async (id) => {
     try {
       await notificationsApi.markAsRead(id);
-
-      set((state) => ({
-        unreadCount: Math.max(0, state.unreadCount - 1),
-      }));
+      get().markNotificationReadLocal(id);
     } catch (e) {
       console.error('MARK ONE READ ERROR:', e);
     }
   },
 
-  // очистка при logout
-  reset: () => set({ unreadCount: 0 }),
+  addNotification: (notification) =>
+    set((state) => {
+      console.log('BEFORE:', state.unreadCount);
+
+      return {
+        items: [notification, ...state.items],
+        unreadCount: state.unreadCount + 1,
+      };
+    }),
+  updateNotification: (notification) =>
+    set((state) => ({
+      items: state.items.map((item) => (item.id === notification.id ? notification : item)),
+    })),
+
+  markNotificationReadLocal: (id) =>
+    set((state) => ({
+      items: state.items.map((item) => (item.id === id ? { ...item, isRead: true } : item)),
+      unreadCount: Math.max(0, state.unreadCount - 1),
+    })),
+
+  markAllReadLocal: () =>
+    set((state) => ({
+      unreadCount: 0,
+      items: state.items.map((item) => ({
+        ...item,
+        isRead: true,
+      })),
+    })),
+
+  reset: () =>
+    set({
+      unreadCount: 0,
+      items: [],
+    }),
 }));

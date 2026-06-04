@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, useLocation, useNavigate } from 'react-router-dom';
 
 import AppBottomNav from '../components/AppBottomNav/AppBottomNav';
 import RouterLoaderSync from '../components/RouterLoaderSync';
@@ -36,6 +36,7 @@ import { UserProfileNavProvider } from '../context/UserProfileNavContext';
 import BurgerMenu from '../components/BurgerMenu/BurgerMenu';
 import { useBurgerMenuStore } from '../zustand/useBurgerMenuStore';
 import { useThemeStore } from '../zustand/useThemeStore';
+import Post from '../components/Post/Post';
 
 /** Глобальне бургер-меню — рендериться один раз, відкривається з будь-якої сторінки */
 function GlobalBurgerMenu() {
@@ -47,6 +48,7 @@ function GlobalBurgerMenu() {
 
 function AppLayout() {
   const location = useLocation();
+  const navigate = useNavigate();
 
   const user = useAuthStore((s) => s.user);
   const isAuthed = useAuthStore((s) => s.isAuthed);
@@ -83,6 +85,15 @@ function AppLayout() {
               <Route path="/wallet" element={<WalletPage />} />
 
               <Route path="/notifications" element={<NotificationsPage />} />
+              <Route
+                path="/post/:postId"
+                element={
+                  <Post
+                    onGoBack={() => navigate(-1)}
+                    onGoProfile={(username) => navigate(`/profile/${username}`)}
+                  />
+                }
+              />
 
               <Route path="/my-gifts" element={<MyGiftsPage />} />
 
