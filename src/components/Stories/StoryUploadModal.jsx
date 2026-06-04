@@ -360,14 +360,16 @@ export default function StoryUploadModal({ isOpen, onClose, onCreated }) {
               </div>
 
               <div className="storyUploadModal__bottomActions">
-                <button type="button" className="storyUploadModal__audienceBtn">
+                <button type="button" className="storyUploadModal__audienceBtn" onClick={handlePublish}
+disabled={isPublishing}>
                   <span className="storyUploadModal__audienceAvatar">
                     <img src={currentUserAvatar} alt="" />
                   </span>
                   <span>Ваша история</span>
                 </button>
 
-                <button type="button" className="storyUploadModal__audienceBtn">
+                <button type="button" className="storyUploadModal__audienceBtn" onClick={handlePublish}
+disabled={isPublishing}>
                   <span className="storyUploadModal__closeFriendsIcon">
                     <img src={profileIcons.storyCloseFriends} alt="" /></span>
                   <span>Близкие</span>

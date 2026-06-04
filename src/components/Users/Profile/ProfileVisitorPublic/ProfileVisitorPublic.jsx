@@ -43,6 +43,7 @@ export default function ProfileVisitorPublic({
   const [profileStories, setProfileStories] = useState([]);
   const [profileStoriesLoading, setProfileStoriesLoading] = useState(false);
   const [isStoryViewerOpen, setIsStoryViewerOpen] = useState(false);
+  const [storyViewerStoryIndex, setStoryViewerStoryIndex] = useState(0);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const mobileMenuRef = useRef(null);
 
@@ -78,6 +79,8 @@ export default function ProfileVisitorPublic({
   }, [isMobileMenuOpen]);
 
   const username = user?.username || user?.nick || user?.nickname || user?.login || "";
+  const profileUserId = user?.id || user?._id || postsAuthorId;
+
   useEffect(() => {
     let cancelled = false;
 
@@ -121,7 +124,6 @@ export default function ProfileVisitorPublic({
   const fullNameReal = [user?.firstName, user?.lastName].filter(Boolean).join(" ") || "";
   const titleName = username || fullNameReal || "User";
   const displayAvatar = user?.avatarUrl || user?.avatar || "/Logo/photo.png";
-  const profileUserId = user?.id || user?._id || postsAuthorId;
   const hasProfileStories = profileStories.length > 0;
 
   const profileStoryGroups = hasProfileStories
@@ -477,19 +479,20 @@ export default function ProfileVisitorPublic({
       )}
 
       <StoryViewerModal
-  isOpen={isStoryViewerOpen}
-  groups={profileStoryGroups}
-  initialGroupIndex={0}
-  onClose={() => setIsStoryViewerOpen(false)}
-  onViewed={() => {
-    setProfileStories((prev) =>
-      prev.map((story) => ({
-        ...story,
-        viewedByMe: true,
-      }))
-    );
-  }}
-/>
+        isOpen={isStoryViewerOpen}
+        groups={profileStoryGroups}
+        initialGroupIndex={0}
+        initialStoryIndex={storyViewerStoryIndex}
+        onClose={() => setIsStoryViewerOpen(false)}
+        onViewed={() => {
+          setProfileStories((prev) =>
+            prev.map((story) => ({
+              ...story,
+              viewedByMe: true,
+            }))
+          );
+        }}
+      />
     </div>
   );
 }

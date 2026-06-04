@@ -56,7 +56,16 @@ export default function FirstPageView({
   const [lightboxIndex, setLightboxIndex] = useState(0);
   const [isStoryUploadOpen, setIsStoryUploadOpen] = useState(false);
   const [isStoryViewerOpen, setIsStoryViewerOpen] = useState(false);
-const [storyViewerGroupIndex, setStoryViewerGroupIndex] = useState(0);
+  const [storyViewerGroupIndex, setStoryViewerGroupIndex] = useState(0);
+  const [storyViewerStoryIndex, setStoryViewerStoryIndex] = useState(0);
+
+  const findFirstUnviewedStoryIndex = (stories = []) => {
+    const index = stories.findIndex(
+      (story) => story?.viewedByMe !== true
+    );
+
+    return index >= 0 ? index : 0;
+  };
 
   const currentUserId = useAuthStore((s) => s.user?.id);
 
@@ -91,26 +100,26 @@ const [storyViewerGroupIndex, setStoryViewerGroupIndex] = useState(0);
     reloadStories,
   } = useStoriesFeed();
   const orderedStoriesGroups = useMemo(() => {
-  const list = Array.isArray(storiesGroups) ? [...storiesGroups] : [];
+    const list = Array.isArray(storiesGroups) ? [...storiesGroups] : [];
 
-  return list.sort((a, b) => {
-    const aIsMe = String(a?.author?.id ?? "") === String(currentUserId ?? "");
-    const bIsMe = String(b?.author?.id ?? "") === String(currentUserId ?? "");
+    return list.sort((a, b) => {
+      const aIsMe = String(a?.author?.id ?? "") === String(currentUserId ?? "");
+      const bIsMe = String(b?.author?.id ?? "") === String(currentUserId ?? "");
 
-    if (aIsMe && !bIsMe) return -1;
-    if (!aIsMe && bIsMe) return 1;
+      if (aIsMe && !bIsMe) return -1;
+      if (!aIsMe && bIsMe) return 1;
 
-    return 0;
-  });
-}, [storiesGroups, currentUserId]);
+      return 0;
+    });
+  }, [storiesGroups, currentUserId]);
 
-console.log("storiesGroups:", storiesGroups);
-console.log("orderedStoriesGroups:", orderedStoriesGroups);
+  const openStoryViewer = (groupIndex) => {
+    const stories = orderedStoriesGroups[groupIndex]?.stories || [];
 
-const openStoryViewer = (groupIndex) => {
-  setStoryViewerGroupIndex(groupIndex);
-  setIsStoryViewerOpen(true);
-};
+    setStoryViewerGroupIndex(groupIndex);
+    setStoryViewerStoryIndex(findFirstUnviewedStoryIndex(stories));
+    setIsStoryViewerOpen(true);
+  };
   const [feedPosts, setFeedPosts] = useState([]);
   const [feedLoading, setFeedLoading] = useState(true);
   const [feedError, setFeedError] = useState(null);
@@ -275,7 +284,7 @@ const openStoryViewer = (groupIndex) => {
                       storiesCount={group.stories?.length || 0}
                       onClick={() => openStoryViewer(groupIndex)}
                     />
-                    
+
                   );
                 })}
             </div>
@@ -333,12 +342,13 @@ const openStoryViewer = (groupIndex) => {
         />
 
         <StoryViewerModal
-  isOpen={isStoryViewerOpen}
-  groups={orderedStoriesGroups}
-  initialGroupIndex={storyViewerGroupIndex}
-  onClose={() => setIsStoryViewerOpen(false)}
-  onViewed={reloadStories}
-/>
+          isOpen={isStoryViewerOpen}
+          groups={orderedStoriesGroups}
+          initialGroupIndex={storyViewerGroupIndex}
+          initialStoryIndex={storyViewerStoryIndex}
+          onClose={() => setIsStoryViewerOpen(false)}
+          onViewed={reloadStories}
+        />
 
         <SharePostModal
           post={feedActions.sharePost}

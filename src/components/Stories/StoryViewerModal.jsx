@@ -29,6 +29,7 @@ export default function StoryViewerModal({
   isOpen,
   groups = [],
   initialGroupIndex = 0,
+  initialStoryIndex = 0,
   onClose,
   onViewed,
 }) {
@@ -98,10 +99,10 @@ export default function StoryViewerModal({
     if (!isOpen) return;
 
     setGroupIndex(initialGroupIndex || 0);
-    setStoryIndex(0);
+    setStoryIndex(initialStoryIndex || 0);
     setProgress(0);
     setDuration(DEFAULT_DURATION);
-  }, [isOpen, initialGroupIndex]);
+  }, [isOpen, initialGroupIndex, initialStoryIndex]);
 
   useEffect(() => {
     if (!isOpen || !storyId || viewedRef.current.has(storyId)) return;

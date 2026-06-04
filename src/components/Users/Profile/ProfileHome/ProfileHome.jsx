@@ -27,6 +27,7 @@ import CreatePostModal from "../../../PostFeed/CreatePostModal";
 import { getApiErrorMessage } from "../../../../utils/getApiErrorMessage";
 import { detectCurrentLocationLabel } from "../../../../utils/postGeolocation";
 import StoryViewerModal from "../../../Stories/StoryViewerModal";
+import StoryUploadModal from "../../../Stories/StoryUploadModal";
 import "./ProfileHome.scss";
 
 /** Іконки тільки для actionsBlock (чорно-білі SVG) */
@@ -75,6 +76,8 @@ export default function ProfileHome({
   const [profileStories, setProfileStories] = useState([]);
   const [profileStoriesLoading, setProfileStoriesLoading] = useState(false);
   const [isStoryViewerOpen, setIsStoryViewerOpen] = useState(false);
+  const [storyViewerStoryIndex, setStoryViewerStoryIndex] = useState(0);
+  const [isStoryUploadOpen, setIsStoryUploadOpen] = useState(false);
 
   const {
     feedPosts,
@@ -124,13 +127,19 @@ export default function ProfileHome({
 
         if (cancelled) return;
 
+        const sortStoriesOldToNew = (stories = []) =>
+          [...stories].sort(
+            (a, b) => new Date(a.createdAt || 0) - new Date(b.createdAt || 0)
+          );
+
         const normalized = Array.isArray(list?.[0]?.stories)
           ? list[0].stories
           : Array.isArray(list)
             ? list
             : [];
 
-        setProfileStories(normalized);
+        setProfileStories(sortStoriesOldToNew(normalized));
+
       } catch (e) {
         if (!cancelled) {
           console.error("[profile stories] failed", e);
@@ -163,6 +172,17 @@ export default function ProfileHome({
       },
     ]
     : [];
+
+  const findFirstUnviewedStoryIndex = (stories = []) => {
+    const index = stories.findIndex((story) => story?.viewedByMe !== true);
+    return index >= 0 ? index : 0;
+  };
+
+  const openProfileStories = () => {
+    setViewImageUrl(null);
+    setStoryViewerStoryIndex(findFirstUnviewedStoryIndex(profileStories));
+    setIsStoryViewerOpen(true);
+  };
 
   const composerFirstName =
     (user?.firstName && String(user.firstName).trim()) ||
@@ -403,20 +423,19 @@ export default function ProfileHome({
                       if (profileStoriesLoading) return;
 
                       if (hasProfileStories) {
-                        setViewImageUrl(null);
-                        setIsStoryViewerOpen(true);
+                        openProfileStories();
                         return;
                       }
 
                       setViewImageUrl(displayAvatar);
                     }}
+
                     onKeyDown={(e) => {
                       if (e.key !== "Enter") return;
                       if (profileStoriesLoading) return;
 
                       if (hasProfileStories) {
-                        setViewImageUrl(null);
-                        setIsStoryViewerOpen(true);
+                        openProfileStories();
                         return;
                       }
 
@@ -513,7 +532,7 @@ export default function ProfileHome({
         <section className="actionsSection">
           <div className="actionsBlock">
             <div className="actionsRowDesktop">
-              <button className="actionBtn actionBtnDesktop" type="button">
+              <button className="actionBtn actionBtnDesktop" type="button" onClick={() => setIsStoryUploadOpen(true)}>
                 <span className="actionBtnLeft">
                   <span className="actionRound">
                     <img src={actionIcons.plus} alt="" />
@@ -768,6 +787,7 @@ export default function ProfileHome({
         isOpen={isStoryViewerOpen}
         groups={profileStoryGroups}
         initialGroupIndex={0}
+        initialStoryIndex={storyViewerStoryIndex}
         onClose={() => setIsStoryViewerOpen(false)}
         onViewed={() => {
           setProfileStories((prev) =>
@@ -776,6 +796,13 @@ export default function ProfileHome({
               viewedByMe: true,
             }))
           );
+        }}
+      />
+      <StoryUploadModal
+        isOpen={isStoryUploadOpen}
+        onClose={() => setIsStoryUploadOpen(false)}
+        onCreated={() => {
+          setIsStoryUploadOpen(false);
         }}
       />
     </div>
