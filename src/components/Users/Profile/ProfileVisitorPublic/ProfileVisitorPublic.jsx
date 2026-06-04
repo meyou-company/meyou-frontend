@@ -85,7 +85,7 @@ export default function ProfileVisitorPublic({
     let cancelled = false;
 
     const loadProfileStories = async () => {
-      if (!username) {
+      if (!profileUserId) {
         setProfileStories([]);
         return;
       }
@@ -140,6 +140,17 @@ export default function ProfileVisitorPublic({
       },
     ]
     : [];
+
+  const findFirstUnviewedStoryIndex = (stories = []) => {
+    const index = stories.findIndex((story) => story?.viewedByMe !== true);
+    return index >= 0 ? index : 0;
+  };
+
+  const openProfileStories = () => {
+    setStoryViewerStoryIndex(findFirstUnviewedStoryIndex(profileStories));
+    setIsStoryViewerOpen(true);
+  };
+
   const location = [user?.city, user?.country].filter(Boolean).join(", ") || "";
   const bioLine1 = fullNameReal ? `${fullNameReal}.` : "";
   const bioLine2 = location ? `${location}.` : "";
@@ -179,7 +190,7 @@ export default function ProfileVisitorPublic({
                 tabIndex={0}
                 onClick={() => {
                   if (hasProfileStories) {
-                    setIsStoryViewerOpen(true);
+                    openProfileStories();
                     return;
                   }
 
@@ -189,7 +200,7 @@ export default function ProfileVisitorPublic({
                   if (e.key !== "Enter") return;
 
                   if (hasProfileStories) {
-                    setIsStoryViewerOpen(true);
+                    openProfileStories();
                     return;
                   }
 
