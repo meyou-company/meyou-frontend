@@ -16,6 +16,22 @@ export function mapType(type) {
   return notificationTypeMap[type] || 'system';
 }
 
+export function unwrapRealtimeNotificationEnvelope(envelope) {
+  if (!envelope || typeof envelope !== 'object') {
+    return { notification: null, unreadCountApprox: undefined };
+  }
+  if (envelope.notification && typeof envelope.notification === 'object') {
+    return {
+      notification: envelope.notification,
+      unreadCountApprox: envelope.unreadCountApprox,
+    };
+  }
+  return {
+    notification: envelope,
+    unreadCountApprox: envelope.unreadCountApprox,
+  };
+}
+
 export function mapNotification(n) {
   const actor = n.actor || {};
   const post = n.post || {};
@@ -42,6 +58,7 @@ export function mapNotification(n) {
     eventAt: n.eventAt || n.createdAt,
 
     readAt: n.readAt,
+    isRead: Boolean(n.readAt),
 
     actor: {
       id: actor.id,

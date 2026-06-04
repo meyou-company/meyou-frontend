@@ -37,6 +37,7 @@ import BurgerMenu from '../components/BurgerMenu/BurgerMenu';
 import { useBurgerMenuStore } from '../zustand/useBurgerMenuStore';
 import { useThemeStore } from '../zustand/useThemeStore';
 import Post from '../components/Post/Post';
+import { NotificationsSocketProvider } from '../providers/NotificationsSocketProvider';
 
 /** Глобальне бургер-меню — рендериться один раз, відкривається з будь-якої сторінки */
 function GlobalBurgerMenu() {
@@ -126,6 +127,7 @@ function AppLayout() {
 export default function AppRouter() {
   return (
     <BrowserRouter>
+      <NotificationsSocketProvider />
       <RouterLoaderSync />
       <UserProfileNavProvider>
         <ProfileGuard>

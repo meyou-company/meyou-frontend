@@ -4,7 +4,6 @@ import { useAuthStore } from './zustand/useAuthStore';
 import AppRouter from './router/AppRouter';
 import { GlobalLoaderProvider } from './context/GlobalLoaderContext';
 import GlobalLoader from './components/GlobalLoader/GlobalLoader';
-import { NotificationsSocketProvider } from './providers/NotificationsSocketProvider';
 
 export default function App() {
   const init = useAuthStore((s) => s.init);
@@ -21,7 +20,6 @@ export default function App() {
 
   return (
     <GlobalLoaderProvider>
-      <NotificationsSocketProvider />
       <Toaster position="top-center" richColors closeButton />
       <GlobalLoader />
       <AppRouter />

@@ -1,10 +1,36 @@
 import { create } from 'zustand';
-import { clearOAuthSessionTokens } from '../services/api';
+import {
+  AUTH_SESSION_CLEARED_EVENT,
+  clearOAuthSessionTokens,
+  clearSessionAccessToken,
+  getSessionAccessToken,
+  persistOAuthSessionTokens,
+} from '../services/api';
 import { authApi } from '../services/auth';
+import {
+  applyAuthFromSession,
+  ensureAccessTokenInStore,
+  pickAccessToken,
+} from '../services/authSession';
 import { passwordApi } from '../services/passwordApi';
+import { disconnectSocket } from '../services/socket';
 import { useNotificationsStore } from './useNotificationsStore';
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+const OAUTH_CALLBACK_PATHS = new Set(['/auth/google/success', '/auth/callback']);
+
+function isOAuthCallbackPath() {
+  if (typeof window === 'undefined') return false;
+  const path = window.location.pathname.replace(/\/$/, '') || '/';
+  return OAUTH_CALLBACK_PATHS.has(path);
+}
+
+function clearAuthSession(set) {
+  disconnectSocket();
+  clearOAuthSessionTokens();
+  set({ user: null, token: null, isAuthed: false });
+}
 
 async function loadMeWithRetry(retries = 2, delayMs = 200) {
   let lastErr;
@@ -24,43 +50,76 @@ async function loadMeWithRetry(retries = 2, delayMs = 200) {
 export const useAuthStore = create((set) => ({
   user: null,
   token: null,
-  isAuthLoading: true, // По умолчанию true - ждём завершения init()
+  isAuthLoading: true,
   isAuthed: false,
 
-  // ✅ допоміжне: локально оновити user частково (без запитів)
   setUserPatch: (patch) =>
     set((s) => ({
       user: s.user ? { ...s.user, ...patch } : s.user,
     })),
 
-  // ✅ якщо треба повністю замінити user
-  setUser: (user) => set({ user, isAuthed: Boolean(user) }),
+  setUser: (user) =>
+    set((state) => {
+      const token = state.token ?? getSessionAccessToken();
+      return {
+        user,
+        token,
+        isAuthed: Boolean(user && token),
+      };
+    }),
+
+  setToken: (token) => set({ token }),
+
+  clearSession: () => clearAuthSession(set),
 
   init: async () => {
     set({ isAuthLoading: true });
 
+    if (isOAuthCallbackPath()) {
+      set({ isAuthLoading: false });
+      return;
+    }
+
     try {
       try {
         const user = await authApi.me();
-        set({ user, isAuthed: true });
-        await useNotificationsStore.getState().fetchUnreadCount();
-        console.log(useAuthStore.getState());
-        return;
+        const token = await ensureAccessTokenInStore(
+          set,
+          user,
+          getSessionAccessToken(),
+        );
+        if (token) {
+          await useNotificationsStore.getState().fetchUnreadCount();
+          return;
+        }
       } catch (e) {
         const status = e?.response?.status;
-        console.log('[init] me() failed:', status, e?.message);
-        if (status !== 401) throw e;
+        if (status === 401) {
+          clearSessionAccessToken();
+          set({ token: null });
+        } else {
+          throw e;
+        }
       }
 
-      // якщо me() 401 → пробуємо refresh → me()
-      console.log('[init] Trying refresh...');
-      await authApi.refresh();
-      console.log('[init] refresh() success');
+      const refreshData = await authApi.refresh();
       const user = await authApi.me();
-      set({ user, isAuthed: true });
+      const token = await ensureAccessTokenInStore(
+        set,
+        user,
+        pickAccessToken(refreshData) ?? getSessionAccessToken(),
+      );
+      if (!token) {
+        throw new Error('init: session restored without access token');
+      }
+      await useNotificationsStore.getState().fetchUnreadCount();
     } catch (err) {
-      console.log('[init] refresh failed, logging out:', err?.response?.status, err?.message);
-      set({ user: null, isAuthed: false });
+      console.log(
+        '[init] session restore failed:',
+        err?.response?.status,
+        err?.response?.data ?? err?.message,
+      );
+      clearAuthSession(set);
     } finally {
       set({ isAuthLoading: false });
     }
@@ -70,13 +129,13 @@ export const useAuthStore = create((set) => ({
     set({ isAuthLoading: true });
     try {
       const res = await authApi.login(payload);
-
       const user = await loadMeWithRetry(3, 250);
-
-      set({ user, token: res.accessToken, isAuthed: true });
-      console.log(useAuthStore.getState());
+      const accessToken = pickAccessToken(res);
+      persistOAuthSessionTokens(accessToken, res?.refreshToken ?? res?.refresh_token);
+      set({ user, token: accessToken, isAuthed: true });
       return { ok: true };
     } catch (e) {
+      console.error('[login] failed:', e?.response?.data ?? e?.message);
       return { ok: false, error: e };
     } finally {
       set({ isAuthLoading: false });
@@ -87,9 +146,7 @@ export const useAuthStore = create((set) => ({
     set({ isAuthLoading: true });
     try {
       await authApi.register(payload);
-      // Cookie-based auth flow: after register user must verify email first.
-      // Do not call /users/me here (can fail before verification).
-      set({ user: null, isAuthed: false });
+      clearAuthSession(set);
       return { ok: true, requiresEmailVerification: true };
     } catch (e) {
       return { ok: false, error: e };
@@ -103,7 +160,7 @@ export const useAuthStore = create((set) => ({
     try {
       await authApi.verifyEmail(code);
       const user = await loadMeWithRetry(3, 250);
-      set({ user, isAuthed: true });
+      await ensureAccessTokenInStore(set, user);
       return { ok: true };
     } catch (e) {
       return { ok: false, error: e };
@@ -160,29 +217,40 @@ export const useAuthStore = create((set) => ({
     }
   },
 
-  // ✅ БЕЗПЕЧНИЙ refreshMe: не ламає навігацію, пробує refresh при 401
   refreshMe: async () => {
     try {
       const user = await authApi.me();
-      set({ user, isAuthed: true });
-      return user;
+      const token = await ensureAccessTokenInStore(
+        set,
+        user,
+        getSessionAccessToken(),
+      );
+      if (token) return user;
+      throw Object.assign(new Error('refreshMe: missing access token'), {
+        response: { status: 401 },
+      });
     } catch (e) {
       const status = e?.response?.status;
-
-      // якщо 401 → пробуємо refresh → me()
       if (status === 401) {
+        clearSessionAccessToken();
         try {
-          await authApi.refresh();
+          const refreshData = await authApi.refresh();
           const user = await authApi.me();
-          set({ user, isAuthed: true });
+          const token = await ensureAccessTokenInStore(
+            set,
+            user,
+            pickAccessToken(refreshData) ?? getSessionAccessToken(),
+          );
+          if (!token) {
+            clearAuthSession(set);
+            throw new Error('refreshMe: refresh succeeded without access token');
+          }
           return user;
         } catch (e2) {
-          // якщо refresh теж 401 → розлогін
-          set({ user: null, isAuthed: false });
+          clearAuthSession(set);
           throw e2;
         }
       }
-
       throw e;
     }
   },
@@ -191,8 +259,21 @@ export const useAuthStore = create((set) => ({
     try {
       await authApi.logout();
     } finally {
-      clearOAuthSessionTokens();
-      set({ user: null, isAuthed: false });
+      clearAuthSession(set);
     }
   },
 }));
+
+if (typeof window !== 'undefined') {
+  window.addEventListener(AUTH_SESSION_CLEARED_EVENT, () => {
+    useAuthStore.getState().clearSession();
+  });
+
+  window.addEventListener('meyou:oauth-access-token', (event) => {
+    const accessToken = event?.detail?.accessToken;
+    if (!accessToken) return;
+    const state = useAuthStore.getState();
+    if (state.token === accessToken) return;
+    useAuthStore.setState({ token: accessToken });
+  });
+}

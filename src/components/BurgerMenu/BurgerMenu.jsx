@@ -11,7 +11,6 @@ import {
 import './BurgerMenu.scss';
 import profileIcons from '../../constants/profileIcons';
 import { useMemo, useRef } from 'react';
-import { disconnectSocket } from '../../services/socket';
 
 export default function BurgerMenu({ isOpen, onClose, onItemClick, toggleTheme }) {
   const { logout, user } = useAuthStore();
@@ -31,18 +30,7 @@ export default function BurgerMenu({ isOpen, onClose, onItemClick, toggleTheme }
     if (id === 'logout') {
       try {
         await logout();
-
-        disconnectSocket();
         resetNotifications();
-        localStorage.clear();
-        sessionStorage.clear();
-
-        document.cookie.split(';').forEach((cookie) => {
-          document.cookie = cookie
-            .replace(/^ +/, '')
-            .replace(/=.*/, '=;expires=' + new Date(0).toUTCString() + ';path=/');
-        });
-
         navigate('/auth/login', { replace: true });
       } catch (error) {
         console.error('Logout error:', error);

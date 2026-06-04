@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { useAuthStore } from "../zustand/useAuthStore";
+import { isPublicPath } from '../constants/publicRoutes';
+import { useAuthStore } from '../zustand/useAuthStore';
 
 export default function ProfileGuard({ children }) {
   const { user, isAuthed, isAuthLoading } = useAuthStore();
@@ -10,24 +11,7 @@ export default function ProfileGuard({ children }) {
   useEffect(() => {
     if (isAuthLoading) return;
 
-    // ✅ Public сторінки (їх не чіпаємо)
-    const publicPaths = [
-      "/",
-      "/auth/login",
-      "/auth/register",
-      "/auth/callback",
-      "/auth/google/success",
-      "/auth/forgot-password",
-      "/auth/reset/verify-code",
-      "/auth/reset/new-password",
-      "/auth/verify-email",
-      "/users/profile/complete", // дозволяємо доступ
-    ];
-
-    // ✅ якщо ще завантажується — не редіректимо
-    if (isAuthLoading) return;
-
-    const isPublicPage = publicPaths.includes(pathname);
+    const isPublicPage = isPublicPath(pathname);
 
     // ✅ якщо не залогінений і це не public сторінка → редірект на логін
     if ((!isAuthed || !user) && !isPublicPage) {

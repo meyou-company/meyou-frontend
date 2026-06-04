@@ -68,6 +68,20 @@ export function clearOAuthSessionTokens() {
   }
 }
 
+export function clearSessionAccessToken() {
+  try {
+    sessionStorage.removeItem(SESSION_ACCESS_KEY);
+  } catch (_) {
+    /* ignore */
+  }
+}
+
+export function getSessionAccessToken() {
+  return readSessionAccess();
+}
+
+export const AUTH_SESSION_CLEARED_EVENT = 'meyou:auth-session-cleared';
+
 function readSessionAccess() {
   try {
     return sessionStorage.getItem(SESSION_ACCESS_KEY);
@@ -98,7 +112,7 @@ function persistTokensFromResponseBody(data) {
 function bootstrapOAuthQueryTokens() {
   if (typeof window === "undefined") return;
   const path = window.location.pathname.replace(/\/$/, "") || "/";
-  if (path !== "/auth/google/success") return;
+  if (path !== "/auth/google/success" && path !== "/auth/callback") return;
   const q = window.location.search;
   if (!q) return;
   const params = new URLSearchParams(q);
@@ -106,6 +120,11 @@ function bootstrapOAuthQueryTokens() {
   const refresh = params.get("refresh_token");
   if (!access && !refresh) return;
   persistOAuthSessionTokens(access ?? undefined, refresh ?? undefined);
+  if (typeof window !== 'undefined' && access) {
+    window.dispatchEvent(
+      new CustomEvent('meyou:oauth-access-token', { detail: { accessToken: access } }),
+    );
+  }
 }
 
 bootstrapOAuthQueryTokens();
@@ -152,7 +171,11 @@ const resolveQueue = (error, token = null) => {
 api.interceptors.response.use(
   (res) => {
     const url = res.config?.url ?? "";
-    if (String(url).includes("/auth/refresh") && res.config?.method === "post") {
+    if (
+      (String(url).includes('/auth/refresh') ||
+        String(url).includes('/auth/login')) &&
+      res.config?.method === 'post'
+    ) {
       persistTokensFromResponseBody(res.data);
     }
     return res;
@@ -186,6 +209,10 @@ api.interceptors.response.use(
         resolveQueue(null, true);
         return api(original);
       } catch (refreshErr) {
+        clearOAuthSessionTokens();
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new CustomEvent(AUTH_SESSION_CLEARED_EVENT));
+        }
         resolveQueue(refreshErr, null);
         return Promise.reject(refreshErr);
       } finally {

@@ -1,62 +1,114 @@
 import { useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { toast } from 'sonner';
 
-import { connectSocket } from '../services/socket';
+import { isPublicPath } from '../constants/publicRoutes';
+import {
+  mapNotification,
+  unwrapRealtimeNotificationEnvelope,
+} from '../services/notificationMapper';
+import { connectSocket, disconnectSocket } from '../services/socket';
 import { useAuthStore } from '../zustand/useAuthStore';
 import { useNotificationsStore } from '../zustand/useNotificationsStore';
 
 export function NotificationsSocketProvider() {
+  const location = useLocation();
+  const user = useAuthStore((s) => s.user);
   const token = useAuthStore((s) => s.token);
+  const isAuthed = useAuthStore((s) => s.isAuthed);
+  const isAuthLoading = useAuthStore((s) => s.isAuthLoading);
 
   const fetchUnreadCount = useNotificationsStore((s) => s.fetchUnreadCount);
+  const setUnreadCount = useNotificationsStore((s) => s.setUnreadCount);
   const addNotification = useNotificationsStore((s) => s.addNotification);
   const updateNotification = useNotificationsStore((s) => s.updateNotification);
-  const markNotificationReadLocal = useNotificationsStore((s) => s.markNotificationReadLocal);
+  const markNotificationReadLocal = useNotificationsStore(
+    (s) => s.markNotificationReadLocal,
+  );
   const markAllReadLocal = useNotificationsStore((s) => s.markAllReadLocal);
 
+  const canConnectSocket =
+    !isAuthLoading &&
+    isAuthed &&
+    Boolean(user) &&
+    Boolean(token) &&
+    !isPublicPath(location.pathname);
+
   useEffect(() => {
-    if (!token) return;
+    if (!canConnectSocket) {
+      disconnectSocket();
+      return;
+    }
 
     const socket = connectSocket(token);
+    if (!socket) return;
+
     fetchUnreadCount();
 
-    socket.on('connect', () => {
-      console.log('connected:', socket.id);
-      console.log('socket token:', token);
-      fetchUnreadCount();
-    });
+    const onCreated = (envelope) => {
+      const { notification, unreadCountApprox } =
+        unwrapRealtimeNotificationEnvelope(envelope);
+      if (!notification?.id) return;
+      addNotification(mapNotification(notification), { skipUnreadBump: true });
+      if (typeof unreadCountApprox === 'number') {
+        setUnreadCount(unreadCountApprox);
+      } else {
+        fetchUnreadCount();
+      }
+      toast(notification.body ?? notification.title ?? 'Нова нотифікація');
+    };
 
-    socket.onAny((event, data) => {
-      console.log('🔥 EVENT:', event, data);
-    });
+    const onUpdated = (envelope) => {
+      const { notification, unreadCountApprox } =
+        unwrapRealtimeNotificationEnvelope(envelope);
+      if (notification?.id) {
+        updateNotification(mapNotification(notification));
+      }
+      if (typeof unreadCountApprox === 'number') {
+        setUnreadCount(unreadCountApprox);
+      }
+    };
 
-    socket.on('notification.created', (notification) => {
-      console.log('SOCKET EVENT:', notification);
-      addNotification(notification);
-      console.log('STORE AFTER:', useNotificationsStore.getState().unreadCount);
-      toast(notification.title ?? 'Нова нотифікація');
-    });
+    const onRead = (envelope) => {
+      const { notification, unreadCountApprox } =
+        unwrapRealtimeNotificationEnvelope(envelope);
+      const id = notification?.id ?? envelope?.notificationId;
+      if (id) markNotificationReadLocal(id);
+      if (typeof unreadCountApprox === 'number') {
+        setUnreadCount(unreadCountApprox);
+      }
+    };
 
-    socket.on('notification.updated', (notification) => {
-      updateNotification(notification);
-    });
-
-    socket.on('notification.read', (notification) => {
-      markNotificationReadLocal(notification.id);
-    });
-
-    socket.on('notification.read_all', () => {
+    const onReadAll = (envelope) => {
       markAllReadLocal();
-    });
+      if (typeof envelope?.unreadCountApprox === 'number') {
+        setUnreadCount(envelope.unreadCountApprox);
+      }
+    };
+
+    socket.on('connect', () => fetchUnreadCount());
+    socket.on('notification.created', onCreated);
+    socket.on('notification.updated', onUpdated);
+    socket.on('notification.read', onRead);
+    socket.on('notification.read_all', onReadAll);
 
     return () => {
-      socket.offAny();
-      socket.off('notification.created');
-      socket.off('notification.updated');
-      socket.off('notification.read');
-      socket.off('notification.read_all');
+      socket.off('connect');
+      socket.off('notification.created', onCreated);
+      socket.off('notification.updated', onUpdated);
+      socket.off('notification.read', onRead);
+      socket.off('notification.read_all', onReadAll);
     };
-  }, [token]);
+  }, [
+    canConnectSocket,
+    token,
+    fetchUnreadCount,
+    setUnreadCount,
+    addNotification,
+    updateNotification,
+    markNotificationReadLocal,
+    markAllReadLocal,
+  ]);
 
   return null;
 }

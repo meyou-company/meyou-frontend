@@ -21,6 +21,8 @@ export const useNotificationsStore = create((set, get) => ({
     }
   },
 
+  setUnreadCount: (count) => set({ unreadCount: Math.max(0, count) }),
+
   markAllAsRead: async () => {
     try {
       await notificationsApi.markAllAsRead();
@@ -39,13 +41,22 @@ export const useNotificationsStore = create((set, get) => ({
     }
   },
 
-  addNotification: (notification) =>
+  addNotification: (notification, options = {}) =>
     set((state) => {
-      console.log('BEFORE:', state.unreadCount);
-
+      const skipUnreadBump = options.skipUnreadBump === true;
+      const exists = state.items.some((item) => item.id === notification.id);
+      if (exists) {
+        return {
+          items: state.items.map((item) =>
+            item.id === notification.id ? notification : item,
+          ),
+        };
+      }
       return {
         items: [notification, ...state.items],
-        unreadCount: state.unreadCount + 1,
+        unreadCount: skipUnreadBump
+          ? state.unreadCount
+          : state.unreadCount + 1,
       };
     }),
   updateNotification: (notification) =>
