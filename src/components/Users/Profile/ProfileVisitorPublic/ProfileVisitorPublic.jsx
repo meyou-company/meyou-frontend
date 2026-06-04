@@ -189,6 +189,8 @@ export default function ProfileVisitorPublic({
                 role="button"
                 tabIndex={0}
                 onClick={() => {
+                  if (profileStoriesLoading) return;
+
                   if (hasProfileStories) {
                     openProfileStories();
                     return;
@@ -198,6 +200,7 @@ export default function ProfileVisitorPublic({
                 }}
                 onKeyDown={(e) => {
                   if (e.key !== "Enter") return;
+                  if (profileStoriesLoading) return;
 
                   if (hasProfileStories) {
                     openProfileStories();

@@ -110,7 +110,7 @@ export default function StoryViewerModal({
     viewedRef.current.add(storyId);
 
     storiesApi.markViewed(storyId)
-      .then(() => onViewed?.())
+      .then(() => onViewed?.(storyId))
       .catch((e) => {
         console.error("[story-view] failed", e);
       });

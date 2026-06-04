@@ -34,17 +34,17 @@ export default function StoryCircle({
   return (
     <button className="flex flex-col items-center gap-1" onClick={onClick}>
       <div
-        className={`relative rounded-full p-[3px] ${
+        className={`relative rounded-full p-[2px] ${
           viewed
             ? "bg-gray-400"
-            : "bg-gradient-to-tr from-pink-500 via-red-500 to-yellow-400"
+            : "bg-gradient-to-tr linear-gradient(135deg, #FF4FB1, #4F6BFF)"
         }`}
       >
-        <div className="rounded-full bg-white p-[2px]">
+        <div className="rounded-full bg-gradient-to-tr linear-gradient(135deg, #FF4FB1, #4F6BFF) p-[2px]">
           <img
             src={avatar || profileIcons.userStory}
             alt=""
-            className="w-14 h-14 md:w-[77px] md:h-[77px] xl:w-[97px] xl:h-[97px] rounded-full object-cover bg-[#D5D5D5]"
+            className="w-14 h-14 md:w-[77px] md:h-[77px] xl:w-[97px] xl:h-[97px] rounded-full object-cover"
           />
         </div>
 

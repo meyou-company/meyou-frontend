@@ -98,19 +98,15 @@ export default function FirstPageView({
     storiesGroups,
     storiesLoading,
     reloadStories,
+    setStoriesGroups,
   } = useStoriesFeed();
+
   const orderedStoriesGroups = useMemo(() => {
     const list = Array.isArray(storiesGroups) ? [...storiesGroups] : [];
 
-    return list.sort((a, b) => {
-      const aIsMe = String(a?.author?.id ?? "") === String(currentUserId ?? "");
-      const bIsMe = String(b?.author?.id ?? "") === String(currentUserId ?? "");
-
-      if (aIsMe && !bIsMe) return -1;
-      if (!aIsMe && bIsMe) return 1;
-
-      return 0;
-    });
+    return list.filter(
+      (group) => String(group?.author?.id ?? "") !== String(currentUserId ?? "")
+    );
   }, [storiesGroups, currentUserId]);
 
   const openStoryViewer = (groupIndex) => {
@@ -120,6 +116,22 @@ export default function FirstPageView({
     setStoryViewerStoryIndex(findFirstUnviewedStoryIndex(stories));
     setIsStoryViewerOpen(true);
   };
+
+  const markStoryViewedLocally = (storyId) => {
+    setStoriesGroups((prev) =>
+      prev.map((group) => ({
+        ...group,
+        stories: Array.isArray(group?.stories)
+          ? group.stories.map((story) =>
+            String(story?.id) === String(storyId)
+              ? { ...story, viewedByMe: true }
+              : story
+          )
+          : [],
+      }))
+    );
+  };
+
   const [feedPosts, setFeedPosts] = useState([]);
   const [feedLoading, setFeedLoading] = useState(true);
   const [feedError, setFeedError] = useState(null);
@@ -347,7 +359,7 @@ export default function FirstPageView({
           initialGroupIndex={storyViewerGroupIndex}
           initialStoryIndex={storyViewerStoryIndex}
           onClose={() => setIsStoryViewerOpen(false)}
-          onViewed={reloadStories}
+          onViewed={markStoryViewedLocally}
         />
 
         <SharePostModal
