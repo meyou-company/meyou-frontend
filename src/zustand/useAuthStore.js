@@ -1,7 +1,8 @@
-import { create } from "zustand";
-import { clearOAuthSessionTokens } from "../services/api";
-import { authApi } from "../services/auth";
-import { passwordApi } from "../services/passwordApi";
+import { create } from 'zustand';
+import { clearOAuthSessionTokens } from '../services/api';
+import { authApi } from '../services/auth';
+import { passwordApi } from '../services/passwordApi';
+import { useNotificationsStore } from './useNotificationsStore';
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -22,6 +23,7 @@ async function loadMeWithRetry(retries = 2, delayMs = 200) {
 
 export const useAuthStore = create((set) => ({
   user: null,
+  token: null,
   isAuthLoading: true, // По умолчанию true - ждём завершения init()
   isAuthed: false,
 
@@ -41,21 +43,23 @@ export const useAuthStore = create((set) => ({
       try {
         const user = await authApi.me();
         set({ user, isAuthed: true });
+        await useNotificationsStore.getState().fetchUnreadCount();
+        console.log(useAuthStore.getState());
         return;
       } catch (e) {
         const status = e?.response?.status;
-        console.log("[init] me() failed:", status, e?.message);
+        console.log('[init] me() failed:', status, e?.message);
         if (status !== 401) throw e;
       }
 
       // якщо me() 401 → пробуємо refresh → me()
-      console.log("[init] Trying refresh...");
+      console.log('[init] Trying refresh...');
       await authApi.refresh();
-      console.log("[init] refresh() success");
+      console.log('[init] refresh() success');
       const user = await authApi.me();
       set({ user, isAuthed: true });
     } catch (err) {
-      console.log("[init] refresh failed, logging out:", err?.response?.status, err?.message);
+      console.log('[init] refresh failed, logging out:', err?.response?.status, err?.message);
       set({ user: null, isAuthed: false });
     } finally {
       set({ isAuthLoading: false });
@@ -65,9 +69,12 @@ export const useAuthStore = create((set) => ({
   login: async (payload) => {
     set({ isAuthLoading: true });
     try {
-      await authApi.login(payload);
+      const res = await authApi.login(payload);
+
       const user = await loadMeWithRetry(3, 250);
-      set({ user, isAuthed: true });
+
+      set({ user, token: res.accessToken, isAuthed: true });
+      console.log(useAuthStore.getState());
       return { ok: true };
     } catch (e) {
       return { ok: false, error: e };

@@ -39,6 +39,8 @@ const INITIAL_VALUES = {
   lastName: '',
   phone: '',
   nationality: '',
+  gender: null,
+  birthDate: '',
   username: '',
   bio: '',
   interests: [],
@@ -46,8 +48,11 @@ const INITIAL_VALUES = {
   maritalStatus: null,
   country: null,
   city: null,
-  gender: null,
-  birthDate: '',
+  // profession,
+  // languages,
+  // instagram,
+  // telegram,
+  // tiktok,
 };
 
 const GENDER_OPTIONS = [
