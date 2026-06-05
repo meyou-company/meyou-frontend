@@ -788,6 +788,7 @@ export default function ProfileHome({
         groups={profileStoryGroups}
         initialGroupIndex={0}
         initialStoryIndex={storyViewerStoryIndex}
+        currentUserId={profileUserId}
         onClose={() => setIsStoryViewerOpen(false)}
         onViewed={() => {
           setProfileStories((prev) =>
@@ -796,6 +797,15 @@ export default function ProfileHome({
               viewedByMe: true,
             }))
           );
+        }}
+        onDeleteStory={async (storyId) => {
+          await storiesApi.deleteStory(storyId);
+
+          setProfileStories((prev) =>
+            prev.filter((story) => String(story.id) !== String(storyId))
+          );
+
+          setIsStoryViewerOpen(false);
         }}
       />
       <StoryUploadModal
