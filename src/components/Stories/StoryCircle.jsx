@@ -47,12 +47,6 @@ export default function StoryCircle({
             className="w-14 h-14 md:w-[77px] md:h-[77px] xl:w-[97px] xl:h-[97px] rounded-full object-cover"
           />
         </div>
-
-        {storiesCount > 1 && (
-          <div className="absolute -bottom-1 -right-1 bg-black text-white text-[10px] rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1">
-            {storiesCount}
-          </div>
-        )}
       </div>
 
       <span className="text-[8px] md:text-xs xl:text-xl font-[Montserrat] text-black underline max-w-[80px] truncate">

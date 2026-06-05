@@ -132,6 +132,7 @@ const profileIcons = {
   storyBack: '/stories/mingcute_arrow-up-fill.svg',
   storyArrowFilled: '/stories/weui_arrow-filled.svg',
   storyCloseFriends: '/stories/close_friends.svg',
+  storyForward: "/stories/forward.svg",
 };
 
 export default profileIcons;
