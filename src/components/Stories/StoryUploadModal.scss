@@ -867,3 +867,81 @@
     height: auto !important;
   }
 }
+
+/* Dark theme */
+
+[data-theme="dark"] .storyUploadModal,
+.dark .storyUploadModal {
+  background: #0f0f12;
+  color: #f5f5f5;
+}
+
+[data-theme="dark"] .storyUploadModal__page,
+.dark .storyUploadModal__page {
+  background: #0f0f12;
+}
+
+[data-theme="dark"] .storyUploadModal__close,
+[data-theme="dark"] .storyUploadModal__settings,
+[data-theme="dark"] .storyUploadModal__title,
+[data-theme="dark"] .storyUploadModal__galleryTitle,
+.dark .storyUploadModal__close,
+.dark .storyUploadModal__settings,
+.dark .storyUploadModal__title,
+.dark .storyUploadModal__galleryTitle {
+  color: #ffffff;
+}
+
+[data-theme="dark"] .storyUploadModal__tool,
+[data-theme="dark"] .storyUploadModal__selectBtn,
+[data-theme="dark"] .storyUploadModal__pickFileBtn,
+.dark .storyUploadModal__tool,
+.dark .storyUploadModal__selectBtn,
+.dark .storyUploadModal__pickFileBtn {
+  background: linear-gradient(181deg, #2b2336 0%, #34224a 46%, #46305f 100%);
+  color: #ffffff;
+}
+
+[data-theme="dark"] .storyUploadModal__tile,
+.dark .storyUploadModal__tile {
+  background: #2a2a30;
+}
+
+[data-theme="dark"] .storyUploadModal__camera,
+.dark .storyUploadModal__camera {
+  color: #ffffff;
+}
+
+[data-theme="dark"] .storyUploadModal__selectedPanel,
+.dark .storyUploadModal__selectedPanel {
+  background: rgba(26, 26, 32, 0.9);
+}
+
+[data-theme="dark"] .storyUploadModal__text,
+.dark .storyUploadModal__text {
+  background: #17171c;
+  color: #ffffff;
+  border-color: #4a3b60;
+}
+
+[data-theme="dark"] .storyUploadModal__text::placeholder,
+.dark .storyUploadModal__text::placeholder {
+  color: rgba(255, 255, 255, 0.65);
+}
+
+[data-theme="dark"] .storyUploadModal__replace,
+.dark .storyUploadModal__replace {
+  background: #34224a;
+  color: #f5eaff;
+}
+
+[data-theme="dark"] .storyUploadModal__editorCard,
+.dark .storyUploadModal__editorCard {
+  border-color: rgba(255, 255, 255, 0.25);
+  background: #27384c;
+}
+
+[data-theme="dark"] .storyUploadModal__bgDots,
+.dark .storyUploadModal__bgDots {
+  opacity: 0.55;
+}

@@ -417,12 +417,6 @@ $phVisitorTabBeige: #FCE9E9;
   opacity: 0.8;
 }
 
-.ph-visitor-avatarWrap--hasStories {
-  padding: 3px;
-  border-radius: 50%;
-  background: linear-gradient(45deg, #ff4fb1, #ff2d55, #ffcc00);
-}
-
 /* Dark theme */
 body.dark .profile-visitor-public .ph-visitor-tools__report,
 html[data-theme="dark"] .profile-visitor-public .ph-visitor-tools__report {
@@ -1013,4 +1007,19 @@ html[data-theme="dark"] .profile-visitor-public .ph-visitor-avatarInfoBtn {
   .profile-visitor-public .ph-visitor-actions__subscribe {
     height: 57px;
 }
+}
+
+.ph-visitor-avatarWrap--hasStories,
+.profile-visitor-subscribed__avatarWrap--hasStories {
+  padding: 3px;
+  border-radius: 50%;
+  background: linear-gradient(45deg, #ff4fb1, #ff2d55, #ffcc00) !important;
+  overflow: visible;
+}
+
+.ph-visitor-avatarWrap--hasStories .avatar,
+.profile-visitor-subscribed__avatarWrap--hasStories .profile-visitor-subscribed__avatar {
+  border: 3px solid #fff;
+  border-radius: 50%;
+  background: #fff;
 }

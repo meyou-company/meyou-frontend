@@ -56,7 +56,16 @@ export default function FirstPageView({
   const [lightboxIndex, setLightboxIndex] = useState(0);
   const [isStoryUploadOpen, setIsStoryUploadOpen] = useState(false);
   const [isStoryViewerOpen, setIsStoryViewerOpen] = useState(false);
-const [storyViewerGroupIndex, setStoryViewerGroupIndex] = useState(0);
+  const [storyViewerGroupIndex, setStoryViewerGroupIndex] = useState(0);
+  const [storyViewerStoryIndex, setStoryViewerStoryIndex] = useState(0);
+
+  const findFirstUnviewedStoryIndex = (stories = []) => {
+    const index = stories.findIndex(
+      (story) => story?.viewedByMe !== true
+    );
+
+    return index >= 0 ? index : 0;
+  };
 
   const currentUserId = useAuthStore((s) => s.user?.id);
 
@@ -89,28 +98,40 @@ const [storyViewerGroupIndex, setStoryViewerGroupIndex] = useState(0);
     storiesGroups,
     storiesLoading,
     reloadStories,
+    setStoriesGroups,
   } = useStoriesFeed();
+
   const orderedStoriesGroups = useMemo(() => {
-  const list = Array.isArray(storiesGroups) ? [...storiesGroups] : [];
+    const list = Array.isArray(storiesGroups) ? [...storiesGroups] : [];
 
-  return list.sort((a, b) => {
-    const aIsMe = String(a?.author?.id ?? "") === String(currentUserId ?? "");
-    const bIsMe = String(b?.author?.id ?? "") === String(currentUserId ?? "");
+    return list.filter(
+      (group) => String(group?.author?.id ?? "") !== String(currentUserId ?? "")
+    );
+  }, [storiesGroups, currentUserId]);
 
-    if (aIsMe && !bIsMe) return -1;
-    if (!aIsMe && bIsMe) return 1;
+  const openStoryViewer = (groupIndex) => {
+    const stories = orderedStoriesGroups[groupIndex]?.stories || [];
 
-    return 0;
-  });
-}, [storiesGroups, currentUserId]);
+    setStoryViewerGroupIndex(groupIndex);
+    setStoryViewerStoryIndex(findFirstUnviewedStoryIndex(stories));
+    setIsStoryViewerOpen(true);
+  };
 
-console.log("storiesGroups:", storiesGroups);
-console.log("orderedStoriesGroups:", orderedStoriesGroups);
+  const markStoryViewedLocally = (storyId) => {
+    setStoriesGroups((prev) =>
+      prev.map((group) => ({
+        ...group,
+        stories: Array.isArray(group?.stories)
+          ? group.stories.map((story) =>
+            String(story?.id) === String(storyId)
+              ? { ...story, viewedByMe: true }
+              : story
+          )
+          : [],
+      }))
+    );
+  };
 
-const openStoryViewer = (groupIndex) => {
-  setStoryViewerGroupIndex(groupIndex);
-  setIsStoryViewerOpen(true);
-};
   const [feedPosts, setFeedPosts] = useState([]);
   const [feedLoading, setFeedLoading] = useState(true);
   const [feedError, setFeedError] = useState(null);
@@ -275,7 +296,7 @@ const openStoryViewer = (groupIndex) => {
                       storiesCount={group.stories?.length || 0}
                       onClick={() => openStoryViewer(groupIndex)}
                     />
-                    
+
                   );
                 })}
             </div>
@@ -333,12 +354,13 @@ const openStoryViewer = (groupIndex) => {
         />
 
         <StoryViewerModal
-  isOpen={isStoryViewerOpen}
-  groups={orderedStoriesGroups}
-  initialGroupIndex={storyViewerGroupIndex}
-  onClose={() => setIsStoryViewerOpen(false)}
-  onViewed={reloadStories}
-/>
+          isOpen={isStoryViewerOpen}
+          groups={orderedStoriesGroups}
+          initialGroupIndex={storyViewerGroupIndex}
+          initialStoryIndex={storyViewerStoryIndex}
+          onClose={() => setIsStoryViewerOpen(false)}
+          onViewed={markStoryViewedLocally}
+        />
 
         <SharePostModal
           post={feedActions.sharePost}

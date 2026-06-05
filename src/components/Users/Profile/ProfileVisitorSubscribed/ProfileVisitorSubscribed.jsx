@@ -12,6 +12,8 @@ import { useProfileAuthorFeed } from "../../../../hooks/useProfileAuthorFeed";
 import { useUserProfileNav } from "../../../../context/UserProfileNavContext";
 import ProfilePostsFeed from "../ProfilePostsFeed/ProfilePostsFeed";
 import ProfileInfoPanel from "../ProfileInfoPanel/ProfileInfoPanel";
+import { storiesApi } from "../../../../services/storiesApi";
+import StoryViewerModal from "../../../Stories/StoryViewerModal";
 import "../ProfileHome/ProfileHome.scss";
 import "./ProfileVisitorSubscribed.scss";
 
@@ -31,6 +33,10 @@ export default function ProfileVisitorSubscribed({
 }) {
   const [activeTab, setActiveTab] = useState("delete"); // delete | info | stories | video | photo — як у макеті перший таб «Удалить» виділений
   const [viewImageUrl, setViewImageUrl] = useState(null);
+  const [profileStories, setProfileStories] = useState([]);
+  const [profileStoriesLoading, setProfileStoriesLoading] = useState(false);
+  const [isStoryViewerOpen, setIsStoryViewerOpen] = useState(false);
+  const [storyViewerStoryIndex, setStoryViewerStoryIndex] = useState(0);
 
   const onViewPhoto = (url) => {
     if (onViewPhotoExternal) onViewPhotoExternal(url);
@@ -45,11 +51,77 @@ export default function ProfileVisitorSubscribed({
   }, [viewImageUrl]);
 
   const nickname = user?.username || user?.nick || user?.nickname || "";
+  const profileUserId = user?.id || user?._id || postsAuthorId;
+  useEffect(() => {
+    let cancelled = false;
+
+    const loadProfileStories = async () => {
+      if (!profileUserId) {
+        setProfileStories([]);
+        return;
+      }
+
+      try {
+        setProfileStoriesLoading(true);
+
+        const list = await storiesApi.getUserStories(profileUserId);
+
+        if (cancelled) return;
+
+        const normalized = Array.isArray(list?.[0]?.stories)
+          ? list[0].stories
+          : Array.isArray(list)
+            ? list
+            : [];
+
+        setProfileStories(normalized);
+      } catch (e) {
+        if (!cancelled) {
+          console.error("[profile stories] failed", e);
+          setProfileStories([]);
+        }
+      } finally {
+        if (!cancelled) setProfileStoriesLoading(false);
+      }
+    };
+
+    loadProfileStories();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [profileUserId]);
   const fullName = [user?.firstName, user?.lastName].filter(Boolean).join(" ").trim() || "";
   const location = [user?.city, user?.country].filter(Boolean).join(", ").trim() || "";
   const displayName = fullName || nickname || "Користувач";
 
   const displayAvatar = user?.avatarUrl || user?.avatar || "/Logo/photo.png";
+  const hasProfileStories = profileStories.length > 0;
+
+  const profileStoryGroups = hasProfileStories
+    ? [
+      {
+        author: {
+          id: profileUserId,
+          firstName: user?.firstName,
+          lastName: user?.lastName,
+          username: nickname,
+          avatarUrl: displayAvatar,
+        },
+        stories: profileStories,
+      },
+    ]
+    : [];
+
+  const findFirstUnviewedStoryIndex = (stories = []) => {
+    const index = stories.findIndex((story) => story?.viewedByMe !== true);
+    return index >= 0 ? index : 0;
+  };
+
+  const openProfileStories = () => {
+    setStoryViewerStoryIndex(findFirstUnviewedStoryIndex(profileStories));
+    setIsStoryViewerOpen(true);
+  };
   const isOnline = user?.online !== false;
 
   const friends = useMemo(() => {
@@ -106,18 +178,38 @@ export default function ProfileVisitorSubscribed({
         <div className="profile-visitor-subscribed__left">
           <div className="profile-visitor-subscribed__avatarContainer">
             <div
-            className="profile-visitor-subscribed__avatarWrap"
-            role="button"
-            tabIndex={0}
-            onClick={() => onViewPhoto?.(displayAvatar)}
-            onKeyDown={(e) => e.key === "Enter" && onViewPhoto?.(displayAvatar)}
-            aria-label="Переглянути фото"
-          >
-            <img src={displayAvatar} alt="" className="profile-visitor-subscribed__avatar" />
-          </div>
+              className={`profile-visitor-subscribed__avatarWrap ${hasProfileStories ? "profile-visitor-subscribed__avatarWrap--hasStories" : ""
+                }`}
+              role="button"
+              tabIndex={0}
+              onClick={() => {
+                if (profileStoriesLoading) return;
+
+                if (hasProfileStories) {
+                  openProfileStories();
+                  return;
+                }
+
+                onViewPhoto?.(displayAvatar);
+              }}
+              onKeyDown={(e) => {
+                if (e.key !== "Enter") return;
+                if (profileStoriesLoading) return;
+
+                if (hasProfileStories) {
+                  openProfileStories();
+                  return;
+                }
+
+                onViewPhoto?.(displayAvatar);
+              }}
+              aria-label="Переглянути фото"
+            >
+              <img src={displayAvatar} alt="" className="profile-visitor-subscribed__avatar" />
+            </div>
             {isOnline && <span className="profile-visitor-subscribed__onlineDot" aria-hidden="true" />}
           </div>
-          
+
           {/* На мобілці нік/ім'я/локація під аватаром */}
           <div className="profile-visitor-subscribed__nameBlock profile-visitor-subscribed__nameBlock--mobile">
             <h1 className="profile-visitor-subscribed__nickname">{nickname || displayName}</h1>
@@ -145,9 +237,9 @@ export default function ProfileVisitorSubscribed({
               >
                 <div className="pvs-tools__vipIconWrap">
                   <img src={profileIcons.chat} alt="" className="pvs-tools__vipIcon pvs-tools__vipIcon--full" aria-hidden="true" />
-                 <span className="pvs-tools__label">VIP Chat</span>
+                  <span className="pvs-tools__label">VIP Chat</span>
                 </div>
-               
+
               </button>
               <button type="button" className="pvs-tools__small" onClick={onGifts} aria-label="Подарки">
                 <img src={profileIcons.giftIcon} alt="" className="pvs-tools__smallIcon" aria-hidden="true" />
@@ -223,9 +315,9 @@ export default function ProfileVisitorSubscribed({
       {/* ===== TAB CONTENT: для табів «Удалить» / «Информация» нічого не показуємо ===== */}
       {/* {(activeTab === "info" || activeTab === "delete") && null} */}
       <ProfileInfoPanel
-  user={user}
-  isOpen={activeTab === "info"}
-/>
+        user={user}
+        isOpen={activeTab === "info"}
+      />
 
       {/* ===== FRIENDS: такий самий блок як у моєму профілі (vipCard, friendsTitle, vipRow, showMoreBtn) — тільки з його друзями ===== */}
       <section className="vipCard profile-visitor-subscribed__friends" aria-label={displayFriendsCount > 0 ? `Друзья, всього ${displayFriendsCount}` : "Друзья"}>
@@ -342,6 +434,21 @@ export default function ProfileVisitorSubscribed({
           />
         </div>
       )}
+      <StoryViewerModal
+        isOpen={isStoryViewerOpen}
+        groups={profileStoryGroups}
+        initialGroupIndex={0}
+        initialStoryIndex={storyViewerStoryIndex}
+        onClose={() => setIsStoryViewerOpen(false)}
+        onViewed={() => {
+          setProfileStories((prev) =>
+            prev.map((story) => ({
+              ...story,
+              viewedByMe: true,
+            }))
+          );
+        }}
+      />
     </div>
   );
 }

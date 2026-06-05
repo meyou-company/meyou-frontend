@@ -43,6 +43,7 @@ export default function ProfileVisitorPublic({
   const [profileStories, setProfileStories] = useState([]);
   const [profileStoriesLoading, setProfileStoriesLoading] = useState(false);
   const [isStoryViewerOpen, setIsStoryViewerOpen] = useState(false);
+  const [storyViewerStoryIndex, setStoryViewerStoryIndex] = useState(0);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const mobileMenuRef = useRef(null);
 
@@ -78,11 +79,13 @@ export default function ProfileVisitorPublic({
   }, [isMobileMenuOpen]);
 
   const username = user?.username || user?.nick || user?.nickname || user?.login || "";
+  const profileUserId = user?.id || user?._id || postsAuthorId;
+
   useEffect(() => {
     let cancelled = false;
 
     const loadProfileStories = async () => {
-      if (!username) {
+      if (!profileUserId) {
         setProfileStories([]);
         return;
       }
@@ -121,7 +124,6 @@ export default function ProfileVisitorPublic({
   const fullNameReal = [user?.firstName, user?.lastName].filter(Boolean).join(" ") || "";
   const titleName = username || fullNameReal || "User";
   const displayAvatar = user?.avatarUrl || user?.avatar || "/Logo/photo.png";
-  const profileUserId = user?.id || user?._id || postsAuthorId;
   const hasProfileStories = profileStories.length > 0;
 
   const profileStoryGroups = hasProfileStories
@@ -138,6 +140,17 @@ export default function ProfileVisitorPublic({
       },
     ]
     : [];
+
+  const findFirstUnviewedStoryIndex = (stories = []) => {
+    const index = stories.findIndex((story) => story?.viewedByMe !== true);
+    return index >= 0 ? index : 0;
+  };
+
+  const openProfileStories = () => {
+    setStoryViewerStoryIndex(findFirstUnviewedStoryIndex(profileStories));
+    setIsStoryViewerOpen(true);
+  };
+
   const location = [user?.city, user?.country].filter(Boolean).join(", ") || "";
   const bioLine1 = fullNameReal ? `${fullNameReal}.` : "";
   const bioLine2 = location ? `${location}.` : "";
@@ -176,8 +189,10 @@ export default function ProfileVisitorPublic({
                 role="button"
                 tabIndex={0}
                 onClick={() => {
+                  if (profileStoriesLoading) return;
+
                   if (hasProfileStories) {
-                    setIsStoryViewerOpen(true);
+                    openProfileStories();
                     return;
                   }
 
@@ -185,9 +200,10 @@ export default function ProfileVisitorPublic({
                 }}
                 onKeyDown={(e) => {
                   if (e.key !== "Enter") return;
+                  if (profileStoriesLoading) return;
 
                   if (hasProfileStories) {
-                    setIsStoryViewerOpen(true);
+                    openProfileStories();
                     return;
                   }
 
@@ -477,19 +493,20 @@ export default function ProfileVisitorPublic({
       )}
 
       <StoryViewerModal
-  isOpen={isStoryViewerOpen}
-  groups={profileStoryGroups}
-  initialGroupIndex={0}
-  onClose={() => setIsStoryViewerOpen(false)}
-  onViewed={() => {
-    setProfileStories((prev) =>
-      prev.map((story) => ({
-        ...story,
-        viewedByMe: true,
-      }))
-    );
-  }}
-/>
+        isOpen={isStoryViewerOpen}
+        groups={profileStoryGroups}
+        initialGroupIndex={0}
+        initialStoryIndex={storyViewerStoryIndex}
+        onClose={() => setIsStoryViewerOpen(false)}
+        onViewed={() => {
+          setProfileStories((prev) =>
+            prev.map((story) => ({
+              ...story,
+              viewedByMe: true,
+            }))
+          );
+        }}
+      />
     </div>
   );
 }

@@ -29,7 +29,13 @@ export function useStoriesFeed() {
                     ? response.data.groups
                     : [];
 
-      setStoriesGroups(normalized);
+      const normalizedWithSortedStories = normalized.map((group) => ({
+        ...group,
+        stories: [...(group?.stories || [])].sort(
+          (a, b) => new Date(a?.createdAt || 0).getTime() - new Date(b?.createdAt || 0).getTime()
+        ),
+      }));
+      setStoriesGroups(normalizedWithSortedStories);
     } catch (e) {
       console.error('[stories feed error]', e?.response?.data || e);
       console.error('Stories feed failed', e);
