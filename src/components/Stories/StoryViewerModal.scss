@@ -139,3 +139,15 @@
     height: min(860px, calc(100dvh - 56px));
   }
 }
+
+[data-theme="dark"] .storyViewer,
+.dark .storyViewer {
+  background: rgba(0, 0, 0, 0.94);
+}
+
+[data-theme="dark"] .storyViewer__card,
+[data-theme="dark"] .storyViewer__media,
+.dark .storyViewer__card,
+.dark .storyViewer__media {
+  background: #050505;
+}
