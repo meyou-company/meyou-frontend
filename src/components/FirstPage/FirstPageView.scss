@@ -11,7 +11,7 @@
   background-color: #FF4FB1;
 
   @media only screen and (max-width: 767.98px) {
-  bottom: 4px;
+    bottom: 4px;
   }
 }
 
@@ -29,17 +29,20 @@
 }
 
 .scrollbarHide {
-  -ms-overflow-style: none; /* IE and Edge */
-  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none;
+  /* IE and Edge */
+  scrollbar-width: none;
+  /* Firefox */
 }
 
 .scrollbarHide::-webkit-scrollbar {
-  display: none; /* Chrome, Safari, Opera */
+  display: none;
+  /* Chrome, Safari, Opera */
 }
 
 .gradientBorder {
   border-radius: 50%;
-  padding: 1px; 
+  padding: 1px;
   background: linear-gradient(135deg, #FF4FB1, #4F6BFF);
   display: inline-flex;
   align-items: center;
@@ -91,33 +94,55 @@ html[data-theme="light"] .first-page-post {
   display: none;
 }
 
-@media only screen and (min-width: 768px) { 
+@media only screen and (min-width: 768px) {
   .themeBtn {
-  padding: 0;
-  font-size: 28px;
-  background: transparent;
-  cursor: pointer;
-  border-radius: 10px;
-  display: flex;
+    padding: 0;
+    font-size: 28px;
+    background: transparent;
+    cursor: pointer;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    -webkit-tap-highlight-color: transparent;
+    background: transparent !important;
+    border: 0 !important;
+    color: #ff4fb1;
+
+
+    body.dark & {
+      color: #e0bbe4;
+    }
+  }
+}
+
+.storyCircleBorder {
+  position: relative;
+  border-radius: 50%;
+  padding: 2px;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  -webkit-tap-highlight-color: transparent;
-  background: transparent !important;
-  border: 0 !important;
-  color: #ff4fb1;
- 
-
-  body.dark & {
-    color: #e0bbe4;
-  }
-}
 }
 
-@media only screen and (min-width: 1440px) {  
-  .gradientBorder {
-  padding: 3px;
-  }
+.storyCircleBorder--active {
+  background: linear-gradient(135deg, #ff4fb1, #4f6bff);
+}
 
+.storyCircleBorder--viewed {
+  background: #9ca3af;
+}
+
+.storyCircleBorder__inner {
+  border-radius: 50%;
+  padding: 2px;
+  background: #ffffff;
+}
+
+@media only screen and (min-width: 1440px) {
+  .storyCircleBorder {
+    padding: 3px;
+  }
 }
 
 /* =========================
@@ -155,7 +180,7 @@ body.dark {
   }
 
   /* ---------- Story circles ---------- */
-  .gradientBorder > div,
+  .gradientBorder>div,
   .rounded-full.bg-\[\#D5D5D5\] {
     background: #2a1a35;
   }
@@ -193,11 +218,14 @@ body.dark {
   }
 
   nav button:hover {
-    background: rgba(255,255,255,0.08);
+    background: rgba(255, 255, 255, 0.08);
   }
 
- .story-text{
-  color: #e0e0e0;
- }
+  .story-text {
+    color: #e0e0e0;
+  }
 
+  .storyCircleBorder__inner {
+    background: #2a1a35;
+  }
 }

@@ -292,7 +292,11 @@ export default function FirstPageView({
                       key={group.author?.id || firstStory.id}
                       username={group.author?.username}
                       avatar={group.author?.avatarUrl}
-                      viewed={firstStory.viewedByMe === true}
+                      viewed={
+                        Array.isArray(group.stories) &&
+                        group.stories.length > 0 &&
+                        group.stories.every((story) => story.viewedByMe === true)
+                      }
                       storiesCount={group.stories?.length || 0}
                       onClick={() => openStoryViewer(groupIndex)}
                     />

@@ -3,6 +3,7 @@ import profileIcons from "../../constants/profileIcons";
 import { storiesApi } from "../../services/storiesApi";
 import AppHeader from "../Layout/AppHeader";
 import "./StoryViewerModal.scss";
+import { useNavigate } from "react-router-dom";
 
 const DEFAULT_DURATION = 500000;
 
@@ -26,6 +27,44 @@ function getAuthorName(author) {
   );
 }
 
+function getStoryTimeLabel(story) {
+  const rawDate = story?.createdAt || story?.created_at;
+  if (!rawDate) return "";
+
+  const diffMs = Date.now() - new Date(rawDate).getTime();
+  const diffMin = Math.floor(diffMs / 60000);
+  const diffHours = Math.floor(diffMin / 60);
+
+  if (diffMin < 1) return "только что";
+  if (diffMin < 60) return `${diffMin} мин.`;
+  if (diffHours < 24) return `${diffHours} ч.`;
+
+  return "24 ч.";
+}
+
+function normalizeStoryViewUser(item) {
+  const user = item?.user || item?.viewer || item;
+
+  if (!user) return null;
+
+  return {
+    id: user.id || user._id,
+    username: user.username || user.nick || user.nickname || "",
+    avatarUrl: user.avatarUrl || user.avatar || null,
+  };
+}
+
+function getStoryViewsCount(story, views = []) {
+  return (
+    story?.viewsCount ??
+    story?.viewCount ??
+    story?.views_count ??
+    story?.countViews ??
+    views.length ??
+    0
+  );
+}
+
 export default function StoryViewerModal({
   isOpen,
   groups = [],
@@ -35,11 +74,17 @@ export default function StoryViewerModal({
   onClose,
   onViewed,
   onDeleteStory,
+  onOpenProfile,
 }) {
   const [groupIndex, setGroupIndex] = useState(initialGroupIndex);
   const [storyIndex, setStoryIndex] = useState(0);
   const [progress, setProgress] = useState(0);
   const [duration, setDuration] = useState(DEFAULT_DURATION);
+  const [mediaOrientation, setMediaOrientation] = useState("unknown");
+  const [storyViews, setStoryViews] = useState([]);
+  const [storyViewsLoading, setStoryViewsLoading] = useState(false);
+
+  const navigate = useNavigate();
 
   const viewedRef = useRef(new Set());
 
@@ -56,8 +101,24 @@ export default function StoryViewerModal({
   const authorAvatar = author?.avatarUrl || author?.avatar || profileIcons.userStory;
   const isOwnStory =
     String(author?.id ?? currentStory?.authorId ?? "") === String(currentUserId ?? "");
+  const handleOpenAuthorProfile = () => {
+    const username = author?.username || author?.nick || author?.nickname;
+
+    if (!username) return;
+
+    onClose?.();
+    onOpenProfile?.(username);
+  };
 
   const hasStories = safeGroups.length > 0 && stories.length > 0 && currentStory;
+  const setMediaSize = (width, height) => {
+    if (!width || !height) {
+      setMediaOrientation("unknown");
+      return;
+    }
+
+    setMediaOrientation(width > height ? "landscape" : "portrait");
+  };
 
   const goNext = useCallback(() => {
     setProgress(0);
@@ -110,6 +171,17 @@ export default function StoryViewerModal({
   }, [isOpen, initialGroupIndex, initialStoryIndex]);
 
   useEffect(() => {
+    if (!isOpen) return;
+
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    return () => {
+      document.body.style.overflow = originalOverflow;
+    };
+  }, [isOpen]);
+
+  useEffect(() => {
     if (!isOpen || !storyId || viewedRef.current.has(storyId)) return;
 
     viewedRef.current.add(storyId);
@@ -120,6 +192,58 @@ export default function StoryViewerModal({
         console.error("[story-view] failed", e);
       });
   }, [isOpen, storyId, onViewed]);
+
+  useEffect(() => {
+    if (!isOpen || !storyId) return;
+
+    let cancelled = false;
+
+    const loadViews = async () => {
+      try {
+        setStoryViewsLoading(true);
+
+        const response = await storiesApi.getViews(storyId);
+
+        if (cancelled) return;
+
+        const rawList = Array.isArray(response)
+          ? response
+          : Array.isArray(response?.items)
+            ? response.items
+            : Array.isArray(response?.views)
+              ? response.views
+              : Array.isArray(response?.data)
+                ? response.data
+                : Array.isArray(response?.data?.items)
+                  ? response.data.items
+                  : Array.isArray(response?.data?.views)
+                    ? response.data.views
+                    : [];
+
+        setStoryViews(rawList.map(normalizeStoryViewUser).filter(Boolean));
+      } catch (e) {
+        if (!cancelled) {
+          const fallbackViews = Array.isArray(currentStory?.views)
+            ? currentStory.views
+            : Array.isArray(currentStory?.viewers)
+              ? currentStory.viewers
+              : Array.isArray(currentStory?.viewedBy)
+                ? currentStory.viewedBy
+                : [];
+
+          setStoryViews(fallbackViews.map(normalizeStoryViewUser).filter(Boolean));
+        }
+      } finally {
+        if (!cancelled) setStoryViewsLoading(false);
+      }
+    };
+
+    loadViews();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [isOpen, storyId, currentStory]);
 
   useEffect(() => {
     if (!isOpen || !hasStories) return undefined;
@@ -150,11 +274,35 @@ export default function StoryViewerModal({
     });
   }, [stories, storyIndex, progress]);
 
+  const visibleViewers = storyViews.slice(0, 3);
+  const viewsCount = getStoryViewsCount(currentStory, storyViews);
+
   if (!isOpen || !hasStories) return null;
 
   return (
     <div className="storyViewer" role="dialog" aria-modal="true" aria-label="Перегляд story">
-      <AppHeader />
+      <AppHeader
+        onGoProfile={() => {
+          onClose?.();
+          navigate("/profile");
+        }}
+        onGoExplore={() => {
+          onClose?.();
+          navigate("/search");
+        }}
+        onGoWallet={() => {
+          onClose?.();
+          navigate("/wallet");
+        }}
+        onGoVipChat={() => {
+          onClose?.();
+          navigate("/vip-chat");
+        }}
+        onGoHome={() => {
+          onClose?.();
+          navigate("/first-page");
+        }}
+      />
 
       <div className="storyViewer__page">
         <div className="storyViewer__bgDots" aria-hidden="true" />
@@ -168,16 +316,16 @@ export default function StoryViewerModal({
             ))}
           </div>
 
-          <div className="storyViewer__author">
+          <button className="storyViewer__author" onClick={handleOpenAuthorProfile}>
             <img src={authorAvatar} alt="" />
             <div className="storyViewer__authorText">
               <div>
                 <span className="storyViewer__authorName">{getAuthorName(author)}</span>
-                <span className="storyViewer__time">10 ч.</span>
+                <span className="storyViewer__time">{getStoryTimeLabel(currentStory)}</span>
               </div>
               {/* <span className="storyViewer__music">♫ random music</span> */}
             </div>
-          </div>
+          </button>
 
           <button
             type="button"
@@ -201,7 +349,7 @@ export default function StoryViewerModal({
             aria-label="Наступна story"
           />
 
-          <div className="storyViewer__mediaWrap">
+          <div className={`storyViewer__mediaWrap storyViewer__mediaWrap--${mediaOrientation}`}>
             {mediaType === "video" ? (
               <video
                 src={mediaUrl}
@@ -210,7 +358,11 @@ export default function StoryViewerModal({
                 muted
                 playsInline
                 onLoadedMetadata={(e) => {
-                  const seconds = e.currentTarget.duration;
+                  const video = e.currentTarget;
+
+                  setMediaSize(video.videoWidth, video.videoHeight);
+
+                  const seconds = video.duration;
                   if (Number.isFinite(seconds) && seconds > 0) {
                     setDuration(Math.min(Math.max(seconds * 1000, 3000), 15000));
                   }
@@ -218,7 +370,15 @@ export default function StoryViewerModal({
                 onEnded={goNext}
               />
             ) : (
-              <img src={mediaUrl} alt="" className="storyViewer__media" />
+              <img
+                src={mediaUrl}
+                alt=""
+                className="storyViewer__media"
+                onLoad={(e) => {
+                  const img = e.currentTarget;
+                  setMediaSize(img.naturalWidth, img.naturalHeight);
+                }}
+              />
             )}
           </div>
 
@@ -228,14 +388,30 @@ export default function StoryViewerModal({
         </div>
 
         <div className="storyViewer__actions">
-          <button type="button" className="storyViewer__action">
-            <div className="storyViewer__viewers">
-              <span />
-              <span />
-              <span />
-            </div>
-            <span>Просмотрено</span>
-          </button>
+
+          {isOwnStory ? (
+            <button type="button" className="storyViewer__action">
+              <div className="storyViewer__viewers">
+                {visibleViewers.length > 0 ? (
+                  visibleViewers.map((viewer, index) => (
+                    <img
+                      key={viewer.id || index}
+                      src={viewer.avatarUrl || profileIcons.userStory}
+                      alt=""
+                    />
+                  ))
+                ) : (
+                  <span className="storyViewer__viewersEmpty">0</span>
+                )}
+              </div>
+
+              <span>
+                {storyViewsLoading ? "..." : `${viewsCount} просмотров`}
+              </span>
+            </button>
+          ) : (
+            <span className="storyViewer__action storyViewer__action--placeholder" aria-hidden="true" />
+          )}
 
           <button type="button" className="storyViewer__action">
             <img

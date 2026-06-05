@@ -38,7 +38,7 @@
 }
 
 .storyUploadModal__content--editor {
-  width: min(1180px, calc(100% - 48px));
+  width: min(1000px, calc(100% - 48px));
 }
 
 .storyUploadModal__head {
@@ -573,7 +573,6 @@
   }
 
   .storyUploadModal__content {
-    width: calc(100% - 52px);
     padding-left: 8px;
     padding-right: 8px;
   }
