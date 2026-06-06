@@ -8,8 +8,8 @@ export default defineConfig({
     port: 5173,
     proxy: {
       '/api': {
-        // Local Nest (PORT=3001). Override for remote API: VITE_DEV_API_PROXY_TARGET=https://meyou-api.onrender.com
-        target: process.env.VITE_DEV_API_PROXY_TARGET || 'http://localhost:3001',
+        // Nest default PORT=3000 (.env may override). Override: VITE_DEV_API_PROXY_TARGET
+        target: process.env.VITE_DEV_API_PROXY_TARGET || 'http://localhost:3000',
         changeOrigin: true,
         secure: true,
         cookieDomainRewrite: 'localhost',

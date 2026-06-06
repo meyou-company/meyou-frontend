@@ -15,12 +15,13 @@ import "./Video.scss";
 
 const VIDEO_TABS = [
   { id: "recommended", label: "Рекомендованные" },
+  { id: "mine", label: "Мои видео" },
   { id: "all", label: "Общие" },
   { id: "following", label: "Подписки" },
   { id: "saved", label: "Сохраненные" },
 ];
 
-const AUTH_REQUIRED_TABS = new Set(["following", "saved"]);
+const AUTH_REQUIRED_TABS = new Set(["mine", "following", "saved"]);
 
 function Header({ currentPage, alwaysVisible = false }) {
   const navigate = useNavigate();
@@ -37,11 +38,7 @@ function Header({ currentPage, alwaysVisible = false }) {
             className={`video__navItem ${isActive ? "active" : ""}`}
           >
             <img
-              src={
-                isActive
-                  ? profileIcons[item.icon + "Active"] || profileIcons[item.icon]
-                  : profileIcons[item.icon]
-              }
+              src={profileIcons[item.icon]}
               className="video__navigationIcon"
               alt={item.label}
             />
@@ -148,12 +145,17 @@ const Video = () => {
   };
 
   const handleTabClick = (tabId) => {
+    if (AUTH_REQUIRED_TABS.has(tabId) && !isAuthed) {
+      toast.error("Войдите, чтобы просматривать эту вкладку");
+      navigate("/auth/login");
+      return;
+    }
     setActiveTab(tabId);
   };
 
   const handleVideoCreated = useCallback(() => {
     setRefreshKey((prev) => prev + 1);
-    setActiveTab("all");
+    setActiveTab("mine");
   }, []);
 
   const handleSearchChange = (value) => {
@@ -337,7 +339,7 @@ const Video = () => {
 
   return (
     <div className="video">
-      <Header currentPage="video" />
+      <Header currentPage="video" alwaysVisible />
 
       <div className="video__header">
         <h1 className="video__title">
