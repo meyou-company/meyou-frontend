@@ -1,10 +1,50 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import profileIcons from "../../constants/profileIcons";
-import { videosApi } from "../../services/videosApi";
+import { useVideoViewRegistration } from "../../hooks/useVideoViewRegistration";
+import { resolveVideoCardThumbnail } from "../../utils/videoThumbnail";
 import "./VideoPlayerModal.scss";
 
-export default function VideoPlayerModal({ video, isOpen, onClose, isAuthed }) {
+export default function VideoPlayerModal({
+  video,
+  isOpen,
+  onClose,
+  isAuthed,
+  currentUserId,
+  onViewRecorded,
+  canDelete = false,
+  onDeleteRequest,
+}) {
   const videoRef = useRef(null);
+  const [posterUrl, setPosterUrl] = useState(undefined);
+
+  const authorId = video?.raw?.author?.id ?? video?.authorId ?? null;
+
+  useVideoViewRegistration({
+    videoRef,
+    videoId: video?.id,
+    authorId,
+    currentUserId,
+    isAuthed,
+    isActive: isOpen,
+    onViewRecorded,
+  });
+
+  useEffect(() => {
+    if (!isOpen || !video) {
+      setPosterUrl(undefined);
+      return undefined;
+    }
+
+    let cancelled = false;
+
+    resolveVideoCardThumbnail(video.thumbnailUrl, video.videoUrl).then((url) => {
+      if (!cancelled) setPosterUrl(url);
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [isOpen, video?.id, video?.thumbnailUrl, video?.videoUrl]);
 
   useEffect(() => {
     if (!isOpen || !video?.videoUrl) return undefined;
@@ -18,10 +58,6 @@ export default function VideoPlayerModal({ video, isOpen, onClose, isAuthed }) {
 
     window.addEventListener("keydown", onEscape);
 
-    if (isAuthed && video.id) {
-      videosApi.registerView(video.id).catch(() => {});
-    }
-
     const playTimer = window.setTimeout(() => {
       videoRef.current?.play()?.catch(() => {});
     }, 0);
@@ -32,7 +68,7 @@ export default function VideoPlayerModal({ video, isOpen, onClose, isAuthed }) {
       window.clearTimeout(playTimer);
       videoRef.current?.pause();
     };
-  }, [isOpen, video?.id, video?.videoUrl, isAuthed, onClose]);
+  }, [isOpen, video?.id, video?.videoUrl, onClose]);
 
   if (!isOpen || !video?.videoUrl) return null;
 
@@ -59,21 +95,34 @@ export default function VideoPlayerModal({ video, isOpen, onClose, isAuthed }) {
             )}
           </div>
 
-          <button
-            type="button"
-            className="videoPlayerModal__close"
-            onClick={onClose}
-            aria-label="Закрыть"
-          >
-            <img src={profileIcons.close} alt="" />
-          </button>
+          <div className="videoPlayerModal__actions">
+            {canDelete && (
+              <button
+                type="button"
+                className="videoPlayerModal__delete"
+                onClick={onDeleteRequest}
+                aria-label="Удалить видео"
+              >
+                Удалить
+              </button>
+            )}
+
+            <button
+              type="button"
+              className="videoPlayerModal__close"
+              onClick={onClose}
+              aria-label="Закрыть"
+            >
+              <img src={profileIcons.close} alt="" />
+            </button>
+          </div>
         </div>
 
         <video
           ref={videoRef}
           className="videoPlayerModal__player"
           src={video.videoUrl}
-          poster={video.image !== "/foon2.png" ? video.image : undefined}
+          poster={posterUrl}
           controls
           playsInline
           autoPlay

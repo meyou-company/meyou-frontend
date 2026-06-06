@@ -2,11 +2,13 @@ import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { videosApi } from "../../services/videosApi";
 import {
+  generateVideoThumbnailFromFile,
   getVideoDurationSeconds,
   uploadVideoMedia,
   uploadVideoThumbnail,
 } from "../../services/videoMediaUploadApi";
 import { getApiErrorMessage } from "../../utils/getApiErrorMessage";
+import { detectCurrentLocationLabel } from "../../utils/postGeolocation";
 import profileIcons from "../../constants/profileIcons";
 import "./VideoUploadModal.scss";
 
@@ -16,6 +18,9 @@ export default function VideoUploadModal({ isOpen, onClose, onCreated }) {
 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
+  const [addLocationEnabled, setAddLocationEnabled] = useState(false);
+  const [locationText, setLocationText] = useState("");
+  const [isDetectingLocation, setIsDetectingLocation] = useState(false);
   const [videoFile, setVideoFile] = useState(null);
   const [thumbnailFile, setThumbnailFile] = useState(null);
   const [videoPreviewUrl, setVideoPreviewUrl] = useState("");
@@ -55,6 +60,9 @@ export default function VideoUploadModal({ isOpen, onClose, onCreated }) {
 
     setTitle("");
     setDescription("");
+    setAddLocationEnabled(false);
+    setLocationText("");
+    setIsDetectingLocation(false);
     setVideoFile(null);
     setThumbnailFile(null);
     setVideoPreviewUrl("");
@@ -65,6 +73,32 @@ export default function VideoUploadModal({ isOpen, onClose, onCreated }) {
   const handleClose = () => {
     reset();
     onClose?.();
+  };
+
+  const handleLocationToggle = (e) => {
+    const checked = e.target.checked;
+    setAddLocationEnabled(checked);
+    if (!checked) {
+      setLocationText("");
+    }
+  };
+
+  const handleDetectLocation = async () => {
+    setIsDetectingLocation(true);
+    try {
+      const label = await detectCurrentLocationLabel();
+      if (label) {
+        setLocationText(label);
+        setAddLocationEnabled(true);
+      } else {
+        toast.error("Не удалось определить локацию. Введите вручную.");
+      }
+    } catch (err) {
+      console.error("[video-upload] geolocation failed", err);
+      toast.error("Доступ к геолокации запрещён. Введите локацию вручную.");
+    } finally {
+      setIsDetectingLocation(false);
+    }
   };
 
   const handleVideoSelect = (e) => {
@@ -123,6 +157,17 @@ export default function VideoUploadModal({ isOpen, onClose, onCreated }) {
       if (thumbnailFile) {
         const uploaded = await uploadVideoThumbnail(thumbnailFile);
         thumbnailUrl = uploaded.mediaUrl;
+      } else {
+        try {
+          const autoThumb = await generateVideoThumbnailFromFile(videoFile, 1);
+          const uploaded = await uploadVideoThumbnail(autoThumb);
+          thumbnailUrl = uploaded.mediaUrl;
+        } catch (autoThumbError) {
+          console.warn("[video-upload] auto thumbnail at 1s failed", autoThumbError);
+          const autoThumb = await generateVideoThumbnailFromFile(videoFile, 0);
+          const uploaded = await uploadVideoThumbnail(autoThumb);
+          thumbnailUrl = uploaded.mediaUrl;
+        }
       }
 
       const payload = {
@@ -134,6 +179,11 @@ export default function VideoUploadModal({ isOpen, onClose, onCreated }) {
       if (trimmedDescription) payload.description = trimmedDescription;
       if (thumbnailUrl) payload.thumbnailUrl = thumbnailUrl;
       if (duration > 0) payload.duration = duration;
+
+      if (addLocationEnabled) {
+        const trimmedLocation = locationText.trim();
+        if (trimmedLocation) payload.location = trimmedLocation;
+      }
 
       const created = await videosApi.create(payload);
 
@@ -176,8 +226,8 @@ export default function VideoUploadModal({ isOpen, onClose, onCreated }) {
               className="videoUploadModal__input"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="Название видео"
-              maxLength={300}
+              placeholder="Название видео (до 20 символов)"
+              maxLength={20}
               disabled={isPublishing}
             />
           </label>
@@ -188,12 +238,46 @@ export default function VideoUploadModal({ isOpen, onClose, onCreated }) {
               className="videoUploadModal__textarea"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="Краткое описание"
-              rows={3}
-              maxLength={8000}
+              placeholder="Краткое описание (до 50 символов)"
+              rows={2}
+              maxLength={50}
               disabled={isPublishing}
             />
           </label>
+
+          <div className="videoUploadModal__field">
+            <label className="videoUploadModal__switchRow">
+              <input
+                type="checkbox"
+                className="videoUploadModal__switchInput"
+                checked={addLocationEnabled}
+                onChange={handleLocationToggle}
+                disabled={isPublishing}
+              />
+              <span className="videoUploadModal__switchLabel">Добавить локацию</span>
+            </label>
+
+            {addLocationEnabled && (
+              <div className="videoUploadModal__locationBlock">
+                <input
+                  className="videoUploadModal__input"
+                  value={locationText}
+                  onChange={(e) => setLocationText(e.target.value)}
+                  placeholder="Город, страна"
+                  maxLength={200}
+                  disabled={isPublishing || isDetectingLocation}
+                />
+                <button
+                  type="button"
+                  className="videoUploadModal__pickBtn videoUploadModal__pickBtn--secondary"
+                  onClick={handleDetectLocation}
+                  disabled={isPublishing || isDetectingLocation}
+                >
+                  {isDetectingLocation ? "Определяем..." : "Определить мою локацию"}
+                </button>
+              </div>
+            )}
+          </div>
 
           <div className="videoUploadModal__field">
             <span className="videoUploadModal__label">Видео *</span>
@@ -224,7 +308,7 @@ export default function VideoUploadModal({ isOpen, onClose, onCreated }) {
           </div>
 
           <div className="videoUploadModal__field">
-            <span className="videoUploadModal__label">Превью (необязательно)</span>
+            <span className="videoUploadModal__label">Обложка (необязательно)</span>
             <input
               ref={thumbnailInputRef}
               type="file"

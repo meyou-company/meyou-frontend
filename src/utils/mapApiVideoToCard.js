@@ -1,4 +1,4 @@
-const DEFAULT_THUMBNAIL = "/foon2.png";
+import { DEFAULT_VIDEO_THUMBNAIL } from "./videoThumbnail";
 
 export function formatVideoCount(value) {
   const num = Number(value) || 0;
@@ -21,7 +21,16 @@ export function getAuthorDisplayName(author) {
 
 export function getVideoLocation(location) {
   if (!location) return "";
-  return location.city?.trim() || location.country?.trim() || "";
+  if (typeof location === "string") return location.trim();
+  if (typeof location === "object") {
+    return (
+      location.label?.trim() ||
+      location.city?.trim() ||
+      location.country?.trim() ||
+      ""
+    );
+  }
+  return "";
 }
 
 export function mapApiVideoToCard(video) {
@@ -29,13 +38,16 @@ export function mapApiVideoToCard(video) {
 
   return {
     id: video.id,
+    authorId: video.author?.id ?? null,
     name: getAuthorDisplayName(video.author),
     location: getVideoLocation(video.location),
-    image: video.thumbnailUrl || DEFAULT_THUMBNAIL,
+    thumbnailUrl: video.thumbnailUrl || null,
+    likesCount: Math.max(0, Number(video.likesCount) || 0),
     likes: formatVideoCount(video.likesCount),
+    views: formatVideoCount(video.viewsCount),
     comments: formatVideoCount(video.commentsCount),
     videoUrl: video.videoUrl,
-    title: video.title,
+    title: video.title || "",
     isLikedByMe: Boolean(video.isLikedByMe),
     isSavedByMe: Boolean(video.isSavedByMe),
     raw: video,
@@ -46,3 +58,5 @@ export function mapApiVideosToCards(videos) {
   if (!Array.isArray(videos)) return [];
   return videos.map(mapApiVideoToCard).filter(Boolean);
 }
+
+export { DEFAULT_VIDEO_THUMBNAIL };

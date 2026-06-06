@@ -5,8 +5,10 @@ import { NAV_ITEMS } from "../../constants/navigation";
 import profileIcons from "../../constants/profileIcons";
 import { videosApi } from "../../services/videosApi";
 import { getApiErrorMessage } from "../../utils/getApiErrorMessage";
-import { mapApiVideosToCards } from "../../utils/mapApiVideoToCard";
+import { mapApiVideosToCards, formatVideoCount } from "../../utils/mapApiVideoToCard";
 import { useAuthStore } from "../../zustand/useAuthStore";
+import DeletePostConfirmDialog from "../PostFeed/DeletePostConfirmDialog";
+import VideoCardThumbnail from "./VideoCardThumbnail";
 import VideoPlayerModal from "./VideoPlayerModal";
 import VideoUploadModal from "./VideoUploadModal";
 import "./Video.scss";
@@ -54,6 +56,7 @@ function Header({ currentPage, alwaysVisible = false }) {
 const Video = () => {
   const navigate = useNavigate();
   const isAuthed = useAuthStore((s) => s.isAuthed);
+  const currentUser = useAuthStore((s) => s.user);
 
   const [showAll, setShowAll] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -65,6 +68,10 @@ const Video = () => {
   const [error, setError] = useState("");
   const [refreshKey, setRefreshKey] = useState(0);
   const [selectedVideo, setSelectedVideo] = useState(null);
+  const [saveLoadingId, setSaveLoadingId] = useState(null);
+  const [likeLoadingId, setLikeLoadingId] = useState(null);
+  const [deleteTarget, setDeleteTarget] = useState(null);
+  const [isDeletingVideo, setIsDeletingVideo] = useState(false);
   const [isDesktop, setIsDesktop] = useState(window.innerWidth >= 1440);
 
   const lastReqId = useRef(0);
@@ -159,6 +166,173 @@ const Video = () => {
       return;
     }
     setSelectedVideo(video);
+  };
+
+  const handleViewRecorded = useCallback((videoId, viewsCount) => {
+    const formattedViews = formatVideoCount(viewsCount);
+    setVideos((prev) =>
+      prev.map((item) =>
+        item.id === videoId ? { ...item, views: formattedViews } : item,
+      ),
+    );
+    setSelectedVideo((prev) =>
+      prev?.id === videoId ? { ...prev, views: formattedViews } : prev,
+    );
+  }, []);
+
+  const handleToggleSave = async (e, video) => {
+    e.stopPropagation();
+
+    if (!isAuthed) {
+      toast.error("Войдите, чтобы сохранить видео");
+      navigate("/auth/login");
+      return;
+    }
+
+    const videoId = video.id;
+    const wasSaved = video.isSavedByMe;
+
+    setVideos((prev) => {
+      if (activeTab === "saved" && wasSaved) {
+        return prev.filter((item) => item.id !== videoId);
+      }
+      return prev.map((item) =>
+        item.id === videoId ? { ...item, isSavedByMe: !wasSaved } : item,
+      );
+    });
+
+    setSaveLoadingId(videoId);
+
+    try {
+      if (wasSaved) {
+        await videosApi.unsave(videoId);
+        toast.success("Видео удалено из сохранённых");
+      } else {
+        await videosApi.save(videoId);
+        toast.success("Видео сохранено");
+      }
+    } catch (err) {
+      console.error("[video-save] failed", err);
+      if (activeTab === "saved" && wasSaved) {
+        setRefreshKey((prev) => prev + 1);
+      } else {
+        setVideos((prev) =>
+          prev.map((item) =>
+            item.id === videoId ? { ...item, isSavedByMe: wasSaved } : item,
+          ),
+        );
+      }
+      toast.error(getApiErrorMessage(err) || "Не удалось изменить сохранение");
+    } finally {
+      setSaveLoadingId(null);
+    }
+  };
+
+  const applyLikeState = useCallback((videoId, likesCount, isLiked) => {
+    const formattedLikes = formatVideoCount(likesCount);
+    const patch = {
+      isLikedByMe: isLiked,
+      likesCount,
+      likes: formattedLikes,
+    };
+
+    setVideos((prev) =>
+      prev.map((item) => (item.id === videoId ? { ...item, ...patch } : item)),
+    );
+    setSelectedVideo((prev) =>
+      prev?.id === videoId ? { ...prev, ...patch } : prev,
+    );
+  }, []);
+
+  const handleToggleLike = async (e, video) => {
+    e.stopPropagation();
+
+    if (!isAuthed) {
+      toast.error("Войдите, чтобы поставить лайк");
+      navigate("/auth/login");
+      return;
+    }
+
+    const videoId = video.id;
+    const wasLiked = video.isLikedByMe;
+    const prevCount = video.likesCount ?? 0;
+    const optimisticCount = Math.max(0, prevCount + (wasLiked ? -1 : 1));
+
+    applyLikeState(videoId, optimisticCount, !wasLiked);
+    setLikeLoadingId(videoId);
+
+    try {
+      const result = wasLiked
+        ? await videosApi.unlike(videoId)
+        : await videosApi.like(videoId);
+
+      const likesCount = Number(result?.likesCount);
+      const isLiked =
+        result?.isLiked === true ||
+        result?.isLikedByMe === true ||
+        result?.liked === true;
+
+      applyLikeState(
+        videoId,
+        Number.isFinite(likesCount) ? likesCount : optimisticCount,
+        isLiked,
+      );
+    } catch (err) {
+      console.error("[video-like] failed", err);
+      applyLikeState(videoId, prevCount, wasLiked);
+      toast.error(getApiErrorMessage(err) || "Не удалось изменить лайк");
+    } finally {
+      setLikeLoadingId(null);
+    }
+  };
+
+  const isOwnVideo = useCallback(
+    (video) =>
+      Boolean(
+        isAuthed &&
+          currentUser?.id &&
+          video?.authorId &&
+          String(video.authorId) === String(currentUser.id),
+      ),
+    [isAuthed, currentUser?.id],
+  );
+
+  const requestDeleteVideo = (e, video) => {
+    e?.stopPropagation?.();
+
+    if (!isAuthed) {
+      toast.error("Войдите, чтобы удалить видео");
+      navigate("/auth/login");
+      return;
+    }
+
+    if (!isOwnVideo(video)) return;
+
+    setDeleteTarget(video);
+  };
+
+  const handleCancelDeleteVideo = () => {
+    if (isDeletingVideo) return;
+    setDeleteTarget(null);
+  };
+
+  const handleConfirmDeleteVideo = async () => {
+    if (!deleteTarget?.id || isDeletingVideo) return;
+
+    setIsDeletingVideo(true);
+
+    try {
+      await videosApi.delete(deleteTarget.id);
+      setVideos((prev) => prev.filter((item) => item.id !== deleteTarget.id));
+      setSelectedVideo((prev) => (prev?.id === deleteTarget.id ? null : prev));
+      toast.success("Видео удалено");
+      setDeleteTarget(null);
+    } catch (err) {
+      console.error("[video-delete] failed", err);
+      toast.error(getApiErrorMessage(err) || "Не удалось удалить видео");
+    } finally {
+      setIsDeletingVideo(false);
+    }
   };
 
   return (
@@ -305,13 +479,44 @@ const Video = () => {
                   }
                 }}
               >
-                <img
-                  src={video.image}
+                <VideoCardThumbnail
+                  thumbnailUrl={video.thumbnailUrl}
+                  videoUrl={video.videoUrl}
                   alt={video.title || video.name}
                   className="video__preview"
                 />
 
                 <div className="video-card__overlay">
+                  {isOwnVideo(video) && (
+                    <button
+                      type="button"
+                      className="video-card__delete"
+                      onClick={(e) => requestDeleteVideo(e, video)}
+                      aria-label="Удалить видео"
+                    >
+                      <img
+                        src={profileIcons.closeBlack}
+                        alt=""
+                        className="video-card__deleteIcon"
+                      />
+                    </button>
+                  )}
+
+                  <button
+                    type="button"
+                    className={`video-card__save ${video.isSavedByMe ? "active" : ""}`}
+                    onClick={(e) => handleToggleSave(e, video)}
+                    disabled={saveLoadingId === video.id}
+                    aria-label={video.isSavedByMe ? "Убрать из сохранённых" : "Сохранить видео"}
+                    aria-pressed={video.isSavedByMe}
+                  >
+                    <img
+                      src={profileIcons.savedPost}
+                      alt=""
+                      className="video-card__saveIcon"
+                    />
+                  </button>
+
                   <button
                     type="button"
                     className="video-card__play"
@@ -330,6 +535,9 @@ const Video = () => {
 
                   <div className="video-card__info">
                     <div>
+                      {video.title && (
+                        <p className="video-card__title">{video.title}</p>
+                      )}
                       <p className="video-card__name">{video.name}</p>
                       {video.location && (
                         <div className="video-card__location">
@@ -344,21 +552,28 @@ const Video = () => {
                     </div>
 
                     <div className="video-card__stats">
-                      <span className="video__statsWrapper">
+                      <button
+                        type="button"
+                        className={`video-card__like ${video.isLikedByMe ? "active" : ""}`}
+                        onClick={(e) => handleToggleLike(e, video)}
+                        disabled={likeLoadingId === video.id}
+                        aria-label={video.isLikedByMe ? "Убрать лайк" : "Поставить лайк"}
+                        aria-pressed={video.isLikedByMe}
+                      >
                         <img
-                          className="video__statsIcon"
+                          className="video-card__likeIcon"
                           src={profileIcons.heartVideo}
-                          alt="Лайк иконка"
-                        />{" "}
-                        {video.likes}
-                      </span>
+                          alt=""
+                        />
+                        <span className="video-card__likeCount">{video.likes}</span>
+                      </button>
                       <span className="video__statsWrapper">
                         <img
-                          className="video__statsIcon"
-                          src={profileIcons.commentsVideo}
-                          alt="Комментарий иконка"
+                          className="video__statsIcon video__statsIcon--views"
+                          src={profileIcons.eye}
+                          alt="Просмотры"
                         />{" "}
-                        {video.comments}
+                        {video.views}
                       </span>
                     </div>
                   </div>
@@ -380,6 +595,21 @@ const Video = () => {
         isOpen={Boolean(selectedVideo)}
         onClose={() => setSelectedVideo(null)}
         isAuthed={isAuthed}
+        currentUserId={currentUser?.id}
+        onViewRecorded={handleViewRecorded}
+        canDelete={Boolean(selectedVideo && isOwnVideo(selectedVideo))}
+        onDeleteRequest={() => requestDeleteVideo(null, selectedVideo)}
+      />
+
+      <DeletePostConfirmDialog
+        isOpen={Boolean(deleteTarget)}
+        onCancel={handleCancelDeleteVideo}
+        onConfirm={handleConfirmDeleteVideo}
+        confirming={isDeletingVideo}
+        title="Удалить это видео?"
+        description="Видео будет удалено без возможности восстановления."
+        confirmLabel={isDeletingVideo ? "Удаление…" : "Удалить"}
+        cancelLabel="Отмена"
       />
     </div>
   );

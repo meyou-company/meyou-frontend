@@ -136,21 +136,92 @@
   }
 }
 
-@media (prefers-color-scheme: dark) {
-  .videoUploadModal__panel {
-    background: #1a1a24;
-    color: #fff;
-  }
+.videoUploadModal__switchRow {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  user-select: none;
+}
 
-  .videoUploadModal__input,
-  .videoUploadModal__textarea {
-    background: rgba(255, 255, 255, 0.06);
-    border-color: rgba(255, 255, 255, 0.15);
-    color: #fff;
-  }
+.videoUploadModal__switchInput {
+  width: 16px;
+  height: 16px;
+  accent-color: #ff4fb1;
+  cursor: pointer;
+}
 
-  .videoUploadModal__pickBtn--secondary {
-    background: rgba(255, 255, 255, 0.1);
-    color: #fff;
+.videoUploadModal__switchLabel {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.videoUploadModal__locationBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+body.dark .videoUploadModal__panel,
+html[data-theme="dark"] .videoUploadModal__panel {
+  background: linear-gradient(
+    165deg,
+    rgba(38, 26, 58, 0.98) 0%,
+    rgba(34, 24, 52, 0.99) 50%,
+    rgba(28, 18, 42, 1) 100%
+  );
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow:
+    0 32px 72px rgba(0, 0, 0, 0.55),
+    0 0 0 1px rgba(255, 255, 255, 0.06) inset;
+  color: rgba(245, 240, 255, 0.95);
+}
+
+body.dark .videoUploadModal__title,
+body.dark .videoUploadModal__label,
+body.dark .videoUploadModal__switchLabel,
+html[data-theme="dark"] .videoUploadModal__title,
+html[data-theme="dark"] .videoUploadModal__label,
+html[data-theme="dark"] .videoUploadModal__switchLabel {
+  color: rgba(245, 240, 255, 0.95);
+}
+
+body.dark .videoUploadModal__input,
+body.dark .videoUploadModal__textarea,
+html[data-theme="dark"] .videoUploadModal__input,
+html[data-theme="dark"] .videoUploadModal__textarea {
+  background: rgba(18, 12, 28, 0.78);
+  border-color: rgba(255, 255, 255, 0.12);
+  color: rgba(245, 240, 255, 0.95);
+
+  &::placeholder {
+    color: rgba(255, 255, 255, 0.42);
   }
+}
+
+body.dark .videoUploadModal__close,
+html[data-theme="dark"] .videoUploadModal__close {
+  background: rgba(50, 38, 72, 0.9);
+  border-radius: 50%;
+
+  img {
+    filter: brightness(0) invert(1);
+  }
+}
+
+body.dark .videoUploadModal__pickBtn--secondary,
+html[data-theme="dark"] .videoUploadModal__pickBtn--secondary {
+  background: rgba(30, 22, 44, 0.9);
+  color: #c4b5fd;
+  border: 1px solid rgba(167, 139, 250, 0.35);
+}
+
+body.dark .videoUploadModal__backdrop,
+html[data-theme="dark"] .videoUploadModal__backdrop {
+  background: rgba(0, 0, 0, 0.72);
+}
+
+body.dark .videoUploadModal__switchInput,
+html[data-theme="dark"] .videoUploadModal__switchInput {
+  accent-color: #ff4fb1;
 }

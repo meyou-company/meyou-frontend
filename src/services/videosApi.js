@@ -34,8 +34,27 @@ export const videosApi = {
     return data;
   },
 
-  async toggleLike(id) {
+  async update(id, payload) {
+    const { data } = await api.patch(
+      apiPath(`/videos/${encodeURIComponent(id)}`),
+      payload,
+    );
+    return data;
+  },
+
+  async delete(id) {
+    await api.delete(apiPath(`/videos/${encodeURIComponent(id)}`));
+  },
+
+  async like(id) {
     const { data } = await api.post(
+      apiPath(`/videos/${encodeURIComponent(id)}/like`),
+    );
+    return data;
+  },
+
+  async unlike(id) {
+    const { data } = await api.delete(
       apiPath(`/videos/${encodeURIComponent(id)}/like`),
     );
     return data;

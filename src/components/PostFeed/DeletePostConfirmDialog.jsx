@@ -6,23 +6,31 @@ export default function DeletePostConfirmDialog({
   onConfirm,
   confirming = false,
   variant = "delete",
+  title: titleProp,
+  description: descriptionProp,
+  confirmLabel: confirmLabelProp,
+  cancelLabel = "Скасувати",
 }) {
   if (!isOpen) return null;
 
   const isRepostRemove = variant === "repostRemove";
-  const title = isRepostRemove
-    ? "Прибрати допис зі стрічки?"
-    : "Видалити цей допис?";
-  const description = isRepostRemove
-    ? "Оригінальний допис залишиться без змін."
-    : "Цю дію не можна скасувати.";
-  const confirmLabel = isRepostRemove
-    ? confirming
-      ? "Прибираємо…"
-      : "Прибрати"
-    : confirming
-      ? "Видалення…"
-      : "Видалити";
+  const title =
+    titleProp ??
+    (isRepostRemove ? "Прибрати допис зі стрічки?" : "Видалити цей допис?");
+  const description =
+    descriptionProp ??
+    (isRepostRemove
+      ? "Оригінальний допис залишиться без змін."
+      : "Цю дію не можна скасувати.");
+  const confirmLabel =
+    confirmLabelProp ??
+    (isRepostRemove
+      ? confirming
+        ? "Прибираємо…"
+        : "Прибрати"
+      : confirming
+        ? "Видалення…"
+        : "Видалити");
 
   return (
     <div
@@ -51,7 +59,7 @@ export default function DeletePostConfirmDialog({
             onClick={onCancel}
             disabled={confirming}
           >
-            Скасувати
+            {cancelLabel}
           </button>
           <button
             type="button"
