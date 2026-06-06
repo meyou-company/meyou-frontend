@@ -139,6 +139,10 @@ export default function VideoUploadModal({ isOpen, onClose, onCreated }) {
       toast.error("Введите название видео");
       return;
     }
+    if (trimmedTitle.length > 15) {
+      toast.error("Название — не более 15 символов");
+      return;
+    }
 
     if (!videoFile) {
       toast.error("Выберите видеофайл");
@@ -226,8 +230,8 @@ export default function VideoUploadModal({ isOpen, onClose, onCreated }) {
               className="videoUploadModal__input"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="Название видео (до 20 символов)"
-              maxLength={20}
+              placeholder="Название видео (до 15 символов)"
+              maxLength={15}
               disabled={isPublishing}
             />
           </label>

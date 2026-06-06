@@ -534,7 +534,7 @@ const Video = () => {
                   </button>
 
                   <div className="video-card__info">
-                    <div>
+                    <div className="video-card__meta">
                       {video.title && (
                         <p className="video-card__title">{video.title}</p>
                       )}
