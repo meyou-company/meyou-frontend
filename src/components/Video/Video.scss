@@ -150,6 +150,7 @@
   position: relative;
   border-radius: 16px;
   overflow: hidden;
+  cursor: pointer;
 }
 
 .video__preview {
@@ -170,7 +171,11 @@
 }
 
 .video-card__play {
+  border: 0;
+  background: transparent;
+  padding: 0;
   font-size: 24px;
+  cursor: pointer;
 }
 
 .video__playIcon {
@@ -782,5 +787,34 @@ body.dark {
       opacity: 1;
       filter: none;
     }
+  }
+}
+
+.video__status {
+  margin: 24px 0;
+  text-align: center;
+  font-size: 15px;
+  color: rgba(0, 0, 0, 0.65);
+}
+
+.video__status--error {
+  color: #d64545;
+}
+
+.video__status--empty {
+  color: rgba(0, 0, 0, 0.5);
+}
+
+@media (prefers-color-scheme: dark) {
+  .video__status {
+    color: rgba(255, 255, 255, 0.75);
+  }
+
+  .video__status--error {
+    color: #ff8a8a;
+  }
+
+  .video__status--empty {
+    color: rgba(255, 255, 255, 0.55);
   }
 }

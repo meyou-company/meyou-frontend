@@ -1,0 +1,156 @@
+.videoUploadModal {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+
+.videoUploadModal__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+}
+
+.videoUploadModal__panel {
+  position: relative;
+  z-index: 1;
+  width: min(520px, 100%);
+  max-height: calc(100vh - 32px);
+  overflow-y: auto;
+  background: #fff;
+  border-radius: 20px;
+  padding: 24px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+}
+
+.videoUploadModal__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.videoUploadModal__title {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.videoUploadModal__close {
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  padding: 4px;
+
+  img {
+    width: 18px;
+    height: 18px;
+  }
+}
+
+.videoUploadModal__form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.videoUploadModal__field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.videoUploadModal__label {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.videoUploadModal__input,
+.videoUploadModal__textarea {
+  width: 100%;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  border-radius: 12px;
+  padding: 10px 12px;
+  font: inherit;
+  resize: vertical;
+}
+
+.videoUploadModal__fileInput {
+  display: none;
+}
+
+.videoUploadModal__pickBtn {
+  align-self: flex-start;
+  border: 0;
+  border-radius: 50px;
+  padding: 8px 16px;
+  color: #fff;
+  background: linear-gradient(90deg, #4f6bff, #ff4fb1);
+  cursor: pointer;
+  font: inherit;
+  font-size: 14px;
+
+  &--secondary {
+    background: #f3f3f3;
+    color: #111;
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+.videoUploadModal__preview {
+  width: 100%;
+  max-height: 220px;
+  border-radius: 12px;
+  background: #000;
+}
+
+.videoUploadModal__thumbPreview {
+  width: 120px;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 12px;
+}
+
+.videoUploadModal__submit {
+  margin-top: 8px;
+  border: 0;
+  border-radius: 50px;
+  padding: 12px 20px;
+  color: #fff;
+  background: linear-gradient(90deg, #4f6bff, #ff4fb1);
+  cursor: pointer;
+  font: inherit;
+  font-size: 16px;
+  font-weight: 600;
+
+  &:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  .videoUploadModal__panel {
+    background: #1a1a24;
+    color: #fff;
+  }
+
+  .videoUploadModal__input,
+  .videoUploadModal__textarea {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(255, 255, 255, 0.15);
+    color: #fff;
+  }
+
+  .videoUploadModal__pickBtn--secondary {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+  }
+}
