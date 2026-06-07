@@ -4,6 +4,7 @@ import { toast } from "sonner";
 import { conversationsApi } from "../../services/conversationsApi";
 import { getApiErrorMessage } from "../../utils/getApiErrorMessage";
 import { useAuthStore } from "../../zustand/useAuthStore";
+import { useNotificationsStore } from "../../zustand/useNotificationsStore";
 import "./MessagesPage.scss";
 
 function getDisplayName(user) {
@@ -32,6 +33,7 @@ export default function MessagesPage() {
   const { conversationId } = useParams();
   const isAuthed = useAuthStore((s) => s.isAuthed);
   const currentUserId = useAuthStore((s) => s.user?.id);
+  const fetchUnreadCount = useNotificationsStore((s) => s.fetchUnreadCount);
 
   const [conversations, setConversations] = useState([]);
   const [messages, setMessages] = useState([]);
@@ -82,6 +84,7 @@ export default function MessagesPage() {
       setLoadingChat(true);
       const result = await conversationsApi.getMessages(id, { limit: 100 });
       setMessages(result.items || []);
+      fetchUnreadCount();
     } catch (err) {
       console.error("[messages] chat failed", err);
       toast.error(getApiErrorMessage(err) || "Не удалось загрузить сообщения");
@@ -89,7 +92,7 @@ export default function MessagesPage() {
     } finally {
       setLoadingChat(false);
     }
-  }, []);
+  }, [fetchUnreadCount]);
 
   useEffect(() => {
     if (!isAuthed) return;

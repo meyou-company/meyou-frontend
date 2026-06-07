@@ -9,6 +9,7 @@ const notificationTypeMap = {
   POST: 'newPost',
   SHARE: 'postShare',
   SHARED_TO_USER: 'postSharedToUser',
+  MESSAGE: 'message',
   SYSTEM: 'system',
 };
 
@@ -121,6 +122,12 @@ function buildTarget(n, post, metadata) {
         userId: n.actorId,
       };
 
+    case 'MESSAGE':
+      return {
+        type: 'conversation',
+        conversationId: metadata.conversationId,
+      };
+
     default:
       return {
         type: 'notifications',
@@ -129,7 +136,7 @@ function buildTarget(n, post, metadata) {
 }
 
 function getPreviewText(n) {
-  if (n.type === 'COMMENT' || n.type === 'COMMENT_REPLY') {
+  if (n.type === 'COMMENT' || n.type === 'COMMENT_REPLY' || n.type === 'MESSAGE') {
     return n.metadata?.previewText || null;
   }
 

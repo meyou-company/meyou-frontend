@@ -101,6 +101,11 @@ function buildLink(item) {
     case 'profile':
       return `/profile/${item.actor.username}`;
 
+    case 'conversation':
+      return item.target.conversationId
+        ? `/messages/${item.target.conversationId}`
+        : '/messages';
+
     default:
       return '/notifications';
   }
