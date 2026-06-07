@@ -308,6 +308,20 @@ $phVisitorTabBeige: #FCE9E9;
   width: 100%;
 }
 
+.profile-visitor-public .ph-visitor-actions__message {
+  flex-shrink: 0;
+  height: 56px;
+  padding: 0 20px;
+  border-radius: 16px;
+  border: 0;
+  background: linear-gradient(90deg, #4f6bff, #ff4fb1);
+  color: #fff;
+  font-family: Montserrat, sans-serif;
+  font-weight: 600;
+  font-size: 15px;
+  cursor: pointer;
+}
+
 .profile-visitor-public .ph-visitor-actions__subscribe {
   grid-area: subscribe;
   flex-shrink: 0;

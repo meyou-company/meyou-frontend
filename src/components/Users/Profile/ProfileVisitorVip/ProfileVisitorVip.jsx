@@ -18,6 +18,7 @@ export default function ProfileVisitorVip({
   user,
   onUnsubscribe,
   onVipChat,
+  onWriteMessage,
   onGifts,
   onReport,
   onShowMoreFriends,
@@ -99,10 +100,10 @@ export default function ProfileVisitorVip({
 
   const actions = [
     {
-      id: "vip",
-      icon: isTablet ? profileIcons.chat : profileIcons.vipChat,
-      label: "VIP Chat",
-      onClick: onVipChat,
+      id: "message",
+      icon: profileIcons.chat,
+      label: "Написать сообщение",
+      onClick: onWriteMessage || onVipChat,
     },
     {
       id: "gifts",

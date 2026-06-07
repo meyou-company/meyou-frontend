@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useCallback, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { toast } from "sonner";
 import ProfileHeader from "../../components/Users/Profile/ProfileHome/ProfileHeader";
 import ProfileHome from "../../components/Users/Profile/ProfileHome/ProfileHome";
 import ProfileVisitorPublic from "../../components/Users/Profile/ProfileVisitorPublic/ProfileVisitorPublic";
@@ -8,6 +9,8 @@ import ProfileVisitorVip from "../../components/Users/Profile/ProfileVisitorVip/
 import { useAuthStore } from "../../zustand/useAuthStore";
 import { usersApi } from "../../services/usersApi";
 import { subscriptionsApi } from "../../services/subscriptionsApi";
+import { conversationsApi } from "../../services/conversationsApi";
+import { getApiErrorMessage } from "../../utils/getApiErrorMessage";
 import { getFriendsFromUser, getFriendsCountNumber, normalizeFriendsApiResponse } from "../../utils/profileFriends";
 import styles from "./Profile.module.scss";
 
@@ -199,14 +202,36 @@ export default function Profile() {
   const onGoHome = useCallback(() => navigate("/"), [navigate]);
   /** На сторінці іншого юзера клік по домику — повернути на мій профіль */
   const onGoToMyProfile = useCallback(() => navigate("/profile"), [navigate]);
-  const onMessagesTop = useCallback(() => navigate("/vip-chat"), [navigate]);
+  const onMessagesTop = useCallback(() => navigate("/messages"), [navigate]);
   const onWallet = useCallback(() => navigate("/wallet"), [navigate]);
 
   const onNav = useCallback((path) => navigate(path), [navigate]);
 
+  const onWriteMessage = useCallback(async () => {
+    if (!profileUser?.id) return;
+
+    if (!useAuthStore.getState().isAuthed) {
+      navigate("/auth/login", {
+        state: { redirectTo: `/profile/${profileUser.username || profileUser.id}` },
+      });
+      return;
+    }
+
+    try {
+      const conversation = await conversationsApi.create(profileUser.id);
+      if (!conversation?.id) {
+        throw new Error("Conversation id missing");
+      }
+      navigate(`/messages/${conversation.id}`);
+    } catch (err) {
+      console.error("[profile] open conversation failed", err);
+      toast.error(getApiErrorMessage(err) || "Не удалось открыть чат");
+    }
+  }, [navigate, profileUser?.id, profileUser?.username]);
+
   // ✅ handlers для Home
   const onEditProfile = useCallback(() => navigate("/users/profile/edit"), [navigate]);
-  const onMessages = useCallback(() => navigate("/vip-chat"), [navigate]);
+  const onMessages = useCallback(() => navigate("/messages"), [navigate]);
   const onSaved = useCallback(() => navigate("/saved"), [navigate]);
   const onOpenUser = useCallback((username) => {
     if (username) navigate(`/profile/${username}`);
@@ -306,7 +331,8 @@ export default function Profile() {
         <ProfileVisitorVip
           user={profileUser}
           onUnsubscribe={handleSubscribe}
-          onVipChat={() => navigate("/vip-chat")}
+          onVipChat={onWriteMessage}
+          onWriteMessage={onWriteMessage}
           onGifts={onGifts}
           onReport={onReport}
           onShowMoreFriends={onShowMoreFriendFriends}
@@ -323,7 +349,8 @@ export default function Profile() {
           friendsCount={profileUser?.friendsCount}
           onAddToVip={onAddToVip}
           onUnsubscribe={handleSubscribe}
-          onVipChat={() => navigate("/vip-chat")}
+          onVipChat={onWriteMessage}
+          onWriteMessage={onWriteMessage}
           onGifts={onGifts}
           onReport={onReport}
           onShowMoreFriends={onShowMoreFriendFriends}
@@ -344,6 +371,7 @@ export default function Profile() {
         onReport={onReport}
         onAddToVip={onAddToVip}
         onBlock={onBlock}
+        onWriteMessage={onWriteMessage}
       />
     );
   };

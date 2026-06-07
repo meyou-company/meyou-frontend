@@ -9,6 +9,7 @@ import Friends from '../pages/Friends/Friends';
 import Profile from '../pages/Profile/Profile';
 import ProfileFriendsPage from '../pages/Profile/ProfileFriendsPage';
 import VipChat from '../pages/VipChat/VipChat';
+import MessagesPage from '../pages/Messages/MessagesPage';
 
 import LoginPage from '../pages/Auth/Login/LoginPage';
 import RegisterPage from '../pages/Auth/Register/RegisterPage';
@@ -82,6 +83,8 @@ function AppLayout() {
               <Route path="/profile/:username" element={<Profile />} />
               <Route path="/profile/:username/friends" element={<ProfileFriendsPage />} />
               <Route path="/vip-chat" element={<VipChat />} />
+              <Route path="/messages" element={<MessagesPage />} />
+              <Route path="/messages/:conversationId" element={<MessagesPage />} />
               <Route path="/first-page" element={<FirstPage />} />
               <Route path="/wallet" element={<WalletPage />} />
 

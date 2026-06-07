@@ -25,6 +25,7 @@ export default function ProfileVisitorSubscribed({
   onAddToVip,
   onUnsubscribe,
   onVipChat,
+  onWriteMessage,
   onGifts,
   onReport,
   onShowMoreFriends,
@@ -230,14 +231,12 @@ export default function ProfileVisitorSubscribed({
               <button
                 type="button"
                 className="pvs-tools__vip"
-                onClick={onVipChat}
-                aria-label="VIP Chat"
-                disabled
-                title="VIP Chat (заблоковано)"
+                onClick={onWriteMessage || onVipChat}
+                aria-label="Написать сообщение"
               >
                 <div className="pvs-tools__vipIconWrap">
                   <img src={profileIcons.chat} alt="" className="pvs-tools__vipIcon pvs-tools__vipIcon--full" aria-hidden="true" />
-                  <span className="pvs-tools__label">VIP Chat</span>
+                  <span className="pvs-tools__label">Написать сообщение</span>
                 </div>
 
               </button>

@@ -37,6 +37,7 @@ export default function ProfileVisitorPublic({
   onReport,
   onAddToVip,
   onBlock,
+  onWriteMessage,
 }) {
   const [visitorTab, setVisitorTab] = useState("info");
   const [viewImageUrl, setViewImageUrl] = useState(null);
@@ -256,6 +257,14 @@ export default function ProfileVisitorPublic({
             </button>
             <button
               type="button"
+              className="ph-visitor-actions__message"
+              onClick={onWriteMessage}
+              aria-label="Написать сообщение"
+            >
+              Написать сообщение
+            </button>
+            <button
+              type="button"
               className="ph-visitor-actions__block"
               onClick={onBlock}
               aria-label="Заблокировать"
@@ -301,6 +310,13 @@ export default function ProfileVisitorPublic({
         </section>
 
         <section className="ph-visitor-mobileActions" aria-label="Действия профиля">
+          <button
+            type="button"
+            className="ph-visitor-actions__message"
+            onClick={onWriteMessage}
+          >
+            Написать сообщение
+          </button>
           <button
             type="button"
             className="ph-visitor-actions__subscribe"
