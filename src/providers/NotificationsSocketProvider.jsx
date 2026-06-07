@@ -8,13 +8,15 @@ import {
   unwrapRealtimeNotificationEnvelope,
 } from '../services/notificationMapper';
 import { connectSocket, disconnectSocket } from '../services/socket';
+import { getSessionAccessToken } from '../services/api';
 import { useAuthStore } from '../zustand/useAuthStore';
 import { useNotificationsStore } from '../zustand/useNotificationsStore';
 
 export function NotificationsSocketProvider() {
   const location = useLocation();
   const user = useAuthStore((s) => s.user);
-  const token = useAuthStore((s) => s.token);
+  const storeToken = useAuthStore((s) => s.token);
+  const token = storeToken ?? getSessionAccessToken();
   const isAuthed = useAuthStore((s) => s.isAuthed);
   const isAuthLoading = useAuthStore((s) => s.isAuthLoading);
 
@@ -41,14 +43,22 @@ export function NotificationsSocketProvider() {
     }
 
     const socket = connectSocket(token);
-    if (!socket) return;
+    if (!socket) {
+      console.warn('[notifications-socket] connect skipped: missing access token');
+      return;
+    }
 
+    console.log('[notifications-socket] listening for notification.created');
     fetchUnreadCount();
 
     const onCreated = (envelope) => {
+      console.log('NEW NOTIFICATION REALTIME:', envelope);
       const { notification, unreadCountApprox } =
         unwrapRealtimeNotificationEnvelope(envelope);
-      if (!notification?.id) return;
+      if (!notification?.id) {
+        console.warn('[notifications-socket] notification.created without id', envelope);
+        return;
+      }
       addNotification(mapNotification(notification), { skipUnreadBump: true });
       if (typeof unreadCountApprox === 'number') {
         setUnreadCount(unreadCountApprox);
@@ -86,7 +96,10 @@ export function NotificationsSocketProvider() {
       }
     };
 
-    socket.on('connect', () => fetchUnreadCount());
+    socket.on('connect', () => {
+      console.log('[notifications-socket] connected, fetching unread count');
+      fetchUnreadCount();
+    });
     socket.on('notification.created', onCreated);
     socket.on('notification.updated', onUpdated);
     socket.on('notification.read', onRead);

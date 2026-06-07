@@ -4,7 +4,6 @@ import './Notifications.scss';
 
 export default function NotificationBell({ onGoNotifications, className }) {
   const unreadCount = useNotificationsStore((s) => s.unreadCount);
-  console.log('Bell unreadCount:', unreadCount);
   const handleClick = () => {
     onGoNotifications?.();
   };

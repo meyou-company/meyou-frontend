@@ -16,8 +16,8 @@ function resolveSocketUrl() {
     return api.replace(/\/api$/i, '') || api;
   }
 
-  if (import.meta.env.DEV) {
-    return 'http://localhost:3000';
+  if (import.meta.env.DEV && typeof window !== 'undefined') {
+    return window.location.origin;
   }
 
   return typeof window !== 'undefined' ? window.location.origin : '';
@@ -48,11 +48,11 @@ export function connectSocket(token) {
   socket = io(socketUrl, {
     auth: { token },
     withCredentials: true,
-    transports: ['websocket'],
+    transports: ['websocket', 'polling'],
   });
 
   socket.on('connect', () => {
-    console.log('🟢 SOCKET CONNECTED', socket.id);
+    console.log('🟢 SOCKET CONNECTED', socket.id, 'url=', socketUrl);
   });
 
   socket.on('connect_error', (err) => {

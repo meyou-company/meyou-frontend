@@ -14,6 +14,11 @@ export default defineConfig({
         secure: true,
         cookieDomainRewrite: 'localhost',
       },
+      '/socket.io': {
+        target: process.env.VITE_DEV_API_PROXY_TARGET || 'http://localhost:3000',
+        ws: true,
+        changeOrigin: true,
+      },
     },
   },
 });
