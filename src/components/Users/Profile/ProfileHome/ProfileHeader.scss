@@ -99,6 +99,18 @@
 /* -------------------------
    ICON BUTTONS
 ------------------------- */
+.profile-header .iconBtn__iconWrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  .messages-nav-badge {
+    top: -4px;
+    right: -6px;
+  }
+}
+
 .profile-header .iconBtn,
 .profile-header .themeBtn {
   width: 36px;

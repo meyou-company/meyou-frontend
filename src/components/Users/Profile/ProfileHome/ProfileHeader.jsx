@@ -5,6 +5,7 @@ import ThemeToggleDark from '../../../ThemeToggleDark/ThemeToggleDark';
 import profileIcons from '../../../../constants/profileIcons';
 import { HEADER_CONFIG } from '../../../../constants/profileNavigation';
 import { useBurgerMenu } from '../../../../hooks/useBurgerMenu';
+import MessagesNavBadge from '../../../Messages/MessagesNavBadge';
 import NotificationBell from '../../../Notifications/NotificationBell';
 
 import './ProfileHeader.scss';
@@ -100,8 +101,11 @@ export default function ProfileHeader({
         </form>
 
         <div className="mobileRightGroup" aria-label="Mobile actions">
-          <button type="button" className="iconBtn" onClick={onMessagesTop} aria-label="Messages">
-            <img src={profileIcons.chat} alt="" aria-hidden="true" />
+          <button type="button" className="iconBtn iconBtn--messages" onClick={onMessagesTop} aria-label="Messages">
+            <span className="iconBtn__iconWrap">
+              <img src={profileIcons.chat} alt="" aria-hidden="true" />
+              <MessagesNavBadge />
+            </span>
           </button>
         </div>
 

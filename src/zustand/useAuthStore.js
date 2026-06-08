@@ -14,6 +14,7 @@ import {
 } from '../services/authSession';
 import { passwordApi } from '../services/passwordApi';
 import { disconnectSocket } from '../services/socket';
+import { useMessagesStore } from './useMessagesStore';
 import { useNotificationsStore } from './useNotificationsStore';
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -29,6 +30,7 @@ function isOAuthCallbackPath() {
 function clearAuthSession(set) {
   disconnectSocket();
   clearOAuthSessionTokens();
+  useMessagesStore.getState().reset();
   set({ user: null, token: null, isAuthed: false });
 }
 
@@ -89,7 +91,10 @@ export const useAuthStore = create((set) => ({
           getSessionAccessToken(),
         );
         if (token) {
-          await useNotificationsStore.getState().fetchUnreadCount();
+          await Promise.all([
+            useNotificationsStore.getState().fetchUnreadCount(),
+            useMessagesStore.getState().fetchTotalUnreadCount(),
+          ]);
           return;
         }
       } catch (e) {
@@ -112,7 +117,10 @@ export const useAuthStore = create((set) => ({
       if (!token) {
         throw new Error('init: session restored without access token');
       }
-      await useNotificationsStore.getState().fetchUnreadCount();
+      await Promise.all([
+        useNotificationsStore.getState().fetchUnreadCount(),
+        useMessagesStore.getState().fetchTotalUnreadCount(),
+      ]);
     } catch (err) {
       console.log(
         '[init] session restore failed:',

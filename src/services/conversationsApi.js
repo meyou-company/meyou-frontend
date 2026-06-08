@@ -9,9 +9,21 @@ function extractList(payload) {
 }
 
 export const conversationsApi = {
+  async getUnreadCount() {
+    const { data } = await api.get(apiPath("/conversations/unread-count"));
+    return data;
+  },
+
   async list() {
     const { data } = await api.get(apiPath("/conversations"));
     return extractList(data);
+  },
+
+  async markConversationRead(conversationId) {
+    const { data } = await api.patch(
+      apiPath(`/conversations/${encodeURIComponent(conversationId)}/read`),
+    );
+    return data;
   },
 
   async create(participantId) {
@@ -29,6 +41,8 @@ export const conversationsApi = {
       page: data?.page ?? page,
       limit: data?.limit ?? limit,
       total: data?.total ?? extractList(data).length,
+      unreadCount: data?.unreadCount,
+      totalUnreadCount: data?.totalUnreadCount,
     };
   },
 

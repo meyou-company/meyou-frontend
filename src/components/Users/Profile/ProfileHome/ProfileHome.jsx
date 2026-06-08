@@ -13,6 +13,7 @@ import {
   uploadPostImage,
 } from "../../../../services/postImageUploadApi";
 
+import MessagesNavBadge from "../../../Messages/MessagesNavBadge";
 import profileIcons from "../../../../constants/profileIcons";
 import { getFriendsCountNumber } from "../../../../utils/profileFriends";
 import {
@@ -498,11 +499,14 @@ export default function ProfileHome({
             <div className="profileRight__stack">
               <button
                 type="button"
-                className="btnMessages"
+                className="btnMessages btnMessages--inbox"
                 onClick={onMessages}
                 aria-label="My messages"
               >
-                <img src={profileIcons.chat} alt="" className="msgIcon" />
+                <span className="btnMessages__iconWrap">
+                  <img src={profileIcons.chat} alt="" className="msgIcon" />
+                  <MessagesNavBadge />
+                </span>
                 <span className="msgText">my messages</span>
               </button>
               <button

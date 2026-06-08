@@ -6,6 +6,7 @@ import profileIcons from "../../constants/profileIcons";
 import { videosApi } from "../../services/videosApi";
 import { getApiErrorMessage } from "../../utils/getApiErrorMessage";
 import { mapApiVideosToCards, formatVideoCount } from "../../utils/mapApiVideoToCard";
+import MessagesNavBadge from "../Messages/MessagesNavBadge";
 import { useAuthStore } from "../../zustand/useAuthStore";
 import DeletePostConfirmDialog from "../PostFeed/DeletePostConfirmDialog";
 import VideoCardThumbnail from "./VideoCardThumbnail";
@@ -37,11 +38,14 @@ function Header({ currentPage, alwaysVisible = false }) {
             onClick={() => navigate(item.path)}
             className={`video__navItem ${isActive ? "active" : ""}`}
           >
-            <img
-              src={profileIcons[item.icon]}
-              className="video__navigationIcon"
-              alt={item.label}
-            />
+            <span className="video__navIconWrap">
+              <img
+                src={profileIcons[item.icon]}
+                className="video__navigationIcon"
+                alt={item.label}
+              />
+              {item.key === "messages" && <MessagesNavBadge />}
+            </span>
             <span className="video__navigationTitle">{item.label}</span>
           </div>
         );
