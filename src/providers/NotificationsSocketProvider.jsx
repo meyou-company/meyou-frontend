@@ -24,9 +24,7 @@ export function NotificationsSocketProvider() {
   const setUnreadCount = useNotificationsStore((s) => s.setUnreadCount);
   const addNotification = useNotificationsStore((s) => s.addNotification);
   const updateNotification = useNotificationsStore((s) => s.updateNotification);
-  const markNotificationReadLocal = useNotificationsStore(
-    (s) => s.markNotificationReadLocal,
-  );
+  const markNotificationReadLocal = useNotificationsStore((s) => s.markNotificationReadLocal);
   const markAllReadLocal = useNotificationsStore((s) => s.markAllReadLocal);
 
   const canConnectSocket =
@@ -53,8 +51,7 @@ export function NotificationsSocketProvider() {
 
     const onCreated = (envelope) => {
       console.log('NEW NOTIFICATION REALTIME:', envelope);
-      const { notification, unreadCountApprox } =
-        unwrapRealtimeNotificationEnvelope(envelope);
+      const { notification, unreadCountApprox } = unwrapRealtimeNotificationEnvelope(envelope);
       if (!notification?.id) {
         console.warn('[notifications-socket] notification.created without id', envelope);
         return;
@@ -69,19 +66,28 @@ export function NotificationsSocketProvider() {
     };
 
     const onUpdated = (envelope) => {
-      const { notification, unreadCountApprox } =
-        unwrapRealtimeNotificationEnvelope(envelope);
+      console.log('ON UPDATED FIRED');
+
+      const { notification, unreadCountApprox } = unwrapRealtimeNotificationEnvelope(envelope);
+
+      console.log('UPDATED NOTIFICATION', notification);
+
       if (notification?.id) {
         updateNotification(mapNotification(notification));
       }
+
+      if (!notification?.readAt) {
+        console.log('SHOW TOAST');
+        toast(notification?.body ?? 'Нова нотифікація');
+      }
+
       if (typeof unreadCountApprox === 'number') {
         setUnreadCount(unreadCountApprox);
       }
     };
 
     const onRead = (envelope) => {
-      const { notification, unreadCountApprox } =
-        unwrapRealtimeNotificationEnvelope(envelope);
+      const { notification, unreadCountApprox } = unwrapRealtimeNotificationEnvelope(envelope);
       const id = notification?.id ?? envelope?.notificationId;
       if (id) markNotificationReadLocal(id);
       if (typeof unreadCountApprox === 'number') {

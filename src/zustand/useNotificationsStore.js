@@ -21,6 +21,8 @@ export const useNotificationsStore = create((set, get) => ({
     }
   },
 
+  setItems: (items) => set({ items }),
+
   setUnreadCount: (count) => set({ unreadCount: Math.max(0, count) }),
 
   markAllAsRead: async () => {
@@ -43,32 +45,37 @@ export const useNotificationsStore = create((set, get) => ({
 
   addNotification: (notification, options = {}) =>
     set((state) => {
-      const skipUnreadBump = options.skipUnreadBump === true;
+      // const skipUnreadBump = options.skipUnreadBump === true;
       const exists = state.items.some((item) => item.id === notification.id);
-      if (exists) {
-        return {
-          items: state.items.map((item) =>
-            item.id === notification.id ? notification : item,
-          ),
-        };
-      }
+
+      const filtered = state.items.filter((item) => item.id !== notification.id);
+
       return {
-        items: [notification, ...state.items],
-        unreadCount: skipUnreadBump
+        items: [notification, ...filtered],
+        unreadCount: options.skipUnreadBump
           ? state.unreadCount
-          : state.unreadCount + 1,
+          : state.unreadCount + (exists ? 0 : 1),
       };
     }),
   updateNotification: (notification) =>
-    set((state) => ({
-      items: state.items.map((item) => (item.id === notification.id ? notification : item)),
-    })),
+    set((state) => {
+      const filtered = state.items.filter((item) => item.id !== notification.id);
+
+      return {
+        items: [notification, ...filtered],
+      };
+    }),
 
   markNotificationReadLocal: (id) =>
-    set((state) => ({
-      items: state.items.map((item) => (item.id === id ? { ...item, isRead: true } : item)),
-      unreadCount: Math.max(0, state.unreadCount - 1),
-    })),
+    set((state) => {
+      const items = state.items.map((item) =>
+        item.id === id ? { ...item, readAt: item.readAt ?? new Date().toISOString() } : item
+      );
+
+      const unreadCount = items.filter((n) => !n.readAt).length;
+
+      return { items, unreadCount };
+    }),
 
   markAllReadLocal: () =>
     set((state) => ({

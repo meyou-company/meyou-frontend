@@ -54,7 +54,9 @@ export function connectSocket(token) {
   socket.on('connect', () => {
     console.log('🟢 SOCKET CONNECTED', socket.id, 'url=', socketUrl);
   });
-
+  socket.onAny((event, data) => {
+    console.log('ANY EVENT:', event, data);
+  });
   socket.on('connect_error', (err) => {
     console.error('🔴 SOCKET ERROR', err?.message ?? err);
   });
