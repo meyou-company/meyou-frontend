@@ -58,6 +58,7 @@ export default function FirstPageView({
   const [isStoryViewerOpen, setIsStoryViewerOpen] = useState(false);
   const [storyViewerGroupIndex, setStoryViewerGroupIndex] = useState(0);
   const [storyViewerStoryIndex, setStoryViewerStoryIndex] = useState(0);
+  const [storyViewerSessionKey, setStoryViewerSessionKey] = useState(0);
 
   const findFirstUnviewedStoryIndex = (stories = []) => {
     const index = stories.findIndex(
@@ -67,7 +68,23 @@ export default function FirstPageView({
     return index >= 0 ? index : 0;
   };
 
-  const currentUserId = useAuthStore((s) => s.user?.id);
+  const currentUser = useAuthStore((s) => s.user);
+  const currentUserId = currentUser?.id;
+  const cachedUserAvatar =
+    typeof window !== "undefined"
+      ? window.localStorage.getItem("current-user-avatar")
+      : null;
+
+  const currentUserAvatar =
+    currentUser?.avatarUrl || currentUser?.avatar || cachedUserAvatar || null;
+
+  useEffect(() => {
+    const avatar = currentUser?.avatarUrl || currentUser?.avatar;
+
+    if (avatar) {
+      window.localStorage.setItem("current-user-avatar", avatar);
+    }
+  }, [currentUser]);
 
   const openLightbox = (images, startIndex = 0) => {
     if (!images?.length) return;
@@ -104,9 +121,15 @@ export default function FirstPageView({
   const orderedStoriesGroups = useMemo(() => {
     const list = Array.isArray(storiesGroups) ? [...storiesGroups] : [];
 
-    return list.filter(
-      (group) => String(group?.author?.id ?? "") !== String(currentUserId ?? "")
-    );
+    return list.sort((a, b) => {
+      const aIsMe = String(a?.author?.id ?? "") === String(currentUserId ?? "");
+      const bIsMe = String(b?.author?.id ?? "") === String(currentUserId ?? "");
+
+      if (aIsMe && !bIsMe) return -1;
+      if (!aIsMe && bIsMe) return 1;
+
+      return 0;
+    });
   }, [storiesGroups, currentUserId]);
 
   const openStoryViewer = (groupIndex) => {
@@ -114,7 +137,12 @@ export default function FirstPageView({
 
     setStoryViewerGroupIndex(groupIndex);
     setStoryViewerStoryIndex(findFirstUnviewedStoryIndex(stories));
+    setStoryViewerSessionKey((prev) => prev + 1);
     setIsStoryViewerOpen(true);
+  };
+
+  const closeStoryViewer = () => {
+    setIsStoryViewerOpen(false);
   };
 
   const markStoryViewedLocally = (storyId) => {
@@ -278,6 +306,7 @@ export default function FirstPageView({
 
               <StoryCircle
                 type="add"
+                avatar={currentUserAvatar}
                 onClick={() => setIsStoryUploadOpen(true)}
               />
 
@@ -300,7 +329,6 @@ export default function FirstPageView({
                       storiesCount={group.stories?.length || 0}
                       onClick={() => openStoryViewer(groupIndex)}
                     />
-
                   );
                 })}
             </div>
@@ -358,11 +386,13 @@ export default function FirstPageView({
         />
 
         <StoryViewerModal
+          key={storyViewerSessionKey}
           isOpen={isStoryViewerOpen}
           groups={orderedStoriesGroups}
           initialGroupIndex={storyViewerGroupIndex}
           initialStoryIndex={storyViewerStoryIndex}
-          onClose={() => setIsStoryViewerOpen(false)}
+          currentUserId={currentUserId}
+          onClose={closeStoryViewer}
           onViewed={markStoryViewedLocally}
         />
 

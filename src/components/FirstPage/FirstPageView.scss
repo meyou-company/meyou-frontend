@@ -145,6 +145,78 @@ html[data-theme="light"] .first-page-post {
   }
 }
 
+.storyAddCircle {
+  position: relative;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  padding: 2px;
+  background: linear-gradient(135deg, #ff4fb1, #4f6bff);
+}
+
+.storyAddCircle__avatar {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  background: #d5d5d5;
+  border: 2px solid #fff;
+}
+
+.storyAddCircle__plus {
+  position: absolute;
+  right: -2px;
+  bottom: 1px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #7b00ff;
+}
+
+.storyAddCircle__plus img {
+  width: 11px;
+  height: 11px;
+}
+
+@media (min-width: 768px) {
+  .storyAddCircle {
+    width: 85px;
+    height: 85px;
+    padding: 3px;
+  }
+
+  .storyAddCircle__plus {
+    width: 26px;
+    height: 26px;
+  }
+
+  .storyAddCircle__plus img {
+    width: 14px;
+    height: 14px;
+  }
+}
+
+@media (min-width: 1280px) {
+  .storyAddCircle {
+    width: 109px;
+    height: 109px;
+  }
+
+  .storyAddCircle__plus {
+    width: 32px;
+    height: 32px;
+  }
+
+  .storyAddCircle__plus img {
+    width: 18px;
+    height: 18px;
+  }
+}
+
 /* =========================
    !🌙 DARK MODE — FirstPageView
    ========================= */
