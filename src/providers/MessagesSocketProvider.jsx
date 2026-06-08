@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 
 import { isPublicPath } from '../constants/publicRoutes';
@@ -12,6 +12,7 @@ import {
   ensureMessageNotificationPermission,
   showMessageBrowserNotification,
 } from '../utils/messageBrowserNotification';
+import { i18n } from '../i18n';
 import { playMessageSound } from '../utils/messageSound';
 import { useAuthStore } from '../zustand/useAuthStore';
 import { useMessagesStore } from '../zustand/useMessagesStore';
@@ -28,9 +29,9 @@ function unwrapMessageEnvelope(envelope) {
 
 function getSenderLabel(message) {
   const actor = message?.sender || message?.actor;
-  if (!actor) return 'Пользователь';
+  if (!actor) return i18n.t('common.user');
   const full = [actor.firstName, actor.lastName].filter(Boolean).join(' ').trim();
-  return full || actor.username || actor.name || 'Пользователь';
+  return full || actor.username || actor.name || i18n.t('common.user');
 }
 
 export function MessagesSocketProvider() {
@@ -40,7 +41,6 @@ export function MessagesSocketProvider() {
   const token = storeToken ?? getSessionAccessToken();
   const isAuthed = useAuthStore((s) => s.isAuthed);
   const isAuthLoading = useAuthStore((s) => s.isAuthLoading);
-  const currentUserId = user?.id;
 
   const fetchTotalUnreadCount = useMessagesStore((s) => s.fetchTotalUnreadCount);
   const setTotalUnreadCount = useMessagesStore((s) => s.setTotalUnreadCount);
@@ -48,6 +48,18 @@ export function MessagesSocketProvider() {
   const applyConversationRead = useMessagesStore((s) => s.applyConversationRead);
   const activeConversationId = useMessagesStore((s) => s.activeConversationId);
   const soundEnabled = useMessagesStore((s) => s.soundEnabled);
+
+  const contextRef = useRef({});
+  contextRef.current = {
+    currentUserId: user?.id,
+    activeConversationId,
+    soundEnabled,
+    pathname: location.pathname,
+    fetchTotalUnreadCount,
+    setTotalUnreadCount,
+    applyMessageCreated,
+    applyConversationRead,
+  };
 
   const canConnectSocket =
     !isAuthLoading &&
@@ -62,28 +74,27 @@ export function MessagesSocketProvider() {
   }, [canConnectSocket]);
 
   useEffect(() => {
-    if (!canConnectSocket) {
-      return;
-    }
+    if (!canConnectSocket || !token) return;
 
     const socket = connectSocket(token);
     if (!socket) return;
 
-    fetchTotalUnreadCount();
+    const refreshUnread = (force = false) => {
+      void contextRef.current.fetchTotalUnreadCount?.(force);
+    };
 
     const onCreated = (rawEnvelope) => {
+      const ctx = contextRef.current;
       const envelope = unwrapMessageEnvelope(rawEnvelope);
       const message = envelope?.message;
       const conversationId = envelope?.conversationId;
       const senderId = message?.senderId;
 
-      console.log('NEW MESSAGE REALTIME:', envelope);
-
-      if (senderId && currentUserId && String(senderId) === String(currentUserId)) {
+      if (senderId && ctx.currentUserId && String(senderId) === String(ctx.currentUserId)) {
         return;
       }
 
-      applyMessageCreated({
+      ctx.applyMessageCreated?.({
         conversationId,
         unreadCount: envelope?.unreadCount,
         totalUnreadCount: envelope?.totalUnreadCount,
@@ -92,23 +103,23 @@ export function MessagesSocketProvider() {
       dispatchMessageCreated(envelope);
 
       const isActiveChat =
-        activeConversationId &&
+        ctx.activeConversationId &&
         conversationId &&
-        String(activeConversationId) === String(conversationId) &&
+        String(ctx.activeConversationId) === String(conversationId) &&
         document.visibilityState === 'visible' &&
-        location.pathname.startsWith('/messages');
+        ctx.pathname.startsWith('/messages');
 
       if (!isActiveChat) {
-        if (soundEnabled) {
+        if (ctx.soundEnabled) {
           playMessageSound();
         }
 
-        const onMessagesRoute = location.pathname.startsWith('/messages');
+        const onMessagesRoute = ctx.pathname.startsWith('/messages');
         const tabHidden = document.visibilityState !== 'visible';
 
         if (tabHidden || !onMessagesRoute) {
           showMessageBrowserNotification({
-            title: `Новое сообщение от ${getSenderLabel(message)}`,
+            title: i18n.t('messenger.newMessageFrom', { name: getSenderLabel(message) }),
             body: message?.text || '',
             conversationId,
           });
@@ -117,34 +128,30 @@ export function MessagesSocketProvider() {
     };
 
     const onRead = (envelope) => {
+      const ctx = contextRef.current;
       if (typeof envelope?.totalUnreadCount === 'number') {
-        setTotalUnreadCount(envelope.totalUnreadCount);
+        ctx.setTotalUnreadCount?.(envelope.totalUnreadCount);
       }
-      applyConversationRead(envelope);
+      ctx.applyConversationRead?.(envelope);
       dispatchMessageRead(envelope);
     };
 
-    socket.on('connect', () => fetchTotalUnreadCount());
+    const onConnect = () => refreshUnread();
+
+    socket.on('connect', onConnect);
     socket.on('message.created', onCreated);
     socket.on('message.read', onRead);
 
+    if (socket.connected) {
+      refreshUnread();
+    }
+
     return () => {
-      socket.off('connect');
+      socket.off('connect', onConnect);
       socket.off('message.created', onCreated);
       socket.off('message.read', onRead);
     };
-  }, [
-    canConnectSocket,
-    token,
-    currentUserId,
-    activeConversationId,
-    soundEnabled,
-    location.pathname,
-    fetchTotalUnreadCount,
-    setTotalUnreadCount,
-    applyMessageCreated,
-    applyConversationRead,
-  ]);
+  }, [canConnectSocket, token]);
 
   return null;
 }

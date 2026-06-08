@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 import { toast } from 'sonner';
 
@@ -7,7 +7,7 @@ import {
   mapNotification,
   unwrapRealtimeNotificationEnvelope,
 } from '../services/notificationMapper';
-import { connectSocket, disconnectSocket } from '../services/socket';
+import { connectSocket } from '../services/socket';
 import { getSessionAccessToken } from '../services/api';
 import { useAuthStore } from '../zustand/useAuthStore';
 import { useNotificationsStore } from '../zustand/useNotificationsStore';
@@ -29,6 +29,16 @@ export function NotificationsSocketProvider() {
   );
   const markAllReadLocal = useNotificationsStore((s) => s.markAllReadLocal);
 
+  const handlersRef = useRef({});
+  handlersRef.current = {
+    fetchUnreadCount,
+    setUnreadCount,
+    addNotification,
+    updateNotification,
+    markNotificationReadLocal,
+    markAllReadLocal,
+  };
+
   const canConnectSocket =
     !isAuthLoading &&
     isAuthed &&
@@ -37,10 +47,7 @@ export function NotificationsSocketProvider() {
     !isPublicPath(location.pathname);
 
   useEffect(() => {
-    if (!canConnectSocket) {
-      disconnectSocket();
-      return;
-    }
+    if (!canConnectSocket || !token) return;
 
     const socket = connectSocket(token);
     if (!socket) {
@@ -48,23 +55,25 @@ export function NotificationsSocketProvider() {
       return;
     }
 
-    console.log('[notifications-socket] listening for notification.created');
-    fetchUnreadCount();
+    const refreshUnread = (force = false) => {
+      void handlersRef.current.fetchUnreadCount?.(force);
+    };
 
     const onCreated = (envelope) => {
-      console.log('NEW NOTIFICATION REALTIME:', envelope);
       const { notification, unreadCountApprox } =
         unwrapRealtimeNotificationEnvelope(envelope);
-      if (!notification?.id) {
-        console.warn('[notifications-socket] notification.created without id', envelope);
-        return;
-      }
-      addNotification(mapNotification(notification), { skipUnreadBump: true });
+      if (!notification?.id) return;
+
+      handlersRef.current.addNotification?.(mapNotification(notification), {
+        skipUnreadBump: true,
+      });
+
       if (typeof unreadCountApprox === 'number') {
-        setUnreadCount(unreadCountApprox);
+        handlersRef.current.setUnreadCount?.(unreadCountApprox);
       } else {
-        fetchUnreadCount();
+        refreshUnread(false);
       }
+
       toast(notification.body ?? notification.title ?? 'Нова нотифікація');
     };
 
@@ -72,10 +81,10 @@ export function NotificationsSocketProvider() {
       const { notification, unreadCountApprox } =
         unwrapRealtimeNotificationEnvelope(envelope);
       if (notification?.id) {
-        updateNotification(mapNotification(notification));
+        handlersRef.current.updateNotification?.(mapNotification(notification));
       }
       if (typeof unreadCountApprox === 'number') {
-        setUnreadCount(unreadCountApprox);
+        handlersRef.current.setUnreadCount?.(unreadCountApprox);
       }
     };
 
@@ -83,45 +92,39 @@ export function NotificationsSocketProvider() {
       const { notification, unreadCountApprox } =
         unwrapRealtimeNotificationEnvelope(envelope);
       const id = notification?.id ?? envelope?.notificationId;
-      if (id) markNotificationReadLocal(id);
+      if (id) handlersRef.current.markNotificationReadLocal?.(id);
       if (typeof unreadCountApprox === 'number') {
-        setUnreadCount(unreadCountApprox);
+        handlersRef.current.setUnreadCount?.(unreadCountApprox);
       }
     };
 
     const onReadAll = (envelope) => {
-      markAllReadLocal();
+      handlersRef.current.markAllReadLocal?.();
       if (typeof envelope?.unreadCountApprox === 'number') {
-        setUnreadCount(envelope.unreadCountApprox);
+        handlersRef.current.setUnreadCount?.(envelope.unreadCountApprox);
       }
     };
 
-    socket.on('connect', () => {
-      console.log('[notifications-socket] connected, fetching unread count');
-      fetchUnreadCount();
-    });
+    const onConnect = () => refreshUnread();
+
+    socket.on('connect', onConnect);
     socket.on('notification.created', onCreated);
     socket.on('notification.updated', onUpdated);
     socket.on('notification.read', onRead);
     socket.on('notification.read_all', onReadAll);
 
+    if (socket.connected) {
+      refreshUnread();
+    }
+
     return () => {
-      socket.off('connect');
+      socket.off('connect', onConnect);
       socket.off('notification.created', onCreated);
       socket.off('notification.updated', onUpdated);
       socket.off('notification.read', onRead);
       socket.off('notification.read_all', onReadAll);
     };
-  }, [
-    canConnectSocket,
-    token,
-    fetchUnreadCount,
-    setUnreadCount,
-    addNotification,
-    updateNotification,
-    markNotificationReadLocal,
-    markAllReadLocal,
-  ]);
+  }, [canConnectSocket, token]);
 
   return null;
 }

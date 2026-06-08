@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useCallback, useState } from "react";
+import { useEffect, useMemo, useCallback, useState, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
 import ProfileHeader from "../../components/Users/Profile/ProfileHome/ProfileHeader";
@@ -62,6 +62,8 @@ export default function Profile() {
   const [subscriptionLoading, setSubscriptionLoading] = useState(false);
   /** Список підписок (following) — для блоку «Друзья» на своєму профілі */
   const [followingList, setFollowingList] = useState([]);
+  const [secondaryReady, setSecondaryReady] = useState(false);
+  const friendsFetchKeyRef = useRef(null);
 
   const urlUsernameNorm = urlUsername?.trim().replace(/^@/, "") || "";
   const isOwnProfile =
@@ -124,14 +126,23 @@ export default function Profile() {
     });
 
     return () => { cancelled = true; };
-  }, [urlUsernameNorm, urlUsername, user]);
+  }, [urlUsernameNorm, urlUsername]);
 
-  /** Якщо в профілі є friendsCount, але списку друзів немає — підтягуємо список підписок користувача (following) */
+  /** Підтягуємо friends/following один раз, якщо в профілі лише лічильник без списку */
   useEffect(() => {
-    if (!urlUsernameNorm || !fetchedUser) return;
+    if (!urlUsernameNorm || !fetchedUser?.id) return;
+
     const friendsFromProfile = getFriendsFromUser(fetchedUser);
-    const count = getFriendsCountNumber(fetchedUser?.friendsCount ?? fetchedUser?.friends_count);
-    if (friendsFromProfile.length > 0 || !(typeof count === "number" && count > 0)) return;
+    const count = getFriendsCountNumber(
+      fetchedUser?.friendsCount ?? fetchedUser?.friends_count,
+    );
+    if (friendsFromProfile.length > 0 || !(typeof count === "number" && count > 0)) {
+      return;
+    }
+
+    const fetchKey = `${urlUsernameNorm}:${fetchedUser.id}`;
+    if (friendsFetchKeyRef.current === fetchKey) return;
+    friendsFetchKeyRef.current = fetchKey;
 
     let cancelled = false;
     const mergeFriendsList = (items) => {
@@ -139,22 +150,20 @@ export default function Profile() {
       setFetchedUser((prev) => (prev ? { ...prev, following: items } : null));
     };
 
-    const tryFollowing = () =>
-      usersApi.getUserFollowing(urlUsernameNorm).then((res) => {
-        const items = normalizeFriendsApiResponse(res);
-        mergeFriendsList(items);
-      });
+    usersApi
+      .getUserFollowing(urlUsernameNorm)
+      .then((res) => mergeFriendsList(normalizeFriendsApiResponse(res)))
+      .catch(() =>
+        usersApi
+          .getUserFriends(urlUsernameNorm)
+          .then((res) => mergeFriendsList(normalizeFriendsApiResponse(res)))
+          .catch(() => {}),
+      );
 
-    const tryFriends = () =>
-      usersApi.getUserFriends(urlUsernameNorm).then((res) => {
-        const items = normalizeFriendsApiResponse(res);
-        mergeFriendsList(items);
-      });
-
-    tryFollowing().catch(() => tryFriends().catch(() => {}));
-
-    return () => { cancelled = true; };
-  }, [urlUsernameNorm, fetchedUser]);
+    return () => {
+      cancelled = true;
+    };
+  }, [urlUsernameNorm, fetchedUser?.id, fetchedUser?.friendsCount, fetchedUser?.friends_count]);
 
   // Редирект делает ProfileGuard в AppRouter, здесь не нужен
   // useEffect(() => {
@@ -168,6 +177,16 @@ export default function Profile() {
     if (!urlUsername && user) return normalizeProfile(user);
     return null;
   }, [urlUsername, fetchedUser, user]);
+
+  useEffect(() => {
+    if (!profileUser?.id) {
+      setSecondaryReady(false);
+      return;
+    }
+    setSecondaryReady(false);
+    const frameId = requestAnimationFrame(() => setSecondaryReady(true));
+    return () => cancelAnimationFrame(frameId);
+  }, [profileUser?.id]);
 
   const isSubscribed = profileUser?.subscriptionStatus?.isSubscribed === true;
 
@@ -249,7 +268,7 @@ export default function Profile() {
   const onReport = useCallback(() => {}, []);
   const onBlock = useCallback(() => {}, []);
 
-  const loadingOwn = !urlUsername && (!user || isAuthLoading);
+  const loadingOwn = !urlUsername && !user;
   const loadingPublic = urlUsername && fetchedUser === null && !fetchError;
 
   if (!urlUsername && !isAuthLoading && !user) return null;
@@ -313,6 +332,7 @@ export default function Profile() {
         <ProfileHome
           user={profileUser}
           postsAuthorId={profileUser.id}
+          loadSecondary={secondaryReady}
           followingList={followingList}
           onOpenUser={onOpenUser}
           onShowMore={onShowMore}
@@ -346,6 +366,7 @@ export default function Profile() {
         <ProfileVisitorSubscribed
           user={profileUser}
           postsAuthorId={profileUser.id}
+          loadSecondary={secondaryReady}
           friendsCount={profileUser?.friendsCount}
           onAddToVip={onAddToVip}
           onUnsubscribe={handleSubscribe}
@@ -363,6 +384,7 @@ export default function Profile() {
       <ProfileVisitorPublic
         user={profileUser}
         postsAuthorId={profileUser.id}
+        loadSecondary={secondaryReady}
         onSubscribe={handleSubscribe}
         subscriptionLoading={subscriptionLoading}
         onOpenUser={onOpenUser}

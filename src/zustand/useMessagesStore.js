@@ -1,7 +1,10 @@
 import { create } from 'zustand';
 import { conversationsApi } from '../services/conversationsApi';
+import { resetThrottle, throttledDedupeAsync } from '../utils/throttledDedupeAsync';
 
 const SOUND_PREF_KEY = 'meyou_messages_sound_enabled';
+const UNREAD_KEY = 'messages:unread-count';
+const UNREAD_THROTTLE_MS = 15000;
 
 function readSoundEnabled() {
   try {
@@ -33,14 +36,21 @@ export const useMessagesStore = create((set, get) => ({
     set({ soundEnabled: Boolean(enabled) });
   },
 
-  fetchTotalUnreadCount: async () => {
-    try {
-      const data = await conversationsApi.getUnreadCount();
-      set({ totalUnreadCount: Math.max(0, data?.count ?? 0) });
-    } catch (e) {
-      console.error('[messages] fetch unread count failed', e);
-    }
-  },
+  fetchTotalUnreadCount: (force = false) =>
+    throttledDedupeAsync(
+      UNREAD_KEY,
+      async () => {
+        try {
+          const data = await conversationsApi.getUnreadCount();
+          set({ totalUnreadCount: Math.max(0, data?.count ?? 0) });
+          return data;
+        } catch (e) {
+          console.error('[messages] fetch unread count failed', e);
+        }
+      },
+      UNREAD_THROTTLE_MS,
+      { force },
+    ),
 
   applyMessageCreated: ({ conversationId, unreadCount, totalUnreadCount }) => {
     if (typeof totalUnreadCount === 'number') {
@@ -59,9 +69,11 @@ export const useMessagesStore = create((set, get) => ({
     }
   },
 
-  reset: () =>
+  reset: () => {
+    resetThrottle(UNREAD_KEY);
     set({
       totalUnreadCount: 0,
       activeConversationId: null,
-    }),
+    });
+  },
 }));

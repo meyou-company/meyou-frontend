@@ -290,3 +290,27 @@ input[type="number"] {
 [data-sonner-toast] {
   font-family: "Montserrat", sans-serif;
 }
+
+/* RTL (Arabic) — layout mirrors for key shells */
+html[dir="rtl"],
+body[dir="rtl"] {
+  text-align: right;
+}
+
+html[dir="rtl"] .profile-menu__item,
+html[dir="rtl"] .messagesPage__chatTop,
+html[dir="rtl"] .messagesPage__chatItem,
+html[dir="rtl"] .notifications__topbar,
+html[dir="rtl"] .video__desktopHeader,
+html[dir="rtl"] .profile-header .topRow,
+html[dir="rtl"] .messageSoundToggle,
+html[dir="rtl"] .langSettings__header {
+  direction: rtl;
+}
+
+html[dir="rtl"] input,
+html[dir="rtl"] textarea,
+html[dir="rtl"] .messagesPage__input,
+html[dir="rtl"] .searchInput {
+  text-align: right;
+}

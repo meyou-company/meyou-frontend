@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import { NAV_ITEMS } from "../../constants/navigation";
+import { useNavItems } from "../../hooks/useNavItems";
 import profileIcons from "../../constants/profileIcons";
 import { videosApi } from "../../services/videosApi";
 import { getApiErrorMessage } from "../../utils/getApiErrorMessage";
@@ -14,22 +15,17 @@ import VideoPlayerModal from "./VideoPlayerModal";
 import VideoUploadModal from "./VideoUploadModal";
 import "./Video.scss";
 
-const VIDEO_TABS = [
-  { id: "recommended", label: "Рекомендованные" },
-  { id: "mine", label: "Мои видео" },
-  { id: "all", label: "Общие" },
-  { id: "following", label: "Подписки" },
-  { id: "saved", label: "Сохраненные" },
-];
+const VIDEO_TAB_IDS = ["recommended", "mine", "all", "following", "saved"];
 
 const AUTH_REQUIRED_TABS = new Set(["mine", "following", "saved"]);
 
 function Header({ currentPage, alwaysVisible = false }) {
   const navigate = useNavigate();
+  const navItems = useNavItems();
 
   return (
     <div className={`video__desktopHeader ${alwaysVisible ? "always" : ""}`}>
-      {NAV_ITEMS.map((item) => {
+      {navItems.map((item) => {
         const isActive = item.key === currentPage;
 
         return (
@@ -56,8 +52,18 @@ function Header({ currentPage, alwaysVisible = false }) {
 
 const Video = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const isAuthed = useAuthStore((s) => s.isAuthed);
   const currentUser = useAuthStore((s) => s.user);
+
+  const videoTabs = useMemo(
+    () =>
+      VIDEO_TAB_IDS.map((id) => ({
+        id,
+        label: t(`video.tabs.${id}`),
+      })),
+    [t],
+  );
 
   const [showAll, setShowAll] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -78,8 +84,8 @@ const Video = () => {
   const lastReqId = useRef(0);
 
   const activeTabLabel = useMemo(
-    () => VIDEO_TABS.find((tab) => tab.id === activeTab)?.label ?? "Рекомендованные",
-    [activeTab],
+    () => videoTabs.find((tab) => tab.id === activeTab)?.label ?? t("video.tabs.recommended"),
+    [activeTab, videoTabs, t],
   );
 
   useEffect(() => {
@@ -363,7 +369,7 @@ const Video = () => {
 
       <div className="video__controls">
         <div className="video__tabs">
-          {VIDEO_TABS.map((tab) => (
+          {videoTabs.map((tab) => (
             <button
               key={tab.id}
               type="button"

@@ -8,6 +8,7 @@ import {
   getFriendRouteHandle,
   getFriendDisplayLabel,
 } from "../../../../utils/profileFriendNav";
+import { dedupeAsync } from "../../../../utils/dedupeAsync";
 import { useProfileAuthorFeed } from "../../../../hooks/useProfileAuthorFeed";
 import { useUserProfileNav } from "../../../../context/UserProfileNavContext";
 import ProfilePostsFeed from "../ProfilePostsFeed/ProfilePostsFeed";
@@ -20,6 +21,7 @@ import "./ProfileVisitorSubscribed.scss";
 export default function ProfileVisitorSubscribed({
   user,
   postsAuthorId,
+  loadSecondary = true,
   /** Загальна кількість друзів у цієї людини (з API GET /users/:username); показується, коли ти на неї підписана */
   friendsCount: friendsCountProp,
   onAddToVip,
@@ -54,6 +56,8 @@ export default function ProfileVisitorSubscribed({
   const nickname = user?.username || user?.nick || user?.nickname || "";
   const profileUserId = user?.id || user?._id || postsAuthorId;
   useEffect(() => {
+    if (!loadSecondary) return;
+
     let cancelled = false;
 
     const loadProfileStories = async () => {
@@ -65,7 +69,9 @@ export default function ProfileVisitorSubscribed({
       try {
         setProfileStoriesLoading(true);
 
-        const list = await storiesApi.getUserStories(profileUserId);
+        const list = await dedupeAsync(`stories:user:${profileUserId}`, () =>
+          storiesApi.getUserStories(profileUserId),
+        );
 
         if (cancelled) return;
 
@@ -91,7 +97,7 @@ export default function ProfileVisitorSubscribed({
     return () => {
       cancelled = true;
     };
-  }, [profileUserId]);
+  }, [profileUserId, loadSecondary]);
   const fullName = [user?.firstName, user?.lastName].filter(Boolean).join(" ").trim() || "";
   const location = [user?.city, user?.country].filter(Boolean).join(", ").trim() || "";
   const displayName = fullName || nickname || "Користувач";
@@ -141,7 +147,7 @@ export default function ProfileVisitorSubscribed({
   const authorId = postsAuthorId ?? user?.id ?? user?._id;
   const feedTitleName = nickname || displayName;
   const { feedPosts, feedLoading, feedError, feedActions } =
-    useProfileAuthorFeed(authorId);
+    useProfileAuthorFeed(authorId, { enabled: loadSecondary });
   const userProfileNav = useUserProfileNav();
 
   /** Таби як у макеті: спочатку Удалить (з градієнтом коли активний), потім Інформація, Історії, Відео, Фото */

@@ -1,0 +1,176 @@
+{
+  "common": {
+    "loading": "جارٍ التحميل...",
+    "save": "حفظ",
+    "cancel": "إلغاء",
+    "close": "إغلاق",
+    "send": "إرسال",
+    "search": "بحث",
+    "back": "رجوع",
+    "retry": "حاول مرة أخرى",
+    "user": "مستخدم",
+    "yes": "Yes",
+    "no": "No",
+    "on": "On",
+    "off": "Off",
+    "appLoadError": "Failed to load the app. Please refresh the page."
+  },
+  "nav": {
+    "home": "الرئيسية",
+    "people": "الأشخاص",
+    "video": "فيديو",
+    "messages": "الرسائل",
+    "profile": "الملف الشخصي"
+  },
+  "menu": {
+    "myProfile": "ملفي",
+    "edit": "تعديل",
+    "viewAsGuest": "View as guest",
+    "darkTheme": "Dark theme",
+    "favorites": "Favorites",
+    "blocked": "Blocked",
+    "privacy": "Privacy",
+    "accountSettings": "Account settings",
+    "security": "Security",
+    "support": "Help / Support",
+    "report": "Report",
+    "about": "About",
+    "terms": "Terms of use",
+    "privacyPolicy": "Privacy policy",
+    "logout": "تسجيل الخروج",
+    "closeMenu": "Close menu",
+    "language": "اللغة"
+  },
+  "auth": {
+    "login": "Log in",
+    "register": "Sign up",
+    "email": "Email",
+    "password": "Password",
+    "forgotPassword": "Forgot password?",
+    "noAccount": "Don't have an account?",
+    "hasAccount": "Already have an account?"
+  },
+  "profile": {
+    "myMessages": "My messages",
+    "myGifts": "My gifts",
+    "saved": "Saved",
+    "gifts": "Gifts",
+    "writeMessage": "Send message",
+    "goHome": "Go home"
+  },
+  "messenger": {
+    "title": "الرسائل",
+    "soundLabel": "🔔 Message sound:",
+    "loadChatsError": "Failed to load chats",
+    "noChats": "No chats yet",
+    "selectChat": "Select a chat on the left or start a conversation from a user profile.",
+    "loadMessagesError": "Failed to load messages",
+    "sendError": "Failed to send message",
+    "noMessages": "No messages",
+    "placeholder": "اكتب رسالة...",
+    "newMessageFrom": "رسالة جديدة من {{name}}"
+  },
+  "notifications": {
+    "title": "Notifications",
+    "empty": "You have no notifications yet",
+    "emptyUnread": "You have no unread notifications",
+    "settingsTitle": "Notification settings",
+    "settingsSubtitle": "Choose which notifications you want to receive",
+    "groups": {
+      "activity": "Activity",
+      "system": "System",
+      "delivery": "Delivery method"
+    },
+    "items": {
+      "follow": {
+        "title": "Follows",
+        "desc": "When someone follows you"
+      },
+      "like": {
+        "title": "Likes",
+        "desc": "When someone likes your posts"
+      },
+      "comment": {
+        "title": "Comments",
+        "desc": "Comments on your posts"
+      },
+      "mention": {
+        "title": "Mentions",
+        "desc": "When you are mentioned in posts or comments"
+      },
+      "post": {
+        "title": "New posts",
+        "desc": "New posts from people you follow"
+      },
+      "system": {
+        "title": "System notifications",
+        "desc": "Security, updates and important events"
+      },
+      "push": {
+        "title": "Push notifications",
+        "desc": "In-app notifications"
+      },
+      "email": {
+        "title": "Email notifications",
+        "desc": "Receive notifications by email"
+      }
+    }
+  },
+  "settings": {
+    "languageTitle": "اللغة",
+    "languageSubtitle": "اختر لغة الواجهة",
+    "languageSaved": "تم حفظ اللغة",
+    "languageSaveError": "Failed to save language",
+    "languages": {
+      "uk": "Українська",
+      "en": "English",
+      "tr": "Türkçe",
+      "fr": "Français",
+      "cs": "Čeština",
+      "es": "Español",
+      "ru": "Русский",
+      "ar": "العربية"
+    }
+  },
+  "video": {
+    "tabs": {
+      "recommended": "Recommended",
+      "mine": "My videos",
+      "all": "All",
+      "following": "Following",
+      "saved": "Saved"
+    }
+  },
+  "stories": {
+    "yourStory": "Your story",
+    "closeFriends": "Close friends"
+  },
+  "errors": {
+    "generic": "حدث خطأ. حاول مرة أخرى.",
+    "VALIDATION_ERROR": "Please check the entered data.",
+    "UNAUTHORIZED": "يرجى تسجيل الدخول.",
+    "FORBIDDEN": "Not enough permissions.",
+    "NOT_FOUND": "Not found.",
+    "CONFLICT": "Data conflict.",
+    "RATE_LIMITED": "Too many requests. Try again later.",
+    "INTERNAL_ERROR": "Internal server error.",
+    "EMAIL_ALREADY_VERIFIED": "Email is already verified.",
+    "INVALID_VERIFICATION_CODE": "Invalid verification code.",
+    "VERIFICATION_CODE_EXPIRED": "Verification code has expired.",
+    "INVALID_RESET_CREDENTIALS": "Invalid email or code.",
+    "INVALID_PASSWORD": "Invalid password.",
+    "AVATAR_INVALID_FORMAT": "Allowed formats: JPEG, PNG, WebP.",
+    "AVATAR_HTTPS_REQUIRED": "URL must be HTTPS.",
+    "AVATAR_MISSING": "Avatar is missing.",
+    "CANNOT_FOLLOW_SELF": "You cannot follow yourself.",
+    "COMMENT_EMPTY": "Comment cannot be empty.",
+    "MESSAGE_EMPTY": "Message text is required.",
+    "CANNOT_MARK_OWN_MESSAGE_READ": "Cannot mark your own message as read.",
+    "STORY_LIMIT_24H": "24-hour story limit reached.",
+    "STORY_LIMIT_ACTIVE": "Active story limit reached.",
+    "STORY_VIDEO_TOO_LONG": "Story video is too long.",
+    "STORY_CANNOT_REPLY_SELF": "Cannot reply to your own story.",
+    "STORY_CANNOT_ADD_SELF_CLOSE_FRIEND": "Cannot add yourself to close friends.",
+    "VIDEO_TOO_LONG": "Video is too long."
+  }
+}

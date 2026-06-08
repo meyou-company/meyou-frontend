@@ -2,21 +2,33 @@ import { useAuthStore } from '../../zustand/useAuthStore';
 import { useNotificationsStore } from '../../zustand/useNotificationsStore';
 import { useNavigate } from 'react-router-dom';
 import ThemeToggleDark from '../ThemeToggleDark/ThemeToggleDark';
-import {
-  MENU_ITEMS,
-  LANGUAGE_ITEM,
-  LOGOUT_ITEM,
-  CLOSE_ITEM,
-} from '../../constants/burgerMenuItems';
-import './BurgerMenu.scss';
 import profileIcons from '../../constants/profileIcons';
+import {
+  useCloseMenuItem,
+  useLogoutItem,
+  useMenuItems,
+} from '../../hooks/useMenuItems';
+import { useLocaleStore } from '../../zustand/useLocaleStore';
+import './BurgerMenu.scss';
 import { useMemo, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 
-export default function BurgerMenu({ isOpen, onClose, onItemClick, toggleTheme }) {
+export default function BurgerMenu({
+  isOpen,
+  onClose,
+  onItemClick,
+  toggleTheme,
+  onOpenLanguageSettings,
+}) {
   const { logout, user } = useAuthStore();
   const navigate = useNavigate();
   const toggleRef = useRef(null);
   const resetNotifications = useNotificationsStore.getState().reset;
+  const { t } = useTranslation();
+  const menuItems = useMenuItems();
+  const logoutItem = useLogoutItem();
+  const closeItem = useCloseMenuItem();
+  const currentLocale = useLocaleStore((s) => s.locale);
 
   const avatarUrl = user?.avatarUrl || user?.avatar || null;
 
@@ -54,6 +66,12 @@ export default function BurgerMenu({ isOpen, onClose, onItemClick, toggleTheme }
 
     if (id === 'edit') {
       navigate('/users/profile/edit');
+      onClose();
+      return;
+    }
+
+    if (id === 'language' || id === 'account') {
+      onOpenLanguageSettings?.();
       onClose();
       return;
     }
@@ -123,14 +141,14 @@ export default function BurgerMenu({ isOpen, onClose, onItemClick, toggleTheme }
           </div>
 
           <button onClick={onClose} className="profile-menu__close">
-            <img src={CLOSE_ITEM.icon} alt="Close menu" className="profile-menu__close--icon" />
+            <img src={closeItem.icon} alt={closeItem.label} className="profile-menu__close--icon" />
           </button>
         </div>
 
         <div className="profile-menu__divider" />
 
         <nav className="profile-menu__list">
-          {MENU_ITEMS.map((item) => {
+          {menuItems.map((item) => {
             // "Посмотреть как гость"
             if (item.id === 'guest') {
               return (
@@ -193,9 +211,11 @@ export default function BurgerMenu({ isOpen, onClose, onItemClick, toggleTheme }
             className="profile-menu__item profile-menu__item--language"
             onClick={() => handleItemClick('language')}
           >
-            <span className="profile-menu__label">{LANGUAGE_ITEM.label}</span>
+            <span className="profile-menu__label">
+              {t(`settings.languages.${currentLocale}`)}
+            </span>
             <img
-              src={LANGUAGE_ITEM.icon}
+              src={profileIcons.arrowRightFilledBlack}
               alt=""
               className="profile-menu__icon profile-menu__icon--language"
             />
@@ -207,8 +227,8 @@ export default function BurgerMenu({ isOpen, onClose, onItemClick, toggleTheme }
               className="profile-menu__item profile-menu__item--logout"
               onClick={() => handleItemClick('logout')}
             >
-              <img src={LOGOUT_ITEM.icon} alt="" className="profile-menu__icon " />
-              <span className="profile-menu__label">{LOGOUT_ITEM.label}</span>
+              <img src={logoutItem.icon} alt="" className="profile-menu__icon " />
+              <span className="profile-menu__label">{logoutItem.label}</span>
             </button>
           </div>
         </nav>

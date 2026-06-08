@@ -1,0 +1,176 @@
+{
+  "common": {
+    "loading": "Загрузка...",
+    "save": "Сохранить",
+    "cancel": "Отмена",
+    "close": "Закрыть",
+    "send": "Отправить",
+    "search": "Поиск",
+    "back": "Назад",
+    "retry": "Попробовать снова",
+    "user": "Пользователь",
+    "yes": "Да",
+    "no": "Нет",
+    "on": "On",
+    "off": "Off",
+    "appLoadError": "Не удалось загрузить приложение. Обновите страницу."
+  },
+  "nav": {
+    "home": "Главная",
+    "people": "Люди",
+    "video": "Видео",
+    "messages": "Сообщения",
+    "profile": "Профиль"
+  },
+  "menu": {
+    "myProfile": "Мой профиль",
+    "edit": "Редактировать",
+    "viewAsGuest": "Посмотреть как гость",
+    "darkTheme": "Темная тема",
+    "favorites": "Избранное",
+    "blocked": "Заблокированные",
+    "privacy": "Конфиденциальность",
+    "accountSettings": "Настройки аккаунта",
+    "security": "Безопасность",
+    "support": "Помощь / Поддержка",
+    "report": "Пожаловаться",
+    "about": "О сервисе",
+    "terms": "Условия использования",
+    "privacyPolicy": "Политика конфиденциальности",
+    "logout": "Выйти",
+    "closeMenu": "Закрыть меню",
+    "language": "Язык"
+  },
+  "auth": {
+    "login": "Log in",
+    "register": "Sign up",
+    "email": "Email",
+    "password": "Password",
+    "forgotPassword": "Forgot password?",
+    "noAccount": "Don't have an account?",
+    "hasAccount": "Already have an account?"
+  },
+  "profile": {
+    "myMessages": "My messages",
+    "myGifts": "My gifts",
+    "saved": "Saved",
+    "gifts": "Gifts",
+    "writeMessage": "Send message",
+    "goHome": "Go home"
+  },
+  "messenger": {
+    "title": "Сообщения",
+    "soundLabel": "🔔 Звук сообщений:",
+    "loadChatsError": "Не удалось загрузить чаты",
+    "noChats": "Чатов пока нет",
+    "selectChat": "Выберите чат слева или начните переписку из профиля пользователя.",
+    "loadMessagesError": "Не удалось загрузить сообщения",
+    "sendError": "Не удалось отправить сообщение",
+    "noMessages": "Нет сообщений",
+    "placeholder": "Напишите сообщение...",
+    "newMessageFrom": "Новое сообщение от {{name}}"
+  },
+  "notifications": {
+    "title": "Уведомления",
+    "empty": "У вас пока нет уведомлений",
+    "emptyUnread": "У вас нет непрочитанных уведомлений",
+    "settingsTitle": "Настройки уведомлений",
+    "settingsSubtitle": "Выберите, какие уведомления вы хотите получать",
+    "groups": {
+      "activity": "Активность",
+      "system": "Система",
+      "delivery": "Способ получения"
+    },
+    "items": {
+      "follow": {
+        "title": "Follows",
+        "desc": "When someone follows you"
+      },
+      "like": {
+        "title": "Likes",
+        "desc": "When someone likes your posts"
+      },
+      "comment": {
+        "title": "Comments",
+        "desc": "Comments on your posts"
+      },
+      "mention": {
+        "title": "Mentions",
+        "desc": "When you are mentioned in posts or comments"
+      },
+      "post": {
+        "title": "New posts",
+        "desc": "New posts from people you follow"
+      },
+      "system": {
+        "title": "System notifications",
+        "desc": "Security, updates and important events"
+      },
+      "push": {
+        "title": "Push notifications",
+        "desc": "In-app notifications"
+      },
+      "email": {
+        "title": "Email notifications",
+        "desc": "Receive notifications by email"
+      }
+    }
+  },
+  "settings": {
+    "languageTitle": "Язык",
+    "languageSubtitle": "Выберите язык интерфейса",
+    "languageSaved": "Язык сохранён",
+    "languageSaveError": "Не удалось сохранить язык",
+    "languages": {
+      "uk": "Українська",
+      "en": "English",
+      "tr": "Türkçe",
+      "fr": "Français",
+      "cs": "Čeština",
+      "es": "Español",
+      "ru": "Русский",
+      "ar": "العربية"
+    }
+  },
+  "video": {
+    "tabs": {
+      "recommended": "Recommended",
+      "mine": "My videos",
+      "all": "All",
+      "following": "Following",
+      "saved": "Saved"
+    }
+  },
+  "stories": {
+    "yourStory": "Your story",
+    "closeFriends": "Close friends"
+  },
+  "errors": {
+    "generic": "Произошла ошибка. Попробуйте снова.",
+    "VALIDATION_ERROR": "Проверьте введённые данные.",
+    "UNAUTHORIZED": "Войдите в аккаунт.",
+    "FORBIDDEN": "Недостаточно прав.",
+    "NOT_FOUND": "Не найдено.",
+    "CONFLICT": "Data conflict.",
+    "RATE_LIMITED": "Too many requests. Try again later.",
+    "INTERNAL_ERROR": "Internal server error.",
+    "EMAIL_ALREADY_VERIFIED": "Email is already verified.",
+    "INVALID_VERIFICATION_CODE": "Invalid verification code.",
+    "VERIFICATION_CODE_EXPIRED": "Verification code has expired.",
+    "INVALID_RESET_CREDENTIALS": "Invalid email or code.",
+    "INVALID_PASSWORD": "Invalid password.",
+    "AVATAR_INVALID_FORMAT": "Allowed formats: JPEG, PNG, WebP.",
+    "AVATAR_HTTPS_REQUIRED": "URL must be HTTPS.",
+    "AVATAR_MISSING": "Avatar is missing.",
+    "CANNOT_FOLLOW_SELF": "You cannot follow yourself.",
+    "COMMENT_EMPTY": "Comment cannot be empty.",
+    "MESSAGE_EMPTY": "Message text is required.",
+    "CANNOT_MARK_OWN_MESSAGE_READ": "Cannot mark your own message as read.",
+    "STORY_LIMIT_24H": "24-hour story limit reached.",
+    "STORY_LIMIT_ACTIVE": "Active story limit reached.",
+    "STORY_VIDEO_TOO_LONG": "Story video is too long.",
+    "STORY_CANNOT_REPLY_SELF": "Cannot reply to your own story.",
+    "STORY_CANNOT_ADD_SELF_CLOSE_FRIEND": "Cannot add yourself to close friends.",
+    "VIDEO_TOO_LONG": "Video is too long."
+  }
+}

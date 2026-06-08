@@ -1,4 +1,7 @@
 import { api } from "./api";
+import { dedupeAsync } from "../utils/dedupeAsync";
+
+const ME_DEDUPE_KEY = "auth:me";
 
 export const authApi = {
   // ===== AUTH =====
@@ -26,9 +29,17 @@ export const authApi = {
   },
 
   // ===== USER =====
-  async me() {
-    const { data } = await api.get("/users/me");
-    return data;
+  /** GET /users/me — deduped by default; pass { force: true } after profile edits. */
+  async me(options = {}) {
+    const force = options?.force === true;
+    if (force) {
+      const { data } = await api.get("/users/me");
+      return data;
+    }
+    return dedupeAsync(ME_DEDUPE_KEY, async () => {
+      const { data } = await api.get("/users/me");
+      return data;
+    });
   },
 
   // ===== EMAIL VERIFICATION =====

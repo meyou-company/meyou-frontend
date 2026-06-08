@@ -1,0 +1,152 @@
+{
+  "common": {
+    "loading": "Завантаження...",
+    "save": "Зберегти",
+    "cancel": "Скасувати",
+    "close": "Закрити",
+    "send": "Надіслати",
+    "search": "Пошук",
+    "back": "Назад",
+    "retry": "Спробувати ще раз",
+    "user": "Користувач",
+    "yes": "Так",
+    "no": "Ні",
+    "on": "On",
+    "off": "Off",
+    "appLoadError": "Не вдалося завантажити додаток. Спробуйте оновити сторінку."
+  },
+  "nav": {
+    "home": "Головна",
+    "people": "Люди",
+    "video": "Відео",
+    "messages": "Повідомлення",
+    "profile": "Профіль"
+  },
+  "menu": {
+    "myProfile": "Мій профіль",
+    "edit": "Редагувати",
+    "viewAsGuest": "Переглянути як гість",
+    "darkTheme": "Темна тема",
+    "favorites": "Обране",
+    "blocked": "Заблоковані",
+    "privacy": "Конфіденційність",
+    "accountSettings": "Налаштування акаунта",
+    "security": "Безпека",
+    "support": "Допомога / Підтримка",
+    "report": "Поскаржитись",
+    "about": "Про сервіс",
+    "terms": "Умови використання",
+    "privacyPolicy": "Політика конфіденційності",
+    "logout": "Вийти",
+    "closeMenu": "Закрити меню",
+    "language": "Мова"
+  },
+  "auth": {
+    "login": "Увійти",
+    "register": "Реєстрація",
+    "email": "Email",
+    "password": "Пароль",
+    "forgotPassword": "Забули пароль?",
+    "noAccount": "Немає акаунта?",
+    "hasAccount": "Вже є акаунт?"
+  },
+  "profile": {
+    "myMessages": "Мої повідомлення",
+    "myGifts": "Мої подарунки",
+    "saved": "Збережене",
+    "gifts": "Подарунки",
+    "writeMessage": "Написати повідомлення",
+    "goHome": "На головну"
+  },
+  "messenger": {
+    "title": "Повідомлення",
+    "soundLabel": "🔔 Звук повідомлень:",
+    "loadChatsError": "Не вдалося завантажити чати",
+    "noChats": "Чатів пока немає",
+    "selectChat": "Оберіть чат зліва або почніть переписку з профілю користувача.",
+    "loadMessagesError": "Не вдалося завантажити повідомлення",
+    "sendError": "Не вдалося надіслати повідомлення",
+    "noMessages": "Немає повідомлень",
+    "placeholder": "Напишіть повідомлення...",
+    "newMessageFrom": "Нове повідомлення від {{name}}"
+  },
+  "notifications": {
+    "title": "Сповіщення",
+    "empty": "У вас поки немає сповіщень",
+    "emptyUnread": "У вас немає непрочитаних сповіщень",
+    "settingsTitle": "Налаштування сповіщень",
+    "settingsSubtitle": "Оберіть, які сповіщення ви хочете отримувати",
+    "groups": {
+      "activity": "Активність",
+      "system": "Система",
+      "delivery": "Спосіб отримання"
+    },
+    "items": {
+      "follow": { "title": "Підписки", "desc": "Коли хтось підписується на вас" },
+      "like": { "title": "Лайки", "desc": "Коли хтось лайкає ваші публікації" },
+      "comment": { "title": "Коментарі", "desc": "Коментарі до ваших публікацій" },
+      "mention": { "title": "Згадки", "desc": "Коли вас згадують у публікаціях або коментарях" },
+      "post": { "title": "Нові публікації", "desc": "Нові публікації користувачів, на яких ви підписані" },
+      "system": { "title": "Системні сповіщення", "desc": "Безпека, оновлення та важливі події" },
+      "push": { "title": "Push-сповіщення", "desc": "Сповіщення в додатку" },
+      "email": { "title": "Email-сповіщення", "desc": "Отримувати сповіщення на пошту" }
+    }
+  },
+  "settings": {
+    "languageTitle": "Мова",
+    "languageSubtitle": "Оберіть мову інтерфейсу",
+    "languageSaved": "Мову збережено",
+    "languageSaveError": "Не вдалося зберегти мову",
+    "languages": {
+      "uk": "Українська",
+      "en": "English",
+      "tr": "Türkçe",
+      "fr": "Français",
+      "cs": "Čeština",
+      "es": "Español",
+      "ru": "Русский",
+      "ar": "العربية"
+    }
+  },
+  "video": {
+    "tabs": {
+      "recommended": "Рекомендовані",
+      "mine": "Мої відео",
+      "all": "Загальні",
+      "following": "Підписки",
+      "saved": "Збережені"
+    }
+  },
+  "stories": {
+    "yourStory": "Ваша історія",
+    "closeFriends": "Близькі"
+  },
+  "errors": {
+    "generic": "Сталася помилка. Спробуйте ще раз.",
+    "VALIDATION_ERROR": "Перевірте введені дані.",
+    "UNAUTHORIZED": "Увійдіть у акаунт.",
+    "FORBIDDEN": "Недостатньо прав.",
+    "NOT_FOUND": "Не знайдено.",
+    "CONFLICT": "Конфлікт даних.",
+    "RATE_LIMITED": "Забагато запитів. Спробуйте пізніше.",
+    "INTERNAL_ERROR": "Внутрішня помилка сервера.",
+    "EMAIL_ALREADY_VERIFIED": "Email уже підтверджено.",
+    "INVALID_VERIFICATION_CODE": "Невірний код верифікації.",
+    "VERIFICATION_CODE_EXPIRED": "Термін дії коду минув.",
+    "INVALID_RESET_CREDENTIALS": "Невірний email або код.",
+    "INVALID_PASSWORD": "Невірний пароль.",
+    "AVATAR_INVALID_FORMAT": "Допустимі формати: JPEG, PNG, WebP.",
+    "AVATAR_HTTPS_REQUIRED": "URL має бути HTTPS.",
+    "AVATAR_MISSING": "Аватар відсутній.",
+    "CANNOT_FOLLOW_SELF": "Не можна підписатися на себе.",
+    "COMMENT_EMPTY": "Коментар не може бути порожнім.",
+    "MESSAGE_EMPTY": "Текст повідомлення обовʼязковий.",
+    "CANNOT_MARK_OWN_MESSAGE_READ": "Не можна позначити власне повідомлення прочитаним.",
+    "STORY_LIMIT_24H": "Ліміт історій за 24 години вичерпано.",
+    "STORY_LIMIT_ACTIVE": "Досягнуто ліміт активних історій.",
+    "STORY_VIDEO_TOO_LONG": "Відео в історії занадто довге.",
+    "STORY_CANNOT_REPLY_SELF": "Не можна відповісти на власну історію.",
+    "STORY_CANNOT_ADD_SELF_CLOSE_FRIEND": "Не можна додати себе до близьких друзів.",
+    "VIDEO_TOO_LONG": "Відео занадто довге."
+  }
+}

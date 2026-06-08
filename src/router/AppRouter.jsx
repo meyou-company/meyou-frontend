@@ -35,7 +35,9 @@ import ProfileGuard from './ProfileGuard';
 
 import { UserProfileNavProvider } from '../context/UserProfileNavContext';
 import BurgerMenu from '../components/BurgerMenu/BurgerMenu';
+import LanguageSettings from '../components/Settings/LanguageSettings';
 import { useBurgerMenuStore } from '../zustand/useBurgerMenuStore';
+import { useLocaleStore } from '../zustand/useLocaleStore';
 import { useThemeStore } from '../zustand/useThemeStore';
 import Post from '../components/Post/Post';
 import { MessagesSocketProvider } from '../providers/MessagesSocketProvider';
@@ -46,7 +48,21 @@ function GlobalBurgerMenu() {
   const isOpen = useBurgerMenuStore((s) => s.isOpen);
   const close = useBurgerMenuStore((s) => s.close);
   const toggleTheme = useThemeStore((s) => s.toggleTheme);
-  return <BurgerMenu isOpen={isOpen} onClose={close} toggleTheme={toggleTheme} />;
+  const isLanguageSettingsOpen = useLocaleStore((s) => s.isLanguageSettingsOpen);
+  const openLanguageSettings = useLocaleStore((s) => s.openLanguageSettings);
+  const closeLanguageSettings = useLocaleStore((s) => s.closeLanguageSettings);
+
+  return (
+    <>
+      <BurgerMenu
+        isOpen={isOpen}
+        onClose={close}
+        toggleTheme={toggleTheme}
+        onOpenLanguageSettings={openLanguageSettings}
+      />
+      {isLanguageSettingsOpen && <LanguageSettings onClose={closeLanguageSettings} />}
+    </>
+  );
 }
 
 function AppLayout() {

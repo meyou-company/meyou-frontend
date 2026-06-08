@@ -21,6 +21,7 @@ import {
   getFriendRouteHandle,
   getFriendDisplayLabel,
 } from "../../../../utils/profileFriendNav";
+import { dedupeAsync } from "../../../../utils/dedupeAsync";
 import { mapApiPostToFeedItem } from "../../../../utils/mapApiPostToFeedItem";
 import { useProfileAuthorFeed } from "../../../../hooks/useProfileAuthorFeed";
 import ProfilePostsFeed from "../ProfilePostsFeed/ProfilePostsFeed";
@@ -42,6 +43,8 @@ export default function ProfileHome({
   user,
   /** User id whose posts to show — must match profile owner (GET /posts/users/:id/posts) */
   postsAuthorId,
+  /** Defer posts/stories fetch until profile shell is painted */
+  loadSecondary = true,
   /** Список з GET /subscriptions/following — для блоку «Друзья» на своєму профілі */
   followingList,
   /** Відкрити профіль користувача за username (клік по аватару друга) */
@@ -86,7 +89,7 @@ export default function ProfileHome({
     feedLoading,
     feedError,
     feedActions,
-  } = useProfileAuthorFeed(postsAuthorId);
+  } = useProfileAuthorFeed(postsAuthorId, { enabled: loadSecondary });
 
   useEffect(() => {
     if (!viewImageUrl) return;
@@ -113,6 +116,8 @@ export default function ProfileHome({
   const displayAvatar = user?.avatarUrl || user?.avatar || "/Logo/photo.png";
   const profileUserId = user?.id || user?._id || postsAuthorId;
   useEffect(() => {
+    if (!loadSecondary) return;
+
     let cancelled = false;
 
     const loadProfileStories = async () => {
@@ -124,7 +129,9 @@ export default function ProfileHome({
       try {
         setProfileStoriesLoading(true);
 
-        const list = await storiesApi.getUserStories(profileUserId);
+        const list = await dedupeAsync(`stories:user:${profileUserId}`, () =>
+          storiesApi.getUserStories(profileUserId),
+        );
 
         if (cancelled) return;
 
@@ -156,7 +163,7 @@ export default function ProfileHome({
     return () => {
       cancelled = true;
     };
-  }, [profileUserId]);
+  }, [profileUserId, loadSecondary]);
   const hasProfileStories = profileStories.length > 0;
 
   const profileStoryGroups = hasProfileStories

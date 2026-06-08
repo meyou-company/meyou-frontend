@@ -7,6 +7,7 @@ import {
   getFriendRouteHandle,
   getFriendDisplayLabel,
 } from "../../../../utils/profileFriendNav";
+import { dedupeAsync } from "../../../../utils/dedupeAsync";
 import { useProfileAuthorFeed } from "../../../../hooks/useProfileAuthorFeed";
 import ProfilePostsFeed from "../ProfilePostsFeed/ProfilePostsFeed";
 import ProfileInfoPanel from "../ProfileInfoPanel/ProfileInfoPanel";
@@ -29,6 +30,7 @@ const TABS_VISITOR_NOT_SUB = [
 export default function ProfileVisitorPublic({
   user,
   postsAuthorId,
+  loadSecondary = true,
   onSubscribe,
   subscriptionLoading,
   onOpenUser,
@@ -83,6 +85,8 @@ export default function ProfileVisitorPublic({
   const profileUserId = user?.id || user?._id || postsAuthorId;
 
   useEffect(() => {
+    if (!loadSecondary) return;
+
     let cancelled = false;
 
     const loadProfileStories = async () => {
@@ -94,7 +98,9 @@ export default function ProfileVisitorPublic({
       try {
         setProfileStoriesLoading(true);
 
-        const list = await storiesApi.getUserStories(profileUserId);
+        const list = await dedupeAsync(`stories:user:${profileUserId}`, () =>
+          storiesApi.getUserStories(profileUserId),
+        );
 
         if (cancelled) return;
 
@@ -121,7 +127,7 @@ export default function ProfileVisitorPublic({
     return () => {
       cancelled = true;
     };
-  }, [profileUserId]);
+  }, [profileUserId, loadSecondary]);
   const fullNameReal = [user?.firstName, user?.lastName].filter(Boolean).join(" ") || "";
   const titleName = username || fullNameReal || "User";
   const displayAvatar = user?.avatarUrl || user?.avatar || "/Logo/photo.png";
@@ -176,7 +182,7 @@ export default function ProfileVisitorPublic({
 
   const authorId = postsAuthorId ?? user?.id ?? user?._id;
   const { feedPosts, feedLoading, feedError, feedActions } =
-    useProfileAuthorFeed(authorId);
+    useProfileAuthorFeed(authorId, { enabled: loadSecondary });
 
   return (
     <div className="profile-visitor-public profile-home">

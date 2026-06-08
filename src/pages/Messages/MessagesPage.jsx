@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
 import {
@@ -13,11 +14,11 @@ import { useAuthStore } from "../../zustand/useAuthStore";
 import { useMessagesStore } from "../../zustand/useMessagesStore";
 import "./MessagesPage.scss";
 
-function getDisplayName(user) {
-  if (!user) return "Пользователь";
+function getDisplayName(user, fallback) {
+  if (!user) return fallback;
   if (user.name?.trim()) return user.name.trim();
   const full = `${user.firstName || ""} ${user.lastName || ""}`.trim();
-  return full || user.username || "Пользователь";
+  return full || user.username || fallback;
 }
 
 function formatTime(iso) {
@@ -66,6 +67,7 @@ function upsertConversationFromMessage(prev, envelope) {
 }
 
 export default function MessagesPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { conversationId } = useParams();
   const isAuthed = useAuthStore((s) => s.isAuthed);
@@ -118,7 +120,7 @@ export default function MessagesPage() {
       setConversations(sortConversations(Array.isArray(items) ? items : []));
     } catch (err) {
       console.error("[messages] list failed", err);
-      setListError(getApiErrorMessage(err) || "Не удалось загрузить чаты");
+      setListError(getApiErrorMessage(err, "messenger.loadChatsError"));
       setConversations([]);
     } finally {
       setLoadingList(false);
@@ -166,7 +168,7 @@ export default function MessagesPage() {
         );
       } catch (err) {
         console.error("[messages] chat failed", err);
-        toast.error(getApiErrorMessage(err) || "Не удалось загрузить сообщения");
+        toast.error(getApiErrorMessage(err, "messenger.loadMessagesError"));
         setMessages([]);
       } finally {
         setLoadingChat(false);
@@ -268,7 +270,7 @@ export default function MessagesPage() {
       );
     } catch (err) {
       console.error("[messages] send failed", err);
-      toast.error(getApiErrorMessage(err) || "Не удалось отправить сообщение");
+      toast.error(getApiErrorMessage(err, "messenger.sendError"));
     } finally {
       setSending(false);
     }
@@ -284,25 +286,25 @@ export default function MessagesPage() {
         <aside className="messagesPage__sidebar">
           <div className="messagesPage__sidebarHead">
             <h1 className="messagesPage__title">
-              Сообщения
+              {t("messenger.title")}
               <MessagesNavBadge className="messagesPage__titleBadge" />
             </h1>
             <MessageSoundToggle />
           </div>
 
-          {loadingList && <p className="messagesPage__hint">Загрузка...</p>}
+          {loadingList && <p className="messagesPage__hint">{t("common.loading")}</p>}
           {!loadingList && listError && (
             <p className="messagesPage__hint messagesPage__hint--error">{listError}</p>
           )}
           {!loadingList && !listError && conversations.length === 0 && (
-            <p className="messagesPage__hint">Чатов пока нет</p>
+            <p className="messagesPage__hint">{t("messenger.noChats")}</p>
           )}
 
           <ul className="messagesPage__chatList">
             {conversations.map((chat) => {
               const isActive = chat.id === activeConversationId;
-              const name = getDisplayName(chat.participant);
-              const preview = chat.lastMessage?.text || "Нет сообщений";
+              const name = getDisplayName(chat.participant, t("common.user"));
+              const preview = chat.lastMessage?.text || t("messenger.noMessages");
               return (
                 <li key={chat.id}>
                   <Link
@@ -335,7 +337,7 @@ export default function MessagesPage() {
         <section className="messagesPage__chat">
           {!activeConversationId && (
             <div className="messagesPage__emptyChat">
-              <p>Выберите чат слева или начните переписку из профиля пользователя.</p>
+              <p>{t("messenger.selectChat")}</p>
             </div>
           )}
 
@@ -343,12 +345,12 @@ export default function MessagesPage() {
             <>
               <header className="messagesPage__chatHead">
                 <h2 className="messagesPage__chatTitle">
-                  {getDisplayName(activeConversation?.participant)}
+                  {getDisplayName(activeConversation?.participant, t("common.user"))}
                 </h2>
               </header>
 
               <div className="messagesPage__messages">
-                {loadingChat && <p className="messagesPage__hint">Загрузка сообщений...</p>}
+                {loadingChat && <p className="messagesPage__hint">{t("common.loading")}</p>}
                 {!loadingChat &&
                   messages.map((msg) => {
                     const isMine = msg.senderId === currentUserId;
@@ -370,12 +372,12 @@ export default function MessagesPage() {
                   className="messagesPage__input"
                   value={draft}
                   onChange={(e) => setDraft(e.target.value)}
-                  placeholder="Напишите сообщение..."
+                  placeholder={t("messenger.placeholder")}
                   maxLength={4000}
                   disabled={sending}
                 />
                 <button type="submit" className="messagesPage__sendBtn" disabled={sending || !draft.trim()}>
-                  {sending ? "..." : "Send"}
+                  {sending ? "..." : t("common.send")}
                 </button>
               </form>
             </>
