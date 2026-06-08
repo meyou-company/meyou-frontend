@@ -201,6 +201,26 @@ export default function StoryViewerModal({
   }, [isOpen]);
 
   useEffect(() => {
+    if (!isOpen) return;
+
+    const handleCloseStoryOverlays = () => {
+      onClose?.();
+    };
+
+    window.addEventListener(
+      "closeStoryOverlays",
+      handleCloseStoryOverlays
+    );
+
+    return () => {
+      window.removeEventListener(
+        "closeStoryOverlays",
+        handleCloseStoryOverlays
+      );
+    };
+  }, [isOpen, onClose]);
+
+  useEffect(() => {
     if (!isOpen || !storyId || viewedRef.current.has(storyId)) return;
 
     // Свои stories не отмечаем как просмотренные

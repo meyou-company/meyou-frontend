@@ -45,6 +45,26 @@ export default function StoryUploadModal({ isOpen, onClose, onCreated }) {
   }, [isOpen, onClose]);
 
   useEffect(() => {
+    if (!isOpen) return;
+
+    const handleCloseStoryOverlays = () => {
+      onClose?.();
+    };
+
+    window.addEventListener(
+      "closeStoryOverlays",
+      handleCloseStoryOverlays
+    );
+
+    return () => {
+      window.removeEventListener(
+        "closeStoryOverlays",
+        handleCloseStoryOverlays
+      );
+    };
+  }, [isOpen, onClose]);
+
+  useEffect(() => {
     return () => {
       if (fileItem?.previewUrl) {
         URL.revokeObjectURL(fileItem.previewUrl);
@@ -328,10 +348,10 @@ export default function StoryUploadModal({ isOpen, onClose, onCreated }) {
 
                 <div
                   className={`storyUploadModal__mediaFrame ${fileItem.orientation === "landscape"
-                      ? "storyUploadModal__mediaFrame--landscape"
-                      : fileItem.orientation === "portrait"
-                        ? "storyUploadModal__mediaFrame--portrait"
-                        : "storyUploadModal__mediaFrame--unknown"
+                    ? "storyUploadModal__mediaFrame--landscape"
+                    : fileItem.orientation === "portrait"
+                      ? "storyUploadModal__mediaFrame--portrait"
+                      : "storyUploadModal__mediaFrame--unknown"
                     }`}
                 >
                   {fileItem.type === "video" ? (
@@ -361,7 +381,7 @@ export default function StoryUploadModal({ isOpen, onClose, onCreated }) {
 
               <div className="storyUploadModal__bottomActions">
                 <button type="button" className="storyUploadModal__audienceBtn" onClick={handlePublish}
-disabled={isPublishing}>
+                  disabled={isPublishing}>
                   <span className="storyUploadModal__audienceAvatar">
                     <img src={currentUserAvatar} alt="" />
                   </span>
@@ -369,7 +389,7 @@ disabled={isPublishing}>
                 </button>
 
                 <button type="button" className="storyUploadModal__audienceBtn" onClick={handlePublish}
-disabled={isPublishing}>
+                  disabled={isPublishing}>
                   <span className="storyUploadModal__closeFriendsIcon">
                     <img src={profileIcons.storyCloseFriends} alt="" /></span>
                   <span>Близкие</span>
