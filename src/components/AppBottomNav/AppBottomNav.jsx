@@ -10,8 +10,8 @@ const DEFAULT_AVATAR = '/Logo/photo.png';
 
 const makeIsActive =
   (location) =>
-  (path, end = false) =>
-    !!matchPath({ path: path || '', end }, location.pathname);
+    (path, end = false) =>
+      !!matchPath({ path: path || '', end }, location.pathname);
 
 export default function AppBottomNav() {
   const { t } = useTranslation();
@@ -54,7 +54,10 @@ export default function AppBottomNav() {
             return navigate('/notifications');
           }
 
-          if (isHome) return navigate('/first-page');
+          if (isHome) {
+            window.dispatchEvent(new CustomEvent("closeStoryOverlays"));
+            return navigate('/first-page');
+          }
           if (isAvatar) return navigate('/profile');
           if (item.key === 'user') return navigate('/friends');
           if (item.path) navigate(item.path);

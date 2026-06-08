@@ -1,11 +1,14 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import profileIcons from "../../constants/profileIcons";
+import { useNavigate } from "react-router-dom";
 import { storiesApi } from "../../services/storiesApi";
+import { storyReactions } from "../../constants/storyReactions";
+import profileIcons from "../../constants/profileIcons";
 import AppHeader from "../Layout/AppHeader";
 import "./StoryViewerModal.scss";
-import { useNavigate } from "react-router-dom";
 
 const DEFAULT_DURATION = 500000;
+const storyViewsCache = new Map();
+const storyViewsRequests = new Map();
 
 function getStoryId(story) {
   return story?.id || story?._id || story?.storyId || null;
@@ -63,6 +66,22 @@ function getStoryViewsCount(story, views = []) {
     views.length ??
     0
   );
+}
+
+function extractStoryViewsList(response) {
+  return Array.isArray(response)
+    ? response
+    : Array.isArray(response?.items)
+      ? response.items
+      : Array.isArray(response?.views)
+        ? response.views
+        : Array.isArray(response?.data)
+          ? response.data
+          : Array.isArray(response?.data?.items)
+            ? response.data.items
+            : Array.isArray(response?.data?.views)
+              ? response.data.views
+              : [];
 }
 
 export default function StoryViewerModal({
@@ -182,7 +201,30 @@ export default function StoryViewerModal({
   }, [isOpen]);
 
   useEffect(() => {
+    if (!isOpen) return;
+
+    const handleCloseStoryOverlays = () => {
+      onClose?.();
+    };
+
+    window.addEventListener(
+      "closeStoryOverlays",
+      handleCloseStoryOverlays
+    );
+
+    return () => {
+      window.removeEventListener(
+        "closeStoryOverlays",
+        handleCloseStoryOverlays
+      );
+    };
+  }, [isOpen, onClose]);
+
+  useEffect(() => {
     if (!isOpen || !storyId || viewedRef.current.has(storyId)) return;
+
+    // Свои stories не отмечаем как просмотренные
+    if (isOwnStory) return;
 
     viewedRef.current.add(storyId);
 
@@ -191,7 +233,7 @@ export default function StoryViewerModal({
       .catch((e) => {
         console.error("[story-view] failed", e);
       });
-  }, [isOpen, storyId, onViewed]);
+  }, [isOpen, storyId, isOwnStory, onViewed]);
 
   useEffect(() => {
     if (!isOpen || !storyId) return;
@@ -199,29 +241,49 @@ export default function StoryViewerModal({
     let cancelled = false;
 
     const loadViews = async () => {
+      // чужим stories просмотры не нужны
+      if (!isOwnStory) {
+        setStoryViews([]);
+        return;
+      }
+
+      const cached = storyViewsCache.get(storyId);
+
+      if (cached) {
+        setStoryViews(cached);
+        return;
+      }
+
+      if (storyViewsRequests.has(storyId)) {
+        const cachedFromPending = await storyViewsRequests.get(storyId);
+
+        if (!cancelled) {
+          setStoryViews(Array.isArray(cachedFromPending) ? cachedFromPending : []);
+        }
+
+        return;
+      }
+
       try {
         setStoryViewsLoading(true);
 
-        const response = await storiesApi.getViews(storyId);
+        const request = storiesApi.getViews(storyId).then((response) => {
+          const rawList = extractStoryViewsList(response);
+          return rawList.map(normalizeStoryViewUser).filter(Boolean);
+        });
+
+        storyViewsRequests.set(storyId, request);
+
+        const normalizedViews = await request;
 
         if (cancelled) return;
 
-        const rawList = Array.isArray(response)
-          ? response
-          : Array.isArray(response?.items)
-            ? response.items
-            : Array.isArray(response?.views)
-              ? response.views
-              : Array.isArray(response?.data)
-                ? response.data
-                : Array.isArray(response?.data?.items)
-                  ? response.data.items
-                  : Array.isArray(response?.data?.views)
-                    ? response.data.views
-                    : [];
+        storyViewsCache.set(storyId, normalizedViews);
+        storyViewsRequests.delete(storyId);
 
-        setStoryViews(rawList.map(normalizeStoryViewUser).filter(Boolean));
+        setStoryViews(normalizedViews);
       } catch (e) {
+        storyViewsRequests.delete(storyId);
         if (!cancelled) {
           const fallbackViews = Array.isArray(currentStory?.views)
             ? currentStory.views
@@ -243,7 +305,7 @@ export default function StoryViewerModal({
     return () => {
       cancelled = true;
     };
-  }, [isOpen, storyId, currentStory]);
+  }, [isOpen, storyId, isOwnStory, currentStory]);
 
   useEffect(() => {
     if (!isOpen || !hasStories) return undefined;
@@ -274,8 +336,12 @@ export default function StoryViewerModal({
     });
   }, [stories, storyIndex, progress]);
 
-  const visibleViewers = storyViews.slice(0, 3);
-  const viewsCount = getStoryViewsCount(currentStory, storyViews);
+  const storyViewersOnly = (Array.isArray(storyViews) ? storyViews : []).filter(
+    (viewer) => String(viewer?.id ?? "") !== String(author?.id ?? "")
+  );
+
+  const visibleViewers = storyViewersOnly.slice(0, 3);
+  const viewsCount = storyViewersOnly.length;
 
   if (!isOpen || !hasStories) return null;
 
@@ -387,9 +453,8 @@ export default function StoryViewerModal({
           )}
         </div>
 
-        <div className="storyViewer__actions">
-
-          {isOwnStory ? (
+        {isOwnStory ? (
+          <div className="storyViewer__actions">
             <button type="button" className="storyViewer__action">
               <div className="storyViewer__viewers">
                 {visibleViewers.length > 0 ? (
@@ -409,48 +474,73 @@ export default function StoryViewerModal({
                 {storyViewsLoading ? "..." : `${viewsCount} просмотров`}
               </span>
             </button>
-          ) : (
-            <span className="storyViewer__action storyViewer__action--placeholder" aria-hidden="true" />
-          )}
 
-          <button type="button" className="storyViewer__action">
-            <img
-              src={profileIcons.storyForward}
-              alt=""
-              className="storyViewer__actionImg"
-            />
-            <span>Переслать</span>
-          </button>
+            <button type="button" className="storyViewer__action">
+              <img
+                src={profileIcons.storyForward}
+                alt=""
+                className="storyViewer__actionImg"
+              />
+              <span>Переслать</span>
+            </button>
 
-          <button type="button" className="storyViewer__action">
-            <div className="storyViewer__shareIconsWrap">
-              <img src={profileIcons.profileInfoTelegram} alt="Telegram" className="storyViewer__shareIcons" />
-              <img src={profileIcons.profileInfoInstagram} alt="Instagram" className="storyViewer__shareIcons" />
-            </div>
-            <span>Поделиться</span>
-          </button>
+            <button type="button" className="storyViewer__action">
+              <div className="storyViewer__shareIconsWrap">
+                <img
+                  src={profileIcons.profileInfoTelegram}
+                  alt="Telegram"
+                  className="storyViewer__shareIcons"
+                />
+                <img
+                  src={profileIcons.profileInfoInstagram}
+                  alt="Instagram"
+                  className="storyViewer__shareIcons"
+                />
+              </div>
+              <span>Поделиться</span>
+            </button>
 
-          <button type="button" className="storyViewer__action">
-            <span className="storyViewer__actionIcon">@</span>
-            <span>Отметить</span>
-          </button>
+            <button type="button" className="storyViewer__action">
+              <span className="storyViewer__actionIcon">@</span>
+              <span>Отметить</span>
+            </button>
 
-          {isOwnStory ? (
             <button
               type="button"
               className="storyViewer__action"
               onClick={() => onDeleteStory?.(storyId)}
             >
-              <span className="storyViewer__actionIcon">⋮</span>
-              <span>Удалить</span>
+              <img
+                src={profileIcons.storyDelete}
+                alt=""
+                className="storyViewer__actionIcon storyViewer__actionIcon--delete"
+              />
+              <span className="text-red-600">Удалить</span>
             </button>
-          ) : (
-            <button type="button" className="storyViewer__action">
-              <span className="storyViewer__actionIcon">⋮</span>
-              <span>Еще</span>
+          </div>
+        ) : (
+          <div className="storyViewer__viewerReplyBar">
+            <button type="button" className="storyViewer__messageBtn">
+              Отправить сообщение
             </button>
-          )}
-        </div>
+
+            <div className="storyViewer__reactions">
+              {storyReactions.map((reaction) => (
+                <button
+                  key={reaction.id}
+                  type="button"
+                  className="storyViewer__reactionBtn"
+                >
+                  <img src={reaction.icon} alt="" />
+                </button>
+              ))}
+            </div>
+
+            <button type="button" className="storyViewer__sendBtn">
+              <img src={profileIcons.storyForward} alt="" />
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

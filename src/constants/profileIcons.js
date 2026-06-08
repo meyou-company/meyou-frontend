@@ -132,7 +132,14 @@ const profileIcons = {
   storyBack: '/stories/mingcute_arrow-up-fill.svg',
   storyArrowFilled: '/stories/weui_arrow-filled.svg',
   storyCloseFriends: '/stories/close_friends.svg',
-  storyForward: "/stories/forward.svg",
+  storyForward: '/stories/forward.svg',
+  storyDelete: '/stories/delete.svg',
+  storyReactionLike: '/stories/story-like.svg',
+  storyReactionHeart: '/stories/story-heart.svg',
+  storyReactionLaugh: '/stories/story-laugh.svg',
+  storyReactionWow: '/stories/story-wow.svg',
+  storyReactionCry: '/stories/story-cry.svg',
+  storyReactionFire: '/stories/story-fire.svg',
 };
 
 export default profileIcons;
