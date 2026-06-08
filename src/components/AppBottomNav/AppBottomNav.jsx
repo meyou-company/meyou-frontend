@@ -1,8 +1,9 @@
 import { useLocation, useNavigate, matchPath } from 'react-router-dom';
-import { mobileProfileNav } from '../../constants/profileNavigation';
 import { useBurgerMenu } from '../../hooks/useBurgerMenu';
 import { useAuthStore } from '../../zustand/useAuthStore';
 import NotificationBell from '../../components/Notifications/NotificationBell';
+import { useMobileProfileNav } from '../../hooks/useMobileProfileNav';
+import { useTranslation } from 'react-i18next';
 import './AppBottomNav.scss';
 
 const DEFAULT_AVATAR = '/Logo/photo.png';
@@ -13,9 +14,11 @@ const makeIsActive =
     !!matchPath({ path: path || '', end }, location.pathname);
 
 export default function AppBottomNav() {
+  const { t } = useTranslation();
   const location = useLocation();
   const navigate = useNavigate();
   const { toggle } = useBurgerMenu();
+  const mobileProfileNav = useMobileProfileNav();
 
   const user = useAuthStore((s) => s.user);
   const currentUserAvatar = user?.avatarUrl || user?.avatar || DEFAULT_AVATAR;
@@ -24,12 +27,12 @@ export default function AppBottomNav() {
 
   const withAvatar = [
     ...mobileProfileNav.slice(0, 2),
-    { key: 'avatar', type: 'avatar', label: 'Мій профіль' },
+    { key: 'avatar', type: 'avatar', label: t('navigation.myProfile') },
     ...mobileProfileNav.slice(2),
   ];
 
   return (
-    <nav className="app-bottom-nav" aria-label="Нижня навігація">
+    <nav className="app-bottom-nav" aria-label={t('navigation.bottomNav')}>
       {withAvatar.map((item) => {
         const isHome = item.key === 'home';
         const isAvatar = item.type === 'avatar';
@@ -61,13 +64,16 @@ export default function AppBottomNav() {
           return <NotificationBell key={item.key} onGoNotifications={onClick} />;
         }
 
+        const ariaLabel =
+          item.key === 'user' ? t('navigation.friends') : item.label;
+
         return (
           <button
             key={item.key}
             type="button"
             className={`app-bottom-nav__btn ${isAvatar ? 'app-bottom-nav__btn--avatar' : ''} ${active ? 'app-bottom-nav__btn--active' : ''}`}
             onClick={onClick}
-            aria-label={item.key === 'user' ? 'Друзья' : item.label}
+            aria-label={ariaLabel}
           >
             <div className="app-bottom-nav__iconWrapper">
               {isAvatar ? (

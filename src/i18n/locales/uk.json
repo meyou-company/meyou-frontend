@@ -42,13 +42,131 @@
     "language": "Мова"
   },
   "auth": {
-    "login": "Увійти",
-    "register": "Реєстрація",
+    "login": {
+      "title": "Вхід",
+      "emailPlaceholder": "Введіть Email",
+      "passwordPlaceholder": "Введіть пароль",
+      "submit": "Увійти",
+      "submitting": "Вхід…",
+      "forgotPassword": "Забули пароль?",
+      "toastSuccess": "Успішний вхід",
+      "errors": {
+        "emailRequired": "Введіть E-mail",
+        "passwordRequired": "Введіть пароль",
+        "loginFailed": "Помилка входу"
+      }
+    },
+    "register": {
+      "title": "Реєстрація",
+      "firstNamePlaceholder": "Введіть імʼя",
+      "firstNameHint": "Введіть ваше імʼя. Імʼя може містити букви, пробіли та цифри.",
+      "emailPlaceholder": "Введіть Email",
+      "emailHint": "Введіть E-mail",
+      "passwordPlaceholder": "Введіть пароль",
+      "confirmPasswordPlaceholder": "Повторно введіть пароль",
+      "confirmPasswordHint": "Будь ласка, підтвердіть ваш пароль",
+      "policyText": "Натискаючи кнопку «Реєстрація», ви приймаєте Політику конфіденційності та Умови використання.",
+      "submit": "Створити акаунт",
+      "submitting": "Створення…",
+      "hasAccount": "У мене вже є акаунт",
+      "toastSuccess": "Реєстрація успішна. Перевірте email для підтвердження.",
+      "errors": {
+        "checkForm": "Перевірте, будь ласка, форму",
+        "registerFailed": "Помилка реєстрації"
+      }
+    },
     "email": "Email",
     "password": "Пароль",
-    "forgotPassword": "Забули пароль?",
+    "forgotPassword": {
+      "title": "Зміна пароля",
+      "emailPlaceholder": "Введіть Email",
+      "submit": "Підтвердити",
+      "submitting": "Надсилання…",
+      "toastSuccess": "Код відправлено на email",
+      "errors": {
+        "emailRequired": "Введіть E-mail",
+        "emailInvalid": "Введіть коректний E-mail",
+        "sendFailed": "Помилка надсилання коду. Спробуйте ще раз."
+      }
+    },
     "noAccount": "Немає акаунта?",
-    "hasAccount": "Вже є акаунт?"
+    "hasAccount": "Вже є акаунт?",
+    "common": {
+      "logoAlt": "Me You logo",
+      "googleAlt": "Google",
+      "showPassword": "Показати пароль",
+      "hidePassword": "Сховати пароль",
+      "somethingWentWrong": "Щось пішло не так"
+    },
+    "resetPassword": {
+      "title": "Зміна пароля",
+      "passwordPlaceholder": "Введіть новий пароль",
+      "confirmPasswordPlaceholder": "Повторіть пароль",
+      "submit": "Зберегти",
+      "submitting": "Збереження…",
+      "toastSuccess": "Пароль змінено",
+      "errors": {
+        "passwordRequired": "Введіть новий пароль",
+        "confirmRequired": "Повторіть пароль",
+        "mismatch": "Паролі не співпадають",
+        "saveFailed": "Помилка. Спробуйте ще раз."
+      }
+    },
+    "verifyEmail": {
+      "title": "Верифікація",
+      "subtitle": "Код надіслано на email і дійсний 15 хвилин.",
+      "submit": "Підтвердити",
+      "submitting": "Перевірка…",
+      "resend": "Надіслати код повторно",
+      "resending": "Надсилання…",
+      "toastVerified": "Email підтверджено",
+      "toastResent": "Код надіслано повторно",
+      "errors": {
+        "incomplete": "Введіть код повністю",
+        "verifyFailed": "Помилка верифікації",
+        "resendFailed": "Помилка надсилання коду"
+      }
+    },
+    "verifyResetCode": {
+      "title": "Зміна пароля",
+      "subtitle": "Код надіслано на email і дійсний 15 хвилин.",
+      "submit": "Далі",
+      "submitting": "Перевірка…",
+      "resend": "Надіслати код повторно",
+      "resending": "Надсилання…",
+      "toastVerified": "Код підтверджено",
+      "toastResent": "Код надіслано повторно",
+      "errors": {
+        "incomplete": "Введіть код повністю",
+        "noEmail": "Немає email. Поверніться назад і введіть email знову.",
+        "verifyFailed": "Помилка верифікації",
+        "resendFailed": "Помилка надсилання коду"
+      }
+    },
+    "verify": {
+      "digitAria": "Цифра {{n}}"
+    },
+    "google": {
+      "loading": "Вхід через Google…",
+      "loadingGeneric": "Авторизація…"
+    },
+    "validation": {
+      "firstNameRequired": "Введіть імʼя",
+      "firstNameMin": "Імʼя має містити мінімум 2 символи",
+      "firstNameMax": "Імʼя занадто довге",
+      "firstNameFormat": "Імʼя може містити лише букви, пробіли та дефіс",
+      "emailRequired": "Введіть email",
+      "emailInvalid": "Некоректний email",
+      "emailMax": "Email занадто довгий",
+      "passwordRequired": "Введіть пароль",
+      "passwordMin": "Мінімум 8 символів. Потрібні цифри, одна мала латинська літера (a-z) та одна велика (A-Z).",
+      "passwordMax": "Пароль занадто довгий",
+      "passwordFormat": "Потрібні цифри, одна мала латинська літера (a-z) та одна велика (A-Z).",
+      "passwordHint": "Пароль має містити цифри, хоча б одну малу латинську літеру (a-z) та одну велику (A-Z).",
+      "confirmRequired": "Підтвердіть пароль",
+      "confirmMismatch": "Паролі не співпадають",
+      "acceptPolicy": "Потрібно прийняти умови та політику конфіденційності"
+    }
   },
   "profile": {
     "myMessages": "Мої повідомлення",
@@ -56,7 +174,199 @@
     "saved": "Збережене",
     "gifts": "Подарунки",
     "writeMessage": "Написати повідомлення",
-    "goHome": "На головну"
+    "goHome": "На головну",
+    "loading": "Завантаження профілю…",
+    "notFound": "Профіль не знайдено{{username}}",
+    "loadError": "Помилка завантаження",
+    "myBalance": "Мій баланс",
+    "editProfile": "Редагувати профіль",
+    "viewPhoto": "Переглянути фото",
+    "viewPhotoFull": "Фото в повному розмірі",
+    "live": "Ефір",
+    "more": "Більше",
+    "notSpecified": "Не вказано",
+    "tabs": {
+      "info": "Інформація",
+      "stories": "Історії",
+      "video": "Відео",
+      "photo": "Фото",
+      "unsubscribe": "Відписатися"
+    },
+    "actions": {
+      "addStory": "Доповнити історію",
+      "addStoryShort": "Історія",
+      "addReels": "Додати рілс",
+      "reels": "Reels",
+      "live": "Ефір",
+      "liveDesktop": "Прямий ефір"
+    },
+    "friends": {
+      "title": "Друзі",
+      "titleWithCount": "Друзі, всього {{count}}",
+      "showMore": "Показати більше",
+      "findFriends": "Знайти друзів",
+      "viewFriends": "Переглянути друзів",
+      "empty": "Поки немає друзів",
+      "profileOf": "Профіль {{name}}",
+      "profileUnavailable": "Профіль недоступний",
+      "openProfile": "Відкрити профіль {{name}}"
+    },
+    "posts": {
+      "createTitle": "Створити допис",
+      "placeholder": "Що у вас нового?",
+      "placeholderWithName": "Що у вас нового, {{name}}?",
+      "loading": "Завантаження постів…",
+      "empty": "Поки немає постів",
+      "like": "Лайк",
+      "comment": "Коментар",
+      "save": "Зберегти",
+      "share": "Поділитися"
+    },
+    "visitor": {
+      "writeMessage": "Написати повідомлення",
+      "subscribe": "Підписатися",
+      "subscribing": "…",
+      "unsubscribe": "Відписатися",
+      "addToVip": "Додати в VIP",
+      "report": "Поскаржитись",
+      "block": "Заблокувати",
+      "moreActions": "Більше дій",
+      "profileTabs": "Вкладки профілю",
+      "profileActions": "Дії профілю"
+    },
+    "info": {
+      "title": "Інформація",
+      "interests": "Інтереси",
+      "noInterests": "Немає інтересів",
+      "personalInfo": "Особиста інформація",
+      "gender": "Стать",
+      "maritalStatus": "Сімейний стан",
+      "nationality": "Національність",
+      "profession": "Професія",
+      "languages": "Мови",
+      "location": "Локація",
+      "country": "Країна",
+      "city": "Місто",
+      "socialActivity": "Соціальна активність",
+      "friendsStat": "Друзі",
+      "vipStatus": "VIP",
+      "status": "Статус",
+      "giftsStat": "Подарунки",
+      "postsStat": "Пости",
+      "contacts": "Контакти",
+      "emailHidden": "Email (приховано)"
+    },
+    "vip": {
+      "vipFriends": "VIP",
+      "friendsTitle": "Друзі {{count}}"
+    },
+    "friendsPage": {
+      "title": "Друзі {{name}}",
+      "searchPlaceholder": "Пошук за імʼям або нікнеймом…",
+      "sections": "Розділи",
+      "noResults": "Нікого не знайдено за запитом",
+      "noFriends": "У цього користувача ще немає друзів",
+      "userNotSpecified": "Користувача не вказано",
+      "loadListError": "Не вдалося завантажити список друзів",
+      "notFound": "Профіль не знайдено"
+    },
+    "toast": {
+      "avatarSessionExpired": "Сесія закінчилась. Увійди знову.",
+      "avatarSaveError": "Не вдалося зберегти фото",
+      "openChatError": "Не вдалося відкрити чат"
+    },
+    "editForm": {
+      "title": "Редагувати профіль",
+      "changePhoto": "Змінити фото профілю",
+      "upload": "Завантажити",
+      "delete": "Видалити",
+      "avatarAlt": "Аватар",
+      "lockedField": "Заблоковано",
+      "select": "Виберіть",
+      "maxCharsNote": "*максимум символів",
+      "maxItemsNote": "*максимум {{max}}",
+      "saving": "Збереження...",
+      "saveChanges": "Зберегти зміни",
+      "fields": {
+        "lastName": "Прізвище",
+        "firstName": "Ім'я",
+        "gender": "Стать",
+        "birthDate": "Дата народження",
+        "birthDatePlaceholder": "Оберіть дату народження",
+        "nationality": "Національність",
+        "username": "Нік (до 10 символів)",
+        "bio": "Про себе (необов'язково)",
+        "interests": "Інтереси",
+        "hobbies": "Хобі",
+        "maritalStatus": "Сімейний стан",
+        "country": "Країна",
+        "city": "Місто"
+      },
+      "gender": {
+        "male": "Чоловіча",
+        "female": "Жіноча"
+      },
+      "maritalStatus": {
+        "single": "Неодружений/Неодружена",
+        "married": "Одружений/Заміжня",
+        "divorced": "Розлучений/Розлучена",
+        "widowed": "Вдівець/Вдова",
+        "inRelationship": "У стосунках"
+      },
+      "toast": {
+        "avatarUpdated": "Аватар оновлено",
+        "avatarDeleted": "Аватар видалено",
+        "avatarUpdateError": "Не вдалося оновити фото",
+        "avatarDeleteError": "Помилка видалення аватару",
+        "invalidFileType": "Дозволено лише JPEG, PNG, WebP"
+      },
+      "errors": {
+        "usernameTaken": "Цей нік вже зайнятий",
+        "usernameCheckError": "Помилка перевірки ніка",
+        "updateError": "Помилка оновлення профілю"
+      },
+      "validation": {
+        "lastNameRequired": "Вкажіть прізвище",
+        "firstNameRequired": "Вкажіть ім'я",
+        "phoneRequired": "Вкажіть номер телефону",
+        "nationalityRequired": "Вкажіть національність",
+        "maritalStatusRequired": "Оберіть сімейне положення",
+        "countryRequired": "Оберіть країну",
+        "cityRequired": "Оберіть місто",
+        "interestsRequired": "Оберіть інтереси",
+        "hobbiesRequired": "Оберіть хобі",
+        "usernameRequired": "Вкажіть нік",
+        "genderRequired": "Оберіть стать",
+        "birthDateRequired": "Оберіть дату народження",
+        "birthDateFormat": "Формат: РРРР-ММ-ДД",
+        "birthDateInvalid": "Невірна дата",
+        "birthDateAge": "Вік має бути від 18 до 100",
+        "firstNameLettersOnly": "Ім'я має містити лише літери",
+        "lastNameLettersOnly": "Прізвище має містити лише літери",
+        "nationalityLettersOnly": "Національність має містити лише літери",
+        "usernameMinLength": "Нік має містити мінімум 3 символи",
+        "usernameMaxLength": "Нік має бути до 10 символів",
+        "usernameFormat": "Нік: тільки латиниця/цифри та . _ -",
+        "bioMaxLength": "Максимум 500 символів",
+        "phoneTooShort": "Номер занадто короткий",
+        "phoneTooLong": "Номер занадто довгий"
+      }
+    },
+    "completeForm": {
+      "title": "Профіль",
+      "addPhoto": "Додати фото профіля",
+      "photoNote": "*профілі з фото отримають більше переглядів",
+      "save": "Зберегти",
+      "update": "Оновити",
+      "saving": "Збереження...",
+      "maxLimit": "Максимум {{max}}",
+      "toast": {
+        "profileSaved": "Профіль збережено"
+      },
+      "errors": {
+        "saveError": "Помилка збереження профілю"
+      }
+    }
   },
   "messenger": {
     "title": "Повідомлення",
@@ -82,14 +392,38 @@
       "delivery": "Спосіб отримання"
     },
     "items": {
-      "follow": { "title": "Підписки", "desc": "Коли хтось підписується на вас" },
-      "like": { "title": "Лайки", "desc": "Коли хтось лайкає ваші публікації" },
-      "comment": { "title": "Коментарі", "desc": "Коментарі до ваших публікацій" },
-      "mention": { "title": "Згадки", "desc": "Коли вас згадують у публікаціях або коментарях" },
-      "post": { "title": "Нові публікації", "desc": "Нові публікації користувачів, на яких ви підписані" },
-      "system": { "title": "Системні сповіщення", "desc": "Безпека, оновлення та важливі події" },
-      "push": { "title": "Push-сповіщення", "desc": "Сповіщення в додатку" },
-      "email": { "title": "Email-сповіщення", "desc": "Отримувати сповіщення на пошту" }
+      "follow": {
+        "title": "Підписки",
+        "desc": "Коли хтось підписується на вас"
+      },
+      "like": {
+        "title": "Лайки",
+        "desc": "Коли хтось лайкає ваші публікації"
+      },
+      "comment": {
+        "title": "Коментарі",
+        "desc": "Коментарі до ваших публікацій"
+      },
+      "mention": {
+        "title": "Згадки",
+        "desc": "Коли вас згадують у публікаціях або коментарях"
+      },
+      "post": {
+        "title": "Нові публікації",
+        "desc": "Нові публікації користувачів, на яких ви підписані"
+      },
+      "system": {
+        "title": "Системні сповіщення",
+        "desc": "Безпека, оновлення та важливі події"
+      },
+      "push": {
+        "title": "Push-сповіщення",
+        "desc": "Сповіщення в додатку"
+      },
+      "email": {
+        "title": "Email-сповіщення",
+        "desc": "Отримувати сповіщення на пошту"
+      }
     }
   },
   "settings": {
@@ -148,5 +482,19 @@
     "STORY_CANNOT_REPLY_SELF": "Не можна відповісти на власну історію.",
     "STORY_CANNOT_ADD_SELF_CLOSE_FRIEND": "Не можна додати себе до близьких друзів.",
     "VIDEO_TOO_LONG": "Відео занадто довге."
+  },
+  "navigation": {
+    "home": "Головна",
+    "profile": "Профіль",
+    "myProfile": "Мій профіль",
+    "notifications": "Сповіщення",
+    "menu": "Меню",
+    "wallet": "Баланс",
+    "friends": "Друзі",
+    "reels": "Reels",
+    "add": "Додати",
+    "bottomNav": "Нижня навігація",
+    "search": "Пошук",
+    "messages": "Повідомлення"
   }
 }

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 
 import { restoreOAuthSession } from '../../services/authSession';
 import { useAuthStore } from '../../zustand/useAuthStore';
+import AuthLoadingScreen from '../../components/Auth/AuthLoadingScreen';
 
 function postAuthPath(user) {
   const verified =
@@ -47,5 +48,5 @@ export default function GoogleOAuthSuccess() {
     };
   }, [navigate, setAuth]);
 
-  return null;
+  return <AuthLoadingScreen messageKey="auth.google.loading" />;
 }

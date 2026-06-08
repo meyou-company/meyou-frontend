@@ -1,6 +1,7 @@
 // ProfileHome.jsx
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
 import AvatarCropModal from "../../../AvatarCropModal/AvatarCropModal";
@@ -60,6 +61,7 @@ export default function ProfileHome({
   onSaved,
   onWallet,
 }) {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const fileInputRef = useRef(null);
   const composerTextareaRef = useRef(null);
@@ -112,7 +114,7 @@ export default function ProfileHome({
   const fullNameReal =
     [user?.firstName, user?.lastName].filter(Boolean).join(" ") || "";
 
-  const titleName = username || fullNameReal || "User";
+  const titleName = username || fullNameReal || t('common.user');
   const displayAvatar = user?.avatarUrl || user?.avatar || "/Logo/photo.png";
   const profileUserId = user?.id || user?._id || postsAuthorId;
   useEffect(() => {
@@ -197,8 +199,8 @@ export default function ProfileHome({
     (fullNameReal ? fullNameReal.split(/\s+/)[0] : "") ||
     (username || "");
   const composerPlaceholder = composerFirstName
-    ? `Що у вас нового, ${composerFirstName}?`
-    : "Що у вас нового?";
+    ? t('profile.posts.placeholderWithName', { name: composerFirstName })
+    : t('profile.posts.placeholder');
 
   const profileLocation =
     [user?.city, user?.country].filter(Boolean).join(", ") || "";
@@ -397,8 +399,8 @@ export default function ProfileHome({
     } catch (err) {
       const msg =
         err?.response?.status === 401
-          ? "Сесія закінчилась. Увійди знову."
-          : getApiErrorMessage(err) || "Не вдалося зберегти фото";
+          ? t('profile.toast.avatarSessionExpired')
+          : getApiErrorMessage(err) || t('profile.toast.avatarSaveError');
       toast.error(String(msg));
     } finally {
       setIsSaving(false);
@@ -449,7 +451,7 @@ export default function ProfileHome({
 
                       setViewImageUrl(displayAvatar);
                     }}
-                    aria-label="Переглянути фото в повному розмірі"
+                    aria-label={t('profile.viewPhotoFull')}
                   >
                     <img src={displayAvatar} alt={titleName} className="avatar" />
                   </div>
@@ -481,21 +483,21 @@ export default function ProfileHome({
 
             <div className="profileInfoAside">
               <div className="badgesRow">
-                <button type="button" className="badgeItem" onClick={onWallet} aria-label="Мій баланс">
+                <button type="button" className="badgeItem" onClick={onWallet} aria-label={t('profile.myBalance')}>
                   <img className="badgeIcon" src={profileIcons.balance} alt="" />
-                  <span className="badgeText">Мій баланс</span>
+                  <span className="badgeText">{t('profile.myBalance')}</span>
                 </button>
 
-                <button type="button" className="badgeItem" onClick={onSaved} aria-label="Збережені">
+                <button type="button" className="badgeItem" onClick={onSaved} aria-label={t('profile.saved')}>
                   <img className="badgeIcon" src={profileIcons.saved} alt="" />
-                  <span className="badgeText">Збережені</span>
+                  <span className="badgeText">{t('profile.saved')}</span>
                 </button>
               </div>
 
               <div className="profileMobileGifts">
-                <button type="button" className="profileMobileGifts__btn" onClick={onGifts} aria-label="Подарунки">
+                <button type="button" className="profileMobileGifts__btn" onClick={onGifts} aria-label={t('profile.gifts')}>
                   <img src={profileIcons.giftIcon} alt="" className="profileMobileGifts__icon" />
-                  <span className="profileMobileGifts__label">Подарунки</span>
+                  <span className="profileMobileGifts__label">{t('profile.gifts')}</span>
                 </button>
               </div>
             </div>
@@ -508,22 +510,22 @@ export default function ProfileHome({
                 type="button"
                 className="btnMessages btnMessages--inbox"
                 onClick={onMessages}
-                aria-label="My messages"
+                aria-label={t('profile.myMessages')}
               >
                 <span className="btnMessages__iconWrap">
                   <img src={profileIcons.chat} alt="" className="msgIcon" />
                   <MessagesNavBadge />
                 </span>
-                <span className="msgText">my messages</span>
+                <span className="msgText">{t('profile.myMessages')}</span>
               </button>
               <button
                 type="button"
                 className="btnMessages"
                 onClick={onGifts}
-                aria-label="My gifts"
+                aria-label={t('profile.myGifts')}
               >
                 <img src={profileIcons.giftIcon} alt="" className="msgIcon" />
-                <span className="msgText">my gifts</span>
+                <span className="msgText">{t('profile.myGifts')}</span>
               </button>
             </div>
 
@@ -531,10 +533,10 @@ export default function ProfileHome({
               type="button"
               className="btnSaved"
               onClick={onSaved}
-              aria-label="Saved"
+              aria-label={t('profile.saved')}
             >
               <img src={profileIcons.saved} alt="" className="msgIcon" />
-              <span className="msgText">saved</span>
+              <span className="msgText">{t('profile.saved')}</span>
             </button>
           </div>
         </section>
@@ -548,8 +550,8 @@ export default function ProfileHome({
                   <span className="actionRound">
                     <img src={actionIcons.plus} alt="" />
                   </span>
-                  <span className="actionLabel actionLabel--mobile">Історія</span>
-                  <span className="actionLabel actionLabel--desktop">Доповнити історію</span>
+                  <span className="actionLabel actionLabel--mobile">{t('profile.actions.addStoryShort')}</span>
+                  <span className="actionLabel actionLabel--desktop">{t('profile.actions.addStory')}</span>
                 </span>
                 <span className="actionRightDots" aria-hidden="true">•••</span>
               </button>
@@ -558,14 +560,14 @@ export default function ProfileHome({
                 className="actionBtn actionBtnDesktop"
                 type="button"
                 onClick={() => navigate("/video")}
-                aria-label="Відео, рілси"
+                aria-label={t('profile.actions.reels')}
               >
                 <span className="actionBtnLeft">
                   <span className="actionRound">
                     <img src={actionIcons.video} alt="" />
                   </span>
-                  <span className="actionLabel actionLabel--mobile">Reels</span>
-                  <span className="actionLabel actionLabel--desktop">Додати рілс</span>
+                  <span className="actionLabel actionLabel--mobile">{t('profile.actions.reels')}</span>
+                  <span className="actionLabel actionLabel--desktop">{t('profile.actions.addReels')}</span>
                 </span>
               </button>
 
@@ -574,8 +576,8 @@ export default function ProfileHome({
                   <span className="actionRound">
                     <img src={actionIcons.video} alt="" />
                   </span>
-                  <span className="actionLabel actionLabel--mobile">Ефір</span>
-                  <span className="actionLabel actionLabel--desktop">Прямий ефір</span>
+                  <span className="actionLabel actionLabel--mobile">{t('profile.actions.live')}</span>
+                  <span className="actionLabel actionLabel--desktop">{t('profile.actions.liveDesktop')}</span>
                 </span>
                 <span className="actionRightArrow" aria-hidden="true">›</span>
               </button>
@@ -586,9 +588,9 @@ export default function ProfileHome({
                 className="actionBtn"
                 type="button"
                 onClick={() => navigate("/video")}
-                aria-label="Відео, рілси"
+                aria-label={t('profile.actions.reels')}
               >
-                <span>Reels</span>
+                <span>{t('profile.actions.reels')}</span>
                 <img src={actionIcons.video} alt="" />
               </button>
 
@@ -597,25 +599,25 @@ export default function ProfileHome({
                 className="actionBtn"
                 onClick={onEditProfile}
               >
-                <span>Редактировать профиль</span>
+                <span>{t('profile.editProfile')}</span>
                 <img src={actionIcons.pencil} alt="" />
               </button>
 
-              <button className="actionBtn actionMore" type="button" aria-label="Більше">
+              <button className="actionBtn actionMore" type="button" aria-label={t('profile.more')}>
                 …
               </button>
             </div>
 
             <div className="actionsRow2">
               <button className="actionBtn" type="button">
-                <span>Історія</span>
+                <span>{t('profile.actions.addStoryShort')}</span>
                 <span className="actionPlus">
                   <img src={actionIcons.plus} alt="" />
                 </span>
               </button>
 
               <button className="actionBtn" type="button">
-                <span>Ефір</span>
+                <span>{t('profile.actions.live')}</span>
                 <img src={actionIcons.video} alt="" />
               </button>
             </div>
@@ -625,7 +627,7 @@ export default function ProfileHome({
         {/* ================= VIP / FRIENDS ================= */}
         <section className="vipCard">
           <div className="friendsTitle">
-            <span className="friendsTitle__label">Друзья</span>{" "}
+            <span className="friendsTitle__label">{t('profile.friends.title')}</span>{" "}
             <span className="friendsTitle__count">{displayFriendsCount}</span>
           </div>
 
@@ -645,7 +647,9 @@ export default function ProfileHome({
                           onClick={() => openFriendProfile(v)}
                           disabled={!canOpen}
                           aria-label={
-                            canOpen ? `Профіль ${handle}` : "Профіль недоступний"
+                            canOpen
+                              ? t('profile.friends.profileOf', { name: handle })
+                              : t('profile.friends.profileUnavailable')
                           }
                         >
                           <img
@@ -662,7 +666,9 @@ export default function ProfileHome({
                             onClick={() => openFriendProfile(v)}
                             disabled={!canOpen}
                             aria-label={
-                              canOpen ? `Відкрити профіль ${handle}` : undefined
+                              canOpen
+                                ? t('profile.friends.openProfile', { name: handle })
+                                : undefined
                             }
                           >
                             <img
@@ -686,7 +692,7 @@ export default function ProfileHome({
                 type="button"
                 onClick={onShowMore}
               >
-                Переглянути друзів
+                {t('profile.friends.viewFriends')}
               </button>
             </>
           ) : (
@@ -696,7 +702,7 @@ export default function ProfileHome({
                 className="showMoreBtn"
                 onClick={onFindFriends ?? onShowMore}
               >
-                Знайти друзів
+                {t('profile.friends.findFriends')}
               </button>
             </div>
           )}
@@ -705,7 +711,7 @@ export default function ProfileHome({
         {/* ================= NEW POST ================= */}
         <section className="newPost">
           <div className="newPostHead">
-            <h3 className="newPostTitle">Створити допис</h3>
+            <h3 className="newPostTitle">{t('profile.posts.createTitle')}</h3>
           </div>
 
           <button
@@ -744,7 +750,7 @@ export default function ProfileHome({
           showOnlineDot={user?.online !== false}
           text={newPostText}
           onTextChange={setNewPostText}
-          placeholder="Що у вас нового?"
+          placeholder={t('profile.posts.placeholder')}
           textareaRef={composerTextareaRef}
           postMediaFiles={postMediaFiles}
           onRemoveMedia={removePostMedia}
@@ -774,14 +780,14 @@ export default function ProfileHome({
           className="profile-home__imageViewer"
           role="dialog"
           aria-modal="true"
-          aria-label="Фото в повному розмірі"
+          aria-label={t('profile.viewPhotoFull')}
           onClick={() => setViewImageUrl(null)}
         >
           <button
             type="button"
             className="profile-home__imageViewerClose"
             onClick={() => setViewImageUrl(null)}
-            aria-label="Закрити"
+            aria-label={t('common.close')}
           >
             ×
           </button>

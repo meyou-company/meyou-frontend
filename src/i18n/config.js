@@ -21,8 +21,28 @@ export function isRtlLocale(locale) {
   return RTL_LOCALES.has(normalizeLocale(locale));
 }
 
+export const LOCALE_AR_CLASS = 'locale-ar';
+
 export function getLocaleDirection(locale) {
   return isRtlLocale(locale) ? 'rtl' : 'ltr';
+}
+
+/** Document root always stays LTR so profile/feed/stories layout does not mirror. */
+export function applyDocumentLocaleAttributes(locale) {
+  const code = normalizeLocale(locale);
+  const isRtl = isRtlLocale(code);
+
+  if (typeof document === 'undefined') {
+    return { locale: code, dir: isRtl ? 'rtl' : 'ltr', isRtl };
+  }
+
+  document.documentElement.lang = code;
+  document.documentElement.dir = 'ltr';
+  document.documentElement.classList.toggle(LOCALE_AR_CLASS, isRtl);
+  document.body?.setAttribute('dir', 'ltr');
+  document.body?.classList.toggle(LOCALE_AR_CLASS, isRtl);
+
+  return { locale: code, dir: isRtl ? 'rtl' : 'ltr', isRtl };
 }
 
 export function detectBrowserLocale() {

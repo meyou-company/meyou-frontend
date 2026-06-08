@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 
 import { restoreOAuthSession } from '../../services/authSession';
 import { useAuthStore } from '../../zustand/useAuthStore';
+import AuthLoadingScreen from '../../components/Auth/AuthLoadingScreen';
 
 function postAuthPath(user) {
   if (user?.profileCompleted === false) {
@@ -39,5 +40,5 @@ export default function AuthCallback() {
     };
   }, [navigate, setAuth]);
 
-  return null;
+  return <AuthLoadingScreen messageKey="auth.google.loadingGeneric" />;
 }

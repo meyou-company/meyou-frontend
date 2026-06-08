@@ -1,14 +1,20 @@
 import { useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { useAuthStore } from "../../../zustand/useAuthStore";
 import { resolvedApiBaseUrl } from "../../../services/api";
 import { useForceDarkTheme } from "../../../hooks/useForceDarkTheme";
-import { validateRegister, isEmptyErrors, PASSWORD_HINT } from "../../../utils/validationRegister";
+import {
+  validateRegister,
+  translateRegisterValidation,
+  isEmptyErrors,
+} from "../../../utils/validationRegister";
 import { getApiErrorMessage } from "../../../utils/getApiErrorMessage";
 import "./RegisterForm.scss";
 
 export default function RegisterForm({ onBack, onGoLogin, onSuccess }) {
   useForceDarkTheme();
+  const { t } = useTranslation();
   const register = useAuthStore((s) => s.register);
 
   const [form, setForm] = useState({
@@ -39,7 +45,11 @@ export default function RegisterForm({ onBack, onGoLogin, onSuccess }) {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const errors = useMemo(() => validateRegister(form), [form]);
+  const errorCodes = useMemo(() => validateRegister(form), [form]);
+  const errors = useMemo(
+    () => translateRegisterValidation(errorCodes, t),
+    [errorCodes, t],
+  );
 
   const handleGoogle = () => {
     window.location.href = `${resolvedApiBaseUrl}/auth/google`;
@@ -66,68 +76,70 @@ export default function RegisterForm({ onBack, onGoLogin, onSuccess }) {
   const isFieldError = (key) => Boolean(fieldError(key));
   const shouldShowHint = (key) =>
     Boolean(focused[key]) || Boolean(touched[key]) || String(form[key] ?? "").length > 0;
-const onSubmit = async (e) => {
-  e.preventDefault();
-  setSubmitError("");
 
-  setTouched({
-    firstName: true,
-    email: true,
-    password: true,
-    confirmPassword: true,
-    acceptPolicy: true,
-  });
+  const onSubmit = async (e) => {
+    e.preventDefault();
+    setSubmitError("");
 
-  const currentErrors = validateRegister(form);
-  if (!isEmptyErrors(currentErrors)) {
-    setSubmitError(currentErrors.acceptPolicy || "Перевірте, будь ласка, форму");
-    return;
-  }
+    setTouched({
+      firstName: true,
+      email: true,
+      password: true,
+      confirmPassword: true,
+      acceptPolicy: true,
+    });
 
-  const payload = {
-    firstName: form.firstName.trim(),
-    email: form.email.trim(),
-    password: form.password,
-    confirmPassword: form.confirmPassword,
-  };
-
-  setIsSubmitting(true);
-
-  try {
-    const res = await register(payload);
-
-    if (!res?.ok) {
-      const msg = getApiErrorMessage(res?.error) || "Помилка реєстрації";
-      toast.error(msg);
-      setSubmitError(msg);
+    const currentErrors = translateRegisterValidation(validateRegister(form), t);
+    if (!isEmptyErrors(validateRegister(form))) {
+      setSubmitError(currentErrors.acceptPolicy || t("auth.register.errors.checkForm"));
       return;
     }
 
-    toast.success("Реєстрація успішна. Перевірте email для підтвердження.");
-    onSuccess?.();
-  } catch (err) {
-    const msg = getApiErrorMessage(err) || "Помилка реєстрації";
-    toast.error(msg);
-    setSubmitError(msg || "Щось пішло не так");
-  } finally {
-    setIsSubmitting(false);
-  }
-};
+    const payload = {
+      firstName: form.firstName.trim(),
+      email: form.email.trim(),
+      password: form.password,
+      confirmPassword: form.confirmPassword,
+    };
+
+    setIsSubmitting(true);
+
+    try {
+      const res = await register(payload);
+
+      if (!res?.ok) {
+        const msg = getApiErrorMessage(res?.error) || t("auth.register.errors.registerFailed");
+        toast.error(msg);
+        setSubmitError(msg);
+        return;
+      }
+
+      toast.success(t("auth.register.toastSuccess"));
+      onSuccess?.();
+    } catch (err) {
+      const msg = getApiErrorMessage(err) || t("auth.register.errors.registerFailed");
+      toast.error(msg);
+      setSubmitError(msg || t("auth.common.somethingWentWrong"));
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const passwordHint = `*${t("auth.validation.passwordHint")}`;
 
   return (
     <section className="auth auth--register">
-      <button type="button" className="back-arrow" onClick={onBack} aria-label="Назад">
+      <button type="button" className="back-arrow" onClick={onBack} aria-label={t("common.back")}>
         <img src="/icon1/Vector.png" alt="" aria-hidden="true" className="back-arrow__icon" />
       </button>
 
       <div className="auth__logoCard" aria-hidden="true">
-        <img className="auth__logoImg" src="/Logo/photo.png" alt="Me You logo" />
+        <img className="auth__logoImg" src="/Logo/photo.png" alt={t("auth.common.logoAlt")} />
       </div>
 
-      <h1 className="auth__title">Регистрация</h1>
+      <h1 className="auth__title">{t("auth.register.title")}</h1>
 
       <form className="auth__form" onSubmit={onSubmit} noValidate>
-        {/* First name */}
         <div className={`authField ${isFieldError("firstName") ? "is-error" : ""}`}>
           <div className="authField__control">
             <span className="authField__iconLeft" aria-hidden="true">
@@ -138,7 +150,7 @@ const onSubmit = async (e) => {
               className="authField__input"
               type="text"
               name="firstName"
-              placeholder="Введите имя"
+              placeholder={t("auth.register.firstNamePlaceholder")}
               value={form.firstName}
               onChange={onChange}
               onFocus={onFocus}
@@ -150,13 +162,11 @@ const onSubmit = async (e) => {
 
           {shouldShowHint("firstName") && (
             <p className="authField__hint">
-              {fieldError("firstName") ||
-                "Введите ваше имя. Имя может содержать буквы, пробелы и цифры."}
+              {fieldError("firstName") || t("auth.register.firstNameHint")}
             </p>
           )}
         </div>
 
-        {/* Email */}
         <div className={`authField ${isFieldError("email") ? "is-error" : ""}`}>
           <div className="authField__control">
             <span className="authField__iconLeft" aria-hidden="true">
@@ -167,7 +177,7 @@ const onSubmit = async (e) => {
               className="authField__input"
               type="email"
               name="email"
-              placeholder="Введите Email"
+              placeholder={t("auth.register.emailPlaceholder")}
               value={form.email}
               onChange={onChange}
               onFocus={onFocus}
@@ -178,11 +188,10 @@ const onSubmit = async (e) => {
           </div>
 
           {shouldShowHint("email") && (
-            <p className="authField__hint">{fieldError("email") || "Введите E-mail"}</p>
+            <p className="authField__hint">{fieldError("email") || t("auth.register.emailHint")}</p>
           )}
         </div>
 
-        {/* Password */}
         <div className={`authField ${isFieldError("password") ? "is-error" : ""}`}>
           <div className="authField__control">
             <span className="authField__iconLeft" aria-hidden="true">
@@ -193,7 +202,7 @@ const onSubmit = async (e) => {
               className="authField__input"
               type={showPassword ? "text" : "password"}
               name="password"
-              placeholder="Введите пароль"
+              placeholder={t("auth.register.passwordPlaceholder")}
               value={form.password}
               onChange={onChange}
               onFocus={onFocus}
@@ -205,7 +214,7 @@ const onSubmit = async (e) => {
             <button
               type="button"
               className="authField__iconRight"
-              aria-label={showPassword ? "Сховати пароль" : "Показати пароль"}
+              aria-label={showPassword ? t("auth.common.hidePassword") : t("auth.common.showPassword")}
               onClick={() => setShowPassword((v) => !v)}
             >
               <img
@@ -217,14 +226,11 @@ const onSubmit = async (e) => {
             </button>
           </div>
 
-{shouldShowHint("password") && (
-              <p className="authField__hint">
-                {fieldError("password") || `*${PASSWORD_HINT}`}
-              </p>
-            )}
+          {shouldShowHint("password") && (
+            <p className="authField__hint">{fieldError("password") || passwordHint}</p>
+          )}
         </div>
 
-        {/* Confirm */}
         <div className={`authField ${isFieldError("confirmPassword") ? "is-error" : ""}`}>
           <div className="authField__control">
             <span className="authField__iconLeft" aria-hidden="true">
@@ -235,7 +241,7 @@ const onSubmit = async (e) => {
               className="authField__input"
               type={showConfirmPassword ? "text" : "password"}
               name="confirmPassword"
-              placeholder="Повторно ввести пароль"
+              placeholder={t("auth.register.confirmPasswordPlaceholder")}
               value={form.confirmPassword}
               onChange={onChange}
               onFocus={onFocus}
@@ -247,7 +253,9 @@ const onSubmit = async (e) => {
             <button
               type="button"
               className="authField__iconRight"
-              aria-label={showConfirmPassword ? "Сховати пароль" : "Показати пароль"}
+              aria-label={
+                showConfirmPassword ? t("auth.common.hidePassword") : t("auth.common.showPassword")
+              }
               onClick={() => setShowConfirmPassword((v) => !v)}
             >
               <img
@@ -261,12 +269,11 @@ const onSubmit = async (e) => {
 
           {shouldShowHint("confirmPassword") && (
             <p className="authField__hint">
-              {fieldError("confirmPassword") || "*пожалуйста, подтвердите ваш пароль"}
+              {fieldError("confirmPassword") || t("auth.register.confirmPasswordHint")}
             </p>
           )}
         </div>
 
-        {/* Policy */}
         <div className={`authPolicy ${touched.acceptPolicy && errors.acceptPolicy ? "is-error" : ""}`}>
           <input
             className="authPolicy__checkbox"
@@ -276,26 +283,28 @@ const onSubmit = async (e) => {
             onChange={onChange}
             onBlur={onBlur}
           />
-          <p className="authPolicy__text">
-            Нажимая на кнопку «Регистрация», вы принимаете Политику конфиденциальности и
-            Условия использования.
-          </p>
+          <p className="authPolicy__text">{t("auth.register.policyText")}</p>
         </div>
 
         {submitError && <div className="auth__error">{submitError}</div>}
 
         <div className="authActions">
           <button className="btn-gradient btn-gradient--auth-primary" type="submit" disabled={isSubmitting}>
-            {isSubmitting ? "Создание..." : "Создать аккаунт"}
+            {isSubmitting ? t("auth.register.submitting") : t("auth.register.submit")}
           </button>
 
-          <button type="button" className="btn-gradient btn-gradient--auth-google" onClick={handleGoogle}>
-            <img src="/icon1/google.png" alt="Google" className="google-auth-btn__icon" />
+          <button
+            type="button"
+            className="btn-gradient btn-gradient--auth-google"
+            onClick={handleGoogle}
+            aria-label={t("auth.common.googleAlt")}
+          >
+            <img src="/icon1/google.png" alt="" className="google-auth-btn__icon" aria-hidden="true" />
           </button>
         </div>
 
         <button type="button" className="btn-gradient btn-gradient--auth-bottom" onClick={onGoLogin}>
-          У меня есть аккаунт
+          {t("auth.register.hasAccount")}
         </button>
       </form>
     </section>

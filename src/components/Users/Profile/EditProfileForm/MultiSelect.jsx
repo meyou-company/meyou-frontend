@@ -32,6 +32,7 @@ export default function MultiSelect({
   placeholder = '',
   onBlur,
   error,
+  maxItemsNote,
   selectProps = {},
 }) {
   const visibleCount = useVisibleCount();
@@ -170,7 +171,7 @@ export default function MultiSelect({
       </div>
 
       <div className="field__meta">
-        <span className="field__note">*максимум {max}</span>
+        {maxItemsNote ? <span className="field__note">{maxItemsNote}</span> : null}
         <span className="field__counter">
           {value.length}/{max}
         </span>

@@ -1,11 +1,13 @@
 import { useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
-import { PASSWORD_REGEX, PASSWORD_HINT } from "../../../utils/validationRegister";
+import { PASSWORD_REGEX } from "../../../utils/validationRegister";
 import { useForceDarkTheme } from "../../../hooks/useForceDarkTheme";
 import "./ResetNewPasswordForm.scss";
 
 export default function ResetNewPasswordForm({ onBack, onSuccess }) {
   useForceDarkTheme();
+  const { t } = useTranslation();
   const [form, setForm] = useState({ password: "", confirmPassword: "" });
   const [touched, setTouched] = useState({ password: false, confirmPassword: false });
   const [show, setShow] = useState({ password: false, confirmPassword: false });
@@ -15,16 +17,17 @@ export default function ResetNewPasswordForm({ onBack, onSuccess }) {
 
   const errors = useMemo(() => {
     const e = {};
+    const passwordHint = t("auth.validation.passwordHint");
 
-    if (!form.password.trim()) e.password = "Введіть новий пароль";
-    else if (!PASSWORD_REGEX.test(form.password))
-      e.password = PASSWORD_HINT;
+    if (!form.password.trim()) e.password = t("auth.resetPassword.errors.passwordRequired");
+    else if (!PASSWORD_REGEX.test(form.password)) e.password = passwordHint;
 
-    if (!form.confirmPassword.trim()) e.confirmPassword = "Повторите пароль";
-    else if (form.confirmPassword !== form.password) e.confirmPassword = "Пароли не совпадают";
+    if (!form.confirmPassword.trim()) e.confirmPassword = t("auth.resetPassword.errors.confirmRequired");
+    else if (form.confirmPassword !== form.password)
+      e.confirmPassword = t("auth.resetPassword.errors.mismatch");
 
     return e;
-  }, [form]);
+  }, [form, t]);
 
   const fieldError = (key) => (touched[key] ? errors[key] : "");
   const isFieldError = (key) => Boolean(fieldError(key));
@@ -52,14 +55,12 @@ export default function ResetNewPasswordForm({ onBack, onSuccess }) {
 
     try {
       setIsSubmitting(true);
-
-      // TODO: backend "reset password"
       await new Promise((r) => setTimeout(r, 600));
 
-      toast.success("Пароль змінено");
+      toast.success(t("auth.resetPassword.toastSuccess"));
       onSuccess?.();
     } catch {
-      const msg = "Ошибка. Попробуйте ещё раз.";
+      const msg = t("auth.resetPassword.errors.saveFailed");
       toast.error(msg);
       setSubmitError(msg);
     } finally {
@@ -67,22 +68,21 @@ export default function ResetNewPasswordForm({ onBack, onSuccess }) {
     }
   };
 
+  const passwordHint = t("auth.validation.passwordHint");
+
   return (
     <section className="auth auth--login">
-      {/* back arrow — GLOBAL */}
-      <button type="button" className="back-arrow" onClick={onBack} aria-label="Назад">
+      <button type="button" className="back-arrow" onClick={onBack} aria-label={t("common.back")}>
         <img src="/icon1/Vector.png" alt="" aria-hidden="true" className="back-arrow__icon" />
       </button>
 
-      {/* logo — GLOBAL */}
       <div className="auth__logoCard" aria-hidden="true">
-        <img className="auth__logoImg" src="/Logo/photo.png" alt="Me You logo" />
+        <img className="auth__logoImg" src="/Logo/photo.png" alt={t("auth.common.logoAlt")} />
       </div>
 
-      <h1 className="auth__title">Смена пароля</h1>
+      <h1 className="auth__title">{t("auth.resetPassword.title")}</h1>
 
       <form className="auth__form" onSubmit={onSubmit} noValidate>
-        {/* New password */}
         <div className={`authField ${isFieldError("password") ? "is-error" : ""}`}>
           <div className="authField__control">
             <span className="authField__iconLeft" aria-hidden="true">
@@ -93,7 +93,7 @@ export default function ResetNewPasswordForm({ onBack, onSuccess }) {
               className="authField__input"
               type={show.password ? "text" : "password"}
               name="password"
-              placeholder="Введите новый пароль"
+              placeholder={t("auth.resetPassword.passwordPlaceholder")}
               value={form.password}
               onChange={onChange}
               onBlur={onBlur}
@@ -105,7 +105,7 @@ export default function ResetNewPasswordForm({ onBack, onSuccess }) {
               type="button"
               className="authField__iconRight"
               onClick={() => toggle("password")}
-              aria-label={show.password ? "Скрыть пароль" : "Показать пароль"}
+              aria-label={show.password ? t("auth.common.hidePassword") : t("auth.common.showPassword")}
             >
               <img
                 className="authField__iconImg"
@@ -116,14 +116,13 @@ export default function ResetNewPasswordForm({ onBack, onSuccess }) {
             </button>
           </div>
 
-          {(touched.password && fieldError("password")) ? (
+          {touched.password && fieldError("password") ? (
             <p className="authField__hint">{fieldError("password")}</p>
           ) : (
-            <p className="authField__hint">{PASSWORD_HINT}</p>
+            <p className="authField__hint">{passwordHint}</p>
           )}
         </div>
 
-        {/* Confirm password */}
         <div className={`authField ${isFieldError("confirmPassword") ? "is-error" : ""}`}>
           <div className="authField__control">
             <span className="authField__iconLeft" aria-hidden="true">
@@ -134,7 +133,7 @@ export default function ResetNewPasswordForm({ onBack, onSuccess }) {
               className="authField__input"
               type={show.confirmPassword ? "text" : "password"}
               name="confirmPassword"
-              placeholder="Повторите пароль"
+              placeholder={t("auth.resetPassword.confirmPasswordPlaceholder")}
               value={form.confirmPassword}
               onChange={onChange}
               onBlur={onBlur}
@@ -146,7 +145,9 @@ export default function ResetNewPasswordForm({ onBack, onSuccess }) {
               type="button"
               className="authField__iconRight"
               onClick={() => toggle("confirmPassword")}
-              aria-label={show.confirmPassword ? "Скрыть пароль" : "Показать пароль"}
+              aria-label={
+                show.confirmPassword ? t("auth.common.hidePassword") : t("auth.common.showPassword")
+              }
             >
               <img
                 className="authField__iconImg"
@@ -164,13 +165,8 @@ export default function ResetNewPasswordForm({ onBack, onSuccess }) {
 
         {submitError && <div className="auth__error">{submitError}</div>}
 
-        {/* кнопка — GLOBAL */}
-        <button
-          type="submit"
-          className="btn-gradient btn-gradient--auth-single"
-          disabled={isSubmitting}
-        >
-          {isSubmitting ? "Сохранение..." : "Сохранить"}
+        <button type="submit" className="btn-gradient btn-gradient--auth-single" disabled={isSubmitting}>
+          {isSubmitting ? t("auth.resetPassword.submitting") : t("auth.resetPassword.submit")}
         </button>
       </form>
     </section>

@@ -1,4 +1,5 @@
 import { useMemo, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { useAuthStore } from "../../../zustand/useAuthStore";
 import { useForceDarkTheme } from "../../../hooks/useForceDarkTheme";
@@ -9,6 +10,7 @@ const CODE_LEN = 4;
 
 export default function VerifyRegisterEmailForm({ onBack, onSuccess }) {
   useForceDarkTheme();
+  const { t } = useTranslation();
   const verifyEmailCode = useAuthStore((s) => s.verifyEmailCode);
   const resendEmailCode = useAuthStore((s) => s.resendEmailCode);
 
@@ -83,26 +85,25 @@ export default function VerifyRegisterEmailForm({ onBack, onSuccess }) {
     setSubmitError("");
 
     if (!isComplete) {
-      setSubmitError("Введите код полностью");
+      setSubmitError(t("auth.verifyEmail.errors.incomplete"));
       return;
     }
 
     try {
       setIsSubmitting(true);
-
-      const res = await verifyEmailCode?.({ code: codeValue }); // ✅ тільки code
+      const res = await verifyEmailCode?.({ code: codeValue });
 
       if (!res?.ok) {
-        const msg = getApiErrorMessage(res?.error) || "Ошибка верификации";
+        const msg = getApiErrorMessage(res?.error) || t("auth.verifyEmail.errors.verifyFailed");
         toast.error(msg);
         setSubmitError(msg);
         return;
       }
 
-      toast.success("Email підтверджено");
+      toast.success(t("auth.verifyEmail.toastVerified"));
       onSuccess?.();
     } catch (err) {
-      const msg = getApiErrorMessage(err) || "Ошибка верификации";
+      const msg = getApiErrorMessage(err) || t("auth.verifyEmail.errors.verifyFailed");
       toast.error(msg);
       setSubmitError(msg);
     } finally {
@@ -120,14 +121,14 @@ export default function VerifyRegisterEmailForm({ onBack, onSuccess }) {
       const res = await resendEmailCode?.();
 
       if (res && !res?.ok) {
-        const msg = getApiErrorMessage(res?.error) || "Ошибка отправки кода";
+        const msg = getApiErrorMessage(res?.error) || t("auth.verifyEmail.errors.resendFailed");
         toast.error(msg);
         setSubmitError(msg);
       } else if (res?.ok) {
-        toast.success("Код відправлено повторно");
+        toast.success(t("auth.verifyEmail.toastResent"));
       }
     } catch (e) {
-      const msg = getApiErrorMessage(e) || "Ошибка отправки кода";
+      const msg = getApiErrorMessage(e) || t("auth.verifyEmail.errors.resendFailed");
       toast.error(msg);
       setSubmitError(msg);
     } finally {
@@ -137,16 +138,16 @@ export default function VerifyRegisterEmailForm({ onBack, onSuccess }) {
 
   return (
     <section className="verify auth">
-      <button type="button" className="back-arrow" onClick={onBack} aria-label="Назад">
+      <button type="button" className="back-arrow" onClick={onBack} aria-label={t("common.back")}>
         <img src="/icon1/Vector.png" alt="" aria-hidden="true" className="back-arrow__icon" />
       </button>
 
       <div className="verify__logoCard" aria-hidden="true">
-        <img className="verify__logoImg" src="/Logo/photo.png" alt="Me You logo" />
+        <img className="verify__logoImg" src="/Logo/photo.png" alt={t("auth.common.logoAlt")} />
       </div>
 
-      <h1 className="verify__title">Верификация</h1>
-      <p className="verify__subtitle">Код отправлен на емейл и действителен 15 минут.</p>
+      <h1 className="verify__title">{t("auth.verifyEmail.title")}</h1>
+      <p className="verify__subtitle">{t("auth.verifyEmail.subtitle")}</p>
 
       <form className="verify__form" onSubmit={onSubmit} noValidate>
         <div className="verifyCode" onPaste={handlePaste}>
@@ -162,19 +163,28 @@ export default function VerifyRegisterEmailForm({ onBack, onSuccess }) {
               value={val}
               onChange={(e) => handleChange(idx, e)}
               onKeyDown={(e) => handleKeyDown(idx, e)}
-              aria-label={`Цифра ${idx + 1}`}
+              aria-label={t("auth.verify.digitAria", { n: idx + 1 })}
             />
           ))}
         </div>
 
         {submitError && <div className="verify__error">{submitError}</div>}
 
-        <button className="btn-gradient verify__btnMain" type="submit" disabled={isSubmitting || !isComplete}>
-          {isSubmitting ? "Проверка..." : "Подтвердить"}
+        <button
+          className="btn-gradient verify__btnMain"
+          type="submit"
+          disabled={isSubmitting || !isComplete}
+        >
+          {isSubmitting ? t("auth.verifyEmail.submitting") : t("auth.verifyEmail.submit")}
         </button>
 
-        <button type="button" className="btn-gradient verify__btnResend" onClick={resend} disabled={isResending}>
-          {isResending ? "Отправка..." : "Отправить код повторно"}
+        <button
+          type="button"
+          className="btn-gradient verify__btnResend"
+          onClick={resend}
+          disabled={isResending}
+        >
+          {isResending ? t("auth.verifyEmail.resending") : t("auth.verifyEmail.resend")}
         </button>
 
         <input type="hidden" name="code" value={codeValue} readOnly />

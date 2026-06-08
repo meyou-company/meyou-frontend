@@ -11,7 +11,7 @@ import tr from './locales/tr.json';
 import uk from './locales/uk.json';
 import {
   DEFAULT_LOCALE,
-  getLocaleDirection,
+  applyDocumentLocaleAttributes,
   normalizeLocale,
 } from './config';
 
@@ -29,16 +29,7 @@ const resources = {
 let initialized = false;
 
 export function applyDocumentLocale(locale) {
-  const code = normalizeLocale(locale);
-  const dir = getLocaleDirection(code);
-
-  if (typeof document !== 'undefined') {
-    document.documentElement.lang = code;
-    document.documentElement.dir = dir;
-    document.body?.setAttribute('dir', dir);
-  }
-
-  return { locale: code, dir };
+  return applyDocumentLocaleAttributes(locale);
 }
 
 export async function changeLanguage(locale) {

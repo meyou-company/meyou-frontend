@@ -42,13 +42,131 @@
     "language": "Language"
   },
   "auth": {
-    "login": "Log in",
-    "register": "Sign up",
+    "login": {
+      "title": "Sign in",
+      "emailPlaceholder": "Enter email",
+      "passwordPlaceholder": "Enter password",
+      "submit": "Sign in",
+      "submitting": "Signing in…",
+      "forgotPassword": "Forgot password?",
+      "toastSuccess": "Signed in successfully",
+      "errors": {
+        "emailRequired": "Enter your email",
+        "passwordRequired": "Enter your password",
+        "loginFailed": "Sign-in failed"
+      }
+    },
+    "register": {
+      "title": "Sign up",
+      "firstNamePlaceholder": "Enter your name",
+      "firstNameHint": "Enter your name. Name can contain letters, spaces and digits.",
+      "emailPlaceholder": "Enter email",
+      "emailHint": "Enter your email",
+      "passwordPlaceholder": "Enter password",
+      "confirmPasswordPlaceholder": "Re-enter password",
+      "confirmPasswordHint": "Please confirm your password",
+      "policyText": "By clicking «Sign up», you accept the Privacy Policy and Terms of Use.",
+      "submit": "Create account",
+      "submitting": "Creating…",
+      "hasAccount": "I already have an account",
+      "toastSuccess": "Registration successful. Check your email to verify.",
+      "errors": {
+        "checkForm": "Please check the form",
+        "registerFailed": "Registration failed"
+      }
+    },
     "email": "Email",
     "password": "Password",
-    "forgotPassword": "Forgot password?",
+    "forgotPassword": {
+      "title": "Reset password",
+      "emailPlaceholder": "Enter email",
+      "submit": "Confirm",
+      "submitting": "Sending…",
+      "toastSuccess": "Code sent to your email",
+      "errors": {
+        "emailRequired": "Enter your email",
+        "emailInvalid": "Enter a valid email",
+        "sendFailed": "Failed to send code. Please try again."
+      }
+    },
     "noAccount": "Don't have an account?",
-    "hasAccount": "Already have an account?"
+    "hasAccount": "Already have an account?",
+    "common": {
+      "logoAlt": "Me You logo",
+      "googleAlt": "Google",
+      "showPassword": "Show password",
+      "hidePassword": "Hide password",
+      "somethingWentWrong": "Something went wrong"
+    },
+    "resetPassword": {
+      "title": "Reset password",
+      "passwordPlaceholder": "Enter new password",
+      "confirmPasswordPlaceholder": "Re-enter password",
+      "submit": "Save",
+      "submitting": "Saving…",
+      "toastSuccess": "Password changed",
+      "errors": {
+        "passwordRequired": "Enter new password",
+        "confirmRequired": "Re-enter password",
+        "mismatch": "Passwords do not match",
+        "saveFailed": "Error. Please try again."
+      }
+    },
+    "verifyEmail": {
+      "title": "Verification",
+      "subtitle": "Code sent to your email. Valid for 15 minutes.",
+      "submit": "Confirm",
+      "submitting": "Verifying…",
+      "resend": "Resend code",
+      "resending": "Sending…",
+      "toastVerified": "Email verified",
+      "toastResent": "Code resent",
+      "errors": {
+        "incomplete": "Enter the full code",
+        "verifyFailed": "Verification failed",
+        "resendFailed": "Failed to send code"
+      }
+    },
+    "verifyResetCode": {
+      "title": "Reset password",
+      "subtitle": "Code sent to your email. Valid for 15 minutes.",
+      "submit": "Next",
+      "submitting": "Verifying…",
+      "resend": "Resend code",
+      "resending": "Sending…",
+      "toastVerified": "Code confirmed",
+      "toastResent": "Code resent",
+      "errors": {
+        "incomplete": "Enter the full code",
+        "noEmail": "No email. Go back and enter your email again.",
+        "verifyFailed": "Verification failed",
+        "resendFailed": "Failed to send code"
+      }
+    },
+    "verify": {
+      "digitAria": "Digit {{n}}"
+    },
+    "google": {
+      "loading": "Signing in with Google…",
+      "loadingGeneric": "Authorizing…"
+    },
+    "validation": {
+      "firstNameRequired": "Enter your name",
+      "firstNameMin": "Name must be at least 2 characters",
+      "firstNameMax": "Name is too long",
+      "firstNameFormat": "Name can only contain letters, spaces and hyphens",
+      "emailRequired": "Enter your email",
+      "emailInvalid": "Invalid email",
+      "emailMax": "Email is too long",
+      "passwordRequired": "Enter your password",
+      "passwordMin": "Minimum 8 characters. Needs digits, one lowercase (a-z) and one uppercase (A-Z) letter.",
+      "passwordMax": "Password is too long",
+      "passwordFormat": "Needs digits, one lowercase (a-z) and one uppercase (A-Z) letter.",
+      "passwordHint": "Password must contain digits, at least one lowercase (a-z) and one uppercase (A-Z) letter.",
+      "confirmRequired": "Confirm your password",
+      "confirmMismatch": "Passwords do not match",
+      "acceptPolicy": "You must accept the terms and privacy policy"
+    }
   },
   "profile": {
     "myMessages": "My messages",
@@ -56,7 +174,199 @@
     "saved": "Saved",
     "gifts": "Gifts",
     "writeMessage": "Send message",
-    "goHome": "Go home"
+    "goHome": "Go home",
+    "loading": "Loading profile…",
+    "notFound": "Profile not found{{username}}",
+    "loadError": "Failed to load profile",
+    "myBalance": "My balance",
+    "editProfile": "Edit profile",
+    "viewPhoto": "View photo",
+    "viewPhotoFull": "Full-size photo",
+    "live": "Live",
+    "more": "More",
+    "notSpecified": "Not specified",
+    "tabs": {
+      "info": "Information",
+      "stories": "Stories",
+      "video": "Video",
+      "photo": "Photos",
+      "unsubscribe": "Unsubscribe"
+    },
+    "actions": {
+      "addStory": "Add to story",
+      "addStoryShort": "Story",
+      "addReels": "Add reel",
+      "reels": "Reels",
+      "live": "Live",
+      "liveDesktop": "Go live"
+    },
+    "friends": {
+      "title": "Friends",
+      "titleWithCount": "Friends, {{count}} total",
+      "showMore": "Show more",
+      "findFriends": "Find friends",
+      "viewFriends": "View friends",
+      "empty": "No friends yet",
+      "profileOf": "Profile {{name}}",
+      "profileUnavailable": "Profile unavailable",
+      "openProfile": "Open profile {{name}}"
+    },
+    "posts": {
+      "createTitle": "Create post",
+      "placeholder": "What's new?",
+      "placeholderWithName": "What's new, {{name}}?",
+      "loading": "Loading posts…",
+      "empty": "No posts yet",
+      "like": "Like",
+      "comment": "Comment",
+      "save": "Save",
+      "share": "Share"
+    },
+    "visitor": {
+      "writeMessage": "Send message",
+      "subscribe": "Subscribe",
+      "subscribing": "…",
+      "unsubscribe": "Unsubscribe",
+      "addToVip": "Add to VIP",
+      "report": "Report",
+      "block": "Block",
+      "moreActions": "More actions",
+      "profileTabs": "Profile tabs",
+      "profileActions": "Profile actions"
+    },
+    "info": {
+      "title": "Information",
+      "interests": "Interests",
+      "noInterests": "No interests",
+      "personalInfo": "Personal information",
+      "gender": "Gender",
+      "maritalStatus": "Relationship status",
+      "nationality": "Nationality",
+      "profession": "Profession",
+      "languages": "Languages",
+      "location": "Location",
+      "country": "Country",
+      "city": "City",
+      "socialActivity": "Social activity",
+      "friendsStat": "Friends",
+      "vipStatus": "VIP",
+      "status": "Status",
+      "giftsStat": "Gifts",
+      "postsStat": "Posts",
+      "contacts": "Contacts",
+      "emailHidden": "Email (hidden)"
+    },
+    "vip": {
+      "vipFriends": "VIP",
+      "friendsTitle": "Friends {{count}}"
+    },
+    "friendsPage": {
+      "title": "Friends {{name}}",
+      "searchPlaceholder": "Search by name or username…",
+      "sections": "Sections",
+      "noResults": "No one found for this query",
+      "noFriends": "This user has no friends yet",
+      "userNotSpecified": "User not specified",
+      "loadListError": "Failed to load friends list",
+      "notFound": "Profile not found"
+    },
+    "toast": {
+      "avatarSessionExpired": "Session expired. Please sign in again.",
+      "avatarSaveError": "Failed to save photo",
+      "openChatError": "Failed to open chat"
+    },
+    "editForm": {
+      "title": "Edit profile",
+      "changePhoto": "Change profile photo",
+      "upload": "Upload",
+      "delete": "Delete",
+      "avatarAlt": "Avatar",
+      "lockedField": "Locked",
+      "select": "Select",
+      "maxCharsNote": "*character limit",
+      "maxItemsNote": "*maximum {{max}}",
+      "saving": "Saving...",
+      "saveChanges": "Save changes",
+      "fields": {
+        "lastName": "Last name",
+        "firstName": "First name",
+        "gender": "Gender",
+        "birthDate": "Date of birth",
+        "birthDatePlaceholder": "Select date of birth",
+        "nationality": "Nationality",
+        "username": "Username (up to 10 characters)",
+        "bio": "About you (optional)",
+        "interests": "Interests",
+        "hobbies": "Hobbies",
+        "maritalStatus": "Relationship status",
+        "country": "Country",
+        "city": "City"
+      },
+      "gender": {
+        "male": "Male",
+        "female": "Female"
+      },
+      "maritalStatus": {
+        "single": "Single",
+        "married": "Married",
+        "divorced": "Divorced",
+        "widowed": "Widowed",
+        "inRelationship": "In a relationship"
+      },
+      "toast": {
+        "avatarUpdated": "Avatar updated",
+        "avatarDeleted": "Avatar removed",
+        "avatarUpdateError": "Failed to update photo",
+        "avatarDeleteError": "Failed to remove avatar",
+        "invalidFileType": "Only JPEG, PNG, WebP allowed"
+      },
+      "errors": {
+        "usernameTaken": "This username is already taken",
+        "usernameCheckError": "Failed to verify username",
+        "updateError": "Failed to update profile"
+      },
+      "validation": {
+        "lastNameRequired": "Enter your last name",
+        "firstNameRequired": "Enter your first name",
+        "phoneRequired": "Enter your phone number",
+        "nationalityRequired": "Enter your nationality",
+        "maritalStatusRequired": "Select relationship status",
+        "countryRequired": "Select a country",
+        "cityRequired": "Select a city",
+        "interestsRequired": "Select interests",
+        "hobbiesRequired": "Select hobbies",
+        "usernameRequired": "Enter a username",
+        "genderRequired": "Select gender",
+        "birthDateRequired": "Select date of birth",
+        "birthDateFormat": "Format: YYYY-MM-DD",
+        "birthDateInvalid": "Invalid date",
+        "birthDateAge": "Age must be between 18 and 100",
+        "firstNameLettersOnly": "First name must contain letters only",
+        "lastNameLettersOnly": "Last name must contain letters only",
+        "nationalityLettersOnly": "Nationality must contain letters only",
+        "usernameMinLength": "Username must be at least 3 characters",
+        "usernameMaxLength": "Username must be up to 10 characters",
+        "usernameFormat": "Username: Latin letters, digits, and . _ - only",
+        "bioMaxLength": "Maximum 500 characters",
+        "phoneTooShort": "Phone number is too short",
+        "phoneTooLong": "Phone number is too long"
+      }
+    },
+    "completeForm": {
+      "title": "Profile",
+      "addPhoto": "Add profile photo",
+      "photoNote": "*profiles with photos get more views",
+      "save": "Save",
+      "update": "Update",
+      "saving": "Saving...",
+      "maxLimit": "Maximum {{max}}",
+      "toast": {
+        "profileSaved": "Profile saved"
+      },
+      "errors": {
+        "saveError": "Failed to save profile"
+      }
+    }
   },
   "messenger": {
     "title": "Messages",
@@ -172,5 +482,19 @@
     "STORY_CANNOT_REPLY_SELF": "Cannot reply to your own story.",
     "STORY_CANNOT_ADD_SELF_CLOSE_FRIEND": "Cannot add yourself to close friends.",
     "VIDEO_TOO_LONG": "Video is too long."
+  },
+  "navigation": {
+    "home": "Home",
+    "profile": "Profile",
+    "myProfile": "My profile",
+    "notifications": "Notifications",
+    "menu": "Menu",
+    "wallet": "Wallet",
+    "friends": "Friends",
+    "reels": "Reels",
+    "add": "Add",
+    "bottomNav": "Bottom navigation",
+    "search": "Search",
+    "messages": "Messages"
   }
 }

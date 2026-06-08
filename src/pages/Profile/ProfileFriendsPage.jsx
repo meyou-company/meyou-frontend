@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { usersApi } from "../../services/usersApi";
 import { getFriendsFromUser } from "../../utils/profileFriends";
 import { getProfileRouteHandle } from "../../utils/profileFriendNav";
@@ -24,6 +25,7 @@ function matchQuery(user, q) {
 }
 
 export default function ProfileFriendsPage() {
+  const { t } = useTranslation();
   const { username } = useParams();
   const navigate = useNavigate();
   const [profileUser, setProfileUser] = useState(null);
@@ -37,7 +39,7 @@ export default function ProfileFriendsPage() {
   useEffect(() => {
     if (!usernameNorm) {
       setLoading(false);
-      setError("Користувача не вказано");
+      setError("user_not_specified");
       return;
     }
     setLoading(true);
@@ -50,7 +52,7 @@ export default function ProfileFriendsPage() {
         setFriends(getFriendsFromUser(data));
       })
       .catch((e) => {
-        setError(e?.response?.status === 404 ? "Профіль не знайдено" : "Не вдалося завантажити список друзів");
+        setError(e?.response?.status === 404 ? "not_found" : "load_error");
         setProfileUser(null);
         setFriends([]);
       })
@@ -71,6 +73,15 @@ export default function ProfileFriendsPage() {
         ""
       : usernameNorm;
 
+  const errorMessage =
+    error === "user_not_specified"
+      ? t("profile.friendsPage.userNotSpecified")
+      : error === "not_found"
+        ? t("profile.friendsPage.notFound")
+        : error === "load_error"
+          ? t("profile.friendsPage.loadListError")
+          : null;
+
   return (
     <div className="friends-content">
       <header className="friends-content__header">
@@ -78,47 +89,51 @@ export default function ProfileFriendsPage() {
           type="button"
           className="friends-content__backBtn"
           onClick={() => navigate(`/profile/${usernameNorm}`)}
-          aria-label="Назад"
+          aria-label={t("common.back")}
         >
           <img src="/icon1/Vector.png" alt="" aria-hidden="true" className="friends-content__backIcon" />
         </button>
-        <h1 className="friends-content__title">Друзі {displayName || usernameNorm}</h1>
+        <h1 className="friends-content__title">
+          {t("profile.friendsPage.title", { name: displayName || usernameNorm })}
+        </h1>
       </header>
 
       <div className="friends-content__searchWrap">
         <input
           type="text"
           className="friends-content__search"
-          placeholder="Пошук за імʼям або нікнеймом..."
+          placeholder={t("profile.friendsPage.searchPlaceholder")}
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          aria-label="Пошук"
+          aria-label={t("common.search")}
         />
       </div>
 
-      <div className="friends-content__tabs" role="tablist" aria-label="Розділи">
+      <div className="friends-content__tabs" role="tablist" aria-label={t("profile.friendsPage.sections")}>
         <div
           className="friends-content__tab friends-content__tabActive friends-content__tabSingle"
           role="tab"
           aria-selected="true"
         >
-          Друзі
+          {t("profile.friends.title")}
         </div>
       </div>
 
       <div className="friends-content__listWrap">
         {loading ? (
-          <p className="friends-content__empty">Завантаження…</p>
-        ) : error ? (
-          <p className="friends-content__empty">{error}</p>
+          <p className="friends-content__empty">{t("common.loading")}</p>
+        ) : errorMessage ? (
+          <p className="friends-content__empty">{errorMessage}</p>
         ) : filtered.length === 0 ? (
           <p className="friends-content__empty">
-            {query.trim() ? "Нікого не знайдено за запитом" : "У цього користувача ще немає друзів"}
+            {query.trim()
+              ? t("profile.friendsPage.noResults")
+              : t("profile.friendsPage.noFriends")}
           </p>
         ) : (
           <FriendsListRows
             users={filtered}
-            onOpenProfile={(h) => h && navigate(`/profile/${h}`)}
+            onOpenUser={(handle) => navigate(`/profile/${handle}`)}
           />
         )}
       </div>

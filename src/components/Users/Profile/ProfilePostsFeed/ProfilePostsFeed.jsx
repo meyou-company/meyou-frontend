@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import profileIcons from '../../../../constants/profileIcons';
 import PostCommentsSection from '../../../PostFeed/PostCommentsSection';
 import PostFeedBody from '../../../PostFeed/PostFeedBody';
@@ -28,6 +29,7 @@ export default function ProfilePostsFeed({
   onViewProfileAvatar,
   sectionClassName = 'feed',
 }) {
+  const { t } = useTranslation();
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const [lightboxImages, setLightboxImages] = useState([]);
   const [lightboxIndex, setLightboxIndex] = useState(0);
@@ -85,7 +87,7 @@ export default function ProfilePostsFeed({
       <section className={sectionClassName}>
         {feedLoading && (
           <p className="feedLoadingHint" aria-live="polite">
-            Завантаження постів…
+            {t('profile.posts.loading')}
           </p>
         )}
         {!feedLoading && feedError && (
@@ -94,7 +96,7 @@ export default function ProfilePostsFeed({
           </p>
         )}
         {!feedLoading && !feedError && feedPosts.length === 0 && (
-          <p className="feedEmptyHint">Поки немає постів</p>
+          <p className="feedEmptyHint">{t('profile.posts.empty')}</p>
         )}
         {feedPosts.map((post) => {
           const repost = isRepostCard(post);
@@ -116,7 +118,7 @@ export default function ProfilePostsFeed({
             <PostCardHeader
               avatarSrc={headerAvatar}
               onAvatarClick={() => onViewProfileAvatar?.()}
-              avatarAriaLabel="Переглянути фото"
+              avatarAriaLabel={t('profile.viewPhoto')}
               authorName={headerName}
               createdAt={post.createdAt}
               location={post.location}
@@ -141,7 +143,7 @@ export default function ProfilePostsFeed({
               <button
                 className={`postActionBtn ${post.viewerState?.isLiked ? 'postActionBtn--active postActionBtn--liked' : ''}`}
                 type="button"
-                aria-label="like"
+                aria-label={t('profile.posts.like')}
                 aria-pressed={post.viewerState?.isLiked === true}
                 onClick={() => feedActions.onLike(post)}
               >
@@ -156,7 +158,7 @@ export default function ProfilePostsFeed({
               <button
                 className="postActionBtn"
                 type="button"
-                aria-label="comment"
+                aria-label={t('profile.posts.comment')}
                 onClick={() => feedActions.toggleCommentsOpen(post.id)}
               >
                 <img
@@ -170,7 +172,7 @@ export default function ProfilePostsFeed({
               <button
                 className={`postActionBtn ${post.viewerState?.isSaved ? 'postActionBtn--active' : ''}`}
                 type="button"
-                aria-label="save"
+                aria-label={t('profile.posts.save')}
                 aria-pressed={post.viewerState?.isSaved === true}
                 onClick={() => feedActions.onSave(post)}
               >
@@ -185,7 +187,7 @@ export default function ProfilePostsFeed({
               <button
                 className="postActionBtn"
                 type="button"
-                aria-label="Поділитися"
+                aria-label={t('profile.posts.share')}
                 onClick={() => feedActions.openSharePost(post)}
               >
                 <img

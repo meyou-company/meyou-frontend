@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useCallback, useState, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import ProfileHeader from "../../components/Users/Profile/ProfileHome/ProfileHeader";
 import ProfileHome from "../../components/Users/Profile/ProfileHome/ProfileHome";
@@ -51,6 +52,7 @@ const normalizeProfile = (u) => {
 };
 
 export default function Profile() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { username: urlUsername } = useParams();
   const user = useAuthStore((s) => s.user);
@@ -244,9 +246,9 @@ export default function Profile() {
       navigate(`/messages/${conversation.id}`);
     } catch (err) {
       console.error("[profile] open conversation failed", err);
-      toast.error(getApiErrorMessage(err) || "Не удалось открыть чат");
+      toast.error(getApiErrorMessage(err) || t('profile.toast.openChatError'));
     }
-  }, [navigate, profileUser?.id, profileUser?.username]);
+  }, [navigate, profileUser?.id, profileUser?.username, t]);
 
   // ✅ handlers для Home
   const onEditProfile = useCallback(() => navigate("/users/profile/edit"), [navigate]);
@@ -289,7 +291,7 @@ export default function Profile() {
           onWallet={onWallet}
           onNav={onNav}
         />
-        <div className={styles.loading}>Завантаження профілю…</div>
+        <div className={styles.loading}>{t('profile.loading')}</div>
       </div>
     );
   }
@@ -310,8 +312,10 @@ export default function Profile() {
         <div className={styles.content}>
           <div className={styles.loading}>
             {fetchError === "not_found"
-              ? `Профіль не знайдено${urlUsername ? `: @${urlUsername}` : ""}`
-              : "Помилка завантаження"}
+              ? t('profile.notFound', {
+                  username: urlUsername ? `: @${urlUsername}` : "",
+                })
+              : t('profile.loadError')}
           </div>
         </div>
       </div>

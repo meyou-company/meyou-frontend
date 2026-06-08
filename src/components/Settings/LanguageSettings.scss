@@ -87,9 +87,9 @@
   font-weight: 700;
 }
 
-html[dir='rtl'] .langSettings__option,
-body[dir='rtl'] .langSettings__option {
-  text-align: end;
+html.locale-ar .langSettings__option,
+body.locale-ar .langSettings__option {
+  text-align: start;
 }
 
 body.dark .langSettings__modal,

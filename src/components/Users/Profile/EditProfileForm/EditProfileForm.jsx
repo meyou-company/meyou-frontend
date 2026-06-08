@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import Select from 'react-select';
 import DatePicker from 'react-datepicker';
@@ -17,12 +18,11 @@ import { useLocationOptions } from '../../../../hooks/useLocationOptions';
 import { usePrefillProfile } from '../../../../hooks/usePrefillProfile';
 
 import { normalizeForValidation, toBackendPayload } from '../../../../utils/profilePayload';
-
-import { maritalStatusOptions } from '../../../../utils/profileOptions';
-import { validateCompleteProfile } from '../../../../utils/validationCompleteProfile';
 import { normalizePhone } from '../../../../utils/normalizePhone';
 import { cropImageToFile } from '../../../../utils/cropImageToFile';
+import { validateCompleteProfile, translateValidationErrors } from '../../../../utils/validationCompleteProfile';
 import { getApiErrorMessage } from '../../../../utils/getApiErrorMessage';
+import { useGenderOptions, useMaritalStatusOptions } from '../../../../hooks/useProfileFormOptions';
 
 import { interestOptions } from '../../../../constants/interests';
 import { profileHobbyOptions } from '../../../../constants/hobbies';
@@ -55,11 +55,6 @@ const INITIAL_VALUES = {
   // tiktok,
 };
 
-const GENDER_OPTIONS = [
-  { value: 'MALE', label: 'Чоловіча' },
-  { value: 'FEMALE', label: 'Жіноча' },
-];
-
 function getBirthDateLimits() {
   const today = new Date();
   const max = new Date(today);
@@ -74,6 +69,9 @@ function getBirthDateLimits() {
 }
 
 export default function EditProfileForm({ onBack, onSave }) {
+  const { t } = useTranslation();
+  const genderOptions = useGenderOptions();
+  const maritalStatusOptions = useMaritalStatusOptions();
   const [values, setValues] = useState(INITIAL_VALUES);
   const [touched, setTouched] = useState({});
   const [errors, setErrors] = useState({});
@@ -106,7 +104,7 @@ export default function EditProfileForm({ onBack, onSave }) {
 
     const okTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
     if (!okTypes.includes(file.type)) {
-      setAvatarError('Дозволено лише JPEG, PNG, WebP');
+      setAvatarError(t('profile.editForm.toast.invalidFileType'));
       return;
     }
 
@@ -133,13 +131,15 @@ export default function EditProfileForm({ onBack, onSave }) {
 
       await refreshMe();
       closeCrop();
-      toast.success('Аватар оновлено');
+      toast.success(t('profile.editForm.toast.avatarUpdated'));
     } catch (err) {
       const raw = err?.response?.data?.message;
       const msg =
         err?.response?.status === 401
-          ? 'Сесія закінчилась. Увійди знову.'
-          : (Array.isArray(raw) ? raw[0] : raw) || err?.message || 'Не вдалося оновити фото';
+          ? t('profile.toast.avatarSessionExpired')
+          : (Array.isArray(raw) ? raw[0] : raw) ||
+            err?.message ||
+            t('profile.editForm.toast.avatarUpdateError');
       toast.error(String(msg));
       setAvatarError(String(msg));
     } finally {
@@ -153,13 +153,15 @@ export default function EditProfileForm({ onBack, onSave }) {
       setAvatarError('');
       await authApi.deleteAvatar();
       await refreshMe();
-      toast.success('Аватар видалено');
+      toast.success(t('profile.editForm.toast.avatarDeleted'));
     } catch (err) {
       const raw = err?.response?.data?.message;
       const msg =
         err?.response?.status === 401
-          ? 'Сесія закінчилась. Увійди знову.'
-          : (Array.isArray(raw) ? raw[0] : raw) || err?.message || 'Помилка видалення аватару';
+          ? t('profile.toast.avatarSessionExpired')
+          : (Array.isArray(raw) ? raw[0] : raw) ||
+            err?.message ||
+            t('profile.editForm.toast.avatarDeleteError');
       toast.error(String(msg));
       setAvatarError(String(msg));
     } finally {
@@ -210,8 +212,8 @@ export default function EditProfileForm({ onBack, onSave }) {
   // ===== VALIDATION =====
   useEffect(() => {
     const normalized = normalizeForValidation(values);
-    setErrors(validateCompleteProfile(normalized));
-  }, [values]);
+    setErrors(translateValidationErrors(validateCompleteProfile(normalized), t));
+  }, [values, t]);
 
   useEffect(() => {
     if (!genderPickerOpen) return;
@@ -259,7 +261,7 @@ export default function EditProfileForm({ onBack, onSave }) {
     });
 
     const normalized = normalizeForValidation(values);
-    const nextErrors = validateCompleteProfile(normalized);
+    const nextErrors = translateValidationErrors(validateCompleteProfile(normalized), t);
     setErrors(nextErrors);
 
     if (Object.keys(nextErrors).length > 0) return;
@@ -271,12 +273,15 @@ export default function EditProfileForm({ onBack, onSave }) {
         const data = res?.data ?? res;
         const currentUserId = user?.id;
         if (data?.id && data.id !== currentUserId) {
-          setErrors((prev) => ({ ...prev, username: 'Цей нік вже зайнятий' }));
+          setErrors((prev) => ({
+            ...prev,
+            username: t('profile.editForm.errors.usernameTaken'),
+          }));
           return;
         }
       } catch (err) {
         if (err?.response?.status !== 404) {
-          setSubmitError(err?.message || 'Помилка перевірки ніка');
+          setSubmitError(err?.message || t('profile.editForm.errors.usernameCheckError'));
           return;
         }
       }
@@ -289,7 +294,7 @@ export default function EditProfileForm({ onBack, onSave }) {
       await onSave?.(payload);
     } catch (err) {
       console.log('ERR RAW', err);
-      const msg = getApiErrorMessage(err) || 'Помилка оновлення профілю';
+      const msg = getApiErrorMessage(err) || t('profile.editForm.errors.updateError');
       setSubmitError(msg);
     } finally {
       setIsSubmitting(false);
@@ -309,7 +314,7 @@ export default function EditProfileForm({ onBack, onSave }) {
     <div className="edit-profile">
       <form className="edit-profile__form" onSubmit={handleSubmit}>
         <div className="ep-topbar">
-          <button type="button" className="back-arrow" onClick={onBack} aria-label="Назад">
+          <button type="button" className="back-arrow" onClick={onBack} aria-label={t('common.back')}>
             <img
               src={profileIcons.arrowGradient}
               alt=""
@@ -327,12 +332,12 @@ export default function EditProfileForm({ onBack, onSave }) {
         <div className="ep-divider" />
         {/* HEADER */}
         <div className="ep-head">
-          <div className="ep-head__title">Редагувати профіль</div>
+          <div className="ep-head__title">{t('profile.editForm.title')}</div>
 
           <div className="ep-avatar">
             <div className="ep-avatar__ring" onClick={pickAvatar} role="button" tabIndex={0}>
               {currentAvatarSrc ? (
-                <img className="ep-avatar__img" src={currentAvatarSrc} alt="avatar" />
+                <img className="ep-avatar__img" src={currentAvatarSrc} alt={t('profile.editForm.avatarAlt')} />
               ) : (
                 <div className="ep-avatar__placeholder" aria-hidden="true">
                   <svg viewBox="0 0 24 24" className="ep-avatar__icon">
@@ -349,13 +354,13 @@ export default function EditProfileForm({ onBack, onSave }) {
             </div>
           </div>
 
-          <div className="ep-head__link">Змінити фото профілю</div>
+          <div className="ep-head__link">{t('profile.editForm.changePhoto')}</div>
 
           <div className="ep-head__actions">
             <input ref={fileRef} type="file" accept="image/*" hidden onChange={handlePickForCrop} />
 
             <button type="button" className="ep-pill" onClick={pickAvatar}>
-              Завантажити
+              {t('profile.editForm.upload')}
             </button>
 
             {backendAvatarUrl && (
@@ -365,7 +370,7 @@ export default function EditProfileForm({ onBack, onSave }) {
                 onClick={deleteAvatar}
                 disabled={isAvatarUploading}
               >
-                {isAvatarUploading ? '...' : 'Видалити'}
+                {isAvatarUploading ? '...' : t('profile.editForm.delete')}
               </button>
             )}
           </div>
@@ -377,7 +382,7 @@ export default function EditProfileForm({ onBack, onSave }) {
           <div className="field__wrap">
             <input
               className={`text-input ${showError('lastName') ? 'is-error' : ''}`}
-              placeholder="Прізвище"
+              placeholder={t('profile.editForm.fields.lastName')}
               value={values.lastName}
               onChange={(e) => setField('lastName', e.target.value)}
               onBlur={() => onBlur('lastName')}
@@ -390,7 +395,7 @@ export default function EditProfileForm({ onBack, onSave }) {
           <div className="field__wrap">
             <input
               className={`text-input ${showError('firstName') ? 'is-error' : ''}`}
-              placeholder="Ім'я"
+              placeholder={t('profile.editForm.fields.firstName')}
               value={values.firstName}
               onChange={(e) => setField('firstName', e.target.value)}
               onBlur={() => onBlur('firstName')}
@@ -406,11 +411,11 @@ export default function EditProfileForm({ onBack, onSave }) {
           >
             {/* Десктоп/планшет: текст "СТАТЬ" навпроти опцій (один ряд) */}
             <div className="field__genderWrap field__genderWrap--desktop">
-              <label className="field__label field__label--row">Стать</label>
+              <label className="field__label field__label--row">{t('profile.editForm.fields.gender')}</label>
               <div className="field__genderGroup">
-                {GENDER_OPTIONS.map((opt) => (
+                {genderOptions.map((opt) => (
                   <button
-                    key={opt.label}
+                    key={opt.value}
                     type="button"
                     className={`field__genderBtn ${
                       values.gender === opt.value ? 'field__genderBtnActive' : ''
@@ -440,18 +445,19 @@ export default function EditProfileForm({ onBack, onSave }) {
                         !values.gender ? 'field__genderTriggerValue--placeholder' : ''
                       }`}
                     >
-                      {GENDER_OPTIONS.find((o) => o.value === values.gender)?.label ?? 'Виберіть'}
+                      {genderOptions.find((o) => o.value === values.gender)?.label ??
+                        t('profile.editForm.select')}
                     </span>
-                    <span className="field__genderTriggerLabel">Стать</span>
+                    <span className="field__genderTriggerLabel">{t('profile.editForm.fields.gender')}</span>
                   </span>
                   <span className="field__genderChevron" aria-hidden="true" />
                 </button>
               </div>
               {genderPickerOpen && (
                 <div className="field__genderDropdown" role="listbox">
-                  {GENDER_OPTIONS.map((opt) => (
+                  {genderOptions.map((opt) => (
                     <button
-                      key={opt.label}
+                      key={opt.value}
                       type="button"
                       role="option"
                       aria-selected={values.gender === opt.value}
@@ -479,8 +485,8 @@ export default function EditProfileForm({ onBack, onSave }) {
                 className={`text-input field__date-input ${
                   showError('birthDate') ? 'is-error' : ''
                 }`}
-                placeholderText="Оберіть дату народження"
-                aria-label="Дата народження"
+                placeholderText={t('profile.editForm.fields.birthDatePlaceholder')}
+                aria-label={t('profile.editForm.fields.birthDate')}
                 dateFormat="yyyy-MM-dd"
                 selected={
                   values?.birthDate && !isNaN(new Date(values.birthDate).getTime())
@@ -520,7 +526,7 @@ export default function EditProfileForm({ onBack, onSave }) {
           <div className="field__wrap">
             <input
               className={`text-input ${showError('nationality') ? 'is-error' : ''}`}
-              placeholder="Національність"
+              placeholder={t('profile.editForm.fields.nationality')}
               value={values.nationality}
               onChange={(e) => setField('nationality', e.target.value)}
               onBlur={() => onBlur('nationality')}
@@ -528,7 +534,7 @@ export default function EditProfileForm({ onBack, onSave }) {
             />
             <img
               src={profileIcons.lockBlack}
-              alt="Locked"
+              alt={t('profile.editForm.lockedField')}
               aria-hidden="true"
               className="field__lock-icon"
             />
@@ -540,7 +546,7 @@ export default function EditProfileForm({ onBack, onSave }) {
           <div className="field__wrap">
             <input
               className={`text-input ${showError('username') ? 'is-error' : ''}`}
-              placeholder="Нік (до 10 символів)"
+              placeholder={t('profile.editForm.fields.username')}
               value={values.username}
               onChange={(e) => setField('username', e.target.value)}
               onBlur={() => onBlur('username')}
@@ -556,7 +562,7 @@ export default function EditProfileForm({ onBack, onSave }) {
           <div className="field__wrap">
             <textarea
               className={`text-area ${showError('bio') ? 'is-error' : ''}`}
-              placeholder="Про себе (необов'язково)"
+              placeholder={t('profile.editForm.fields.bio')}
               value={values.bio}
               onChange={(e) => setField('bio', e.target.value)}
               onBlur={() => onBlur('bio')}
@@ -566,7 +572,7 @@ export default function EditProfileForm({ onBack, onSave }) {
           </div>
 
           <div className="field__meta">
-            <span className="field__note">*максимум символів </span>
+            <span className="field__note">{t('profile.editForm.maxCharsNote')} </span>
             <span className="field__counter">{(values.bio || '').length}/500</span>
           </div>
 
@@ -577,9 +583,10 @@ export default function EditProfileForm({ onBack, onSave }) {
           value={values.interests}
           onChange={(val) => setField('interests', val)}
           options={interestOptions}
-          placeholder="Інтереси"
+          placeholder={t('profile.editForm.fields.interests')}
           onBlur={() => onBlur('interests')}
           error={showError('interests') && errors.interests}
+          maxItemsNote={t('profile.editForm.maxItemsNote', { max: 10 })}
           selectProps={selectCommonProps}
         />
         {/* HOBBIES */}
@@ -587,9 +594,10 @@ export default function EditProfileForm({ onBack, onSave }) {
           value={values.hobbies}
           onChange={(val) => setField('hobbies', val)}
           options={profileHobbyOptions}
-          placeholder="Хобі"
+          placeholder={t('profile.editForm.fields.hobbies')}
           onBlur={() => onBlur('hobbies')}
           error={showError('hobbies') && errors.hobbies}
+          maxItemsNote={t('profile.editForm.maxItemsNote', { max: 10 })}
           selectProps={selectCommonProps}
         />
         {/* MARITAL */}
@@ -597,7 +605,7 @@ export default function EditProfileForm({ onBack, onSave }) {
           <div className="field__wrap select-wrap">
             <Select
               classNamePrefix="rs"
-              placeholder="Сімейний стан"
+              placeholder={t('profile.editForm.fields.maritalStatus')}
               value={values.maritalStatus}
               options={maritalStatusOptions}
               onChange={(opt) => setField('maritalStatus', opt)}
@@ -614,7 +622,7 @@ export default function EditProfileForm({ onBack, onSave }) {
             <div className="field__wrap select-wrap">
               <Select
                 classNamePrefix="rs"
-                placeholder="Країна"
+                placeholder={t('profile.editForm.fields.country')}
                 value={values.country}
                 options={countryOptions}
                 onChange={(opt) => setField('country', opt)}
@@ -629,7 +637,7 @@ export default function EditProfileForm({ onBack, onSave }) {
             <div className="field__wrap select-wrap">
               <Select
                 classNamePrefix="rs"
-                placeholder="Місто"
+                placeholder={t('profile.editForm.fields.city')}
                 value={values.city}
                 options={cityOptions}
                 isDisabled={!values.country}
@@ -644,7 +652,7 @@ export default function EditProfileForm({ onBack, onSave }) {
         </div>
         {submitError && <div className="field__hint">{submitError}</div>}
         <button className="btn-gradient wide" disabled={isSubmitting}>
-          {isSubmitting ? 'Збереження...' : 'Зберегти зміни'}
+          {isSubmitting ? t('profile.editForm.saving') : t('profile.editForm.saveChanges')}
         </button>
       </form>
 
