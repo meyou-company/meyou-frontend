@@ -1,8 +1,9 @@
-import { useEffect, useRef, useState } from "react";
-import profileIcons from "../../constants/profileIcons";
-import { RepostHeaderIcon } from "./RepostUi";
-import { formatPostTime } from "../../utils/formatPostTime";
-import "./PostCardHeader.scss";
+import { useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import profileIcons from '../../constants/profileIcons';
+import { RepostHeaderIcon } from './RepostUi';
+import { formatRelativeTime } from '../../utils/formatPostTime';
+import './PostCardHeader.scss';
 
 function PostFeedActionMenu({
   canShowMenu,
@@ -13,6 +14,7 @@ function PostFeedActionMenu({
   onDelete,
   onRemoveFromFeed,
 }) {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const wrapRef = useRef(null);
 
@@ -24,17 +26,19 @@ function PostFeedActionMenu({
       }
     };
     const onKey = (e) => {
-      if (e.key === "Escape") setOpen(false);
+      if (e.key === 'Escape') setOpen(false);
     };
-    document.addEventListener("mousedown", onDocDown);
-    document.addEventListener("keydown", onKey);
+    document.addEventListener('mousedown', onDocDown);
+    document.addEventListener('keydown', onKey);
     return () => {
-      document.removeEventListener("mousedown", onDocDown);
-      document.removeEventListener("keydown", onKey);
+      document.removeEventListener('mousedown', onDocDown);
+      document.removeEventListener('keydown', onKey);
     };
   }, [open]);
 
   if (!canShowMenu) return null;
+
+  const menuAria = t('posts.menu.actionsAria');
 
   return (
     <div
@@ -45,7 +49,7 @@ function PostFeedActionMenu({
       <button
         type="button"
         className="postFeedMenuBtn"
-        aria-label="Дії з дописом"
+        aria-label={menuAria}
         aria-expanded={open}
         aria-haspopup="menu"
         onClick={() => setOpen((v) => !v)}
@@ -53,11 +57,7 @@ function PostFeedActionMenu({
         ⋯
       </button>
       {open && (
-        <div
-          className="postFeedMenuDropdown"
-          role="menu"
-          aria-label="Дії з дописом"
-        >
+        <div className="postFeedMenuDropdown" role="menu" aria-label={menuAria}>
           {canEdit && (
             <button
               type="button"
@@ -71,7 +71,7 @@ function PostFeedActionMenu({
               <span className="postFeedMenuItem__icon" aria-hidden="true">
                 ✏️
               </span>
-              Редагувати пост
+              {t('posts.menu.edit')}
             </button>
           )}
           {canRemoveFromFeed && (
@@ -87,7 +87,7 @@ function PostFeedActionMenu({
               <span className="postFeedMenuItem__icon" aria-hidden="true">
                 🗑
               </span>
-              Прибрати зі стрічки
+              {t('posts.menu.removeFromFeed')}
             </button>
           )}
           {canDelete && (
@@ -103,7 +103,7 @@ function PostFeedActionMenu({
               <span className="postFeedMenuItem__icon" aria-hidden="true">
                 🗑
               </span>
-              Видалити пост
+              {t('posts.menu.delete')}
             </button>
           )}
         </div>
@@ -112,14 +112,11 @@ function PostFeedActionMenu({
   );
 }
 
-/**
- * Шапка картки поста: автор зліва, ⋯ у верхньому правому куті, локація під ним.
- */
 export default function PostCardHeader({
   avatarSrc,
   onAvatarClick,
   avatarDisabled = false,
-  avatarAriaLabel = "Автор допису",
+  avatarAriaLabel,
   authorName,
   createdAt,
   location,
@@ -131,16 +128,17 @@ export default function PostCardHeader({
   onEdit,
   onDeleteRequest,
   onRemoveFromFeedRequest,
-  variant = "profile",
+  variant = 'profile',
 }) {
-  const timeLabel = formatPostTime(createdAt);
-  const locationText = (location ?? "").trim() || "—";
+  const { t } = useTranslation();
+  const timeLabel = formatRelativeTime(createdAt, t);
+  const locationText = (location ?? '').trim() || '—';
   const rootClass = [
-    "postCardHeader",
-    variant === "firstPage" ? "postCardHeader--firstPage" : "",
+    'postCardHeader',
+    variant === 'firstPage' ? 'postCardHeader--firstPage' : '',
   ]
     .filter(Boolean)
-    .join(" ");
+    .join(' ');
 
   return (
     <header className={rootClass}>
@@ -150,7 +148,7 @@ export default function PostCardHeader({
           className="postCardHeader__avatarBtn"
           disabled={avatarDisabled}
           onClick={onAvatarClick}
-          aria-label={avatarAriaLabel}
+          aria-label={avatarAriaLabel ?? t('posts.actions.authorAria')}
         >
           <img src={avatarSrc} className="postCardHeader__avatar" alt="" />
         </button>
@@ -165,7 +163,7 @@ export default function PostCardHeader({
             <time
               className="postCardHeader__time"
               dateTime={createdAt || undefined}
-              title={createdAt ? new Date(createdAt).toLocaleString() : ""}
+              title={createdAt ? new Date(createdAt).toLocaleString() : ''}
             >
               {timeLabel}
             </time>
@@ -186,7 +184,7 @@ export default function PostCardHeader({
         <div className="postCardHeader__location">
           <img
             className="postCardHeader__locationIcon"
-            src={profileIcons.location || "/home/location.svg"}
+            src={profileIcons.location || '/home/location.svg'}
             alt=""
           />
           <span className="postCardHeader__locationText">{locationText}</span>

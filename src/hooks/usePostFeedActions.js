@@ -1,5 +1,6 @@
 import { useCallback, useRef, useState } from "react";
 import { toast } from "sonner";
+import { i18n } from "../i18n";
 import { postsApi } from "../services/postsApi";
 import { getApiErrorMessage } from "../utils/getApiErrorMessage";
 import {
@@ -188,7 +189,7 @@ export function usePostFeedActions(
             dropPostEverywhere(post.id);
             return;
           }
-          const msg = getApiErrorMessage(e) || "Не вдалося поставити лайк";
+          const msg = getApiErrorMessage(e) || i18n.t('posts.toast.likeFailed');
           toast.error(msg);
         }
       });
@@ -228,7 +229,7 @@ export function usePostFeedActions(
         if (isPostNotFoundError(e)) {
           dropPostEverywhere(post.id);
         }
-        const msg = getApiErrorMessage(e) || "Не вдалося зробити репост";
+        const msg = getApiErrorMessage(e) || i18n.t('posts.toast.repostFailed');
         throw new Error(msg);
       }
     },
@@ -305,7 +306,7 @@ export function usePostFeedActions(
             dropPostEverywhere(post.id);
             return;
           }
-          const msg = getApiErrorMessage(e) || "Не вдалося надіслати коментар";
+          const msg = getApiErrorMessage(e) || i18n.t('posts.toast.commentFailed');
           toast.error(msg);
         }
       });
@@ -349,7 +350,7 @@ export function usePostFeedActions(
             repliesCount: Math.max(c.repliesCount ?? 0, replies.length),
           }));
         } catch (e) {
-          const msg = getApiErrorMessage(e) || "Не вдалося завантажити відповіді";
+          const msg = getApiErrorMessage(e) || i18n.t('posts.toast.repliesLoadFailed');
           toast.error(msg);
         }
       });
@@ -419,7 +420,7 @@ export function usePostFeedActions(
             dropPostEverywhere(post.id);
             return;
           }
-          const msg = getApiErrorMessage(e) || "Не вдалося надіслати відповідь";
+          const msg = getApiErrorMessage(e) || i18n.t('posts.toast.replyFailed');
           toast.error(msg);
         }
       });
@@ -488,14 +489,14 @@ export function usePostFeedActions(
           : stringifyCommentId(commentId);
 
       if (!id || String(id) === String(post.id)) {
-        toast.error("Comment id is missing");
+        toast.error(i18n.t('posts.toast.commentIdMissing'));
         return;
       }
 
       const comment = findCommentInTree(post.comments, id);
 
       if (!comment) {
-        toast.error("Comment not found");
+        toast.error(i18n.t('posts.toast.commentNotFound'));
         return;
       }
 
@@ -525,7 +526,7 @@ export function usePostFeedActions(
             ...p,
             comments: updateCommentInTree(p.comments, apiId, () => snapshot),
           }));
-          toast.error(getApiErrorMessage(e) || "Не вдалося поставити лайк");
+          toast.error(getApiErrorMessage(e) || i18n.t('posts.toast.commentLikeFailed'));
         } finally {
           setLikingCommentId(null);
         }
@@ -577,7 +578,7 @@ export function usePostFeedActions(
           });
           if (!isReply) loadComments(post.id);
         } catch (e) {
-          const msg = getApiErrorMessage(e) || "Не вдалося видалити коментар";
+          const msg = getApiErrorMessage(e) || i18n.t('posts.toast.commentDeleteFailed');
           toast.error(msg);
         }
       });
@@ -653,8 +654,8 @@ export function usePostFeedActions(
           setDeleteConfirmPost(null);
           toast.success(
             removingMyRepost
-              ? "Допис прибрано зі стрічки"
-              : "Допис видалено"
+              ? i18n.t('posts.toast.removedFromFeed')
+              : i18n.t('posts.toast.deleted')
           );
         } catch (e) {
           if (isPostNotFoundError(e)) {
@@ -663,14 +664,13 @@ export function usePostFeedActions(
             return;
           }
           const status = e?.response?.status;
-          let msg = getApiErrorMessage(e) || "Не вдалося видалити пост";
+          let msg = getApiErrorMessage(e) || i18n.t('posts.toast.deleteFailed');
           if (
             removingMyRepost &&
             (status === 401 || status === 403) &&
             /unauthorized|forbidden|доступ/i.test(msg)
           ) {
-            msg =
-              "Сервер відхилив видалення репосту (401/403). Потрібно дозволити автору DELETE для власного repost (id картки репосту, не оригіналу).";
+            msg = i18n.t('posts.toast.deleteRepostDenied');
           }
           toast.error(msg);
         } finally {
@@ -736,14 +736,14 @@ export function usePostFeedActions(
           }));
         }
         setEditingPost(null);
-        toast.success("Допис оновлено");
+        toast.success(i18n.t('posts.toast.updated'));
       } catch (e) {
         if (isPostNotFoundError(e)) {
           dropPostEverywhere(post.id);
           setEditingPost(null);
           return;
         }
-        const msg = getApiErrorMessage(e) || "Не вдалося оновити допис";
+        const msg = getApiErrorMessage(e) || i18n.t('posts.toast.updateFailed');
         toast.error(msg);
         throw e;
       } finally {
@@ -784,8 +784,8 @@ export function usePostFeedActions(
         const msg =
           getApiErrorMessage(e) ||
           (wasSaved
-            ? "Не вдалося прибрати пост зі збережених"
-            : "Не вдалося зберегти пост");
+            ? i18n.t('posts.toast.unsaveFailed')
+            : i18n.t('posts.toast.saveFailed'));
 
         toast.error(msg);
       }
@@ -805,7 +805,7 @@ export function usePostFeedActions(
   const handleSendToUsers = useCallback(
     async ({ postId, recipientUserIds, message }) => {
       if (!postId || !Array.isArray(recipientUserIds) || recipientUserIds.length === 0) {
-        throw new Error("Оберіть отримувачів");
+        throw new Error(i18n.t('posts.validation.selectRecipients'));
       }
       try {
         return await postsApi.send(postId, {
@@ -816,7 +816,7 @@ export function usePostFeedActions(
         if (isPostNotFoundError(e)) {
           dropPostEverywhere(postId);
         }
-        const msg = getApiErrorMessage(e) || "Не вдалося надіслати пост";
+        const msg = getApiErrorMessage(e) || i18n.t('posts.toast.sendFailed');
         throw new Error(msg);
       }
     },

@@ -87,7 +87,7 @@ export default function ProfilePostsFeed({
       <section className={sectionClassName}>
         {feedLoading && (
           <p className="feedLoadingHint" aria-live="polite">
-            {t('profile.posts.loading')}
+            {t('posts.loading')}
           </p>
         )}
         {!feedLoading && feedError && (
@@ -96,7 +96,7 @@ export default function ProfilePostsFeed({
           </p>
         )}
         {!feedLoading && !feedError && feedPosts.length === 0 && (
-          <p className="feedEmptyHint">{t('profile.posts.empty')}</p>
+          <p className="feedEmptyHint">{t('posts.empty')}</p>
         )}
         {feedPosts.map((post) => {
           const repost = isRepostCard(post);
@@ -143,7 +143,7 @@ export default function ProfilePostsFeed({
               <button
                 className={`postActionBtn ${post.viewerState?.isLiked ? 'postActionBtn--active postActionBtn--liked' : ''}`}
                 type="button"
-                aria-label={t('profile.posts.like')}
+                aria-label={t('posts.actions.like')}
                 aria-pressed={post.viewerState?.isLiked === true}
                 onClick={() => feedActions.onLike(post)}
               >
@@ -158,7 +158,7 @@ export default function ProfilePostsFeed({
               <button
                 className="postActionBtn"
                 type="button"
-                aria-label={t('profile.posts.comment')}
+                aria-label={t('posts.actions.comment')}
                 onClick={() => feedActions.toggleCommentsOpen(post.id)}
               >
                 <img
@@ -172,7 +172,7 @@ export default function ProfilePostsFeed({
               <button
                 className={`postActionBtn ${post.viewerState?.isSaved ? 'postActionBtn--active' : ''}`}
                 type="button"
-                aria-label={t('profile.posts.save')}
+                aria-label={t('posts.actions.save')}
                 aria-pressed={post.viewerState?.isSaved === true}
                 onClick={() => feedActions.onSave(post)}
               >
@@ -187,7 +187,7 @@ export default function ProfilePostsFeed({
               <button
                 className="postActionBtn"
                 type="button"
-                aria-label={t('profile.posts.share')}
+                aria-label={t('posts.actions.share')}
                 onClick={() => feedActions.openSharePost(post)}
               >
                 <img

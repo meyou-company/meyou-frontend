@@ -74,6 +74,42 @@ html.locale-ar .langSettings input {
   text-align: start;
 }
 
+/* Feed/post: layout stays LTR; RTL for comments, forms and modals only */
+html.locale-ar .postCommentsSection,
+html.locale-ar .commentComposer,
+html.locale-ar .commentMenuDropdown,
+html.locale-ar .postFeedMenuDropdown,
+html.locale-ar .createPostModal,
+html.locale-ar .editPostModal,
+html.locale-ar .share-post-modal,
+html.locale-ar .deletePostDialog {
+  direction: rtl;
+  text-align: start;
+}
+
+html.locale-ar .postCommentsSection__input,
+html.locale-ar .commentComposer__input,
+html.locale-ar .createPostModal__textarea,
+html.locale-ar .createPostModal__locationInput,
+html.locale-ar .editPostModal__textarea,
+html.locale-ar .editPostModal__locationInput,
+html.locale-ar .share-post-modal__search,
+html.locale-ar .share-post-modal__message {
+  text-align: start;
+}
+
+html.locale-ar .settings-page,
+html.locale-ar .settings-card,
+html.locale-ar .langSettings__modal {
+  direction: rtl;
+  text-align: start;
+}
+
+html.locale-ar .settings-form__input,
+html.locale-ar .langSettings__list button {
+  text-align: start;
+}
+
 /* Profile header: bar stays LTR; search text flows RTL */
 html.locale-ar .profile-header .topRow,
 html.locale-ar .profile-header .searchForm {

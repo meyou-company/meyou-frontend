@@ -1,23 +1,26 @@
-import { useRef } from "react";
-import EmojiPickerButton from "../EmojiPicker/EmojiPickerButton";
+import { useRef } from 'react';
+import { useTranslation } from 'react-i18next';
+import EmojiPickerButton from '../EmojiPicker/EmojiPickerButton';
 
-/**
- * Поле вводу коментаря / відповіді: textarea + emoji + send.
- */
 export default function CommentComposer({
   value,
   onChange,
   onSubmit,
-  placeholder = "Написати коментар…",
-  ariaLabel = "Текст коментаря",
-  sendAriaLabel = "Надіслати",
-  className = "",
+  placeholder,
+  ariaLabel,
+  sendAriaLabel,
+  className = '',
   compact = false,
 }) {
+  const { t } = useTranslation();
   const inputRef = useRef(null);
   const wrapperRef = useRef(null);
-  const draftTrimmed = (value ?? "").trim();
+  const draftTrimmed = (value ?? '').trim();
   const canSend = draftTrimmed.length > 0;
+
+  const resolvedPlaceholder = placeholder ?? t('comments.placeholder');
+  const resolvedAriaLabel = ariaLabel ?? t('comments.composeAria');
+  const resolvedSendAria = sendAriaLabel ?? t('comments.sendAria');
 
   const handleSubmit = () => {
     if (!canSend) return;
@@ -25,19 +28,19 @@ export default function CommentComposer({
   };
 
   const handleKeyDown = (e) => {
-    if (e.key !== "Enter") return;
+    if (e.key !== 'Enter') return;
     if (e.shiftKey) return;
     e.preventDefault();
     handleSubmit();
   };
 
   const rootClass = [
-    "commentComposer",
-    compact ? "commentComposer--compact" : "",
+    'commentComposer',
+    compact ? 'commentComposer--compact' : '',
     className,
   ]
     .filter(Boolean)
-    .join(" ");
+    .join(' ');
 
   return (
     <div className={rootClass}>
@@ -48,29 +51,29 @@ export default function CommentComposer({
         <textarea
           ref={inputRef}
           className="postCommentsSection__input commentComposer__input"
-          value={value ?? ""}
+          value={value ?? ''}
           onChange={(e) => onChange?.(e.target.value)}
           onKeyDown={handleKeyDown}
           rows={1}
-          placeholder={placeholder}
-          aria-label={ariaLabel}
+          placeholder={resolvedPlaceholder}
+          aria-label={resolvedAriaLabel}
         />
         <div className="postCommentsSection__inputActions commentComposer__actions">
           <EmojiPickerButton
             inputRef={inputRef}
-            value={value ?? ""}
+            value={value ?? ''}
             onChange={onChange}
             variant="inline"
             popoverContainerRef={wrapperRef}
             pickerClassName="emojiPickerPopup"
-            ariaLabel="Додати емодзі"
+            ariaLabel={t('comments.addEmoji')}
           />
           <button
             type="button"
             className="postCommentsSection__sendBtn"
             onClick={handleSubmit}
             disabled={!canSend}
-            aria-label={sendAriaLabel}
+            aria-label={resolvedSendAria}
           >
             <img
               src="/icon1/push.png"

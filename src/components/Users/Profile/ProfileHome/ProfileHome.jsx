@@ -199,8 +199,8 @@ export default function ProfileHome({
     (fullNameReal ? fullNameReal.split(/\s+/)[0] : "") ||
     (username || "");
   const composerPlaceholder = composerFirstName
-    ? t('profile.posts.placeholderWithName', { name: composerFirstName })
-    : t('profile.posts.placeholder');
+    ? t('posts.placeholderWithName', { name: composerFirstName })
+    : t('posts.placeholder');
 
   const profileLocation =
     [user?.city, user?.country].filter(Boolean).join(", ") || "";
@@ -288,7 +288,7 @@ export default function ProfileHome({
     const trimmedText = newPostText.trim();
 
     if (!trimmedText && postMediaFiles.length === 0) {
-      toast.error("Додайте текст або фото");
+      toast.error(t('posts.validation.emptyTextOrPhoto'));
       return;
     }
 
@@ -297,9 +297,7 @@ export default function ProfileHome({
       const media = [];
       if (postMediaFiles.length > 0) {
         if (!isPostImageUploadEnabled()) {
-          toast.info(
-            "Завантаження медіа тимчасово недоступне. Пост буде опубліковано лише з текстом."
-          );
+          toast.info(t('posts.toast.mediaUploadDisabled'));
         } else {
           for (const [index, item] of postMediaFiles.entries()) {
             if (!item?.file) continue;
@@ -322,10 +320,10 @@ export default function ProfileHome({
               });
               toast.warning(
                 isUnavailable
-                  ? "Завантаження медіа тимчасово недоступне. Частина файлів не додана."
+                  ? t('posts.toast.mediaUploadPartial')
                   : details
-                    ? `Не вдалося завантажити файл: ${details}`
-                    : "Не вдалося завантажити один із файлів. Пост опубліковано без нього."
+                    ? `${t('posts.toast.editMediaUploadFileFailed')}: ${details}`
+                    : t('posts.toast.mediaUploadFileFailed')
               );
             }
           }
@@ -370,7 +368,7 @@ export default function ProfileHome({
         }
       }
 
-      toast.success("Пост опубліковано");
+      toast.success(t('posts.toast.published'));
       setNewPostText("");
       setPostLocation("");
       postMediaFiles.forEach((f) => {
@@ -379,7 +377,7 @@ export default function ProfileHome({
       setPostMediaFiles([]);
       closeComposer();
     } catch (err) {
-      const msg = getApiErrorMessage(err) || "Не вдалося опублікувати пост";
+      const msg = getApiErrorMessage(err) || t('posts.toast.publishFailed');
       toast.error(String(msg));
     } finally {
       setIsPublishingPost(false);
@@ -711,7 +709,7 @@ export default function ProfileHome({
         {/* ================= NEW POST ================= */}
         <section className="newPost">
           <div className="newPostHead">
-            <h3 className="newPostTitle">{t('profile.posts.createTitle')}</h3>
+            <h3 className="newPostTitle">{t('posts.createTitle')}</h3>
           </div>
 
           <button
@@ -750,7 +748,7 @@ export default function ProfileHome({
           showOnlineDot={user?.online !== false}
           text={newPostText}
           onTextChange={setNewPostText}
-          placeholder={t('profile.posts.placeholder')}
+          placeholder={t('posts.placeholder')}
           textareaRef={composerTextareaRef}
           postMediaFiles={postMediaFiles}
           onRemoveMedia={removePostMedia}

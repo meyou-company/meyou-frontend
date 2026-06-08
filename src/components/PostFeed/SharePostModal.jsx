@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { subscriptionsApi } from "../../services/subscriptionsApi";
 import { usersApi } from "../../services/usersApi";
@@ -11,7 +12,7 @@ import {
   openExternalShareUrl,
   shareViaSystem,
 } from "../../utils/externalShareLinks";
-import { buildPostShareUrl, POST_SHARE_TEXT } from "../../utils/postShareUrl";
+import { buildPostShareUrl, getPostShareText } from "../../utils/postShareUrl";
 import ShareExternalSheet from "./ShareExternalSheet";
 import {
   extractFollowingFromResponse,
@@ -30,6 +31,7 @@ export default function SharePostModal({
   onRepostToFeed,
   isReposted = false,
 }) {
+  const { t } = useTranslation();
   const postId = post?.id;
   const postUrl = useMemo(() => buildPostShareUrl(postId), [postId]);
 
@@ -154,11 +156,11 @@ export default function SharePostModal({
         recipientUserIds: ids,
         message: message.trim(),
       });
-      setStatus({ type: "success", text: "Пост надіслано" });
-      toast.success("Пост надіслано");
+      setStatus({ type: "success", text: t('posts.toast.sendSuccess') });
+      toast.success(t('posts.toast.sendSuccess'));
       onClose?.();
     } catch (e) {
-      const text = e?.message || "Не вдалося надіслати пост";
+      const text = e?.message || t('posts.toast.sendFailed');
       setStatus({ type: "error", text });
       toast.error(text);
     } finally {
@@ -172,10 +174,10 @@ export default function SharePostModal({
     setStatus(null);
     try {
       await onRepostToFeed?.(post);
-      setStatus({ type: "success", text: "Репост опубліковано у вашій стрічці" });
-      toast.success("Репост опубліковано");
+      setStatus({ type: "success", text: t('posts.toast.repostSuccess') });
+      toast.success(t('posts.toast.repostDone'));
     } catch (e) {
-      const text = e?.message || "Не вдалося зробити репост";
+      const text = e?.message || t('posts.toast.repostFailed');
       setStatus({ type: "error", text });
       toast.error(text);
     } finally {
@@ -183,7 +185,7 @@ export default function SharePostModal({
     }
   };
 
-  const shareText = POST_SHARE_TEXT;
+  const shareText = getPostShareText(t);
   const systemShareAvailable = canUseSystemShare();
 
   const handleSystemShare = async () => {
@@ -192,7 +194,7 @@ export default function SharePostModal({
       await shareViaSystem({ postUrl, text: shareText });
     } catch (e) {
       if (e?.name === "AbortError") return;
-      toast.error("Не вдалося відкрити системне меню поділитися");
+      toast.error(t('posts.share.systemShareFailed'));
     }
   };
 
@@ -212,7 +214,7 @@ export default function SharePostModal({
         openExternalShareUrl(buildTwitterShareUrl(postUrl, shareText));
         break;
       case "tiktok":
-        handleCopyPostLink("Посилання скопійовано — вставте в TikTok");
+        handleCopyPostLink(t('posts.share.linkCopiedTiktok'));
         break;
       default:
         break;
@@ -227,12 +229,12 @@ export default function SharePostModal({
       } else {
         throw new Error("clipboard unavailable");
       }
-      const msg = successMessage || "Посилання скопійовано";
+      const msg = successMessage || t('posts.share.linkCopied');
       toast.success(msg);
       setStatus({ type: "success", text: msg });
     } catch {
-      toast.error("Не вдалося скопіювати посилання");
-      setStatus({ type: "error", text: "Не вдалося скопіювати посилання" });
+      toast.error(t('posts.share.copyFailed'));
+      setStatus({ type: "error", text: t('posts.share.copyFailed') });
     }
   };
 
@@ -256,13 +258,13 @@ export default function SharePostModal({
       >
         <header className="share-post-modal__header">
           <h2 id="share-post-title" className="share-post-modal__title">
-            Поділитися
+            {t('posts.share.title')}
           </h2>
           <button
             type="button"
             className="share-post-modal__closeBtn"
             onClick={onClose}
-            aria-label="Закрити"
+            aria-label={t('posts.share.close')}
           >
             ×
           </button>
@@ -271,16 +273,16 @@ export default function SharePostModal({
         <div className="share-post-modal__body">
           <section className="share-post-modal__section" aria-labelledby="share-meyou-title">
             <h3 id="share-meyou-title" className="share-post-modal__sectionTitle">
-              Надіслати в Me&amp;You
+              {t('posts.share.sendInApp')}
             </h3>
 
             <input
               type="search"
               className="share-post-modal__search"
-              placeholder="Пошук користувачів…"
+              placeholder={t('posts.share.searchPlaceholder')}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              aria-label="Пошук отримувачів"
+              aria-label={t('posts.share.searchAria')}
             />
 
             {selectedUsers.length > 0 && (
@@ -291,7 +293,9 @@ export default function SharePostModal({
                     <button
                       type="button"
                       className="share-post-modal__chipRemove"
-                      aria-label={`Прибрати ${recipientDisplayName(u)}`}
+                      aria-label={t('posts.share.removeRecipient', {
+                        name: recipientDisplayName(u),
+                      })}
                       onClick={() => toggleUser(u)}
                     >
                       ×
@@ -302,12 +306,12 @@ export default function SharePostModal({
             )}
 
             {listLoading ? (
-              <p className="share-post-modal__hint">Завантаження…</p>
+              <p className="share-post-modal__hint">{t('posts.share.loading')}</p>
             ) : visibleUsers.length === 0 ? (
               <p className="share-post-modal__empty">
                 {searchQuery.trim()
-                  ? "Нікого не знайдено"
-                  : "Немає підписок для надсилання"}
+                  ? t('posts.share.emptySearch')
+                  : t('posts.share.emptyFollowing')}
               </p>
             ) : (
               <ul className="share-post-modal__userList">
@@ -352,10 +356,10 @@ export default function SharePostModal({
             <textarea
               className="share-post-modal__message"
               rows={3}
-              placeholder="Повідомлення (необов'язково)"
+              placeholder={t('posts.share.messagePlaceholder')}
               value={message}
               onChange={(e) => setMessage(e.target.value)}
-              aria-label="Повідомлення до отримувачів"
+              aria-label={t('posts.share.messageAria')}
             />
 
             <button
@@ -364,7 +368,7 @@ export default function SharePostModal({
               disabled={!canSend}
               onClick={handleSend}
             >
-              {sending ? "Надсилання…" : "Надіслати"}
+              {sending ? t('posts.share.sending') : t('posts.share.send')}
             </button>
 
             <button
@@ -374,16 +378,16 @@ export default function SharePostModal({
               onClick={handleRepost}
             >
               {isReposted
-                ? "Вже у вашій стрічці"
+                ? t('posts.share.reposted')
                 : reposting
-                  ? "Репост…"
-                  : "Репост у свою стрічку"}
+                  ? t('posts.share.reposting')
+                  : t('posts.share.repost')}
             </button>
           </section>
 
           <section className="share-post-modal__section" aria-labelledby="share-external-title">
             <h3 id="share-external-title" className="share-post-modal__sectionTitle">
-              Поділитися поза додатком
+              {t('posts.share.external')}
             </h3>
             <ShareExternalSheet
               systemShareAvailable={systemShareAvailable}

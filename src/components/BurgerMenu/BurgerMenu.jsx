@@ -35,8 +35,8 @@ export default function BurgerMenu({
   const email = user?.email || '';
 
   const displayName = useMemo(() => {
-    return [user?.firstName, user?.lastName].filter(Boolean).join(' ') || user?.username || 'User';
-  }, [user]);
+    return [user?.firstName, user?.lastName].filter(Boolean).join(' ') || user?.username || t('common.user');
+  }, [user, t]);
 
   const handleItemClick = async (id) => {
     if (id === 'logout') {
@@ -59,7 +59,13 @@ export default function BurgerMenu({
     }
 
     if (id === 'security') {
-      navigate('/auth/forgot-password');
+      navigate('/settings/security');
+      onClose();
+      return;
+    }
+
+    if (id === 'policy') {
+      navigate('/settings/privacy');
       onClose();
       return;
     }
@@ -71,7 +77,11 @@ export default function BurgerMenu({
     }
 
     if (id === 'language' || id === 'account') {
-      onOpenLanguageSettings?.();
+      if (id === 'account') {
+        navigate('/settings/account');
+      } else {
+        onOpenLanguageSettings?.();
+      }
       onClose();
       return;
     }
@@ -102,7 +112,7 @@ export default function BurgerMenu({
         onKeyDown={(e) => e.key === 'Escape' && onClose()}
         role="button"
         tabIndex={0}
-        aria-label="Закрити меню"
+        aria-label={t('menu.closeMenu')}
       />
       <div className={`profile-menu ${isOpen ? 'profile-menu--open' : ''}`}>
         <div className="profile-menu__header">
@@ -114,7 +124,7 @@ export default function BurgerMenu({
                 navigate('/profile');
                 onClose();
               }}
-              aria-label="Мій профіль"
+              aria-label={t('menu.myProfile')}
             >
               <div className="profile-menu__avatar-wrapper">
                 <img

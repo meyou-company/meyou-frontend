@@ -1,64 +1,39 @@
-import { useState } from "react";
-import { toast } from "sonner";
-import profileIcons from "../../constants/profileIcons";
-import { useAuthStore } from "../../zustand/useAuthStore";
-import { useUserProfileNav } from "../../context/UserProfileNavContext";
-import { getProfileRouteHandle } from "../../utils/profileFriendNav";
-import CommentComposer from "./CommentComposer";
-import CommentActionMenu from "./CommentActionMenu";
-import CommentLikeButton from "./CommentLikeButton";
-import "./PostCommentsSection.scss";
-import "./CommentActionMenu.scss";
-import "./CommentLikeButton.scss";
+import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { toast } from 'sonner';
+import profileIcons from '../../constants/profileIcons';
+import { useAuthStore } from '../../zustand/useAuthStore';
+import { useUserProfileNav } from '../../context/UserProfileNavContext';
+import { getProfileRouteHandle } from '../../utils/profileFriendNav';
+import { formatRelativeTime } from '../../utils/formatPostTime';
+import { i18n } from '../../i18n';
+import CommentComposer from './CommentComposer';
+import CommentActionMenu from './CommentActionMenu';
+import CommentLikeButton from './CommentLikeButton';
+import './PostCommentsSection.scss';
+import './CommentActionMenu.scss';
+import './CommentLikeButton.scss';
 
 const VISIBLE_REPLIES_DEFAULT = 2;
 
-/** Як у Facebook: короткий відносний час або дата. */
-function formatCommentWhen(iso) {
-  if (!iso) return "";
-  try {
-    const d = new Date(iso);
-    const diff = Date.now() - d.getTime();
-    if (diff < 60_000) return "щойно";
-    if (diff < 3600_000) return `${Math.floor(diff / 60_000)} хв`;
-    if (diff < 86_400_000) return `${Math.floor(diff / 3600_000)} год`;
-    if (diff < 7 * 86_400_000) return `${Math.floor(diff / 86_400_000)} д`;
-    return d.toLocaleString(undefined, {
-      day: "numeric",
-      month: "short",
-      year:
-        d.getFullYear() !== new Date().getFullYear() ? "numeric" : undefined,
-    });
-  } catch {
-    return "";
-  }
-}
-
-function commentDisplayName(c) {
+function commentDisplayName(c, t = i18n.t.bind(i18n)) {
   const a = c?.author;
-  if (!a) return "User";
-  const full = [a.firstName, a.lastName].filter(Boolean).join(" ").trim();
+  if (!a) return t('common.user');
+  const full = [a.firstName, a.lastName].filter(Boolean).join(' ').trim();
   if (full) return full;
   if (a.username) return a.username;
-  return "User";
+  return t('common.user');
 }
 
 function commentAvatarSrc(c) {
   return c?.author?.avatarUrl || profileIcons.userStory;
 }
 
-function repliesLabel(count) {
-  const n = Number(count) || 0;
-  if (n === 1) return "1 відповідь";
-  if (n >= 2 && n <= 4) return `${n} відповіді`;
-  return `${n} відповідей`;
-}
-
 function canManageComment(comment, currentUserId) {
   return Boolean(
     currentUserId &&
       comment?.id &&
-      String(comment?.author?.id ?? "") === String(currentUserId)
+      String(comment?.author?.id ?? '') === String(currentUserId)
   );
 }
 
@@ -74,8 +49,9 @@ function CommentBubble({
   repliesCount = 0,
   onReplyClick,
 }) {
+  const { t } = useTranslation();
   const [isEditing, setIsEditing] = useState(false);
-  const [editDraft, setEditDraft] = useState(comment.content ?? "");
+  const [editDraft, setEditDraft] = useState(comment.content ?? '');
 
   const authorHandle = comment?.author
     ? getProfileRouteHandle(comment.author)
@@ -87,12 +63,12 @@ function CommentBubble({
   const canManage = canManageComment(comment, currentUserId);
 
   const startEdit = () => {
-    setEditDraft(comment.content ?? "");
+    setEditDraft(comment.content ?? '');
     setIsEditing(true);
   };
 
   const cancelEdit = () => {
-    setEditDraft(comment.content ?? "");
+    setEditDraft(comment.content ?? '');
     setIsEditing(false);
   };
 
@@ -101,7 +77,7 @@ function CommentBubble({
   };
 
   const saveEdit = () => {
-    const text = (editDraft ?? "").trim();
+    const text = (editDraft ?? '').trim();
     if (!text) return;
     onEditComment?.(comment.id, text, {
       isReply: comment.isReply,
@@ -121,17 +97,17 @@ function CommentBubble({
               disabled={!canOpenAuthor}
               onClick={goAuthor}
             >
-              {commentDisplayName(comment)}
+              {commentDisplayName(comment, t)}
             </button>
             <span
               className="postCommentsSection__when"
               title={
                 comment.createdAt
                   ? new Date(comment.createdAt).toLocaleString()
-                  : ""
+                  : ''
               }
             >
-              {formatCommentWhen(comment.createdAt)}
+              {formatRelativeTime(comment.createdAt, t)}
             </span>
           </div>
           {canManage && !isEditing && (
@@ -153,16 +129,16 @@ function CommentBubble({
               value={editDraft}
               onChange={setEditDraft}
               onSubmit={saveEdit}
-              placeholder="Редагувати коментар…"
-              ariaLabel="Редагування коментаря"
-              sendAriaLabel="Зберегти"
+              placeholder={t('comments.editPlaceholder')}
+              ariaLabel={t('comments.editAria')}
+              sendAriaLabel={t('comments.saveEditAria')}
             />
             <button
               type="button"
               className="postCommentsSection__editCancel"
               onClick={cancelEdit}
             >
-              Скасувати
+              {t('comments.cancelEdit')}
             </button>
           </div>
         ) : (
@@ -178,19 +154,19 @@ function CommentBubble({
                 className="postCommentsSection__replyBtn"
                 onClick={onReplyClick}
               >
-                Відповісти
+                {t('comments.reply')}
               </button>
             )}
             {repliesCount > 0 && (
               <span className="postCommentsSection__repliesStat">
-                {repliesLabel(repliesCount)}
+                {t('comments.repliesCount', { count: repliesCount })}
               </span>
             )}
           </div>
           <CommentLikeButton
             comment={comment}
             onToggle={handleToggleCommentLike}
-            onMissingId={() => toast.error("Comment id is missing")}
+            onMissingId={() => toast.error(t('posts.toast.commentIdMissing'))}
             busy={
               likingCommentId != null &&
               String(likingCommentId) === String(comment.id)
@@ -212,6 +188,7 @@ function ReplyRow({
   onLikeComment,
   likingCommentId,
 }) {
+  const { t } = useTranslation();
   const authorHandle = reply?.author
     ? getProfileRouteHandle(reply.author)
     : null;
@@ -228,7 +205,9 @@ function ReplyRow({
         disabled={!canOpenAuthor}
         onClick={goAuthor}
         aria-label={
-          canOpenAuthor ? `Профіль ${authorHandle}` : "Автор відповіді"
+          canOpenAuthor
+            ? t('comments.authorProfile', { handle: authorHandle })
+            : t('comments.replyAuthorAria')
         }
       >
         <img
@@ -252,9 +231,6 @@ function ReplyRow({
   );
 }
 
-/**
- * Секція коментарів (як у Facebook): список зверху, поле вводу знизу в одному блоці.
- */
 export default function PostCommentsSection({
   post,
   comments = [],
@@ -271,22 +247,23 @@ export default function PostCommentsSection({
   onOpenReplyComposer,
   onSubmitReply,
   onShowMoreReplies,
-  variant = "profile",
+  variant = 'profile',
 }) {
+  const { t } = useTranslation();
   const currentUserId = useAuthStore((s) => s.user?.id);
   const profileNav = useUserProfileNav();
   const list = (Array.isArray(comments) ? comments : []).filter(
     (c) => !c?.isReply && !c?.parentId
   );
   const rootClass =
-    variant === "firstPage"
-      ? "postCommentsSection postCommentsSection--firstPage"
-      : "postCommentsSection";
+    variant === 'firstPage'
+      ? 'postCommentsSection postCommentsSection--firstPage'
+      : 'postCommentsSection';
 
   return (
-    <div className={rootClass} role="region" aria-label="Коментарі до поста">
+    <div className={rootClass} role="region" aria-label={t('comments.regionAria')}>
       <div className="postCommentsSection__toolbar">
-        <span className="postCommentsSection__title">Коментарі</span>
+        <span className="postCommentsSection__title">{t('comments.title')}</span>
         {list.length > 0 && (
           <span className="postCommentsSection__count">{list.length}</span>
         )}
@@ -294,7 +271,7 @@ export default function PostCommentsSection({
 
       <div className="postCommentsSection__scroll">
         {list.length === 0 ? (
-          <p className="postCommentsSection__placeholder">No comments yet</p>
+          <p className="postCommentsSection__placeholder">{t('comments.empty')}</p>
         ) : (
           <ul className="postCommentsSection__list">
             {list.map((c) => {
@@ -337,7 +314,7 @@ export default function PostCommentsSection({
                         profileNav.openProfile(c.author);
                       }
                     }}
-                    aria-label="Автор коментаря"
+                    aria-label={t('comments.authorAria')}
                   >
                     <img
                       className="postCommentsSection__avatar"
@@ -383,7 +360,7 @@ export default function PostCommentsSection({
                         className="postCommentsSection__showMoreReplies"
                         onClick={() => onShowMoreReplies?.(post, c.id)}
                       >
-                        Показати ще ({hiddenCount})
+                        {t('comments.showMore', { count: hiddenCount })}
                       </button>
                     )}
 
@@ -394,9 +371,9 @@ export default function PostCommentsSection({
                           value={replyDraft}
                           onChange={onReplyDraftChange}
                           onSubmit={() => onSubmitReply?.(post, c.id, replyDraft)}
-                          placeholder="Написати відповідь…"
-                          ariaLabel="Текст відповіді"
-                          sendAriaLabel="Надіслати відповідь"
+                          placeholder={t('comments.replyPlaceholder')}
+                          ariaLabel={t('comments.replyComposeAria')}
+                          sendAriaLabel={t('comments.replySendAria')}
                         />
                       </div>
                     )}
@@ -413,9 +390,9 @@ export default function PostCommentsSection({
           value={commentDraft}
           onChange={onCommentDraftChange}
           onSubmit={onSubmitComment}
-          placeholder="Написати коментар…"
-          ariaLabel="Текст нового коментаря"
-          sendAriaLabel="Надіслати коментар"
+          placeholder={t('comments.placeholder')}
+          ariaLabel={t('comments.composeAria')}
+          sendAriaLabel={t('comments.sendAria')}
         />
       </div>
     </div>

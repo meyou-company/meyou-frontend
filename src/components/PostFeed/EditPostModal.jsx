@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import EmojiPickerButton from "../EmojiPicker/EmojiPickerButton";
 import profileIcons from "../../constants/profileIcons";
@@ -21,6 +22,7 @@ export default function EditPostModal({
   saving = false,
   displayAvatar,
 }) {
+  const { t } = useTranslation();
   const textareaRef = useRef(null);
   const fileInputRef = useRef(null);
   const [text, setText] = useState("");
@@ -93,7 +95,7 @@ export default function EditPostModal({
     const trimmed = (text ?? "").trim();
     const hasMedia = existingMedia.length > 0 || newMediaFiles.length > 0;
     if (!trimmed && !hasMedia) {
-      toast.error("Додайте текст або медіа");
+      toast.error(t('posts.validation.emptyContent'));
       return;
     }
 
@@ -107,9 +109,7 @@ export default function EditPostModal({
 
     if (newMediaFiles.length > 0) {
       if (!isPostImageUploadEnabled()) {
-        toast.info(
-          "Завантаження нових медіа тимчасово недоступне. Збережено лише текст і наявні файли."
-        );
+        toast.info(t('posts.toast.editMediaUploadDisabled'));
       } else {
         for (const [index, item] of newMediaFiles.entries()) {
           if (!item?.file) continue;
@@ -122,7 +122,7 @@ export default function EditPostModal({
             });
           } catch (err) {
             toast.warning(
-              getApiErrorMessage(err) || "Не вдалося завантажити один із файлів"
+              getApiErrorMessage(err) || t('posts.toast.editMediaUploadFileFailed')
             );
           }
         }
@@ -151,12 +151,12 @@ export default function EditPostModal({
       >
         <div className="editPostModal__header">
           <h2 id="edit-post-title" className="editPostModal__title">
-            Редагувати допис
+            {t('posts.edit.title')}
           </h2>
           <button
             type="button"
             className="editPostModal__close"
-            aria-label="Закрити"
+            aria-label={t('posts.edit.close')}
             disabled={saving}
             onClick={onClose}
           >
@@ -173,7 +173,7 @@ export default function EditPostModal({
             className="editPostModal__textarea"
             value={text}
             onChange={(e) => setText(e.target.value)}
-            placeholder="Текст допису…"
+            placeholder={t('posts.edit.textPlaceholder')}
             rows={4}
           />
           <EmojiPickerButton
@@ -181,18 +181,18 @@ export default function EditPostModal({
             value={text}
             onChange={setText}
             className="editPostModal__emojiBtn"
-            ariaLabel="Додати емодзі"
+            ariaLabel={t('posts.edit.addEmoji')}
           />
         </div>
 
         <label className="editPostModal__locationLabel">
-          Локація
+          {t('posts.edit.locationLabel')}
           <input
             type="text"
             className="editPostModal__locationInput"
             value={location}
             onChange={(e) => setLocation(e.target.value)}
-            placeholder="Місто, країна"
+            placeholder={t('posts.edit.locationPlaceholder')}
           />
         </label>
 
@@ -208,7 +208,7 @@ export default function EditPostModal({
                 <button
                   type="button"
                   className="editPostModal__mediaRemove"
-                  aria-label="Прибрати медіа"
+                  aria-label={t('posts.edit.removeMedia')}
                   onClick={() => removeExisting(m.id)}
                 >
                   ×
@@ -225,7 +225,7 @@ export default function EditPostModal({
                 <button
                   type="button"
                   className="editPostModal__mediaRemove"
-                  aria-label="Прибрати файл"
+                  aria-label={t('posts.edit.removeFile')}
                   onClick={() => removeNew(m.id)}
                 >
                   ×
@@ -252,7 +252,7 @@ export default function EditPostModal({
             onClick={() => fileInputRef.current?.click()}
           >
             <img src={profileIcons.live} alt="" aria-hidden="true" />
-            Фото / відео
+            {t('posts.edit.addMedia')}
           </button>
           <button
             type="button"
@@ -260,7 +260,7 @@ export default function EditPostModal({
             disabled={saving}
             onClick={handleSave}
           >
-            {saving ? "Збереження…" : "Зберегти"}
+            {saving ? t('posts.edit.saving') : t('posts.edit.save')}
           </button>
         </div>
       </div>
