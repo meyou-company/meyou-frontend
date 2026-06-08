@@ -1,36 +1,40 @@
-import "./DeletePostConfirmDialog.scss";
+import { useTranslation } from 'react-i18next';
+import './DeletePostConfirmDialog.scss';
 
 export default function DeletePostConfirmDialog({
   isOpen,
   onCancel,
   onConfirm,
   confirming = false,
-  variant = "delete",
+  variant = 'delete',
   title: titleProp,
   description: descriptionProp,
   confirmLabel: confirmLabelProp,
-  cancelLabel = "Скасувати",
+  cancelLabel: cancelLabelProp,
 }) {
+  const { t } = useTranslation();
+
   if (!isOpen) return null;
 
-  const isRepostRemove = variant === "repostRemove";
+  const isRepostRemove = variant === 'repostRemove';
   const title =
     titleProp ??
-    (isRepostRemove ? "Прибрати допис зі стрічки?" : "Видалити цей допис?");
+    (isRepostRemove ? t('posts.deleteRepost.title') : t('posts.delete.title'));
   const description =
     descriptionProp ??
     (isRepostRemove
-      ? "Оригінальний допис залишиться без змін."
-      : "Цю дію не можна скасувати.");
+      ? t('posts.deleteRepost.description')
+      : t('posts.delete.description'));
   const confirmLabel =
     confirmLabelProp ??
     (isRepostRemove
       ? confirming
-        ? "Прибираємо…"
-        : "Прибрати"
+        ? t('posts.deleteRepost.confirming')
+        : t('posts.deleteRepost.confirm')
       : confirming
-        ? "Видалення…"
-        : "Видалити");
+        ? t('posts.delete.confirming')
+        : t('posts.delete.confirm'));
+  const cancelLabel = cancelLabelProp ?? t('posts.delete.cancel');
 
   return (
     <div

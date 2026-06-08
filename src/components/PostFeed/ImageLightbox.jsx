@@ -1,5 +1,6 @@
-import { useEffect, useRef } from "react";
-import "./ImageLightbox.scss";
+import { useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
+import './ImageLightbox.scss';
 
 export default function ImageLightbox({
   isOpen,
@@ -9,17 +10,18 @@ export default function ImageLightbox({
   onPrev,
   onNext,
 }) {
+  const { t } = useTranslation();
   const touchStartX = useRef(null);
 
   useEffect(() => {
     if (!isOpen) return;
     const onKey = (e) => {
-      if (e.key === "Escape") onClose?.();
-      if (e.key === "ArrowLeft") onPrev?.();
-      if (e.key === "ArrowRight") onNext?.();
+      if (e.key === 'Escape') onClose?.();
+      if (e.key === 'ArrowLeft') onPrev?.();
+      if (e.key === 'ArrowRight') onNext?.();
     };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
   }, [isOpen, onClose, onPrev, onNext]);
 
   if (!isOpen || !images.length) return null;
@@ -42,8 +44,21 @@ export default function ImageLightbox({
   };
 
   return (
-    <div className="ilb" role="dialog" aria-modal="true" aria-label="Перегляд фото" onClick={onClose}>
-      <button type="button" className="ilb__close" onClick={onClose} aria-label="Закрити">×</button>
+    <div
+      className="ilb"
+      role="dialog"
+      aria-modal="true"
+      aria-label={t('posts.lightbox.title')}
+      onClick={onClose}
+    >
+      <button
+        type="button"
+        className="ilb__close"
+        onClick={onClose}
+        aria-label={t('posts.lightbox.close')}
+      >
+        ×
+      </button>
       {images.length > 1 && (
         <button
           type="button"
@@ -52,7 +67,7 @@ export default function ImageLightbox({
             e.stopPropagation();
             onPrev?.();
           }}
-          aria-label="Попереднє фото"
+          aria-label={t('posts.lightbox.prev')}
         >
           ‹
         </button>
@@ -74,7 +89,7 @@ export default function ImageLightbox({
             e.stopPropagation();
             onNext?.();
           }}
-          aria-label="Наступне фото"
+          aria-label={t('posts.lightbox.next')}
         >
           ›
         </button>

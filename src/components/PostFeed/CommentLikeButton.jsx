@@ -1,15 +1,16 @@
-import profileIcons from "../../constants/profileIcons";
-import { getCommentBackendId } from "../../utils/mapApiPostToFeedItem";
-import "./CommentLikeButton.scss";
+import { useTranslation } from 'react-i18next';
+import profileIcons from '../../constants/profileIcons';
+import { getCommentBackendId } from '../../utils/mapApiPostToFeedItem';
+import './CommentLikeButton.scss';
 
-/** Лайк коментаря: серце + лічильник (завжди видимі, навіть 0). */
 export default function CommentLikeButton({
   comment,
   onToggle,
   onMissingId,
   busy = false,
-  className = "",
+  className = '',
 }) {
+  const { t } = useTranslation();
   const liked = comment?.isLiked === true;
   const count = Number(comment?.likesCount) || 0;
   const commentId = getCommentBackendId(comment);
@@ -26,13 +27,13 @@ export default function CommentLikeButton({
     <button
       type="button"
       className={[
-        "commentLikeBtn",
-        liked ? "commentLikeBtn--active" : "",
+        'commentLikeBtn',
+        liked ? 'commentLikeBtn--active' : '',
         className,
       ]
         .filter(Boolean)
-        .join(" ")}
-      aria-label={liked ? "Прибрати лайк" : "Лайкнути коментар"}
+        .join(' ')}
+      aria-label={liked ? t('comments.unlike') : t('comments.like')}
       aria-pressed={liked}
       disabled={busy}
       onClick={handleClick}

@@ -36,6 +36,10 @@ import ProfileGuard from './ProfileGuard';
 import { UserProfileNavProvider } from '../context/UserProfileNavContext';
 import BurgerMenu from '../components/BurgerMenu/BurgerMenu';
 import LanguageSettings from '../components/Settings/LanguageSettings';
+import AccountSettingsPage from '../pages/Settings/AccountSettingsPage';
+import ChangePasswordPage from '../pages/Settings/ChangePasswordPage';
+import PrivacySettingsPage from '../pages/Settings/PrivacySettingsPage';
+import SecuritySettingsPage from '../pages/Settings/SecuritySettingsPage';
 import { useBurgerMenuStore } from '../zustand/useBurgerMenuStore';
 import { useLocaleStore } from '../zustand/useLocaleStore';
 import { useThemeStore } from '../zustand/useThemeStore';
@@ -121,6 +125,11 @@ function AppLayout() {
               <Route path="/video" element={<VideoPage />} />
               <Route path="/users/profile/complete" element={<CompleteProfilePage />} />
               <Route path="/users/profile/edit" element={<EditProfilePage />} />
+
+              <Route path="/settings/account" element={<AccountSettingsPage />} />
+              <Route path="/settings/change-password" element={<ChangePasswordPage />} />
+              <Route path="/settings/privacy" element={<PrivacySettingsPage />} />
+              <Route path="/settings/security" element={<SecuritySettingsPage />} />
 
               <Route path="/auth/login" element={<LoginPage />} />
               <Route path="/auth/register" element={<RegisterPage />} />

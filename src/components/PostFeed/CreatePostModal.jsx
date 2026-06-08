@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef } from "react";
+import { useTranslation } from "react-i18next";
 import profileIcons from "../../constants/profileIcons";
 import EmojiPickerButton from "../EmojiPicker/EmojiPickerButton";
 import "./CreatePostModal.scss";
@@ -66,7 +67,7 @@ export default function CreatePostModal({
   showOnlineDot = false,
   text,
   onTextChange,
-  placeholder = "Що у вас нового?",
+  placeholder,
   textareaRef,
   postMediaFiles = [],
   onRemoveMedia,
@@ -86,6 +87,9 @@ export default function CreatePostModal({
   onClose,
   canPublish = false,
 }) {
+  const { t } = useTranslation();
+  const resolvedPlaceholder = placeholder ?? t('posts.placeholder');
+
   const { city, country } = useMemo(
     () => parsePostLocation(postLocation),
     [postLocation]
@@ -138,13 +142,13 @@ export default function CreatePostModal({
       <div className="createPostModal__card" onClick={(e) => e.stopPropagation()}>
         <header className="createPostModal__header">
           <h2 id="create-post-title" className="createPostModal__title">
-            Створити допис
+            {t('posts.create.title')}
           </h2>
           <button
             type="button"
             className="createPostModal__close"
             onClick={onClose}
-            aria-label="Закрити"
+            aria-label={t('posts.create.close')}
           >
             <img src={profileIcons.close} alt="" aria-hidden="true" />
           </button>
@@ -173,7 +177,7 @@ export default function CreatePostModal({
               className="createPostModal__textarea"
               value={text}
               onChange={(e) => handleTextChange(e.target.value)}
-              placeholder={placeholder}
+              placeholder={resolvedPlaceholder}
               rows={3}
               aria-labelledby="create-post-title"
             />
@@ -182,7 +186,7 @@ export default function CreatePostModal({
               value={text}
               onChange={handleTextChange}
               className="createPostModal__emojiBtn"
-              ariaLabel="Додати емодзі"
+              ariaLabel={t('posts.create.addEmoji')}
             />
           </div>
 
@@ -210,29 +214,29 @@ export default function CreatePostModal({
           <div className="createPostModal__actions">
             <ActionCard
               icon={profileIcons.live}
-              label="Фото"
+              label={t('posts.create.photo')}
               active={hasPhoto}
               onClick={() => postMediaInputRef?.current?.click()}
             />
             <ActionCard
               icon={profileIcons.video}
-              label="Відео"
+              label={t('posts.create.video')}
               active={hasVideo}
               onClick={() => postVideoInputRef?.current?.click()}
             />
             <ActionCard
               icon={profileIcons.location}
-              label="Локація"
+              label={t('posts.create.location')}
               active={hasLocation || locationPanelOpen}
               locationActive={hasLocation || locationPanelOpen}
               onClick={onToggleLocationPanel}
             />
             <ActionCard
               icon={profileIcons.layoutBlack}
-              label="Ще"
+              label={t('posts.create.more')}
               active={false}
               onClick={() => textareaRef?.current?.focus()}
-              ariaLabel="Додаткові опції"
+              ariaLabel={t('posts.create.moreAria')}
             />
           </div>
 
@@ -257,7 +261,7 @@ export default function CreatePostModal({
                     type="button"
                     className="createPostModal__mediaRemove"
                     onClick={() => onRemoveMedia?.(media.id)}
-                    aria-label="Видалити файл"
+                    aria-label={t('posts.create.removeMedia')}
                   >
                     ×
                   </button>
@@ -270,13 +274,13 @@ export default function CreatePostModal({
             <section
               ref={locationPanelRef}
               className="createPostModal__locationPanel"
-              aria-label="Локація допису"
+              aria-label={t('posts.create.locationPanelAria')}
             >
               <h3 className="createPostModal__locationTitle">
-                Додати локацію до вашого допису
+                {t('posts.create.locationTitle')}
               </h3>
               <p className="createPostModal__locationSubtitle">
-                Ваші друзі побачать, де ви знаходитесь.
+                {t('posts.create.locationSubtitle')}
               </p>
 
               <div className="createPostModal__mapPreview" aria-hidden="true">
@@ -299,20 +303,20 @@ export default function CreatePostModal({
                     type="button"
                     className="createPostModal__locationClear"
                     onClick={onClearLocation}
-                    aria-label="Прибрати локацію"
+                    aria-label={t('posts.create.locationClear')}
                   >
                     ×
                   </button>
                 </div>
               ) : (
                 <label className="createPostModal__locationManual">
-                  <span className="visually-hidden">Місто, країна</span>
+                  <span className="visually-hidden">{t('posts.create.locationPlaceholder')}</span>
                   <input
                     type="text"
                     className="createPostModal__locationInput"
                     value={postLocation}
                     onChange={(e) => onPostLocationChange?.(e.target.value)}
-                    placeholder="Місто, країна"
+                    placeholder={t('posts.create.locationPlaceholder')}
                     autoComplete="off"
                   />
                 </label>
@@ -326,8 +330,8 @@ export default function CreatePostModal({
                 aria-busy={isDetectingLocation}
               >
                 {isDetectingLocation
-                  ? "Визначаємо…"
-                  : "Використати мою поточну локацію"}
+                  ? t('posts.create.locationDetecting')
+                  : t('posts.create.locationDetect')}
               </button>
             </section>
           )}
@@ -339,7 +343,7 @@ export default function CreatePostModal({
               onClick={onClose}
               disabled={isPublishing}
             >
-              Скасувати
+              {t('posts.create.cancel')}
             </button>
             <button
               type="button"
@@ -347,7 +351,7 @@ export default function CreatePostModal({
               disabled={isPublishing || !canPublish}
               onClick={onPublish}
             >
-              {isPublishing ? "Публікуємо…" : "Опублікувати"}
+              {isPublishing ? t('posts.create.publishing') : t('posts.create.publish')}
             </button>
           </footer>
 
@@ -355,7 +359,7 @@ export default function CreatePostModal({
             <span className="createPostModal__privacyLock" aria-hidden="true">
               🔒
             </span>
-            <span>Тільки ваші друзі бачать ваше місцезнаходження</span>
+            <span>{t('posts.create.privacy')}</span>
           </p>
         </div>
       </div>

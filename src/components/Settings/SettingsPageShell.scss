@@ -1,0 +1,244 @@
+.settings-page {
+  min-height: 100dvh;
+  padding: 16px 16px 32px;
+  background: #fce9e9;
+  color: #111;
+  font-family: Montserrat, sans-serif;
+}
+
+.settings-page__header {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.settings-page__back {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.65);
+  cursor: pointer;
+}
+
+.settings-page__back img {
+  width: 18px;
+  height: 18px;
+}
+
+.settings-page__titles {
+  min-width: 0;
+}
+
+.settings-page__title {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.settings-page__subtitle {
+  margin: 6px 0 0;
+  font-size: 0.875rem;
+  color: rgba(0, 0, 0, 0.62);
+  line-height: 1.4;
+}
+
+.settings-page__body {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.settings-card {
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.settings-card__row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 14px 16px;
+  border: none;
+  background: transparent;
+  text-align: start;
+  cursor: pointer;
+  font: inherit;
+  color: inherit;
+}
+
+.settings-card__row + .settings-card__row,
+.settings-card__row + .settings-toggle,
+.settings-toggle + .settings-toggle {
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.settings-card__row:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+
+.settings-card__meta {
+  flex: 1;
+  min-width: 0;
+}
+
+.settings-card__label {
+  display: block;
+  font-size: 0.9375rem;
+  font-weight: 600;
+}
+
+.settings-card__desc {
+  display: block;
+  margin-top: 2px;
+  font-size: 0.8125rem;
+  color: rgba(0, 0, 0, 0.58);
+  line-height: 1.35;
+}
+
+.settings-card__value {
+  flex-shrink: 0;
+  font-size: 0.8125rem;
+  color: rgba(0, 0, 0, 0.55);
+}
+
+.settings-card__chevron {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  opacity: 0.55;
+}
+
+.settings-card__badge {
+  flex-shrink: 0;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: rgba(255, 79, 177, 0.12);
+  color: #c2187a;
+  font-size: 0.6875rem;
+  font-weight: 600;
+}
+
+.settings-toggle {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+}
+
+.settings-toggle__meta {
+  flex: 1;
+  min-width: 0;
+}
+
+.settings-toggle__switch {
+  position: relative;
+  width: 44px;
+  height: 26px;
+  flex-shrink: 0;
+  border: none;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.14);
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.settings-toggle__switch.is-on {
+  background: linear-gradient(90deg, #ff4fb1, #4f6bff);
+}
+
+.settings-toggle__switch::after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #fff;
+  transition: transform 0.2s ease;
+}
+
+.settings-toggle__switch.is-on::after {
+  transform: translateX(18px);
+}
+
+.settings-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.settings-form__field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.settings-form__label {
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+
+.settings-form__hint {
+  font-size: 0.75rem;
+  color: rgba(0, 0, 0, 0.55);
+}
+
+.settings-form__input {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 12px;
+  background: #fff;
+  font: inherit;
+}
+
+.settings-form__input:disabled {
+  opacity: 0.7;
+  background: rgba(255, 255, 255, 0.8);
+}
+
+.settings-form__error {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: #c62828;
+}
+
+.settings-form__submit {
+  margin-top: 4px;
+  padding: 12px 16px;
+  border: none;
+  border-radius: 12px;
+  background: linear-gradient(90deg, #ff4fb1, #4f6bff);
+  color: #fff;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.settings-form__submit:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.settings-page__email {
+  padding: 14px 16px;
+  font-size: 0.875rem;
+}
+
+.settings-page__email strong {
+  display: block;
+  margin-top: 4px;
+  font-size: 0.9375rem;
+}

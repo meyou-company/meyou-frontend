@@ -26,7 +26,7 @@
     "myProfile": "Мой профиль",
     "edit": "Редактировать",
     "viewAsGuest": "Посмотреть как гость",
-    "darkTheme": "Темная тема",
+    "darkTheme": "Тёмная тема",
     "favorites": "Избранное",
     "blocked": "Заблокированные",
     "privacy": "Конфиденциальность",
@@ -212,12 +212,12 @@
       "openProfile": "Открыть профиль {{name}}"
     },
     "posts": {
-      "createTitle": "Создать публикацию",
+      "createTitle": "Создать пост",
       "placeholder": "Что у вас нового?",
       "placeholderWithName": "Что у вас нового, {{name}}?",
-      "loading": "Загрузка публикаций…",
-      "empty": "Пока нет публикаций",
-      "like": "Нравится",
+      "loading": "Загрузка постов…",
+      "empty": "Пока нет постов",
+      "like": "Лайк",
       "comment": "Комментарий",
       "save": "Сохранить",
       "share": "Поделиться"
@@ -440,6 +440,86 @@
       "es": "Español",
       "ru": "Русский",
       "ar": "العربية"
+    },
+    "account": {
+      "title": "Настройки аккаунта",
+      "subtitle": "Управляйте языком, паролем и конфиденциальностью",
+      "emailLabel": "Email",
+      "items": {
+        "language": "Язык интерфейса",
+        "changePassword": "Сменить пароль",
+        "privacy": "Конфиденциальность",
+        "security": "Безопасность"
+      },
+      "itemDesc": {
+        "language": "Язык приложения и уведомлений",
+        "changePassword": "Обновить пароль для входа",
+        "privacy": "Кто видит ваш профиль и активность",
+        "security": "Пароль, сессии и защита аккаунта"
+      }
+    },
+    "changePassword": {
+      "title": "Сменить пароль",
+      "subtitle": "Мы отправим код подтверждения на ваш email",
+      "emailLabel": "Email",
+      "emailHint": "Код будет отправлен на этот адрес",
+      "submit": "Отправить код",
+      "submitting": "Отправка…",
+      "toastSent": "Код отправлен на email",
+      "backToAccount": "Назад к настройкам",
+      "errors": {
+        "emailRequired": "Введите email",
+        "emailInvalid": "Введите корректный email",
+        "sendFailed": "Ошибка отправки кода. Попробуйте ещё раз."
+      }
+    },
+    "privacy": {
+      "title": "Конфиденциальность",
+      "subtitle": "Управляйте тем, кто видит вашу информацию",
+      "saved": "Настройки сохранены",
+      "saveError": "Не удалось сохранить настройки",
+      "loading": "Загрузка…",
+      "items": {
+        "profilePublic": {
+          "title": "Публичный профиль",
+          "desc": "Другие пользователи могут просматривать ваш профиль"
+        },
+        "showOnline": {
+          "title": "Статус онлайн",
+          "desc": "Показывать, когда вы в сети"
+        },
+        "allowMessages": {
+          "title": "Сообщения",
+          "desc": "Разрешить сообщения от людей, на которых вы не подписаны"
+        },
+        "searchVisible": {
+          "title": "Поиск",
+          "desc": "Показывать профиль в результатах поиска"
+        }
+      }
+    },
+    "security": {
+      "title": "Безопасность",
+      "subtitle": "Защита вашего аккаунта",
+      "items": {
+        "changePassword": {
+          "title": "Сменить пароль",
+          "desc": "Обновить пароль через email-код"
+        },
+        "twoFactor": {
+          "title": "Двухфакторная аутентификация",
+          "desc": "Дополнительная защита при входе",
+          "comingSoon": "Скоро"
+        },
+        "sessions": {
+          "title": "Активные сессии",
+          "desc": "Устройства, с которых выполнен вход"
+        }
+      },
+      "logoutAll": "Выйти на всех устройствах",
+      "logoutAllConfirm": "Выйти из аккаунта на этом устройстве?",
+      "logoutAllSuccess": "Вы вышли из аккаунта",
+      "comingSoon": "Скоро"
     }
   },
   "video": {
@@ -496,5 +576,211 @@
     "bottomNav": "Нижняя навигация",
     "search": "Поиск",
     "messages": "Сообщения"
+  },
+  "feed": {
+    "loading": "Загрузка ленты…",
+    "loadingMore": "Загрузка ещё постов…",
+    "empty": "Пока нет постов",
+    "openProfile": "Открыть профиль {{name}}",
+    "profileUnavailable": "Профиль недоступен",
+    "error": {
+      "load": "Не удалось загрузить ленту",
+      "server": "Временная ошибка сервера при загрузке ленты",
+      "profileLoad": "Не удалось загрузить посты. Попробуйте обновить страницу.",
+      "profileRoute": "Не удалось загрузить посты профиля (маршрут недоступен на бэкенде).",
+      "profileServer": "Временная ошибка сервера при загрузке постов."
+    }
+  },
+  "posts": {
+    "loading": "Загрузка постов…",
+    "empty": "Пока нет постов",
+    "createTitle": "Создать пост",
+    "placeholder": "Что у вас нового?",
+    "placeholderWithName": "Что у вас нового, {{name}}?",
+    "actions": {
+      "like": "Лайк",
+      "comment": "Комментарий",
+      "save": "Сохранить",
+      "share": "Поделиться",
+      "authorAria": "Автор поста"
+    },
+    "time": {
+      "justNow": "только что",
+      "minutes": "{{count}} мин",
+      "hours": "{{count}} ч",
+      "days": "{{count}} д"
+    },
+    "repost": {
+      "sharedAria": "Репост",
+      "sharedFemale": "Поделилась",
+      "sharedMale": "Поделился",
+      "inFeed": "✨ В ленту"
+    },
+    "create": {
+      "title": "Создать пост",
+      "close": "Закрыть",
+      "photo": "Фото",
+      "video": "Видео",
+      "location": "Локация",
+      "more": "Ещё",
+      "moreAria": "Дополнительные опции",
+      "addEmoji": "Добавить эмодзи",
+      "removeMedia": "Удалить файл",
+      "locationPanelAria": "Локация поста",
+      "locationTitle": "Добавить локацию к посту",
+      "locationSubtitle": "Ваши друзья увидят, где вы находитесь.",
+      "locationClear": "Убрать локацию",
+      "locationPlaceholder": "Город, страна",
+      "locationDetecting": "Определяем…",
+      "locationDetect": "Использовать моё текущее местоположение",
+      "cancel": "Отмена",
+      "publish": "Опубликовать",
+      "publishing": "Публикация…",
+      "privacy": "Только ваши друзья видят ваше местоположение"
+    },
+    "edit": {
+      "title": "Редактировать пост",
+      "close": "Закрыть",
+      "textPlaceholder": "Текст поста…",
+      "locationLabel": "Локация",
+      "locationPlaceholder": "Город, страна",
+      "addEmoji": "Добавить эмодзи",
+      "removeMedia": "Убрать медиа",
+      "removeFile": "Убрать файл",
+      "addMedia": "Фото / видео",
+      "save": "Сохранить",
+      "saving": "Сохранение…"
+    },
+    "delete": {
+      "title": "Удалить этот пост?",
+      "description": "Это действие нельзя отменить.",
+      "confirm": "Удалить",
+      "confirming": "Удаление…",
+      "cancel": "Отмена"
+    },
+    "deleteRepost": {
+      "title": "Убрать пост из ленты?",
+      "description": "Оригинальный пост останется без изменений.",
+      "confirm": "Убрать",
+      "confirming": "Убираем…"
+    },
+    "menu": {
+      "actionsAria": "Действия с постом",
+      "edit": "Редактировать пост",
+      "removeFromFeed": "Убрать из ленты",
+      "delete": "Удалить пост"
+    },
+    "share": {
+      "title": "Поделиться",
+      "close": "Закрыть",
+      "sendInApp": "Отправить в Me&You",
+      "searchPlaceholder": "Поиск пользователей…",
+      "searchAria": "Поиск получателей",
+      "removeRecipient": "Убрать {{name}}",
+      "loading": "Загрузка…",
+      "emptySearch": "Никого не найдено",
+      "emptyFollowing": "Нет подписок для отправки",
+      "messagePlaceholder": "Сообщение (необязательно)",
+      "messageAria": "Сообщение получателям",
+      "send": "Отправить",
+      "sending": "Отправка…",
+      "repost": "Репост в свою ленту",
+      "reposting": "Репост…",
+      "reposted": "Уже в вашей ленте",
+      "external": "Поделиться вне приложения",
+      "defaultText": "Посмотри этот пост",
+      "linkCopied": "Ссылка скопирована",
+      "linkCopiedTiktok": "Ссылка скопирована — вставьте в TikTok",
+      "copyFailed": "Не удалось скопировать ссылку",
+      "systemShareFailed": "Не удалось открыть системное меню «Поделиться»"
+    },
+    "shareExternal": {
+      "copy": "Копировать",
+      "more": "Ещё",
+      "systemAria": "Системное меню «Поделиться»",
+      "listAria": "Поделиться вне приложения"
+    },
+    "validation": {
+      "emptyContent": "Добавьте текст или медиа",
+      "emptyTextOrPhoto": "Добавьте текст или фото",
+      "selectRecipients": "Выберите получателей"
+    },
+    "toast": {
+      "published": "Пост опубликован",
+      "publishFailed": "Не удалось опубликовать пост",
+      "updated": "Пост обновлён",
+      "updateFailed": "Не удалось обновить пост",
+      "deleted": "Пост удалён",
+      "removedFromFeed": "Пост убран из ленты",
+      "deleteFailed": "Не удалось удалить пост",
+      "deleteRepostDenied": "Сервер отклонил удаление репоста (401/403). Нужно разрешить автору DELETE для своего repost (id карточки репоста, не оригинала).",
+      "likeFailed": "Не удалось поставить лайк",
+      "saveFailed": "Не удалось сохранить пост",
+      "unsaveFailed": "Не удалось убрать пост из сохранённых",
+      "commentFailed": "Не удалось отправить комментарий",
+      "replyFailed": "Не удалось отправить ответ",
+      "repliesLoadFailed": "Не удалось загрузить ответы",
+      "commentDeleteFailed": "Не удалось удалить комментарий",
+      "commentLikeFailed": "Не удалось поставить лайк",
+      "commentIdMissing": "Отсутствует id комментария",
+      "commentNotFound": "Комментарий не найден",
+      "repostFailed": "Не удалось сделать репост",
+      "repostSuccess": "Репост опубликован в вашей ленте",
+      "repostDone": "Репост опубликован",
+      "sendSuccess": "Пост отправлен",
+      "sendFailed": "Не удалось отправить пост",
+      "mediaUploadDisabled": "Загрузка медиа временно недоступна. Пост будет опубликован только с текстом.",
+      "mediaUploadPartial": "Загрузка медиа временно недоступна. Часть файлов не добавлена.",
+      "mediaUploadFileFailed": "Не удалось загрузить один из файлов. Пост опубликован без него.",
+      "editMediaUploadDisabled": "Загрузка новых медиа временно недоступна. Сохранены только текст и существующие файлы.",
+      "editMediaUploadFileFailed": "Не удалось загрузить один из файлов"
+    },
+    "lightbox": {
+      "title": "Просмотр фото",
+      "close": "Закрыть",
+      "prev": "Предыдущее фото",
+      "next": "Следующее фото"
+    },
+    "page": {
+      "title": "Пост",
+      "loading": "Загрузка…",
+      "notFound": "Пост не найден",
+      "back": "Назад",
+      "account": "Профиль",
+      "showComments": "Показать комментарии"
+    }
+  },
+  "comments": {
+    "title": "Комментарии",
+    "regionAria": "Комментарии к посту",
+    "empty": "Пока нет комментариев",
+    "loading": "Загрузка комментариев…",
+    "loadFailed": "Не удалось загрузить комментарии",
+    "placeholder": "Написать комментарий…",
+    "composeAria": "Текст нового комментария",
+    "sendAria": "Отправить комментарий",
+    "reply": "Ответить",
+    "replyPlaceholder": "Написать ответ…",
+    "replyComposeAria": "Текст ответа",
+    "replySendAria": "Отправить ответ",
+    "editPlaceholder": "Редактировать комментарий…",
+    "editAria": "Редактирование комментария",
+    "saveEditAria": "Сохранить",
+    "cancelEdit": "Отмена",
+    "showMore": "Показать ещё ({{count}})",
+    "authorAria": "Автор комментария",
+    "replyAuthorAria": "Автор ответа",
+    "authorProfile": "Профиль {{handle}}",
+    "addEmoji": "Добавить эмодзи",
+    "like": "Лайкнуть комментарий",
+    "unlike": "Убрать лайк",
+    "repliesCount_one": "{{count}} ответ",
+    "repliesCount_few": "{{count}} ответа",
+    "repliesCount_many": "{{count}} ответов",
+    "menu": {
+      "actionsAria": "Действия с комментарием",
+      "edit": "Редактировать",
+      "delete": "Удалить"
+    }
   }
 }

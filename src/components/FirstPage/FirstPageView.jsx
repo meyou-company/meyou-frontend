@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import profileIcons from '../../constants/profileIcons';
 import { useStoriesFeed } from "../../hooks/useStoriesFeed";
 import { postsApi } from '../../services/postsApi';
@@ -29,11 +30,11 @@ import StoryViewerModal from "../../components/Stories/StoryViewerModal";
 import '../Users/Profile/ProfileHome/ProfileHome.scss';
 import './FirstPageView.scss';
 
-const getReadableFeedError = (error) => {
+const getReadableFeedError = (error, t) => {
   const text = getApiErrorMessage(error);
-  if (!text) return 'Не вдалося завантажити стрічку';
+  if (!text) return t('feed.error.load');
   if (text === 'Request failed with status code 500') {
-    return 'Тимчасова помилка сервера при завантаженні стрічки';
+    return t('feed.error.server');
   }
   return text;
 };
@@ -51,6 +52,7 @@ export default function FirstPageView({
   onGoHome,
   onOpenProfile,
 }) {
+  const { t } = useTranslation();
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const [lightboxImages, setLightboxImages] = useState([]);
   const [lightboxIndex, setLightboxIndex] = useState(0);
@@ -196,14 +198,14 @@ export default function FirstPageView({
       setFeedPage(page);
       setHasMoreFeed(mapped.length === PAGE_SIZE);
     } catch (e) {
-      setFeedError(getReadableFeedError(e));
+      setFeedError(getReadableFeedError(e, t));
       // Keep already loaded posts (or cache) on error to avoid blanking the feed.
       setHasMoreFeed(false);
     } finally {
       if (append) setFeedLoadingMore(false);
       else setFeedLoading(false);
     }
-  }, []);
+  }, [t]);
 
   useEffect(() => {
     let cancelled = false;
@@ -313,12 +315,12 @@ export default function FirstPageView({
           <div className="max-w-[1340px] mx-auto my-[10px] md:my-5 xl:my-[46px] px-7 md:px-[41px] lg:px-9 min-[1440px]:px-[66px] space-y-[10px] md:space-y-5">
             {feedLoading && (
               <p className="text-center text-sm md:text-base font-[Montserrat] text-gray-600 py-6">
-                Завантаження стрічки…
+                {t('feed.loading')}
               </p>
             )}
             {!feedLoading && feedPosts.length === 0 && (
               <p className="text-center text-sm md:text-base font-[Montserrat] text-gray-600 py-6">
-                Поки що немає постів
+                {t('feed.empty')}
               </p>
             )}
             {!feedLoading &&
@@ -330,11 +332,12 @@ export default function FirstPageView({
                   currentUserId={currentUserId}
                   onOpenProfile={goProfileByUsername}
                   onOpenLightbox={openLightbox}
+                  t={t}
                 />
               ))}
             {!feedLoading && feedLoadingMore && (
               <p className="text-center text-sm md:text-base font-[Montserrat] text-gray-600 py-4">
-                Завантаження ще постів…
+                {t('feed.loadingMore')}
               </p>
             )}
             {!feedLoading && hasMoreFeed && (
@@ -458,8 +461,9 @@ function GlobalFeedPostCard({
   currentUserId,
   onOpenProfile,
   onOpenLightbox,
+  t,
 }) {
-  const name = postAuthorDisplayName(post.author);
+  const name = postAuthorDisplayName(post.author, t);
   const avatarSrc = post.author?.avatarUrl || profileIcons.userStory;
   const commentsOpen = feedActions.isCommentsOpen(post.id);
   const authorHandle = getProfileRouteHandle(post.author);
@@ -478,7 +482,9 @@ function GlobalFeedPostCard({
         onAvatarClick={handleOpenProfile}
         avatarDisabled={!hasProfileLink}
         avatarAriaLabel={
-          hasProfileLink ? `Відкрити профіль ${name}` : 'Профіль недоступний'
+          hasProfileLink
+            ? t('feed.openProfile', { name })
+            : t('feed.profileUnavailable')
         }
         authorName={name}
         createdAt={post.createdAt}

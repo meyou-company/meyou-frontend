@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { postsApi } from "../services/postsApi";
+import { i18n } from "../i18n";
 import { mapApiPostToFeedItem } from "../utils/mapApiPostToFeedItem";
 import { getApiErrorMessage } from "../utils/getApiErrorMessage";
 import { applyPersistedLikes } from "../utils/postLikePersistence";
@@ -91,14 +92,14 @@ export function useProfileAuthorFeed(postsAuthorId, { enabled = true } = {}) {
         if (!cancelled) {
           const raw = getApiErrorMessage(err);
           const pretty = /^Cannot GET\s+/i.test(raw || "")
-            ? "Не вдалося завантажити пости профілю (маршрут недоступний на бекенді)."
+            ? i18n.t('feed.error.profileRoute')
             : /^Internal server error$/i.test(raw || "")
-              ? "Тимчасова помилка сервера при завантаженні постів."
+              ? i18n.t('feed.error.profileServer')
               : raw;
           setFeedError(
             pretty
               ? pretty
-              : "Не вдалося завантажити пости. Спробуйте оновити сторінку."
+              : i18n.t('feed.error.profileLoad')
           );
         }
       } finally {
