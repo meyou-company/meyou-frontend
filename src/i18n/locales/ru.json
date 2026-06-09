@@ -1,0 +1,786 @@
+{
+  "common": {
+    "loading": "Загрузка...",
+    "save": "Сохранить",
+    "cancel": "Отмена",
+    "close": "Закрыть",
+    "send": "Отправить",
+    "search": "Поиск",
+    "back": "Назад",
+    "retry": "Попробовать снова",
+    "user": "Пользователь",
+    "yes": "Да",
+    "no": "Нет",
+    "on": "On",
+    "off": "Off",
+    "appLoadError": "Не удалось загрузить приложение. Обновите страницу."
+  },
+  "nav": {
+    "home": "Главная",
+    "people": "Люди",
+    "video": "Видео",
+    "messages": "Сообщения",
+    "profile": "Профиль"
+  },
+  "menu": {
+    "myProfile": "Мой профиль",
+    "edit": "Редактировать",
+    "viewAsGuest": "Посмотреть как гость",
+    "darkTheme": "Тёмная тема",
+    "favorites": "Избранное",
+    "blocked": "Заблокированные",
+    "privacy": "Конфиденциальность",
+    "accountSettings": "Настройки аккаунта",
+    "security": "Безопасность",
+    "support": "Помощь / Поддержка",
+    "report": "Пожаловаться",
+    "about": "О сервисе",
+    "terms": "Условия использования",
+    "privacyPolicy": "Политика конфиденциальности",
+    "logout": "Выйти",
+    "closeMenu": "Закрыть меню",
+    "language": "Язык"
+  },
+  "auth": {
+    "login": {
+      "title": "Вход",
+      "emailPlaceholder": "Введите Email",
+      "passwordPlaceholder": "Введите пароль",
+      "submit": "Войти",
+      "submitting": "Вход…",
+      "forgotPassword": "Забыли пароль?",
+      "toastSuccess": "Успешный вход",
+      "errors": {
+        "emailRequired": "Введите E-mail",
+        "passwordRequired": "Введите пароль",
+        "loginFailed": "Ошибка входа"
+      }
+    },
+    "register": {
+      "title": "Регистрация",
+      "firstNamePlaceholder": "Введите имя",
+      "firstNameHint": "Введите ваше имя. Имя может содержать буквы, пробелы и цифры.",
+      "emailPlaceholder": "Введите Email",
+      "emailHint": "Введите E-mail",
+      "passwordPlaceholder": "Введите пароль",
+      "confirmPasswordPlaceholder": "Повторно введите пароль",
+      "confirmPasswordHint": "Пожалуйста, подтвердите ваш пароль",
+      "policyText": "Нажимая кнопку «Регистрация», вы принимаете Политику конфиденциальности и Условия использования.",
+      "submit": "Создать аккаунт",
+      "submitting": "Создание…",
+      "hasAccount": "У меня есть аккаунт",
+      "toastSuccess": "Регистрация успешна. Проверьте email для подтверждения.",
+      "errors": {
+        "checkForm": "Пожалуйста, проверьте форму",
+        "registerFailed": "Ошибка регистрации"
+      }
+    },
+    "email": "Email",
+    "password": "Password",
+    "forgotPassword": {
+      "title": "Смена пароля",
+      "emailPlaceholder": "Введите Email",
+      "submit": "Подтвердить",
+      "submitting": "Отправка…",
+      "toastSuccess": "Код отправлен на email",
+      "errors": {
+        "emailRequired": "Введите E-mail",
+        "emailInvalid": "Введите корректный E-mail",
+        "sendFailed": "Ошибка отправки кода. Попробуйте ещё раз."
+      }
+    },
+    "noAccount": "Don't have an account?",
+    "hasAccount": "Already have an account?",
+    "common": {
+      "logoAlt": "Me You logo",
+      "googleAlt": "Google",
+      "showPassword": "Показать пароль",
+      "hidePassword": "Скрыть пароль",
+      "somethingWentWrong": "Что-то пошло не так"
+    },
+    "resetPassword": {
+      "title": "Смена пароля",
+      "passwordPlaceholder": "Введите новый пароль",
+      "confirmPasswordPlaceholder": "Повторите пароль",
+      "submit": "Сохранить",
+      "submitting": "Сохранение…",
+      "toastSuccess": "Пароль изменён",
+      "errors": {
+        "passwordRequired": "Введите новый пароль",
+        "confirmRequired": "Повторите пароль",
+        "mismatch": "Пароли не совпадают",
+        "saveFailed": "Ошибка. Попробуйте ещё раз."
+      }
+    },
+    "verifyEmail": {
+      "title": "Верификация",
+      "subtitle": "Код отправлен на email и действителен 15 минут.",
+      "submit": "Подтвердить",
+      "submitting": "Проверка…",
+      "resend": "Отправить код повторно",
+      "resending": "Отправка…",
+      "toastVerified": "Email подтверждён",
+      "toastResent": "Код отправлен повторно",
+      "errors": {
+        "incomplete": "Введите код полностью",
+        "verifyFailed": "Ошибка верификации",
+        "resendFailed": "Ошибка отправки кода"
+      }
+    },
+    "verifyResetCode": {
+      "title": "Смена пароля",
+      "subtitle": "Код отправлен на email и действителен 15 минут.",
+      "submit": "Далее",
+      "submitting": "Проверка…",
+      "resend": "Отправить код повторно",
+      "resending": "Отправка…",
+      "toastVerified": "Код подтверждён",
+      "toastResent": "Код отправлен повторно",
+      "errors": {
+        "incomplete": "Введите код полностью",
+        "noEmail": "Нет email. Вернитесь назад и введите email заново.",
+        "verifyFailed": "Ошибка верификации",
+        "resendFailed": "Ошибка отправки кода"
+      }
+    },
+    "verify": {
+      "digitAria": "Цифра {{n}}"
+    },
+    "google": {
+      "loading": "Вход через Google…",
+      "loadingGeneric": "Авторизация…"
+    },
+    "validation": {
+      "firstNameRequired": "Введите имя",
+      "firstNameMin": "Имя должно содержать минимум 2 символа",
+      "firstNameMax": "Имя слишком длинное",
+      "firstNameFormat": "Имя может содержать только буквы, пробелы и дефис",
+      "emailRequired": "Введите email",
+      "emailInvalid": "Некорректный email",
+      "emailMax": "Email слишком длинный",
+      "passwordRequired": "Введите пароль",
+      "passwordMin": "Минимум 8 символов. Нужны цифры, одна строчная (a-z) и одна заглавная (A-Z) буква.",
+      "passwordMax": "Пароль слишком длинный",
+      "passwordFormat": "Нужны цифры, одна строчная (a-z) и одна заглавная (A-Z) буква.",
+      "passwordHint": "Пароль должен содержать цифры, хотя бы одну строчную (a-z) и одну заглавную (A-Z) букву.",
+      "confirmRequired": "Подтвердите пароль",
+      "confirmMismatch": "Пароли не совпадают",
+      "acceptPolicy": "Необходимо принять условия и политику конфиденциальности"
+    }
+  },
+  "profile": {
+    "myMessages": "Мои сообщения",
+    "myGifts": "Мои подарки",
+    "saved": "Сохранённое",
+    "gifts": "Подарки",
+    "writeMessage": "Написать сообщение",
+    "goHome": "Go home",
+    "loading": "Загрузка профиля…",
+    "notFound": "Профиль не найден{{username}}",
+    "loadError": "Ошибка загрузки",
+    "myBalance": "Мой баланс",
+    "editProfile": "Редактировать профиль",
+    "viewPhoto": "Посмотреть фото",
+    "viewPhotoFull": "Фото в полном размере",
+    "live": "Эфир",
+    "more": "Ещё",
+    "notSpecified": "Не указано",
+    "tabs": {
+      "info": "Информация",
+      "stories": "Истории",
+      "video": "Видео",
+      "photo": "Фото",
+      "unsubscribe": "Отписаться"
+    },
+    "actions": {
+      "addStory": "Дополнить историю",
+      "addStoryShort": "История",
+      "addReels": "Добавить рилс",
+      "reels": "Reels",
+      "live": "Эфир",
+      "liveDesktop": "Прямой эфир"
+    },
+    "friends": {
+      "title": "Друзья",
+      "titleWithCount": "Друзья, всего {{count}}",
+      "showMore": "Показать больше",
+      "findFriends": "Найти друзей",
+      "viewFriends": "Посмотреть друзей",
+      "empty": "Пока нет друзей",
+      "profileOf": "Профиль {{name}}",
+      "profileUnavailable": "Профиль недоступен",
+      "openProfile": "Открыть профиль {{name}}"
+    },
+    "posts": {
+      "createTitle": "Создать пост",
+      "placeholder": "Что у вас нового?",
+      "placeholderWithName": "Что у вас нового, {{name}}?",
+      "loading": "Загрузка постов…",
+      "empty": "Пока нет постов",
+      "like": "Лайк",
+      "comment": "Комментарий",
+      "save": "Сохранить",
+      "share": "Поделиться"
+    },
+    "visitor": {
+      "writeMessage": "Написать сообщение",
+      "subscribe": "Подписаться",
+      "subscribing": "…",
+      "unsubscribe": "Отписаться",
+      "addToVip": "Добавить в VIP",
+      "report": "Пожаловаться",
+      "block": "Заблокировать",
+      "moreActions": "Больше действий",
+      "profileTabs": "Вкладки профиля",
+      "profileActions": "Действия профиля"
+    },
+    "info": {
+      "title": "Информация",
+      "interests": "Интересы",
+      "noInterests": "Нет интересов",
+      "personalInfo": "Личная информация",
+      "gender": "Пол",
+      "maritalStatus": "Семейное положение",
+      "nationality": "Национальность",
+      "profession": "Профессия",
+      "languages": "Языки",
+      "location": "Локация",
+      "country": "Страна",
+      "city": "Город",
+      "socialActivity": "Социальная активность",
+      "friendsStat": "Друзья",
+      "vipStatus": "VIP",
+      "status": "Статус",
+      "giftsStat": "Подарки",
+      "postsStat": "Посты",
+      "contacts": "Контакты",
+      "emailHidden": "Email (скрыт)"
+    },
+    "vip": {
+      "vipFriends": "VIP",
+      "friendsTitle": "Друзья {{count}}"
+    },
+    "friendsPage": {
+      "title": "Друзья {{name}}",
+      "searchPlaceholder": "Поиск по имени или нику…",
+      "sections": "Разделы",
+      "noResults": "Никого не найдено",
+      "noFriends": "У этого пользователя пока нет друзей",
+      "userNotSpecified": "Пользователь не указан",
+      "loadListError": "Не удалось загрузить список друзей",
+      "notFound": "Профиль не найден"
+    },
+    "toast": {
+      "avatarSessionExpired": "Сессия истекла. Войдите снова.",
+      "avatarSaveError": "Не удалось сохранить фото",
+      "openChatError": "Не удалось открыть чат"
+    },
+    "editForm": {
+      "title": "Редактировать профиль",
+      "changePhoto": "Изменить фото профиля",
+      "upload": "Загрузить",
+      "delete": "Удалить",
+      "avatarAlt": "Аватар",
+      "lockedField": "Заблокировано",
+      "select": "Выберите",
+      "maxCharsNote": "*максимум символов",
+      "maxItemsNote": "*максимум {{max}}",
+      "saving": "Сохранение...",
+      "saveChanges": "Сохранить изменения",
+      "fields": {
+        "lastName": "Фамилия",
+        "firstName": "Имя",
+        "gender": "Пол",
+        "birthDate": "Дата рождения",
+        "birthDatePlaceholder": "Выберите дату рождения",
+        "nationality": "Национальность",
+        "username": "Ник (до 10 символов)",
+        "bio": "О себе (необязательно)",
+        "interests": "Интересы",
+        "hobbies": "Хобби",
+        "maritalStatus": "Семейное положение",
+        "country": "Страна",
+        "city": "Город"
+      },
+      "gender": {
+        "male": "Мужской",
+        "female": "Женский"
+      },
+      "maritalStatus": {
+        "single": "Не женат/Не замужем",
+        "married": "Женат/Замужем",
+        "divorced": "Разведён/Разведена",
+        "widowed": "Вдовец/Вдова",
+        "inRelationship": "В отношениях"
+      },
+      "toast": {
+        "avatarUpdated": "Аватар обновлён",
+        "avatarDeleted": "Аватар удалён",
+        "avatarUpdateError": "Не удалось обновить фото",
+        "avatarDeleteError": "Ошибка удаления аватара",
+        "invalidFileType": "Разрешены только JPEG, PNG, WebP"
+      },
+      "errors": {
+        "usernameTaken": "Этот ник уже занят",
+        "usernameCheckError": "Ошибка проверки ника",
+        "updateError": "Ошибка обновления профиля"
+      },
+      "validation": {
+        "lastNameRequired": "Укажите фамилию",
+        "firstNameRequired": "Укажите имя",
+        "phoneRequired": "Укажите номер телефона",
+        "nationalityRequired": "Укажите национальность",
+        "maritalStatusRequired": "Выберите семейное положение",
+        "countryRequired": "Выберите страну",
+        "cityRequired": "Выберите город",
+        "interestsRequired": "Выберите интересы",
+        "hobbiesRequired": "Выберите хобби",
+        "usernameRequired": "Укажите ник",
+        "genderRequired": "Выберите пол",
+        "birthDateRequired": "Выберите дату рождения",
+        "birthDateFormat": "Формат: ГГГГ-ММ-ДД",
+        "birthDateInvalid": "Неверная дата",
+        "birthDateAge": "Возраст должен быть от 18 до 100",
+        "firstNameLettersOnly": "Имя должно содержать только буквы",
+        "lastNameLettersOnly": "Фамилия должна содержать только буквы",
+        "nationalityLettersOnly": "Национальность должна содержать только буквы",
+        "usernameMinLength": "Ник должен содержать минимум 3 символа",
+        "usernameMaxLength": "Ник должен быть до 10 символов",
+        "usernameFormat": "Ник: только латиница/цифры и . _ -",
+        "bioMaxLength": "Максимум 500 символов",
+        "phoneTooShort": "Номер слишком короткий",
+        "phoneTooLong": "Номер слишком длинный"
+      }
+    },
+    "completeForm": {
+      "title": "Профиль",
+      "addPhoto": "Добавить фото профиля",
+      "photoNote": "*профили с фото получают больше просмотров",
+      "save": "Сохранить",
+      "update": "Обновить",
+      "saving": "Сохранение...",
+      "maxLimit": "Максимум {{max}}",
+      "toast": {
+        "profileSaved": "Профиль сохранён"
+      },
+      "errors": {
+        "saveError": "Ошибка сохранения профиля"
+      }
+    }
+  },
+  "messenger": {
+    "title": "Сообщения",
+    "soundLabel": "🔔 Звук сообщений:",
+    "loadChatsError": "Не удалось загрузить чаты",
+    "noChats": "Чатов пока нет",
+    "selectChat": "Выберите чат слева или начните переписку из профиля пользователя.",
+    "loadMessagesError": "Не удалось загрузить сообщения",
+    "sendError": "Не удалось отправить сообщение",
+    "noMessages": "Нет сообщений",
+    "placeholder": "Напишите сообщение...",
+    "newMessageFrom": "Новое сообщение от {{name}}"
+  },
+  "notifications": {
+    "title": "Уведомления",
+    "empty": "У вас пока нет уведомлений",
+    "emptyUnread": "У вас нет непрочитанных уведомлений",
+    "settingsTitle": "Настройки уведомлений",
+    "settingsSubtitle": "Выберите, какие уведомления вы хотите получать",
+    "groups": {
+      "activity": "Активность",
+      "system": "Система",
+      "delivery": "Способ получения"
+    },
+    "items": {
+      "follow": {
+        "title": "Follows",
+        "desc": "When someone follows you"
+      },
+      "like": {
+        "title": "Likes",
+        "desc": "When someone likes your posts"
+      },
+      "comment": {
+        "title": "Comments",
+        "desc": "Comments on your posts"
+      },
+      "mention": {
+        "title": "Mentions",
+        "desc": "When you are mentioned in posts or comments"
+      },
+      "post": {
+        "title": "New posts",
+        "desc": "New posts from people you follow"
+      },
+      "system": {
+        "title": "System notifications",
+        "desc": "Security, updates and important events"
+      },
+      "push": {
+        "title": "Push notifications",
+        "desc": "In-app notifications"
+      },
+      "email": {
+        "title": "Email notifications",
+        "desc": "Receive notifications by email"
+      }
+    }
+  },
+  "settings": {
+    "languageTitle": "Язык",
+    "languageSubtitle": "Выберите язык интерфейса",
+    "languageSaved": "Язык сохранён",
+    "languageSaveError": "Не удалось сохранить язык",
+    "languages": {
+      "uk": "Українська",
+      "en": "English",
+      "tr": "Türkçe",
+      "fr": "Français",
+      "cs": "Čeština",
+      "es": "Español",
+      "ru": "Русский",
+      "ar": "العربية"
+    },
+    "account": {
+      "title": "Настройки аккаунта",
+      "subtitle": "Управляйте языком, паролем и конфиденциальностью",
+      "emailLabel": "Email",
+      "items": {
+        "language": "Язык интерфейса",
+        "changePassword": "Сменить пароль",
+        "privacy": "Конфиденциальность",
+        "security": "Безопасность"
+      },
+      "itemDesc": {
+        "language": "Язык приложения и уведомлений",
+        "changePassword": "Обновить пароль для входа",
+        "privacy": "Кто видит ваш профиль и активность",
+        "security": "Пароль, сессии и защита аккаунта"
+      }
+    },
+    "changePassword": {
+      "title": "Сменить пароль",
+      "subtitle": "Мы отправим код подтверждения на ваш email",
+      "emailLabel": "Email",
+      "emailHint": "Код будет отправлен на этот адрес",
+      "submit": "Отправить код",
+      "submitting": "Отправка…",
+      "toastSent": "Код отправлен на email",
+      "backToAccount": "Назад к настройкам",
+      "errors": {
+        "emailRequired": "Введите email",
+        "emailInvalid": "Введите корректный email",
+        "sendFailed": "Ошибка отправки кода. Попробуйте ещё раз."
+      }
+    },
+    "privacy": {
+      "title": "Конфиденциальность",
+      "subtitle": "Управляйте тем, кто видит вашу информацию",
+      "saved": "Настройки сохранены",
+      "saveError": "Не удалось сохранить настройки",
+      "loading": "Загрузка…",
+      "items": {
+        "profilePublic": {
+          "title": "Публичный профиль",
+          "desc": "Другие пользователи могут просматривать ваш профиль"
+        },
+        "showOnline": {
+          "title": "Статус онлайн",
+          "desc": "Показывать, когда вы в сети"
+        },
+        "allowMessages": {
+          "title": "Сообщения",
+          "desc": "Разрешить сообщения от людей, на которых вы не подписаны"
+        },
+        "searchVisible": {
+          "title": "Поиск",
+          "desc": "Показывать профиль в результатах поиска"
+        }
+      }
+    },
+    "security": {
+      "title": "Безопасность",
+      "subtitle": "Защита вашего аккаунта",
+      "items": {
+        "changePassword": {
+          "title": "Сменить пароль",
+          "desc": "Обновить пароль через email-код"
+        },
+        "twoFactor": {
+          "title": "Двухфакторная аутентификация",
+          "desc": "Дополнительная защита при входе",
+          "comingSoon": "Скоро"
+        },
+        "sessions": {
+          "title": "Активные сессии",
+          "desc": "Устройства, с которых выполнен вход"
+        }
+      },
+      "logoutAll": "Выйти на всех устройствах",
+      "logoutAllConfirm": "Выйти из аккаунта на этом устройстве?",
+      "logoutAllSuccess": "Вы вышли из аккаунта",
+      "comingSoon": "Скоро"
+    }
+  },
+  "video": {
+    "tabs": {
+      "recommended": "Recommended",
+      "mine": "My videos",
+      "all": "All",
+      "following": "Following",
+      "saved": "Saved"
+    }
+  },
+  "stories": {
+    "yourStory": "Your story",
+    "closeFriends": "Close friends"
+  },
+  "errors": {
+    "generic": "Произошла ошибка. Попробуйте снова.",
+    "VALIDATION_ERROR": "Проверьте введённые данные.",
+    "UNAUTHORIZED": "Войдите в аккаунт.",
+    "FORBIDDEN": "Недостаточно прав.",
+    "NOT_FOUND": "Не найдено.",
+    "CONFLICT": "Data conflict.",
+    "RATE_LIMITED": "Too many requests. Try again later.",
+    "INTERNAL_ERROR": "Internal server error.",
+    "EMAIL_ALREADY_VERIFIED": "Email is already verified.",
+    "INVALID_VERIFICATION_CODE": "Invalid verification code.",
+    "VERIFICATION_CODE_EXPIRED": "Verification code has expired.",
+    "INVALID_RESET_CREDENTIALS": "Invalid email or code.",
+    "INVALID_PASSWORD": "Invalid password.",
+    "AVATAR_INVALID_FORMAT": "Allowed formats: JPEG, PNG, WebP.",
+    "AVATAR_HTTPS_REQUIRED": "URL must be HTTPS.",
+    "AVATAR_MISSING": "Avatar is missing.",
+    "CANNOT_FOLLOW_SELF": "You cannot follow yourself.",
+    "COMMENT_EMPTY": "Comment cannot be empty.",
+    "MESSAGE_EMPTY": "Message text is required.",
+    "CANNOT_MARK_OWN_MESSAGE_READ": "Cannot mark your own message as read.",
+    "STORY_LIMIT_24H": "24-hour story limit reached.",
+    "STORY_LIMIT_ACTIVE": "Active story limit reached.",
+    "STORY_VIDEO_TOO_LONG": "Story video is too long.",
+    "STORY_CANNOT_REPLY_SELF": "Cannot reply to your own story.",
+    "STORY_CANNOT_ADD_SELF_CLOSE_FRIEND": "Cannot add yourself to close friends.",
+    "VIDEO_TOO_LONG": "Video is too long."
+  },
+  "navigation": {
+    "home": "Главная",
+    "profile": "Профиль",
+    "myProfile": "Мой профиль",
+    "notifications": "Уведомления",
+    "menu": "Меню",
+    "wallet": "Баланс",
+    "friends": "Друзья",
+    "reels": "Reels",
+    "add": "Добавить",
+    "bottomNav": "Нижняя навигация",
+    "search": "Поиск",
+    "messages": "Сообщения"
+  },
+  "feed": {
+    "loading": "Загрузка ленты…",
+    "loadingMore": "Загрузка ещё постов…",
+    "empty": "Пока нет постов",
+    "openProfile": "Открыть профиль {{name}}",
+    "profileUnavailable": "Профиль недоступен",
+    "error": {
+      "load": "Не удалось загрузить ленту",
+      "server": "Временная ошибка сервера при загрузке ленты",
+      "profileLoad": "Не удалось загрузить посты. Попробуйте обновить страницу.",
+      "profileRoute": "Не удалось загрузить посты профиля (маршрут недоступен на бэкенде).",
+      "profileServer": "Временная ошибка сервера при загрузке постов."
+    }
+  },
+  "posts": {
+    "loading": "Загрузка постов…",
+    "empty": "Пока нет постов",
+    "createTitle": "Создать пост",
+    "placeholder": "Что у вас нового?",
+    "placeholderWithName": "Что у вас нового, {{name}}?",
+    "actions": {
+      "like": "Лайк",
+      "comment": "Комментарий",
+      "save": "Сохранить",
+      "share": "Поделиться",
+      "authorAria": "Автор поста"
+    },
+    "time": {
+      "justNow": "только что",
+      "minutes": "{{count}} мин",
+      "hours": "{{count}} ч",
+      "days": "{{count}} д"
+    },
+    "repost": {
+      "sharedAria": "Репост",
+      "sharedFemale": "Поделилась",
+      "sharedMale": "Поделился",
+      "inFeed": "✨ В ленту"
+    },
+    "create": {
+      "title": "Создать пост",
+      "close": "Закрыть",
+      "photo": "Фото",
+      "video": "Видео",
+      "location": "Локация",
+      "more": "Ещё",
+      "moreAria": "Дополнительные опции",
+      "addEmoji": "Добавить эмодзи",
+      "removeMedia": "Удалить файл",
+      "locationPanelAria": "Локация поста",
+      "locationTitle": "Добавить локацию к посту",
+      "locationSubtitle": "Ваши друзья увидят, где вы находитесь.",
+      "locationClear": "Убрать локацию",
+      "locationPlaceholder": "Город, страна",
+      "locationDetecting": "Определяем…",
+      "locationDetect": "Использовать моё текущее местоположение",
+      "cancel": "Отмена",
+      "publish": "Опубликовать",
+      "publishing": "Публикация…",
+      "privacy": "Только ваши друзья видят ваше местоположение"
+    },
+    "edit": {
+      "title": "Редактировать пост",
+      "close": "Закрыть",
+      "textPlaceholder": "Текст поста…",
+      "locationLabel": "Локация",
+      "locationPlaceholder": "Город, страна",
+      "addEmoji": "Добавить эмодзи",
+      "removeMedia": "Убрать медиа",
+      "removeFile": "Убрать файл",
+      "addMedia": "Фото / видео",
+      "save": "Сохранить",
+      "saving": "Сохранение…"
+    },
+    "delete": {
+      "title": "Удалить этот пост?",
+      "description": "Это действие нельзя отменить.",
+      "confirm": "Удалить",
+      "confirming": "Удаление…",
+      "cancel": "Отмена"
+    },
+    "deleteRepost": {
+      "title": "Убрать пост из ленты?",
+      "description": "Оригинальный пост останется без изменений.",
+      "confirm": "Убрать",
+      "confirming": "Убираем…"
+    },
+    "menu": {
+      "actionsAria": "Действия с постом",
+      "edit": "Редактировать пост",
+      "removeFromFeed": "Убрать из ленты",
+      "delete": "Удалить пост"
+    },
+    "share": {
+      "title": "Поделиться",
+      "close": "Закрыть",
+      "sendInApp": "Отправить в Me&You",
+      "searchPlaceholder": "Поиск пользователей…",
+      "searchAria": "Поиск получателей",
+      "removeRecipient": "Убрать {{name}}",
+      "loading": "Загрузка…",
+      "emptySearch": "Никого не найдено",
+      "emptyFollowing": "Нет подписок для отправки",
+      "messagePlaceholder": "Сообщение (необязательно)",
+      "messageAria": "Сообщение получателям",
+      "send": "Отправить",
+      "sending": "Отправка…",
+      "repost": "Репост в свою ленту",
+      "reposting": "Репост…",
+      "reposted": "Уже в вашей ленте",
+      "external": "Поделиться вне приложения",
+      "defaultText": "Посмотри этот пост",
+      "linkCopied": "Ссылка скопирована",
+      "linkCopiedTiktok": "Ссылка скопирована — вставьте в TikTok",
+      "copyFailed": "Не удалось скопировать ссылку",
+      "systemShareFailed": "Не удалось открыть системное меню «Поделиться»"
+    },
+    "shareExternal": {
+      "copy": "Копировать",
+      "more": "Ещё",
+      "systemAria": "Системное меню «Поделиться»",
+      "listAria": "Поделиться вне приложения"
+    },
+    "validation": {
+      "emptyContent": "Добавьте текст или медиа",
+      "emptyTextOrPhoto": "Добавьте текст или фото",
+      "selectRecipients": "Выберите получателей"
+    },
+    "toast": {
+      "published": "Пост опубликован",
+      "publishFailed": "Не удалось опубликовать пост",
+      "updated": "Пост обновлён",
+      "updateFailed": "Не удалось обновить пост",
+      "deleted": "Пост удалён",
+      "removedFromFeed": "Пост убран из ленты",
+      "deleteFailed": "Не удалось удалить пост",
+      "deleteRepostDenied": "Сервер отклонил удаление репоста (401/403). Нужно разрешить автору DELETE для своего repost (id карточки репоста, не оригинала).",
+      "likeFailed": "Не удалось поставить лайк",
+      "saveFailed": "Не удалось сохранить пост",
+      "unsaveFailed": "Не удалось убрать пост из сохранённых",
+      "commentFailed": "Не удалось отправить комментарий",
+      "replyFailed": "Не удалось отправить ответ",
+      "repliesLoadFailed": "Не удалось загрузить ответы",
+      "commentDeleteFailed": "Не удалось удалить комментарий",
+      "commentLikeFailed": "Не удалось поставить лайк",
+      "commentIdMissing": "Отсутствует id комментария",
+      "commentNotFound": "Комментарий не найден",
+      "repostFailed": "Не удалось сделать репост",
+      "repostSuccess": "Репост опубликован в вашей ленте",
+      "repostDone": "Репост опубликован",
+      "sendSuccess": "Пост отправлен",
+      "sendFailed": "Не удалось отправить пост",
+      "mediaUploadDisabled": "Загрузка медиа временно недоступна. Пост будет опубликован только с текстом.",
+      "mediaUploadPartial": "Загрузка медиа временно недоступна. Часть файлов не добавлена.",
+      "mediaUploadFileFailed": "Не удалось загрузить один из файлов. Пост опубликован без него.",
+      "editMediaUploadDisabled": "Загрузка новых медиа временно недоступна. Сохранены только текст и существующие файлы.",
+      "editMediaUploadFileFailed": "Не удалось загрузить один из файлов"
+    },
+    "lightbox": {
+      "title": "Просмотр фото",
+      "close": "Закрыть",
+      "prev": "Предыдущее фото",
+      "next": "Следующее фото"
+    },
+    "page": {
+      "title": "Пост",
+      "loading": "Загрузка…",
+      "notFound": "Пост не найден",
+      "back": "Назад",
+      "account": "Профиль",
+      "showComments": "Показать комментарии"
+    }
+  },
+  "comments": {
+    "title": "Комментарии",
+    "regionAria": "Комментарии к посту",
+    "empty": "Пока нет комментариев",
+    "loading": "Загрузка комментариев…",
+    "loadFailed": "Не удалось загрузить комментарии",
+    "placeholder": "Написать комментарий…",
+    "composeAria": "Текст нового комментария",
+    "sendAria": "Отправить комментарий",
+    "reply": "Ответить",
+    "replyPlaceholder": "Написать ответ…",
+    "replyComposeAria": "Текст ответа",
+    "replySendAria": "Отправить ответ",
+    "editPlaceholder": "Редактировать комментарий…",
+    "editAria": "Редактирование комментария",
+    "saveEditAria": "Сохранить",
+    "cancelEdit": "Отмена",
+    "showMore": "Показать ещё ({{count}})",
+    "authorAria": "Автор комментария",
+    "replyAuthorAria": "Автор ответа",
+    "authorProfile": "Профиль {{handle}}",
+    "addEmoji": "Добавить эмодзи",
+    "like": "Лайкнуть комментарий",
+    "unlike": "Убрать лайк",
+    "repliesCount_one": "{{count}} ответ",
+    "repliesCount_few": "{{count}} ответа",
+    "repliesCount_many": "{{count}} ответов",
+    "menu": {
+      "actionsAria": "Действия с комментарием",
+      "edit": "Редактировать",
+      "delete": "Удалить"
+    }
+  }
+}

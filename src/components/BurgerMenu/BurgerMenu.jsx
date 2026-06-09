@@ -2,29 +2,41 @@ import { useAuthStore } from '../../zustand/useAuthStore';
 import { useNotificationsStore } from '../../zustand/useNotificationsStore';
 import { useNavigate } from 'react-router-dom';
 import ThemeToggleDark from '../ThemeToggleDark/ThemeToggleDark';
-import {
-  MENU_ITEMS,
-  LANGUAGE_ITEM,
-  LOGOUT_ITEM,
-  CLOSE_ITEM,
-} from '../../constants/burgerMenuItems';
-import './BurgerMenu.scss';
 import profileIcons from '../../constants/profileIcons';
+import {
+  useCloseMenuItem,
+  useLogoutItem,
+  useMenuItems,
+} from '../../hooks/useMenuItems';
+import { useLocaleStore } from '../../zustand/useLocaleStore';
+import './BurgerMenu.scss';
 import { useMemo, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 
-export default function BurgerMenu({ isOpen, onClose, onItemClick, toggleTheme }) {
+export default function BurgerMenu({
+  isOpen,
+  onClose,
+  onItemClick,
+  toggleTheme,
+  onOpenLanguageSettings,
+}) {
   const { logout, user } = useAuthStore();
   const navigate = useNavigate();
   const toggleRef = useRef(null);
   const resetNotifications = useNotificationsStore.getState().reset;
+  const { t } = useTranslation();
+  const menuItems = useMenuItems();
+  const logoutItem = useLogoutItem();
+  const closeItem = useCloseMenuItem();
+  const currentLocale = useLocaleStore((s) => s.locale);
 
   const avatarUrl = user?.avatarUrl || user?.avatar || null;
 
   const email = user?.email || '';
 
   const displayName = useMemo(() => {
-    return [user?.firstName, user?.lastName].filter(Boolean).join(' ') || user?.username || 'User';
-  }, [user]);
+    return [user?.firstName, user?.lastName].filter(Boolean).join(' ') || user?.username || t('common.user');
+  }, [user, t]);
 
   const handleItemClick = async (id) => {
     if (id === 'logout') {
@@ -47,13 +59,29 @@ export default function BurgerMenu({ isOpen, onClose, onItemClick, toggleTheme }
     }
 
     if (id === 'security') {
-      navigate('/auth/forgot-password');
+      navigate('/settings/security');
+      onClose();
+      return;
+    }
+
+    if (id === 'policy') {
+      navigate('/settings/privacy');
       onClose();
       return;
     }
 
     if (id === 'edit') {
       navigate('/users/profile/edit');
+      onClose();
+      return;
+    }
+
+    if (id === 'language' || id === 'account') {
+      if (id === 'account') {
+        navigate('/settings/account');
+      } else {
+        onOpenLanguageSettings?.();
+      }
       onClose();
       return;
     }
@@ -84,7 +112,7 @@ export default function BurgerMenu({ isOpen, onClose, onItemClick, toggleTheme }
         onKeyDown={(e) => e.key === 'Escape' && onClose()}
         role="button"
         tabIndex={0}
-        aria-label="Закрити меню"
+        aria-label={t('menu.closeMenu')}
       />
       <div className={`profile-menu ${isOpen ? 'profile-menu--open' : ''}`}>
         <div className="profile-menu__header">
@@ -96,7 +124,7 @@ export default function BurgerMenu({ isOpen, onClose, onItemClick, toggleTheme }
                 navigate('/profile');
                 onClose();
               }}
-              aria-label="Мій профіль"
+              aria-label={t('menu.myProfile')}
             >
               <div className="profile-menu__avatar-wrapper">
                 <img
@@ -123,14 +151,14 @@ export default function BurgerMenu({ isOpen, onClose, onItemClick, toggleTheme }
           </div>
 
           <button onClick={onClose} className="profile-menu__close">
-            <img src={CLOSE_ITEM.icon} alt="Close menu" className="profile-menu__close--icon" />
+            <img src={closeItem.icon} alt={closeItem.label} className="profile-menu__close--icon" />
           </button>
         </div>
 
         <div className="profile-menu__divider" />
 
         <nav className="profile-menu__list">
-          {MENU_ITEMS.map((item) => {
+          {menuItems.map((item) => {
             // "Посмотреть как гость"
             if (item.id === 'guest') {
               return (
@@ -193,9 +221,11 @@ export default function BurgerMenu({ isOpen, onClose, onItemClick, toggleTheme }
             className="profile-menu__item profile-menu__item--language"
             onClick={() => handleItemClick('language')}
           >
-            <span className="profile-menu__label">{LANGUAGE_ITEM.label}</span>
+            <span className="profile-menu__label">
+              {t(`settings.languages.${currentLocale}`)}
+            </span>
             <img
-              src={LANGUAGE_ITEM.icon}
+              src={profileIcons.arrowRightFilledBlack}
               alt=""
               className="profile-menu__icon profile-menu__icon--language"
             />
@@ -207,8 +237,8 @@ export default function BurgerMenu({ isOpen, onClose, onItemClick, toggleTheme }
               className="profile-menu__item profile-menu__item--logout"
               onClick={() => handleItemClick('logout')}
             >
-              <img src={LOGOUT_ITEM.icon} alt="" className="profile-menu__icon " />
-              <span className="profile-menu__label">{LOGOUT_ITEM.label}</span>
+              <img src={logoutItem.icon} alt="" className="profile-menu__icon " />
+              <span className="profile-menu__label">{logoutItem.label}</span>
             </button>
           </div>
         </nav>

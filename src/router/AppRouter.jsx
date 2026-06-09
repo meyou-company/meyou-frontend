@@ -35,9 +35,16 @@ import ProfileGuard from './ProfileGuard';
 
 import { UserProfileNavProvider } from '../context/UserProfileNavContext';
 import BurgerMenu from '../components/BurgerMenu/BurgerMenu';
+import LanguageSettings from '../components/Settings/LanguageSettings';
+import AccountSettingsPage from '../pages/Settings/AccountSettingsPage';
+import ChangePasswordPage from '../pages/Settings/ChangePasswordPage';
+import PrivacySettingsPage from '../pages/Settings/PrivacySettingsPage';
+import SecuritySettingsPage from '../pages/Settings/SecuritySettingsPage';
 import { useBurgerMenuStore } from '../zustand/useBurgerMenuStore';
+import { useLocaleStore } from '../zustand/useLocaleStore';
 import { useThemeStore } from '../zustand/useThemeStore';
 import Post from '../components/Post/Post';
+import { MessagesSocketProvider } from '../providers/MessagesSocketProvider';
 import { NotificationsSocketProvider } from '../providers/NotificationsSocketProvider';
 
 /** Глобальне бургер-меню — рендериться один раз, відкривається з будь-якої сторінки */
@@ -45,7 +52,21 @@ function GlobalBurgerMenu() {
   const isOpen = useBurgerMenuStore((s) => s.isOpen);
   const close = useBurgerMenuStore((s) => s.close);
   const toggleTheme = useThemeStore((s) => s.toggleTheme);
-  return <BurgerMenu isOpen={isOpen} onClose={close} toggleTheme={toggleTheme} />;
+  const isLanguageSettingsOpen = useLocaleStore((s) => s.isLanguageSettingsOpen);
+  const openLanguageSettings = useLocaleStore((s) => s.openLanguageSettings);
+  const closeLanguageSettings = useLocaleStore((s) => s.closeLanguageSettings);
+
+  return (
+    <>
+      <BurgerMenu
+        isOpen={isOpen}
+        onClose={close}
+        toggleTheme={toggleTheme}
+        onOpenLanguageSettings={openLanguageSettings}
+      />
+      {isLanguageSettingsOpen && <LanguageSettings onClose={closeLanguageSettings} />}
+    </>
+  );
 }
 
 function AppLayout() {
@@ -105,6 +126,11 @@ function AppLayout() {
               <Route path="/users/profile/complete" element={<CompleteProfilePage />} />
               <Route path="/users/profile/edit" element={<EditProfilePage />} />
 
+              <Route path="/settings/account" element={<AccountSettingsPage />} />
+              <Route path="/settings/change-password" element={<ChangePasswordPage />} />
+              <Route path="/settings/privacy" element={<PrivacySettingsPage />} />
+              <Route path="/settings/security" element={<SecuritySettingsPage />} />
+
               <Route path="/auth/login" element={<LoginPage />} />
               <Route path="/auth/register" element={<RegisterPage />} />
 
@@ -131,6 +157,7 @@ export default function AppRouter() {
   return (
     <BrowserRouter>
       <NotificationsSocketProvider />
+      <MessagesSocketProvider />
       <RouterLoaderSync />
       <UserProfileNavProvider>
         <ProfileGuard>

@@ -1,0 +1,785 @@
+{
+  "common": {
+    "loading": "Yükleniyor...",
+    "save": "Kaydet",
+    "cancel": "İptal",
+    "close": "Kapat",
+    "send": "Gönder",
+    "search": "Ara",
+    "back": "Geri",
+    "retry": "Tekrar dene",
+    "user": "Kullanıcı",
+    "yes": "Yes",
+    "no": "No",
+    "on": "On",
+    "off": "Off",
+    "appLoadError": "Failed to load the app. Please refresh the page."
+  },
+  "nav": {
+    "home": "Ana sayfa",
+    "people": "İnsanlar",
+    "video": "Video",
+    "messages": "Mesajlar",
+    "profile": "Profil"
+  },
+  "menu": {
+    "myProfile": "My profile",
+    "edit": "Edit",
+    "viewAsGuest": "View as guest",
+    "darkTheme": "Dark theme",
+    "favorites": "Favorites",
+    "blocked": "Blocked",
+    "privacy": "Privacy",
+    "accountSettings": "Account settings",
+    "security": "Security",
+    "support": "Help / Support",
+    "report": "Report",
+    "about": "About",
+    "terms": "Terms of use",
+    "privacyPolicy": "Privacy policy",
+    "logout": "Log out",
+    "closeMenu": "Close menu",
+    "language": "Language"
+  },
+  "auth": {
+    "login": {
+      "title": "Sign in",
+      "emailPlaceholder": "Enter email",
+      "passwordPlaceholder": "Enter password",
+      "submit": "Sign in",
+      "submitting": "Signing in…",
+      "forgotPassword": "Forgot password?",
+      "toastSuccess": "Signed in successfully",
+      "errors": {
+        "emailRequired": "Enter your email",
+        "passwordRequired": "Enter your password",
+        "loginFailed": "Sign-in failed"
+      }
+    },
+    "register": {
+      "title": "Sign up",
+      "firstNamePlaceholder": "Enter your name",
+      "firstNameHint": "Enter your name. Name can contain letters, spaces and digits.",
+      "emailPlaceholder": "Enter email",
+      "emailHint": "Enter your email",
+      "passwordPlaceholder": "Enter password",
+      "confirmPasswordPlaceholder": "Re-enter password",
+      "confirmPasswordHint": "Please confirm your password",
+      "policyText": "By clicking «Sign up», you accept the Privacy Policy and Terms of Use.",
+      "submit": "Create account",
+      "submitting": "Creating…",
+      "hasAccount": "I already have an account",
+      "toastSuccess": "Registration successful. Check your email to verify.",
+      "errors": {
+        "checkForm": "Please check the form",
+        "registerFailed": "Registration failed"
+      }
+    },
+    "email": "Email",
+    "password": "Password",
+    "forgotPassword": {
+      "title": "Reset password",
+      "emailPlaceholder": "Enter email",
+      "submit": "Confirm",
+      "submitting": "Sending…",
+      "toastSuccess": "Code sent to your email",
+      "errors": {
+        "emailRequired": "Enter your email",
+        "emailInvalid": "Enter a valid email",
+        "sendFailed": "Failed to send code. Please try again."
+      }
+    },
+    "noAccount": "Don't have an account?",
+    "hasAccount": "Already have an account?",
+    "common": {
+      "logoAlt": "Me You logo",
+      "googleAlt": "Google",
+      "showPassword": "Show password",
+      "hidePassword": "Hide password",
+      "somethingWentWrong": "Something went wrong"
+    },
+    "resetPassword": {
+      "title": "Reset password",
+      "passwordPlaceholder": "Enter new password",
+      "confirmPasswordPlaceholder": "Re-enter password",
+      "submit": "Save",
+      "submitting": "Saving…",
+      "toastSuccess": "Password changed",
+      "errors": {
+        "passwordRequired": "Enter new password",
+        "confirmRequired": "Re-enter password",
+        "mismatch": "Passwords do not match",
+        "saveFailed": "Error. Please try again."
+      }
+    },
+    "verifyEmail": {
+      "title": "Verification",
+      "subtitle": "Code sent to your email. Valid for 15 minutes.",
+      "submit": "Confirm",
+      "submitting": "Verifying…",
+      "resend": "Resend code",
+      "resending": "Sending…",
+      "toastVerified": "Email verified",
+      "toastResent": "Code resent",
+      "errors": {
+        "incomplete": "Enter the full code",
+        "verifyFailed": "Verification failed",
+        "resendFailed": "Failed to send code"
+      }
+    },
+    "verifyResetCode": {
+      "title": "Reset password",
+      "subtitle": "Code sent to your email. Valid for 15 minutes.",
+      "submit": "Next",
+      "submitting": "Verifying…",
+      "resend": "Resend code",
+      "resending": "Sending…",
+      "toastVerified": "Code confirmed",
+      "toastResent": "Code resent",
+      "errors": {
+        "incomplete": "Enter the full code",
+        "noEmail": "No email. Go back and enter your email again.",
+        "verifyFailed": "Verification failed",
+        "resendFailed": "Failed to send code"
+      }
+    },
+    "verify": {
+      "digitAria": "Digit {{n}}"
+    },
+    "google": {
+      "loading": "Signing in with Google…",
+      "loadingGeneric": "Authorizing…"
+    },
+    "validation": {
+      "firstNameRequired": "Enter your name",
+      "firstNameMin": "Name must be at least 2 characters",
+      "firstNameMax": "Name is too long",
+      "firstNameFormat": "Name can only contain letters, spaces and hyphens",
+      "emailRequired": "Enter your email",
+      "emailInvalid": "Invalid email",
+      "emailMax": "Email is too long",
+      "passwordRequired": "Enter your password",
+      "passwordMin": "Minimum 8 characters. Needs digits, one lowercase (a-z) and one uppercase (A-Z) letter.",
+      "passwordMax": "Password is too long",
+      "passwordFormat": "Needs digits, one lowercase (a-z) and one uppercase (A-Z) letter.",
+      "passwordHint": "Password must contain digits, at least one lowercase (a-z) and one uppercase (A-Z) letter.",
+      "confirmRequired": "Confirm your password",
+      "confirmMismatch": "Passwords do not match",
+      "acceptPolicy": "You must accept the terms and privacy policy"
+    }
+  },
+  "profile": {
+    "myMessages": "My messages",
+    "myGifts": "My gifts",
+    "saved": "Saved",
+    "gifts": "Gifts",
+    "writeMessage": "Send message",
+    "goHome": "Go home",
+    "loading": "Loading profile…",
+    "notFound": "Profile not found{{username}}",
+    "loadError": "Failed to load profile",
+    "myBalance": "My balance",
+    "editProfile": "Edit profile",
+    "viewPhoto": "View photo",
+    "viewPhotoFull": "Full-size photo",
+    "live": "Live",
+    "more": "More",
+    "notSpecified": "Not specified",
+    "tabs": {
+      "info": "Information",
+      "stories": "Stories",
+      "video": "Video",
+      "photo": "Photos",
+      "unsubscribe": "Unsubscribe"
+    },
+    "actions": {
+      "addStory": "Add to story",
+      "addStoryShort": "Story",
+      "addReels": "Add reel",
+      "reels": "Reels",
+      "live": "Live",
+      "liveDesktop": "Go live"
+    },
+    "friends": {
+      "title": "Friends",
+      "titleWithCount": "Friends, {{count}} total",
+      "showMore": "Show more",
+      "findFriends": "Find friends",
+      "viewFriends": "View friends",
+      "empty": "No friends yet",
+      "profileOf": "Profile {{name}}",
+      "profileUnavailable": "Profile unavailable",
+      "openProfile": "Open profile {{name}}"
+    },
+    "posts": {
+      "createTitle": "Create post",
+      "placeholder": "What's on your mind?",
+      "placeholderWithName": "What's on your mind, {{name}}?",
+      "loading": "Loading posts…",
+      "empty": "No posts yet",
+      "like": "Like",
+      "comment": "Comment",
+      "save": "Save",
+      "share": "Share"
+    },
+    "visitor": {
+      "writeMessage": "Send message",
+      "subscribe": "Subscribe",
+      "subscribing": "…",
+      "unsubscribe": "Unsubscribe",
+      "addToVip": "Add to VIP",
+      "report": "Report",
+      "block": "Block",
+      "moreActions": "More actions",
+      "profileTabs": "Profile tabs",
+      "profileActions": "Profile actions"
+    },
+    "info": {
+      "title": "Information",
+      "interests": "Interests",
+      "noInterests": "No interests",
+      "personalInfo": "Personal information",
+      "gender": "Gender",
+      "maritalStatus": "Relationship status",
+      "nationality": "Nationality",
+      "profession": "Profession",
+      "languages": "Languages",
+      "location": "Location",
+      "country": "Country",
+      "city": "City",
+      "socialActivity": "Social activity",
+      "friendsStat": "Friends",
+      "vipStatus": "VIP",
+      "status": "Status",
+      "giftsStat": "Gifts",
+      "postsStat": "Posts",
+      "contacts": "Contacts",
+      "emailHidden": "Email (hidden)"
+    },
+    "vip": {
+      "vipFriends": "VIP",
+      "friendsTitle": "Friends {{count}}"
+    },
+    "friendsPage": {
+      "title": "Friends {{name}}",
+      "searchPlaceholder": "Search by name or username…",
+      "sections": "Sections",
+      "noResults": "No one found for this query",
+      "noFriends": "This user has no friends yet",
+      "userNotSpecified": "User not specified",
+      "loadListError": "Failed to load friends list",
+      "notFound": "Profile not found"
+    },
+    "toast": {
+      "avatarSessionExpired": "Session expired. Please sign in again.",
+      "avatarSaveError": "Failed to save photo",
+      "openChatError": "Failed to open chat"
+    },
+    "editForm": {
+      "title": "Edit profile",
+      "changePhoto": "Change profile photo",
+      "upload": "Upload",
+      "delete": "Delete",
+      "avatarAlt": "Avatar",
+      "lockedField": "Locked",
+      "select": "Select",
+      "maxCharsNote": "*character limit",
+      "maxItemsNote": "*maximum {{max}}",
+      "saving": "Saving...",
+      "saveChanges": "Save changes",
+      "fields": {
+        "lastName": "Last name",
+        "firstName": "First name",
+        "gender": "Gender",
+        "birthDate": "Date of birth",
+        "birthDatePlaceholder": "Select date of birth",
+        "nationality": "Nationality",
+        "username": "Username (up to 10 characters)",
+        "bio": "About you (optional)",
+        "interests": "Interests",
+        "hobbies": "Hobbies",
+        "maritalStatus": "Relationship status",
+        "country": "Country",
+        "city": "City"
+      },
+      "gender": {
+        "male": "Male",
+        "female": "Female"
+      },
+      "maritalStatus": {
+        "single": "Single",
+        "married": "Married",
+        "divorced": "Divorced",
+        "widowed": "Widowed",
+        "inRelationship": "In a relationship"
+      },
+      "toast": {
+        "avatarUpdated": "Avatar updated",
+        "avatarDeleted": "Avatar removed",
+        "avatarUpdateError": "Failed to update photo",
+        "avatarDeleteError": "Failed to remove avatar",
+        "invalidFileType": "Only JPEG, PNG, WebP allowed"
+      },
+      "errors": {
+        "usernameTaken": "This username is already taken",
+        "usernameCheckError": "Failed to verify username",
+        "updateError": "Failed to update profile"
+      },
+      "validation": {
+        "lastNameRequired": "Enter your last name",
+        "firstNameRequired": "Enter your first name",
+        "phoneRequired": "Enter your phone number",
+        "nationalityRequired": "Enter your nationality",
+        "maritalStatusRequired": "Select relationship status",
+        "countryRequired": "Select a country",
+        "cityRequired": "Select a city",
+        "interestsRequired": "Select interests",
+        "hobbiesRequired": "Select hobbies",
+        "usernameRequired": "Enter a username",
+        "genderRequired": "Select gender",
+        "birthDateRequired": "Select date of birth",
+        "birthDateFormat": "Format: YYYY-MM-DD",
+        "birthDateInvalid": "Invalid date",
+        "birthDateAge": "Age must be between 18 and 100",
+        "firstNameLettersOnly": "First name must contain letters only",
+        "lastNameLettersOnly": "Last name must contain letters only",
+        "nationalityLettersOnly": "Nationality must contain letters only",
+        "usernameMinLength": "Username must be at least 3 characters",
+        "usernameMaxLength": "Username must be up to 10 characters",
+        "usernameFormat": "Username: Latin letters, digits, and . _ - only",
+        "bioMaxLength": "Maximum 500 characters",
+        "phoneTooShort": "Phone number is too short",
+        "phoneTooLong": "Phone number is too long"
+      }
+    },
+    "completeForm": {
+      "title": "Profile",
+      "addPhoto": "Add profile photo",
+      "photoNote": "*profiles with photos get more views",
+      "save": "Save",
+      "update": "Update",
+      "saving": "Saving...",
+      "maxLimit": "Maximum {{max}}",
+      "toast": {
+        "profileSaved": "Profile saved"
+      },
+      "errors": {
+        "saveError": "Failed to save profile"
+      }
+    }
+  },
+  "messenger": {
+    "title": "Mesajlar",
+    "soundLabel": "🔔 Message sound:",
+    "loadChatsError": "Failed to load chats",
+    "noChats": "No chats yet",
+    "selectChat": "Select a chat on the left or start a conversation from a user profile.",
+    "loadMessagesError": "Failed to load messages",
+    "sendError": "Failed to send message",
+    "noMessages": "No messages",
+    "placeholder": "Mesaj yazın...",
+    "newMessageFrom": "New message from {{name}}"
+  },
+  "notifications": {
+    "title": "Notifications",
+    "empty": "You have no notifications yet",
+    "emptyUnread": "You have no unread notifications",
+    "settingsTitle": "Notification settings",
+    "settingsSubtitle": "Choose which notifications you want to receive",
+    "groups": {
+      "activity": "Activity",
+      "system": "System",
+      "delivery": "Delivery method"
+    },
+    "items": {
+      "follow": {
+        "title": "Follows",
+        "desc": "When someone follows you"
+      },
+      "like": {
+        "title": "Likes",
+        "desc": "When someone likes your posts"
+      },
+      "comment": {
+        "title": "Comments",
+        "desc": "Comments on your posts"
+      },
+      "mention": {
+        "title": "Mentions",
+        "desc": "When you are mentioned in posts or comments"
+      },
+      "post": {
+        "title": "New posts",
+        "desc": "New posts from people you follow"
+      },
+      "system": {
+        "title": "System notifications",
+        "desc": "Security, updates and important events"
+      },
+      "push": {
+        "title": "Push notifications",
+        "desc": "In-app notifications"
+      },
+      "email": {
+        "title": "Email notifications",
+        "desc": "Receive notifications by email"
+      }
+    }
+  },
+  "settings": {
+    "languageTitle": "Language",
+    "languageSubtitle": "Choose interface language",
+    "languageSaved": "Language saved",
+    "languageSaveError": "Could not save language",
+    "languages": {
+      "uk": "Українська",
+      "en": "English",
+      "tr": "Türkçe",
+      "fr": "Français",
+      "cs": "Čeština",
+      "es": "Español",
+      "ru": "Русский",
+      "ar": "العربية"
+    },
+    "account": {
+      "title": "Account settings",
+      "subtitle": "Manage language, password and privacy",
+      "emailLabel": "Email",
+      "items": {
+        "language": "Interface language",
+        "changePassword": "Change password",
+        "privacy": "Privacy",
+        "security": "Security"
+      },
+      "itemDesc": {
+        "language": "App and notification language",
+        "changePassword": "Update your sign-in password",
+        "privacy": "Who can see your profile and activity",
+        "security": "Password, sessions and account protection"
+      }
+    },
+    "changePassword": {
+      "title": "Change password",
+      "subtitle": "We will send a verification code to your email",
+      "emailLabel": "Email",
+      "emailHint": "The code will be sent to this address",
+      "submit": "Send code",
+      "submitting": "Sending…",
+      "toastSent": "Code sent to your email",
+      "backToAccount": "Back to settings",
+      "errors": {
+        "emailRequired": "Enter your email",
+        "emailInvalid": "Enter a valid email",
+        "sendFailed": "Could not send code. Please try again."
+      }
+    },
+    "privacy": {
+      "title": "Privacy",
+      "subtitle": "Control who can see your information",
+      "saved": "Settings saved",
+      "saveError": "Could not save settings",
+      "loading": "Loading…",
+      "items": {
+        "profilePublic": {
+          "title": "Public profile",
+          "desc": "Other users can view your profile"
+        },
+        "showOnline": {
+          "title": "Online status",
+          "desc": "Show when you are online"
+        },
+        "allowMessages": {
+          "title": "Messages",
+          "desc": "Allow messages from people you do not follow"
+        },
+        "searchVisible": {
+          "title": "Search",
+          "desc": "Show profile in search results"
+        }
+      }
+    },
+    "security": {
+      "title": "Security",
+      "subtitle": "Protect your account",
+      "items": {
+        "changePassword": {
+          "title": "Change password",
+          "desc": "Update password via email code"
+        },
+        "twoFactor": {
+          "title": "Two-factor authentication",
+          "desc": "Extra protection when signing in",
+          "comingSoon": "Coming soon"
+        },
+        "sessions": {
+          "title": "Active sessions",
+          "desc": "Devices where you are signed in"
+        }
+      },
+      "logoutAll": "Log out on all devices",
+      "logoutAllConfirm": "Log out of your account on this device?",
+      "logoutAllSuccess": "You have been logged out",
+      "comingSoon": "Coming soon"
+    }
+  },
+  "video": {
+    "tabs": {
+      "recommended": "Recommended",
+      "mine": "My videos",
+      "all": "All",
+      "following": "Following",
+      "saved": "Saved"
+    }
+  },
+  "stories": {
+    "yourStory": "Your story",
+    "closeFriends": "Close friends"
+  },
+  "errors": {
+    "generic": "Something went wrong. Please try again.",
+    "VALIDATION_ERROR": "Please check the entered data.",
+    "UNAUTHORIZED": "Please sign in.",
+    "FORBIDDEN": "Not enough permissions.",
+    "NOT_FOUND": "Not found.",
+    "CONFLICT": "Data conflict.",
+    "RATE_LIMITED": "Too many requests. Try again later.",
+    "INTERNAL_ERROR": "Internal server error.",
+    "EMAIL_ALREADY_VERIFIED": "Email is already verified.",
+    "INVALID_VERIFICATION_CODE": "Invalid verification code.",
+    "VERIFICATION_CODE_EXPIRED": "Verification code has expired.",
+    "INVALID_RESET_CREDENTIALS": "Invalid email or code.",
+    "INVALID_PASSWORD": "Invalid password.",
+    "AVATAR_INVALID_FORMAT": "Allowed formats: JPEG, PNG, WebP.",
+    "AVATAR_HTTPS_REQUIRED": "URL must be HTTPS.",
+    "AVATAR_MISSING": "Avatar is missing.",
+    "CANNOT_FOLLOW_SELF": "You cannot follow yourself.",
+    "COMMENT_EMPTY": "Comment cannot be empty.",
+    "MESSAGE_EMPTY": "Message text is required.",
+    "CANNOT_MARK_OWN_MESSAGE_READ": "Cannot mark your own message as read.",
+    "STORY_LIMIT_24H": "24-hour story limit reached.",
+    "STORY_LIMIT_ACTIVE": "Active story limit reached.",
+    "STORY_VIDEO_TOO_LONG": "Story video is too long.",
+    "STORY_CANNOT_REPLY_SELF": "Cannot reply to your own story.",
+    "STORY_CANNOT_ADD_SELF_CLOSE_FRIEND": "Cannot add yourself to close friends.",
+    "VIDEO_TOO_LONG": "Video is too long."
+  },
+  "navigation": {
+    "home": "Home",
+    "profile": "Profile",
+    "myProfile": "My profile",
+    "notifications": "Notifications",
+    "menu": "Menu",
+    "wallet": "Wallet",
+    "friends": "Friends",
+    "reels": "Reels",
+    "add": "Add",
+    "bottomNav": "Bottom navigation",
+    "search": "Search",
+    "messages": "Messages"
+  },
+  "feed": {
+    "loading": "Loading feed…",
+    "loadingMore": "Loading more posts…",
+    "empty": "No posts yet",
+    "openProfile": "Open profile {{name}}",
+    "profileUnavailable": "Profile unavailable",
+    "error": {
+      "load": "Could not load feed",
+      "server": "Temporary server error while loading feed",
+      "profileLoad": "Could not load posts. Try refreshing the page.",
+      "profileRoute": "Could not load profile posts (route unavailable on backend).",
+      "profileServer": "Temporary server error while loading posts."
+    }
+  },
+  "posts": {
+    "loading": "Loading posts…",
+    "empty": "No posts yet",
+    "createTitle": "Create post",
+    "placeholder": "What's on your mind?",
+    "placeholderWithName": "What's on your mind, {{name}}?",
+    "actions": {
+      "like": "Like",
+      "comment": "Comment",
+      "save": "Save",
+      "share": "Share",
+      "authorAria": "Post author"
+    },
+    "time": {
+      "justNow": "just now",
+      "minutes": "{{count}} min",
+      "hours": "{{count}} h",
+      "days": "{{count}} d"
+    },
+    "repost": {
+      "sharedAria": "Shared post",
+      "sharedFemale": "Shared",
+      "sharedMale": "Shared",
+      "inFeed": "✨ In feed"
+    },
+    "create": {
+      "title": "Create post",
+      "close": "Close",
+      "photo": "Photo",
+      "video": "Video",
+      "location": "Location",
+      "more": "More",
+      "moreAria": "More options",
+      "addEmoji": "Add emoji",
+      "removeMedia": "Remove file",
+      "locationPanelAria": "Post location",
+      "locationTitle": "Add location to your post",
+      "locationSubtitle": "Your friends will see where you are.",
+      "locationClear": "Remove location",
+      "locationPlaceholder": "City, country",
+      "locationDetecting": "Detecting…",
+      "locationDetect": "Use my current location",
+      "cancel": "Cancel",
+      "publish": "Publish",
+      "publishing": "Publishing…",
+      "privacy": "Only your friends see your location"
+    },
+    "edit": {
+      "title": "Edit post",
+      "close": "Close",
+      "textPlaceholder": "Post text…",
+      "locationLabel": "Location",
+      "locationPlaceholder": "City, country",
+      "addEmoji": "Add emoji",
+      "removeMedia": "Remove media",
+      "removeFile": "Remove file",
+      "addMedia": "Photo / video",
+      "save": "Save",
+      "saving": "Saving…"
+    },
+    "delete": {
+      "title": "Delete this post?",
+      "description": "This action cannot be undone.",
+      "confirm": "Delete",
+      "confirming": "Deleting…",
+      "cancel": "Cancel"
+    },
+    "deleteRepost": {
+      "title": "Remove post from feed?",
+      "description": "The original post will remain unchanged.",
+      "confirm": "Remove",
+      "confirming": "Removing…"
+    },
+    "menu": {
+      "actionsAria": "Post actions",
+      "edit": "Edit post",
+      "removeFromFeed": "Remove from feed",
+      "delete": "Delete post"
+    },
+    "share": {
+      "title": "Share",
+      "close": "Close",
+      "sendInApp": "Send in Me&You",
+      "searchPlaceholder": "Search users…",
+      "searchAria": "Search recipients",
+      "removeRecipient": "Remove {{name}}",
+      "loading": "Loading…",
+      "emptySearch": "No users found",
+      "emptyFollowing": "No followers to send to",
+      "messagePlaceholder": "Message (optional)",
+      "messageAria": "Message to recipients",
+      "send": "Send",
+      "sending": "Sending…",
+      "repost": "Repost to your feed",
+      "reposting": "Reposting…",
+      "reposted": "Already in your feed",
+      "external": "Share outside app",
+      "defaultText": "Check out this post",
+      "linkCopied": "Link copied",
+      "linkCopiedTiktok": "Link copied — paste in TikTok",
+      "copyFailed": "Could not copy link",
+      "systemShareFailed": "Could not open system share menu"
+    },
+    "shareExternal": {
+      "copy": "Copy",
+      "more": "More",
+      "systemAria": "System share menu",
+      "listAria": "Share outside app"
+    },
+    "validation": {
+      "emptyContent": "Add text or media",
+      "emptyTextOrPhoto": "Add text or a photo",
+      "selectRecipients": "Select recipients"
+    },
+    "toast": {
+      "published": "Post published",
+      "publishFailed": "Could not publish post",
+      "updated": "Post updated",
+      "updateFailed": "Could not update post",
+      "deleted": "Post deleted",
+      "removedFromFeed": "Post removed from feed",
+      "deleteFailed": "Could not delete post",
+      "deleteRepostDenied": "Server rejected repost removal (401/403). Author DELETE for own repost card id is required.",
+      "likeFailed": "Could not like",
+      "saveFailed": "Could not save post",
+      "unsaveFailed": "Could not remove from saved",
+      "commentFailed": "Could not send comment",
+      "replyFailed": "Could not send reply",
+      "repliesLoadFailed": "Could not load replies",
+      "commentDeleteFailed": "Could not delete comment",
+      "commentLikeFailed": "Could not like",
+      "commentIdMissing": "Comment id is missing",
+      "commentNotFound": "Comment not found",
+      "repostFailed": "Could not repost",
+      "repostSuccess": "Repost published to your feed",
+      "repostDone": "Reposted",
+      "sendSuccess": "Post sent",
+      "sendFailed": "Could not send post",
+      "mediaUploadDisabled": "Media upload temporarily unavailable. Post will be published with text only.",
+      "mediaUploadPartial": "Media upload temporarily unavailable. Some files were not added.",
+      "mediaUploadFileFailed": "Could not upload one of the files. Post published without it.",
+      "editMediaUploadDisabled": "New media upload temporarily unavailable. Saved text and existing files only.",
+      "editMediaUploadFileFailed": "Could not upload one of the files"
+    },
+    "lightbox": {
+      "title": "Photo viewer",
+      "close": "Close",
+      "prev": "Previous photo",
+      "next": "Next photo"
+    },
+    "page": {
+      "title": "Post",
+      "loading": "Loading…",
+      "notFound": "Post not found",
+      "back": "Back",
+      "account": "Profile",
+      "showComments": "Show comments"
+    }
+  },
+  "comments": {
+    "title": "Comments",
+    "regionAria": "Post comments",
+    "empty": "No comments yet",
+    "loading": "Loading comments…",
+    "loadFailed": "Could not load comments",
+    "placeholder": "Write a comment…",
+    "composeAria": "New comment text",
+    "sendAria": "Send comment",
+    "reply": "Reply",
+    "replyPlaceholder": "Write a reply…",
+    "replyComposeAria": "Reply text",
+    "replySendAria": "Send reply",
+    "editPlaceholder": "Edit comment…",
+    "editAria": "Editing comment",
+    "saveEditAria": "Save",
+    "cancelEdit": "Cancel",
+    "showMore": "Show more ({{count}})",
+    "authorAria": "Comment author",
+    "replyAuthorAria": "Reply author",
+    "authorProfile": "Profile {{handle}}",
+    "addEmoji": "Add emoji",
+    "like": "Like comment",
+    "unlike": "Unlike comment",
+    "repliesCount_one": "{{count}} reply",
+    "repliesCount_other": "{{count}} replies",
+    "menu": {
+      "actionsAria": "Comment actions",
+      "edit": "Edit",
+      "delete": "Delete"
+    }
+  }
+}

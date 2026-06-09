@@ -1,25 +1,33 @@
 import { create } from 'zustand';
 import { notificationsApi } from '../services/notificationsApi';
+import { resetThrottle, throttledDedupeAsync } from '../utils/throttledDedupeAsync';
+
+const UNREAD_KEY = 'notifications:unread-count';
+const UNREAD_THROTTLE_MS = 15000;
 
 export const useNotificationsStore = create((set, get) => ({
   unreadCount: 0,
   items: [],
   isLoading: false,
 
-  // отримати кількість з бекенду
-  fetchUnreadCount: async () => {
-    try {
-      set({ isLoading: true });
-
-      const data = await notificationsApi.getUnreadCount();
-
-      set({ unreadCount: data.count });
-    } catch (e) {
-      console.error('FETCH UNREAD ERROR:', e);
-    } finally {
-      set({ isLoading: false });
-    }
-  },
+  fetchUnreadCount: (force = false) =>
+    throttledDedupeAsync(
+      UNREAD_KEY,
+      async () => {
+        try {
+          set({ isLoading: true });
+          const data = await notificationsApi.getUnreadCount();
+          set({ unreadCount: data.count });
+          return data;
+        } catch (e) {
+          console.error('FETCH UNREAD ERROR:', e);
+        } finally {
+          set({ isLoading: false });
+        }
+      },
+      UNREAD_THROTTLE_MS,
+      { force },
+    ),
 
   setItems: (items) => set({ items }),
 
@@ -29,6 +37,7 @@ export const useNotificationsStore = create((set, get) => ({
     try {
       await notificationsApi.markAllAsRead();
       get().markAllReadLocal();
+      resetThrottle(UNREAD_KEY);
     } catch (e) {
       console.error('MARK ALL READ ERROR:', e);
     }
@@ -86,9 +95,11 @@ export const useNotificationsStore = create((set, get) => ({
       })),
     })),
 
-  reset: () =>
+  reset: () => {
+    resetThrottle(UNREAD_KEY);
     set({
       unreadCount: 0,
       items: [],
-    }),
+    });
+  },
 }));

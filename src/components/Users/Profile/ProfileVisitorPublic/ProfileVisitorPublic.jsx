@@ -1,5 +1,6 @@
 /** Чужий профіль без підписки */
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import profileIcons from "../../../../constants/profileIcons";
 import { getFriendsCountNumber } from "../../../../utils/profileFriends";
 import {
@@ -7,20 +8,15 @@ import {
   getFriendRouteHandle,
   getFriendDisplayLabel,
 } from "../../../../utils/profileFriendNav";
+import { dedupeAsync } from "../../../../utils/dedupeAsync";
 import { useProfileAuthorFeed } from "../../../../hooks/useProfileAuthorFeed";
 import ProfilePostsFeed from "../ProfilePostsFeed/ProfilePostsFeed";
 import ProfileInfoPanel from "../ProfileInfoPanel/ProfileInfoPanel";
 import { storiesApi } from "../../../../services/storiesApi";
 import StoryViewerModal from "../../../Stories/StoryViewerModal";
+import { useProfileTabs } from "../../../../hooks/useProfileTabs";
 import "../ProfileHome/ProfileHome.scss";
 import "./ProfileVisitorPublic.scss";
-
-const TABS_VISITOR_NOT_SUB = [
-  { id: "info", label: "Информация", locked: false },
-  { id: "stories", label: "Истории", locked: false },
-  { id: "video", label: "Видео", locked: true },
-  { id: "photo", label: "Фото", locked: true },
-];
 
 /**
  * Public (non-subscribed) visitor profile view.
@@ -29,6 +25,7 @@ const TABS_VISITOR_NOT_SUB = [
 export default function ProfileVisitorPublic({
   user,
   postsAuthorId,
+  loadSecondary = true,
   onSubscribe,
   subscriptionLoading,
   onOpenUser,
@@ -39,6 +36,8 @@ export default function ProfileVisitorPublic({
   onBlock,
   onWriteMessage,
 }) {
+  const { t } = useTranslation();
+  const visitorTabs = useProfileTabs({ withLocks: true });
   const [visitorTab, setVisitorTab] = useState("info");
   const [viewImageUrl, setViewImageUrl] = useState(null);
   const [profileStories, setProfileStories] = useState([]);
@@ -83,6 +82,8 @@ export default function ProfileVisitorPublic({
   const profileUserId = user?.id || user?._id || postsAuthorId;
 
   useEffect(() => {
+    if (!loadSecondary) return;
+
     let cancelled = false;
 
     const loadProfileStories = async () => {
@@ -94,7 +95,9 @@ export default function ProfileVisitorPublic({
       try {
         setProfileStoriesLoading(true);
 
-        const list = await storiesApi.getUserStories(profileUserId);
+        const list = await dedupeAsync(`stories:user:${profileUserId}`, () =>
+          storiesApi.getUserStories(profileUserId),
+        );
 
         if (cancelled) return;
 
@@ -121,9 +124,9 @@ export default function ProfileVisitorPublic({
     return () => {
       cancelled = true;
     };
-  }, [profileUserId]);
+  }, [profileUserId, loadSecondary]);
   const fullNameReal = [user?.firstName, user?.lastName].filter(Boolean).join(" ") || "";
-  const titleName = username || fullNameReal || "User";
+  const titleName = username || fullNameReal || t('common.user');
   const displayAvatar = user?.avatarUrl || user?.avatar || "/Logo/photo.png";
   const hasProfileStories = profileStories.length > 0;
 
@@ -176,7 +179,7 @@ export default function ProfileVisitorPublic({
 
   const authorId = postsAuthorId ?? user?.id ?? user?._id;
   const { feedPosts, feedLoading, feedError, feedActions } =
-    useProfileAuthorFeed(authorId);
+    useProfileAuthorFeed(authorId, { enabled: loadSecondary });
 
   return (
     <div className="profile-visitor-public profile-home">
@@ -210,7 +213,7 @@ export default function ProfileVisitorPublic({
 
                   setViewImageUrl(displayAvatar);
                 }}
-                aria-label="Переглянути фото"
+                aria-label={t('profile.viewPhoto')}
               >
                 <img src={displayAvatar} alt={titleName} className="avatar" />
               </div>
@@ -220,7 +223,7 @@ export default function ProfileVisitorPublic({
                 className={`ph-visitor-avatarInfoBtn${visitorTab === "info" ? " is-active" : ""}`}
                 onClick={() => setVisitorTab("info")}
               >
-                Информация
+                {t('profile.tabs.info')}
               </button>
             </div>
           </div>
@@ -250,26 +253,26 @@ export default function ProfileVisitorPublic({
               type="button"
               className="ph-visitor-tools__report"
               onClick={onReport}
-              aria-label="Пожаловаться"
+              aria-label={t('profile.visitor.report')}
             >
               <span className="ph-visitor-tools__reportIconWrap" aria-hidden="true" />
-              <span className="ph-visitor-tools__reportLabel">Пожаловаться</span>
+              <span className="ph-visitor-tools__reportLabel">{t('profile.visitor.report')}</span>
             </button>
             <button
               type="button"
               className="ph-visitor-actions__message"
               onClick={onWriteMessage}
-              aria-label="Написать сообщение"
+              aria-label={t('profile.visitor.writeMessage')}
             >
-              Написать сообщение
+              {t('profile.visitor.writeMessage')}
             </button>
             <button
               type="button"
               className="ph-visitor-actions__block"
               onClick={onBlock}
-              aria-label="Заблокировать"
+              aria-label={t('profile.visitor.block')}
             >
-              Заблокировать
+              {t('profile.visitor.block')}
             </button>
             <button
               type="button"
@@ -277,20 +280,20 @@ export default function ProfileVisitorPublic({
               onClick={onSubscribe}
               disabled={subscriptionLoading}
             >
-              {subscriptionLoading ? "…" : "Подписаться"}
+              {subscriptionLoading ? t('profile.visitor.subscribing') : t('profile.visitor.subscribe')}
             </button>
             <button
               type="button"
               className="ph-visitor-tools__vip"
               onClick={onAddToVip}
-              aria-label="Добавить в VIP"
+              aria-label={t('profile.visitor.addToVip')}
             >
-              <span className="ph-visitor-tools__vipText">Добавить в VIP</span>
+              <span className="ph-visitor-tools__vipText">{t('profile.visitor.addToVip')}</span>
               <img src={profileIcons.vipButton} alt="" className="ph-visitor-tools__vipIcon" />
             </button>
           </div>
-          <section className="ph-visitor-tabs ph-visitor-tabs--desktop" role="tablist" aria-label="Табы профиля">
-            {TABS_VISITOR_NOT_SUB.filter((tab) => tab.id !== "info").map((tab) => (
+          <section className="ph-visitor-tabs ph-visitor-tabs--desktop" role="tablist" aria-label={t('profile.visitor.profileTabs')}>
+            {visitorTabs.filter((tab) => tab.id !== "info").map((tab) => (
               <button
                 key={tab.id}
                 type="button"
@@ -309,13 +312,13 @@ export default function ProfileVisitorPublic({
           </section>
         </section>
 
-        <section className="ph-visitor-mobileActions" aria-label="Действия профиля">
+        <section className="ph-visitor-mobileActions" aria-label={t('profile.visitor.profileActions')}>
           <button
             type="button"
             className="ph-visitor-actions__message"
             onClick={onWriteMessage}
           >
-            Написать сообщение
+            {t('profile.visitor.writeMessage')}
           </button>
           <button
             type="button"
@@ -323,22 +326,22 @@ export default function ProfileVisitorPublic({
             onClick={onSubscribe}
             disabled={subscriptionLoading}
           >
-            {subscriptionLoading ? "…" : "Подписаться"}
+            {subscriptionLoading ? t('profile.visitor.subscribing') : t('profile.visitor.subscribe')}
           </button>
           <button
             type="button"
             className="ph-visitor-tools__vip"
             onClick={onAddToVip}
-            aria-label="Добавить в VIP"
+            aria-label={t('profile.visitor.addToVip')}
           >
-            <span className="ph-visitor-tools__vipText">Добавить в VIP</span>
+            <span className="ph-visitor-tools__vipText">{t('profile.visitor.addToVip')}</span>
             <img src={profileIcons.vipButton} alt="" className="ph-visitor-tools__vipIcon" />
           </button>
           <div className="ph-visitor-tools__mobileMenuWrap" ref={mobileMenuRef}>
             <button
               type="button"
               className="ph-visitor-tools__more"
-              aria-label="Больше действий"
+              aria-label={t('profile.visitor.moreActions')}
               aria-expanded={isMobileMenuOpen}
               aria-haspopup="menu"
               onClick={() => setIsMobileMenuOpen((prev) => !prev)}
@@ -346,7 +349,7 @@ export default function ProfileVisitorPublic({
               <span className="ph-visitor-tools__moreDots" aria-hidden="true">•••</span>
             </button>
             {isMobileMenuOpen && (
-              <div className="ph-visitor-mobileMenu" role="menu" aria-label="Действия профиля">
+              <div className="ph-visitor-mobileMenu" role="menu" aria-label={t('profile.visitor.profileActions')}>
                 <button
                   type="button"
                   className="ph-visitor-mobileMenu__item"
@@ -357,7 +360,7 @@ export default function ProfileVisitorPublic({
                   }}
                 >
                   <img src={profileIcons.lockBlack} alt="" className="ph-visitor-mobileMenu__icon" aria-hidden="true" />
-                  <span>Заблокировать</span>
+                  <span>{t('profile.visitor.block')}</span>
                 </button>
                 <button
                   type="button"
@@ -369,7 +372,7 @@ export default function ProfileVisitorPublic({
                   }}
                 >
                   <img src={profileIcons.complaints} alt="" className="ph-visitor-mobileMenu__icon" aria-hidden="true" />
-                  <span>Пожаловаться</span>
+                  <span>{t('profile.visitor.report')}</span>
                 </button>
               </div>
             )}
@@ -378,8 +381,8 @@ export default function ProfileVisitorPublic({
 
 
         {/* ================= TABS ================= */}
-        <section className="ph-visitor-tabs ph-visitor-tabs--mobile" role="tablist" aria-label="Табы профиля">
-          {TABS_VISITOR_NOT_SUB.map((tab) => (
+        <section className="ph-visitor-tabs ph-visitor-tabs--mobile" role="tablist" aria-label={t('profile.visitor.profileTabs')}>
+          {visitorTabs.map((tab) => (
             <button
               key={tab.id}
               type="button"
@@ -405,7 +408,7 @@ export default function ProfileVisitorPublic({
         {/* ================= FRIENDS ================= */}
         <section className="vipCard">
           <div className="friendsTitle">
-            <span className="friendsTitle__label">Друзья</span>{" "}
+            <span className="friendsTitle__label">{t('profile.friends.title')}</span>{" "}
             <span className="friendsTitle__count">{displayFriendsCount}</span>
           </div>
           {hasFriends ? (
@@ -424,7 +427,9 @@ export default function ProfileVisitorPublic({
                           onClick={() => openFriendProfile(v)}
                           disabled={!canOpen}
                           aria-label={
-                            canOpen ? `Профіль ${handle}` : "Профіль недоступний"
+                            canOpen
+                              ? t('profile.friends.profileOf', { name: handle })
+                              : t('profile.friends.profileUnavailable')
                           }
                         >
                           <img
@@ -441,7 +446,9 @@ export default function ProfileVisitorPublic({
                             onClick={() => openFriendProfile(v)}
                             disabled={!canOpen}
                             aria-label={
-                              canOpen ? `Відкрити профіль ${handle}` : undefined
+                              canOpen
+                                ? t('profile.friends.openProfile', { name: handle })
+                                : undefined
                             }
                           >
                             <img
@@ -461,12 +468,12 @@ export default function ProfileVisitorPublic({
                 })}
               </div>
               <button type="button" className="showMoreBtn" onClick={onShowMore}>
-                Показать больше
+                {t('profile.friends.showMore')}
               </button>
             </>
           ) : (
             <button type="button" className="showMoreBtn" onClick={onFindFriends ?? onShowMore}>
-              Показать больше
+              {t('profile.friends.showMore')}
             </button>
           )}
         </section>
@@ -487,14 +494,14 @@ export default function ProfileVisitorPublic({
           className="profile-home__imageViewer"
           role="dialog"
           aria-modal="true"
-          aria-label="Фото в повному розмірі"
+          aria-label={t('profile.viewPhotoFull')}
           onClick={() => setViewImageUrl(null)}
         >
           <button
             type="button"
             className="profile-home__imageViewerClose"
             onClick={() => setViewImageUrl(null)}
-            aria-label="Закрити"
+            aria-label={t('common.close')}
           >
             ×
           </button>

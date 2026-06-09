@@ -1,18 +1,13 @@
 import { useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import profileIcons from "../../../../constants/profileIcons";
 import {
   normalizeFriendListItem,
   getFriendRouteHandle,
 } from "../../../../utils/profileFriendNav";
+import { useVipProfileTabs } from "../../../../hooks/useProfileTabs";
 import "./ProfileVisitorVip.scss";
 import { FeedCard } from "../../../FirstPage/FirstPageView";
-
-const TABS = [
-  { id: "info", label: "Информация" },
-  { id: "stories", label: "Истории" },
-  { id: "video", label: "Видео" },
-  { id: "photo", label: "Фото" },
-];
 
 export default function ProfileVisitorVip({
   user,
@@ -25,6 +20,8 @@ export default function ProfileVisitorVip({
   onOpenUser,
   followingList,
 }) {
+  const { t } = useTranslation();
+  const TABS = useVipProfileTabs();
   const [activeTab, setActiveTab] = useState("info");
   const [viewImageUrl, setViewImageUrl] = useState(null);
   // eslint-disable-next-line no-unused-vars
@@ -61,10 +58,10 @@ export default function ProfileVisitorVip({
   const displayName = formatName(
   [user?.firstName, user?.lastName].filter(Boolean).join(" ") ||
       user?.username ||
-      "User"
+      t('common.user')
     );
 
-  const titleName = user?.username || user?.fullNameReal || "User";
+  const titleName = user?.username || user?.fullNameReal || t('common.user');
 
   const displayAvatar =
     user?.avatarUrl || user?.avatar || "/Logo/photo.png";
@@ -98,26 +95,30 @@ export default function ProfileVisitorVip({
 
     const friendsToRender = friends;
 
-  const actions = [
-    {
-      id: "message",
-      icon: profileIcons.chat,
-      label: "Написать сообщение",
-      onClick: onWriteMessage || onVipChat,
-    },
-    {
-      id: "gifts",
-      icon: profileIcons.present,
-      label: "Подарки",
-      onClick: onGifts,
-    },
-    {
-      id: "report",
-      icon: profileIcons.complaint,
-      label: "Пожаловаться",
-      onClick: onReport,
-    },
-  ].filter(a => a.onClick);
+  const actions = useMemo(
+    () =>
+      [
+        {
+          id: "message",
+          icon: profileIcons.chat,
+          label: t('profile.visitor.writeMessage'),
+          onClick: onWriteMessage || onVipChat,
+        },
+        {
+          id: "gifts",
+          icon: profileIcons.present,
+          label: t('profile.gifts'),
+          onClick: onGifts,
+        },
+        {
+          id: "report",
+          icon: profileIcons.complaint,
+          label: t('profile.visitor.report'),
+          onClick: onReport,
+        },
+      ].filter((a) => a.onClick),
+    [t, onWriteMessage, onVipChat, onGifts, onReport],
+  );
 
   return (
     <div className="profile-visitor-vip">
@@ -149,7 +150,7 @@ export default function ProfileVisitorVip({
               className="profile-visitor-vip__btnDelete"
               onClick={onUnsubscribe}
             >
-              Отписаться
+              {t('profile.visitor.unsubscribe')}
             </button>
           )}
         </div>
@@ -163,7 +164,7 @@ export default function ProfileVisitorVip({
             {titleName}
           </h1>
           <p className="profile-visitor-vip__info">{displayName}</p>
-          <p className="profile-visitor-vip__info">{locationStr || "Не указано"}</p>
+          <p className="profile-visitor-vip__info">{locationStr || t('profile.notSpecified')}</p>
           </div>
          
          {/* ACTIONS */}
@@ -220,7 +221,7 @@ export default function ProfileVisitorVip({
 
         {/* ===== VIP FRIENDS ===== */}
            <h2 className="profile-visitor-vip__friendsTitle">
-            <p className="profile-visitor-vip__friendsSubtitle">VIP</p>
+            <p className="profile-visitor-vip__friendsSubtitle">{t('profile.vip.vipFriends')}</p>
            <img src={profileIcons.vip} className="profile-visitor-vip__vipIcon"/>
           <p className="profile-visitor-vip__friendsSubtitle">{friends.length}</p>
         </h2>
@@ -248,7 +249,7 @@ export default function ProfileVisitorVip({
 
   {/* ===== REGULAR FRIENDS ===== */}
  <h2 className="profile-visitor-vip__friendsTitle">
-          Друзья {friends.length}
+          {t('profile.vip.friendsTitle', { count: friends.length })}
         </h2>
   <div className="profile-visitor-vip__friendsGrid">
   {friendsToRender.slice(0, 6).map((friend) => (
@@ -273,14 +274,14 @@ export default function ProfileVisitorVip({
             className="profile-visitor-vip__showMore"
             onClick={onShowMoreFriends}
           >
-            Показать больше
+            {t('profile.friends.showMore')}
           </button>
         )}
         
       </section>
 
       <section className="profile-visitor-vip__feed">
-      <FeedCard name={displayName} time="2 дня назад" location={user?.location || "Не указано"} status="online" text="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam auctor, nisl eget ultricies ultricies, nunc nisl ultricies nunc, eget ultricies nunc nisl eget ultricies." />
+      <FeedCard name={displayName} time="2 дня назад" location={user?.location || t('profile.notSpecified')} status="online" text="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam auctor, nisl eget ultricies ultricies, nunc nisl ultricies nunc, eget ultricies nunc nisl eget ultricies." />
       </section>
 
       {viewImageUrl && (

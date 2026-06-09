@@ -15,4 +15,9 @@ export const profileApi = {
     const { data } = await api.put("/users/profile", payload);
     return data;
   },
+
+  async updateLanguage(language) {
+    const { data } = await api.patch("/users/me/language", { language });
+    return data;
+  },
 };

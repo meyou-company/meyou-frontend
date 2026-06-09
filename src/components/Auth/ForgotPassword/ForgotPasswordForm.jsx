@@ -1,14 +1,15 @@
 import { useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import "./ForgotPasswordForm.scss";
 import { useAuthStore } from "../../../zustand/useAuthStore";
 import { useForceDarkTheme } from "../../../hooks/useForceDarkTheme";
 import { getApiErrorMessage } from "../../../utils/getApiErrorMessage";
-
-const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/i;
+import { EMAIL_REGEX } from "../../../utils/validationRegister";
 
 export default function ForgotPasswordForm({ onBack, onSuccess }) {
   useForceDarkTheme();
+  const { t } = useTranslation();
   const forgotPassword = useAuthStore((s) => s.forgotPassword);
 
   const [form, setForm] = useState({ email: "" });
@@ -20,11 +21,11 @@ export default function ForgotPasswordForm({ onBack, onSuccess }) {
     const e = {};
     const email = (form.email || "").trim();
 
-    if (!email) e.email = "Введите E-mail";
-    else if (!EMAIL_REGEX.test(email)) e.email = "Введите корректный E-mail";
+    if (!email) e.email = t("auth.forgotPassword.errors.emailRequired");
+    else if (!EMAIL_REGEX.test(email)) e.email = t("auth.forgotPassword.errors.emailInvalid");
 
     return e;
-  }, [form.email]);
+  }, [form.email, t]);
 
   const fieldError = (key) => (touched[key] ? errors[key] : "");
   const isFieldError = (key) => Boolean(fieldError(key));
@@ -48,25 +49,19 @@ export default function ForgotPasswordForm({ onBack, onSuccess }) {
 
     try {
       setIsSubmitting(true);
-
-      // store очікує forgotPassword(email: string)
       const res = await forgotPassword(email);
 
       if (!res?.ok) {
-        const msg =
-          getApiErrorMessage(res?.error) ||
-          "Ошибка отправки кода. Попробуйте ещё раз.";
+        const msg = getApiErrorMessage(res?.error) || t("auth.forgotPassword.errors.sendFailed");
         toast.error(msg);
         setSubmitError(msg);
         return;
       }
 
-      toast.success("Код відправлено на email");
+      toast.success(t("auth.forgotPassword.toastSuccess"));
       onSuccess?.(email);
     } catch (err) {
-      const msg =
-        getApiErrorMessage(err) ||
-        "Ошибка отправки кода. Попробуйте ещё раз.";
+      const msg = getApiErrorMessage(err) || t("auth.forgotPassword.errors.sendFailed");
       toast.error(msg);
       setSubmitError(msg);
     } finally {
@@ -76,43 +71,28 @@ export default function ForgotPasswordForm({ onBack, onSuccess }) {
 
   return (
     <section className="forgot auth">
-      <button
-        type="button"
-        className="back-arrow"
-        onClick={onBack}
-        aria-label="Назад"
-      >
-        <img
-          src="/icon1/Vector.png"
-          alt=""
-          aria-hidden="true"
-          className="back-arrow__icon"
-        />
+      <button type="button" className="back-arrow" onClick={onBack} aria-label={t("common.back")}>
+        <img src="/icon1/Vector.png" alt="" aria-hidden="true" className="back-arrow__icon" />
       </button>
 
       <div className="forgot__logoCard" aria-hidden="true">
-        <img className="forgot__logoImg" src="/Logo/photo.png" alt="Me You logo" />
+        <img className="forgot__logoImg" src="/Logo/photo.png" alt={t("auth.common.logoAlt")} />
       </div>
 
-      <h1 className="forgot__title">Смена пароля</h1>
+      <h1 className="forgot__title">{t("auth.forgotPassword.title")}</h1>
 
       <form className="forgot__form" onSubmit={onSubmit} noValidate>
         <div className={`authField ${isFieldError("email") ? "is-error" : ""}`}>
           <div className="authField__control">
             <span className="authField__iconLeft" aria-hidden="true">
-              <img
-                className="authField__iconImg"
-                src="/icon1/emeil.png"
-                alt=""
-                aria-hidden="true"
-              />
+              <img className="authField__iconImg" src="/icon1/emeil.png" alt="" aria-hidden="true" />
             </span>
 
             <input
               className="authField__input"
               type="email"
               name="email"
-              placeholder="Введите Email"
+              placeholder={t("auth.forgotPassword.emailPlaceholder")}
               value={form.email}
               onChange={onChange}
               onBlur={onBlur}
@@ -121,19 +101,13 @@ export default function ForgotPasswordForm({ onBack, onSuccess }) {
             />
           </div>
 
-          {touched.email && (
-            <p className="authField__hint">{fieldError("email")}</p>
-          )}
+          {touched.email && <p className="authField__hint">{fieldError("email")}</p>}
         </div>
 
         {submitError && <div className="forgot__error">{submitError}</div>}
 
-        <button
-          type="submit"
-          className="btn-gradient btn-gradient--forgot"
-          disabled={isSubmitting}
-        >
-          {isSubmitting ? "Отправка..." : "Подтвердить"}
+        <button type="submit" className="btn-gradient btn-gradient--forgot" disabled={isSubmitting}>
+          {isSubmitting ? t("auth.forgotPassword.submitting") : t("auth.forgotPassword.submit")}
         </button>
       </form>
     </section>

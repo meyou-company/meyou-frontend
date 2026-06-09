@@ -1,0 +1,122 @@
+/**
+ * Arabic locale — scoped RTL.
+ * html/body stay direction: ltr so profile, feed, stories and reels keep
+ * the same visual layout. RTL applies only to listed UI shells below.
+ */
+
+/* --- LTR layout lock: profile, feed, stories, reels, friend avatars --- */
+html.locale-ar .profile-home,
+html.locale-ar .profile-container,
+html.locale-ar .profileBlock,
+html.locale-ar .profile-visitor-public,
+html.locale-ar .profile-visitor-subscribed,
+html.locale-ar .profile-visitor-vip,
+html.locale-ar .ph-visitor-top,
+html.locale-ar .vipCard,
+html.locale-ar .feed,
+html.locale-ar .postCard,
+html.locale-ar .postCardHeader,
+html.locale-ar .postActions,
+html.locale-ar .postFeedBody,
+html.locale-ar .first-page-view,
+html.locale-ar .first-page-stories,
+html.locale-ar .first-page-post,
+html.locale-ar .storyCircleBorder,
+html.locale-ar .storyViewer,
+html.locale-ar .storyUploadModal,
+html.locale-ar .video,
+html.locale-ar .app-bottom-nav,
+html.locale-ar .profile-header,
+html.locale-ar .infoPanel,
+html.locale-ar .friends-content__list,
+html.locale-ar .friends-content__item,
+html.locale-ar .friends-content__userBtn {
+  direction: ltr;
+}
+
+/* --- RTL UI: menus, messages, notifications, settings, auth/profile forms --- */
+html.locale-ar .profile-menu,
+html.locale-ar .profile-menu-wrap,
+html.locale-ar .messagesPage,
+html.locale-ar .notifications,
+html.locale-ar .ns-modal,
+html.locale-ar .ns-overlay,
+html.locale-ar .langSettings,
+html.locale-ar .messageSoundToggle,
+html.locale-ar .auth,
+html.locale-ar .verify,
+html.locale-ar .edit-profile,
+html.locale-ar .complete-profile,
+html.locale-ar .friends-content__header,
+html.locale-ar .friends-content__searchWrap,
+html.locale-ar .friends-content__tabs,
+html.locale-ar .friends-content__empty {
+  direction: rtl;
+  text-align: start;
+}
+
+/* Form fields inside RTL shells */
+html.locale-ar .messagesPage__input,
+html.locale-ar .profile-menu input,
+html.locale-ar .profile-menu textarea,
+html.locale-ar .auth input,
+html.locale-ar .auth textarea,
+html.locale-ar .verify input,
+html.locale-ar .verify textarea,
+html.locale-ar .edit-profile input,
+html.locale-ar .edit-profile textarea,
+html.locale-ar .edit-profile select,
+html.locale-ar .complete-profile input,
+html.locale-ar .complete-profile textarea,
+html.locale-ar .complete-profile select,
+html.locale-ar .friends-content__search,
+html.locale-ar .langSettings input {
+  text-align: start;
+}
+
+/* Feed/post: layout stays LTR; RTL for comments, forms and modals only */
+html.locale-ar .postCommentsSection,
+html.locale-ar .commentComposer,
+html.locale-ar .commentMenuDropdown,
+html.locale-ar .postFeedMenuDropdown,
+html.locale-ar .createPostModal,
+html.locale-ar .editPostModal,
+html.locale-ar .share-post-modal,
+html.locale-ar .deletePostDialog {
+  direction: rtl;
+  text-align: start;
+}
+
+html.locale-ar .postCommentsSection__input,
+html.locale-ar .commentComposer__input,
+html.locale-ar .createPostModal__textarea,
+html.locale-ar .createPostModal__locationInput,
+html.locale-ar .editPostModal__textarea,
+html.locale-ar .editPostModal__locationInput,
+html.locale-ar .share-post-modal__search,
+html.locale-ar .share-post-modal__message {
+  text-align: start;
+}
+
+html.locale-ar .settings-page,
+html.locale-ar .settings-card,
+html.locale-ar .langSettings__modal {
+  direction: rtl;
+  text-align: start;
+}
+
+html.locale-ar .settings-form__input,
+html.locale-ar .langSettings__list button {
+  text-align: start;
+}
+
+/* Profile header: bar stays LTR; search text flows RTL */
+html.locale-ar .profile-header .topRow,
+html.locale-ar .profile-header .searchForm {
+  direction: ltr;
+}
+
+html.locale-ar .profile-header .searchInput {
+  direction: rtl;
+  text-align: start;
+}

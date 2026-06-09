@@ -1,87 +1,99 @@
 const onlyLettersSpaces = (v) =>
-  /^[\p{L}\p{M}\s'-]+$/u.test(String(v || "").trim());
+  /^[\p{L}\p{M}\s'-]+$/u.test(String(v || '').trim());
 
+/** Returns field → i18n key under profile.editForm.validation.* */
 export function validateCompleteProfile(values) {
   const e = {};
 
-  const req = (key, msg) => {
+  const req = (key, code) => {
     const v = values[key];
-    if (v === null || v === undefined) return (e[key] = msg);
-    if (typeof v === "string" && !v.trim()) return (e[key] = msg);
-    if (Array.isArray(v) && v.length === 0) return (e[key] = msg);
+    if (v === null || v === undefined) return (e[key] = code);
+    if (typeof v === 'string' && !v.trim()) return (e[key] = code);
+    if (Array.isArray(v) && v.length === 0) return (e[key] = code);
   };
 
-  // required
-  req("lastName", "Вкажіть прізвище");
-  req("firstName", "Вкажіть ім'я");
-  req("phone", "Вкажіть номер телефону");
-  req("nationality", "Вкажіть національність");
-  req("maritalStatus", "Оберіть сімейне положення");
-  req("country", "Оберіть країну");
-  req("city", "Оберіть місто");
-  req("interests", "Оберіть інтереси");
-  req("hobbies", "Оберіть хобі");
-  req("username", "Вкажіть нік");
+  req('lastName', 'lastNameRequired');
+  req('firstName', 'firstNameRequired');
+  req('phone', 'phoneRequired');
+  req('nationality', 'nationalityRequired');
+  req('maritalStatus', 'maritalStatusRequired');
+  req('country', 'countryRequired');
+  req('city', 'cityRequired');
+  req('interests', 'interestsRequired');
+  req('hobbies', 'hobbiesRequired');
+  req('username', 'usernameRequired');
 
-  // Пол: обов'язково, тільки MALE або FEMALE (бекенд вимагає)
-  if (values.gender !== "MALE" && values.gender !== "FEMALE") {
-    e.gender = "Оберіть стать";
+  if (values.gender !== 'MALE' && values.gender !== 'FEMALE') {
+    e.gender = 'genderRequired';
   }
 
-  // Дата народження: YYYY-MM-DD, вік 18–100
   const birthDate = values.birthDate;
-  if (birthDate === null || birthDate === undefined || (typeof birthDate === "string" && !birthDate.trim())) {
-    e.birthDate = "Оберіть дату народження";
+  if (
+    birthDate === null ||
+    birthDate === undefined ||
+    (typeof birthDate === 'string' && !birthDate.trim())
+  ) {
+    e.birthDate = 'birthDateRequired';
   } else {
     const s = String(birthDate).trim();
     if (!/^\d{4}-\d{2}-\d{2}$/.test(s)) {
-      e.birthDate = "Формат: РРРР-ММ-ДД";
+      e.birthDate = 'birthDateFormat';
     } else {
-      const [y, m, d] = s.split("-").map(Number);
+      const [y, m, d] = s.split('-').map(Number);
       const date = new Date(y, m - 1, d);
       if (date.getFullYear() !== y || date.getMonth() !== m - 1 || date.getDate() !== d) {
-        e.birthDate = "Невірна дата";
+        e.birthDate = 'birthDateInvalid';
       } else {
         const today = new Date();
         let age = today.getFullYear() - y;
-        if (new Date(today.getFullYear(), today.getMonth(), today.getDate()) < new Date(y + age, m - 1, d)) age -= 1;
-        if (age < 18 || age > 100) e.birthDate = "Вік має бути від 18 до 100";
+        if (
+          new Date(today.getFullYear(), today.getMonth(), today.getDate()) <
+          new Date(y + age, m - 1, d)
+        ) {
+          age -= 1;
+        }
+        if (age < 18 || age > 100) e.birthDate = 'birthDateAge';
       }
     }
   }
 
-  // правила
   if (values.firstName && !onlyLettersSpaces(values.firstName)) {
-    e.firstName = "Ім'я має містити лише літери";
+    e.firstName = 'firstNameLettersOnly';
   }
   if (values.lastName && !onlyLettersSpaces(values.lastName)) {
-    e.lastName = "Прізвище має містити лише літери";
+    e.lastName = 'lastNameLettersOnly';
   }
   if (values.nationality && !onlyLettersSpaces(values.nationality)) {
-    e.nationality = "Національність має містити лише літери";
+    e.nationality = 'nationalityLettersOnly';
   }
 
-  // username: формат та довжина (макс. 10 символів; ексклюзивність перевіряється на бекенді / при сабміті)
   if (!e.username && values.username) {
     const u = String(values.username).trim();
-    if (u.length < 3) e.username = "Нік має містити мінімум 3 символи";
-    else if (u.length > 10) e.username = "Нік має бути до 10 символів";
+    if (u.length < 3) e.username = 'usernameMinLength';
+    else if (u.length > 10) e.username = 'usernameMaxLength';
     else if (!/^[a-zA-Z0-9._-]+$/.test(u)) {
-      e.username = "Нік: тільки латиниця/цифри та . _ -";
+      e.username = 'usernameFormat';
     }
   }
 
-  // bio optional
   if (values.bio && String(values.bio).length > 500) {
-    e.bio = "Максимум 500 символів";
+    e.bio = 'bioMaxLength';
   }
 
-  // phone (react-international-phone дає строку з +)
   if (values.phone) {
-    const digits = String(values.phone).replace(/\D/g, "");
-    if (digits.length < 8) e.phone = "Номер занадто короткий";
-    if (digits.length > 16) e.phone = "Номер занадто довгий";
+    const digits = String(values.phone).replace(/\D/g, '');
+    if (digits.length < 8) e.phone = 'phoneTooShort';
+    if (digits.length > 16) e.phone = 'phoneTooLong';
   }
 
   return e;
+}
+
+export function translateValidationErrors(errorCodes, t) {
+  if (!errorCodes || !t) return errorCodes || {};
+  const out = {};
+  for (const [field, code] of Object.entries(errorCodes)) {
+    out[field] = t(`profile.editForm.validation.${code}`, { defaultValue: code });
+  }
+  return out;
 }

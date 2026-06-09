@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { useAuthStore } from "../../../zustand/useAuthStore";
 import { resolvedApiBaseUrl } from "../../../services/api";
@@ -8,6 +9,7 @@ import "./LoginForm.scss";
 
 export default function LoginForm({ onBack, onForgot, onSuccess }) {
   useForceDarkTheme();
+  const { t } = useTranslation();
   const login = useAuthStore((s) => s.login);
 
   const [form, setForm] = useState({ email: "", password: "" });
@@ -19,10 +21,10 @@ export default function LoginForm({ onBack, onForgot, onSuccess }) {
 
   const errors = useMemo(() => {
     const e = {};
-    if (!form.email.trim()) e.email = "Введите E-mail";
-    if (!form.password) e.password = "Введите пароль";
+    if (!form.email.trim()) e.email = t("auth.login.errors.emailRequired");
+    if (!form.password) e.password = t("auth.login.errors.passwordRequired");
     return e;
-  }, [form]);
+  }, [form, t]);
 
   const fieldError = (key) => (touched[key] ? errors[key] : "");
   const isFieldError = (key) => Boolean(fieldError(key));
@@ -54,17 +56,17 @@ export default function LoginForm({ onBack, onForgot, onSuccess }) {
       });
 
       if (res?.ok) {
-        toast.success("Успішний вхід");
+        toast.success(t("auth.login.toastSuccess"));
         onSuccess?.();
       } else {
-        const msg = getApiErrorMessage(res?.error) || "Помилка входу";
+        const msg = getApiErrorMessage(res?.error) || t("auth.login.errors.loginFailed");
         toast.error(msg);
         setSubmitError(msg);
       }
     } catch (err) {
-      const msg = getApiErrorMessage(err) || "Помилка входу";
+      const msg = getApiErrorMessage(err) || t("auth.login.errors.loginFailed");
       toast.error(msg);
-      setSubmitError(msg || "Щось пішло не так");
+      setSubmitError(msg || t("auth.common.somethingWentWrong"));
     } finally {
       setIsSubmitting(false);
     }
@@ -72,20 +74,17 @@ export default function LoginForm({ onBack, onForgot, onSuccess }) {
 
   return (
     <section className="auth auth--login">
-      {/* back arrow (GLOBAL) */}
-      <button type="button" className="back-arrow" onClick={onBack} aria-label="Назад">
+      <button type="button" className="back-arrow" onClick={onBack} aria-label={t("common.back")}>
         <img src="/icon1/Vector.png" alt="" aria-hidden="true" className="back-arrow__icon" />
       </button>
 
-      {/* logo */}
       <div className="auth__logoCard" aria-hidden="true">
-        <img className="auth__logoImg" src="/Logo/photo.png" alt="Me You logo" />
+        <img className="auth__logoImg" src="/Logo/photo.png" alt={t("auth.common.logoAlt")} />
       </div>
 
-      <h1 className="auth__title auth__title--login">Вход</h1>
+      <h1 className="auth__title auth__title--login">{t("auth.login.title")}</h1>
 
       <form className="auth__form" onSubmit={onSubmit} noValidate>
-        {/* Email */}
         <div className={`authField ${isFieldError("email") ? "is-error" : ""}`}>
           <div className="authField__control">
             <span className="authField__iconLeft" aria-hidden="true">
@@ -96,7 +95,7 @@ export default function LoginForm({ onBack, onForgot, onSuccess }) {
               className="authField__input"
               type="email"
               name="email"
-              placeholder="Введите Email"
+              placeholder={t("auth.login.emailPlaceholder")}
               value={form.email}
               onChange={onChange}
               onBlur={onBlur}
@@ -108,7 +107,6 @@ export default function LoginForm({ onBack, onForgot, onSuccess }) {
           {touched.email && <p className="authField__hint">{fieldError("email")}</p>}
         </div>
 
-        {/* Password */}
         <div className={`authField ${isFieldError("password") ? "is-error" : ""}`}>
           <div className="authField__control">
             <span className="authField__iconLeft" aria-hidden="true">
@@ -119,7 +117,7 @@ export default function LoginForm({ onBack, onForgot, onSuccess }) {
               className="authField__input"
               type={showPassword ? "text" : "password"}
               name="password"
-              placeholder="Введите пароль"
+              placeholder={t("auth.login.passwordPlaceholder")}
               value={form.password}
               onChange={onChange}
               onBlur={onBlur}
@@ -130,7 +128,7 @@ export default function LoginForm({ onBack, onForgot, onSuccess }) {
             <button
               type="button"
               className="authField__iconRight"
-              aria-label={showPassword ? "Сховати пароль" : "Показати пароль"}
+              aria-label={showPassword ? t("auth.common.hidePassword") : t("auth.common.showPassword")}
               onClick={() => setShowPassword((v) => !v)}
             >
               <img
@@ -145,19 +143,23 @@ export default function LoginForm({ onBack, onForgot, onSuccess }) {
           {touched.password && <p className="authField__hint">{fieldError("password")}</p>}
         </div>
 
-        {/* Forgot */}
         <button type="button" className="authForgot" onClick={onForgot}>
-          Забули пароль?
+          {t("auth.login.forgotPassword")}
         </button>
 
         {submitError && <div className="auth__error">{submitError}</div>}
 
         <div className="authActions">
           <button className="btn-gradient btn-gradient--auth-primary" type="submit" disabled={isSubmitting}>
-            {isSubmitting ? "Вход..." : "Войти"}
+            {isSubmitting ? t("auth.login.submitting") : t("auth.login.submit")}
           </button>
-          <button type="button" className="btn-gradient btn-gradient--auth-google" onClick={handleGoogle}>
-            <img src="/icon1/google.png" alt="Google" className="google-auth-btn__icon" />
+          <button
+            type="button"
+            className="btn-gradient btn-gradient--auth-google"
+            onClick={handleGoogle}
+            aria-label={t("auth.common.googleAlt")}
+          >
+            <img src="/icon1/google.png" alt="" className="google-auth-btn__icon" aria-hidden="true" />
           </button>
         </div>
       </form>

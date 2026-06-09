@@ -334,6 +334,18 @@ font-size: 60px;
   }
 }
 
+.btnMessages__iconWrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  .messages-nav-badge {
+    top: -6px;
+    right: -10px;
+  }
+}
+
 .btnMessages {
   position: relative;
  transform: translateX(-38px);

@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import profileIcons from '../../constants/profileIcons';
 import { useStoriesFeed } from "../../hooks/useStoriesFeed";
 import { postsApi } from '../../services/postsApi';
@@ -29,11 +30,11 @@ import StoryViewerModal from "../../components/Stories/StoryViewerModal";
 import '../Users/Profile/ProfileHome/ProfileHome.scss';
 import './FirstPageView.scss';
 
-const getReadableFeedError = (error) => {
+const getReadableFeedError = (error, t) => {
   const text = getApiErrorMessage(error);
-  if (!text) return 'Не вдалося завантажити стрічку';
+  if (!text) return t('feed.error.load');
   if (text === 'Request failed with status code 500') {
-    return 'Тимчасова помилка сервера при завантаженні стрічки';
+    return t('feed.error.server');
   }
   return text;
 };
@@ -51,6 +52,7 @@ export default function FirstPageView({
   onGoHome,
   onOpenProfile,
 }) {
+  const { t } = useTranslation();
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const [lightboxImages, setLightboxImages] = useState([]);
   const [lightboxIndex, setLightboxIndex] = useState(0);
@@ -58,6 +60,7 @@ export default function FirstPageView({
   const [isStoryViewerOpen, setIsStoryViewerOpen] = useState(false);
   const [storyViewerGroupIndex, setStoryViewerGroupIndex] = useState(0);
   const [storyViewerStoryIndex, setStoryViewerStoryIndex] = useState(0);
+  const [storyViewerSessionKey, setStoryViewerSessionKey] = useState(0);
 
   const findFirstUnviewedStoryIndex = (stories = []) => {
     const index = stories.findIndex(
@@ -67,7 +70,23 @@ export default function FirstPageView({
     return index >= 0 ? index : 0;
   };
 
-  const currentUserId = useAuthStore((s) => s.user?.id);
+  const currentUser = useAuthStore((s) => s.user);
+  const currentUserId = currentUser?.id;
+  const cachedUserAvatar =
+    typeof window !== "undefined"
+      ? window.localStorage.getItem("current-user-avatar")
+      : null;
+
+  const currentUserAvatar =
+    currentUser?.avatarUrl || currentUser?.avatar || cachedUserAvatar || null;
+
+  useEffect(() => {
+    const avatar = currentUser?.avatarUrl || currentUser?.avatar;
+
+    if (avatar) {
+      window.localStorage.setItem("current-user-avatar", avatar);
+    }
+  }, [currentUser]);
 
   const openLightbox = (images, startIndex = 0) => {
     if (!images?.length) return;
@@ -104,9 +123,15 @@ export default function FirstPageView({
   const orderedStoriesGroups = useMemo(() => {
     const list = Array.isArray(storiesGroups) ? [...storiesGroups] : [];
 
-    return list.filter(
-      (group) => String(group?.author?.id ?? "") !== String(currentUserId ?? "")
-    );
+    return list.sort((a, b) => {
+      const aIsMe = String(a?.author?.id ?? "") === String(currentUserId ?? "");
+      const bIsMe = String(b?.author?.id ?? "") === String(currentUserId ?? "");
+
+      if (aIsMe && !bIsMe) return -1;
+      if (!aIsMe && bIsMe) return 1;
+
+      return 0;
+    });
   }, [storiesGroups, currentUserId]);
 
   const openStoryViewer = (groupIndex) => {
@@ -114,7 +139,12 @@ export default function FirstPageView({
 
     setStoryViewerGroupIndex(groupIndex);
     setStoryViewerStoryIndex(findFirstUnviewedStoryIndex(stories));
+    setStoryViewerSessionKey((prev) => prev + 1);
     setIsStoryViewerOpen(true);
+  };
+
+  const closeStoryViewer = () => {
+    setIsStoryViewerOpen(false);
   };
 
   const markStoryViewedLocally = (storyId) => {
@@ -196,14 +226,14 @@ export default function FirstPageView({
       setFeedPage(page);
       setHasMoreFeed(mapped.length === PAGE_SIZE);
     } catch (e) {
-      setFeedError(getReadableFeedError(e));
+      setFeedError(getReadableFeedError(e, t));
       // Keep already loaded posts (or cache) on error to avoid blanking the feed.
       setHasMoreFeed(false);
     } finally {
       if (append) setFeedLoadingMore(false);
       else setFeedLoading(false);
     }
-  }, []);
+  }, [t]);
 
   useEffect(() => {
     let cancelled = false;
@@ -278,6 +308,7 @@ export default function FirstPageView({
 
               <StoryCircle
                 type="add"
+                avatar={currentUserAvatar}
                 onClick={() => setIsStoryUploadOpen(true)}
               />
 
@@ -300,7 +331,6 @@ export default function FirstPageView({
                       storiesCount={group.stories?.length || 0}
                       onClick={() => openStoryViewer(groupIndex)}
                     />
-
                   );
                 })}
             </div>
@@ -313,12 +343,12 @@ export default function FirstPageView({
           <div className="max-w-[1340px] mx-auto my-[10px] md:my-5 xl:my-[46px] px-7 md:px-[41px] lg:px-9 min-[1440px]:px-[66px] space-y-[10px] md:space-y-5">
             {feedLoading && (
               <p className="text-center text-sm md:text-base font-[Montserrat] text-gray-600 py-6">
-                Завантаження стрічки…
+                {t('feed.loading')}
               </p>
             )}
             {!feedLoading && feedPosts.length === 0 && (
               <p className="text-center text-sm md:text-base font-[Montserrat] text-gray-600 py-6">
-                Поки що немає постів
+                {t('feed.empty')}
               </p>
             )}
             {!feedLoading &&
@@ -330,11 +360,12 @@ export default function FirstPageView({
                   currentUserId={currentUserId}
                   onOpenProfile={goProfileByUsername}
                   onOpenLightbox={openLightbox}
+                  t={t}
                 />
               ))}
             {!feedLoading && feedLoadingMore && (
               <p className="text-center text-sm md:text-base font-[Montserrat] text-gray-600 py-4">
-                Завантаження ще постів…
+                {t('feed.loadingMore')}
               </p>
             )}
             {!feedLoading && hasMoreFeed && (
@@ -358,11 +389,13 @@ export default function FirstPageView({
         />
 
         <StoryViewerModal
+          key={storyViewerSessionKey}
           isOpen={isStoryViewerOpen}
           groups={orderedStoriesGroups}
           initialGroupIndex={storyViewerGroupIndex}
           initialStoryIndex={storyViewerStoryIndex}
-          onClose={() => setIsStoryViewerOpen(false)}
+          currentUserId={currentUserId}
+          onClose={closeStoryViewer}
           onViewed={markStoryViewedLocally}
         />
 
@@ -458,8 +491,9 @@ function GlobalFeedPostCard({
   currentUserId,
   onOpenProfile,
   onOpenLightbox,
+  t,
 }) {
-  const name = postAuthorDisplayName(post.author);
+  const name = postAuthorDisplayName(post.author, t);
   const avatarSrc = post.author?.avatarUrl || profileIcons.userStory;
   const commentsOpen = feedActions.isCommentsOpen(post.id);
   const authorHandle = getProfileRouteHandle(post.author);
@@ -478,7 +512,9 @@ function GlobalFeedPostCard({
         onAvatarClick={handleOpenProfile}
         avatarDisabled={!hasProfileLink}
         avatarAriaLabel={
-          hasProfileLink ? `Відкрити профіль ${name}` : 'Профіль недоступний'
+          hasProfileLink
+            ? t('feed.openProfile', { name })
+            : t('feed.profileUnavailable')
         }
         authorName={name}
         createdAt={post.createdAt}

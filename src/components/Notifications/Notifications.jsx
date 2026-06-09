@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import NotificationsTabs from './NotificationsTabs';
 import NotificationItem from './NotificationItem';
 import NotificationSettings from './Settings/NotificationSettings';
@@ -15,6 +16,7 @@ import { useInfiniteScroll } from '../../hooks/useInfiniteScroll';
 import './Notifications.scss';
 
 export default function Notifications({ onGoBack }) {
+  const { t } = useTranslation();
   const [filter, setFilter] = useState('all');
   const [settingsOpen, setSettingsOpen] = useState(false);
 
@@ -52,7 +54,13 @@ export default function Notifications({ onGoBack }) {
 
   return (
     <div className="notifications">
-      <Header onClick={onGoBack} onOpenSettings={() => setSettingsOpen(true)} />
+      <Header
+        onClick={onGoBack}
+        onOpenSettings={() => setSettingsOpen(true)}
+        title={t('notifications.title')}
+        settingsLabel={t('notifications.settingsTitle')}
+        backLabel={t('common.back')}
+      />
 
       <main className="notifications__content">
         <div className="divider-top" />
@@ -63,11 +71,11 @@ export default function Notifications({ onGoBack }) {
         {loadingInitial && <GlobalLoader />}
 
         {!loadingInitial && items.length === 0 && (
-          <div className="notifications__empty">У вас пока нет уведомлений</div>
+          <div className="notifications__empty">{t('notifications.empty')}</div>
         )}
 
         {!loadingInitial && items.length > 0 && filtered.length === 0 && filter === 'unread' && (
-          <div className="notifications__empty">У вас нет непрочитанных сообщений</div>
+          <div className="notifications__empty">{t('notifications.emptyUnread')}</div>
         )}
 
         {Object.entries(grouped).map(([day, items]) => (
@@ -83,7 +91,7 @@ export default function Notifications({ onGoBack }) {
         <div ref={loadMoreRef} style={{ height: 1 }} />
 
         {visibleHasMore && loadingMore && (
-          <div className="notifications__loading-more">Loading more...</div>
+          <div className="notifications__loading-more">{t('common.loading')}</div>
         )}
 
         {settingsOpen && <NotificationSettings onClose={() => setSettingsOpen(false)} />}
@@ -94,30 +102,28 @@ export default function Notifications({ onGoBack }) {
 
 // /* ================= Header ================= */
 
-const Header = ({ onClick, onOpenSettings }) => (
+const Header = ({ onClick, onOpenSettings, title, settingsLabel, backLabel }) => (
   <header className="notifications__topbar">
-    {/* Кнопка для мобілки */}
     <button className="notifications__back notifications__back--mobile" onClick={onClick}>
       <img
         className="notifications__back-icon"
         src={profileIcons.arrowLeftFilledBlack}
-        alt="Back"
+        alt={backLabel}
       />
     </button>
 
-    {/* Кнопка для планшету і вище */}
     <button className="notifications__back notifications__back--tablet" onClick={onClick}>
-      <img className="notifications__back-icon" src={profileIcons.arrowLeftBlack} alt="Back" />
+      <img className="notifications__back-icon" src={profileIcons.arrowLeftBlack} alt={backLabel} />
     </button>
 
-    <h1 className="notifications__title">Уведомления</h1>
+    <h1 className="notifications__title">{title}</h1>
 
     <button
       className="notifications__settings"
-      aria-label="Настройка уведомлений"
+      aria-label={settingsLabel}
       onClick={onOpenSettings}
     >
-      <img src={profileIcons.settingsBlack} alt="Настройка уведомлений" />
+      <img src={profileIcons.settingsBlack} alt={settingsLabel} />
     </button>
   </header>
 );

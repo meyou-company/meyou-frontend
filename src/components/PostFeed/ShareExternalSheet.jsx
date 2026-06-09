@@ -1,3 +1,5 @@
+import { useTranslation } from 'react-i18next';
+
 /** Іконки для зовнішнього шеру (круглі, як у TikTok / Instagram). */
 
 function IconTelegram() {
@@ -81,6 +83,7 @@ export default function ShareExternalSheet({
   systemShareAvailable,
   onOpenUrl,
 }) {
+  const { t } = useTranslation();
 
   const items = [
     {
@@ -120,7 +123,7 @@ export default function ShareExternalSheet({
     },
     {
       id: "copy",
-      label: "Копіювати",
+      label: t('posts.shareExternal.copy'),
       iconClass: "shareExternalIcon--copy",
       icon: <IconCopy />,
       onClick: onCopyLink,
@@ -130,16 +133,16 @@ export default function ShareExternalSheet({
   if (systemShareAvailable) {
     items.push({
       id: "system",
-      label: "Ще",
+      label: t('posts.shareExternal.more'),
       iconClass: "shareExternalIcon--system",
       icon: <IconMore />,
       onClick: onSystemShare,
-      ariaLabel: "Системне меню поділитися",
+      ariaLabel: t('posts.shareExternal.systemAria'),
     });
   }
 
   return (
-    <div className="shareExternalRow" role="list" aria-label="Поділитися поза додатком">
+    <div className="shareExternalRow" role="list" aria-label={t('posts.shareExternal.listAria')}>
       {items.map((item) => (
         <ShareExternalItem
           key={item.id}

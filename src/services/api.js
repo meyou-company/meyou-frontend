@@ -1,4 +1,5 @@
 import axios from "axios";
+import { logApiError, logApiRequest, logApiResponse } from "../utils/apiRequestLog";
 
 /**
  * `VITE_API_URL` задає базу під глобальний префікс `/api` на Nest.
@@ -132,6 +133,7 @@ bootstrapOAuthQueryTokens();
 export const api = axios.create({
   baseURL: resolvedApiBaseUrl,
   withCredentials: true,
+  timeout: Number(import.meta.env.VITE_API_TIMEOUT_MS) || 25000,
 });
 
 const isRefreshEndpoint = (config) => {
@@ -144,19 +146,22 @@ const isRefreshEndpoint = (config) => {
 };
 
 api.interceptors.request.use((config) => {
-  if (config.headers?.Authorization) return config;
+  config.__apiLogId = logApiRequest(config);
 
-  if (isRefreshEndpoint(config)) {
-    const rt = readSessionRefresh();
-    if (rt) {
-      config.headers.Authorization = `Bearer ${rt}`;
-    }
-  } else {
-    const at = readSessionAccess();
-    if (at) {
-      config.headers.Authorization = `Bearer ${at}`;
+  if (!config.headers?.Authorization) {
+    if (isRefreshEndpoint(config)) {
+      const rt = readSessionRefresh();
+      if (rt) {
+        config.headers.Authorization = `Bearer ${rt}`;
+      }
+    } else {
+      const at = readSessionAccess();
+      if (at) {
+        config.headers.Authorization = `Bearer ${at}`;
+      }
     }
   }
+
   return config;
 });
 
@@ -170,6 +175,7 @@ const resolveQueue = (error, token = null) => {
 
 api.interceptors.response.use(
   (res) => {
+    logApiResponse(res.config?.__apiLogId, res);
     const url = res.config?.url ?? "";
     if (
       (String(url).includes('/auth/refresh') ||
@@ -181,6 +187,7 @@ api.interceptors.response.use(
     return res;
   },
   async (err) => {
+    logApiError(err.config?.__apiLogId, err);
     const original = err.config;
 
     if (original?.skipAuth || isRefreshEndpoint(original)) {

@@ -1,5 +1,6 @@
 /** Друг / підписаний користувач */
 import { useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 import profileIcons from "../../../../constants/profileIcons";
 import { getFriendsCountNumber } from "../../../../utils/profileFriends";
@@ -8,18 +9,21 @@ import {
   getFriendRouteHandle,
   getFriendDisplayLabel,
 } from "../../../../utils/profileFriendNav";
+import { dedupeAsync } from "../../../../utils/dedupeAsync";
 import { useProfileAuthorFeed } from "../../../../hooks/useProfileAuthorFeed";
 import { useUserProfileNav } from "../../../../context/UserProfileNavContext";
 import ProfilePostsFeed from "../ProfilePostsFeed/ProfilePostsFeed";
 import ProfileInfoPanel from "../ProfileInfoPanel/ProfileInfoPanel";
 import { storiesApi } from "../../../../services/storiesApi";
 import StoryViewerModal from "../../../Stories/StoryViewerModal";
+import { useProfileTabs } from "../../../../hooks/useProfileTabs";
 import "../ProfileHome/ProfileHome.scss";
 import "./ProfileVisitorSubscribed.scss";
 
 export default function ProfileVisitorSubscribed({
   user,
   postsAuthorId,
+  loadSecondary = true,
   /** Загальна кількість друзів у цієї людини (з API GET /users/:username); показується, коли ти на неї підписана */
   friendsCount: friendsCountProp,
   onAddToVip,
@@ -32,7 +36,9 @@ export default function ProfileVisitorSubscribed({
   onOpenUser,
   onViewPhoto: onViewPhotoExternal,
 }) {
-  const [activeTab, setActiveTab] = useState("delete"); // delete | info | stories | video | photo — як у макеті перший таб «Удалить» виділений
+  const { t } = useTranslation();
+  const tabs = useProfileTabs({ includeUnsubscribe: true, withLocks: true });
+  const [activeTab, setActiveTab] = useState("delete");
   const [viewImageUrl, setViewImageUrl] = useState(null);
   const [profileStories, setProfileStories] = useState([]);
   const [profileStoriesLoading, setProfileStoriesLoading] = useState(false);
@@ -54,6 +60,8 @@ export default function ProfileVisitorSubscribed({
   const nickname = user?.username || user?.nick || user?.nickname || "";
   const profileUserId = user?.id || user?._id || postsAuthorId;
   useEffect(() => {
+    if (!loadSecondary) return;
+
     let cancelled = false;
 
     const loadProfileStories = async () => {
@@ -65,7 +73,9 @@ export default function ProfileVisitorSubscribed({
       try {
         setProfileStoriesLoading(true);
 
-        const list = await storiesApi.getUserStories(profileUserId);
+        const list = await dedupeAsync(`stories:user:${profileUserId}`, () =>
+          storiesApi.getUserStories(profileUserId),
+        );
 
         if (cancelled) return;
 
@@ -91,10 +101,10 @@ export default function ProfileVisitorSubscribed({
     return () => {
       cancelled = true;
     };
-  }, [profileUserId]);
+  }, [profileUserId, loadSecondary]);
   const fullName = [user?.firstName, user?.lastName].filter(Boolean).join(" ").trim() || "";
   const location = [user?.city, user?.country].filter(Boolean).join(", ").trim() || "";
-  const displayName = fullName || nickname || "Користувач";
+  const displayName = fullName || nickname || t('common.user');
 
   const displayAvatar = user?.avatarUrl || user?.avatar || "/Logo/photo.png";
   const hasProfileStories = profileStories.length > 0;
@@ -141,17 +151,8 @@ export default function ProfileVisitorSubscribed({
   const authorId = postsAuthorId ?? user?.id ?? user?._id;
   const feedTitleName = nickname || displayName;
   const { feedPosts, feedLoading, feedError, feedActions } =
-    useProfileAuthorFeed(authorId);
+    useProfileAuthorFeed(authorId, { enabled: loadSecondary });
   const userProfileNav = useUserProfileNav();
-
-  /** Таби як у макеті: спочатку Удалить (з градієнтом коли активний), потім Інформація, Історії, Відео, Фото */
-  const tabs = [
-    { id: "delete", label: "Отписаться", locked: false },
-    { id: "info", label: "Информация", locked: false },
-    { id: "stories", label: "Истории", locked: false },
-    { id: "video", label: "Видео", locked: true },
-    { id: "photo", label: "Фото", locked: true },
-  ];
 
   const onTabClick = (tabId) => {
     if (tabId === "delete") {
@@ -204,7 +205,7 @@ export default function ProfileVisitorSubscribed({
 
                 onViewPhoto?.(displayAvatar);
               }}
-              aria-label="Переглянути фото"
+              aria-label={t('profile.viewPhoto')}
             >
               <img src={displayAvatar} alt="" className="profile-visitor-subscribed__avatar" />
             </div>
@@ -232,52 +233,52 @@ export default function ProfileVisitorSubscribed({
                 type="button"
                 className="pvs-tools__vip"
                 onClick={onWriteMessage || onVipChat}
-                aria-label="Написать сообщение"
+                aria-label={t('profile.visitor.writeMessage')}
               >
                 <div className="pvs-tools__vipIconWrap">
                   <img src={profileIcons.chat} alt="" className="pvs-tools__vipIcon pvs-tools__vipIcon--full" aria-hidden="true" />
-                  <span className="pvs-tools__label">Написать сообщение</span>
+                  <span className="pvs-tools__label">{t('profile.visitor.writeMessage')}</span>
                 </div>
 
               </button>
-              <button type="button" className="pvs-tools__small" onClick={onGifts} aria-label="Подарки">
+              <button type="button" className="pvs-tools__small" onClick={onGifts} aria-label={t('profile.gifts')}>
                 <img src={profileIcons.giftIcon} alt="" className="pvs-tools__smallIcon" aria-hidden="true" />
-                <span className="pvs-tools__smallLabel">Подарки</span>
+                <span className="pvs-tools__smallLabel">{t('profile.gifts')}</span>
               </button>
-              <button type="button" className="pvs-tools__small" onClick={onReport} aria-label="Пожаловаться">
+              <button type="button" className="pvs-tools__small" onClick={onReport} aria-label={t('profile.visitor.report')}>
                 <img src={profileIcons.complaints} alt="" className="pvs-tools__smallIcon" aria-hidden="true" />
-                <span className="pvs-tools__smallLabel">Пожаловаться</span>
+                <span className="pvs-tools__smallLabel">{t('profile.visitor.report')}</span>
               </button>
             </div>
-            <button type="button" className="pvs-actions__vipBtn" onClick={onAddToVip} aria-label="Добавить в VIP">
-              <span className="pvs-actions__vipBtnText">Добавить в VIP</span>
+            <button type="button" className="pvs-actions__vipBtn" onClick={onAddToVip} aria-label={t('profile.visitor.addToVip')}>
+              <span className="pvs-actions__vipBtnText">{t('profile.visitor.addToVip')}</span>
               <img src="/icon-black/vip-button.svg" alt="" className="pvs-actions__vipBtnIcon" width={15} height={15} />
             </button>
           </div>
         </div>
       </section>
 
-      <div className="pvs-mobile-actions" aria-label="Дії профілю">
+      <div className="pvs-mobile-actions" aria-label={t('profile.visitor.profileActions')}>
         <button
           type="button"
           className="profile-visitor-subscribed__btnDelete"
           onClick={() => onTabClick("delete")}
         >
-          Отписаться
+          {t('profile.visitor.unsubscribe')}
         </button>
         <button
           type="button"
           className="pvs-actions__vipBtn pvs-actions__vipBtn--mobile"
           onClick={onAddToVip}
-          aria-label="Добавить в VIP"
+          aria-label={t('profile.visitor.addToVip')}
         >
-          <span className="pvs-actions__vipBtnText">Добавить в VIP</span>
+          <span className="pvs-actions__vipBtnText">{t('profile.visitor.addToVip')}</span>
           <img src="/icon-black/vip-button.svg" alt="" className="pvs-actions__vipBtnIcon" width={15} height={15} />
         </button>
       </div>
 
       {/* Таби як у макеті: Удалить (з градієнтом), Информация, Истории, Видео 🔒, Фото 🔒 */}
-      <div className="pvs-actions__tabs pvs-actions__tabs--standalone" role="tablist" aria-label="Табы профиля">
+      <div className="pvs-actions__tabs pvs-actions__tabs--standalone" role="tablist" aria-label={t('profile.visitor.profileTabs')}>
         {tabs.map((tab) => (
           <button
             key={tab.id}
@@ -294,7 +295,7 @@ export default function ProfileVisitorSubscribed({
         ))}
       </div>
 
-      <div className="pvs-tabs-mobile" role="tablist" aria-label="Табы профиля">
+      <div className="pvs-tabs-mobile" role="tablist" aria-label={t('profile.visitor.profileTabs')}>
         {tabs.filter((tab) => tab.id !== "delete").map((tab) => (
           <button
             key={tab.id}
@@ -319,9 +320,9 @@ export default function ProfileVisitorSubscribed({
       />
 
       {/* ===== FRIENDS: такий самий блок як у моєму профілі (vipCard, friendsTitle, vipRow, showMoreBtn) — тільки з його друзями ===== */}
-      <section className="vipCard profile-visitor-subscribed__friends" aria-label={displayFriendsCount > 0 ? `Друзья, всього ${displayFriendsCount}` : "Друзья"}>
+      <section className="vipCard profile-visitor-subscribed__friends" aria-label={t('profile.friends.titleWithCount', { count: displayFriendsCount })}>
         <div className="friendsTitle">
-          <span className="friendsTitle__label">Друзья</span>{" "}
+          <span className="friendsTitle__label">{t('profile.friends.title')}</span>{" "}
           <span className="friendsTitle__count">{displayFriendsCount}</span>
         </div>
 
@@ -344,7 +345,9 @@ export default function ProfileVisitorSubscribed({
                         onClick={() => openFriendProfile(f)}
                         disabled={!canOpen}
                         aria-label={
-                          canOpen ? `Профіль ${handle}` : "Профіль недоступний"
+                          canOpen
+                            ? t('profile.friends.profileOf', { name: handle })
+                            : t('profile.friends.profileUnavailable')
                         }
                       >
                         <img
@@ -361,7 +364,9 @@ export default function ProfileVisitorSubscribed({
                           onClick={() => openFriendProfile(f)}
                           disabled={!canOpen}
                           aria-label={
-                            canOpen ? `Відкрити профіль ${handle}` : undefined
+                            canOpen
+                              ? t('profile.friends.openProfile', { name: handle })
+                              : undefined
                           }
                         >
                           <img
@@ -385,12 +390,12 @@ export default function ProfileVisitorSubscribed({
               className="showMoreBtn"
               onClick={onShowMoreFriends}
             >
-              Показать больше
+              {t('profile.friends.showMore')}
             </button>
           </>
         ) : (
           <p className="profile-visitor-subscribed__friendsEmpty">
-            Поки немає друзів
+            {t('profile.friends.empty')}
           </p>
         )}
       </section>
@@ -412,14 +417,14 @@ export default function ProfileVisitorSubscribed({
           className="profile-visitor-subscribed__imageViewer"
           role="dialog"
           aria-modal="true"
-          aria-label="Фото в повному розмірі"
+          aria-label={t('profile.viewPhotoFull')}
           onClick={() => setViewImageUrl(null)}
         >
           <button
             type="button"
             className="profile-visitor-subscribed__imageViewerClose"
             onClick={() => setViewImageUrl(null)}
-            aria-label="Закрити"
+            aria-label={t('common.close')}
           >
             ×
           </button>

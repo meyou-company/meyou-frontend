@@ -1,19 +1,21 @@
 import { useCallback, useEffect, useState } from "react";
 import { postsApi } from "../services/postsApi";
+import { i18n } from "../i18n";
 import { mapApiPostToFeedItem } from "../utils/mapApiPostToFeedItem";
 import { getApiErrorMessage } from "../utils/getApiErrorMessage";
 import { applyPersistedLikes } from "../utils/postLikePersistence";
 import { sortPostsByNewest } from "../utils/repostFeed";
+import { dedupeAsync } from "../utils/dedupeAsync";
 import { useAuthStore } from "../zustand/useAuthStore";
 import { usePostFeedActions } from "./usePostFeedActions";
 
 /**
  * Завантаження стрічки постів автора (GET /posts/users/:id/posts) + кеш у localStorage.
- * Використовується на своєму профілі та на сторінці відвідуваного користувача.
+ * `enabled: false` — пропустити fetch (для відкладеного завантаження на профілі).
  */
-export function useProfileAuthorFeed(postsAuthorId) {
+export function useProfileAuthorFeed(postsAuthorId, { enabled = true } = {}) {
   const [feedPosts, setFeedPosts] = useState([]);
-  const [feedLoading, setFeedLoading] = useState(true);
+  const [feedLoading, setFeedLoading] = useState(Boolean(enabled && postsAuthorId));
   const [feedError, setFeedError] = useState("");
   const currentUserId = useAuthStore((s) => s.user?.id);
 
@@ -44,6 +46,7 @@ export function useProfileAuthorFeed(postsAuthorId) {
       if (Array.isArray(parsed) && parsed.length > 0) {
         setFeedPosts(parsed);
         setFeedError("");
+        setFeedLoading(false);
       }
     } catch {
       // ignore invalid cache
@@ -52,6 +55,7 @@ export function useProfileAuthorFeed(postsAuthorId) {
 
   useEffect(() => {
     if (!feedCacheKey || typeof window === "undefined") return;
+    if (!feedPosts.length) return;
     try {
       window.localStorage.setItem(feedCacheKey, JSON.stringify(feedPosts));
     } catch {
@@ -61,19 +65,25 @@ export function useProfileAuthorFeed(postsAuthorId) {
 
   useEffect(() => {
     let cancelled = false;
-    if (!postsAuthorId) {
-      setFeedPosts([]);
-      setFeedError("");
+
+    if (!enabled || !postsAuthorId) {
+      if (!postsAuthorId) {
+        setFeedPosts([]);
+        setFeedError("");
+      }
       setFeedLoading(false);
       return () => {
         cancelled = true;
       };
     }
+
     (async () => {
       try {
         setFeedLoading(true);
         setFeedError("");
-        const list = await postsApi.listByAuthor(postsAuthorId);
+        const list = await dedupeAsync(`posts:author:${postsAuthorId}`, () =>
+          postsApi.listByAuthor(postsAuthorId),
+        );
         const mapped = sortPostsByNewest(
           (Array.isArray(list) ? list : []).map(mapApiPostToFeedItem).filter(Boolean)
         );
@@ -82,24 +92,25 @@ export function useProfileAuthorFeed(postsAuthorId) {
         if (!cancelled) {
           const raw = getApiErrorMessage(err);
           const pretty = /^Cannot GET\s+/i.test(raw || "")
-            ? "Не вдалося завантажити пости профілю (маршрут недоступний на бекенді)."
+            ? i18n.t('feed.error.profileRoute')
             : /^Internal server error$/i.test(raw || "")
-              ? "Тимчасова помилка сервера при завантаженні постів."
+              ? i18n.t('feed.error.profileServer')
               : raw;
           setFeedError(
             pretty
               ? pretty
-              : "Не вдалося завантажити пости. Спробуйте оновити сторінку."
+              : i18n.t('feed.error.profileLoad')
           );
         }
       } finally {
         if (!cancelled) setFeedLoading(false);
       }
     })();
+
     return () => {
       cancelled = true;
     };
-  }, [postsAuthorId]);
+  }, [postsAuthorId, enabled]);
 
   return {
     feedPosts,

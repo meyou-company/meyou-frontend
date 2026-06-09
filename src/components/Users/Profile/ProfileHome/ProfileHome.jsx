@@ -1,6 +1,7 @@
 // ProfileHome.jsx
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
 import AvatarCropModal from "../../../AvatarCropModal/AvatarCropModal";
@@ -13,6 +14,7 @@ import {
   uploadPostImage,
 } from "../../../../services/postImageUploadApi";
 
+import MessagesNavBadge from "../../../Messages/MessagesNavBadge";
 import profileIcons from "../../../../constants/profileIcons";
 import { getFriendsCountNumber } from "../../../../utils/profileFriends";
 import {
@@ -20,6 +22,7 @@ import {
   getFriendRouteHandle,
   getFriendDisplayLabel,
 } from "../../../../utils/profileFriendNav";
+import { dedupeAsync } from "../../../../utils/dedupeAsync";
 import { mapApiPostToFeedItem } from "../../../../utils/mapApiPostToFeedItem";
 import { useProfileAuthorFeed } from "../../../../hooks/useProfileAuthorFeed";
 import ProfilePostsFeed from "../ProfilePostsFeed/ProfilePostsFeed";
@@ -41,6 +44,8 @@ export default function ProfileHome({
   user,
   /** User id whose posts to show — must match profile owner (GET /posts/users/:id/posts) */
   postsAuthorId,
+  /** Defer posts/stories fetch until profile shell is painted */
+  loadSecondary = true,
   /** Список з GET /subscriptions/following — для блоку «Друзья» на своєму профілі */
   followingList,
   /** Відкрити профіль користувача за username (клік по аватару друга) */
@@ -56,6 +61,7 @@ export default function ProfileHome({
   onSaved,
   onWallet,
 }) {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const fileInputRef = useRef(null);
   const composerTextareaRef = useRef(null);
@@ -85,7 +91,7 @@ export default function ProfileHome({
     feedLoading,
     feedError,
     feedActions,
-  } = useProfileAuthorFeed(postsAuthorId);
+  } = useProfileAuthorFeed(postsAuthorId, { enabled: loadSecondary });
 
   useEffect(() => {
     if (!viewImageUrl) return;
@@ -108,10 +114,12 @@ export default function ProfileHome({
   const fullNameReal =
     [user?.firstName, user?.lastName].filter(Boolean).join(" ") || "";
 
-  const titleName = username || fullNameReal || "User";
+  const titleName = username || fullNameReal || t('common.user');
   const displayAvatar = user?.avatarUrl || user?.avatar || "/Logo/photo.png";
   const profileUserId = user?.id || user?._id || postsAuthorId;
   useEffect(() => {
+    if (!loadSecondary) return;
+
     let cancelled = false;
 
     const loadProfileStories = async () => {
@@ -123,7 +131,9 @@ export default function ProfileHome({
       try {
         setProfileStoriesLoading(true);
 
-        const list = await storiesApi.getUserStories(profileUserId);
+        const list = await dedupeAsync(`stories:user:${profileUserId}`, () =>
+          storiesApi.getUserStories(profileUserId),
+        );
 
         if (cancelled) return;
 
@@ -155,7 +165,7 @@ export default function ProfileHome({
     return () => {
       cancelled = true;
     };
-  }, [profileUserId]);
+  }, [profileUserId, loadSecondary]);
   const hasProfileStories = profileStories.length > 0;
 
   const profileStoryGroups = hasProfileStories
@@ -189,8 +199,8 @@ export default function ProfileHome({
     (fullNameReal ? fullNameReal.split(/\s+/)[0] : "") ||
     (username || "");
   const composerPlaceholder = composerFirstName
-    ? `Що у вас нового, ${composerFirstName}?`
-    : "Що у вас нового?";
+    ? t('posts.placeholderWithName', { name: composerFirstName })
+    : t('posts.placeholder');
 
   const profileLocation =
     [user?.city, user?.country].filter(Boolean).join(", ") || "";
@@ -278,7 +288,7 @@ export default function ProfileHome({
     const trimmedText = newPostText.trim();
 
     if (!trimmedText && postMediaFiles.length === 0) {
-      toast.error("Додайте текст або фото");
+      toast.error(t('posts.validation.emptyTextOrPhoto'));
       return;
     }
 
@@ -287,9 +297,7 @@ export default function ProfileHome({
       const media = [];
       if (postMediaFiles.length > 0) {
         if (!isPostImageUploadEnabled()) {
-          toast.info(
-            "Завантаження медіа тимчасово недоступне. Пост буде опубліковано лише з текстом."
-          );
+          toast.info(t('posts.toast.mediaUploadDisabled'));
         } else {
           for (const [index, item] of postMediaFiles.entries()) {
             if (!item?.file) continue;
@@ -312,10 +320,10 @@ export default function ProfileHome({
               });
               toast.warning(
                 isUnavailable
-                  ? "Завантаження медіа тимчасово недоступне. Частина файлів не додана."
+                  ? t('posts.toast.mediaUploadPartial')
                   : details
-                    ? `Не вдалося завантажити файл: ${details}`
-                    : "Не вдалося завантажити один із файлів. Пост опубліковано без нього."
+                    ? `${t('posts.toast.editMediaUploadFileFailed')}: ${details}`
+                    : t('posts.toast.mediaUploadFileFailed')
               );
             }
           }
@@ -360,7 +368,7 @@ export default function ProfileHome({
         }
       }
 
-      toast.success("Пост опубліковано");
+      toast.success(t('posts.toast.published'));
       setNewPostText("");
       setPostLocation("");
       postMediaFiles.forEach((f) => {
@@ -369,7 +377,7 @@ export default function ProfileHome({
       setPostMediaFiles([]);
       closeComposer();
     } catch (err) {
-      const msg = getApiErrorMessage(err) || "Не вдалося опублікувати пост";
+      const msg = getApiErrorMessage(err) || t('posts.toast.publishFailed');
       toast.error(String(msg));
     } finally {
       setIsPublishingPost(false);
@@ -389,8 +397,8 @@ export default function ProfileHome({
     } catch (err) {
       const msg =
         err?.response?.status === 401
-          ? "Сесія закінчилась. Увійди знову."
-          : getApiErrorMessage(err) || "Не вдалося зберегти фото";
+          ? t('profile.toast.avatarSessionExpired')
+          : getApiErrorMessage(err) || t('profile.toast.avatarSaveError');
       toast.error(String(msg));
     } finally {
       setIsSaving(false);
@@ -441,7 +449,7 @@ export default function ProfileHome({
 
                       setViewImageUrl(displayAvatar);
                     }}
-                    aria-label="Переглянути фото в повному розмірі"
+                    aria-label={t('profile.viewPhotoFull')}
                   >
                     <img src={displayAvatar} alt={titleName} className="avatar" />
                   </div>
@@ -473,21 +481,21 @@ export default function ProfileHome({
 
             <div className="profileInfoAside">
               <div className="badgesRow">
-                <button type="button" className="badgeItem" onClick={onWallet} aria-label="Мій баланс">
+                <button type="button" className="badgeItem" onClick={onWallet} aria-label={t('profile.myBalance')}>
                   <img className="badgeIcon" src={profileIcons.balance} alt="" />
-                  <span className="badgeText">Мій баланс</span>
+                  <span className="badgeText">{t('profile.myBalance')}</span>
                 </button>
 
-                <button type="button" className="badgeItem" onClick={onSaved} aria-label="Збережені">
+                <button type="button" className="badgeItem" onClick={onSaved} aria-label={t('profile.saved')}>
                   <img className="badgeIcon" src={profileIcons.saved} alt="" />
-                  <span className="badgeText">Збережені</span>
+                  <span className="badgeText">{t('profile.saved')}</span>
                 </button>
               </div>
 
               <div className="profileMobileGifts">
-                <button type="button" className="profileMobileGifts__btn" onClick={onGifts} aria-label="Подарунки">
+                <button type="button" className="profileMobileGifts__btn" onClick={onGifts} aria-label={t('profile.gifts')}>
                   <img src={profileIcons.giftIcon} alt="" className="profileMobileGifts__icon" />
-                  <span className="profileMobileGifts__label">Подарунки</span>
+                  <span className="profileMobileGifts__label">{t('profile.gifts')}</span>
                 </button>
               </div>
             </div>
@@ -498,21 +506,24 @@ export default function ProfileHome({
             <div className="profileRight__stack">
               <button
                 type="button"
-                className="btnMessages"
+                className="btnMessages btnMessages--inbox"
                 onClick={onMessages}
-                aria-label="My messages"
+                aria-label={t('profile.myMessages')}
               >
-                <img src={profileIcons.chat} alt="" className="msgIcon" />
-                <span className="msgText">my messages</span>
+                <span className="btnMessages__iconWrap">
+                  <img src={profileIcons.chat} alt="" className="msgIcon" />
+                  <MessagesNavBadge />
+                </span>
+                <span className="msgText">{t('profile.myMessages')}</span>
               </button>
               <button
                 type="button"
                 className="btnMessages"
                 onClick={onGifts}
-                aria-label="My gifts"
+                aria-label={t('profile.myGifts')}
               >
                 <img src={profileIcons.giftIcon} alt="" className="msgIcon" />
-                <span className="msgText">my gifts</span>
+                <span className="msgText">{t('profile.myGifts')}</span>
               </button>
             </div>
 
@@ -520,10 +531,10 @@ export default function ProfileHome({
               type="button"
               className="btnSaved"
               onClick={onSaved}
-              aria-label="Saved"
+              aria-label={t('profile.saved')}
             >
               <img src={profileIcons.saved} alt="" className="msgIcon" />
-              <span className="msgText">saved</span>
+              <span className="msgText">{t('profile.saved')}</span>
             </button>
           </div>
         </section>
@@ -537,8 +548,8 @@ export default function ProfileHome({
                   <span className="actionRound">
                     <img src={actionIcons.plus} alt="" />
                   </span>
-                  <span className="actionLabel actionLabel--mobile">Історія</span>
-                  <span className="actionLabel actionLabel--desktop">Доповнити історію</span>
+                  <span className="actionLabel actionLabel--mobile">{t('profile.actions.addStoryShort')}</span>
+                  <span className="actionLabel actionLabel--desktop">{t('profile.actions.addStory')}</span>
                 </span>
                 <span className="actionRightDots" aria-hidden="true">•••</span>
               </button>
@@ -547,14 +558,14 @@ export default function ProfileHome({
                 className="actionBtn actionBtnDesktop"
                 type="button"
                 onClick={() => navigate("/video")}
-                aria-label="Відео, рілси"
+                aria-label={t('profile.actions.reels')}
               >
                 <span className="actionBtnLeft">
                   <span className="actionRound">
                     <img src={actionIcons.video} alt="" />
                   </span>
-                  <span className="actionLabel actionLabel--mobile">Reels</span>
-                  <span className="actionLabel actionLabel--desktop">Додати рілс</span>
+                  <span className="actionLabel actionLabel--mobile">{t('profile.actions.reels')}</span>
+                  <span className="actionLabel actionLabel--desktop">{t('profile.actions.addReels')}</span>
                 </span>
               </button>
 
@@ -563,8 +574,8 @@ export default function ProfileHome({
                   <span className="actionRound">
                     <img src={actionIcons.video} alt="" />
                   </span>
-                  <span className="actionLabel actionLabel--mobile">Ефір</span>
-                  <span className="actionLabel actionLabel--desktop">Прямий ефір</span>
+                  <span className="actionLabel actionLabel--mobile">{t('profile.actions.live')}</span>
+                  <span className="actionLabel actionLabel--desktop">{t('profile.actions.liveDesktop')}</span>
                 </span>
                 <span className="actionRightArrow" aria-hidden="true">›</span>
               </button>
@@ -575,9 +586,9 @@ export default function ProfileHome({
                 className="actionBtn"
                 type="button"
                 onClick={() => navigate("/video")}
-                aria-label="Відео, рілси"
+                aria-label={t('profile.actions.reels')}
               >
-                <span>Reels</span>
+                <span>{t('profile.actions.reels')}</span>
                 <img src={actionIcons.video} alt="" />
               </button>
 
@@ -586,25 +597,25 @@ export default function ProfileHome({
                 className="actionBtn"
                 onClick={onEditProfile}
               >
-                <span>Редактировать профиль</span>
+                <span>{t('profile.editProfile')}</span>
                 <img src={actionIcons.pencil} alt="" />
               </button>
 
-              <button className="actionBtn actionMore" type="button" aria-label="Більше">
+              <button className="actionBtn actionMore" type="button" aria-label={t('profile.more')}>
                 …
               </button>
             </div>
 
             <div className="actionsRow2">
               <button className="actionBtn" type="button">
-                <span>Історія</span>
+                <span>{t('profile.actions.addStoryShort')}</span>
                 <span className="actionPlus">
                   <img src={actionIcons.plus} alt="" />
                 </span>
               </button>
 
               <button className="actionBtn" type="button">
-                <span>Ефір</span>
+                <span>{t('profile.actions.live')}</span>
                 <img src={actionIcons.video} alt="" />
               </button>
             </div>
@@ -614,7 +625,7 @@ export default function ProfileHome({
         {/* ================= VIP / FRIENDS ================= */}
         <section className="vipCard">
           <div className="friendsTitle">
-            <span className="friendsTitle__label">Друзья</span>{" "}
+            <span className="friendsTitle__label">{t('profile.friends.title')}</span>{" "}
             <span className="friendsTitle__count">{displayFriendsCount}</span>
           </div>
 
@@ -634,7 +645,9 @@ export default function ProfileHome({
                           onClick={() => openFriendProfile(v)}
                           disabled={!canOpen}
                           aria-label={
-                            canOpen ? `Профіль ${handle}` : "Профіль недоступний"
+                            canOpen
+                              ? t('profile.friends.profileOf', { name: handle })
+                              : t('profile.friends.profileUnavailable')
                           }
                         >
                           <img
@@ -651,7 +664,9 @@ export default function ProfileHome({
                             onClick={() => openFriendProfile(v)}
                             disabled={!canOpen}
                             aria-label={
-                              canOpen ? `Відкрити профіль ${handle}` : undefined
+                              canOpen
+                                ? t('profile.friends.openProfile', { name: handle })
+                                : undefined
                             }
                           >
                             <img
@@ -675,7 +690,7 @@ export default function ProfileHome({
                 type="button"
                 onClick={onShowMore}
               >
-                Переглянути друзів
+                {t('profile.friends.viewFriends')}
               </button>
             </>
           ) : (
@@ -685,7 +700,7 @@ export default function ProfileHome({
                 className="showMoreBtn"
                 onClick={onFindFriends ?? onShowMore}
               >
-                Знайти друзів
+                {t('profile.friends.findFriends')}
               </button>
             </div>
           )}
@@ -694,7 +709,7 @@ export default function ProfileHome({
         {/* ================= NEW POST ================= */}
         <section className="newPost">
           <div className="newPostHead">
-            <h3 className="newPostTitle">Створити допис</h3>
+            <h3 className="newPostTitle">{t('posts.createTitle')}</h3>
           </div>
 
           <button
@@ -733,7 +748,7 @@ export default function ProfileHome({
           showOnlineDot={user?.online !== false}
           text={newPostText}
           onTextChange={setNewPostText}
-          placeholder="Що у вас нового?"
+          placeholder={t('posts.placeholder')}
           textareaRef={composerTextareaRef}
           postMediaFiles={postMediaFiles}
           onRemoveMedia={removePostMedia}
@@ -763,14 +778,14 @@ export default function ProfileHome({
           className="profile-home__imageViewer"
           role="dialog"
           aria-modal="true"
-          aria-label="Фото в повному розмірі"
+          aria-label={t('profile.viewPhotoFull')}
           onClick={() => setViewImageUrl(null)}
         >
           <button
             type="button"
             className="profile-home__imageViewerClose"
             onClick={() => setViewImageUrl(null)}
-            aria-label="Закрити"
+            aria-label={t('common.close')}
           >
             ×
           </button>

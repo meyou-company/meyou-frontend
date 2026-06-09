@@ -14,11 +14,23 @@ import {
 } from '../services/authSession';
 import { passwordApi } from '../services/passwordApi';
 import { disconnectSocket } from '../services/socket';
-import { useNotificationsStore } from './useNotificationsStore';
+import { useMessagesStore } from './useMessagesStore';
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 const OAUTH_CALLBACK_PATHS = new Set(['/auth/google/success', '/auth/callback']);
+
+let initCompleted = false;
+let initInFlight = null;
+
+function markInitDone() {
+  initCompleted = true;
+}
+
+function resetInitState() {
+  initCompleted = false;
+  initInFlight = null;
+}
 
 function isOAuthCallbackPath() {
   if (typeof window === 'undefined') return false;
@@ -29,6 +41,8 @@ function isOAuthCallbackPath() {
 function clearAuthSession(set) {
   disconnectSocket();
   clearOAuthSessionTokens();
+  useMessagesStore.getState().reset();
+  resetInitState();
   set({ user: null, token: null, isAuthed: false });
 }
 
@@ -36,7 +50,7 @@ async function loadMeWithRetry(retries = 2, delayMs = 200) {
   let lastErr;
   for (let attempt = 0; attempt <= retries; attempt += 1) {
     try {
-      return await authApi.me();
+      return await authApi.me({ force: attempt > 0 });
     } catch (e) {
       lastErr = e;
       const status = e?.response?.status;
@@ -73,56 +87,65 @@ export const useAuthStore = create((set) => ({
   clearSession: () => clearAuthSession(set),
 
   init: async () => {
-    set({ isAuthLoading: true });
+    if (initCompleted) return;
+    if (initInFlight) return initInFlight;
 
-    if (isOAuthCallbackPath()) {
-      set({ isAuthLoading: false });
-      return;
-    }
+    initInFlight = (async () => {
+      set({ isAuthLoading: true });
 
-    try {
+      if (isOAuthCallbackPath()) {
+        set({ isAuthLoading: false });
+        markInitDone();
+        return;
+      }
+
       try {
-        const user = await authApi.me();
+        try {
+          const user = await authApi.me();
+          const token = await ensureAccessTokenInStore(
+            set,
+            user,
+            getSessionAccessToken(),
+          );
+          if (token) {
+            markInitDone();
+            return;
+          }
+        } catch (e) {
+          const status = e?.response?.status;
+          if (status === 401) {
+            clearSessionAccessToken();
+            set({ token: null });
+          } else {
+            throw e;
+          }
+        }
+
+        const refreshData = await authApi.refresh();
+        const user = await authApi.me({ force: true });
         const token = await ensureAccessTokenInStore(
           set,
           user,
-          getSessionAccessToken(),
+          pickAccessToken(refreshData) ?? getSessionAccessToken(),
         );
-        if (token) {
-          await useNotificationsStore.getState().fetchUnreadCount();
-          return;
+        if (!token) {
+          throw new Error('init: session restored without access token');
         }
-      } catch (e) {
-        const status = e?.response?.status;
-        if (status === 401) {
-          clearSessionAccessToken();
-          set({ token: null });
-        } else {
-          throw e;
-        }
+        markInitDone();
+      } catch (err) {
+        console.log(
+          '[init] session restore failed:',
+          err?.response?.status,
+          err?.response?.data ?? err?.message,
+        );
+        clearAuthSession(set);
+      } finally {
+        set({ isAuthLoading: false });
+        initInFlight = null;
       }
+    })();
 
-      const refreshData = await authApi.refresh();
-      const user = await authApi.me();
-      const token = await ensureAccessTokenInStore(
-        set,
-        user,
-        pickAccessToken(refreshData) ?? getSessionAccessToken(),
-      );
-      if (!token) {
-        throw new Error('init: session restored without access token');
-      }
-      await useNotificationsStore.getState().fetchUnreadCount();
-    } catch (err) {
-      console.log(
-        '[init] session restore failed:',
-        err?.response?.status,
-        err?.response?.data ?? err?.message,
-      );
-      clearAuthSession(set);
-    } finally {
-      set({ isAuthLoading: false });
-    }
+    return initInFlight;
   },
 
   login: async (payload) => {
@@ -133,6 +156,7 @@ export const useAuthStore = create((set) => ({
       const accessToken = pickAccessToken(res);
       persistOAuthSessionTokens(accessToken, res?.refreshToken ?? res?.refresh_token);
       set({ user, token: accessToken, isAuthed: true });
+      markInitDone();
       return { ok: true };
     } catch (e) {
       console.error('[login] failed:', e?.response?.data ?? e?.message);
@@ -219,7 +243,7 @@ export const useAuthStore = create((set) => ({
 
   refreshMe: async () => {
     try {
-      const user = await authApi.me();
+      const user = await authApi.me({ force: true });
       const token = await ensureAccessTokenInStore(
         set,
         user,
@@ -235,7 +259,7 @@ export const useAuthStore = create((set) => ({
         clearSessionAccessToken();
         try {
           const refreshData = await authApi.refresh();
-          const user = await authApi.me();
+          const user = await authApi.me({ force: true });
           const token = await ensureAccessTokenInStore(
             set,
             user,

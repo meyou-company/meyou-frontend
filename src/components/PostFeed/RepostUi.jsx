@@ -1,14 +1,14 @@
-import profileIcons from "../../constants/profileIcons";
+import { useTranslation } from 'react-i18next';
+import profileIcons from '../../constants/profileIcons';
 import {
   getRepostEmbedLabelText,
   isRepostVariantB,
   showRepostHeaderIcon,
   showRepostEmbedLabel,
-} from "../../utils/repostUi";
-import "./RepostUi.scss";
+} from '../../utils/repostUi';
+import './RepostUi.scss';
 
-/** Іконка репосту (два стрілки), не share-стрілка */
-export function RepostGlyph({ className = "" }) {
+export function RepostGlyph({ className = '' }) {
   return (
     <img
       src={profileIcons.repost}
@@ -22,11 +22,12 @@ export function RepostGlyph({ className = "" }) {
   );
 }
 
-/** Variant A: маленька іконка репосту біля автора / часу */
-export function RepostHeaderIcon({ className = "" }) {
+export function RepostHeaderIcon({ className = '' }) {
+  const { t } = useTranslation();
+
   if (!showRepostHeaderIcon()) return null;
 
-  const aria = "Поширений допис";
+  const aria = t('posts.repost.sharedAria');
 
   return (
     <span
@@ -39,9 +40,9 @@ export function RepostHeaderIcon({ className = "" }) {
   );
 }
 
-/** Variants B / C: тонкий підпис над вкладеним дописом */
 export function RepostEmbedLabel({ author }) {
-  const text = getRepostEmbedLabelText(author);
+  const { t } = useTranslation();
+  const text = getRepostEmbedLabelText(author, t);
   if (!showRepostEmbedLabel() || !text) return null;
 
   return (

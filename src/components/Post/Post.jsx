@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useParams, useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import { postsApi } from '../../services/postsApi';
 import profileIcons from '../../constants/profileIcons';
@@ -16,12 +17,13 @@ import {
   mergeCommentLikeResponse,
 } from '../../utils/mergeCommentLikeResponse';
 import { getApiErrorMessage } from '../../utils/getApiErrorMessage';
-import { formatPostTime } from '../../utils/formatPostTime';
+import { formatRelativeTime } from '../../utils/formatPostTime';
 import '../PostFeed/CommentLikeButton.scss';
 
 import './Post.scss';
 
 export default function Post({ onGoBack, onGoProfile }) {
+  const { t } = useTranslation();
   const { postId } = useParams();
   const location = useLocation();
 
@@ -55,8 +57,8 @@ export default function Post({ onGoBack, onGoProfile }) {
     }
   }, [focus]);
 
-  if (loading) return <p>Loading...</p>;
-  if (!post) return <p>Post not found</p>;
+  if (loading) return <p>{t('posts.page.loading')}</p>;
+  if (!post) return <p>{t('posts.page.notFound')}</p>;
 
   return (
     <div className="post-page">
@@ -71,25 +73,35 @@ export default function Post({ onGoBack, onGoProfile }) {
   );
 }
 
-const Header = ({ onBack, onClick, post }) => {
+function Header({ onBack, onClick, post }) {
+  const { t } = useTranslation();
+
   return (
     <header className="post-page__topbar">
       <button className="post-page__back post-page__back--mobile" onClick={onBack}>
-        <img className="post-page__back-icon" src={profileIcons.arrowLeftFilledBlack} alt="Back" />
+        <img
+          className="post-page__back-icon"
+          src={profileIcons.arrowLeftFilledBlack}
+          alt={t('posts.page.back')}
+        />
       </button>
 
       <button className="post-page__back post-page__back--tablet" onClick={onBack}>
-        <img className="post-page__back-icon" src={profileIcons.arrowLeftBlack} alt="Back" />
+        <img
+          className="post-page__back-icon"
+          src={profileIcons.arrowLeftBlack}
+          alt={t('posts.page.back')}
+        />
       </button>
 
-      <h1 className="post-page__title">Post</h1>
+      <h1 className="post-page__title">{t('posts.page.title')}</h1>
 
       <button className="post-page__account" onClick={onClick}>
-        <img src={post.author.avatarUrl} alt="Account" />
+        <img src={post.author.avatarUrl} alt={t('posts.page.account')} />
       </button>
     </header>
   );
-};
+}
 
 function PostCard({ post }) {
   return (
@@ -120,15 +132,16 @@ function PostCard({ post }) {
       </div>
     </div>
   );
-};
+}
 
 function Comments({ postId, autoOpen }) {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(autoOpen);
 
   if (!open) {
     return (
       <button type="button" className="comments__openBtn" onClick={() => setOpen(true)}>
-        Показати коментарі
+        {t('posts.page.showComments')}
       </button>
     );
   }
@@ -137,15 +150,15 @@ function Comments({ postId, autoOpen }) {
 }
 
 function CommentCard({ comment, onToggleLike, onMissingId, likingId }) {
+  const { t } = useTranslation();
   const author = comment.author;
   const name = author
     ? [author.firstName, author.lastName].filter(Boolean).join(' ').trim() ||
       author.username ||
-      'User'
-    : 'User';
-  const avatar =
-    author?.avatarUrl || profileIcons.userStory;
-  const timeLabel = formatPostTime(comment.createdAt);
+      t('common.user')
+    : t('common.user');
+  const avatar = author?.avatarUrl || profileIcons.userStory;
+  const timeLabel = formatRelativeTime(comment.createdAt, t);
 
   return (
     <div className="comments__item">
@@ -175,7 +188,7 @@ function CommentCard({ comment, onToggleLike, onMissingId, likingId }) {
 
         <div className="comments__actions">
           <button type="button" className="comments__replyBtn">
-            Відповісти
+            {t('comments.reply')}
           </button>
           <CommentLikeButton
             comment={comment}
@@ -190,6 +203,7 @@ function CommentCard({ comment, onToggleLike, onMissingId, likingId }) {
 }
 
 function CommentsList({ postId }) {
+  const { t } = useTranslation();
   const [comments, setComments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [likingId, setLikingId] = useState(null);
@@ -202,14 +216,14 @@ function CommentsList({ postId }) {
         const list = await postsApi.listComments(postId);
         setComments(organizeComments(Array.isArray(list) ? list : []));
       } catch (e) {
-        toast.error(getApiErrorMessage(e) || 'Не вдалося завантажити коментарі');
+        toast.error(getApiErrorMessage(e) || t('comments.loadFailed'));
       } finally {
         setLoading(false);
       }
     };
 
     fetchComments();
-  }, [postId]);
+  }, [postId, t]);
 
   const handleToggleCommentLike = useCallback(async (commentId) => {
     if (!commentId || likingId) return;
@@ -218,7 +232,7 @@ function CommentsList({ postId }) {
 
     const id = getCommentBackendId(comment);
     if (!id) {
-      toast.error('Comment id is missing');
+      toast.error(t('posts.toast.commentIdMissing'));
       return;
     }
     if (!comment) return;
@@ -238,16 +252,16 @@ function CommentsList({ postId }) {
       );
     } catch (e) {
       setComments((prev) => updateCommentInTree(prev, id, () => snapshot));
-      toast.error(getApiErrorMessage(e) || 'Не вдалося поставити лайк');
+      toast.error(getApiErrorMessage(e) || t('posts.toast.commentLikeFailed'));
     } finally {
       setLikingId(null);
     }
-  }, [comments, likingId]);
+  }, [comments, likingId, t]);
 
-  if (loading) return <p className="comments__loading">Loading comments...</p>;
+  if (loading) return <p className="comments__loading">{t('comments.loading')}</p>;
 
   if (!comments.length) {
-    return <p className="comments__empty">No comments yet</p>;
+    return <p className="comments__empty">{t('comments.empty')}</p>;
   }
 
   return (
@@ -257,7 +271,7 @@ function CommentsList({ postId }) {
           key={c.id}
           comment={c}
           onToggleLike={handleToggleCommentLike}
-          onMissingId={() => toast.error('Comment id is missing')}
+          onMissingId={() => toast.error(t('posts.toast.commentIdMissing'))}
           likingId={likingId}
         />
       ))}
