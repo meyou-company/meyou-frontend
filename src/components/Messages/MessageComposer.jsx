@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { LuPaperclip } from 'react-icons/lu';
 import { toast } from 'sonner';
+import EmojiPickerButton from '../EmojiPicker/EmojiPickerButton';
 import profileIcons from '../../constants/profileIcons';
 import { useTypingEmitter } from '../../hooks/useTypingEmitter';
 import {
@@ -38,6 +39,8 @@ export default function MessageComposer({
   const galleryInputRef = useRef(null);
   const cameraInputRef = useRef(null);
   const fileInputRef = useRef(null);
+  const inputRef = useRef(null);
+  const inputWrapRef = useRef(null);
   const [recording, setRecording] = useState(false);
   const [uploadingFile, setUploadingFile] = useState(false);
   const [pendingAttachments, setPendingAttachments] = useState([]);
@@ -45,7 +48,7 @@ export default function MessageComposer({
   const recordChunksRef = useRef([]);
 
   const busy = sending || uploadingFile;
-  const hasText = Boolean(value?.trim());
+  const hasText = Boolean((value ?? '').trim());
   const hasPending = pendingAttachments.length > 0;
   const canSend = (hasText || hasPending) && !busy;
 
@@ -122,25 +125,24 @@ export default function MessageComposer({
     emitTyping();
   };
 
+  const handleEmojiChange = useCallback(
+    (nextValue) => {
+      onChange?.(nextValue);
+      emitTyping();
+    },
+    [onChange, emitTyping],
+  );
+
   const handleFileSelect = (source) => (e) => {
     const files = e.target.files;
-    const count = files?.length ?? 0;
-    console.log('files selected', count, source);
-    if (count) {
+    if (files?.length) {
       addPendingFiles(files);
     }
     e.target.value = '';
   };
 
-  const openFileInput = (inputRef, debugLabel) => {
-    console.log(`${debugLabel} button clicked`);
-    const input = inputRef.current;
-    if (!input) {
-      console.warn('[MessageComposer] file input ref missing:', debugLabel);
-      return;
-    }
-    console.log('file input opened', debugLabel);
-    input.click();
+  const openFileInput = (inputRef) => {
+    inputRef.current?.click();
   };
 
   const stopRecording = () => {
@@ -211,10 +213,11 @@ export default function MessageComposer({
       />
 
       <div className="msgComposer__row">
-        <div className="msgComposer__inputWrap">
+        <div ref={inputWrapRef} className="msgComposer__inputWrap">
           <input
+            ref={inputRef}
             className="msgComposer__input"
-            value={value}
+            value={value ?? ''}
             onChange={handleChange}
             onBlur={stopTyping}
             placeholder={t('messenger.placeholder')}
@@ -222,14 +225,27 @@ export default function MessageComposer({
             disabled={busy}
             aria-label={t('messenger.placeholder')}
           />
-          <button
-            type="submit"
-            className="msgComposer__send"
-            disabled={!canSend}
-            aria-label={t('messenger.composer.sendAria')}
-          >
-            <img src="/icon1/push.png" alt="" aria-hidden="true" />
-          </button>
+          <div className="msgComposer__inputActions">
+            <EmojiPickerButton
+              inputRef={inputRef}
+              value={value ?? ''}
+              onChange={handleEmojiChange}
+              variant="inline"
+              popoverContainerRef={inputWrapRef}
+              pickerClassName="emojiPickerPopup"
+              closeOnSelect
+              className="msgComposer__emojiBtn"
+              ariaLabel={t('messenger.composer.addEmoji')}
+            />
+            <button
+              type="submit"
+              className="msgComposer__send"
+              disabled={!canSend}
+              aria-label={t('messenger.composer.sendAria')}
+            >
+              <img src="/icon1/push.png" alt="" aria-hidden="true" />
+            </button>
+          </div>
         </div>
 
         <div className="msgComposer__actions">
@@ -245,7 +261,7 @@ export default function MessageComposer({
           <button
             type="button"
             className="msgComposer__actionBtn"
-            onClick={() => openFileInput(cameraInputRef, 'camera')}
+            onClick={() => openFileInput(cameraInputRef)}
             disabled={busy}
             aria-label={t('messenger.composer.cameraAria')}
           >
@@ -254,7 +270,7 @@ export default function MessageComposer({
           <button
             type="button"
             className="msgComposer__actionBtn"
-            onClick={() => openFileInput(galleryInputRef, 'gallery')}
+            onClick={() => openFileInput(galleryInputRef)}
             disabled={busy}
             aria-label={t('messenger.composer.galleryAria')}
           >
@@ -263,7 +279,7 @@ export default function MessageComposer({
           <button
             type="button"
             className="msgComposer__actionBtn"
-            onClick={() => openFileInput(fileInputRef, 'file')}
+            onClick={() => openFileInput(fileInputRef)}
             disabled={busy}
             aria-label={t('messenger.composer.fileAria')}
           >

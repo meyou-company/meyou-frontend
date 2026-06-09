@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { getMyReactionEmoji } from '../../constants/messageReactions';
 import { isMessageSeenByPeer } from '../../utils/messageReadReceipt';
+import { isEmojiOnlyMessage, splitMessageTextWithEmoji } from '../../utils/messageTextDisplay';
 import MessageAttachments from './MessageAttachments';
 import MessageReactionBar from './MessageReactionBar';
 import './MessageBubble.scss';
@@ -14,6 +15,38 @@ function ReadReceipt({ isSeen }) {
     <span className={`msgBubble__checks${isSeen ? ' is-read' : ''}`} aria-hidden="true">
       {isSeen ? '✓✓' : '✓'}
     </span>
+  );
+}
+
+function MessageText({ text }) {
+  if (!text) return null;
+
+  const emojiOnly = isEmojiOnlyMessage(text);
+  const className = `msgBubble__text${emojiOnly ? ' msgBubble__text--emojiOnly' : ''}`;
+
+  if (emojiOnly) {
+    return <p className={className}>{text}</p>;
+  }
+
+  const parts = splitMessageTextWithEmoji(text);
+  const hasEmoji = parts.some((part) => part.type === 'emoji');
+
+  if (!hasEmoji) {
+    return <p className={className}>{text}</p>;
+  }
+
+  return (
+    <p className={className}>
+      {parts.map((part, index) =>
+        part.type === 'emoji' ? (
+          <span key={`${index}-${part.value}`} className="msgBubble__emoji">
+            {part.value}
+          </span>
+        ) : (
+          part.value
+        ),
+      )}
+    </p>
   );
 }
 
@@ -200,7 +233,7 @@ export default function MessageBubble({
                 isMine={isMine}
                 messageType={message.type}
               />
-              {message.text ? <p className="msgBubble__text">{message.text}</p> : null}
+              {message.text ? <MessageText text={message.text} /> : null}
             </>
           )}
 

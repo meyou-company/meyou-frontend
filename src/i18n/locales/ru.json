@@ -411,7 +411,8 @@
       "sendAria": "Отправить",
       "fileAria": "Прикрепить файл",
       "attachmentsPreview": "Вложения для отправки",
-      "removeAttachment": "Удалить вложение"
+      "removeAttachment": "Удалить вложение",
+      "addEmoji": "Добавить эмодзи"
     },
     "deletedMessage": "Сообщение удалено",
     "previewPhoto": "Фото",

@@ -411,7 +411,8 @@
       "sendAria": "Надіслати",
       "fileAria": "Прикріпити файл",
       "attachmentsPreview": "Вкладення для відправки",
-      "removeAttachment": "Прибрати вкладення"
+      "removeAttachment": "Прибрати вкладення",
+      "addEmoji": "Додати емодзі"
     },
     "deletedMessage": "Повідомлення видалено",
     "previewPhoto": "Фото",

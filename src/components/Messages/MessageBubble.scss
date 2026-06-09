@@ -136,6 +136,18 @@
   word-break: break-word;
 }
 
+.msgBubble__emoji {
+  font-size: 1.65em;
+  line-height: 1.1;
+  vertical-align: -0.08em;
+}
+
+.msgBubble__text--emojiOnly {
+  font-size: 2.25rem;
+  line-height: 1.2;
+  letter-spacing: 0.02em;
+}
+
 .msgBubble__footer {
   display: flex;
   align-items: center;
@@ -212,6 +224,12 @@
 .msgBubble__reactionCount {
   font-size: 10px;
   font-weight: 600;
+}
+
+@media (max-width: 640px) {
+  .msgBubble__text--emojiOnly {
+    font-size: 2rem;
+  }
 }
 
 body.dark,

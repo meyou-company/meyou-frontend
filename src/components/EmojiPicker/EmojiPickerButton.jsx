@@ -26,6 +26,8 @@ export default function EmojiPickerButton({
   variant = "default",
   /** Якщо задано — popup рендериться в цей контейнер (position: relative на ньому) */
   popoverContainerRef,
+  /** Закрити popup після вибору emoji */
+  closeOnSelect = false,
 }) {
   const [open, setOpen] = useState(false);
   const wrapRef = useRef(null);
@@ -80,8 +82,9 @@ export default function EmojiPickerButton({
       );
       pendingSelection.current = selectionStart;
       onChange(nextValue);
+      if (closeOnSelect) setOpen(false);
     },
-    [value, onChange, inputRef]
+    [value, onChange, inputRef, closeOnSelect]
   );
 
   const toggleOpen = () => {

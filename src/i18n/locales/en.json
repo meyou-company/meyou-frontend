@@ -411,7 +411,8 @@
       "sendAria": "Send",
       "fileAria": "Attach file",
       "attachmentsPreview": "Attachments to send",
-      "removeAttachment": "Remove attachment"
+      "removeAttachment": "Remove attachment",
+      "addEmoji": "Add emoji"
     },
     "deletedMessage": "Message deleted",
     "previewPhoto": "Photo",

@@ -54,10 +54,11 @@
 }
 
 .msgComposer__inputWrap {
+  position: relative;
   flex: 1;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 4px;
   min-width: 0;
   height: 52px;
   padding: 4px 6px 4px 22px;
@@ -65,6 +66,32 @@
   background: #ffffff;
   border: 1px solid rgba(183, 140, 255, 0.12);
   box-shadow: 0 2px 12px rgba(120, 80, 180, 0.08);
+  overflow: visible;
+}
+
+.msgComposer__inputActions {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  flex-shrink: 0;
+}
+
+.msgComposer__emojiBtn.emoji-picker-btn--inline .emoji-picker-btn__trigger {
+  width: 34px;
+  height: 34px;
+}
+
+.msgComposer__inputWrap .emojiPickerPopup,
+.msgComposer__inputWrap .emoji-picker-btn__popover--inputWrapper {
+  position: absolute;
+  right: 8px;
+  bottom: calc(100% + 8px);
+  left: auto;
+  top: auto;
+  z-index: 10000;
+  width: min(300px, calc(100vw - 24px));
+  max-width: calc(100vw - 24px);
+  transform: none;
 }
 
 .msgComposer__input {
@@ -194,6 +221,16 @@
   .msgComposer__inputWrap {
     height: 46px;
     padding-left: 16px;
+  }
+
+  .msgComposer__inputWrap .emojiPickerPopup,
+  .msgComposer__inputWrap .emoji-picker-btn__popover--inputWrapper {
+    right: 0;
+  }
+
+  .msgComposer__emojiBtn.emoji-picker-btn--inline .emoji-picker-btn__trigger {
+    width: 30px;
+    height: 30px;
   }
 
   .msgComposer__send {
