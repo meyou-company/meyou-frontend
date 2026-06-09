@@ -1,18 +1,17 @@
 import { useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { getMyReactionEmoji } from '../../constants/messageReactions';
+import { isMessageSeenByPeer } from '../../utils/messageReadReceipt';
 import MessageAttachments from './MessageAttachments';
 import MessageReactionBar from './MessageReactionBar';
 import './MessageBubble.scss';
 
 const LONG_PRESS_MS = 500;
 
-function ReadReceipt({ deliveryStatus, readAt }) {
-  const seen = deliveryStatus === 'SEEN' || Boolean(readAt);
-
+function ReadReceipt({ isSeen }) {
   return (
-    <span className={`msgBubble__checks${seen ? ' is-read' : ''}`} aria-hidden="true">
-      {seen ? '✓✓' : '✓'}
+    <span className={`msgBubble__checks${isSeen ? ' is-read' : ''}`} aria-hidden="true">
+      {isSeen ? '✓✓' : '✓'}
     </span>
   );
 }
@@ -36,6 +35,7 @@ export default function MessageBubble({
   onOpenMenu,
   onReactionSelect,
   highlight = false,
+  seenMessageIds,
 }) {
   const { t } = useTranslation();
   const [showReactions, setShowReactions] = useState(false);
@@ -45,6 +45,7 @@ export default function MessageBubble({
   const deletedForEveryone = message.deletedForEveryone === true;
   const myReaction = getMyReactionEmoji(message.reactions, currentUserId);
   const reactionSummary = aggregateReactions(message.reactions || []);
+  const isSeenByPeer = isMessageSeenByPeer(message, seenMessageIds);
 
   const timeLabel = (() => {
     if (!message.createdAt) return '';
@@ -181,12 +182,7 @@ export default function MessageBubble({
             <time className="msgBubble__time" dateTime={message.createdAt || undefined}>
               {timeLabel}
             </time>
-            {isMine ? (
-              <ReadReceipt
-                deliveryStatus={message.deliveryStatus}
-                readAt={message.readAt}
-              />
-            ) : null}
+            {isMine ? <ReadReceipt isSeen={isSeenByPeer} /> : null}
           </div>
         </div>
       </div>

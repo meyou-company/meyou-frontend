@@ -29,6 +29,12 @@ import ReportMessageModal from '../../components/Messages/ReportMessageModal';
 import TypingIndicator from '../../components/Messages/TypingIndicator';
 import { conversationsApi } from '../../services/conversationsApi';
 import { getApiErrorMessage } from '../../utils/getApiErrorMessage';
+import {
+  collectSeenOutgoingIds,
+  extractSeenTargetIds,
+  markOutgoingSeenFromEnvelope,
+  mergeSeenMessageIds,
+} from '../../utils/messageReadReceipt';
 import { useMessageActions } from '../../hooks/useMessageActions';
 import { useAuthStore } from '../../zustand/useAuthStore';
 import { useMessagesStore } from '../../zustand/useMessagesStore';
@@ -129,26 +135,6 @@ function applyReactionAdded(messages, envelope) {
   });
 }
 
-function isOutgoingSeen(message) {
-  return message?.deliveryStatus === 'SEEN' || Boolean(message?.readAt);
-}
-
-function applySeenFromEnvelope(message, envelope, currentUserId) {
-  if (!message?.id || String(message.senderId) !== String(currentUserId)) {
-    return message;
-  }
-  const readAt =
-    message.readAt ??
-    envelope?.message?.readAt ??
-    envelope?.at ??
-    null;
-  return {
-    ...message,
-    deliveryStatus: 'SEEN',
-    readAt,
-  };
-}
-
 function applyReactionRemoved(messages, envelope, currentUserId) {
   const { messageId, reaction } = envelope;
   if (!messageId) return messages;
@@ -197,6 +183,7 @@ export default function MessagesPage() {
   const [highlightMessageId, setHighlightMessageId] = useState(null);
   const [typingUserId, setTypingUserId] = useState(null);
   const [pinnedMessageId, setPinnedMessageId] = useState(null);
+  const [seenMessageIds, setSeenMessageIds] = useState(() => new Set());
   const [mutedOverrides, setMutedOverrides] = useState({});
 
   const messagesEndRef = useRef(null);
@@ -295,12 +282,15 @@ export default function MessagesPage() {
     async (id) => {
       if (!id) {
         setMessages([]);
+        setSeenMessageIds(new Set());
         return;
       }
       try {
         setLoadingChat(true);
         const result = await conversationsApi.getMessages(id, { limit: 100 });
-        setMessages(result.items || []);
+        const items = result.items || [];
+        setMessages(items);
+        setSeenMessageIds(collectSeenOutgoingIds(items, currentUserId));
         if (typeof result.totalUnreadCount === 'number') {
           setTotalUnreadCount(result.totalUnreadCount);
         }
@@ -313,11 +303,12 @@ export default function MessagesPage() {
         console.error('[messages] chat failed', err);
         toast.error(getApiErrorMessage(err, 'messenger.loadMessagesError'));
         setMessages([]);
+        setSeenMessageIds(new Set());
       } finally {
         setLoadingChat(false);
       }
     },
-    [setTotalUnreadCount],
+    [currentUserId, setTotalUnreadCount],
   );
 
   useEffect(() => {
@@ -332,6 +323,7 @@ export default function MessagesPage() {
     setShowChatSearch(false);
     setTypingUserId(null);
     setPinnedMessageId(null);
+    setSeenMessageIds(new Set());
     setHighlightMessageId(null);
     loadMessages(activeConversationId);
     void markChatRead(activeConversationId);
@@ -353,19 +345,20 @@ export default function MessagesPage() {
     if (!message?.id) return;
     setMessages((prev) => {
       const idx = prev.findIndex((m) => String(m.id) === String(message.id));
-      const merged =
-        idx >= 0 ? { ...prev[idx], ...message } : message;
-      const normalized =
-        String(merged.senderId) === String(currentUserId) && !isOutgoingSeen(merged)
-          ? { ...merged, readAt: null, deliveryStatus: merged.deliveryStatus ?? 'SENT' }
-          : merged;
       if (idx >= 0) {
         const next = [...prev];
-        next[idx] = normalized;
+        next[idx] = { ...prev[idx], ...message };
         return next;
       }
-      return [...prev, normalized];
+      return [...prev, message];
     });
+    if (
+      currentUserId &&
+      String(message.senderId) === String(currentUserId) &&
+      (message.deliveryStatus === 'SEEN' || message.readAt)
+    ) {
+      setSeenMessageIds((prev) => new Set(prev).add(String(message.id)));
+    }
   }, [currentUserId]);
 
   useEffect(() => {
@@ -428,22 +421,24 @@ export default function MessagesPage() {
       const envelope = event?.detail;
       if (!matchesActive(envelope?.conversationId)) return;
 
-      const seenMessage = envelope?.message;
-      if (seenMessage?.id) {
-        if (String(seenMessage.senderId) !== String(currentUserId)) return;
-        appendOrUpdateMessage(applySeenFromEnvelope(seenMessage, envelope, currentUserId));
+      if (
+        envelope?.message &&
+        String(envelope.message.senderId) !== String(currentUserId)
+      ) {
         return;
       }
 
-      if (envelope?.messageId) {
-        setMessages((prev) =>
-          prev.map((m) => {
-            if (String(m.id) !== String(envelope.messageId)) return m;
-            if (String(m.senderId) !== String(currentUserId)) return m;
-            return applySeenFromEnvelope(m, envelope, currentUserId);
-          }),
+      const hasTargets =
+        extractSeenTargetIds(envelope).size > 0 || Boolean(envelope?.message?.id);
+      if (!hasTargets) return;
+
+      setMessages((prev) => {
+        const next = markOutgoingSeenFromEnvelope(prev, envelope, currentUserId);
+        setSeenMessageIds((prevIds) =>
+          mergeSeenMessageIds(prevIds, envelope, next, currentUserId),
         );
-      }
+        return next;
+      });
     };
 
     const onReactionAdded = (event) => {
@@ -822,6 +817,7 @@ export default function MessagesPage() {
                               });
                             }}
                             onReactionSelect={handleReactionSelect}
+                            seenMessageIds={seenMessageIds}
                           />
                         );
                       })}
