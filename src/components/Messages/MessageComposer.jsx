@@ -9,13 +9,14 @@ import {
   inferMessageTypeFromFile,
   uploadMessageMedia,
 } from '../../services/messageMediaUploadApi';
+import { resolveFileMime } from '../../utils/messageAttachmentMedia';
 import { getApiErrorMessage } from '../../utils/getApiErrorMessage';
 import MessageComposerAttachmentPreview from './MessageComposerAttachmentPreview';
 import './MessageComposer.scss';
 
 function createPendingAttachment(file) {
   const id = `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
-  const mime = file.type || '';
+  const mime = resolveFileMime(file);
   let previewUrl = null;
   if (mime.startsWith('image/') || mime.startsWith('video/') || mime.startsWith('audio/')) {
     previewUrl = URL.createObjectURL(file);
@@ -121,10 +122,25 @@ export default function MessageComposer({
     emitTyping();
   };
 
-  const handleFilePick = (e) => {
+  const handleFileSelect = (source) => (e) => {
     const files = e.target.files;
+    const count = files?.length ?? 0;
+    console.log('files selected', count, source);
+    if (count) {
+      addPendingFiles(files);
+    }
     e.target.value = '';
-    addPendingFiles(files);
+  };
+
+  const openFileInput = (inputRef, debugLabel) => {
+    console.log(`${debugLabel} button clicked`);
+    const input = inputRef.current;
+    if (!input) {
+      console.warn('[MessageComposer] file input ref missing:', debugLabel);
+      return;
+    }
+    console.log('file input opened', debugLabel);
+    input.click();
   };
 
   const stopRecording = () => {
@@ -229,7 +245,7 @@ export default function MessageComposer({
           <button
             type="button"
             className="msgComposer__actionBtn"
-            onClick={() => cameraInputRef.current?.click()}
+            onClick={() => openFileInput(cameraInputRef, 'camera')}
             disabled={busy}
             aria-label={t('messenger.composer.cameraAria')}
           >
@@ -238,7 +254,7 @@ export default function MessageComposer({
           <button
             type="button"
             className="msgComposer__actionBtn"
-            onClick={() => galleryInputRef.current?.click()}
+            onClick={() => openFileInput(galleryInputRef, 'gallery')}
             disabled={busy}
             aria-label={t('messenger.composer.galleryAria')}
           >
@@ -247,7 +263,7 @@ export default function MessageComposer({
           <button
             type="button"
             className="msgComposer__actionBtn"
-            onClick={() => fileInputRef.current?.click()}
+            onClick={() => openFileInput(fileInputRef, 'file')}
             disabled={busy}
             aria-label={t('messenger.composer.fileAria')}
           >
@@ -260,23 +276,32 @@ export default function MessageComposer({
         <p className="msgComposer__uploadHint">{t('messenger.uploading')}</p>
       ) : null}
 
-      <input
-        ref={galleryInputRef}
-        type="file"
-        accept="image/*,video/*"
-        multiple
-        hidden
-        onChange={handleFilePick}
-      />
-      <input
-        ref={cameraInputRef}
-        type="file"
-        accept="image/*"
-        capture="environment"
-        hidden
-        onChange={handleFilePick}
-      />
-      <input ref={fileInputRef} type="file" multiple hidden onChange={handleFilePick} />
+      <div className="msgComposer__fileInputs" aria-hidden="true">
+        <input
+          ref={cameraInputRef}
+          type="file"
+          className="msgComposer__fileInput"
+          accept="image/*"
+          capture="environment"
+          onChange={handleFileSelect('camera')}
+        />
+        <input
+          ref={galleryInputRef}
+          type="file"
+          className="msgComposer__fileInput"
+          accept="image/*"
+          multiple
+          onChange={handleFileSelect('gallery')}
+        />
+        <input
+          ref={fileInputRef}
+          type="file"
+          className="msgComposer__fileInput"
+          accept="*/*"
+          multiple
+          onChange={handleFileSelect('file')}
+        />
+      </div>
     </form>
   );
 }
