@@ -418,6 +418,12 @@
     "previewVideo": "Видео",
     "previewVoice": "Голосовое сообщение",
     "previewFile": "Файл",
+    "mediaViewer": {
+      "title": "Просмотр медиа",
+      "close": "Закрыть",
+      "openImage": "Открыть фото",
+      "openVideo": "Открыть видео на весь экран"
+    },
     "edited": "изменено",
     "typing": "{{name}} печатает…",
     "repliedTo": "Ответ",

@@ -418,6 +418,12 @@
     "previewVideo": "Відео",
     "previewVoice": "Голосове повідомлення",
     "previewFile": "Файл",
+    "mediaViewer": {
+      "title": "Перегляд медіа",
+      "close": "Закрити",
+      "openImage": "Відкрити фото",
+      "openVideo": "Відкрити відео на весь екран"
+    },
     "edited": "змінено",
     "typing": "{{name}} друкує…",
     "repliedTo": "Відповідь",

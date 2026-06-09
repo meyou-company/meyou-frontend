@@ -5,11 +5,20 @@
   margin-bottom: 6px;
 }
 
-.msgAttachments__imageLink {
+.msgAttachments__imageBtn {
   display: block;
+  padding: 0;
+  border: none;
   border-radius: 12px;
   overflow: hidden;
   max-width: 280px;
+  cursor: pointer;
+  background: transparent;
+  line-height: 0;
+
+  &:hover .msgAttachments__image {
+    opacity: 0.92;
+  }
 }
 
 .msgAttachments__image {
@@ -17,15 +26,42 @@
   width: 100%;
   max-height: 320px;
   object-fit: cover;
+  pointer-events: none;
+}
+
+.msgAttachments__videoWrap {
+  position: relative;
+  max-width: 320px;
 }
 
 .msgAttachments__video {
   display: block;
   width: 100%;
-  max-width: 320px;
   max-height: 280px;
   border-radius: 12px;
   background: rgba(0, 0, 0, 0.08);
+}
+
+.msgAttachments__expandBtn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.55);
+  color: #fff;
+  font-size: 14px;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &:hover {
+    background: rgba(0, 0, 0, 0.72);
+  }
 }
 
 .msgAttachments__audio {

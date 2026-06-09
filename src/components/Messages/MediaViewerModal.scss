@@ -1,0 +1,64 @@
+.msgMediaViewer {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 48px;
+  background: rgba(0, 0, 0, 0.88);
+}
+
+.msgMediaViewer__close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 46px;
+  height: 46px;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.22);
+  color: #fff;
+  font-size: 30px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.msgMediaViewer__content {
+  max-width: min(960px, 100%);
+  max-height: calc(100vh - 96px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.msgMediaViewer__image {
+  max-width: 100%;
+  max-height: calc(100vh - 96px);
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  border-radius: 10px;
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.5);
+}
+
+.msgMediaViewer__video {
+  max-width: min(960px, 100%);
+  max-height: calc(100vh - 96px);
+  width: 100%;
+  border-radius: 10px;
+  background: #000;
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.5);
+}
+
+@media (max-width: 768px) {
+  .msgMediaViewer {
+    padding: 16px;
+  }
+
+  .msgMediaViewer__content,
+  .msgMediaViewer__image,
+  .msgMediaViewer__video {
+    max-height: calc(100vh - 48px);
+  }
+}

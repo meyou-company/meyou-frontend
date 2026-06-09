@@ -418,6 +418,12 @@
     "previewVideo": "Video",
     "previewVoice": "Voice message",
     "previewFile": "File",
+    "mediaViewer": {
+      "title": "Media preview",
+      "close": "Close",
+      "openImage": "Open image",
+      "openVideo": "Open video fullscreen"
+    },
     "edited": "edited",
     "typing": "{{name}} is typing…",
     "repliedTo": "Replied",
