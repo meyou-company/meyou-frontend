@@ -2,7 +2,12 @@ import { useTranslation } from 'react-i18next';
 import { MESSAGE_REACTION_EMOJIS } from '../../constants/messageReactions';
 import './MessageReactionBar.scss';
 
-export default function MessageReactionBar({ onSelect, className = '', selectedEmoji }) {
+export default function MessageReactionBar({
+  onSelect,
+  className = '',
+  selectedEmoji,
+  onMouseEnter,
+}) {
   const { t } = useTranslation();
 
   return (
@@ -11,6 +16,7 @@ export default function MessageReactionBar({ onSelect, className = '', selectedE
       role="toolbar"
       aria-label={t('messenger.reactions.aria')}
       onClick={(e) => e.stopPropagation()}
+      onMouseEnter={onMouseEnter}
     >
       {MESSAGE_REACTION_EMOJIS.map((emoji) => (
         <button

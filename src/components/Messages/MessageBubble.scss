@@ -50,11 +50,23 @@
   align-items: flex-end;
 }
 
+.msgBubbleRow__hoverZone {
+  position: relative;
+  width: 100%;
+}
+
+.msgBubbleRow__hoverZone.can-react {
+  padding-top: 40px;
+  margin-top: -40px;
+}
+
 .msgBubbleRow__reactions {
   position: absolute;
-  top: -20px;
+  top: 0;
   left: 0;
-  z-index: 2;
+  z-index: 3;
+  padding-bottom: 12px;
+  margin-bottom: -8px;
 }
 
 .msgBubble {

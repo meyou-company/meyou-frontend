@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { getMyReactionEmoji } from '../../constants/messageReactions';
 import { isMessageSeenByPeer } from '../../utils/messageReadReceipt';
@@ -7,6 +7,7 @@ import MessageReactionBar from './MessageReactionBar';
 import './MessageBubble.scss';
 
 const LONG_PRESS_MS = 500;
+const REACTION_HIDE_DELAY_MS = 400;
 
 function ReadReceipt({ isSeen }) {
   return (
@@ -41,6 +42,7 @@ export default function MessageBubble({
   const [showReactions, setShowReactions] = useState(false);
   const longPressTimerRef = useRef(null);
   const longPressTriggeredRef = useRef(false);
+  const hideReactionsTimerRef = useRef(null);
   const replyTo = message.replyTo;
   const deletedForEveryone = message.deletedForEveryone === true;
   const myReaction = getMyReactionEmoji(message.reactions, currentUserId);
@@ -94,6 +96,36 @@ export default function MessageBubble({
     ? t('messenger.deletedMessage')
     : replyTo?.text || t('messenger.attachmentPreview');
 
+  const canShowReactionBar = !isMine && !deletedForEveryone;
+
+  const clearHideReactionsTimer = () => {
+    if (hideReactionsTimerRef.current) {
+      clearTimeout(hideReactionsTimerRef.current);
+      hideReactionsTimerRef.current = null;
+    }
+  };
+
+  const scheduleHideReactions = () => {
+    clearHideReactionsTimer();
+    hideReactionsTimerRef.current = setTimeout(() => {
+      setShowReactions(false);
+      hideReactionsTimerRef.current = null;
+    }, REACTION_HIDE_DELAY_MS);
+  };
+
+  const handleHoverZoneEnter = () => {
+    if (!canShowReactionBar) return;
+    clearHideReactionsTimer();
+    setShowReactions(true);
+  };
+
+  const handleHoverZoneLeave = () => {
+    if (!canShowReactionBar) return;
+    scheduleHideReactions();
+  };
+
+  useEffect(() => () => clearHideReactionsTimer(), []);
+
   return (
     <div
       className={`msgBubbleRow${isMine ? ' is-mine' : ' is-theirs'}${highlight ? ' is-highlight' : ''}`}
@@ -110,39 +142,42 @@ export default function MessageBubble({
       ) : null}
 
       <div className="msgBubbleRow__content">
-        {showReactions && !deletedForEveryone ? (
-          <MessageReactionBar
-            className="msgBubbleRow__reactions"
-            selectedEmoji={myReaction}
-            onSelect={(emoji) => {
-              onReactionSelect?.(message, emoji);
-              setShowReactions(false);
-            }}
-          />
-        ) : null}
-
         <div
-          className={`msgBubble${isMine ? ' msgBubble--mine' : ' msgBubble--theirs'}`}
-          onClick={handleBubbleClick}
-          onMouseDown={startLongPress}
-          onMouseUp={clearLongPress}
-          onMouseLeave={() => {
-            clearLongPress();
-            setShowReactions(false);
-          }}
-          onTouchStart={startLongPress}
-          onTouchEnd={clearLongPress}
-          onTouchMove={clearLongPress}
-          onMouseEnter={() => !isMine && !deletedForEveryone && setShowReactions(true)}
-          role="button"
-          tabIndex={0}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter' || e.key === ' ') {
-              e.preventDefault();
-              handleBubbleClick(e);
-            }
-          }}
+          className={`msgBubbleRow__hoverZone${canShowReactionBar ? ' can-react' : ''}${showReactions ? ' is-reactions-visible' : ''}`}
+          onMouseEnter={handleHoverZoneEnter}
+          onMouseLeave={handleHoverZoneLeave}
         >
+          {showReactions && canShowReactionBar ? (
+            <MessageReactionBar
+              className="msgBubbleRow__reactions"
+              selectedEmoji={myReaction}
+              onMouseEnter={clearHideReactionsTimer}
+              onSelect={(emoji) => {
+                onReactionSelect?.(message, emoji);
+                clearHideReactionsTimer();
+                setShowReactions(false);
+              }}
+            />
+          ) : null}
+
+          <div
+            className={`msgBubble${isMine ? ' msgBubble--mine' : ' msgBubble--theirs'}`}
+            onClick={handleBubbleClick}
+            onMouseDown={startLongPress}
+            onMouseUp={clearLongPress}
+            onMouseLeave={clearLongPress}
+            onTouchStart={startLongPress}
+            onTouchEnd={clearLongPress}
+            onTouchMove={clearLongPress}
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                handleBubbleClick(e);
+              }
+            }}
+          >
           {replyTo ? (
             <div className="msgBubble__reply">
               <span className="msgBubble__replyLabel">
@@ -188,6 +223,7 @@ export default function MessageBubble({
             </time>
             {isMine ? <ReadReceipt isSeen={isSeenByPeer} /> : null}
           </div>
+        </div>
         </div>
       </div>
     </div>
