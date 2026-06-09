@@ -557,12 +557,6 @@ export default function MessagesPage() {
     }
   };
 
-  const handleSend = async () => {
-    const text = draft.trim();
-    if (!text) return;
-    await handleSendPayload({ text, type: 'TEXT' });
-  };
-
   const {
     handleMenuAction: runMenuAction,
     handleReaction,
@@ -830,7 +824,6 @@ export default function MessagesPage() {
                   <MessageComposer
                     value={draft}
                     onChange={setDraft}
-                    onSubmit={handleSend}
                     onSendPayload={handleSendPayload}
                     sending={sending}
                     replyTo={replyTo}

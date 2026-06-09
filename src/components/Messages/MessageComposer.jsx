@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { LuPaperclip } from 'react-icons/lu';
 import { toast } from 'sonner';
@@ -10,12 +10,22 @@ import {
   uploadMessageMedia,
 } from '../../services/messageMediaUploadApi';
 import { getApiErrorMessage } from '../../utils/getApiErrorMessage';
+import MessageComposerAttachmentPreview from './MessageComposerAttachmentPreview';
 import './MessageComposer.scss';
+
+function createPendingAttachment(file) {
+  const id = `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
+  const mime = file.type || '';
+  let previewUrl = null;
+  if (mime.startsWith('image/') || mime.startsWith('video/') || mime.startsWith('audio/')) {
+    previewUrl = URL.createObjectURL(file);
+  }
+  return { id, file, previewUrl };
+}
 
 export default function MessageComposer({
   value,
   onChange,
-  onSubmit,
   onSendPayload,
   sending = false,
   replyTo,
@@ -29,37 +39,76 @@ export default function MessageComposer({
   const fileInputRef = useRef(null);
   const [recording, setRecording] = useState(false);
   const [uploadingFile, setUploadingFile] = useState(false);
+  const [pendingAttachments, setPendingAttachments] = useState([]);
   const mediaRecorderRef = useRef(null);
   const recordChunksRef = useRef([]);
 
   const busy = sending || uploadingFile;
+  const hasText = Boolean(value?.trim());
+  const hasPending = pendingAttachments.length > 0;
+  const canSend = (hasText || hasPending) && !busy;
 
-  const handleSubmit = (e) => {
+  const clearPendingAttachments = useCallback((items) => {
+    for (const item of items) {
+      if (item.previewUrl) URL.revokeObjectURL(item.previewUrl);
+    }
+  }, []);
+
+  const resetPendingAttachments = useCallback(() => {
+    setPendingAttachments((prev) => {
+      clearPendingAttachments(prev);
+      return [];
+    });
+  }, [clearPendingAttachments]);
+
+  useEffect(() => {
+    resetPendingAttachments();
+    return () => resetPendingAttachments();
+  }, [conversationId, resetPendingAttachments]);
+
+  const addPendingFiles = useCallback((files) => {
+    if (!files?.length) return;
+    const next = Array.from(files).map(createPendingAttachment);
+    setPendingAttachments((prev) => [...prev, ...next]);
+  }, []);
+
+  const removePendingAttachment = useCallback((id) => {
+    setPendingAttachments((prev) => {
+      const target = prev.find((item) => item.id === id);
+      if (target?.previewUrl) URL.revokeObjectURL(target.previewUrl);
+      return prev.filter((item) => item.id !== id);
+    });
+  }, []);
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!value?.trim() || busy) return;
+    if (!canSend) return;
+
     stopTyping();
-    onSubmit?.();
-  };
 
-  const handleChange = (e) => {
-    onChange?.(e.target.value);
-    emitTyping();
-  };
+    const text = value?.trim() || '';
+    const snapshot = [...pendingAttachments];
 
-  const sendFile = async (file) => {
-    if (!file || busy) return;
     try {
       setUploadingFile(true);
-      const url = await uploadMessageMedia(file);
-      const attachment = buildAttachmentFromFile(file, url);
-      const type = inferMessageTypeFromFile(file);
-      stopTyping();
+      const attachments = [];
+      for (const item of snapshot) {
+        const url = await uploadMessageMedia(item.file);
+        attachments.push(buildAttachmentFromFile(item.file, url));
+      }
+
+      const type = attachments.length
+        ? inferMessageTypeFromFile(snapshot[0].file)
+        : 'TEXT';
+
       await onSendPayload?.({
         type,
-        text: value?.trim() || undefined,
-        attachments: [attachment],
+        text: text || undefined,
+        attachments: attachments.length ? attachments : undefined,
       });
-      if (value?.trim()) onChange?.('');
+
+      resetPendingAttachments();
+      if (text) onChange?.('');
     } catch (err) {
       toast.error(getApiErrorMessage(err, 'messenger.uploadError'));
     } finally {
@@ -67,10 +116,15 @@ export default function MessageComposer({
     }
   };
 
-  const handleFilePick = async (e) => {
-    const file = e.target.files?.[0];
+  const handleChange = (e) => {
+    onChange?.(e.target.value);
+    emitTyping();
+  };
+
+  const handleFilePick = (e) => {
+    const files = e.target.files;
     e.target.value = '';
-    if (file) await sendFile(file);
+    addPendingFiles(files);
   };
 
   const stopRecording = () => {
@@ -92,12 +146,12 @@ export default function MessageComposer({
       recorder.ondataavailable = (ev) => {
         if (ev.data?.size) recordChunksRef.current.push(ev.data);
       };
-      recorder.onstop = async () => {
+      recorder.onstop = () => {
         stream.getTracks().forEach((track) => track.stop());
         const blob = new Blob(recordChunksRef.current, { type: 'audio/webm' });
         if (!blob.size) return;
         const file = new File([blob], `voice-${Date.now()}.webm`, { type: 'audio/webm' });
-        await sendFile(file);
+        addPendingFiles([file]);
       };
       mediaRecorderRef.current = recorder;
       recorder.start();
@@ -134,6 +188,12 @@ export default function MessageComposer({
         </div>
       ) : null}
 
+      <MessageComposerAttachmentPreview
+        items={pendingAttachments}
+        onRemove={removePendingAttachment}
+        disabled={busy}
+      />
+
       <div className="msgComposer__row">
         <div className="msgComposer__inputWrap">
           <input
@@ -149,7 +209,7 @@ export default function MessageComposer({
           <button
             type="submit"
             className="msgComposer__send"
-            disabled={busy || !value?.trim()}
+            disabled={!canSend}
             aria-label={t('messenger.composer.sendAria')}
           >
             <img src="/icon1/push.png" alt="" aria-hidden="true" />
@@ -204,6 +264,7 @@ export default function MessageComposer({
         ref={galleryInputRef}
         type="file"
         accept="image/*,video/*"
+        multiple
         hidden
         onChange={handleFilePick}
       />
@@ -215,7 +276,7 @@ export default function MessageComposer({
         hidden
         onChange={handleFilePick}
       />
-      <input ref={fileInputRef} type="file" hidden onChange={handleFilePick} />
+      <input ref={fileInputRef} type="file" multiple hidden onChange={handleFilePick} />
     </form>
   );
 }

@@ -409,7 +409,9 @@
       "cameraAria": "Camera",
       "galleryAria": "Gallery",
       "sendAria": "Send",
-      "fileAria": "Attach file"
+      "fileAria": "Attach file",
+      "attachmentsPreview": "Attachments to send",
+      "removeAttachment": "Remove attachment"
     },
     "deletedMessage": "Message deleted",
     "edited": "edited",

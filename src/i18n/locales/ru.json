@@ -409,7 +409,9 @@
       "cameraAria": "Камера",
       "galleryAria": "Галерея",
       "sendAria": "Отправить",
-      "fileAria": "Прикрепить файл"
+      "fileAria": "Прикрепить файл",
+      "attachmentsPreview": "Вложения для отправки",
+      "removeAttachment": "Удалить вложение"
     },
     "deletedMessage": "Сообщение удалено",
     "edited": "изменено",

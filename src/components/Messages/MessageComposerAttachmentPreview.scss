@@ -1,0 +1,98 @@
+.msgComposerPreview {
+  list-style: none;
+  margin: 0 0 10px;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.msgComposerPreview__item {
+  position: relative;
+  width: 88px;
+  flex-shrink: 0;
+}
+
+.msgComposerPreview__media {
+  width: 88px;
+  height: 88px;
+  border-radius: 14px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.65);
+  border: 1px solid rgba(183, 140, 255, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.msgComposerPreview__image,
+.msgComposerPreview__video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.msgComposerPreview__fileTile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px;
+  width: 100%;
+  height: 100%;
+  color: #3f2d66;
+}
+
+.msgComposerPreview__fileName {
+  font-size: 10px;
+  line-height: 1.2;
+  text-align: center;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  word-break: break-word;
+}
+
+.msgComposerPreview__audio {
+  width: 100%;
+  height: 28px;
+}
+
+.msgComposerPreview__remove {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  width: 22px;
+  height: 22px;
+  border: none;
+  border-radius: 50%;
+  background: #ff4db8;
+  color: #fff;
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+body.dark,
+html[data-theme='dark'] {
+  .msgComposerPreview__media {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.12);
+  }
+
+  .msgComposerPreview__fileTile {
+    color: rgba(255, 255, 255, 0.85);
+  }
+}
