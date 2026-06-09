@@ -35,6 +35,11 @@ import {
   markOutgoingSeenFromEnvelope,
   mergeSeenMessageIds,
 } from '../../utils/messageReadReceipt';
+import {
+  conversationMatchesSearch,
+  getConversationLastMessagePreview,
+  patchConversationLastMessage,
+} from '../../utils/conversationPreview';
 import { useMessageActions } from '../../hooks/useMessageActions';
 import { useAuthStore } from '../../zustand/useAuthStore';
 import { useMessagesStore } from '../../zustand/useMessagesStore';
@@ -199,12 +204,10 @@ export default function MessagesPage() {
   const filteredConversations = useMemo(() => {
     const q = searchQuery.trim().toLowerCase();
     if (!q) return conversations;
-    return conversations.filter((chat) => {
-      const name = getDisplayName(chat.participant, '').toLowerCase();
-      const preview = (chat.lastMessage?.text || '').toLowerCase();
-      return name.includes(q) || preview.includes(q);
-    });
-  }, [conversations, searchQuery]);
+    return conversations.filter((chat) =>
+      conversationMatchesSearch(chat, q, t, (user, fb) => getDisplayName(user, fb)),
+    );
+  }, [conversations, searchQuery, t]);
 
   const groupedMessages = useMemo(
     () => groupMessagesWithDates(messages, t),
@@ -402,18 +405,39 @@ export default function MessagesPage() {
 
     const onUpdated = (event) => {
       const envelope = event?.detail;
-      if (!matchesActive(envelope?.conversationId) || !envelope?.message) return;
-      appendOrUpdateMessage(envelope.message);
+      const convId = envelope?.conversationId;
+      const message = envelope?.message;
+      if (!convId || !message?.id) return;
+
+      setConversations((prev) => patchConversationLastMessage(prev, convId, message));
+
+      if (!matchesActive(convId)) return;
+      appendOrUpdateMessage(message);
     };
 
     const onDeleted = (event) => {
       const envelope = event?.detail;
-      if (!matchesActive(envelope?.conversationId)) return;
+      const convId = envelope?.conversationId;
+      if (!convId) return;
+
       const message = envelope?.message;
       if (message?.deletedForEveryone) {
-        appendOrUpdateMessage(message);
-      } else if (envelope?.messageId) {
-        setMessages((prev) => prev.filter((m) => String(m.id) !== String(envelope.messageId)));
+        setConversations((prev) => patchConversationLastMessage(prev, convId, message));
+        if (matchesActive(convId)) appendOrUpdateMessage(message);
+        return;
+      }
+
+      if (envelope?.messageId) {
+        setConversations((prev) => {
+          const chat = prev.find((c) => String(c.id) === String(convId));
+          if (String(chat?.lastMessage?.id) === String(envelope.messageId)) {
+            void loadConversations();
+          }
+          return prev;
+        });
+        if (matchesActive(convId)) {
+          setMessages((prev) => prev.filter((m) => String(m.id) !== String(envelope.messageId)));
+        }
       }
     };
 
@@ -681,7 +705,7 @@ export default function MessagesPage() {
                 {filteredConversations.map((chat) => {
                   const isActive = chat.id === activeConversationId;
                   const name = getDisplayName(chat.participant, t('common.user'));
-                  const preview = chat.lastMessage?.text || t('messenger.noMessages');
+                  const preview = getConversationLastMessagePreview(chat.lastMessage, t);
                   return (
                     <li key={chat.id}>
                       <Link

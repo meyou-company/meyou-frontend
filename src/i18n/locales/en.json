@@ -414,6 +414,10 @@
       "removeAttachment": "Remove attachment"
     },
     "deletedMessage": "Message deleted",
+    "previewPhoto": "Photo",
+    "previewVideo": "Video",
+    "previewVoice": "Voice message",
+    "previewFile": "File",
     "edited": "edited",
     "typing": "{{name}} is typing…",
     "repliedTo": "Replied",

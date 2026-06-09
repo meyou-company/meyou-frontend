@@ -414,6 +414,10 @@
       "removeAttachment": "Прибрати вкладення"
     },
     "deletedMessage": "Повідомлення видалено",
+    "previewPhoto": "Фото",
+    "previewVideo": "Відео",
+    "previewVoice": "Голосове повідомлення",
+    "previewFile": "Файл",
     "edited": "змінено",
     "typing": "{{name}} друкує…",
     "repliedTo": "Відповідь",
