@@ -1,21 +1,18 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import {
+  cloudinaryAttachmentDisplayUrl,
+  inferMediaKind,
+  normalizeAttachment,
+} from '../../utils/messageAttachmentMedia';
 import MediaViewerModal from './MediaViewerModal';
 import './MessageAttachments.scss';
 
-function isImage(mime) {
-  return (mime || '').startsWith('image/');
-}
-
-function isVideo(mime) {
-  return (mime || '').startsWith('video/');
-}
-
-function isAudio(mime) {
-  return (mime || '').startsWith('audio/');
-}
-
-export default function MessageAttachments({ attachments = [], isMine = false }) {
+export default function MessageAttachments({
+  attachments = [],
+  isMine = false,
+  messageType,
+}) {
   const { t } = useTranslation();
   const [viewerMedia, setViewerMedia] = useState(null);
 
@@ -32,10 +29,17 @@ export default function MessageAttachments({ attachments = [], isMine = false })
   return (
     <>
       <div className="msgAttachments">
-        {attachments.map((att) => {
+        {attachments.map((rawAtt) => {
+          const att = normalizeAttachment(rawAtt, messageType);
           const key = att.id || att.url;
+          const kind = inferMediaKind({
+            mimeType: att.mimeType,
+            url: att.url,
+            messageType,
+          });
+          const imageUrl = cloudinaryAttachmentDisplayUrl(att.url, 'image');
 
-          if (isImage(att.mimeType)) {
+          if (kind === 'image' && att.url) {
             return (
               <button
                 key={key}
@@ -44,7 +48,7 @@ export default function MessageAttachments({ attachments = [], isMine = false })
                 onClick={(e) =>
                   openViewer(e, {
                     type: 'image',
-                    url: att.url,
+                    url: imageUrl,
                     fileName: att.fileName,
                   })
                 }
@@ -52,16 +56,15 @@ export default function MessageAttachments({ attachments = [], isMine = false })
               >
                 <img
                   className="msgAttachments__image"
-                  src={att.url}
+                  src={imageUrl}
                   alt={att.fileName || t('messenger.attachmentPreview')}
-                  loading="lazy"
                   draggable={false}
                 />
               </button>
             );
           }
 
-          if (isVideo(att.mimeType)) {
+          if (kind === 'video' && att.url) {
             return (
               <div key={key} className="msgAttachments__videoWrap">
                 <video
@@ -89,7 +92,7 @@ export default function MessageAttachments({ attachments = [], isMine = false })
             );
           }
 
-          if (isAudio(att.mimeType)) {
+          if (kind === 'audio' && att.url) {
             return (
               <audio
                 key={key}
@@ -101,6 +104,8 @@ export default function MessageAttachments({ attachments = [], isMine = false })
               />
             );
           }
+
+          if (!att.url) return null;
 
           return (
             <a

@@ -160,7 +160,11 @@ export default function MessageBubble({
             <p className="msgBubble__text msgBubble__text--deleted">{t('messenger.deletedMessage')}</p>
           ) : (
             <>
-              <MessageAttachments attachments={message.attachments} isMine={isMine} />
+              <MessageAttachments
+                attachments={message.attachments}
+                isMine={isMine}
+                messageType={message.type}
+              />
               {message.text ? <p className="msgBubble__text">{message.text}</p> : null}
             </>
           )}

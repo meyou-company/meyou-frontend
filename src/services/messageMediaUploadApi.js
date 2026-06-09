@@ -1,4 +1,5 @@
 import { api, apiPath } from './api';
+import { resolveFileMime } from '../utils/messageAttachmentMedia';
 
 const MAX_IMAGE_BYTES = 10 * 1024 * 1024;
 const MAX_VIDEO_BYTES = 50 * 1024 * 1024;
@@ -37,6 +38,11 @@ function extractUploadFields(payload) {
 }
 
 function extractPublicMediaUrl(payload, cloudinaryJsonResponse) {
+  const fromCloud = cloudinaryJsonResponse && typeof cloudinaryJsonResponse === 'object'
+    ? firstString(cloudinaryJsonResponse.secure_url, cloudinaryJsonResponse.url)
+    : null;
+  if (fromCloud) return fromCloud.split('?')[0];
+
   const fromPayload = firstString(
     payload?.fileUrl,
     payload?.file_url,
@@ -44,15 +50,11 @@ function extractPublicMediaUrl(payload, cloudinaryJsonResponse) {
     payload?.data?.fileUrl,
     payload?.data?.secure_url,
   );
-  if (fromPayload) return fromPayload;
-  const fromCloud = cloudinaryJsonResponse && typeof cloudinaryJsonResponse === 'object'
-    ? firstString(cloudinaryJsonResponse.secure_url, cloudinaryJsonResponse.url)
-    : null;
-  return fromCloud ? fromCloud.split('?')[0] : null;
+  return fromPayload ? fromPayload.split('?')[0] : null;
 }
 
 function presignKindForFile(file) {
-  const type = (file.type || '').toLowerCase();
+  const type = resolveFileMime(file);
   if (type.startsWith('image/')) return 'media';
   if (type.startsWith('video/')) return 'media';
   if (type.startsWith('audio/')) return 'media';
@@ -60,7 +62,7 @@ function presignKindForFile(file) {
 }
 
 function fileTypeParam(file) {
-  const type = (file.type || '').toLowerCase();
+  const type = resolveFileMime(file);
   if (type.startsWith('image/')) return 'image';
   if (type.startsWith('video/')) return 'video';
   if (type.startsWith('audio/')) return 'audio';
@@ -68,7 +70,7 @@ function fileTypeParam(file) {
 }
 
 function validateFileSize(file) {
-  const type = (file.type || '').toLowerCase();
+  const type = resolveFileMime(file);
   if (type.startsWith('image/') && file.size > MAX_IMAGE_BYTES) {
     throw new Error('Image must be 10MB or less');
   }
@@ -135,14 +137,14 @@ export async function uploadMessageMedia(file) {
 export function buildAttachmentFromFile(file, url) {
   return {
     url,
-    mimeType: file.type || 'application/octet-stream',
+    mimeType: resolveFileMime(file),
     fileName: file.name || undefined,
     size: file.size,
   };
 }
 
 export function inferMessageTypeFromFile(file) {
-  const type = (file.type || '').toLowerCase();
+  const type = resolveFileMime(file);
   if (type.startsWith('image/')) return 'IMAGE';
   if (type.startsWith('video/')) return 'VIDEO';
   if (type.startsWith('audio/')) return 'AUDIO';
