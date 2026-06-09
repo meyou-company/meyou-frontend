@@ -372,13 +372,86 @@
     "title": "Повідомлення",
     "soundLabel": "🔔 Звук повідомлень:",
     "loadChatsError": "Не вдалося завантажити чати",
-    "noChats": "Чатів пока немає",
+    "noChats": "Чатів поки немає",
     "selectChat": "Оберіть чат зліва або почніть переписку з профілю користувача.",
     "loadMessagesError": "Не вдалося завантажити повідомлення",
     "sendError": "Не вдалося надіслати повідомлення",
     "noMessages": "Немає повідомлень",
-    "placeholder": "Напишіть повідомлення...",
-    "newMessageFrom": "Нове повідомлення від {{name}}"
+    "placeholder": "Повідомлення",
+    "newMessageFrom": "Нове повідомлення від {{name}}",
+    "search": "Пошук",
+    "soundAria": "Звук повідомлень",
+    "muteSound": "Вимкнути звук",
+    "unmuteSound": "Увімкнути звук",
+    "dateToday": "Сьогодні",
+    "dateYesterday": "Вчора",
+    "youReplied": "Ви відповіли",
+    "copySuccess": "Скопійовано",
+    "comingSoon": "Незабаром",
+    "backToChats": "До списку чатів",
+    "menu": {
+      "reply": "Відповісти",
+      "forward": "Переслати",
+      "copy": "Копіювати",
+      "translate": "Перекласти",
+      "pin": "Закріпити",
+      "deleteForMe": "Видалити у вас",
+      "deleteForAll": "Видалити у всіх",
+      "report": "Поскаржитись",
+      "edit": "Редагувати",
+      "unpin": "Відкріпити"
+    },
+    "reactions": {
+      "aria": "Реакції на повідомлення"
+    },
+    "composer": {
+      "voiceAria": "Голосове повідомлення",
+      "cameraAria": "Камера",
+      "galleryAria": "Галерея",
+      "sendAria": "Надіслати",
+      "fileAria": "Прикріпити файл"
+    },
+    "deletedMessage": "Повідомлення видалено",
+    "edited": "змінено",
+    "typing": "{{name}} друкує…",
+    "repliedTo": "Відповідь",
+    "forwarded": "Переслано",
+    "attachmentPreview": "Вкладення",
+    "attachmentFile": "Файл",
+    "searchInChat": "Пошук у чаті",
+    "searchInChatPlaceholder": "Шукати повідомлення…",
+    "searchNoResults": "Повідомлень не знайдено",
+    "pinned": "Закріплене повідомлення",
+    "pinSuccess": "Повідомлення закріплено",
+    "unpinSuccess": "Повідомлення відкріплено",
+    "deleteSuccess": "Повідомлення видалено",
+    "muteChat": "Вимкнути сповіщення чату",
+    "unmuteChat": "Увімкнути сповіщення чату",
+    "muteSuccess": "Чат вимкнено",
+    "unmuteSuccess": "Чат увімкнено",
+    "uploading": "Завантаження…",
+    "uploadError": "Не вдалося завантажити",
+    "voiceNotSupported": "Запис голосу не підтримується",
+    "voicePermissionDenied": "Немає доступу до мікрофона",
+    "forward": {
+      "title": "Переслати",
+      "noChats": "Немає інших чатів",
+      "success": "Повідомлення переслано"
+    },
+    "report": {
+      "title": "Скарга на повідомлення",
+      "reasonLabel": "Причина",
+      "reasonPlaceholder": "Опишіть проблему…",
+      "submit": "Надіслати скаргу",
+      "success": "Скаргу надіслано"
+    },
+    "edit": {
+      "title": "Редагувати повідомлення",
+      "success": "Повідомлення оновлено"
+    },
+    "translate": {
+      "notAvailable": "Переклад поки недоступний"
+    }
   },
   "notifications": {
     "title": "Сповіщення",

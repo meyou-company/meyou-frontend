@@ -369,16 +369,89 @@
     }
   },
   "messenger": {
-    "title": "الرسائل",
+    "title": "Messages",
     "soundLabel": "🔔 Message sound:",
-    "loadChatsError": "Failed to load chats",
+    "loadChatsError": "Could not load chats",
     "noChats": "No chats yet",
     "selectChat": "Select a chat on the left or start a conversation from a user profile.",
-    "loadMessagesError": "Failed to load messages",
-    "sendError": "Failed to send message",
+    "loadMessagesError": "Could not load messages",
+    "sendError": "Could not send message",
     "noMessages": "No messages",
-    "placeholder": "اكتب رسالة...",
-    "newMessageFrom": "رسالة جديدة من {{name}}"
+    "placeholder": "Message",
+    "newMessageFrom": "New message from {{name}}",
+    "search": "Search",
+    "soundAria": "Message sound",
+    "muteSound": "Mute",
+    "unmuteSound": "Unmute",
+    "dateToday": "Today",
+    "dateYesterday": "Yesterday",
+    "youReplied": "You replied",
+    "copySuccess": "Copied",
+    "comingSoon": "Coming soon",
+    "backToChats": "Back to chats",
+    "menu": {
+      "reply": "Reply",
+      "forward": "Forward",
+      "copy": "Copy",
+      "translate": "Translate",
+      "pin": "Pin",
+      "deleteForMe": "Delete for you",
+      "deleteForAll": "Delete for everyone",
+      "report": "Report",
+      "edit": "Edit",
+      "unpin": "Unpin"
+    },
+    "reactions": {
+      "aria": "Message reactions"
+    },
+    "composer": {
+      "voiceAria": "Voice message",
+      "cameraAria": "Camera",
+      "galleryAria": "Gallery",
+      "sendAria": "Send",
+      "fileAria": "Attach file"
+    },
+    "deletedMessage": "Message deleted",
+    "edited": "edited",
+    "typing": "{{name}} is typing…",
+    "repliedTo": "Replied",
+    "forwarded": "Forwarded",
+    "attachmentPreview": "Attachment",
+    "attachmentFile": "File",
+    "searchInChat": "Search in chat",
+    "searchInChatPlaceholder": "Search messages…",
+    "searchNoResults": "No messages found",
+    "pinned": "Pinned message",
+    "pinSuccess": "Message pinned",
+    "unpinSuccess": "Message unpinned",
+    "deleteSuccess": "Message deleted",
+    "muteChat": "Mute conversation",
+    "unmuteChat": "Unmute conversation",
+    "muteSuccess": "Conversation muted",
+    "unmuteSuccess": "Conversation unmuted",
+    "uploading": "Uploading…",
+    "uploadError": "Upload failed",
+    "voiceNotSupported": "Voice recording is not supported in this browser",
+    "voicePermissionDenied": "Microphone access denied",
+    "forward": {
+      "title": "Forward to",
+      "noChats": "No other chats available",
+      "success": "Message forwarded"
+    },
+    "report": {
+      "title": "Report message",
+      "reasonLabel": "Reason",
+      "reasonPlaceholder": "Describe the issue…",
+      "submit": "Submit report",
+      "success": "Report submitted"
+    },
+    "edit": {
+      "title": "Edit message",
+      "success": "Message updated"
+    },
+    "translate": {
+      "notAvailable": "Translation is not available yet"
+    }
   },
   "notifications": {
     "title": "Notifications",

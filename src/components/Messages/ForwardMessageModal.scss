@@ -1,0 +1,137 @@
+.msgModalOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background: rgba(0, 0, 0, 0.35);
+}
+
+.msgModal {
+  width: min(420px, 100%);
+  max-height: min(80vh, 560px);
+  overflow: auto;
+  border-radius: 20px;
+  background: #f3eafb;
+  border: 1px solid #e1cbff;
+  box-shadow: 0 8px 32px rgba(120, 80, 180, 0.2);
+  padding: 16px;
+}
+
+.msgModal__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+
+  h2 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 700;
+  }
+}
+
+.msgModal__close {
+  border: none;
+  background: transparent;
+  font-size: 24px;
+  line-height: 1;
+  cursor: pointer;
+  color: rgba(0, 0, 0, 0.55);
+}
+
+.msgModal__hint {
+  margin: 0;
+  font-size: 14px;
+  color: rgba(0, 0, 0, 0.55);
+}
+
+.msgModal__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.msgModal__listBtn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border: none;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.65);
+  cursor: pointer;
+  text-align: left;
+  font-size: 14px;
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  &:hover:not(:disabled) {
+    background: #fff;
+  }
+}
+
+.msgModal__avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #b78cff;
+  color: #fff;
+  font-weight: 700;
+  flex-shrink: 0;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+.msgModal__label {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.msgModal__textarea {
+  width: 100%;
+  border: 1px solid #c2b8b8;
+  border-radius: 14px;
+  padding: 10px 12px;
+  font: inherit;
+  resize: vertical;
+  background: rgba(255, 255, 255, 0.85);
+}
+
+.msgModal__submit {
+  margin-top: 12px;
+  width: 100%;
+  border: none;
+  border-radius: 14px;
+  padding: 10px 14px;
+  background: #b78cff;
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+
+  &:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
+}

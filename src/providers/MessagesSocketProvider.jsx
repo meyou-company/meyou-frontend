@@ -4,7 +4,16 @@ import { useLocation } from 'react-router-dom';
 import { isPublicPath } from '../constants/publicRoutes';
 import {
   dispatchMessageCreated,
+  dispatchMessageDeleted,
+  dispatchMessagePinned,
+  dispatchMessageReactionAdded,
+  dispatchMessageReactionRemoved,
   dispatchMessageRead,
+  dispatchMessageSeen,
+  dispatchMessageUnpinned,
+  dispatchMessageUpdated,
+  dispatchUserStopTyping,
+  dispatchUserTyping,
 } from '../constants/messageEvents';
 import { getSessionAccessToken } from '../services/api';
 import { connectSocket } from '../services/socket';
@@ -136,11 +145,30 @@ export function MessagesSocketProvider() {
       dispatchMessageRead(envelope);
     };
 
+    const onUpdated = (envelope) => dispatchMessageUpdated(envelope);
+    const onDeleted = (envelope) => dispatchMessageDeleted(envelope);
+    const onSeen = (envelope) => dispatchMessageSeen(envelope);
+    const onReactionAdded = (envelope) => dispatchMessageReactionAdded(envelope);
+    const onReactionRemoved = (envelope) => dispatchMessageReactionRemoved(envelope);
+    const onPinned = (envelope) => dispatchMessagePinned(envelope);
+    const onUnpinned = (envelope) => dispatchMessageUnpinned(envelope);
+    const onTyping = (envelope) => dispatchUserTyping(envelope);
+    const onStopTyping = (envelope) => dispatchUserStopTyping(envelope);
+
     const onConnect = () => refreshUnread();
 
     socket.on('connect', onConnect);
     socket.on('message.created', onCreated);
     socket.on('message.read', onRead);
+    socket.on('message.updated', onUpdated);
+    socket.on('message.deleted', onDeleted);
+    socket.on('message.seen', onSeen);
+    socket.on('message.reactionAdded', onReactionAdded);
+    socket.on('message.reactionRemoved', onReactionRemoved);
+    socket.on('message.pinned', onPinned);
+    socket.on('message.unpinned', onUnpinned);
+    socket.on('user.typing', onTyping);
+    socket.on('user.stopTyping', onStopTyping);
 
     if (socket.connected) {
       refreshUnread();
@@ -150,6 +178,15 @@ export function MessagesSocketProvider() {
       socket.off('connect', onConnect);
       socket.off('message.created', onCreated);
       socket.off('message.read', onRead);
+      socket.off('message.updated', onUpdated);
+      socket.off('message.deleted', onDeleted);
+      socket.off('message.seen', onSeen);
+      socket.off('message.reactionAdded', onReactionAdded);
+      socket.off('message.reactionRemoved', onReactionRemoved);
+      socket.off('message.pinned', onPinned);
+      socket.off('message.unpinned', onUnpinned);
+      socket.off('user.typing', onTyping);
+      socket.off('user.stopTyping', onStopTyping);
     };
   }, [canConnectSocket, token]);
 
