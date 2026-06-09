@@ -194,3 +194,47 @@
     opacity: 0.45;
   }
 }
+
+body.dark,
+html[data-theme='dark'] {
+  .msgComposer__replyPreview {
+    background: rgba(255, 255, 255, 0.08);
+    border-left-color: #b78cff;
+  }
+
+  .msgComposer__replyLabel,
+  .msgComposer__replyText {
+    color: rgba(255, 255, 255, 0.62);
+  }
+
+  .msgComposer__replyCancel {
+    color: rgba(255, 255, 255, 0.55);
+  }
+
+  .msgComposer__inputWrap {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.12);
+    box-shadow: none;
+  }
+
+  .msgComposer__input {
+    color: #fff;
+
+    &::placeholder {
+      color: rgba(255, 255, 255, 0.45);
+    }
+  }
+
+  .msgComposer__actionBtn {
+    color: rgba(255, 255, 255, 0.85);
+
+    img {
+      filter: brightness(0) invert(1);
+      opacity: 0.9;
+    }
+  }
+
+  .msgComposer__uploadHint {
+    color: rgba(255, 255, 255, 0.55);
+  }
+}

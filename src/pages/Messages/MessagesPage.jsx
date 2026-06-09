@@ -129,6 +129,26 @@ function applyReactionAdded(messages, envelope) {
   });
 }
 
+function isOutgoingSeen(message) {
+  return message?.deliveryStatus === 'SEEN' || Boolean(message?.readAt);
+}
+
+function applySeenFromEnvelope(message, envelope, currentUserId) {
+  if (!message?.id || String(message.senderId) !== String(currentUserId)) {
+    return message;
+  }
+  const readAt =
+    message.readAt ??
+    envelope?.message?.readAt ??
+    envelope?.at ??
+    null;
+  return {
+    ...message,
+    deliveryStatus: 'SEEN',
+    readAt,
+  };
+}
+
 function applyReactionRemoved(messages, envelope, currentUserId) {
   const { messageId, reaction } = envelope;
   if (!messageId) return messages;
@@ -333,14 +353,20 @@ export default function MessagesPage() {
     if (!message?.id) return;
     setMessages((prev) => {
       const idx = prev.findIndex((m) => String(m.id) === String(message.id));
+      const merged =
+        idx >= 0 ? { ...prev[idx], ...message } : message;
+      const normalized =
+        String(merged.senderId) === String(currentUserId) && !isOutgoingSeen(merged)
+          ? { ...merged, readAt: null, deliveryStatus: merged.deliveryStatus ?? 'SENT' }
+          : merged;
       if (idx >= 0) {
         const next = [...prev];
-        next[idx] = { ...next[idx], ...message };
+        next[idx] = normalized;
         return next;
       }
-      return [...prev, message];
+      return [...prev, normalized];
     });
-  }, []);
+  }, [currentUserId]);
 
   useEffect(() => {
     const matchesActive = (convId) =>
@@ -401,18 +427,21 @@ export default function MessagesPage() {
     const onSeen = (event) => {
       const envelope = event?.detail;
       if (!matchesActive(envelope?.conversationId)) return;
+
       const seenMessage = envelope?.message;
       if (seenMessage?.id) {
-        appendOrUpdateMessage(seenMessage);
+        if (String(seenMessage.senderId) !== String(currentUserId)) return;
+        appendOrUpdateMessage(applySeenFromEnvelope(seenMessage, envelope, currentUserId));
         return;
       }
+
       if (envelope?.messageId) {
         setMessages((prev) =>
-          prev.map((m) =>
-            String(m.id) === String(envelope.messageId)
-              ? { ...m, deliveryStatus: 'SEEN', isRead: true }
-              : m,
-          ),
+          prev.map((m) => {
+            if (String(m.id) !== String(envelope.messageId)) return m;
+            if (String(m.senderId) !== String(currentUserId)) return m;
+            return applySeenFromEnvelope(m, envelope, currentUserId);
+          }),
         );
       }
     };

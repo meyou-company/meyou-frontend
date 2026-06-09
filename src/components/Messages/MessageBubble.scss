@@ -201,3 +201,34 @@
   font-size: 10px;
   font-weight: 600;
 }
+
+body.dark,
+html[data-theme='dark'] {
+  .msgBubble--theirs {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: #f0f0f0;
+  }
+
+  .msgBubble--theirs .msgBubble__reply {
+    background: rgba(255, 255, 255, 0.08);
+    border-left-color: #b78cff;
+  }
+
+  .msgBubble--theirs .msgBubble__replyLabel,
+  .msgBubble--theirs .msgBubble__replyQuote {
+    color: rgba(255, 255, 255, 0.62);
+  }
+
+  .msgBubble--theirs .msgBubble__time {
+    color: rgba(255, 255, 255, 0.55);
+  }
+
+  .msgBubble--theirs .msgBubble__reactionChip {
+    background: rgba(255, 255, 255, 0.12);
+  }
+
+  .msgBubble__edited {
+    color: rgba(255, 255, 255, 0.55);
+  }
+}

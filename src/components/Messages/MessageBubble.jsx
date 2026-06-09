@@ -7,17 +7,12 @@ import './MessageBubble.scss';
 
 const LONG_PRESS_MS = 500;
 
-function ReadReceipt({ deliveryStatus, isRead }) {
-  const seen =
-    deliveryStatus === 'SEEN' ||
-    isRead === true;
-  const delivered =
-    seen ||
-    deliveryStatus === 'DELIVERED';
+function ReadReceipt({ deliveryStatus, readAt }) {
+  const seen = deliveryStatus === 'SEEN' || Boolean(readAt);
 
   return (
     <span className={`msgBubble__checks${seen ? ' is-read' : ''}`} aria-hidden="true">
-      {seen ? '✓✓' : delivered ? '✓✓' : '✓'}
+      {seen ? '✓✓' : '✓'}
     </span>
   );
 }
@@ -189,7 +184,7 @@ export default function MessageBubble({
             {isMine ? (
               <ReadReceipt
                 deliveryStatus={message.deliveryStatus}
-                isRead={message.isRead}
+                readAt={message.readAt}
               />
             ) : null}
           </div>

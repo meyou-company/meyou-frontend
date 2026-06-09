@@ -135,3 +135,39 @@
     cursor: not-allowed;
   }
 }
+
+body.dark,
+html[data-theme='dark'] {
+  .msgModal {
+    background: rgba(30, 16, 42, 0.88);
+    border-color: rgba(255, 255, 255, 0.12);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    color: #fff;
+  }
+
+  .msgModal__head h2 {
+    color: #fff;
+  }
+
+  .msgModal__close,
+  .msgModal__hint,
+  .msgModal__label {
+    color: rgba(255, 255, 255, 0.62);
+  }
+
+  .msgModal__listBtn {
+    background: rgba(255, 255, 255, 0.08);
+    color: #fff;
+
+    &:hover:not(:disabled) {
+      background: rgba(255, 255, 255, 0.14);
+    }
+  }
+
+  .msgModal__textarea {
+    border-color: rgba(255, 255, 255, 0.15);
+    background: rgba(255, 255, 255, 0.08);
+    color: #fff;
+  }
+}

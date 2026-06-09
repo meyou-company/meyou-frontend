@@ -496,16 +496,22 @@
 body.dark,
 html[data-theme='dark'] {
   .messagesPage {
-    --msg-bg: #1a1228;
-    --msg-card: #2a1f3d;
+    --msg-bg: transparent;
+    --msg-card: rgba(30, 16, 42, 0.32);
     --msg-text: #f3ebfa;
     --msg-text-muted: rgba(255, 255, 255, 0.62);
-    --msg-shadow-card: 0 4px 20px rgba(0, 0, 0, 0.3);
-    --msg-pill-border: 1px solid rgba(194, 184, 184, 0.35);
-    --msg-pill-bg: linear-gradient(180deg, #3d2f55 0%, #342848 55%, #2a1f3d 100%);
-    --msg-pill-shadow:
-      0 4px 10px rgba(183, 140, 255, 0.2),
-      0 1px 2px rgba(0, 0, 0, 0.2);
+    --msg-shadow-card: 0 0 0 1px rgba(255, 255, 255, 0.08);
+    --msg-pill-border: 1px solid rgba(255, 255, 255, 0.12);
+    --msg-pill-bg: rgba(30, 16, 42, 0.38);
+    --msg-pill-shadow: none;
+  }
+
+  .messagesPage__bg {
+    background: transparent;
+  }
+
+  .messagesPage__header {
+    background: transparent;
   }
 
   .messagesPage__topRule {
@@ -516,16 +522,30 @@ html[data-theme='dark'] {
     background: rgba(255, 255, 255, 0.4);
   }
 
+  .messagesPage__searchIcon {
+    filter: brightness(0) invert(1);
+    opacity: 0.75;
+  }
+
   .messagesPage__toolbar .messageSoundToggle {
     border: var(--msg-pill-border);
     background: var(--msg-pill-bg);
     box-shadow: var(--msg-pill-shadow);
+    color: #fff;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+
+    &.is-muted {
+      color: rgba(255, 255, 255, 0.55);
+    }
   }
 
   .messagesPage__searchWrap {
     border: var(--msg-pill-border);
     background: var(--msg-pill-bg);
     box-shadow: var(--msg-pill-shadow);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
   }
 
   .messagesPage__search {
@@ -534,6 +554,19 @@ html[data-theme='dark'] {
     &::placeholder {
       color: rgba(255, 255, 255, 0.45);
     }
+  }
+
+  .messagesPage__sidebar,
+  .messagesPage__chat {
+    background: var(--msg-card);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: var(--msg-shadow-card);
+  }
+
+  .messagesPage__hint--error {
+    color: #ff8a8a;
   }
 
   .messagesPage__chatItem {
@@ -551,5 +584,42 @@ html[data-theme='dark'] {
   .messagesPage__chatHead {
     background: rgba(255, 255, 255, 0.06);
     border-bottom-color: rgba(255, 255, 255, 0.08);
+  }
+
+  .messagesPage__backMobile {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: none;
+
+    img {
+      filter: brightness(0) invert(1);
+    }
+  }
+
+  .messagesPage__chatAction {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+
+    img {
+      filter: brightness(0) invert(1);
+      opacity: 0.85;
+    }
+
+    &.is-active {
+      background: rgba(183, 140, 255, 0.28);
+    }
+  }
+
+  .messagesPage__pinned {
+    background: rgba(255, 255, 255, 0.06);
+    border-bottom-color: rgba(255, 255, 255, 0.08);
+  }
+
+  .messagesPage__pinnedLabel {
+    color: rgba(255, 255, 255, 0.55);
+  }
+
+  .messagesPage__pinnedText {
+    color: rgba(255, 255, 255, 0.88);
   }
 }

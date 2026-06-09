@@ -44,3 +44,10 @@
 .msgTyping__text {
   font-style: italic;
 }
+
+body.dark,
+html[data-theme='dark'] {
+  .msgTyping {
+    color: rgba(255, 255, 255, 0.55);
+  }
+}

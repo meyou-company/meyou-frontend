@@ -89,3 +89,30 @@
     width: calc(100vw - 24px);
   }
 }
+
+body.dark,
+html[data-theme='dark'] {
+  .msgContextMenu {
+    background: rgba(30, 16, 42, 0.92);
+    border-color: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
+  }
+
+  .msgContextMenu__header {
+    color: rgba(255, 255, 255, 0.45);
+  }
+
+  .msgContextMenu__item {
+    color: #fff;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.08);
+    }
+  }
+
+  .msgContextMenu__item--danger {
+    color: #ff8a8a;
+  }
+}

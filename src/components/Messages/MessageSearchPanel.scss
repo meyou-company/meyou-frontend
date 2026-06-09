@@ -73,3 +73,34 @@
   font-size: 11px;
   color: rgba(0, 0, 0, 0.45);
 }
+
+body.dark,
+html[data-theme='dark'] {
+  .msgSearchPanel {
+    background: rgba(255, 255, 255, 0.06);
+    border-bottom-color: rgba(255, 255, 255, 0.08);
+  }
+
+  .msgSearchPanel__input {
+    border-color: rgba(255, 255, 255, 0.15);
+    background: rgba(255, 255, 255, 0.08);
+    color: #fff;
+  }
+
+  .msgSearchPanel__close {
+    color: rgba(255, 255, 255, 0.55);
+  }
+
+  .msgSearchPanel__hint {
+    color: rgba(255, 255, 255, 0.55);
+  }
+
+  .msgSearchPanel__item {
+    background: rgba(255, 255, 255, 0.08);
+    color: #fff;
+  }
+
+  .msgSearchPanel__time {
+    color: rgba(255, 255, 255, 0.45);
+  }
+}
