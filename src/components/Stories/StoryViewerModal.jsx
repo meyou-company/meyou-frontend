@@ -102,6 +102,8 @@ export default function StoryViewerModal({
   const [mediaOrientation, setMediaOrientation] = useState("unknown");
   const [storyViews, setStoryViews] = useState([]);
   const [storyViewsLoading, setStoryViewsLoading] = useState(false);
+  const [replyText, setReplyText] = useState("");
+  const [selectedReaction, setSelectedReaction] = useState(null);
 
   const navigate = useNavigate();
 
@@ -373,7 +375,10 @@ export default function StoryViewerModal({
       <div className="storyViewer__page">
         <div className="storyViewer__bgDots" aria-hidden="true" />
 
-        <div className="storyViewer__card">
+        <div
+          className={`storyViewer__card ${isOwnStory ? "storyViewer__card--own" : "storyViewer__card--visitor"
+            }`}
+        >
           <div className="storyViewer__progress">
             {progressBars.map((value, index) => (
               <div className="storyViewer__progressTrack" key={stories[index]?.id || index}>
@@ -392,6 +397,12 @@ export default function StoryViewerModal({
               {/* <span className="storyViewer__music">♫ random music</span> */}
             </div>
           </button>
+
+          {!isOwnStory && (
+            <button type="button" className="storyViewer__followBtn">
+              Подписаться
+            </button>
+          )}
 
           <button
             type="button"
@@ -475,35 +486,21 @@ export default function StoryViewerModal({
               </span>
             </button>
 
-            <button type="button" className="storyViewer__action">
-              <img
-                src={profileIcons.storyForward}
-                alt=""
-                className="storyViewer__actionImg"
-              />
-              <span>Переслать</span>
-            </button>
-
-            <button type="button" className="storyViewer__action">
-              <div className="storyViewer__shareIconsWrap">
+            <div className="storyViewer__actionsCenter">
+              <button type="button" className="storyViewer__action">
                 <img
-                  src={profileIcons.profileInfoTelegram}
-                  alt="Telegram"
-                  className="storyViewer__shareIcons"
+                  src={profileIcons.storyForward}
+                  alt=""
+                  className="storyViewer__actionImg"
                 />
-                <img
-                  src={profileIcons.profileInfoInstagram}
-                  alt="Instagram"
-                  className="storyViewer__shareIcons"
-                />
-              </div>
-              <span>Поделиться</span>
-            </button>
+                <span>Поделиться</span>
+              </button>
 
-            <button type="button" className="storyViewer__action">
-              <span className="storyViewer__actionIcon">@</span>
-              <span>Отметить</span>
-            </button>
+              <button type="button" className="storyViewer__action">
+                <span className="storyViewer__actionIcon">@</span>
+                <span>Отметить</span>
+              </button>
+            </div>
 
             <button
               type="button"
@@ -520,25 +517,33 @@ export default function StoryViewerModal({
           </div>
         ) : (
           <div className="storyViewer__viewerReplyBar">
-            <button type="button" className="storyViewer__messageBtn">
-              Отправить сообщение
-            </button>
+            <div className="storyViewer__messageWrap">
+              <input
+                type="text"
+                className="storyViewer__messageInput"
+                placeholder="Отправить сообщение"
+                value={replyText}
+                onChange={(e) => setReplyText(e.target.value)}
+              />
+
+              <button type="button" className="storyViewer__sendBtn">
+                <img src={profileIcons.storyForward} alt="" />
+              </button>
+            </div>
 
             <div className="storyViewer__reactions">
               {storyReactions.map((reaction) => (
                 <button
                   key={reaction.id}
                   type="button"
-                  className="storyViewer__reactionBtn"
+                  className={`storyViewer__reactionBtn ${selectedReaction === reaction.id ? "storyViewer__reactionBtn--active" : ""
+                    }`}
+                  onClick={() => setSelectedReaction(reaction.id)}
                 >
                   <img src={reaction.icon} alt="" />
                 </button>
               ))}
             </div>
-
-            <button type="button" className="storyViewer__sendBtn">
-              <img src={profileIcons.storyForward} alt="" />
-            </button>
           </div>
         )}
       </div>
