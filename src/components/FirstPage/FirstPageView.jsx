@@ -4,21 +4,20 @@ import { useTranslation } from 'react-i18next';
 import profileIcons from '../../constants/profileIcons';
 import { useStoriesFeed } from "../../hooks/useStoriesFeed";
 import { postsApi } from '../../services/postsApi';
+import { storiesApi } from "../../services/storiesApi";
 import { useAuthStore } from "../../zustand/useAuthStore";
-import { mapApiPostToFeedItem } from '../../utils/mapApiPostToFeedItem';
 import { usePostFeedActions } from '../../hooks/usePostFeedActions';
-import PostCommentsSection from '../PostFeed/PostCommentsSection';
 import { getApiErrorMessage } from '../../utils/getApiErrorMessage';
+import { mapApiPostToFeedItem } from '../../utils/mapApiPostToFeedItem';
 import { applyPersistedLikes } from '../../utils/postLikePersistence';
 import { getProfileRouteHandle } from '../../utils/profileFriendNav';
+import { resolvePostMenuPermissions } from '../../utils/postMenuPermissions';
 import AppHeader from "../../components/Layout/AppHeader";
 import StoryCircle from "../../components/Stories/StoryCircle";
 import NotificationBell from '../../components/Notifications/NotificationBell';
 import PostFeedBody from '../../components/PostFeed/PostFeedBody';
-import '../../components/PostFeed/PostFeedBody.scss';
-import '../../components/PostFeed/RepostUi.scss';
+import PostCommentsSection from '../PostFeed/PostCommentsSection';
 import { isRepostCard, postAuthorDisplayName } from '../../utils/postShareContext';
-import { resolvePostMenuPermissions } from '../../utils/postMenuPermissions';
 import PostCardHeader from '../../components/PostFeed/PostCardHeader';
 import '../../components/PostFeed/PostCardHeader.scss';
 import SharePostModal from '../../components/PostFeed/SharePostModal';
@@ -27,6 +26,8 @@ import DeletePostConfirmDialog from '../../components/PostFeed/DeletePostConfirm
 import ImageLightbox from '../../components/PostFeed/ImageLightbox';
 import StoryUploadModal from "../../components/Stories/StoryUploadModal";
 import StoryViewerModal from "../../components/Stories/StoryViewerModal";
+import '../../components/PostFeed/PostFeedBody.scss';
+import '../../components/PostFeed/RepostUi.scss';
 import '../Users/Profile/ProfileHome/ProfileHome.scss';
 import './FirstPageView.scss';
 
@@ -145,6 +146,27 @@ export default function FirstPageView({
 
   const closeStoryViewer = () => {
     setIsStoryViewerOpen(false);
+  };
+
+  const handleDeleteStory = async (storyId) => {
+    try {
+      await storiesApi.deleteStory(storyId);
+
+      setStoriesGroups((prev) =>
+        prev
+          .map((group) => ({
+            ...group,
+            stories: (group.stories || []).filter(
+              (story) => String(story.id) !== String(storyId)
+            ),
+          }))
+          .filter((group) => group.stories.length > 0)
+      );
+
+      closeStoryViewer();
+    } catch (error) {
+      console.error("Delete story failed", error);
+    }
   };
 
   const markStoryViewedLocally = (storyId) => {
@@ -397,6 +419,7 @@ export default function FirstPageView({
           currentUserId={currentUserId}
           onClose={closeStoryViewer}
           onViewed={markStoryViewedLocally}
+          onDeleteStory={handleDeleteStory}
         />
 
         <SharePostModal

@@ -104,6 +104,7 @@ export default function StoryViewerModal({
   const [storyViewsLoading, setStoryViewsLoading] = useState(false);
   const [replyText, setReplyText] = useState("");
   const [selectedReaction, setSelectedReaction] = useState(null);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const navigate = useNavigate();
 
@@ -408,9 +409,64 @@ export default function StoryViewerModal({
             type="button"
             className="storyViewer__menu"
             aria-label="Більше"
+            onClick={() => setIsMenuOpen(prev => !prev)}
           >
             ⋮
           </button>
+
+          {isMenuOpen && !isOwnStory && (
+            <>
+              <div
+                className="storyViewer__menuOverlay"
+                onClick={() => setIsMenuOpen(false)}
+              />
+
+              <div className="storyViewer__popup">
+                <button type="button">Скрыть истории автора</button>
+                <button type="button">Интересно</button>
+                <button type="button">Не интересно</button>
+                <button type="button">Пожаловаться</button>
+              </div>
+            </>
+          )}
+
+          {isMenuOpen && isOwnStory && (
+            <>
+              <div
+                className="storyViewer__menuOverlay"
+                onClick={() => setIsMenuOpen(false)}
+              />
+
+              <div
+                className="storyViewer__popup storyViewer__popup--own"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <button
+                  type="button"
+                  className="storyViewer__popupDanger"
+                >
+                  Сохранить фото/видео
+                </button>
+
+                <button type="button">
+                  Изменить настройки конфиденциальности
+                </button>
+
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+
+                    setIsMenuOpen(false);
+                    onDeleteStory?.(storyId);
+                  }}
+                >
+                  Удалить
+                </button>
+              </div>
+            </>
+          )}
 
           <button
             type="button"

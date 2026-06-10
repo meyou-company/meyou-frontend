@@ -35,7 +35,7 @@
   margin: 0 auto;
   border-radius: 24px;
   overflow: hidden;
-  background: #111;
+  background: #1e1e1e;
 }
 
 .storyViewer__card--visitor {
@@ -152,6 +152,7 @@
 }
 
 @media (max-width: 425px) {
+
   .storyViewer__mediaWrap--portrait,
   .storyViewer__mediaWrap--unknown {
     align-items: center;
@@ -446,7 +447,53 @@
   font-size: 10px;
 }
 
+.storyViewer__menuOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, .45);
+  z-index: 8;
+}
+
+.storyViewer__popup {
+  position: fixed;
+  top: 140px;
+  left: auto;
+  right: 20px;
+  width: min(270px, calc(100vw - 40px));
+  background: #f5f5f5;
+  border-radius: 24px;
+  z-index: 101;
+  padding: 4px 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.storyViewer__popup button {
+  border: 0;
+  background: transparent;
+  text-align: left;
+  padding: 10px 20px;
+  font-family: Montserrat, sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  color: #000;
+}
+
+.storyViewer__popup--own {
+  width: 250px;
+  transform: none;
+}
+
+.storyViewer__popup--own button {
+  padding: 10px 24px;
+}
+
+.storyViewer__popupDanger {
+  color: #ff4040;
+}
+
 @media (max-width: 333px) {
+
   .storyViewer__authorName,
   .storyViewer__time,
   .storyViewer__music {
@@ -651,6 +698,11 @@
     border-radius: 18px;
     font-size: 15px;
   }
+
+  .storyViewer__popup {
+    right: 30px;
+    top: 170px;
+  }
 }
 
 /* desktop */
@@ -795,6 +847,11 @@
     min-width: 240px;
     padding: 9px 20px;
     font-size: 20px;
+  }
+
+  .storyViewer__popup {
+    right: 180px;
+    top: 170px;
   }
 }
 
