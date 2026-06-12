@@ -582,7 +582,7 @@ const Video = () => {
                       <span className="video__statsWrapper">
                         <img
                           className="video__statsIcon video__statsIcon--views"
-                          src={profileIcons.eye}
+                          src={profileIcons.eyeOff}
                           alt="Просмотры"
                         />{" "}
                         {video.views}

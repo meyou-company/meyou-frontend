@@ -2,7 +2,7 @@
   position: relative;
   z-index: 3;
   flex-shrink: 0;
-  padding: 16px 22px 22px;
+  padding: clamp(14px, 3.5vw, 16px) clamp(16px, 4vw, 22px) clamp(18px, 4vw, 22px);
   background: transparent;
 }
 
@@ -50,7 +50,7 @@
 .msgComposer__row {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: clamp(10px, 2.5vw, 16px);
 }
 
 .msgComposer__inputWrap {
@@ -60,8 +60,8 @@
   align-items: center;
   gap: 4px;
   min-width: 0;
-  height: 52px;
-  padding: 4px 6px 4px 22px;
+  height: clamp(48px, 12vw, 52px);
+  padding: 4px 6px 4px clamp(16px, 4vw, 22px);
   border-radius: 999px;
   background: #ffffff;
   border: 1px solid rgba(183, 140, 255, 0.12);
@@ -77,8 +77,8 @@
 }
 
 .msgComposer__emojiBtn.emoji-picker-btn--inline .emoji-picker-btn__trigger {
-  width: 34px;
-  height: 34px;
+  width: clamp(30px, 8vw, 34px);
+  height: clamp(30px, 8vw, 34px);
 }
 
 .msgComposer__inputWrap .emojiPickerPopup,
@@ -112,8 +112,8 @@
 
 .msgComposer__send {
   flex-shrink: 0;
-  width: 40px;
-  height: 40px;
+  width: clamp(36px, 9vw, 40px);
+  height: clamp(36px, 9vw, 40px);
   border: none;
   border-radius: 50%;
   background: #b78cff;
@@ -168,15 +168,15 @@
   z-index: 1;
 
   img {
-    width: 26px;
-    height: 26px;
+    width: clamp(22px, 6vw, 26px);
+    height: clamp(22px, 6vw, 26px);
     object-fit: contain;
     pointer-events: none;
   }
 
   svg {
-    width: 26px;
-    height: 26px;
+    width: clamp(22px, 6vw, 26px);
+    height: clamp(22px, 6vw, 26px);
     pointer-events: none;
   }
 
@@ -209,39 +209,64 @@
   opacity: 0;
 }
 
-@media (max-width: 640px) {
+@media (max-width: 900px) {
   .msgComposer {
-    padding: 12px 14px 16px;
+    --msg-composer-action-size: 32px;
+    --msg-composer-action-gap: 4px;
+
+    padding-left: 10px;
+    padding-right: 10px;
   }
 
   .msgComposer__row {
+    align-items: center;
     gap: 8px;
   }
 
   .msgComposer__inputWrap {
-    height: 46px;
-    padding-left: 16px;
+    flex: 1 1 auto;
+    min-width: 0;
+    padding-left: 14px;
+    padding-right: 4px;
   }
 
-  .msgComposer__inputWrap .emojiPickerPopup,
-  .msgComposer__inputWrap .emoji-picker-btn__popover--inputWrapper {
-    right: 0;
+  .msgComposer__actions {
+    flex: 0 0 auto;
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: var(--msg-composer-action-gap);
+    width: calc(
+      var(--msg-composer-action-size) * 2.5 + var(--msg-composer-action-gap) * 2
+    );
+    max-width: calc(
+      var(--msg-composer-action-size) * 2.5 + var(--msg-composer-action-gap) * 2
+    );
+    overflow-x: auto;
+    overflow-y: hidden;
+    overscroll-behavior-x: contain;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    padding: 2px 0;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
   }
 
-  .msgComposer__emojiBtn.emoji-picker-btn--inline .emoji-picker-btn__trigger {
-    width: 30px;
-    height: 30px;
-  }
+  .msgComposer__actionBtn {
+    flex: 0 0 var(--msg-composer-action-size);
+    width: var(--msg-composer-action-size);
+    min-width: var(--msg-composer-action-size);
+    min-height: var(--msg-composer-action-size);
+    padding: 0;
 
-  .msgComposer__send {
-    width: 36px;
-    height: 36px;
-  }
-
-  .msgComposer__actionBtn img,
-  .msgComposer__actionBtn svg {
-    width: 22px;
-    height: 22px;
+    img,
+    svg {
+      width: 20px;
+      height: 20px;
+    }
   }
 }
 

@@ -641,7 +641,7 @@ export default function MessagesPage() {
   const peerName = getDisplayName(activeConversation?.participant, t('common.user'));
 
   return (
-    <div className="messagesPage">
+    <div className={`messagesPage${showChatOnMobile ? ' messagesPage--chatOpen' : ''}`}>
       <div className="messagesPage__bg" aria-hidden="true" />
 
       <div className="messagesPage__shell">
@@ -655,7 +655,9 @@ export default function MessagesPage() {
           onGoHome={() => navigate('/first-page')}
         />
 
-        <div className="messagesPage__content">
+        <div
+          className={`messagesPage__content${showChatOnMobile ? ' messagesPage__content--chatOpen' : ''}`}
+        >
           <div className="messagesPage__topRule" aria-hidden="true" />
 
           <h1 className="messagesPage__title">
@@ -755,7 +757,16 @@ export default function MessagesPage() {
                     >
                       <img src={profileIcons.arrowLeftBlack} alt="" aria-hidden="true" />
                     </button>
-                    <h2 className="messagesPage__chatTitle">{peerName}</h2>
+                    <div className="messagesPage__chatHeadPeer">
+                      <div className="messagesPage__chatHeadAvatar" aria-hidden="true">
+                        {activeConversation?.participant?.avatarUrl ? (
+                          <img src={activeConversation.participant.avatarUrl} alt="" />
+                        ) : (
+                          <span>{peerName.charAt(0).toUpperCase()}</span>
+                        )}
+                      </div>
+                      <h2 className="messagesPage__chatTitle">{peerName}</h2>
+                    </div>
                     <div className="messagesPage__chatActions">
                       <button
                         type="button"
