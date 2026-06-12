@@ -164,6 +164,7 @@ export default function MessagesPage() {
   const navigate = useNavigate();
   const { conversationId } = useParams();
   const isAuthed = useAuthStore((s) => s.isAuthed);
+  const isAuthLoading = useAuthStore((s) => s.isAuthLoading);
   const currentUserId = useAuthStore((s) => s.user?.id);
 
   const setActiveConversationId = useMessagesStore((s) => s.setActiveConversationId);
@@ -233,6 +234,7 @@ export default function MessagesPage() {
   }, [activeConversationId, setActiveConversationId]);
 
   useEffect(() => {
+    if (isAuthLoading) return;
     if (!isAuthed) {
       navigate('/auth/login', {
         replace: true,
@@ -243,7 +245,7 @@ export default function MessagesPage() {
         },
       });
     }
-  }, [isAuthed, navigate, activeConversationId]);
+  }, [isAuthLoading, isAuthed, navigate, activeConversationId]);
 
   const loadConversations = useCallback(async () => {
     try {
@@ -635,7 +637,7 @@ export default function MessagesPage() {
     }
   };
 
-  if (!isAuthed) return null;
+  if (isAuthLoading || !isAuthed) return null;
 
   const showChatOnMobile = Boolean(activeConversationId);
   const peerName = getDisplayName(activeConversation?.participant, t('common.user'));
