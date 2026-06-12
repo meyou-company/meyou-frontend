@@ -63,6 +63,7 @@ export function NotificationsSocketProvider() {
       const { notification, unreadCountApprox } =
         unwrapRealtimeNotificationEnvelope(envelope);
       if (!notification?.id) return;
+      if (notification.type === 'MESSAGE') return;
 
       handlersRef.current.addNotification?.(mapNotification(notification), {
         skipUnreadBump: true,
