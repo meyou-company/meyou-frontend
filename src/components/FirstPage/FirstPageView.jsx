@@ -184,6 +184,24 @@ export default function FirstPageView({
     );
   };
 
+  const markStoryReactionLocally = (storyId, reactionType) => {
+    setStoriesGroups((prev) =>
+      prev.map((group) => ({
+        ...group,
+        stories: Array.isArray(group?.stories)
+          ? group.stories.map((story) =>
+            String(story?.id) === String(storyId)
+              ? {
+                ...story,
+                myReaction: reactionType,
+              }
+              : story
+          )
+          : [],
+      }))
+    );
+  };
+
   const [feedPosts, setFeedPosts] = useState([]);
   const [feedLoading, setFeedLoading] = useState(true);
   const [feedError, setFeedError] = useState(null);
@@ -420,6 +438,7 @@ export default function FirstPageView({
           onClose={closeStoryViewer}
           onViewed={markStoryViewedLocally}
           onDeleteStory={handleDeleteStory}
+          onReactionChange={markStoryReactionLocally}
         />
 
         <SharePostModal

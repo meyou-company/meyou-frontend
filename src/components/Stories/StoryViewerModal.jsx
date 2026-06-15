@@ -94,6 +94,7 @@ export default function StoryViewerModal({
   onViewed,
   onDeleteStory,
   onOpenProfile,
+  onReactionChange,
 }) {
   const [groupIndex, setGroupIndex] = useState(initialGroupIndex);
   const [storyIndex, setStoryIndex] = useState(0);
@@ -104,6 +105,8 @@ export default function StoryViewerModal({
   const [storyViewsLoading, setStoryViewsLoading] = useState(false);
   const [replyText, setReplyText] = useState("");
   const [selectedReaction, setSelectedReaction] = useState(null);
+  const [isReactionSaving, setIsReactionSaving] = useState(false);
+  const [isReplySending, setIsReplySending] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const navigate = useNavigate();
@@ -117,12 +120,15 @@ export default function StoryViewerModal({
   const currentStory = stories[storyIndex];
 
   const storyId = getStoryId(currentStory);
+  const currentStoryReaction =
+    currentStory?.myReaction || currentStory?.reactionByMe || null;
   const mediaUrl = getStoryMediaUrl(currentStory);
   const mediaType = getStoryMediaType(currentStory);
   const author = currentGroup?.author || currentStory?.author;
   const authorAvatar = author?.avatarUrl || author?.avatar || profileIcons.userStory;
   const isOwnStory =
     String(author?.id ?? currentStory?.authorId ?? "") === String(currentUserId ?? "");
+
   const handleOpenAuthorProfile = () => {
     const username = author?.username || author?.nick || author?.nickname;
 
@@ -130,6 +136,35 @@ export default function StoryViewerModal({
 
     onClose?.();
     onOpenProfile?.(username);
+  };
+
+  const handleSaveStoryMedia = async () => {
+    if (!mediaUrl) return;
+
+    try {
+      const response = await fetch(mediaUrl);
+      const blob = await response.blob();
+
+      const extension =
+        mediaType === "video"
+          ? "mp4"
+          : blob.type?.split("/")?.[1] || "jpg";
+
+      const blobUrl = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+
+      link.href = blobUrl;
+      link.download = `meyou-story-${storyId || Date.now()}.${extension}`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+
+      URL.revokeObjectURL(blobUrl);
+    } catch (error) {
+      console.error("Save story media failed", error);
+
+      window.open(mediaUrl, "_blank", "noopener,noreferrer");
+    }
   };
 
   const hasStories = safeGroups.length > 0 && stories.length > 0 && currentStory;
@@ -331,6 +366,60 @@ export default function StoryViewerModal({
     return () => window.clearInterval(interval);
   }, [isOpen, hasStories, duration, storyId, goNext]);
 
+  useEffect(() => {
+    if (!isOpen || !storyId) return;
+
+    setSelectedReaction(currentStoryReaction);
+  }, [isOpen, storyId, currentStoryReaction]);
+
+  const handleReactionClick = async (reactionType) => {
+    if (!storyId || isOwnStory || isReactionSaving) return;
+
+    const previousReaction = selectedReaction;
+    const nextReaction = previousReaction === reactionType ? null : reactionType;
+
+    try {
+      setIsReactionSaving(true);
+
+      setSelectedReaction(nextReaction);
+      onReactionChange?.(storyId, nextReaction);
+
+      if (!nextReaction) {
+        await storiesApi.deleteReaction(storyId);
+        return;
+      }
+
+      await storiesApi.setReaction(storyId, nextReaction);
+    } catch (error) {
+      console.error("[story-reaction] failed", error);
+
+      setSelectedReaction(previousReaction);
+      onReactionChange?.(storyId, previousReaction);
+    } finally {
+      setIsReactionSaving(false);
+    }
+  };
+
+  const handleSendStoryReply = async () => {
+    const message = replyText.trim();
+
+    if (!storyId || isOwnStory || !message || isReplySending) return;
+
+    try {
+      setIsReplySending(true);
+
+      const response = await storiesApi.reply(storyId, message);
+
+      setReplyText("");
+
+      console.log("[story-reply] sent", response);
+    } catch (error) {
+      console.error("[story-reply] failed", error);
+    } finally {
+      setIsReplySending(false);
+    }
+  };
+
   const progressBars = useMemo(() => {
     return stories.map((story, index) => {
       if (index < storyIndex) return 100;
@@ -444,6 +533,13 @@ export default function StoryViewerModal({
                 <button
                   type="button"
                   className="storyViewer__popupDanger"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+
+                    handleSaveStoryMedia();
+                    setIsMenuOpen(false);
+                  }}
                 >
                   Сохранить фото/видео
                 </button>
@@ -580,9 +676,20 @@ export default function StoryViewerModal({
                 placeholder="Отправить сообщение"
                 value={replyText}
                 onChange={(e) => setReplyText(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    handleSendStoryReply();
+                  }
+                }}
               />
 
-              <button type="button" className="storyViewer__sendBtn">
+              <button
+                type="button"
+                className="storyViewer__sendBtn"
+                onClick={handleSendStoryReply}
+                disabled={isReplySending || !replyText.trim()}
+              >
                 <img src={profileIcons.storyForward} alt="" />
               </button>
             </div>
@@ -594,7 +701,7 @@ export default function StoryViewerModal({
                   type="button"
                   className={`storyViewer__reactionBtn ${selectedReaction === reaction.id ? "storyViewer__reactionBtn--active" : ""
                     }`}
-                  onClick={() => setSelectedReaction(reaction.id)}
+                  onClick={() => handleReactionClick(reaction.id)} disabled={isReactionSaving}
                 >
                   <img src={reaction.icon} alt="" />
                 </button>
