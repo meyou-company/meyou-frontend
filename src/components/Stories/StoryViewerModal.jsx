@@ -106,6 +106,7 @@ export default function StoryViewerModal({
   const [replyText, setReplyText] = useState("");
   const [selectedReaction, setSelectedReaction] = useState(null);
   const [isReactionSaving, setIsReactionSaving] = useState(false);
+  const [isReplySending, setIsReplySending] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const navigate = useNavigate();
@@ -399,6 +400,26 @@ export default function StoryViewerModal({
     }
   };
 
+  const handleSendStoryReply = async () => {
+    const message = replyText.trim();
+
+    if (!storyId || isOwnStory || !message || isReplySending) return;
+
+    try {
+      setIsReplySending(true);
+
+      const response = await storiesApi.reply(storyId, message);
+
+      setReplyText("");
+
+      console.log("[story-reply] sent", response);
+    } catch (error) {
+      console.error("[story-reply] failed", error);
+    } finally {
+      setIsReplySending(false);
+    }
+  };
+
   const progressBars = useMemo(() => {
     return stories.map((story, index) => {
       if (index < storyIndex) return 100;
@@ -655,9 +676,20 @@ export default function StoryViewerModal({
                 placeholder="Отправить сообщение"
                 value={replyText}
                 onChange={(e) => setReplyText(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    handleSendStoryReply();
+                  }
+                }}
               />
 
-              <button type="button" className="storyViewer__sendBtn">
+              <button
+                type="button"
+                className="storyViewer__sendBtn"
+                onClick={handleSendStoryReply}
+                disabled={isReplySending || !replyText.trim()}
+              >
                 <img src={profileIcons.storyForward} alt="" />
               </button>
             </div>

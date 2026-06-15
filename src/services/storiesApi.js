@@ -92,4 +92,12 @@ export const storiesApi = {
 
     return data;
   },
+
+  async reply(storyId, text) {
+    const { data } = await api.post(apiPath(`/stories/${encodeURIComponent(storyId)}/reply`), {
+      text,
+    });
+
+    return data;
+  },
 };
