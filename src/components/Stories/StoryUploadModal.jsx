@@ -8,11 +8,21 @@ import AppHeader from "../Layout/AppHeader";
 import profileIcons from "../../constants/profileIcons";
 import "./StoryUploadModal.scss";
 
+const STORY_VISIBILITY_OPTIONS = [
+  { value: "FOLLOWERS", label: "Подписчики" },
+  { value: "FRIENDS", label: "Друзья" },
+  { value: "CLOSE_FRIENDS", label: "Близкие друзья" },
+  { value: "PUBLIC", label: "Все" },
+  { value: "ONLY_ME", label: "Только я" },
+];
+
 export default function StoryUploadModal({ isOpen, onClose, onCreated }) {
   const inputRef = useRef(null);
   const [fileItem, setFileItem] = useState(null);
   const [text, setText] = useState("");
   const [isPublishing, setIsPublishing] = useState(false);
+  const [visibility, setVisibility] = useState("FOLLOWERS");
+  const [isVisibilityOpen, setIsVisibilityOpen] = useState(false);
 
   const navigate = useNavigate();
   const currentUser = useAuthStore((s) => s.user);
@@ -169,6 +179,7 @@ export default function StoryUploadModal({ isOpen, onClose, onCreated }) {
         mediaUrl: uploaded.mediaUrl,
         mediaType: uploaded.mediaType,
         text: text.trim(),
+        visibility,
       });
 
       toast.success("Story опубліковано");
@@ -388,12 +399,44 @@ export default function StoryUploadModal({ isOpen, onClose, onCreated }) {
                   <span>Ваша история</span>
                 </button>
 
-                <button type="button" className="storyUploadModal__audienceBtn" onClick={handlePublish}
-                  disabled={isPublishing}>
-                  <span className="storyUploadModal__closeFriendsIcon">
-                    <img src={profileIcons.storyCloseFriends} alt="" /></span>
-                  <span>Близкие</span>
-                </button>
+                <div className="storyUploadModal__visibilityWrap">
+                  <button
+                    type="button"
+                    className="storyUploadModal__audienceBtn"
+                    onClick={() => setIsVisibilityOpen((prev) => !prev)}
+                    disabled={isPublishing}
+                  >
+                    <span className="storyUploadModal__closeFriendsIcon">
+                      <img src={profileIcons.storyVisibility || profileIcons.storyCloseFriends} alt="" />
+                    </span>
+                    <span>Видимость</span>
+                  </button>
+
+                  {isVisibilityOpen && (
+                    <div className="storyUploadModal__visibilityMenu">
+                      <p className="storyUploadModal__visibilityTitle">
+                        👁️ Кто может видеть эту сторис:
+                      </p>
+
+                      {STORY_VISIBILITY_OPTIONS.map((option) => (
+                        <button
+                          key={option.value}
+                          type="button"
+                          className="storyUploadModal__visibilityOption"
+                          onClick={() => {
+                            setVisibility(option.value);
+                            setIsVisibilityOpen(false);
+                          }}
+                        >
+                          <span className="storyUploadModal__visibilityRadio">
+                            {visibility === option.value ? "✓" : ""}
+                          </span>
+                          <span>{option.label}</span>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
 
                 <button
                   type="button"

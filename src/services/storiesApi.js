@@ -1,4 +1,4 @@
-import { api, apiPath } from "./api";
+import { api, apiPath } from './api';
 
 function extractList(payload) {
   if (!payload) return [];
@@ -17,67 +17,78 @@ function extractList(payload) {
 
 export const storiesApi = {
   async getFeed() {
-    const { data } = await api.get(apiPath("/stories/feed"));
+    const { data } = await api.get(apiPath('/stories/feed'));
     return extractList(data);
   },
 
   async getUserStories(userId) {
-  if (!userId) return [];
+    if (!userId) return [];
 
-  const { data } = await api.get(
-    apiPath(`/stories/${encodeURIComponent(userId)}`)
-  );
+    const { data } = await api.get(apiPath(`/stories/${encodeURIComponent(userId)}`));
 
-  return extractList(data);
-},
+    return extractList(data);
+  },
 
-  async create({ mediaUrl, mediaType, text = "" }) {
-  const payload = {
-    mediaUrl,
-    mediaType,
-  };
+  async create({ mediaUrl, mediaType, text = '', visibility = 'FOLLOWERS', durationSec }) {
+    const payload = {
+      mediaUrl,
+      mediaType,
+      visibility,
+    };
 
-  const trimmedText = String(text ?? "").trim();
+    const trimmedText = String(text ?? '').trim();
 
-  if (trimmedText) {
-    payload.text = trimmedText;
-  }
+    if (trimmedText) {
+      payload.text = trimmedText;
+    }
 
-  const { data } = await api.post(apiPath("/stories"), payload);
-  return data;
-},
+    if (durationSec) {
+      payload.durationSec = durationSec;
+    }
+
+    const { data } = await api.post(apiPath('/stories'), payload);
+    return data;
+  },
 
   async markViewed(storyId) {
-    const { data } = await api.post(
-      apiPath(`/stories/${encodeURIComponent(storyId)}/view`)
-    );
+    const { data } = await api.post(apiPath(`/stories/${encodeURIComponent(storyId)}/view`));
     return data;
   },
 
   async deleteStory(storyId) {
-    const { data } = await api.delete(
-      apiPath(`/stories/${encodeURIComponent(storyId)}`)
-    );
+    const { data } = await api.delete(apiPath(`/stories/${encodeURIComponent(storyId)}`));
     return data;
   },
 
   async getViews(storyId) {
-    const { data } = await api.get(
-      apiPath(`/stories/${encodeURIComponent(storyId)}/views`)
-    );
+    const { data } = await api.get(apiPath(`/stories/${encodeURIComponent(storyId)}/views`));
     return data;
   },
 
   async getPresignedUrl(file) {
     const fileName = file?.name || `story-${Date.now()}`;
-    const fileType = file?.type || "application/octet-stream";
+    const fileType = file?.type || 'application/octet-stream';
 
-    const { data } = await api.get(apiPath("/uploads/story-media/presigned-url"), {
+    const { data } = await api.get(apiPath('/uploads/story-media/presigned-url'), {
       params: {
         fileName,
         fileType,
       },
     });
+
+    return data;
+  },
+
+  async setReaction(storyId, reactionType) {
+    const { data } = await api.post(apiPath(`/stories/${encodeURIComponent(storyId)}/reactions`), {
+      reactionType,
+    });
+
+    return data;
+  },
+
+  async deleteReaction(storyId) {
+    const { data } = await api.delete(apiPath(`/stories/${encodeURIComponent(storyId)}/reactions`));
 
     return data;
   },

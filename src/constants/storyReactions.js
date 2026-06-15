@@ -1,10 +1,10 @@
 import profileIcons from "./profileIcons";
 
 export const storyReactions = [
-  { id: "like", icon: profileIcons.storyReactionLike },
-  { id: "heart", icon: profileIcons.storyReactionHeart },
-  { id: "laugh", icon: profileIcons.storyReactionLaugh },
-  { id: "wow", icon: profileIcons.storyReactionWow },
-  { id: "cry", icon: profileIcons.storyReactionCry},
-  { id: "fire", icon: profileIcons.storyReactionFire },
+  { id: "LIKE", icon: profileIcons.storyReactionLike },
+  { id: "LOVE", icon: profileIcons.storyReactionHeart },
+  { id: "HAHA", icon: profileIcons.storyReactionLaugh },
+  { id: "WOW", icon: profileIcons.storyReactionWow },
+  { id: "SAD", icon: profileIcons.storyReactionCry },
+  { id: "FIRE", icon: profileIcons.storyReactionFire },
 ];
