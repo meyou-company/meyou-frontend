@@ -179,6 +179,7 @@
     "notFound": "Профиль не найден{{username}}",
     "loadError": "Ошибка загрузки",
     "myBalance": "Мой баланс",
+    "myPhotos": "Мои фото",
     "editProfile": "Редактировать профиль",
     "viewPhoto": "Посмотреть фото",
     "viewPhotoFull": "Фото в полном размере",
@@ -254,7 +255,14 @@
       "giftsStat": "Подарки",
       "postsStat": "Посты",
       "contacts": "Контакты",
-      "emailHidden": "Email (скрыт)"
+      "emailHidden": "Email (скрыт)",
+      "editSection": "Редактировать раздел",
+      "save": "Сохранить",
+      "saved": "Информация сохранена",
+      "visibleTo": "Кому видно",
+      "onlyMe": "Только мне",
+      "everyone": "Всем",
+      "languagesPlaceholder": "Русский, Английский, Испанский"
     },
     "vip": {
       "vipFriends": "VIP",

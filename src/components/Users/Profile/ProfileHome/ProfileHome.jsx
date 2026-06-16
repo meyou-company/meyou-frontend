@@ -26,6 +26,7 @@ import { dedupeAsync } from "../../../../utils/dedupeAsync";
 import { mapApiPostToFeedItem } from "../../../../utils/mapApiPostToFeedItem";
 import { useProfileAuthorFeed } from "../../../../hooks/useProfileAuthorFeed";
 import ProfilePostsFeed from "../ProfilePostsFeed/ProfilePostsFeed";
+import ProfileInfoPanel from "../ProfileInfoPanel/ProfileInfoPanel";
 import CreatePostModal from "../../../PostFeed/CreatePostModal";
 import { getApiErrorMessage } from "../../../../utils/getApiErrorMessage";
 import { detectCurrentLocationLabel } from "../../../../utils/postGeolocation";
@@ -84,6 +85,7 @@ export default function ProfileHome({
   const [isStoryViewerOpen, setIsStoryViewerOpen] = useState(false);
   const [storyViewerStoryIndex, setStoryViewerStoryIndex] = useState(0);
   const [isStoryUploadOpen, setIsStoryUploadOpen] = useState(false);
+  const [isInfoOpen, setIsInfoOpen] = useState(false);
 
   const {
     feedPosts,
@@ -107,6 +109,12 @@ export default function ProfileHome({
       });
     };
   }, [postMediaFiles]);
+
+  const myPhotosSectionRef = useRef(null);
+
+  const handleMyPhotos = () => {
+    myPhotosSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
 
   const username =
     user?.username || user?.nick || user?.nickname || user?.login || "";
@@ -465,6 +473,15 @@ export default function ProfileHome({
                 </button>
               </div>
 
+              <button
+                type="button"
+                className={`profileAvatarInfoBtn${isInfoOpen ? " is-active" : ""}`}
+                onClick={() => setIsInfoOpen((open) => !open)}
+                aria-expanded={isInfoOpen}
+                aria-controls="profile-info-panel"
+              >
+                {t('profile.tabs.info')}
+              </button>
             </div>
           </div>
 
@@ -480,22 +497,30 @@ export default function ProfileHome({
             </div>
 
             <div className="profileInfoAside">
-              <div className="badgesRow">
-                <button type="button" className="badgeItem" onClick={onWallet} aria-label={t('profile.myBalance')}>
-                  <img className="badgeIcon" src={profileIcons.balance} alt="" />
-                  <span className="badgeText">{t('profile.myBalance')}</span>
+              <div className="profileMobileBadges">
+                <button
+                  type="button"
+                  className="profileMobileBadges__btn"
+                  onClick={handleMyPhotos}
+                  aria-label={t('profile.myPhotos')}
+                >
+                  <img src={profileIcons.myPhotos} alt="" className="profileMobileBadges__icon" />
+                  <span className="profileMobileBadges__label">{t('profile.myPhotos')}</span>
                 </button>
 
-                <button type="button" className="badgeItem" onClick={onSaved} aria-label={t('profile.saved')}>
-                  <img className="badgeIcon" src={profileIcons.saved} alt="" />
-                  <span className="badgeText">{t('profile.saved')}</span>
+                <button type="button" className="profileMobileBadges__btn" onClick={onSaved} aria-label={t('profile.saved')}>
+                  <img src={profileIcons.saved} alt="" className="profileMobileBadges__icon" />
+                  <span className="profileMobileBadges__label">{t('profile.saved')}</span>
                 </button>
-              </div>
 
-              <div className="profileMobileGifts">
-                <button type="button" className="profileMobileGifts__btn" onClick={onGifts} aria-label={t('profile.gifts')}>
-                  <img src={profileIcons.giftIcon} alt="" className="profileMobileGifts__icon" />
-                  <span className="profileMobileGifts__label">{t('profile.gifts')}</span>
+                <button type="button" className="profileMobileBadges__btn" onClick={onGifts} aria-label={t('profile.gifts')}>
+                  <img src={profileIcons.giftIcon} alt="" className="profileMobileBadges__icon" />
+                  <span className="profileMobileBadges__label">{t('profile.gifts')}</span>
+                </button>
+
+                <button type="button" className="profileMobileBadges__btn" onClick={onWallet} aria-label={t('profile.myBalance')}>
+                  <img src={profileIcons.balance} alt="" className="profileMobileBadges__icon" />
+                  <span className="profileMobileBadges__label">{t('profile.myBalance')}</span>
                 </button>
               </div>
             </div>
@@ -538,6 +563,14 @@ export default function ProfileHome({
             </button>
           </div>
         </section>
+
+        <ProfileInfoPanel
+          user={user}
+          isOpen={isInfoOpen}
+          editable
+          onUserUpdated={refreshMe}
+          id="profile-info-panel"
+        />
 
         {/* ================= ACTIONS ================= */}
         <section className="actionsSection">
@@ -707,7 +740,7 @@ export default function ProfileHome({
         </section>
 
         {/* ================= NEW POST ================= */}
-        <section className="newPost">
+        <section className="newPost" ref={myPhotosSectionRef} id="profile-my-photos">
           <div className="newPostHead">
             <h3 className="newPostTitle">{t('posts.createTitle')}</h3>
           </div>

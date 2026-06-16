@@ -143,6 +143,34 @@
   }
 }
 
+.profileAvatarInfoBtn {
+  margin-top: 12px;
+  min-width: 166px;
+  height: 48px;
+  padding: 0 18px;
+  border-radius: 14px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  background: linear-gradient(236.31deg, #ff4fb1 11.54%, #4f6bff 88.46%);
+  color: #fff;
+  font-family: Montserrat, sans-serif;
+  font-size: 18px;
+  font-weight: 400;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+
+  &:hover {
+    opacity: 0.92;
+  }
+
+  &.is-active {
+    box-shadow: 0 4px 14px rgba(79, 107, 255, 0.35);
+  }
+}
+
 .editBtn {
   display: inline-flex;
   align-items: center;
@@ -183,7 +211,12 @@
   margin-top: 4px;
 }
 
-/* Ряд «Подарунки» — лише мобільна сітка (див. @media max-width 768px) */
+/* Мобільна сітка 2×2: мої фото / saved / подарунки / баланс */
+.profileMobileBadges {
+  display: none;
+}
+
+/* @deprecated: замінено на profileMobileBadges */
 .profileMobileGifts {
   display: none;
 }
@@ -1952,6 +1985,17 @@ html[data-theme="dark"] .profile-home .postActionCount {
     }
   }
 
+  .profileAvatarInfoBtn {
+    margin-top: 10px;
+    min-width: 120px;
+    width: 100%;
+    max-width: 120px;
+    height: 40px;
+    padding: 0 12px;
+    border-radius: 12px;
+    font-size: 14px;
+  }
+
   .profileInfo {
     display: grid;
     grid-template-columns: 1fr auto;
@@ -2000,23 +2044,57 @@ html[data-theme="dark"] .profile-home .postActionCount {
     margin-top: 8px;
   }
 
-  /* ✅ badges у колонці навпроти імені та біо */
-  .badgesRow {
-    display: flex;
-    align-items: flex-start;
-    gap: 18px;
-    margin: 0;
-    padding-top: 0;
-    flex-wrap: nowrap;
-  }
-
-  .profileMobileGifts {
-    display: flex;
-    justify-content: center;
-    align-items: center;
+  /* ✅ badges 2×2 у колонці навпроти імені та біо */
+  .profileMobileBadges {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px 18px;
     width: 100%;
     margin: 0;
     padding: 0;
+  }
+
+  .profileMobileBadges__btn {
+    border: 0;
+    background: transparent;
+    padding: 6px 4px;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    min-width: 0;
+  }
+
+  .profileMobileBadges__icon {
+    width: 20px;
+    height: 20px;
+    object-fit: contain;
+    display: block;
+  }
+
+  .profileMobileBadges__label {
+    font-size: 10px;
+    font-weight: 500;
+    line-height: 1.1;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    color: rgba(0, 0, 0, 0.62);
+    text-align: center;
+  }
+
+  body.dark .profileMobileBadges__label {
+    color: rgba(255, 255, 255, 0.72);
+  }
+
+  .badgesRow {
+    display: none;
+  }
+
+  .profileMobileGifts {
+    display: none;
   }
 
   .profileMobileGifts__btn {
@@ -2338,60 +2416,31 @@ html[data-theme="dark"] .profile-home .postActionCount {
     line-height: 1.75;
   }
 
-  /* ===== badges row (balance / saved) + gifts у колонці aside ===== */
-  .badgesRow {
-    display: flex;
-    gap: 14px;
-    margin: 0;
-    padding-top: 2px; /* підняти як у макеті */
-    flex-wrap: nowrap;
-    align-items: flex-start;
+  /* ===== badges 2×2 (my photos / saved / gifts / balance) ===== */
+  .profileMobileBadges {
+    gap: 10px 14px;
   }
 
-  .badgeItem {
-    border: 0;
-    background: transparent;
-    padding: 0;
-    cursor: pointer;
-
-    display: grid;
-    justify-items: center;
-    gap: 4px;
-
-    /* щоб не стискало в нуль */
-    flex: 0 0 auto;
-    white-space: nowrap;
-  }
-
-  .badgeIcon {
-    width: 16px;   /* трохи більші іконки saved / my balance */
-    height: 16px;
-    display: block;
-    object-fit: contain;
-  }
-
-  .badgeText {
+  .profileMobileBadges__label {
     font-size: 9px;
-    font-weight: 500;
-    line-height: 1;
-    text-decoration: underline;
-    text-underline-offset: 3px;
   }
 
-  /* ===== Actions buttons: pills like Figma ===== */
+  .badgesRow {
+    display: none;
+  }
+
+  .profileMobileGifts {
+    display: none;
+  }
+
   .actionsBlock {
     margin-top: 4px;
     gap: 12px;
   }
 
-  /* hide desktop ones */
   .actionBig,
   .actionsRow {
     display: none;
-  }
-
-  .profileMobileGifts__label {
-    font-size: 9px;
   }
 
   .actionsRow1 {
@@ -2545,18 +2594,16 @@ html[data-theme="dark"] .profile-home .postActionCount {
     margin-top: 8px;
   }
 
+  .profileMobileBadges {
+    gap: 8px 10px;
+  }
+
+  .profileMobileBadges__label {
+    font-size: 8px;
+  }
+
   .badgesRow {
-    gap: 8px;
-    padding-top: 0;
-  }
-
-  .badgeIcon {
-    width: 14px;
-    height: 14px;
-  }
-
-  .badgeText {
-    font-size: 7px;
+    display: none;
   }
 
   .actionsBlock {

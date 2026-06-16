@@ -21,6 +21,7 @@ const profileIcons = {
   user: `${HOME}/user1.svg`,
   friends: `${HOME}/user-friends.svg`,
   saved: `${HOME}/saved.svg`,
+  myPhotos: `${HOME}/my-photos.svg`,
   like: `${HOME}/like.svg`,
   comments: `${HOME}/comments.svg`,
   location: `${HOME}/location.svg`,

@@ -179,6 +179,7 @@
     "notFound": "Profile not found{{username}}",
     "loadError": "Failed to load profile",
     "myBalance": "My balance",
+    "myPhotos": "My photos",
     "editProfile": "Edit profile",
     "viewPhoto": "View photo",
     "viewPhotoFull": "Full-size photo",
@@ -254,7 +255,14 @@
       "giftsStat": "Gifts",
       "postsStat": "Posts",
       "contacts": "Contacts",
-      "emailHidden": "Email (hidden)"
+      "emailHidden": "Email (hidden)",
+      "editSection": "Edit section",
+      "save": "Save",
+      "saved": "Information saved",
+      "visibleTo": "Visible to",
+      "onlyMe": "Only me",
+      "everyone": "Everyone",
+      "languagesPlaceholder": "English, Spanish, Ukrainian"
     },
     "vip": {
       "vipFriends": "VIP",

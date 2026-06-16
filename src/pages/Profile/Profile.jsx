@@ -34,6 +34,17 @@ const normalizeProfile = (u) => {
     city: u.city || "",
     country: u.country || "",
     bio: u.bio,
+    about: u.about,
+    gender: u.gender,
+    maritalStatus: u.maritalStatus,
+    relationshipStatus: u.relationshipStatus,
+    nationality: u.nationality,
+    profession: u.profession,
+    job: u.job,
+    languages: u.languages,
+    telegram: u.telegram,
+    instagram: u.instagram,
+    profileVisibility: u.profileVisibility,
     isVerified: u.isVerified,
     /** Інтереси та хобі з бекенду (зберігаються в DTO update-profile) */
     interests: Array.isArray(u.interests) ? u.interests : [],
@@ -41,6 +52,8 @@ const normalizeProfile = (u) => {
     friends: friendsArray,
     /** Загальна кількість друзів (підписники + підписки) з API */
     friendsCount,
+    postsCount: u.postsCount ?? u.stats?.postsCount,
+    giftsCount: u.giftsCount ?? u.stats?.giftsCount,
     viewType: u.viewType,
     subscriptionStatus: u.subscriptionStatus
       ? {
