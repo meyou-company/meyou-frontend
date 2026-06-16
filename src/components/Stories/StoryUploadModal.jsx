@@ -11,7 +11,7 @@ import "./StoryUploadModal.scss";
 const STORY_VISIBILITY_OPTIONS = [
   { value: "FOLLOWERS", label: "Подписчики" },
   { value: "FRIENDS", label: "Друзья" },
-  { value: "CLOSE_FRIENDS", label: "Близкие друзья" },
+  // { value: "CLOSE_FRIENDS", label: "Близкие друзья" },
   { value: "PUBLIC", label: "Все" },
   { value: "ONLY_ME", label: "Только я" },
 ];

@@ -544,9 +544,9 @@ export default function StoryViewerModal({
                   Сохранить фото/видео
                 </button>
 
-                <button type="button">
+                {/* <button type="button">
                   Изменить настройки конфиденциальности
-                </button>
+                </button> */}
 
                 <button
                   type="button"
