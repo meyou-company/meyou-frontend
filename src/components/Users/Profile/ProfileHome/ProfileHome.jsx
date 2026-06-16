@@ -550,6 +550,24 @@ export default function ProfileHome({
                 <img src={profileIcons.giftIcon} alt="" className="msgIcon" />
                 <span className="msgText">{t('profile.myGifts')}</span>
               </button>
+              <button
+                type="button"
+                className="btnMessages btnMessages--desktopExtra"
+                onClick={onSaved}
+                aria-label={t('profile.saved')}
+              >
+                <img src={profileIcons.saved} alt="" className="msgIcon" />
+                <span className="msgText">{t('profile.saved')}</span>
+              </button>
+              <button
+                type="button"
+                className="btnMessages btnMessages--desktopExtra"
+                onClick={handleMyPhotos}
+                aria-label={t('profile.myPhotos')}
+              >
+                <img src={profileIcons.myPhotos} alt="" className="msgIcon" />
+                <span className="msgText">{t('profile.myPhotos')}</span>
+              </button>
             </div>
 
             <button

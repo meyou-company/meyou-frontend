@@ -410,6 +410,10 @@ font-size: 60px;
   }
 }
 
+.btnMessages--desktopExtra {
+  display: none;
+}
+
 .msgIcon {
   width: 40px;
   height: 40px;
@@ -3025,13 +3029,25 @@ html[data-theme="dark"] .profile-home .postActionCount {
     align-items: flex-start;
     padding-top: 12px;
     justify-content: flex-end;
-    flex: 0 0 240px;
+    flex: 0 0 460px;
+  }
+
+  .profileRight__stack {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+    width: 100%;
+  }
+
+  .btnMessages--desktopExtra {
+    display: flex;
   }
 
   .btnMessages {
     transform: none;
     height: 78px;
-    min-width: 214px;
+    min-width: 0;
+    width: 100%;
     border-radius: 24px;
     padding: 0 18px;
     background: rgba(255, 255, 255, 0.36);
