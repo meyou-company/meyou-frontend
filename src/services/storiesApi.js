@@ -15,6 +15,22 @@ function extractList(payload) {
   return [];
 }
 
+function normalizePagedResponse(payload, fallbackLimit = 20) {
+  const data = extractList(payload);
+  const meta = payload?.meta || payload?.data?.meta || {};
+
+  return {
+    data,
+    meta: {
+      limit: meta.limit ?? payload?.limit ?? fallbackLimit,
+      page: meta.page ?? payload?.page ?? 1,
+      total: meta.total ?? payload?.total ?? data.length,
+      hasMore: Boolean(meta.hasMore ?? payload?.hasMore),
+      nextCursor: meta.nextCursor ?? payload?.nextCursor ?? null,
+    },
+  };
+}
+
 export const storiesApi = {
   async getFeed() {
     const { data } = await api.get(apiPath('/stories/feed'));
@@ -65,6 +81,39 @@ export const storiesApi = {
     return data;
   },
 
+  async getAnalytics(storyId) {
+    const { data } = await api.get(apiPath(`/stories/${encodeURIComponent(storyId)}/analytics`));
+    return data;
+  },
+
+  async getArchive({ page = 1, limit = 20, cursor } = {}) {
+    const params = { limit };
+    if (cursor) params.cursor = cursor;
+    else params.page = page;
+
+    const { data } = await api.get(apiPath('/stories/archive'), { params });
+    return normalizePagedResponse(data, limit);
+  },
+
+  async getSaved({ page = 1, limit = 20, cursor } = {}) {
+    const params = { limit };
+    if (cursor) params.cursor = cursor;
+    else params.page = page;
+
+    const { data } = await api.get(apiPath('/stories/saved'), { params });
+    return normalizePagedResponse(data, limit);
+  },
+
+  async saveStory(storyId) {
+    const { data } = await api.post(apiPath(`/stories/${encodeURIComponent(storyId)}/save`));
+    return data;
+  },
+
+  async unsaveStory(storyId) {
+    const { data } = await api.delete(apiPath(`/stories/${encodeURIComponent(storyId)}/save`));
+    return data;
+  },
+
   async getPresignedUrl(file) {
     const fileName = file?.name || `story-${Date.now()}`;
     const fileType = file?.type || 'application/octet-stream';
@@ -98,6 +147,33 @@ export const storiesApi = {
       text,
     });
 
+    return data;
+  },
+
+  async muteAuthor(authorId) {
+    const { data } = await api.post(apiPath(`/stories/authors/${encodeURIComponent(authorId)}/mute`));
+    return data;
+  },
+
+  async unmuteAuthor(authorId) {
+    const { data } = await api.delete(apiPath(`/stories/authors/${encodeURIComponent(authorId)}/mute`));
+    return data;
+  },
+
+  async markInteresting(storyId) {
+    const { data } = await api.post(apiPath(`/stories/${encodeURIComponent(storyId)}/interesting`));
+    return data;
+  },
+
+  async markNotInteresting(storyId) {
+    const { data } = await api.post(apiPath(`/stories/${encodeURIComponent(storyId)}/not-interesting`));
+    return data;
+  },
+
+  async reportStory(storyId, reason) {
+    const { data } = await api.post(apiPath(`/stories/${encodeURIComponent(storyId)}/report`), {
+      reason,
+    });
     return data;
   },
 };

@@ -31,6 +31,7 @@ import { getApiErrorMessage } from "../../../../utils/getApiErrorMessage";
 import { detectCurrentLocationLabel } from "../../../../utils/postGeolocation";
 import StoryViewerModal from "../../../Stories/StoryViewerModal";
 import StoryUploadModal from "../../../Stories/StoryUploadModal";
+import ProfileInfoPanel from "../ProfileInfoPanel/ProfileInfoPanel";
 import "./ProfileHome.scss";
 
 /** Іконки тільки для actionsBlock (чорно-білі SVG) */
@@ -84,6 +85,7 @@ export default function ProfileHome({
   const [isStoryViewerOpen, setIsStoryViewerOpen] = useState(false);
   const [storyViewerStoryIndex, setStoryViewerStoryIndex] = useState(0);
   const [isStoryUploadOpen, setIsStoryUploadOpen] = useState(false);
+  const [isInfoOpen, setIsInfoOpen] = useState(false);
 
   const {
     feedPosts,
@@ -107,6 +109,12 @@ export default function ProfileHome({
       });
     };
   }, [postMediaFiles]);
+
+  const myPhotosSectionRef = useRef(null);
+
+  const handleMyPhotos = () => {
+    myPhotosSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
 
   const username =
     user?.username || user?.nick || user?.nickname || user?.login || "";
@@ -465,6 +473,15 @@ export default function ProfileHome({
                 </button>
               </div>
 
+              <button
+                type="button"
+                className={`profileAvatarInfoBtn${isInfoOpen ? " is-active" : ""}`}
+                onClick={() => setIsInfoOpen((open) => !open)}
+                aria-expanded={isInfoOpen}
+                aria-controls="profile-info-panel"
+              >
+                {isInfoOpen ? t('common.close') : t('profile.tabs.info')}
+              </button>
             </div>
           </div>
 
@@ -480,7 +497,39 @@ export default function ProfileHome({
             </div>
 
             <div className="profileInfoAside">
+              <div className="profileMobileBadges">
+                <button
+                  type="button"
+                  className="profileMobileBadges__btn"
+                  onClick={handleMyPhotos}
+                  aria-label={t('profile.myPhotos')}
+                >
+                  <img src={profileIcons.myPhotos} alt="" className="profileMobileBadges__icon" />
+                  <span className="profileMobileBadges__label">{t('profile.myPhotos')}</span>
+                </button>
+
+                <button type="button" className="profileMobileBadges__btn" onClick={onSaved} aria-label={t('profile.saved')}>
+                  <img src={profileIcons.saved} alt="" className="profileMobileBadges__icon" />
+                  <span className="profileMobileBadges__label">{t('profile.saved')}</span>
+                </button>
+
+                <button type="button" className="profileMobileBadges__btn" onClick={onGifts} aria-label={t('profile.gifts')}>
+                  <img src={profileIcons.giftIcon} alt="" className="profileMobileBadges__icon" />
+                  <span className="profileMobileBadges__label">{t('profile.gifts')}</span>
+                </button>
+
+                <button type="button" className="profileMobileBadges__btn" onClick={onWallet} aria-label={t('profile.myBalance')}>
+                  <img src={profileIcons.balance} alt="" className="profileMobileBadges__icon" />
+                  <span className="profileMobileBadges__label">{t('profile.myBalance')}</span>
+                </button>
+              </div>
+
               <div className="badgesRow">
+                <button type="button" className="badgeItem" onClick={handleMyPhotos} aria-label={t('profile.myPhotos')}>
+                  <img className="badgeIcon" src={profileIcons.myPhotos} alt="" />
+                  <span className="badgeText">{t('profile.myPhotos')}</span>
+                </button>
+
                 <button type="button" className="badgeItem" onClick={onWallet} aria-label={t('profile.myBalance')}>
                   <img className="badgeIcon" src={profileIcons.balance} alt="" />
                   <span className="badgeText">{t('profile.myBalance')}</span>
@@ -525,6 +574,24 @@ export default function ProfileHome({
                 <img src={profileIcons.giftIcon} alt="" className="msgIcon" />
                 <span className="msgText">{t('profile.myGifts')}</span>
               </button>
+              <button
+                type="button"
+                className="btnMessages btnMessages--desktopExtra"
+                onClick={onSaved}
+                aria-label={t('profile.saved')}
+              >
+                <img src={profileIcons.saved} alt="" className="msgIcon" />
+                <span className="msgText">{t('profile.saved')}</span>
+              </button>
+              <button
+                type="button"
+                className="btnMessages btnMessages--desktopExtra"
+                onClick={handleMyPhotos}
+                aria-label={t('profile.myPhotos')}
+              >
+                <img src={profileIcons.myPhotos} alt="" className="msgIcon" />
+                <span className="msgText">{t('profile.myPhotos')}</span>
+              </button>
             </div>
 
             <button
@@ -538,6 +605,14 @@ export default function ProfileHome({
             </button>
           </div>
         </section>
+
+        <ProfileInfoPanel
+          user={user}
+          isOpen={isInfoOpen}
+          editable
+          onUserUpdated={refreshMe}
+          id="profile-info-panel"
+        />
 
         {/* ================= ACTIONS ================= */}
         <section className="actionsSection">
@@ -707,7 +782,7 @@ export default function ProfileHome({
         </section>
 
         {/* ================= NEW POST ================= */}
-        <section className="newPost">
+        <section className="newPost" ref={myPhotosSectionRef} id="profile-my-photos">
           <div className="newPostHead">
             <h3 className="newPostTitle">{t('posts.createTitle')}</h3>
           </div>

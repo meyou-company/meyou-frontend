@@ -2,8 +2,36 @@ import { useTranslation } from "react-i18next";
 import profileIcons from "../../../../constants/profileIcons";
 import "./ProfileInfoPanel.scss";
 
-export default function ProfileInfoPanel({ user, isOpen }) {
+export default function ProfileInfoPanel({ user, isOpen, id }) {
   const { t } = useTranslation();
+
+  const profileData =
+    user?.profile ||
+    user?.profileInfo ||
+    user?.personalInfo ||
+    user?.details ||
+    {};
+
+  const getValue = (...keys) => {
+    for (const key of keys) {
+      const value = user?.[key] ?? profileData?.[key];
+
+      if (Array.isArray(value)) {
+        if (value.length) return value.join(", ");
+        continue;
+      }
+
+      if (typeof value === "object" && value !== null) {
+        return value.label || value.name || value.value || "";
+      }
+
+      if (value !== undefined && value !== null && String(value).trim() !== "") {
+        return value;
+      }
+    }
+
+    return t("profile.notSpecified");
+  };
 
   const interests = (() => {
     if (Array.isArray(user?.interests)) {
@@ -21,11 +49,11 @@ export default function ProfileInfoPanel({ user, isOpen }) {
   })();
 
   const info = {
-    gender: user?.gender || t("profile.notSpecified"),
-    status: user?.maritalStatus || user?.relationshipStatus || t("profile.notSpecified"),
-    nationality: user?.nationality || t("profile.notSpecified"),
-    profession: user?.profession || user?.job || t("profile.notSpecified"),
-    languages: user?.languages || t("profile.notSpecified"),
+    gender: getValue("gender", "sex"),
+    status: getValue("maritalStatus", "relationshipStatus", "familyStatus"),
+    nationality: getValue("nationality", "citizenship"),
+    profession: getValue("profession", "job", "occupation"),
+    languages: getValue("languages", "spokenLanguages"),
   };
 
   const location = {
@@ -40,7 +68,7 @@ export default function ProfileInfoPanel({ user, isOpen }) {
   const bio = user?.bio?.trim() || "";
 
   return (
-    <div className={`infoPanel ${isOpen ? "isOpen" : ""}`}>
+    <div id={id} className={`infoPanel ${isOpen ? "isOpen" : ""}`}>
       <div className="infoSection">
         <h3>
           <img src={profileIcons.profileInfoUser} alt="" />

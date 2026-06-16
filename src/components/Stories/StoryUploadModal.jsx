@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "../../zustand/useAuthStore";
 import { storiesApi } from "../../services/storiesApi";
 import { uploadStoryMedia } from "../../services/storyMediaUploadApi";
+import { getApiErrorMessage } from "../../utils/getApiErrorMessage";
 import AppHeader from "../Layout/AppHeader";
 import profileIcons from "../../constants/profileIcons";
 import "./StoryUploadModal.scss";
@@ -15,6 +16,25 @@ const STORY_VISIBILITY_OPTIONS = [
   { value: "PUBLIC", label: "Все" },
   { value: "ONLY_ME", label: "Только я" },
 ];
+
+function getStoryCreateErrorMessage(error) {
+  const raw = getApiErrorMessage(error) || error?.message || "";
+  const normalized = raw.toLowerCase();
+
+  if (normalized.includes("50") || normalized.includes("24 hours") || error?.response?.status === 429) {
+    return "Вы достигли лимита: максимум 50 stories за 24 часа.";
+  }
+
+  if (normalized.includes("100 active") || normalized.includes("active stories")) {
+    return "Вы достигли лимита: максимум 100 активных stories одновременно.";
+  }
+
+  if (normalized.includes("60 seconds") || normalized.includes("60 секунд")) {
+    return "Видео для story должно быть не длиннее 60 секунд.";
+  }
+
+  return raw || "Не удалось опубликовать story";
+}
 
 export default function StoryUploadModal({ isOpen, onClose, onCreated }) {
   const inputRef = useRef(null);
@@ -162,7 +182,7 @@ export default function StoryUploadModal({ isOpen, onClose, onCreated }) {
 
     video.onloadedmetadata = () => {
 
-      const durationSec = Math.ceil(video.duration || 0);
+      const durationSec = Math.max(1, Math.ceil(video.duration || 0));
 
       setFileItem({
         file,
@@ -193,7 +213,7 @@ export default function StoryUploadModal({ isOpen, onClose, onCreated }) {
     }
 
     if (fileItem.type === "video" && fileItem.durationSec > 60) {
-      toast.error("Видео для story должно быть не длиннее 60 секунд");
+      toast.error("Видео для story должно быть не длиннее 60 секунд.");
       return;
     }
 
@@ -212,7 +232,7 @@ export default function StoryUploadModal({ isOpen, onClose, onCreated }) {
         mediaType: uploaded.mediaType,
         text: text.trim(),
         visibility,
-        durationSec: fileItem.type === "video" ? fileItem.durationSec : undefined,
+        durationSec: fileItem.type === "video" ? Math.min(60, Math.max(1, fileItem.durationSec)) : undefined,
       });
 
       toast.success("Story опубліковано");
@@ -220,7 +240,7 @@ export default function StoryUploadModal({ isOpen, onClose, onCreated }) {
       handleClose();
     } catch (e) {
       console.error("[story-upload] failed", e);
-      toast.error(e?.message || "Не вдалося опублікувати story");
+      toast.error(getStoryCreateErrorMessage(e));
       setIsPublishing(false);
     }
   };

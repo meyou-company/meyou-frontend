@@ -27,6 +27,7 @@ import MessageSoundToggle from '../../components/Messages/MessageSoundToggle';
 import MessagesNavBadge from '../../components/Messages/MessagesNavBadge';
 import ReportMessageModal from '../../components/Messages/ReportMessageModal';
 import TypingIndicator from '../../components/Messages/TypingIndicator';
+import StoryViewerModal from '../../components/Stories/StoryViewerModal';
 import { conversationsApi } from '../../services/conversationsApi';
 import { getApiErrorMessage } from '../../utils/getApiErrorMessage';
 import {
@@ -159,12 +160,42 @@ function isConversationMuted(conversation) {
   return new Date(conversation.mutedUntil).getTime() > Date.now();
 }
 
+function buildStoryViewerGroup(preview, fallbackAuthor) {
+  if (!preview || preview.isUnavailable || !preview.mediaUrl) return null;
+
+  const author = {
+    ...(preview.author || {}),
+    id: preview.author?.id || fallbackAuthor?.id,
+    username: preview.author?.username || fallbackAuthor?.username || '',
+    name: preview.author?.name || fallbackAuthor?.name || '',
+    avatarUrl: preview.author?.avatarUrl || fallbackAuthor?.avatarUrl || null,
+  };
+
+  return {
+    author,
+    stories: [
+      {
+        id: preview.storyId,
+        storyId: preview.storyId,
+        mediaUrl: preview.mediaUrl,
+        mediaType: preview.mediaType || 'image',
+        text: preview.text || '',
+        createdAt: preview.createdAt,
+        expiresAt: preview.expiresAt,
+        author,
+        authorId: author.id,
+      },
+    ],
+  };
+}
+
 export default function MessagesPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { conversationId } = useParams();
   const isAuthed = useAuthStore((s) => s.isAuthed);
   const isAuthLoading = useAuthStore((s) => s.isAuthLoading);
+  const currentUser = useAuthStore((s) => s.user);
   const currentUserId = useAuthStore((s) => s.user?.id);
 
   const setActiveConversationId = useMessagesStore((s) => s.setActiveConversationId);
@@ -191,6 +222,7 @@ export default function MessagesPage() {
   const [pinnedMessageId, setPinnedMessageId] = useState(null);
   const [seenMessageIds, setSeenMessageIds] = useState(() => new Set());
   const [mutedOverrides, setMutedOverrides] = useState({});
+  const [storyViewerGroup, setStoryViewerGroup] = useState(null);
 
   const messagesEndRef = useRef(null);
   const activeConversationId = conversationId || null;
@@ -827,6 +859,19 @@ export default function MessagesPage() {
                         const msg = item.message;
                         const isMine = msg.senderId === currentUserId;
                         const peer = activeConversation?.participant;
+                        const storyAuthorFallback = isMine
+                          ? {
+                              id: peer?.id,
+                              username: peer?.username,
+                              name: getDisplayName(peer, t('common.user')),
+                              avatarUrl: peer?.avatarUrl,
+                            }
+                          : {
+                              id: currentUser?.id,
+                              username: currentUser?.username,
+                              name: getDisplayName(currentUser, t('common.user')),
+                              avatarUrl: currentUser?.avatarUrl,
+                            };
                         return (
                           <MessageBubble
                             key={msg.id}
@@ -848,6 +893,11 @@ export default function MessagesPage() {
                               });
                             }}
                             onReactionSelect={handleReactionSelect}
+                            onOpenStory={(preview) => {
+                              const group = buildStoryViewerGroup(preview, storyAuthorFallback);
+                              if (group) setStoryViewerGroup(group);
+                            }}
+                            storyAuthorFallback={storyAuthorFallback.name || storyAuthorFallback.username}
                             seenMessageIds={seenMessageIds}
                           />
                         );
@@ -905,6 +955,18 @@ export default function MessagesPage() {
         message={editMessage}
         onClose={() => setEditMessage(null)}
         onSaved={appendOrUpdateMessage}
+      />
+
+      <StoryViewerModal
+        isOpen={Boolean(storyViewerGroup)}
+        groups={storyViewerGroup ? [storyViewerGroup] : []}
+        initialGroupIndex={0}
+        initialStoryIndex={0}
+        currentUserId={currentUserId}
+        onClose={() => setStoryViewerGroup(null)}
+        onOpenProfile={(username) => {
+          if (username) navigate(`/profile/${username}`);
+        }}
       />
     </div>
   );

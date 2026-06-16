@@ -45,6 +45,10 @@
   transform: none;
 }
 
+.btnMessages--desktopExtra {
+  display: none;
+}
+
 
 /* LEFT */
 .profileLeft {
@@ -143,6 +147,35 @@
   }
 }
 
+.profileAvatarInfoBtn {
+  margin-top: 12px;
+  min-width: 166px;
+  height: 48px;
+  padding: 0 18px;
+  border-radius: 14px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  background: linear-gradient(236.31deg, #ff4fb1 11.54%, #4f6bff 88.46%);
+  color: #fff;
+  font-family: Montserrat, sans-serif;
+  font-size: 18px;
+  font-weight: 400;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+
+  &:hover {
+    opacity: 0.92;
+    transform: translateY(-1px);
+  }
+
+  &.is-active {
+    opacity: 0.88;
+  }
+}
+
 .editBtn {
   display: inline-flex;
   align-items: center;
@@ -184,6 +217,10 @@
 }
 
 /* Ряд «Подарунки» — лише мобільна сітка (див. @media max-width 768px) */
+.profileMobileBadges {
+  display: none;
+}
+
 .profileMobileGifts {
   display: none;
 }
@@ -3112,5 +3149,93 @@ html[data-theme="dark"] .profile-home .postActionCount {
   html[data-theme="dark"] .profile-home .actionBtnDesktop .actionRightDots,
   html[data-theme="dark"] .profile-home .actionBtnDesktop .actionRightArrow {
     color: rgba(255, 255, 255, 0.55);
+  }
+}
+
+/* Restored profile quick actions: saved + my photos */
+@media (max-width: 768px) {
+  .profileMobileBadges {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px 14px;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+  }
+
+  .profileMobileBadges__btn {
+    border: 0;
+    background: transparent;
+    padding: 4px 2px;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+  }
+
+  .profileMobileBadges__icon {
+    width: 16px;
+    height: 16px;
+    object-fit: contain;
+    display: block;
+  }
+
+  .profileMobileBadges__label {
+    font-size: 8px;
+    font-weight: 500;
+    line-height: 1.1;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    color: rgba(0, 0, 0, 0.62);
+    text-align: center;
+  }
+
+  .profile-home .badgesRow,
+  .profile-home .profileMobileGifts {
+    display: none;
+  }
+
+  body.dark .profileMobileBadges__label,
+  html[data-theme="dark"] .profileMobileBadges__label {
+    color: rgba(255, 255, 255, 0.72);
+  }
+}
+
+@media (max-width: 480px) {
+  .profileMobileBadges {
+    gap: 8px 12px;
+  }
+
+  .profileMobileBadges__icon {
+    width: 18px;
+    height: 18px;
+  }
+
+  .profileMobileBadges__label {
+    font-size: 9px;
+  }
+}
+
+@media (max-width: 320px) {
+  .profileMobileBadges {
+    gap: 6px 8px;
+  }
+
+  .profileMobileBadges__icon {
+    width: 14px;
+    height: 14px;
+  }
+
+  .profileMobileBadges__label {
+    font-size: 7px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .btnMessages--desktopExtra {
+    display: flex;
   }
 }

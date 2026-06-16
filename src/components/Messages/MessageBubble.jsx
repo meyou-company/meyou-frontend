@@ -61,17 +61,30 @@ function aggregateReactions(reactions = []) {
   return [...counts.entries()].map(([emoji, count]) => ({ emoji, count }));
 }
 
-function StoryReplyPreview({ preview }) {
+function getStoryAuthorLabel(preview, fallback) {
+  const author = preview?.author || {};
+  const name = author.username || author.name || [author.firstName, author.lastName].filter(Boolean).join(' ');
+  return name || fallback;
+}
+
+function StoryReplyPreview({ preview, onOpenStory, authorFallback }) {
   const { t } = useTranslation();
   if (!preview) return null;
+
+  const authorLabel = getStoryAuthorLabel(
+    preview,
+    authorFallback || t('messenger.storyAuthorFallback', { defaultValue: 'Story author' }),
+  );
 
   if (preview.isUnavailable) {
     return (
       <div className="msgBubble__storyPreview msgBubble__storyPreview--unavailable">
-        <span className="msgBubble__storyThumbPlaceholder" aria-hidden="true" />
+        <span className="msgBubble__storyThumb msgBubble__storyThumb--unavailable" aria-hidden="true">
+          <span className="msgBubble__storyThumbPlaceholder" />
+        </span>
         <div className="msgBubble__storyMeta">
-          <span className="msgBubble__storyLabel">
-            {t('messenger.storyReply', { defaultValue: 'Story reply' })}
+          <span className="msgBubble__storyAuthor">
+            {authorLabel}
           </span>
           <span className="msgBubble__storyUnavailable">
             {t('messenger.storyUnavailable', { defaultValue: 'Story is no longer available' })}
@@ -82,18 +95,13 @@ function StoryReplyPreview({ preview }) {
   }
 
   const isVideo = preview.mediaType === 'video' || preview.mediaType?.startsWith('video');
-
-  return (
-    <div className="msgBubble__storyPreview">
+  const content = (
+    <>
       <div className="msgBubble__storyThumb" aria-hidden="true">
-        {preview.mediaUrl ? (
-          isVideo ? (
-            <video src={preview.mediaUrl} muted playsInline preload="metadata" />
-          ) : (
-            <img src={preview.mediaUrl} alt="" />
-          )
+        {isVideo ? (
+          <video src={preview.mediaUrl} muted playsInline preload="metadata" />
         ) : (
-          <span className="msgBubble__storyThumbPlaceholder" />
+          <img src={preview.mediaUrl} alt="" />
         )}
         {isVideo ? <span className="msgBubble__storyVideoMark" /> : null}
       </div>
@@ -101,9 +109,29 @@ function StoryReplyPreview({ preview }) {
         <span className="msgBubble__storyLabel">
           {t('messenger.storyReply', { defaultValue: 'Story reply' })}
         </span>
+        <span className="msgBubble__storyAuthor">{authorLabel}</span>
         {preview.text ? <span className="msgBubble__storyText">{preview.text}</span> : null}
       </div>
-    </div>
+    </>
+  );
+
+  return (
+    <button
+      type="button"
+      className="msgBubble__storyPreview msgBubble__storyPreview--button"
+      onClick={(e) => {
+        e.stopPropagation();
+        onOpenStory?.(preview);
+      }}
+      onMouseDown={(e) => e.stopPropagation()}
+      onTouchStart={(e) => e.stopPropagation()}
+      aria-label={t('messenger.openStoryReply', {
+        defaultValue: 'Open story by {{name}}',
+        name: authorLabel,
+      })}
+    >
+      {content}
+    </button>
   );
 }
 
@@ -115,6 +143,8 @@ export default function MessageBubble({
   peerName = '',
   onOpenMenu,
   onReactionSelect,
+  onOpenStory,
+  storyAuthorFallback,
   highlight = false,
   seenMessageIds,
 }) {
@@ -276,7 +306,11 @@ export default function MessageBubble({
             <p className="msgBubble__text msgBubble__text--deleted">{t('messenger.deletedMessage')}</p>
           ) : (
             <>
-              <StoryReplyPreview preview={storyPreview} />
+              <StoryReplyPreview
+                preview={storyPreview}
+                onOpenStory={onOpenStory}
+                authorFallback={storyAuthorFallback}
+              />
               <MessageAttachments
                 attachments={message.attachments}
                 isMine={isMine}

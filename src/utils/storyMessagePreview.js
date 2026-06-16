@@ -14,6 +14,37 @@ function getTime(value) {
   return Number.isFinite(time) ? time : null;
 }
 
+function getAuthor(preview, message) {
+  const metadata = message?.metadata || {};
+  const rawAuthor = preview?.author || preview?.user || metadata.storyAuthor || message?.storyAuthor || {};
+  const username = pickFirstString(
+    rawAuthor.username,
+    rawAuthor.nick,
+    rawAuthor.nickname,
+    preview?.authorUsername,
+    preview?.username,
+    metadata.storyAuthorUsername,
+  );
+  const firstName = pickFirstString(rawAuthor.firstName, rawAuthor.first_name);
+  const lastName = pickFirstString(rawAuthor.lastName, rawAuthor.last_name);
+  const name = pickFirstString(rawAuthor.name, [firstName, lastName].filter(Boolean).join(' '));
+
+  return {
+    id: pickFirstValue(rawAuthor.id, rawAuthor._id, preview?.authorId, metadata.storyAuthorId),
+    username,
+    firstName,
+    lastName,
+    name,
+    avatarUrl: pickFirstString(
+      rawAuthor.avatarUrl,
+      rawAuthor.avatar,
+      rawAuthor.photoUrl,
+      preview?.authorAvatarUrl,
+      metadata.storyAuthorAvatarUrl,
+    ),
+  };
+}
+
 export function hasStoryReference(message) {
   return Boolean(
     message?.storyId ||
@@ -60,12 +91,19 @@ export function getStoryReplyPreview(message) {
     message?.media_type,
   ).toLowerCase();
   const text = pickFirstString(preview.text, preview.caption, metadata.storyText);
-
-  const expiresAt = getTime(
-    pickFirstValue(preview.expiresAt, preview.expires_at, preview.expiredAt, preview.activeUntil),
+  const createdAt = pickFirstValue(preview.createdAt, preview.created_at, metadata.storyCreatedAt);
+  const expiresAtRaw = pickFirstValue(
+    preview.expiresAt,
+    preview.expires_at,
+    preview.expiredAt,
+    preview.activeUntil,
+    metadata.storyExpiresAt,
   );
-  const createdAt = getTime(pickFirstValue(preview.createdAt, preview.created_at));
-  const expiredByCreatedAt = !expiresAt && createdAt ? Date.now() - createdAt >= DAY_MS : false;
+
+  const expiresAt = getTime(expiresAtRaw);
+  const createdAtTime = getTime(createdAt);
+  const expiredByCreatedAt =
+    !expiresAt && createdAtTime ? Date.now() - createdAtTime >= DAY_MS : false;
 
   const isUnavailable =
     preview.available === false ||
@@ -76,13 +114,17 @@ export function getStoryReplyPreview(message) {
     preview.expired === true ||
     (expiresAt ? expiresAt <= Date.now() : false) ||
     expiredByCreatedAt ||
-    (!mediaUrl && !text);
+    !storyId ||
+    !mediaUrl;
 
   return {
     storyId,
     mediaUrl: isUnavailable ? '' : mediaUrl,
     mediaType,
     text,
+    createdAt,
+    expiresAt: expiresAtRaw,
+    author: getAuthor(preview, message),
     isUnavailable,
   };
 }
