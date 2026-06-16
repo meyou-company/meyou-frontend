@@ -480,7 +480,7 @@ export default function ProfileHome({
                 aria-expanded={isInfoOpen}
                 aria-controls="profile-info-panel"
               >
-                {t('profile.tabs.info')}
+                {isInfoOpen ? t('common.close') : t('profile.tabs.info')}
               </button>
             </div>
           </div>
