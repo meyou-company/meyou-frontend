@@ -169,8 +169,9 @@
     }
   },
   "profile": {
-    "myMessages": "Мои сообщения",
+    "myBalance": "Мой баланс",
     "myGifts": "Мои подарки",
+    "myMessages": "Мои сообщения",
     "myPhotos": "Мои фото",
     "saved": "Сохранённое",
     "gifts": "Подарки",
@@ -179,8 +180,6 @@
     "loading": "Загрузка профиля…",
     "notFound": "Профиль не найден{{username}}",
     "loadError": "Ошибка загрузки",
-    "myBalance": "Мой баланс",
-    "myPhotos": "Мои фото",
     "editProfile": "Редактировать профиль",
     "viewPhoto": "Посмотреть фото",
     "viewPhotoFull": "Фото в полном размере",
