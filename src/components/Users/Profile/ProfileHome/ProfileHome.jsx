@@ -593,16 +593,6 @@ export default function ProfileHome({
                 <span className="msgText">{t('profile.myPhotos')}</span>
               </button>
             </div>
-
-            <button
-              type="button"
-              className="btnSaved"
-              onClick={onSaved}
-              aria-label={t('profile.saved')}
-            >
-              <img src={profileIcons.saved} alt="" className="msgIcon" />
-              <span className="msgText">{t('profile.saved')}</span>
-            </button>
           </div>
         </section>
 
@@ -610,6 +600,7 @@ export default function ProfileHome({
           user={user}
           isOpen={isInfoOpen}
           editable
+          onEditProfile={onEditProfile}
           onUserUpdated={refreshMe}
           id="profile-info-panel"
         />

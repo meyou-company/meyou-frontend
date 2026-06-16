@@ -5,7 +5,7 @@
 
 .profile-container {
   max-width: 1336px;
-  
+
   margin: 0 auto;
   padding: 12px 16px 24px;
   display: flex;
@@ -16,17 +16,18 @@
 /* =========================
    TOP PROFILE — flex (desktop)
    ========================= */
-   .profileBlock {
+.profileBlock {
   width: 100%;
   display: flex;
   align-items: flex-start;
 
   justify-content: flex-start;
-  gap: 34px;                
+  gap: 34px;
 }
+
 .profileInfo {
   flex: 0 0 543px;
-  max-width: 543px; 
+  max-width: 543px;
   min-width: 0;
   padding-top: 16px;
   display: flex;
@@ -252,18 +253,21 @@
   font-size: 18px;
   padding: 0 12px;
 }
-.profileInfo { 
-  flex: 1 1 auto; 
-  min-width: 0; 
-  padding-top: 16px; 
 
-  display: flex; 
-  flex-direction: column; 
-  gap: 12px; }
+.profileInfo {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding-top: 16px;
+
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
 .name {
   grid-area: name;
   margin: 0;
-font-size: 60px;
+  font-size: 60px;
   /* ключове: рядок з текстом + лінія */
   display: flex;
   align-items: flex-end;
@@ -292,7 +296,8 @@ font-size: 60px;
   text-decoration-line: underline;
   text-decoration-thickness: 1px;
   text-underline-offset: 4px;
-  text-decoration-color: #ff4fb1; /* <- прибирає чорну лінію */
+  text-decoration-color: #ff4fb1;
+  /* <- прибирає чорну лінію */
 }
 
 
@@ -318,7 +323,7 @@ font-size: 60px;
 }
 
 .actionsRow {
- width: 100%;
+  width: 100%;
   margin: 0 auto;
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -327,10 +332,10 @@ font-size: 60px;
 
 .actionBtn {
   height: 56px;
-   width: 100%;        
-  max-width: 555px;     
-  margin: 0 auto;  
-  
+  width: 100%;
+  max-width: 555px;
+  margin: 0 auto;
+
   border-radius: 14px;
   border: 1px solid rgba(0, 0, 0, 0.14);
   background: rgba(255, 255, 255, 0.88);
@@ -385,7 +390,7 @@ font-size: 60px;
 
 .btnMessages {
   position: relative;
- transform: translateX(-38px);
+  transform: translateX(-38px);
   width: 132px;
   height: 80px;
   border-radius: 20px;
@@ -437,7 +442,7 @@ font-size: 60px;
 /* =========================
    VIP / NEW POST / FEED
    ========================= */
-   .vipCard,
+.vipCard,
 .newPost {
   width: 100%;
   padding: 14px;
@@ -494,8 +499,15 @@ font-size: 60px;
     cursor: pointer;
     display: block;
     appearance: none;
-    &:hover { opacity: 0.9; }
-    &:focus-visible { outline: 2px solid var(--focus-color, #4f6bff); outline-offset: 2px; }
+
+    &:hover {
+      opacity: 0.9;
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--focus-color, #4f6bff);
+      outline-offset: 2px;
+    }
   }
 }
 
@@ -750,12 +762,10 @@ font-size: 60px;
   width: min(560px, 100%);
   border-radius: 28px;
   border: 1px solid rgba(255, 255, 255, 0.65);
-  background: linear-gradient(
-    165deg,
-    #f3ecff 0%,
-    #fce9f2 45%,
-    #efe6ff 100%
-  );
+  background: linear-gradient(165deg,
+      #f3ecff 0%,
+      #fce9f2 45%,
+      #efe6ff 100%);
   box-shadow:
     0 24px 56px rgba(88, 48, 120, 0.22),
     0 0 0 1px rgba(255, 255, 255, 0.4) inset;
@@ -1008,8 +1018,7 @@ font-size: 60px;
   height: 22px;
   object-fit: contain;
   flex-shrink: 0;
-  filter: brightness(0) saturate(100%) invert(27%) sepia(85%) saturate(2000%)
-    hue-rotate(250deg) brightness(0.95);
+  filter: brightness(0) saturate(100%) invert(27%) sepia(85%) saturate(2000%) hue-rotate(250deg) brightness(0.95);
 }
 
 .publishBtn {
@@ -1046,6 +1055,7 @@ font-size: 60px;
   flex-direction: column;
   gap: 14px;
 }
+
 /* =========================
    POST 
    ========================= */
@@ -1510,8 +1520,7 @@ html[data-theme="dark"] .profile-home .postMenuDeleteBtn {
 }
 
 .postActionBtn--liked .postActionIcon {
-  filter: brightness(0) saturate(100%) invert(55%) sepia(42%) saturate(2211%)
-    hue-rotate(299deg) brightness(103%) contrast(97%);
+  filter: brightness(0) saturate(100%) invert(55%) sepia(42%) saturate(2211%) hue-rotate(299deg) brightness(103%) contrast(97%);
 }
 
 .profile-home .postActionBtn.postActionBtn--active .postActionCount {
@@ -1609,6 +1618,7 @@ body.dark .profile-home .actionBtn {
 html[data-theme="dark"] .profile-home .actionBtn img {
   filter: grayscale(100%) invert(1);
 }
+
 html[data-theme="dark"] .profile-home .actionBtn .actionPlus img {
   filter: brightness(0);
 }
@@ -1657,12 +1667,10 @@ body.dark .profile-home .postInput::placeholder {
 }
 
 body.dark .profile-home .composerCard {
-  background: linear-gradient(
-    165deg,
-    rgba(38, 26, 58, 0.98) 0%,
-    rgba(32, 22, 48, 0.99) 50%,
-    rgba(28, 18, 42, 1) 100%
-  );
+  background: linear-gradient(165deg,
+      rgba(38, 26, 58, 0.98) 0%,
+      rgba(32, 22, 48, 0.99) 50%,
+      rgba(28, 18, 42, 1) 100%);
   border-color: rgba(255, 255, 255, 0.12);
   box-shadow:
     0 24px 56px rgba(0, 0, 0, 0.45),
@@ -1728,6 +1736,7 @@ html[data-theme="dark"] .profile-home .avatarEdit {
   border-color: rgba(255, 255, 255, 0.25);
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
 }
+
 body.dark .profile-home .avatarEdit img,
 html[data-theme="dark"] .profile-home .avatarEdit img {
   filter: brightness(0);
@@ -1744,6 +1753,7 @@ html[data-theme="dark"] .profile-home .postActions {
   background: rgba(18, 12, 28, 0.92);
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
+
 body.dark .profile-home .postActionCount,
 html[data-theme="dark"] .profile-home .postActionCount {
   color: rgba(255, 255, 255, 0.95);
@@ -1836,9 +1846,9 @@ html[data-theme="dark"] .profile-home .postActionCount {
   .btnMessages {
     transform: none;
   }
- 
-.btnSaved {
-  position: relative;
+
+  .btnSaved {
+    position: relative;
     width: 110px;
     height: 74px;
     border-radius: 18px;
@@ -1851,7 +1861,8 @@ html[data-theme="dark"] .profile-home .postActionCount {
     justify-content: center;
     gap: 6px;
 
-}
+  }
+
   /* same “gradient border card” style for both buttons */
   .btnMessages {
     position: relative;
@@ -1928,11 +1939,13 @@ html[data-theme="dark"] .profile-home .postActionCount {
     padding: 12px 14px 90px;
     gap: 14px;
   }
+
   .postActionIcon {
-  width: 25px;
-  height: 25px;
-  object-fit: contain;
-}
+    width: 25px;
+    height: 25px;
+    object-fit: contain;
+  }
+
   .profileBlock {
     flex-direction: row;
     align-items: flex-start;
@@ -2033,7 +2046,7 @@ html[data-theme="dark"] .profile-home .postActionCount {
     margin: 0;
   }
 
-   .profileBioWrap .bioLocation {
+  .profileBioWrap .bioLocation {
     margin-top: 8px;
   }
 
@@ -2133,7 +2146,7 @@ html[data-theme="dark"] .profile-home .postActionCount {
   .actionBig,
   .actionsRow {
     display: none;
-  width: 740px;
+    width: 740px;
   }
 
   /* 1 ряд: 2 кнопки + ... */
@@ -2153,7 +2166,7 @@ html[data-theme="dark"] .profile-home .postActionCount {
 
   .actionBtn {
     height: 44px;
-  
+
     border-radius: 12px;
     padding: 0 12px;
     min-width: 0;
@@ -2267,6 +2280,7 @@ html[data-theme="dark"] .profile-home .postActionCount {
     font-size: 13px;
   }
 }
+
 /* =========================
    MOBILE 480px
    ========================= */
@@ -2380,7 +2394,8 @@ html[data-theme="dark"] .profile-home .postActionCount {
     display: flex;
     gap: 14px;
     margin: 0;
-    padding-top: 2px; /* підняти як у макеті */
+    padding-top: 2px;
+    /* підняти як у макеті */
     flex-wrap: nowrap;
     align-items: flex-start;
   }
@@ -2401,7 +2416,8 @@ html[data-theme="dark"] .profile-home .postActionCount {
   }
 
   .badgeIcon {
-    width: 16px;   /* трохи більші іконки saved / my balance */
+    width: 16px;
+    /* трохи більші іконки saved / my balance */
     height: 16px;
     display: block;
     object-fit: contain;
@@ -2433,7 +2449,8 @@ html[data-theme="dark"] .profile-home .postActionCount {
 
   .actionsRow1 {
     display: grid;
-    grid-template-columns: 1fr 1fr 52px; /* ... як у макеті */
+    grid-template-columns: 1fr 1fr 52px;
+    /* ... як у макеті */
     gap: 10px;
   }
 
@@ -2468,7 +2485,7 @@ html[data-theme="dark"] .profile-home .postActionCount {
   }
 
   /* icons on the right for ANY button */
-  .actionBtn > img {
+  .actionBtn>img {
     position: absolute;
     right: 14px;
     width: 18px;
@@ -2514,7 +2531,7 @@ html[data-theme="dark"] .profile-home .postActionCount {
 }
 
 @media only screen and (max-width: 360px) {
-   .profileBioWrap .bio {
+  .profileBioWrap .bio {
     margin: 0;
     font-size: 12px;
     line-height: 1.75;
@@ -2620,7 +2637,7 @@ html[data-theme="dark"] .profile-home .postActionCount {
     }
   }
 
-  .actionBtn > img {
+  .actionBtn>img {
     right: 10px;
     width: 16px;
     height: 16px;
@@ -2969,16 +2986,17 @@ html[data-theme="dark"] .profile-home .postActionCount {
   }
 
   .profileRight {
+    display: flex;
     align-items: flex-start;
-    padding-top: 12px;
     justify-content: flex-end;
-    flex: 0 0 240px;
+    padding-top: 12px;
+    flex: 0 0 300px;
+    min-width: 300px;
   }
 
   .btnMessages {
     transform: none;
     height: 78px;
-    min-width: 214px;
     border-radius: 24px;
     padding: 0 18px;
     background: rgba(255, 255, 255, 0.36);
@@ -3112,6 +3130,41 @@ html[data-theme="dark"] .profile-home .postActionCount {
     padding: 0 24px;
     font-size: 18px;
   }
+
+  .profileRight__stack {
+    display: grid;
+    grid-template-columns: repeat(2, 110px);
+    gap: 14px;
+    align-items: stretch;
+    justify-content: end;
+  }
+
+  .profileRight__stack .btnMessages {
+    width: 110px;
+    height: 74px;
+    transform: none;
+    border-radius: 18px;
+    padding: 0;
+  }
+
+  .profileRight__stack .btnMessages::before {
+    border-radius: 18px;
+  }
+
+  .btnMessages--desktopExtra {
+    display: flex;
+  }
+
+  .profileRight__stack .msgIcon {
+    width: 36px;
+    height: 36px;
+  }
+
+  .profileRight__stack .msgText {
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 1;
+  }
 }
 
 .avatarBorder--hasStories {
@@ -3122,6 +3175,7 @@ html[data-theme="dark"] .profile-home .postActionCount {
 
 /* Desktop dark: “My messages” + action row match editBtn / dark surfaces (no gray 0.36 fill) */
 @media (min-width: 1024px) {
+
   body.dark .profile-home .btnMessages,
   html[data-theme="dark"] .profile-home .btnMessages {
     background: rgba(255, 255, 255, 0.1);
@@ -3234,8 +3288,43 @@ html[data-theme="dark"] .profile-home .postActionCount {
   }
 }
 
+
 @media (min-width: 1024px) {
-  .btnMessages--desktopExtra {
+  .profileRight {
+    flex: 0 0 300px;
+    width: 300px;
+    min-width: 300px;
     display: flex;
+    justify-content: flex-end;
+  }
+
+  .profileRight__stack {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+    justify-items: stretch;
+    align-items: stretch;
+  }
+
+  .profileRight__stack .btnMessages {
+    width: 100%;
+    min-width: 0;
+    height: 74px;
+    transform: none;
+    padding: 0 8px;
+    box-sizing: border-box;
+    overflow: hidden;
+  }
+
+  .profileRight__stack .btnMessages--desktopExtra {
+    display: flex;
+  }
+
+  .profileRight__stack .msgText {
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 }
