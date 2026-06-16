@@ -1,4 +1,11 @@
 import { useCallback, useEffect, useState } from 'react';
+import {
+  STORY_CREATED_EVENT,
+  STORY_DELETED_EVENT,
+  STORY_REACTED_EVENT,
+  STORY_REPLIED_EVENT,
+  STORY_VIEWED_EVENT,
+} from '../constants/storyEvents';
 import { storiesApi } from '../services/storiesApi';
 
 export function useStoriesFeed() {
@@ -50,6 +57,46 @@ export function useStoriesFeed() {
 
   useEffect(() => {
     loadStories();
+  }, [loadStories]);
+
+  useEffect(() => {
+    const reload = () => loadStories();
+    const patchCounters = (event) => {
+      const envelope = event?.detail || {};
+      const storyId = envelope.storyId || envelope.id || envelope.story?.id;
+      if (!storyId) return;
+
+      setStoriesGroups((prev) =>
+        prev.map((group) => ({
+          ...group,
+          stories: Array.isArray(group?.stories)
+            ? group.stories.map((story) => {
+                if (String(story?.id) !== String(storyId)) return story;
+                const next = { ...story };
+                if (typeof envelope.viewsCount === 'number') next.viewsCount = envelope.viewsCount;
+                if (typeof envelope.repliesCount === 'number') next.repliesCount = envelope.repliesCount;
+                if (typeof envelope.reactionsCount === 'number') next.reactionsCount = envelope.reactionsCount;
+                if (typeof envelope.savesCount === 'number') next.savesCount = envelope.savesCount;
+                return next;
+              })
+            : [],
+        })),
+      );
+    };
+
+    window.addEventListener(STORY_CREATED_EVENT, reload);
+    window.addEventListener(STORY_DELETED_EVENT, reload);
+    window.addEventListener(STORY_VIEWED_EVENT, patchCounters);
+    window.addEventListener(STORY_REACTED_EVENT, patchCounters);
+    window.addEventListener(STORY_REPLIED_EVENT, patchCounters);
+
+    return () => {
+      window.removeEventListener(STORY_CREATED_EVENT, reload);
+      window.removeEventListener(STORY_DELETED_EVENT, reload);
+      window.removeEventListener(STORY_VIEWED_EVENT, patchCounters);
+      window.removeEventListener(STORY_REACTED_EVENT, patchCounters);
+      window.removeEventListener(STORY_REPLIED_EVENT, patchCounters);
+    };
   }, [loadStories]);
 
   return {

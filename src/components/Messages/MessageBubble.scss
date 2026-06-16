@@ -197,30 +197,66 @@
 .msgBubble__storyPreview {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   min-width: 0;
   margin-bottom: 8px;
-  padding: 7px;
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.18);
+  padding: 8px 10px 8px 8px;
+  border: 1px solid rgba(255, 255, 255, 0.26);
+  border-radius: 14px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.24), rgba(255, 255, 255, 0.12));
+  color: inherit;
+  font: inherit;
+  text-align: left;
 }
 
 .msgBubble--theirs .msgBubble__storyPreview {
-  background: rgba(183, 140, 255, 0.1);
+  border-color: rgba(183, 140, 255, 0.18);
+  background: linear-gradient(135deg, rgba(183, 140, 255, 0.14), rgba(255, 255, 255, 0.74));
+}
+
+.msgBubble__storyPreview--button {
+  width: 100%;
+  cursor: pointer;
+  transition:
+    transform 0.16s ease,
+    box-shadow 0.16s ease,
+    background 0.16s ease;
+}
+
+.msgBubble__storyPreview--button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.12);
 }
 
 .msgBubble__storyPreview--unavailable {
-  opacity: 0.82;
+  cursor: default;
+  opacity: 0.86;
 }
 
-.msgBubble__storyThumb,
-.msgBubble__storyThumbPlaceholder {
+.msgBubble__storyThumb {
   position: relative;
-  width: 42px;
-  height: 56px;
+  width: 50px;
+  height: 66px;
   flex-shrink: 0;
   overflow: hidden;
-  border-radius: 8px;
+  padding: 2px;
+  border-radius: 13px;
+  background: linear-gradient(160deg, #ff4fb1 0%, #ffb347 48%, #7b61ff 100%);
+  box-shadow: 0 4px 12px rgba(87, 48, 144, 0.22);
+}
+
+.msgBubble__storyThumb--unavailable {
+  background: rgba(255, 255, 255, 0.28);
+  box-shadow: none;
+}
+
+.msgBubble__storyThumbPlaceholder {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: block;
+  overflow: hidden;
+  border-radius: 10px;
   background: rgba(0, 0, 0, 0.14);
 }
 
@@ -229,14 +265,11 @@
   width: 100%;
   height: 100%;
   display: block;
-  object-fit: cover;
-}
-
-.msgBubble__storyThumbPlaceholder {
-  display: block;
+  border-radius: 10px;
   background:
     linear-gradient(135deg, rgba(255, 255, 255, 0.24), rgba(255, 255, 255, 0.08)),
     rgba(0, 0, 0, 0.18);
+  object-fit: cover;
 }
 
 .msgBubble--theirs .msgBubble__storyThumbPlaceholder {
@@ -267,21 +300,42 @@
 .msgBubble__storyLabel {
   font-size: 11px;
   font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0;
   color: rgba(255, 255, 255, 0.9);
 }
 
 .msgBubble--theirs .msgBubble__storyLabel {
-  color: rgba(0, 0, 0, 0.62);
+  color: #8a5ee5;
 }
 
+.msgBubble__storyAuthor,
 .msgBubble__storyText,
 .msgBubble__storyUnavailable {
   max-width: 100%;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.msgBubble__storyAuthor {
+  font-size: 13px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.96);
+}
+
+.msgBubble--theirs .msgBubble__storyAuthor {
+  color: rgba(0, 0, 0, 0.78);
+}
+
+.msgBubble__storyText,
+.msgBubble__storyUnavailable {
   font-size: 12px;
   color: rgba(255, 255, 255, 0.82);
+}
+
+.msgBubble__storyUnavailable {
+  font-style: italic;
 }
 
 .msgBubble--theirs .msgBubble__storyText,
@@ -348,11 +402,16 @@ html[data-theme='dark'] {
   }
 
   .msgBubble--theirs .msgBubble__storyPreview {
-    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.1);
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
   }
 
   .msgBubble--theirs .msgBubble__storyLabel {
-    color: rgba(255, 255, 255, 0.72);
+    color: rgba(214, 190, 255, 0.92);
+  }
+
+  .msgBubble--theirs .msgBubble__storyAuthor {
+    color: rgba(255, 255, 255, 0.8);
   }
 
   .msgBubble--theirs .msgBubble__storyText,

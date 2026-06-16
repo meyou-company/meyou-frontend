@@ -26,12 +26,12 @@ import { dedupeAsync } from "../../../../utils/dedupeAsync";
 import { mapApiPostToFeedItem } from "../../../../utils/mapApiPostToFeedItem";
 import { useProfileAuthorFeed } from "../../../../hooks/useProfileAuthorFeed";
 import ProfilePostsFeed from "../ProfilePostsFeed/ProfilePostsFeed";
-import ProfileInfoPanel from "../ProfileInfoPanel/ProfileInfoPanel";
 import CreatePostModal from "../../../PostFeed/CreatePostModal";
 import { getApiErrorMessage } from "../../../../utils/getApiErrorMessage";
 import { detectCurrentLocationLabel } from "../../../../utils/postGeolocation";
 import StoryViewerModal from "../../../Stories/StoryViewerModal";
 import StoryUploadModal from "../../../Stories/StoryUploadModal";
+import ProfileInfoPanel from "../ProfileInfoPanel/ProfileInfoPanel";
 import "./ProfileHome.scss";
 
 /** Іконки тільки для actionsBlock (чорно-білі SVG) */
@@ -521,6 +521,30 @@ export default function ProfileHome({
                 <button type="button" className="profileMobileBadges__btn" onClick={onWallet} aria-label={t('profile.myBalance')}>
                   <img src={profileIcons.balance} alt="" className="profileMobileBadges__icon" />
                   <span className="profileMobileBadges__label">{t('profile.myBalance')}</span>
+                </button>
+              </div>
+
+              <div className="badgesRow">
+                <button type="button" className="badgeItem" onClick={handleMyPhotos} aria-label={t('profile.myPhotos')}>
+                  <img className="badgeIcon" src={profileIcons.myPhotos} alt="" />
+                  <span className="badgeText">{t('profile.myPhotos')}</span>
+                </button>
+
+                <button type="button" className="badgeItem" onClick={onWallet} aria-label={t('profile.myBalance')}>
+                  <img className="badgeIcon" src={profileIcons.balance} alt="" />
+                  <span className="badgeText">{t('profile.myBalance')}</span>
+                </button>
+
+                <button type="button" className="badgeItem" onClick={onSaved} aria-label={t('profile.saved')}>
+                  <img className="badgeIcon" src={profileIcons.saved} alt="" />
+                  <span className="badgeText">{t('profile.saved')}</span>
+                </button>
+              </div>
+
+              <div className="profileMobileGifts">
+                <button type="button" className="profileMobileGifts__btn" onClick={onGifts} aria-label={t('profile.gifts')}>
+                  <img src={profileIcons.giftIcon} alt="" className="profileMobileGifts__icon" />
+                  <span className="profileMobileGifts__label">{t('profile.gifts')}</span>
                 </button>
               </div>
             </div>

@@ -85,6 +85,85 @@ function extractStoryViewsList(response) {
               : [];
 }
 
+function StoryAnalyticsPanel({
+  analytics,
+  analyticsLoading,
+  currentStory,
+  storyViewersOnly,
+  onClose,
+}) {
+  const reactions = analytics?.reactionsByType || analytics?.reactionsGrouped || {};
+  const viewers = analytics?.viewersPreview || analytics?.viewers || storyViewersOnly || [];
+
+  return (
+    <div className="storyViewer__analyticsCard">
+      <div className="storyViewer__analyticsHead">
+        <h3>Story analytics</h3>
+        <button type="button" onClick={onClose} aria-label="Close analytics">
+          x
+        </button>
+      </div>
+
+      {analyticsLoading ? (
+        <p className="storyViewer__analyticsHint">Loading...</p>
+      ) : (
+        <>
+          <div className="storyViewer__analyticsGrid">
+            <div>
+              <b>{analytics?.viewsCount ?? currentStory?.viewsCount ?? 0}</b>
+              <span>Views</span>
+            </div>
+            <div>
+              <b>{analytics?.uniqueViewsCount ?? 0}</b>
+              <span>Unique</span>
+            </div>
+            <div>
+              <b>{analytics?.reactionsCount ?? currentStory?.reactionsCount ?? 0}</b>
+              <span>Reactions</span>
+            </div>
+            <div>
+              <b>{analytics?.repliesCount ?? currentStory?.repliesCount ?? 0}</b>
+              <span>Replies</span>
+            </div>
+            <div>
+              <b>{analytics?.savesCount ?? currentStory?.savesCount ?? 0}</b>
+              <span>Saves</span>
+            </div>
+          </div>
+
+          <div className="storyViewer__analyticsSection">
+            <h4>Viewers</h4>
+            <div className="storyViewer__analyticsPeople">
+              {viewers.slice(0, 8).map((viewer, index) => {
+                const user = normalizeStoryViewUser(viewer);
+                return (
+                  <span key={user?.id || index}>
+                    <img src={user?.avatarUrl || profileIcons.userStory} alt="" />
+                    {user?.username || "User"}
+                  </span>
+                );
+              })}
+            </div>
+          </div>
+
+          <div className="storyViewer__analyticsSection">
+            <h4>Reactions</h4>
+            <div className="storyViewer__reactionSummary">
+              {Object.entries(reactions).length > 0 ? (
+                Object.entries(reactions).map(([type, count]) => (
+                  <span key={type}>{type}: {count}</span>
+                ))
+              ) : (
+                <span>No reactions yet</span>
+              )}
+            </div>
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
 export default function StoryViewerModal({
   isOpen,
   groups = [],
@@ -109,6 +188,9 @@ export default function StoryViewerModal({
   const [isReactionSaving, setIsReactionSaving] = useState(false);
   const [isReplySending, setIsReplySending] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [analytics, setAnalytics] = useState(null);
+  const [analyticsLoading, setAnalyticsLoading] = useState(false);
+  const [analyticsOpen, setAnalyticsOpen] = useState(false);
 
   const navigate = useNavigate();
 
@@ -132,6 +214,7 @@ export default function StoryViewerModal({
   const authorAvatar = author?.avatarUrl || author?.avatar || profileIcons.userStory;
   const isOwnStory =
     String(author?.id ?? currentStory?.authorId ?? "") === String(currentUserId ?? "");
+  const authorId = author?.id ?? currentStory?.authorId ?? currentStory?.userId;
 
   const handleOpenAuthorProfile = () => {
     const username = author?.username || author?.nick || author?.nickname;
@@ -374,7 +457,27 @@ export default function StoryViewerModal({
     if (!isOpen || !storyId) return;
 
     setSelectedReaction(currentStoryReaction);
+    setAnalytics(null);
+    setAnalyticsOpen(false);
   }, [isOpen, storyId, currentStoryReaction]);
+
+  const handleOpenAnalytics = async () => {
+    if (!storyId || !isOwnStory) return;
+
+    setAnalyticsOpen(true);
+    if (analytics) return;
+
+    try {
+      setAnalyticsLoading(true);
+      const response = await storiesApi.getAnalytics(storyId);
+      setAnalytics(response?.data || response || {});
+    } catch (error) {
+      console.error("[story-analytics] failed", error);
+      toast.error("Не удалось загрузить аналитику story");
+    } finally {
+      setAnalyticsLoading(false);
+    }
+  };
 
   const handleReactionClick = async (reactionType) => {
     if (!storyId || isOwnStory || isReactionSaving) return;
@@ -422,6 +525,43 @@ export default function StoryViewerModal({
       console.error("[story-reply] failed", error);
     } finally {
       setIsReplySending(false);
+    }
+  };
+
+  const handleVisitorMenuAction = async (action) => {
+    if (!storyId || isOwnStory) return;
+
+    try {
+      if (action === "mute") {
+        if (!authorId) return;
+        await storiesApi.muteAuthor(authorId);
+        toast.success("Stories автора скрыты");
+        setIsMenuOpen(false);
+        onClose?.();
+        return;
+      }
+
+      if (action === "interesting") {
+        await storiesApi.markInteresting(storyId);
+        toast.success("Спасибо за отметку");
+      }
+
+      if (action === "not-interesting") {
+        await storiesApi.markNotInteresting(storyId);
+        toast.success("Будем показывать меньше похожих stories");
+      }
+
+      if (action === "report") {
+        const reason = window.prompt("Причина жалобы");
+        if (!reason?.trim()) return;
+        await storiesApi.reportStory(storyId, reason.trim());
+        toast.success("Жалоба отправлена");
+      }
+
+      setIsMenuOpen(false);
+    } catch (error) {
+      console.error("[story-menu-action] failed", error);
+      toast.error("Не удалось выполнить действие");
     }
   };
 
@@ -516,10 +656,18 @@ export default function StoryViewerModal({
               />
 
               <div className="storyViewer__popup">
-                <button type="button">Скрыть истории автора</button>
-                <button type="button">Интересно</button>
-                <button type="button">Не интересно</button>
-                <button type="button">Пожаловаться</button>
+                <button type="button" onClick={() => handleVisitorMenuAction("mute")}>
+                  Скрыть истории автора
+                </button>
+                <button type="button" onClick={() => handleVisitorMenuAction("interesting")}>
+                  Интересно
+                </button>
+                <button type="button" onClick={() => handleVisitorMenuAction("not-interesting")}>
+                  Не интересно
+                </button>
+                <button type="button" onClick={() => handleVisitorMenuAction("report")}>
+                  Пожаловаться
+                </button>
               </div>
             </>
           )}
@@ -622,8 +770,9 @@ export default function StoryViewerModal({
         </div>
 
         {isOwnStory ? (
+          <>
           <div className="storyViewer__actions">
-            <button type="button" className="storyViewer__action">
+            <button type="button" className="storyViewer__action" onClick={handleOpenAnalytics}>
               <div className="storyViewer__viewers">
                 {visibleViewers.length > 0 ? (
                   visibleViewers.map((viewer, index) => (
@@ -672,6 +821,16 @@ export default function StoryViewerModal({
               <span className="text-red-600">Удалить</span>
             </button>
           </div>
+          {analyticsOpen ? (
+            <StoryAnalyticsPanel
+              analytics={analytics}
+              analyticsLoading={analyticsLoading}
+              currentStory={currentStory}
+              storyViewersOnly={storyViewersOnly}
+              onClose={() => setAnalyticsOpen(false)}
+            />
+          ) : null}
+          </>
         ) : (
           <div className="storyViewer__viewerReplyBar">
             <div className="storyViewer__messageWrap">

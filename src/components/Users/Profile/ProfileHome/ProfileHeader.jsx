@@ -128,7 +128,7 @@ export default function ProfileHeader({
             <img src={profileIcons.balance} alt="" aria-hidden="true" />
           </button>
 
-          {showThemeInRight && <ThemeToggleDark className="themeBtn" />}
+          <ThemeToggleDark className="themeBtn" />
 
           <button type="button" className="iconBtn" onClick={toggle} aria-label={t('navigation.menu')}>
             <img src={profileIcons.menu} alt="" aria-hidden="true" />
