@@ -194,6 +194,101 @@
   margin-bottom: 4px;
 }
 
+.msgBubble__storyPreview {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  margin-bottom: 8px;
+  padding: 7px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.msgBubble--theirs .msgBubble__storyPreview {
+  background: rgba(183, 140, 255, 0.1);
+}
+
+.msgBubble__storyPreview--unavailable {
+  opacity: 0.82;
+}
+
+.msgBubble__storyThumb,
+.msgBubble__storyThumbPlaceholder {
+  position: relative;
+  width: 42px;
+  height: 56px;
+  flex-shrink: 0;
+  overflow: hidden;
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.14);
+}
+
+.msgBubble__storyThumb img,
+.msgBubble__storyThumb video {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+}
+
+.msgBubble__storyThumbPlaceholder {
+  display: block;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.24), rgba(255, 255, 255, 0.08)),
+    rgba(0, 0, 0, 0.18);
+}
+
+.msgBubble--theirs .msgBubble__storyThumbPlaceholder {
+  background:
+    linear-gradient(135deg, rgba(183, 140, 255, 0.22), rgba(183, 140, 255, 0.08)),
+    rgba(0, 0, 0, 0.06);
+}
+
+.msgBubble__storyVideoMark {
+  position: absolute;
+  inset: 50% auto auto 50%;
+  transform: translate(-42%, -50%);
+  width: 0;
+  height: 0;
+  border-top: 6px solid transparent;
+  border-bottom: 6px solid transparent;
+  border-left: 9px solid #fff;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.35));
+}
+
+.msgBubble__storyMeta {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.msgBubble__storyLabel {
+  font-size: 11px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.msgBubble--theirs .msgBubble__storyLabel {
+  color: rgba(0, 0, 0, 0.62);
+}
+
+.msgBubble__storyText,
+.msgBubble__storyUnavailable {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.82);
+}
+
+.msgBubble--theirs .msgBubble__storyText,
+.msgBubble--theirs .msgBubble__storyUnavailable {
+  color: rgba(0, 0, 0, 0.56);
+}
+
 .msgBubble__edited {
   font-size: 10px;
   opacity: 0.7;
@@ -250,6 +345,19 @@ html[data-theme='dark'] {
 
   .msgBubble--theirs .msgBubble__reactionChip {
     background: rgba(255, 255, 255, 0.12);
+  }
+
+  .msgBubble--theirs .msgBubble__storyPreview {
+    background: rgba(255, 255, 255, 0.08);
+  }
+
+  .msgBubble--theirs .msgBubble__storyLabel {
+    color: rgba(255, 255, 255, 0.72);
+  }
+
+  .msgBubble--theirs .msgBubble__storyText,
+  .msgBubble--theirs .msgBubble__storyUnavailable {
+    color: rgba(255, 255, 255, 0.62);
   }
 
   .msgBubble__edited {

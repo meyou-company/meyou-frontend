@@ -1,3 +1,5 @@
+import { getStoryReplyPreview } from './storyMessagePreview';
+
 export function getConversationLastMessagePreview(lastMessage, t) {
   if (!lastMessage?.id) {
     return t('messenger.noMessages');
@@ -9,6 +11,14 @@ export function getConversationLastMessagePreview(lastMessage, t) {
 
   const text = lastMessage.text?.trim();
   if (text) return text;
+
+  const storyPreview = getStoryReplyPreview(lastMessage);
+  if (storyPreview?.isUnavailable) {
+    return t('messenger.storyUnavailable', { defaultValue: 'Story is no longer available' });
+  }
+  if (storyPreview) {
+    return t('messenger.storyReply', { defaultValue: 'Story reply' });
+  }
 
   if (lastMessage.forwardedFrom) {
     return t('messenger.forwarded');

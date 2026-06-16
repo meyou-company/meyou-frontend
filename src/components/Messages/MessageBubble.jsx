@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { getMyReactionEmoji } from '../../constants/messageReactions';
 import { isMessageSeenByPeer } from '../../utils/messageReadReceipt';
 import { isEmojiOnlyMessage, splitMessageTextWithEmoji } from '../../utils/messageTextDisplay';
+import { getStoryReplyPreview } from '../../utils/storyMessagePreview';
 import MessageAttachments from './MessageAttachments';
 import MessageReactionBar from './MessageReactionBar';
 import './MessageBubble.scss';
@@ -60,6 +61,52 @@ function aggregateReactions(reactions = []) {
   return [...counts.entries()].map(([emoji, count]) => ({ emoji, count }));
 }
 
+function StoryReplyPreview({ preview }) {
+  const { t } = useTranslation();
+  if (!preview) return null;
+
+  if (preview.isUnavailable) {
+    return (
+      <div className="msgBubble__storyPreview msgBubble__storyPreview--unavailable">
+        <span className="msgBubble__storyThumbPlaceholder" aria-hidden="true" />
+        <div className="msgBubble__storyMeta">
+          <span className="msgBubble__storyLabel">
+            {t('messenger.storyReply', { defaultValue: 'Story reply' })}
+          </span>
+          <span className="msgBubble__storyUnavailable">
+            {t('messenger.storyUnavailable', { defaultValue: 'Story is no longer available' })}
+          </span>
+        </div>
+      </div>
+    );
+  }
+
+  const isVideo = preview.mediaType === 'video' || preview.mediaType?.startsWith('video');
+
+  return (
+    <div className="msgBubble__storyPreview">
+      <div className="msgBubble__storyThumb" aria-hidden="true">
+        {preview.mediaUrl ? (
+          isVideo ? (
+            <video src={preview.mediaUrl} muted playsInline preload="metadata" />
+          ) : (
+            <img src={preview.mediaUrl} alt="" />
+          )
+        ) : (
+          <span className="msgBubble__storyThumbPlaceholder" />
+        )}
+        {isVideo ? <span className="msgBubble__storyVideoMark" /> : null}
+      </div>
+      <div className="msgBubble__storyMeta">
+        <span className="msgBubble__storyLabel">
+          {t('messenger.storyReply', { defaultValue: 'Story reply' })}
+        </span>
+        {preview.text ? <span className="msgBubble__storyText">{preview.text}</span> : null}
+      </div>
+    </div>
+  );
+}
+
 export default function MessageBubble({
   message,
   isMine,
@@ -77,6 +124,7 @@ export default function MessageBubble({
   const longPressTriggeredRef = useRef(false);
   const hideReactionsTimerRef = useRef(null);
   const replyTo = message.replyTo;
+  const storyPreview = getStoryReplyPreview(message);
   const deletedForEveryone = message.deletedForEveryone === true;
   const myReaction = getMyReactionEmoji(message.reactions, currentUserId);
   const reactionSummary = aggregateReactions(message.reactions || []);
@@ -228,6 +276,7 @@ export default function MessageBubble({
             <p className="msgBubble__text msgBubble__text--deleted">{t('messenger.deletedMessage')}</p>
           ) : (
             <>
+              <StoryReplyPreview preview={storyPreview} />
               <MessageAttachments
                 attachments={message.attachments}
                 isMine={isMine}
