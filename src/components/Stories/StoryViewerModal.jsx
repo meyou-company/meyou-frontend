@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 import { storiesApi } from "../../services/storiesApi";
 import { storyReactions } from "../../constants/storyReactions";
 import profileIcons from "../../constants/profileIcons";
@@ -121,7 +122,10 @@ export default function StoryViewerModal({
 
   const storyId = getStoryId(currentStory);
   const currentStoryReaction =
-    currentStory?.myReaction || currentStory?.reactionByMe || null;
+    currentStory?.myReaction ??
+    currentStory?.reactionByMe ??
+    currentStory?.viewerReaction ??
+    null;
   const mediaUrl = getStoryMediaUrl(currentStory);
   const mediaType = getStoryMediaType(currentStory);
   const author = currentGroup?.author || currentStory?.author;
@@ -412,8 +416,9 @@ export default function StoryViewerModal({
 
       setReplyText("");
 
-      console.log("[story-reply] sent", response);
+      toast.success("Ответ отправлен");
     } catch (error) {
+      toast.error("Не удалось отправить ответ");
       console.error("[story-reply] failed", error);
     } finally {
       setIsReplySending(false);
@@ -544,9 +549,9 @@ export default function StoryViewerModal({
                   Сохранить фото/видео
                 </button>
 
-                <button type="button">
+                {/* <button type="button">
                   Изменить настройки конфиденциальности
-                </button>
+                </button> */}
 
                 <button
                   type="button"
