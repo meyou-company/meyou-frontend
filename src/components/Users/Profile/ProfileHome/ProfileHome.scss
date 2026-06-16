@@ -1932,7 +1932,7 @@ html[data-theme="dark"] .profile-home .postActionCount {
   .profileBlock {
     flex-direction: row;
     align-items: flex-start;
-    gap: 14px;
+    gap: 8px;
   }
 
   .profileLeft {
@@ -2002,12 +2002,20 @@ html[data-theme="dark"] .profile-home .postActionCount {
     grid-template-areas:
       "name aside"
       "bio aside";
-    column-gap: 14px;
-    row-gap: 10px;
+    column-gap: 10px;
+    row-gap: 5px;
     align-items: start;
 
     padding-top: 0;
     min-width: 0;
+  }
+
+  .profileBioWrap {
+    grid-area: bio;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
   }
 
   .profileInfoAside {
@@ -2021,34 +2029,41 @@ html[data-theme="dark"] .profile-home .postActionCount {
     padding-top: 4px;
   }
 
-  .profileBioWrap {
-    grid-area: bio;
-    min-width: 0;
-  }
-
   .name {
     grid-area: name;
-    font-size: 28px;
+    font-size: 24px;
     line-height: 1.05;
     margin: 0;
     word-break: break-word;
   }
 
+  .nameText {
+    font-size: 24px;
+  }
+
   .profileBioWrap .bio {
-    font-size: 12px;
+    font-size: 10px;
     line-height: 1.25;
     margin: 0;
   }
 
-   .profileBioWrap .bioLocation {
-    margin-top: 8px;
+  .profileBioWrap .bioName {
+    font-size: 11px;
+  }
+
+  .profileBioWrap .bioLocation {
+    margin-top: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
   }
 
   /* ✅ badges 2×2 у колонці навпроти імені та біо */
   .profileMobileBadges {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 10px 18px;
+    gap: 8px 14px;
     width: 100%;
     margin: 0;
     padding: 0;
@@ -2057,30 +2072,30 @@ html[data-theme="dark"] .profile-home .postActionCount {
   .profileMobileBadges__btn {
     border: 0;
     background: transparent;
-    padding: 6px 4px;
+    padding: 4px 2px;
     cursor: pointer;
     -webkit-tap-highlight-color: transparent;
     display: inline-flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 4px;
+    gap: 3px;
     min-width: 0;
   }
 
   .profileMobileBadges__icon {
-    width: 20px;
-    height: 20px;
+    width: 16px;
+    height: 16px;
     object-fit: contain;
     display: block;
   }
 
   .profileMobileBadges__label {
-    font-size: 10px;
+    font-size: 8px;
     font-weight: 500;
     line-height: 1.1;
     text-decoration: underline;
-    text-underline-offset: 3px;
+    text-underline-offset: 2px;
     color: rgba(0, 0, 0, 0.62);
     text-align: center;
   }
@@ -2321,7 +2336,7 @@ html[data-theme="dark"] .profile-home .postActionCount {
   .profileBlock {
     flex-direction: row;
     align-items: flex-start;
-    gap: 12px;
+    gap: 8px;
   }
 
   .avatarWrap {
@@ -2362,8 +2377,8 @@ html[data-theme="dark"] .profile-home .postActionCount {
     grid-template-areas:
       "name aside"
       "bio aside";
-    column-gap: 10px;
-    row-gap: 10px;
+    column-gap: 8px;
+    row-gap: 5px;
     padding-top: 0;
     min-width: 0;
     align-items: start;
@@ -2383,13 +2398,16 @@ html[data-theme="dark"] .profile-home .postActionCount {
   .profileBioWrap {
     grid-area: bio;
     min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
   }
 
   /* Fix "9999" vertical issue */
   .name {
     grid-area: name;
     margin: 0;
-    font-size: 26px;
+    font-size: 24px;
     line-height: 1.05;
 
     word-break: normal;
@@ -2400,7 +2418,7 @@ html[data-theme="dark"] .profile-home .postActionCount {
   }
 
   .nameText {
-    font-size: 20px;
+    font-size: 24px;
 
     background: linear-gradient(236.31deg, #FF4FB1 11.54%, #4F6BFF 88.46%);
     -webkit-background-clip: text;
@@ -2412,13 +2430,29 @@ html[data-theme="dark"] .profile-home .postActionCount {
 
   .profileBioWrap .bio {
     margin: 0;
-    font-size: 13px;
-    line-height: 1.75;
+    font-size: 10px;
+    line-height: 1.5;
+  }
+
+  .profileBioWrap .bioName {
+    font-size: 12px;
+  }
+
+  .profileBioWrap .bioLocation {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
   }
 
   /* ===== badges 2×2 (my photos / saved / gifts / balance) ===== */
   .profileMobileBadges {
-    gap: 10px 14px;
+    gap: 8px 12px;
+  }
+
+  .profileMobileBadges__icon {
+    width: 18px;
+    height: 18px;
   }
 
   .profileMobileBadges__label {
@@ -2528,8 +2562,8 @@ html[data-theme="dark"] .profile-home .postActionCount {
 @media only screen and (max-width: 360px) {
    .profileBioWrap .bio {
     margin: 0;
-    font-size: 12px;
-    line-height: 1.75;
+    font-size: 10px;
+    line-height: 1.5;
   }
 }
 
@@ -2543,7 +2577,7 @@ html[data-theme="dark"] .profile-home .postActionCount {
   }
 
   .profileBlock {
-    gap: 8px;
+    gap: 6px;
   }
 
   .avatarWrap {
@@ -2573,33 +2607,42 @@ html[data-theme="dark"] .profile-home .postActionCount {
   }
 
   .profileInfo {
-    column-gap: 8px;
-    row-gap: 8px;
+    column-gap: 6px;
+    row-gap: 4px;
   }
 
   .name {
-    font-size: 22px;
+    font-size: 20px;
   }
 
   .nameText {
-    font-size: 18px;
+    font-size: 17px;
   }
 
   .profileBioWrap .bio {
-    font-size: 11px;
-    line-height: 1.5;
+    font-size: 9px;
+    line-height: 1.4;
   }
 
   .profileBioWrap .bioLocation {
-    margin-top: 8px;
+    margin-top: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
   }
 
   .profileMobileBadges {
-    gap: 8px 10px;
+    gap: 6px 8px;
+  }
+
+  .profileMobileBadges__icon {
+    width: 14px;
+    height: 14px;
   }
 
   .profileMobileBadges__label {
-    font-size: 8px;
+    font-size: 7px;
   }
 
   .badgesRow {
