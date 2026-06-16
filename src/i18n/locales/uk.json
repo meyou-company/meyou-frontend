@@ -180,6 +180,7 @@
     "notFound": "Профіль не знайдено{{username}}",
     "loadError": "Помилка завантаження",
     "myBalance": "Мій баланс",
+    "myPhotos": "Мої фото",
     "editProfile": "Редагувати профіль",
     "viewPhoto": "Переглянути фото",
     "viewPhotoFull": "Фото в повному розмірі",
@@ -255,7 +256,14 @@
       "giftsStat": "Подарунки",
       "postsStat": "Пости",
       "contacts": "Контакти",
-      "emailHidden": "Email (приховано)"
+      "emailHidden": "Email (приховано)",
+      "editSection": "Редагувати розділ",
+      "save": "Зберегти",
+      "saved": "Інформацію збережено",
+      "visibleTo": "Кому видно",
+      "onlyMe": "Тільки мені",
+      "everyone": "Всім",
+      "languagesPlaceholder": "Українська, Англійська, Іспанська"
     },
     "vip": {
       "vipFriends": "VIP",
