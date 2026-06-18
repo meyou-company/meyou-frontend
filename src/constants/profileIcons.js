@@ -141,6 +141,9 @@ const profileIcons = {
   storyReactionWow: '/stories/story-wow.svg',
   storyReactionCry: '/stories/story-cry.svg',
   storyReactionFire: '/stories/story-fire.svg',
+  storyAdd: '/stories/add.svg',
+  storyViews: '/stories/eye.svg',
+  storyAnalytics: '/stories/analytics.svg',
 };
 
 export default profileIcons;

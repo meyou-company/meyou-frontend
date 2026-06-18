@@ -1,13 +1,25 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+import {
+  LuBan,
+  LuFlag,
+  LuMessageCircle,
+  LuRefreshCw,
+  LuUsers,
+  LuX,
+} from "react-icons/lu";
 import { storiesApi } from "../../services/storiesApi";
+import { conversationsApi } from "../../services/conversationsApi";
 import { storyReactions } from "../../constants/storyReactions";
 import profileIcons from "../../constants/profileIcons";
 import AppHeader from "../Layout/AppHeader";
 import "./StoryViewerModal.scss";
+import StoryUploadModal from "./StoryUploadModal";
 
 const DEFAULT_DURATION = 500000;
+const IMAGE_DURATION = 10000;
+const MAX_VIDEO_DURATION = 60000;
 const storyViewsCache = new Map();
 const storyViewsRequests = new Map();
 
@@ -21,6 +33,18 @@ function getStoryMediaUrl(story) {
 
 function getStoryMediaType(story) {
   return String(story?.mediaType || story?.media_type || story?.type || "image").toLowerCase();
+}
+
+function getStoryDurationMs(story, mediaType) {
+  if (mediaType !== "video") return IMAGE_DURATION;
+
+  const durationSec =
+    story?.durationSec ||
+    story?.duration_sec ||
+    story?.duration ||
+    60;
+
+  return Math.min(Math.max(Number(durationSec) * 1000, 1000), MAX_VIDEO_DURATION);
 }
 
 function getAuthorName(author) {
@@ -54,8 +78,50 @@ function normalizeStoryViewUser(item) {
   return {
     id: user.id || user._id,
     username: user.username || user.nick || user.nickname || "",
+    firstName: user.firstName,
+    lastName: user.lastName,
+    displayName: user.displayName || user.name,
     avatarUrl: user.avatarUrl || user.avatar || null,
+    isFollower:
+      item?.isFollower ??
+      item?.isSubscriber ??
+      user?.isFollower ??
+      user?.isSubscriber ??
+      false,
+    reactions:
+      item?.reactions ||
+      item?.reactionTypes ||
+      item?.reaction ||
+      item?.type ||
+      user?.reactions ||
+      [],
   };
+}
+
+function getUserDisplayName(user) {
+  return (
+    user?.displayName ||
+    [user?.firstName, user?.lastName].filter(Boolean).join(" ").trim() ||
+    user?.username ||
+    "User"
+  );
+}
+
+function normalizeReactionList(value) {
+  if (!value) return [];
+  if (Array.isArray(value)) return value.filter(Boolean);
+  return [value].filter(Boolean);
+}
+
+function getReactionGlyph(type) {
+  const normalized = String(type || "").toLowerCase();
+
+  if (normalized.includes("laugh") || normalized.includes("smile")) return "😂";
+  if (normalized.includes("wow") || normalized.includes("surprise")) return "😮";
+  if (normalized.includes("cry") || normalized.includes("sad")) return "😢";
+  if (normalized.includes("fire")) return "🔥";
+  if (normalized.includes("thumb")) return "👍";
+  return "❤️";
 }
 
 function getStoryViewsCount(story, views = []) {
@@ -85,82 +151,215 @@ function extractStoryViewsList(response) {
               : [];
 }
 
-function StoryAnalyticsPanel({
+function StoryAnalyticsModal({
   analytics,
   analyticsLoading,
   currentStory,
+  stories,
+  storyIndex,
   storyViewersOnly,
+  activeTab,
+  onTabChange,
+  onRefresh,
+  onAddStory,
+  onSelectStory,
+  onSelectViewer,
   onClose,
 }) {
   const reactions = analytics?.reactionsByType || analytics?.reactionsGrouped || {};
-  const viewers = analytics?.viewersPreview || analytics?.viewers || storyViewersOnly || [];
+  const rawViewers = analytics?.viewersPreview || analytics?.viewers || storyViewersOnly || [];
+  const viewers = rawViewers.map(normalizeStoryViewUser).filter(Boolean);
+  const viewsCount = analytics?.viewsCount ?? currentStory?.viewsCount ?? storyViewersOnly?.length ?? 0;
+  const sharesCount = analytics?.sharesCount ?? analytics?.shareCount ?? currentStory?.sharesCount ?? 0;
+  const reactionsCount = analytics?.reactionsCount ?? currentStory?.reactionsCount ?? 0;
+  const activeStoryThumbRef = useRef(null);
+  const safeStories = useMemo(() => (Array.isArray(stories) ? stories : []), [stories]);
+  const activeStoryIndex = Math.min(Math.max(storyIndex, 0), Math.max(safeStories.length - 1, 0));
+
+  useEffect(() => {
+    activeStoryThumbRef.current?.scrollIntoView({
+      behavior: "smooth",
+      block: "nearest",
+      inline: "center",
+    });
+  }, [activeStoryIndex, safeStories.length]);
+
+  const renderStoryThumb = (index) => {
+    const story = safeStories[index];
+    if (!story) return null;
+
+    const mediaUrl = getStoryMediaUrl(story);
+    const mediaType = getStoryMediaType(story);
+    const isActive = index === activeStoryIndex;
+
+    return (
+      <button
+        type="button"
+        key={getStoryId(story) || index}
+        ref={isActive ? activeStoryThumbRef : null}
+        className={`storyStatsModal__thumb ${isActive ? "is-active" : ""}`}
+        onClick={() => onSelectStory(index)}
+        aria-label={`Story ${index + 1}`}
+      >
+        {mediaType === "video" ? (
+          <video src={mediaUrl} muted playsInline preload="metadata" />
+        ) : (
+          <img src={mediaUrl} alt="" />
+        )}
+      </button>
+    );
+  };
 
   return (
-    <div className="storyViewer__analyticsCard">
-      <div className="storyViewer__analyticsHead">
-        <h3>Story analytics</h3>
-        <button type="button" onClick={onClose} aria-label="Close analytics">
-          x
+    <div className="storyStatsModal" role="dialog" aria-modal="true" aria-label="Story statistics">
+      <div className="storyStatsModal__dots" aria-hidden="true" />
+      <header className="storyStatsModal__header">
+        <span className="storyStatsModal__brand">ME YOU</span>
+        <button type="button" className="storyStatsModal__close" onClick={onClose} aria-label="Закрыть">
+          <LuX aria-hidden="true" />
+        </button>
+      </header>
+
+      <div className="storyStatsModal__rail" aria-label="Stories">
+        {safeStories.map((_, index) => renderStoryThumb(index))}
+        <button type="button" className="storyStatsModal__add" onClick={onAddStory}>
+          <img src={profileIcons.storyAdd} alt="" aria-hidden="true" />
+          <span>Добавить</span>
         </button>
       </div>
 
-      {analyticsLoading ? (
-        <p className="storyViewer__analyticsHint">Loading...</p>
-      ) : (
-        <>
-          <div className="storyViewer__analyticsGrid">
-            <div>
-              <b>{analytics?.viewsCount ?? currentStory?.viewsCount ?? 0}</b>
-              <span>Views</span>
-            </div>
-            <div>
-              <b>{analytics?.uniqueViewsCount ?? 0}</b>
-              <span>Unique</span>
-            </div>
-            <div>
-              <b>{analytics?.reactionsCount ?? currentStory?.reactionsCount ?? 0}</b>
-              <span>Reactions</span>
-            </div>
-            <div>
-              <b>{analytics?.repliesCount ?? currentStory?.repliesCount ?? 0}</b>
-              <span>Replies</span>
-            </div>
-            <div>
-              <b>{analytics?.savesCount ?? currentStory?.savesCount ?? 0}</b>
-              <span>Saves</span>
-            </div>
+      <div className="storyStatsModal__tabs" role="tablist" aria-label="Story statistics tabs">
+        <button
+          type="button"
+          className={activeTab === "views" ? "is-active" : ""}
+          onClick={() => onTabChange("views")}
+          role="tab"
+          aria-selected={activeTab === "views"}
+        >
+          <img src={profileIcons.storyViews} alt="" aria-hidden="true" />
+          Просмотры
+        </button>
+        <button
+          type="button"
+          className={activeTab === "stats" ? "is-active" : ""}
+          onClick={() => onTabChange("stats")}
+          role="tab"
+          aria-selected={activeTab === "stats"}
+        >
+          <img src={profileIcons.storyAnalytics} alt="" aria-hidden="true" />
+          Статистика
+        </button>
+      </div>
+
+      {activeTab === "views" ? (
+        <section className="storyStatsModal__views">
+          <div className="storyStatsModal__viewsHead">
+            <h3>Просмотрели: <b>{viewsCount}</b></h3>
+            <button type="button" onClick={onRefresh} disabled={analyticsLoading}>
+              <LuRefreshCw aria-hidden="true" />
+              Обновить
+            </button>
           </div>
 
-          <div className="storyViewer__analyticsSection">
-            <h4>Viewers</h4>
-            <div className="storyViewer__analyticsPeople">
-              {viewers.slice(0, 8).map((viewer, index) => {
-                const user = normalizeStoryViewUser(viewer);
+          {analyticsLoading ? (
+            <p className="storyStatsModal__hint">Загрузка...</p>
+          ) : (
+            <div className="storyStatsModal__viewerList">
+              {viewers.map((viewer, index) => {
+                const reactionsList = normalizeReactionList(viewer.reactions);
+
                 return (
-                  <span key={user?.id || index}>
-                    <img src={user?.avatarUrl || profileIcons.userStory} alt="" />
-                    {user?.username || "User"}
-                  </span>
+                  <button
+                    type="button"
+                    key={viewer.id || index}
+                    className="storyStatsModal__viewer"
+                    onClick={() => onSelectViewer(viewer)}
+                  >
+                    <img src={viewer.avatarUrl || profileIcons.userStory} alt="" />
+                    <span className="storyStatsModal__viewerName">{getUserDisplayName(viewer)}</span>
+                    {viewer.isFollower ? <span className="storyStatsModal__online" aria-label="Подписчик" /> : null}
+                    <span className="storyStatsModal__viewerReactions" aria-hidden="true">
+                      {reactionsList.slice(0, 3).map((type, reactionIndex) => (
+                        <span key={`${type}-${reactionIndex}`}>{getReactionGlyph(type)}</span>
+                      ))}
+                    </span>
+                  </button>
                 );
               })}
+              {viewers.length === 0 ? <p className="storyStatsModal__hint">Пока нет просмотров</p> : null}
             </div>
+          )}
+        </section>
+      ) : (
+        <section className="storyStatsModal__summary">
+          <div className="storyStatsModal__summaryRow">
+            <span>Просмотрели:</span>
+            <strong>{viewsCount}</strong>
+            <small>Все пользователи</small>
           </div>
-
-          <div className="storyViewer__analyticsSection">
-            <h4>Reactions</h4>
-            <div className="storyViewer__reactionSummary">
-              {Object.entries(reactions).length > 0 ? (
-                Object.entries(reactions).map(([type, count]) => (
-                  <span key={type}>{type}: {count}</span>
-                ))
-              ) : (
-                <span>No reactions yet</span>
-              )}
+          <div className="storyStatsModal__summaryRow">
+            <span>Поделились:</span>
+            <strong>{sharesCount}</strong>
+            <small>Все пользователи</small>
+          </div>
+          <div className="storyStatsModal__summaryRow">
+            <span>Реакции:</span>
+            <strong>{reactionsCount}</strong>
+            <small>Все пользователи</small>
+          </div>
+          {Object.entries(reactions).length > 0 ? (
+            <div className="storyStatsModal__reactionBreakdown">
+              {Object.entries(reactions).map(([type, count]) => (
+                <span key={type}>{getReactionGlyph(type)} {count}</span>
+              ))}
             </div>
-          </div>
-        </>
+          ) : null}
+        </section>
       )}
     </div>
+  );
+}
+
+function StoryStatsUserSheet({ user, onClose, onMessage, onProfile }) {
+  if (!user) return null;
+
+  const name = getUserDisplayName(user);
+
+  return (
+    <>
+      <button
+        type="button"
+        className="storyStatsUserSheet__backdrop"
+        onClick={onClose}
+        aria-label="Закрыть действия пользователя"
+      />
+      <div className="storyStatsUserSheet" role="dialog" aria-modal="true" aria-label={name}>
+        <div className="storyStatsUserSheet__person">
+          <img src={user.avatarUrl || profileIcons.userStory} alt="" />
+          <div>
+            <strong>{name}</strong>
+            <span>{user.isFollower ? "Ваш подписчик" : user.username ? `@${user.username}` : "Пользователь"}</span>
+          </div>
+        </div>
+
+        <button type="button" onClick={onMessage}>
+          <LuMessageCircle aria-hidden="true" />
+          Написать сообщение {name}
+        </button>
+        <button type="button" onClick={onProfile}>
+          <LuUsers aria-hidden="true" />
+          Посмотреть профиль
+        </button>
+        <button type="button">
+          <LuFlag aria-hidden="true" />
+          Пожаловаться
+        </button>
+        <button type="button">
+          <LuBan aria-hidden="true" />
+          Заблокировать
+        </button>
+      </div>
+    </>
   );
 }
 
@@ -191,9 +390,13 @@ export default function StoryViewerModal({
   const [analytics, setAnalytics] = useState(null);
   const [analyticsLoading, setAnalyticsLoading] = useState(false);
   const [analyticsOpen, setAnalyticsOpen] = useState(false);
+  const [analyticsTab, setAnalyticsTab] = useState("views");
+  const [selectedStatsUser, setSelectedStatsUser] = useState(null);
+  const [isStoryUploadOpen, setIsStoryUploadOpen] = useState(false);
 
   const navigate = useNavigate();
 
+  const videoRef = useRef(null);
   const viewedRef = useRef(new Set());
   const onCloseRef = useRef(onClose);
   const onViewedRef = useRef(onViewed);
@@ -244,6 +447,7 @@ export default function StoryViewerModal({
   const isOwnStory =
     String(author?.id ?? currentStory?.authorId ?? "") === String(currentUserId ?? "");
   const authorId = author?.id ?? currentStory?.authorId ?? currentStory?.userId;
+  const isStoryPaused = analyticsOpen || Boolean(selectedStatsUser);
 
   const handleOpenAuthorProfile = () => {
     const username = author?.username || author?.nick || author?.nickname;
@@ -480,7 +684,7 @@ export default function StoryViewerModal({
   }, [isOpen, storyId, isOwnStory, currentStory]);
 
   useEffect(() => {
-    if (!isOpen || !hasStories) return undefined;
+    if (!isOpen || !hasStories || isStoryPaused) return undefined;
 
     const stepMs = 50;
     const interval = window.setInterval(() => {
@@ -494,7 +698,19 @@ export default function StoryViewerModal({
     }, stepMs);
 
     return () => window.clearInterval(interval);
-  }, [isOpen, hasStories, duration, storyId]);
+  }, [isOpen, hasStories, duration, storyId, isStoryPaused]);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video || mediaType !== "video") return;
+
+    if (isStoryPaused) {
+      video.pause();
+      return;
+    }
+
+    video.play?.().catch(() => {});
+  }, [isStoryPaused, mediaType, storyId]);
 
   useEffect(() => {
     if (!isOpen || !hasStories || progress < 100) return undefined;
@@ -520,14 +736,12 @@ export default function StoryViewerModal({
 
     setSelectedReaction(currentStoryReaction);
     setAnalytics(null);
-    setAnalyticsOpen(false);
+    setAnalyticsTab("views");
+    setSelectedStatsUser(null);
   }, [isOpen, storyId, currentStoryReaction]);
 
-  const handleOpenAnalytics = async () => {
+  const loadAnalytics = useCallback(async () => {
     if (!storyId || !isOwnStory) return;
-
-    setAnalyticsOpen(true);
-    if (analytics) return;
 
     try {
       setAnalyticsLoading(true);
@@ -538,6 +752,67 @@ export default function StoryViewerModal({
       toast.error("Не удалось загрузить аналитику story");
     } finally {
       setAnalyticsLoading(false);
+    }
+  }, [isOwnStory, storyId]);
+
+  useEffect(() => {
+    if (!analyticsOpen || !storyId || !isOwnStory) return;
+    loadAnalytics();
+  }, [analyticsOpen, storyId, isOwnStory, loadAnalytics]);
+
+  const handleOpenAnalytics = async () => {
+    if (!storyId || !isOwnStory) return;
+
+    setAnalyticsOpen(true);
+    setAnalyticsTab("views");
+    setSelectedStatsUser(null);
+    loadAnalytics();
+  };
+
+  const handleSelectStatsStory = (nextStoryIndex) => {
+    if (nextStoryIndex === storyIndex) return;
+
+    setStoryIndex(nextStoryIndex);
+    setProgress(0);
+    setDuration(DEFAULT_DURATION);
+    setAnalytics(null);
+    setAnalyticsTab("views");
+    setSelectedStatsUser(null);
+    progressStartedRef.current = false;
+  };
+
+  const handleOpenStoryUpload = () => {
+    setSelectedStatsUser(null);
+    setIsStoryUploadOpen(true);
+  };
+
+  const handleStatsUserMessage = async () => {
+    const participantId = selectedStatsUser?.id;
+    if (!participantId) return;
+
+    try {
+      const conversation = await conversationsApi.create(participantId);
+      setSelectedStatsUser(null);
+      setAnalyticsOpen(false);
+      requestClose();
+
+      if (conversation?.id) {
+        scheduleAfterRender(() => navigate(`/messages/${conversation.id}`));
+      }
+    } catch (error) {
+      console.error("[story-stats-message] failed", error);
+      toast.error("Не удалось открыть чат");
+    }
+  };
+
+  const handleStatsUserProfile = () => {
+    const handle = selectedStatsUser?.username || selectedStatsUser?.id;
+    setSelectedStatsUser(null);
+    setAnalyticsOpen(false);
+
+    if (handle) {
+      requestClose();
+      scheduleAfterRender(() => onOpenProfile?.(handle));
     }
   };
 
@@ -800,6 +1075,7 @@ export default function StoryViewerModal({
           <div className={`storyViewer__mediaWrap storyViewer__mediaWrap--${mediaOrientation}`}>
             {mediaType === "video" ? (
               <video
+                ref={videoRef}
                 src={mediaUrl}
                 className="storyViewer__media"
                 autoPlay
@@ -812,10 +1088,12 @@ export default function StoryViewerModal({
 
                   const seconds = video.duration;
                   if (Number.isFinite(seconds) && seconds > 0) {
-                    setDuration(Math.min(Math.max(seconds * 1000, 3000), 15000));
+                    setDuration(Math.min(Math.max(seconds * 1000, 3000), 60000));
                   }
                 }}
-                onEnded={goNext}
+                onEnded={() => {
+                  if (!isStoryPaused) goNext();
+                }}
               />
             ) : (
               <img
@@ -837,65 +1115,82 @@ export default function StoryViewerModal({
 
         {isOwnStory ? (
           <>
-          <div className="storyViewer__actions">
-            <button type="button" className="storyViewer__action" onClick={handleOpenAnalytics}>
-              <div className="storyViewer__viewers">
-                {visibleViewers.length > 0 ? (
-                  visibleViewers.map((viewer, index) => (
-                    <img
-                      key={viewer.id || index}
-                      src={viewer.avatarUrl || profileIcons.userStory}
-                      alt=""
-                    />
-                  ))
-                ) : (
-                  <span className="storyViewer__viewersEmpty">0</span>
-                )}
+            <div className="storyViewer__actions">
+              <button type="button" className="storyViewer__action" onClick={handleOpenAnalytics}>
+                <div className="storyViewer__viewers">
+                  {visibleViewers.length > 0 ? (
+                    visibleViewers.map((viewer, index) => (
+                      <img
+                        key={viewer.id || index}
+                        src={viewer.avatarUrl || profileIcons.userStory}
+                        alt=""
+                      />
+                    ))
+                  ) : (
+                    <span className="storyViewer__viewersEmpty">0</span>
+                  )}
+                </div>
+
+                <span>
+                  {storyViewsLoading ? "..." : `${viewsCount} просмотров`}
+                </span>
+              </button>
+
+              <div className="storyViewer__actionsCenter">
+                <button type="button" className="storyViewer__action">
+                  <img
+                    src={profileIcons.storyForward}
+                    alt=""
+                    className="storyViewer__actionImg"
+                  />
+                  <span>Поделиться</span>
+                </button>
+
+                <button type="button" className="storyViewer__action">
+                  <span className="storyViewer__actionIcon">@</span>
+                  <span>Отметить</span>
+                </button>
               </div>
 
-              <span>
-                {storyViewsLoading ? "..." : `${viewsCount} просмотров`}
-              </span>
-            </button>
-
-            <div className="storyViewer__actionsCenter">
-              <button type="button" className="storyViewer__action">
+              <button
+                type="button"
+                className="storyViewer__action"
+                onClick={() => onDeleteStory?.(storyId)}
+              >
                 <img
-                  src={profileIcons.storyForward}
+                  src={profileIcons.storyDelete}
                   alt=""
-                  className="storyViewer__actionImg"
+                  className="storyViewer__actionIcon storyViewer__actionIcon--delete"
                 />
-                <span>Поделиться</span>
-              </button>
-
-              <button type="button" className="storyViewer__action">
-                <span className="storyViewer__actionIcon">@</span>
-                <span>Отметить</span>
+                <span className="text-red-600">Удалить</span>
               </button>
             </div>
-
-            <button
-              type="button"
-              className="storyViewer__action"
-              onClick={() => onDeleteStory?.(storyId)}
-            >
-              <img
-                src={profileIcons.storyDelete}
-                alt=""
-                className="storyViewer__actionIcon storyViewer__actionIcon--delete"
+            {analyticsOpen ? (
+              <StoryAnalyticsModal
+                analytics={analytics}
+                analyticsLoading={analyticsLoading}
+                currentStory={currentStory}
+                stories={stories}
+                storyIndex={storyIndex}
+                storyViewersOnly={storyViewersOnly}
+                activeTab={analyticsTab}
+                onTabChange={setAnalyticsTab}
+                onRefresh={loadAnalytics}
+                onAddStory={handleOpenStoryUpload}
+                onSelectStory={handleSelectStatsStory}
+                onSelectViewer={setSelectedStatsUser}
+                onClose={() => {
+                  setSelectedStatsUser(null);
+                  setAnalyticsOpen(false);
+                }}
               />
-              <span className="text-red-600">Удалить</span>
-            </button>
-          </div>
-          {analyticsOpen ? (
-            <StoryAnalyticsPanel
-              analytics={analytics}
-              analyticsLoading={analyticsLoading}
-              currentStory={currentStory}
-              storyViewersOnly={storyViewersOnly}
-              onClose={() => setAnalyticsOpen(false)}
+            ) : null}
+            <StoryStatsUserSheet
+              user={selectedStatsUser}
+              onClose={() => setSelectedStatsUser(null)}
+              onMessage={handleStatsUserMessage}
+              onProfile={handleStatsUserProfile}
             />
-          ) : null}
           </>
         ) : (
           <div className="storyViewer__viewerReplyBar">
@@ -940,6 +1235,14 @@ export default function StoryViewerModal({
           </div>
         )}
       </div>
+
+      <StoryUploadModal
+        isOpen={isStoryUploadOpen}
+        onClose={() => setIsStoryUploadOpen(false)}
+        onCreated={() => {
+          setIsStoryUploadOpen(false);
+        }}
+      />
     </div>
   );
 }
