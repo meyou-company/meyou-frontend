@@ -70,6 +70,36 @@
     --pmg-h: 420px;
     gap: 4px;
   }
+
+  /* Одне фото на мобілці — на всю ширину блока, без crop */
+  .pmg--single {
+    --pmg-h: auto;
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+    display: block;
+    overflow: visible;
+  }
+
+  .pmg--single .pmg__tile--single {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+    min-height: 0;
+    padding: 0;
+    overflow: visible;
+    background: transparent;
+  }
+
+  .pmg--single .pmg__img {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+    object-fit: contain;
+    object-position: center;
+  }
   
   .pmg__tile { border-radius: 8px; }
 
@@ -94,7 +124,37 @@
   .pmg__overlay--mobile { display: flex; }
 }
 
-@media (min-width: 768px) {
+@media (min-width: 1024px) {
+  /* Одне фото на десктопі — Facebook-like: повністю, без crop */
+  .pmg--single {
+    --pmg-single-max-h: 500px;
+    --pmg-h: auto;
+    height: auto;
+    display: block;
+    overflow: visible;
+  }
+
+  .pmg--single .pmg__tile--single {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    width: 100%;
+    height: auto;
+    min-height: 0;
+    overflow: visible;
+    background: transparent;
+  }
+
+  .pmg--single .pmg__img {
+    width: auto;
+    max-width: 100%;
+    height: auto;
+    max-height: var(--pmg-single-max-h);
+    object-fit: contain;
+    object-position: center;
+    flex: 0 0 auto;
+  }
+
   .pmg--fivePlus .pmg__side--grid4 .pmg__tile {
     visibility: visible;
     pointer-events: auto;

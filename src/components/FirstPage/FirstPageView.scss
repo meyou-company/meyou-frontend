@@ -85,6 +85,37 @@ html[data-theme="light"] .first-page-post__repliesStat {
   border-radius: 10px;
 }
 
+/* Розміри картки поста — як у профілі (.postCard) */
+.first-page-post.postCard {
+  width: 100%;
+  padding: 12px 12px 10px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.2);
+  overflow: visible;
+  position: relative;
+}
+
+.first-page-post .pmg {
+  width: 100%;
+  max-width: 100%;
+  margin-bottom: 10px;
+}
+
+@media (max-width: 768px) {
+  .first-page-post.postCard {
+    padding: 6px 6px 11px;
+    border-radius: 10px;
+  }
+
+  .first-page-post .postText,
+  .first-page-post p.postText {
+    margin: 0 0 10px;
+    font-size: 15px;
+    font-weight: 400;
+    text-decoration: none;
+  }
+}
+
 html[data-theme="light"] .first-page-post {
   background: rgba(255, 255, 255, 0.28);
   border-color: rgba(255, 255, 255, 0.55);

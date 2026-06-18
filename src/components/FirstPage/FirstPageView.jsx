@@ -380,7 +380,7 @@ export default function FirstPageView({
 
         {/* FEED */}
         <main className="flex-1">
-          <div className="max-w-[1340px] mx-auto my-[10px] md:my-5 xl:my-[46px] px-7 md:px-[41px] lg:px-9 min-[1440px]:px-[66px] space-y-[10px] md:space-y-5">
+          <div className="feed max-w-[1340px] mx-auto my-[10px] md:my-5 xl:my-[46px] px-3.5 md:px-[41px] lg:px-9 min-[1440px]:px-[66px]">
             {feedLoading && (
               <p className="text-center text-sm md:text-base font-[Montserrat] text-gray-600 py-6">
                 {t('feed.loading')}
@@ -548,7 +548,7 @@ function GlobalFeedPostCard({
   const menuPerms = resolvePostMenuPermissions(post, currentUserId);
 
   return (
-    <article className="first-page-post px-1.5 pt-1.5 pb-[11px] md:p-2.5 xl:!mb-[29px] my-4 space-y-3 relative overflow-visible">
+    <article className="first-page-post postCard relative overflow-visible xl:!mb-[29px]">
       <PostCardHeader
         avatarSrc={avatarSrc}
         onAvatarClick={handleOpenProfile}
