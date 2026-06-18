@@ -195,6 +195,35 @@ export default function StoryViewerModal({
   const navigate = useNavigate();
 
   const viewedRef = useRef(new Set());
+  const onCloseRef = useRef(onClose);
+  const onViewedRef = useRef(onViewed);
+  const onReactionChangeRef = useRef(onReactionChange);
+  const groupIndexRef = useRef(groupIndex);
+  const storyIndexRef = useRef(storyIndex);
+  const progressStartedRef = useRef(false);
+  const wasOpenRef = useRef(false);
+  const pendingCloseRef = useRef(false);
+
+  onCloseRef.current = onClose;
+  onViewedRef.current = onViewed;
+  onReactionChangeRef.current = onReactionChange;
+  groupIndexRef.current = groupIndex;
+  storyIndexRef.current = storyIndex;
+
+  const scheduleAfterRender = useCallback((callback) => {
+    window.queueMicrotask(() => {
+      callback?.();
+    });
+  }, []);
+
+  const requestClose = useCallback(() => {
+    if (pendingCloseRef.current) return;
+    pendingCloseRef.current = true;
+    scheduleAfterRender(() => {
+      pendingCloseRef.current = false;
+      onCloseRef.current?.();
+    });
+  }, [scheduleAfterRender]);
 
   const safeGroups = Array.isArray(groups) ? groups : [];
 
@@ -221,8 +250,8 @@ export default function StoryViewerModal({
 
     if (!username) return;
 
-    onClose?.();
-    onOpenProfile?.(username);
+    requestClose();
+    scheduleAfterRender(() => onOpenProfile?.(username));
   };
 
   const handleSaveStoryMedia = async () => {
@@ -267,51 +296,67 @@ export default function StoryViewerModal({
   const goNext = useCallback(() => {
     setProgress(0);
     setDuration(DEFAULT_DURATION);
+    progressStartedRef.current = false;
 
-    setStoryIndex((prevStoryIndex) => {
-      const currentStories = Array.isArray(safeGroups[groupIndex]?.stories)
-        ? safeGroups[groupIndex].stories
-        : [];
+    const currentGroupIndex = groupIndexRef.current;
+    const currentStoryIndex = storyIndexRef.current;
+    const currentStories = Array.isArray(safeGroups[currentGroupIndex]?.stories)
+      ? safeGroups[currentGroupIndex].stories
+      : [];
 
-      if (prevStoryIndex < currentStories.length - 1) {
-        return prevStoryIndex + 1;
-      }
+    if (currentStoryIndex < currentStories.length - 1) {
+      setStoryIndex(currentStoryIndex + 1);
+      return;
+    }
 
-      if (groupIndex < safeGroups.length - 1) {
-        setGroupIndex((prevGroupIndex) => prevGroupIndex + 1);
-        return 0;
-      }
+    if (currentGroupIndex < safeGroups.length - 1) {
+      setGroupIndex(currentGroupIndex + 1);
+      setStoryIndex(0);
+      return;
+    }
 
-      onClose?.();
-      return prevStoryIndex;
-    });
-  }, [groupIndex, safeGroups, onClose]);
+    requestClose();
+  }, [safeGroups, requestClose]);
 
   const goPrev = useCallback(() => {
     setProgress(0);
     setDuration(DEFAULT_DURATION);
+    progressStartedRef.current = false;
 
-    setStoryIndex((prevStoryIndex) => {
-      if (prevStoryIndex > 0) return prevStoryIndex - 1;
+    const currentGroupIndex = groupIndexRef.current;
+    const currentStoryIndex = storyIndexRef.current;
 
-      if (groupIndex > 0) {
-        const prevGroup = safeGroups[groupIndex - 1];
-        const prevStories = Array.isArray(prevGroup?.stories) ? prevGroup.stories : [];
-        setGroupIndex((prevGroupIndex) => prevGroupIndex - 1);
-        return Math.max(prevStories.length - 1, 0);
-      }
+    if (currentStoryIndex > 0) {
+      setStoryIndex(currentStoryIndex - 1);
+      return;
+    }
 
-      return 0;
-    });
-  }, [groupIndex, safeGroups]);
+    if (currentGroupIndex > 0) {
+      const prevGroup = safeGroups[currentGroupIndex - 1];
+      const prevStories = Array.isArray(prevGroup?.stories) ? prevGroup.stories : [];
+      setGroupIndex(currentGroupIndex - 1);
+      setStoryIndex(Math.max(prevStories.length - 1, 0));
+    }
+  }, [safeGroups]);
 
   useEffect(() => {
-    if (!isOpen) return;
+    if (isOpen && !wasOpenRef.current) {
+      setGroupIndex(initialGroupIndex || 0);
+      setStoryIndex(initialStoryIndex || 0);
+      setProgress(0);
+      setDuration(DEFAULT_DURATION);
+      progressStartedRef.current = false;
+      pendingCloseRef.current = false;
+    }
 
-    setGroupIndex(initialGroupIndex || 0);
-    setStoryIndex(initialStoryIndex || 0);
-    setProgress(0);
-    setDuration(DEFAULT_DURATION);
+    if (!isOpen && wasOpenRef.current) {
+      setProgress(0);
+      setDuration(DEFAULT_DURATION);
+      progressStartedRef.current = false;
+      pendingCloseRef.current = false;
+    }
+
+    wasOpenRef.current = isOpen;
   }, [isOpen, initialGroupIndex, initialStoryIndex]);
 
   useEffect(() => {
@@ -329,7 +374,7 @@ export default function StoryViewerModal({
     if (!isOpen) return;
 
     const handleCloseStoryOverlays = () => {
-      onClose?.();
+      requestClose();
     };
 
     window.addEventListener(
@@ -343,7 +388,7 @@ export default function StoryViewerModal({
         handleCloseStoryOverlays
       );
     };
-  }, [isOpen, onClose]);
+  }, [isOpen, requestClose]);
 
   useEffect(() => {
     if (!isOpen || !storyId || viewedRef.current.has(storyId)) return;
@@ -354,11 +399,13 @@ export default function StoryViewerModal({
     viewedRef.current.add(storyId);
 
     storiesApi.markViewed(storyId)
-      .then(() => onViewed?.(storyId))
+      .then(() => {
+        scheduleAfterRender(() => onViewedRef.current?.(storyId));
+      })
       .catch((e) => {
         console.error("[story-view] failed", e);
       });
-  }, [isOpen, storyId, isOwnStory, onViewed]);
+  }, [isOpen, storyId, isOwnStory, scheduleAfterRender]);
 
   useEffect(() => {
     if (!isOpen || !storyId) return;
@@ -439,19 +486,34 @@ export default function StoryViewerModal({
     const interval = window.setInterval(() => {
       setProgress((prev) => {
         const next = prev + (stepMs / duration) * 100;
-
-        if (next >= 100) {
-          window.clearInterval(interval);
-          goNext();
-          return 100;
+        if (next > 0 && next < 100) {
+          progressStartedRef.current = true;
         }
-
-        return next;
+        return Math.min(next, 100);
       });
     }, stepMs);
 
     return () => window.clearInterval(interval);
-  }, [isOpen, hasStories, duration, storyId, goNext]);
+  }, [isOpen, hasStories, duration, storyId]);
+
+  useEffect(() => {
+    if (!isOpen || !hasStories || progress < 100) return undefined;
+    if (!progressStartedRef.current) return undefined;
+
+    const timer = window.setTimeout(() => {
+      progressStartedRef.current = false;
+      goNext();
+    }, 0);
+
+    return () => window.clearTimeout(timer);
+  }, [progress, isOpen, hasStories, goNext]);
+
+  useEffect(() => {
+    if (!isOpen || !storyId) return;
+    progressStartedRef.current = false;
+    setProgress(0);
+    setDuration(DEFAULT_DURATION);
+  }, [isOpen, storyId]);
 
   useEffect(() => {
     if (!isOpen || !storyId) return;
@@ -489,7 +551,9 @@ export default function StoryViewerModal({
       setIsReactionSaving(true);
 
       setSelectedReaction(nextReaction);
-      onReactionChange?.(storyId, nextReaction);
+      scheduleAfterRender(() =>
+        onReactionChangeRef.current?.(storyId, nextReaction),
+      );
 
       if (!nextReaction) {
         await storiesApi.deleteReaction(storyId);
@@ -501,7 +565,9 @@ export default function StoryViewerModal({
       console.error("[story-reaction] failed", error);
 
       setSelectedReaction(previousReaction);
-      onReactionChange?.(storyId, previousReaction);
+      scheduleAfterRender(() =>
+        onReactionChangeRef.current?.(storyId, previousReaction),
+      );
     } finally {
       setIsReactionSaving(false);
     }
@@ -537,7 +603,7 @@ export default function StoryViewerModal({
         await storiesApi.muteAuthor(authorId);
         toast.success("Stories автора скрыты");
         setIsMenuOpen(false);
-        onClose?.();
+        requestClose();
         return;
       }
 
@@ -586,23 +652,23 @@ export default function StoryViewerModal({
     <div className="storyViewer" role="dialog" aria-modal="true" aria-label="Перегляд story">
       <AppHeader
         onGoProfile={() => {
-          onClose?.();
+          requestClose();
           navigate("/profile");
         }}
         onGoExplore={() => {
-          onClose?.();
+          requestClose();
           navigate("/search");
         }}
         onGoWallet={() => {
-          onClose?.();
+          requestClose();
           navigate("/wallet");
         }}
         onGoVipChat={() => {
-          onClose?.();
+          requestClose();
           navigate("/vip-chat");
         }}
         onGoHome={() => {
-          onClose?.();
+          requestClose();
           navigate("/first-page");
         }}
       />

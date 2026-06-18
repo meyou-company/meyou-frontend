@@ -144,11 +144,11 @@ export default function FirstPageView({
     setIsStoryViewerOpen(true);
   };
 
-  const closeStoryViewer = () => {
+  const closeStoryViewer = useCallback(() => {
     setIsStoryViewerOpen(false);
-  };
+  }, []);
 
-  const handleDeleteStory = async (storyId) => {
+  const handleDeleteStory = useCallback(async (storyId) => {
     try {
       await storiesApi.deleteStory(storyId);
 
@@ -167,9 +167,9 @@ export default function FirstPageView({
     } catch (error) {
       console.error("Delete story failed", error);
     }
-  };
+  }, [setStoriesGroups, closeStoryViewer]);
 
-  const markStoryViewedLocally = (storyId) => {
+  const markStoryViewedLocally = useCallback((storyId) => {
     setStoriesGroups((prev) =>
       prev.map((group) => ({
         ...group,
@@ -182,9 +182,9 @@ export default function FirstPageView({
           : [],
       }))
     );
-  };
+  }, [setStoriesGroups]);
 
-  const markStoryReactionLocally = (storyId, reactionType) => {
+  const markStoryReactionLocally = useCallback((storyId, reactionType) => {
     setStoriesGroups((prev) =>
       prev.map((group) => ({
         ...group,
@@ -200,7 +200,7 @@ export default function FirstPageView({
           : [],
       }))
     );
-  };
+  }, [setStoriesGroups]);
 
   const [feedPosts, setFeedPosts] = useState([]);
   const [feedLoading, setFeedLoading] = useState(true);
