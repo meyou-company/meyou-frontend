@@ -15,6 +15,53 @@
   overflow: hidden;
 }
 
+.storyUploadModal__publishOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  padding: 24px;
+  background: rgba(255, 255, 255, 0.82);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+.storyUploadModal__publishSpinner {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: 3px solid rgba(255, 79, 177, 0.2);
+  border-top-color: #ff4fb1;
+  animation: storyUploadSpin 0.8s linear infinite;
+}
+
+.storyUploadModal__publishText {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #111;
+  text-align: center;
+}
+
+.storyUploadModal__publishHint {
+  margin: 0;
+  max-width: 280px;
+  font-size: 13px;
+  line-height: 1.4;
+  color: rgba(0, 0, 0, 0.62);
+  text-align: center;
+}
+
+@keyframes storyUploadSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 .storyUploadModal__bgDots {
   position: fixed;
   inset: 84px 0 0;

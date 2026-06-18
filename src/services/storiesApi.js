@@ -114,15 +114,21 @@ export const storiesApi = {
     return data;
   },
 
-  async getPresignedUrl(file) {
+  async getPresignedUrl(file, { durationSec } = {}) {
     const fileName = file?.name || `story-${Date.now()}`;
     const fileType = file?.type || 'application/octet-stream';
 
+    const params = {
+      fileName,
+      fileType,
+    };
+
+    if (typeof durationSec === 'number' && durationSec > 0) {
+      params.clientDurationSec = durationSec;
+    }
+
     const { data } = await api.get(apiPath('/uploads/story-media/presigned-url'), {
-      params: {
-        fileName,
-        fileType,
-      },
+      params,
     });
 
     return data;

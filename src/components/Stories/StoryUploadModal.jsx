@@ -17,6 +17,27 @@ const STORY_VISIBILITY_OPTIONS = [
   { value: "ONLY_ME", label: "Только я" },
 ];
 
+const STORY_PUBLISH_PHASE = {
+  UPLOADING: "uploading",
+  PROCESSING: "processing",
+};
+
+function getPublishPhaseLabel(phase, isVideo) {
+  if (phase === STORY_PUBLISH_PHASE.UPLOADING) {
+    return isVideo
+      ? "Завантаження відео..."
+      : "Завантаження фото...";
+  }
+
+  if (phase === STORY_PUBLISH_PHASE.PROCESSING) {
+    return isVideo
+      ? "Відео обробляється..."
+      : "Публікація...";
+  }
+
+  return "";
+}
+
 function getStoryCreateErrorMessage(error) {
   const raw = getApiErrorMessage(error) || error?.message || "";
   const normalized = raw.toLowerCase();
@@ -41,6 +62,7 @@ export default function StoryUploadModal({ isOpen, onClose, onCreated }) {
   const [fileItem, setFileItem] = useState(null);
   const [text, setText] = useState("");
   const [isPublishing, setIsPublishing] = useState(false);
+  const [publishPhase, setPublishPhase] = useState(null);
   const [visibility, setVisibility] = useState("FOLLOWERS");
   const [isVisibilityOpen, setIsVisibilityOpen] = useState(false);
 
@@ -112,6 +134,7 @@ export default function StoryUploadModal({ isOpen, onClose, onCreated }) {
     setFileItem(null);
     setText("");
     setIsPublishing(false);
+    setPublishPhase(null);
   };
 
   const handleClose = () => {
@@ -219,9 +242,14 @@ export default function StoryUploadModal({ isOpen, onClose, onCreated }) {
 
     try {
       setIsPublishing(true);
+      const isVideo = fileItem.type === "video";
 
-      const uploaded = await uploadStoryMedia(fileItem.file);
+      setPublishPhase(STORY_PUBLISH_PHASE.UPLOADING);
+      const uploaded = await uploadStoryMedia(fileItem.file, {
+        durationSec: isVideo ? fileItem.durationSec : undefined,
+      });
 
+      setPublishPhase(STORY_PUBLISH_PHASE.PROCESSING);
       const created = await storiesApi.create({
         mediaUrl: uploaded.mediaUrl,
         mediaType: uploaded.mediaType,
@@ -240,6 +268,7 @@ export default function StoryUploadModal({ isOpen, onClose, onCreated }) {
       console.error("[story-upload] failed", e);
       toast.error(getStoryCreateErrorMessage(e));
       setIsPublishing(false);
+      setPublishPhase(null);
     }
   };
 
@@ -260,6 +289,25 @@ export default function StoryUploadModal({ isOpen, onClose, onCreated }) {
 
       <div className="storyUploadModal__page">
         <div className="storyUploadModal__bgDots" aria-hidden="true" />
+
+        {publishPhase && (
+          <div
+            className="storyUploadModal__publishOverlay"
+            role="status"
+            aria-live="polite"
+            aria-busy="true"
+          >
+            <div className="storyUploadModal__publishSpinner" aria-hidden="true" />
+            <p className="storyUploadModal__publishText">
+              {getPublishPhaseLabel(publishPhase, fileItem?.type === "video")}
+            </p>
+            {fileItem?.type === "video" && fileItem.durationSec > 60 && (
+              <p className="storyUploadModal__publishHint">
+                Довгі відео автоматично обрізаються до 60 секунд
+              </p>
+            )}
+          </div>
+        )}
 
         <div
           className={`storyUploadModal__content ${fileItem ? "storyUploadModal__content--editor" : ""
