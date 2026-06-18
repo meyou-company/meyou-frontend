@@ -668,10 +668,13 @@
 
 .storyStatsModal__rail {
   display: flex;
+  align-items: center;
   gap: 12px;
   margin: 18px 0 12px;
   padding: 0 10px;
+  min-height: 188px;
   overflow-x: auto;
+  scroll-padding-inline: 50%;
   scrollbar-width: none;
 }
 
@@ -684,12 +687,19 @@
   flex: 0 0 106px;
   width: 106px;
   height: 170px;
+  border: 0;
   border-radius: 8px;
   overflow: hidden;
+  padding: 0;
 }
 
 .storyStatsModal__thumb {
   background: #eee;
+  transition:
+    flex-basis 0.18s ease,
+    width 0.18s ease,
+    height 0.18s ease,
+    transform 0.18s ease;
 
   img,
   video {
@@ -701,8 +711,11 @@
 }
 
 .storyStatsModal__thumb.is-active {
+  flex-basis: 118px;
+  width: 118px;
+  height: 188px;
+  transform: translateY(-2px);
   border-bottom: 3px solid #111;
-  border-radius: 8px 8px 0 0;
 }
 
 .storyStatsModal__add {
@@ -740,7 +753,7 @@
   justify-content: center;
   gap: 7px;
   font-size: 15px;
-  font-weight: 800;
+  font-weight: 600;
 
   svg,
   img {
@@ -756,8 +769,8 @@
 .storyStatsModal__tabs button.is-active::after {
   content: "";
   position: absolute;
-  left: 10%;
-  right: 10%;
+  left: 0%;
+  right: 0%;
   bottom: -2px;
   height: 4px;
   background: #111;
@@ -775,7 +788,7 @@
 .storyStatsModal__viewsHead h3 {
   margin: 0;
   font-size: 16px;
-  font-weight: 900;
+  font-weight: 700;
 }
 
 .storyStatsModal__viewsHead button {
@@ -857,10 +870,6 @@
   font-weight: 700;
 }
 
-.storyStatsModal__summary {
-  margin-top: 38px;
-}
-
 .storyStatsModal__summaryRow {
   min-height: 112px;
   border-bottom: 1.5px solid rgba(0, 0, 0, 0.42);
@@ -913,7 +922,7 @@
   position: fixed;
   left: 0;
   right: 0;
-  bottom: 0;
+  bottom: 55px;
   z-index: 131;
   border-radius: 18px 18px 0 0;
   background: linear-gradient(135deg, #dfc4ff 0%, #fff 78%);
@@ -998,6 +1007,7 @@
     gap: 14px;
     margin: 22px 0 14px;
     padding: 0;
+    min-height: 214px;
   }
 
   .storyStatsModal__thumb,
@@ -1005,6 +1015,12 @@
     flex-basis: 112px;
     width: 112px;
     height: 194px;
+  }
+
+  .storyStatsModal__thumb.is-active {
+    flex-basis: 126px;
+    width: 126px;
+    height: 214px;
   }
 
   .storyStatsModal__tabs button {
@@ -1081,6 +1097,7 @@
   .storyStatsModal__rail {
     gap: 30px;
     margin-top: 40px;
+    min-height: 270px;
   }
 
   .storyStatsModal__thumb,
@@ -1091,21 +1108,25 @@
     border-radius: 10px;
   }
 
+  .storyStatsModal__thumb.is-active {
+    flex-basis: 160px;
+    width: 160px;
+    height: 270px;
+    border-radius: 10px 10px 0 0;
+  }
+
   .storyStatsModal__tabs {
     margin-top: 24px;
   }
 
   .storyStatsModal__tabs button {
     justify-content: flex-start;
-    padding-left: 56px;
     height: 52px;
     font-size: 18px;
   }
 
   .storyStatsModal__tabs button.is-active::after {
-    left: 44px;
-    right: auto;
-    width: 220px;
+    width: 150px;
   }
 
   .storyStatsModal__viewsHead {
@@ -1224,11 +1245,22 @@
   background: #fff;
 }
 
+[data-theme="dark"] .storyStatsModal__thumb.is-active,
+.dark .storyStatsModal__thumb.is-active {
+  border-bottom-color: #fff;
+}
+
 [data-theme="dark"] .storyStatsModal__add,
 .dark .storyStatsModal__add {
   background: rgba(255, 255, 255, 0.08);
   color: rgba(255, 255, 255, 0.68);
 }
+
+[data-theme="dark"] .storyStatsModal__add,
+.dark .storyStatsModal__add img {
+  color: #ffffff;
+}
+
 
 [data-theme="dark"] .storyStatsModal__viewsHead button,
 .dark .storyStatsModal__viewsHead button {

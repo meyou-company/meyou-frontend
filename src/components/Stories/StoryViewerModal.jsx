@@ -15,6 +15,7 @@ import { storyReactions } from "../../constants/storyReactions";
 import profileIcons from "../../constants/profileIcons";
 import AppHeader from "../Layout/AppHeader";
 import "./StoryViewerModal.scss";
+import StoryUploadModal from "./StoryUploadModal";
 
 const DEFAULT_DURATION = 500000;
 const IMAGE_DURATION = 10000;
@@ -160,6 +161,8 @@ function StoryAnalyticsModal({
   activeTab,
   onTabChange,
   onRefresh,
+  onAddStory,
+  onSelectStory,
   onSelectViewer,
   onClose,
 }) {
@@ -169,6 +172,43 @@ function StoryAnalyticsModal({
   const viewsCount = analytics?.viewsCount ?? currentStory?.viewsCount ?? storyViewersOnly?.length ?? 0;
   const sharesCount = analytics?.sharesCount ?? analytics?.shareCount ?? currentStory?.sharesCount ?? 0;
   const reactionsCount = analytics?.reactionsCount ?? currentStory?.reactionsCount ?? 0;
+  const activeStoryThumbRef = useRef(null);
+  const safeStories = useMemo(() => (Array.isArray(stories) ? stories : []), [stories]);
+  const activeStoryIndex = Math.min(Math.max(storyIndex, 0), Math.max(safeStories.length - 1, 0));
+
+  useEffect(() => {
+    activeStoryThumbRef.current?.scrollIntoView({
+      behavior: "smooth",
+      block: "nearest",
+      inline: "center",
+    });
+  }, [activeStoryIndex, safeStories.length]);
+
+  const renderStoryThumb = (index) => {
+    const story = safeStories[index];
+    if (!story) return null;
+
+    const mediaUrl = getStoryMediaUrl(story);
+    const mediaType = getStoryMediaType(story);
+    const isActive = index === activeStoryIndex;
+
+    return (
+      <button
+        type="button"
+        key={getStoryId(story) || index}
+        ref={isActive ? activeStoryThumbRef : null}
+        className={`storyStatsModal__thumb ${isActive ? "is-active" : ""}`}
+        onClick={() => onSelectStory(index)}
+        aria-label={`Story ${index + 1}`}
+      >
+        {mediaType === "video" ? (
+          <video src={mediaUrl} muted playsInline preload="metadata" />
+        ) : (
+          <img src={mediaUrl} alt="" />
+        )}
+      </button>
+    );
+  };
 
   return (
     <div className="storyStatsModal" role="dialog" aria-modal="true" aria-label="Story statistics">
@@ -181,27 +221,11 @@ function StoryAnalyticsModal({
       </header>
 
       <div className="storyStatsModal__rail" aria-label="Stories">
-        {stories.slice(0, 3).map((story, index) => {
-          const mediaUrl = getStoryMediaUrl(story);
-          const mediaType = getStoryMediaType(story);
-
-          return (
-            <div
-              key={getStoryId(story) || index}
-              className={`storyStatsModal__thumb ${index === storyIndex ? "is-active" : ""}`}
-            >
-              {mediaType === "video" ? (
-                <video src={mediaUrl} muted playsInline preload="metadata" />
-              ) : (
-                <img src={mediaUrl} alt="" />
-              )}
-            </div>
-          );
-        })}
-        <div className="storyStatsModal__add">
+        {safeStories.map((_, index) => renderStoryThumb(index))}
+        <button type="button" className="storyStatsModal__add" onClick={onAddStory}>
           <img src={profileIcons.storyAdd} alt="" aria-hidden="true" />
           <span>Добавить</span>
-        </div>
+        </button>
       </div>
 
       <div className="storyStatsModal__tabs" role="tablist" aria-label="Story statistics tabs">
@@ -368,6 +392,7 @@ export default function StoryViewerModal({
   const [analyticsOpen, setAnalyticsOpen] = useState(false);
   const [analyticsTab, setAnalyticsTab] = useState("views");
   const [selectedStatsUser, setSelectedStatsUser] = useState(null);
+  const [isStoryUploadOpen, setIsStoryUploadOpen] = useState(false);
 
   const navigate = useNavigate();
 
@@ -711,15 +736,12 @@ export default function StoryViewerModal({
 
     setSelectedReaction(currentStoryReaction);
     setAnalytics(null);
-    setAnalyticsOpen(false);
     setAnalyticsTab("views");
     setSelectedStatsUser(null);
   }, [isOpen, storyId, currentStoryReaction]);
 
-  const loadAnalytics = async ({ force = false } = {}) => {
+  const loadAnalytics = useCallback(async () => {
     if (!storyId || !isOwnStory) return;
-
-    if (analytics && !force) return;
 
     try {
       setAnalyticsLoading(true);
@@ -731,7 +753,12 @@ export default function StoryViewerModal({
     } finally {
       setAnalyticsLoading(false);
     }
-  };
+  }, [isOwnStory, storyId]);
+
+  useEffect(() => {
+    if (!analyticsOpen || !storyId || !isOwnStory) return;
+    loadAnalytics();
+  }, [analyticsOpen, storyId, isOwnStory, loadAnalytics]);
 
   const handleOpenAnalytics = async () => {
     if (!storyId || !isOwnStory) return;
@@ -740,6 +767,23 @@ export default function StoryViewerModal({
     setAnalyticsTab("views");
     setSelectedStatsUser(null);
     loadAnalytics();
+  };
+
+  const handleSelectStatsStory = (nextStoryIndex) => {
+    if (nextStoryIndex === storyIndex) return;
+
+    setStoryIndex(nextStoryIndex);
+    setProgress(0);
+    setDuration(DEFAULT_DURATION);
+    setAnalytics(null);
+    setAnalyticsTab("views");
+    setSelectedStatsUser(null);
+    progressStartedRef.current = false;
+  };
+
+  const handleOpenStoryUpload = () => {
+    setSelectedStatsUser(null);
+    setIsStoryUploadOpen(true);
   };
 
   const handleStatsUserMessage = async () => {
@@ -1131,7 +1175,9 @@ export default function StoryViewerModal({
                 storyViewersOnly={storyViewersOnly}
                 activeTab={analyticsTab}
                 onTabChange={setAnalyticsTab}
-                onRefresh={() => loadAnalytics({ force: true })}
+                onRefresh={loadAnalytics}
+                onAddStory={handleOpenStoryUpload}
+                onSelectStory={handleSelectStatsStory}
                 onSelectViewer={setSelectedStatsUser}
                 onClose={() => {
                   setSelectedStatsUser(null);
@@ -1189,6 +1235,14 @@ export default function StoryViewerModal({
           </div>
         )}
       </div>
+
+      <StoryUploadModal
+        isOpen={isStoryUploadOpen}
+        onClose={() => setIsStoryUploadOpen(false)}
+        onCreated={() => {
+          setIsStoryUploadOpen(false);
+        }}
+      />
     </div>
   );
 }
