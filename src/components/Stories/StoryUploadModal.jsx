@@ -212,11 +212,6 @@ export default function StoryUploadModal({ isOpen, onClose, onCreated }) {
       return;
     }
 
-    if (fileItem.type === "video" && fileItem.durationSec > 60) {
-      toast.error("Видео для story должно быть не длиннее 60 секунд.");
-      return;
-    }
-
     if (fileItem.type === "video" && !fileItem.durationSec) {
       toast.error("Не удалось определить длительность видео");
       return;
@@ -232,7 +227,10 @@ export default function StoryUploadModal({ isOpen, onClose, onCreated }) {
         mediaType: uploaded.mediaType,
         text: text.trim(),
         visibility,
-        durationSec: fileItem.type === "video" ? Math.min(60, Math.max(1, fileItem.durationSec)) : undefined,
+        durationSec:
+          fileItem.type === "video"
+            ? Math.max(1, fileItem.durationSec)
+            : undefined,
       });
 
       toast.success("Story опубліковано");
