@@ -1949,7 +1949,7 @@ html[data-theme="dark"] .profile-home .postActionCount {
   .profileBlock {
     flex-direction: row;
     align-items: flex-start;
-    gap: 14px;
+    gap: 10px;
   }
 
   .profileLeft {
@@ -2002,14 +2002,26 @@ html[data-theme="dark"] .profile-home .postActionCount {
     }
   }
 
+  .profileAvatarInfoBtn {
+    margin-top: 8px;
+    min-width: 0;
+    width: 100%;
+    max-width: 120px;
+    height: 36px;
+    padding: 0 10px;
+    border-radius: 11px;
+    font-size: 13px;
+    font-weight: 500;
+  }
+
   .profileInfo {
     display: grid;
     grid-template-columns: 1fr auto;
     grid-template-areas:
       "name aside"
       "bio aside";
-    column-gap: 14px;
-    row-gap: 10px;
+    column-gap: 8px;
+    row-gap: 6px;
     align-items: start;
 
     padding-top: 0;
@@ -2030,6 +2042,9 @@ html[data-theme="dark"] .profile-home .postActionCount {
   .profileBioWrap {
     grid-area: bio;
     min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
   }
 
   .name {
@@ -2047,7 +2062,11 @@ html[data-theme="dark"] .profile-home .postActionCount {
   }
 
   .profileBioWrap .bioLocation {
-    margin-top: 8px;
+    margin-top: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
   }
 
   /* ✅ badges у колонці навпроти імені та біо */
@@ -2294,7 +2313,7 @@ html[data-theme="dark"] .profile-home .postActionCount {
   .profileBlock {
     flex-direction: row;
     align-items: flex-start;
-    gap: 12px;
+    gap: 10px;
   }
 
   .avatarWrap {
@@ -2328,6 +2347,15 @@ html[data-theme="dark"] .profile-home .postActionCount {
     }
   }
 
+  .profileAvatarInfoBtn {
+    margin-top: 6px;
+    max-width: 100px;
+    height: 34px;
+    padding: 0 8px;
+    border-radius: 10px;
+    font-size: 12px;
+  }
+
   /* ===== IMPORTANT: keep GRID (do not switch to flex) ===== */
   .profileInfo {
     display: grid;
@@ -2335,8 +2363,8 @@ html[data-theme="dark"] .profile-home .postActionCount {
     grid-template-areas:
       "name aside"
       "bio aside";
-    column-gap: 10px;
-    row-gap: 10px;
+    column-gap: 8px;
+    row-gap: 5px;
     padding-top: 0;
     min-width: 0;
     align-items: start;
@@ -2356,6 +2384,9 @@ html[data-theme="dark"] .profile-home .postActionCount {
   .profileBioWrap {
     grid-area: bio;
     min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
   }
 
   /* Fix "9999" vertical issue */
@@ -2577,9 +2608,18 @@ html[data-theme="dark"] .profile-home .postActionCount {
     }
   }
 
+  .profileAvatarInfoBtn {
+    margin-top: 6px;
+    max-width: 96px;
+    height: 32px;
+    padding: 0 8px;
+    border-radius: 9px;
+    font-size: 11px;
+  }
+
   .profileInfo {
-    column-gap: 8px;
-    row-gap: 8px;
+    column-gap: 6px;
+    row-gap: 4px;
   }
 
   .name {
@@ -2596,7 +2636,11 @@ html[data-theme="dark"] .profile-home .postActionCount {
   }
 
   .profileBioWrap .bioLocation {
-    margin-top: 8px;
+    margin-top: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
   }
 
   .badgesRow {
