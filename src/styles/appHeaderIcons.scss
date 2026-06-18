@@ -82,3 +82,9 @@ html[data-theme="dark"] button.theme-toggle.app-header-theme-toggle {
     font-size: 31px !important;
   }
 }
+
+@media (max-width: 767.98px) {
+  button.theme-toggle.app-header-theme-toggle {
+   display: none !important;
+  }
+}
