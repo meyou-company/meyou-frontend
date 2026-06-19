@@ -1,25 +1,25 @@
-import { toast } from 'sonner'
-import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next';
+import { toast } from 'sonner';
+import { useNavigate } from 'react-router-dom';
 
-import EditProfileForm from '../../../components/Users/Profile/EditProfileForm/EditProfileForm'
-import { profileApi } from '../../../services/profileApi'
-import { useAuthStore } from '../../../zustand/useAuthStore'
+import EditProfileForm from '../../../components/Users/Profile/EditProfileForm/EditProfileForm';
+import { profileApi } from '../../../services/profileApi';
+import { useAuthStore } from '../../../zustand/useAuthStore';
 
 export default function EditProfilePage() {
-  const navigate = useNavigate()
+  const { t } = useTranslation();
+  const navigate = useNavigate();
 
   const handleSave = async (payload) => {
     try {
-      await profileApi.updateProfile(payload)
+      await profileApi.updateProfile(payload);
 
-      toast.success('Профіль успішно оновлено')
-      await useAuthStore.getState().refreshMe()
+      toast.success(t('profile.editForm.toast.profileUpdated'));
+      await useAuthStore.getState().refreshMe();
     } catch (error) {
-      console.error('Помилка оновлення профілю:', error)
+      console.error(t('profile.editForm.errors.updateError:'), error);
     }
-  }
+  };
 
-  return (
-    <EditProfileForm onSave={handleSave} onBack={() => navigate('/profile')} />
-  )
+  return <EditProfileForm onSave={handleSave} onBack={() => navigate('/profile')} />;
 }

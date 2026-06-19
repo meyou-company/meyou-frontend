@@ -295,12 +295,24 @@
         "birthDatePlaceholder": "Оберіть дату народження",
         "nationality": "Національність",
         "username": "Нік (до 10 символів)",
-        "bio": "Про себе (необов'язково)",
+        "bio": "Коротко про себе (необов'язково)",
+        "about": "Розкажіть більше про себе (необов'язково)",
         "interests": "Інтереси",
         "hobbies": "Хобі",
         "maritalStatus": "Сімейний стан",
+        "profession": "Професія",
+        "languages": "Мови (через кому)",
         "country": "Країна",
+        "region": "Область",
         "city": "Місто"
+      },
+      "visibility": {
+        "title": "Показувати у профілі",
+
+        "location": "Показувати локацію в профілі",
+        "instagram": "Показувати Instagram в профілі",
+        "telegram": "Показувати Telegram в профілі",
+        "tiktok": "Показувати TikTok в профілі"
       },
       "gender": {
         "male": "Чоловіча",
@@ -318,7 +330,8 @@
         "avatarDeleted": "Аватар видалено",
         "avatarUpdateError": "Не вдалося оновити фото",
         "avatarDeleteError": "Помилка видалення аватару",
-        "invalidFileType": "Дозволено лише JPEG, PNG, WebP"
+        "invalidFileType": "Дозволено лише JPEG, PNG, WebP",
+        "profileUpdated": "Профіль успішно оновлено"
       },
       "errors": {
         "usernameTaken": "Цей нік вже зайнятий",
@@ -332,6 +345,7 @@
         "nationalityRequired": "Вкажіть національність",
         "maritalStatusRequired": "Оберіть сімейне положення",
         "countryRequired": "Оберіть країну",
+        "regionRequired": "Оберіть область",
         "cityRequired": "Оберіть місто",
         "interestsRequired": "Оберіть інтереси",
         "hobbiesRequired": "Оберіть хобі",
@@ -348,8 +362,12 @@
         "usernameMaxLength": "Нік має бути до 10 символів",
         "usernameFormat": "Нік: тільки латиниця/цифри та . _ -",
         "bioMaxLength": "Максимум 500 символів",
+        "aboutMaxLength": "Максимум 2000 символів",
         "phoneTooShort": "Номер занадто короткий",
-        "phoneTooLong": "Номер занадто довгий"
+        "phoneTooLong": "Номер занадто довгий",
+        "instagramRequired": "Вкажіть посилання на соцмережу",
+        "telegramRequired": "Вкажіть посилання на соцмережу",
+        "tiktokRequired": "Вкажіть посилання на соцмережу"
       }
     },
     "completeForm": {

@@ -295,12 +295,24 @@
         "birthDatePlaceholder": "Выберите дату рождения",
         "nationality": "Национальность",
         "username": "Ник (до 10 символов)",
-        "bio": "О себе (необязательно)",
+        "bio": "Кратко о себе (необязательно)",
+        "about": "Расскажите о себе подробнее (необязательно)",
         "interests": "Интересы",
         "hobbies": "Хобби",
         "maritalStatus": "Семейное положение",
+        "profession": "Профессия",
+        "languages": "Языки (через запятую)",
         "country": "Страна",
+        "region": "Регион",
         "city": "Город"
+      },
+      "visibility": {
+        "title": "Показать в профиле",
+
+        "location": "Показать локацию в профиле",
+        "instagram": "Показать Instagram в профиле",
+        "telegram": "Показать Telegram в профиле",
+        "tiktok": "Показать TikTok в профиле"
       },
       "gender": {
         "male": "Мужской",
@@ -318,7 +330,8 @@
         "avatarDeleted": "Аватар удалён",
         "avatarUpdateError": "Не удалось обновить фото",
         "avatarDeleteError": "Ошибка удаления аватара",
-        "invalidFileType": "Разрешены только JPEG, PNG, WebP"
+        "invalidFileType": "Разрешены только JPEG, PNG, WebP",
+        "profileUpdated": "Профиль успешно обновлён"
       },
       "errors": {
         "usernameTaken": "Этот ник уже занят",
@@ -348,6 +361,7 @@
         "usernameMaxLength": "Ник должен быть до 10 символов",
         "usernameFormat": "Ник: только латиница/цифры и . _ -",
         "bioMaxLength": "Максимум 500 символов",
+        "aboutMaxLength": "Максимум 2000 символов",
         "phoneTooShort": "Номер слишком короткий",
         "phoneTooLong": "Номер слишком длинный"
       }

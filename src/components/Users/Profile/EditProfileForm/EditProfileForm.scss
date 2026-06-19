@@ -209,7 +209,7 @@
 .field__wrap {
   position: relative;
   min-height: 56px;
-  height: auto;
+  // height: auto;
   border-radius: var(--field-radius);
   overflow: visible;
 
@@ -1372,7 +1372,7 @@ body.dark .phone-wrap .react-international-phone-country-selector-dropdown,
 .grid-3 {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 30px;
+  gap: 20px;
 }
 
 /* below 680px: single column */
@@ -1401,7 +1401,8 @@ body.dark .phone-wrap .react-international-phone-country-selector-dropdown,
   height: 80px;
   border-radius: 50px;
   border: 0;
-  margin: 0 auto;
+  margin-top: 20px;
+  // margin: 0 auto;
   font-size: 18px;
   font-weight: 700;
   color: #fff;
@@ -1639,10 +1640,11 @@ body.dark .phone-wrap .react-international-phone-country-selector-dropdown,
   /* submit */
   .btn-gradient.wide {
     width: 100%;
+    margin-top: 20px;
     max-width: 356px;
     height: 80px;
     border-radius: 50px;
-    margin: 10px auto 0;
+    // margin: 20px auto 0;
     font-size: 16px;
   }
 }
@@ -1702,6 +1704,7 @@ body.dark .phone-wrap .react-international-phone-country-selector-dropdown,
 
   .btn-gradient.wide {
     width: 100%;
+    margin-top: 20px;
     max-width: 190px;
     height: 48px;
     border-radius: 999px;

@@ -295,12 +295,24 @@
         "birthDatePlaceholder": "Select date of birth",
         "nationality": "Nationality",
         "username": "Username (up to 10 characters)",
-        "bio": "About you (optional)",
+        "bio": "Briefly about you (optional)",
+        "about": "Tell more about you (optional)",
         "interests": "Interests",
         "hobbies": "Hobbies",
         "maritalStatus": "Relationship status",
+        "profession": "Profession",
+        "languages": "Languages ​​(through commas)",
         "country": "Country",
+        "region": "Region",
         "city": "City"
+      },
+      "visibility": {
+        "title": "Show on profile",
+
+        "location": "Show location on profile",
+        "instagram": "Show Instagram on profile",
+        "telegram": "Show Telegram on profile",
+        "tiktok": "Show Tiktok on profile"
       },
       "gender": {
         "male": "Male",
@@ -318,7 +330,8 @@
         "avatarDeleted": "Avatar removed",
         "avatarUpdateError": "Failed to update photo",
         "avatarDeleteError": "Failed to remove avatar",
-        "invalidFileType": "Only JPEG, PNG, WebP allowed"
+        "invalidFileType": "Only JPEG, PNG, WebP allowed",
+        "profileUpdated": "Profile updated successfully"
       },
       "errors": {
         "usernameTaken": "This username is already taken",
@@ -348,6 +361,7 @@
         "usernameMaxLength": "Username must be up to 10 characters",
         "usernameFormat": "Username: Latin letters, digits, and . _ - only",
         "bioMaxLength": "Maximum 500 characters",
+        "aboutMaxLength": "Maximum 2000 characters",
         "phoneTooShort": "Phone number is too short",
         "phoneTooLong": "Phone number is too long"
       }

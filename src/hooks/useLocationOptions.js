@@ -1,56 +1,101 @@
-import { useEffect, useState } from "react";
-import { locationApi } from "../services/locationApi.js";
+import { useEffect, useState } from 'react';
+import { locationApi } from '../services/locationApi.js';
 
-export function useLocationOptions(countryValue, cityValue, setValues) {
+export function useLocationOptions(country, region) {
   const [countryOptions, setCountryOptions] = useState([]);
+  const [regionOptions, setRegionOptions] = useState([]);
   const [cityOptions, setCityOptions] = useState([]);
+
+  const [isRegionsLoading, setIsRegionsLoading] = useState(false);
   const [isCitiesLoading, setIsCitiesLoading] = useState(false);
 
   // countries
   useEffect(() => {
     let alive = true;
+
     locationApi
       .getCountries()
       .then((opts) => alive && setCountryOptions(opts))
       .catch(() => alive && setCountryOptions([]));
+
     return () => {
       alive = false;
     };
   }, []);
 
-  // cities by country
+  // regions
   useEffect(() => {
     let alive = true;
 
-    (async () => {
-      const countryName = countryValue;
-
-      if (!countryName) {
+    async function load() {
+      if (!country) {
+        setRegionOptions([]);
         setCityOptions([]);
-        setValues((v) => ({ ...v, city: null }));
         return;
       }
 
-      setIsCitiesLoading(true);
+      setIsRegionsLoading(true);
+
       try {
-        const cities = await locationApi.getCitiesByCountry(countryName);
+        const regions = await locationApi.getRegions(country);
+
         if (!alive) return;
 
-        setCityOptions(cities);
-
-        // якщо поточне місто не існує в новому списку — скинути
-        if (cityValue && cities.some((c) => c.value === cityValue)) return;
-        setValues((v) => ({ ...v, city: null }));
+        setRegionOptions(regions);
+      } catch {
+        if (alive) setRegionOptions([]);
       } finally {
-        alive && setIsCitiesLoading(false);
+        if (alive) setIsRegionsLoading(false);
       }
-    })();
+    }
+    load();
 
     return () => {
       alive = false;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [countryValue]);
+  }, [country]);
 
-  return { countryOptions, cityOptions, isCitiesLoading };
+  // cities
+  useEffect(() => {
+    let alive = true;
+
+    async function load() {
+      if (!country) {
+        setCityOptions([]);
+        return;
+      }
+
+      try {
+        setIsCitiesLoading(true);
+
+        const cities = await locationApi.getCities(country, region || null);
+
+        if (alive) {
+          setCityOptions(cities);
+        }
+      } catch {
+        if (alive) {
+          setCityOptions([]);
+        }
+      } finally {
+        if (alive) {
+          setIsCitiesLoading(false);
+        }
+      }
+    }
+
+    load();
+
+    return () => {
+      alive = false;
+    };
+  }, [country, region]);
+
+  return {
+    countryOptions,
+    regionOptions,
+    cityOptions,
+    isRegionsLoading,
+    isCitiesLoading,
+  };
 }

@@ -16,16 +16,16 @@ import { usersApi } from '../../../../services/usersApi';
 
 import { useLocationOptions } from '../../../../hooks/useLocationOptions';
 import { usePrefillProfile } from '../../../../hooks/usePrefillProfile';
+import { useGenderOptions, useMaritalStatusOptions } from '../../../../hooks/useProfileFormOptions';
 
-import { normalizeForValidation, toBackendPayload } from '../../../../utils/profilePayload';
-import { normalizePhone } from '../../../../utils/normalizePhone';
+import { normalizeForValidation, toEditProfilePayload } from '../../../../utils/profilePayload';
 import { cropImageToFile } from '../../../../utils/cropImageToFile';
 import {
-  validateCompleteProfile,
+  validateEditProfile,
   translateValidationErrors,
-} from '../../../../utils/validationCompleteProfile';
+} from '../../../../utils/validationProfile';
 import { getApiErrorMessage } from '../../../../utils/getApiErrorMessage';
-import { useGenderOptions, useMaritalStatusOptions } from '../../../../hooks/useProfileFormOptions';
+import { getBirthDateLimits, toYMDLocal } from '../../../../utils/profileFormUtils';
 
 import { interestOptions } from '../../../../constants/interests';
 import { profileHobbyOptions } from '../../../../constants/hobbies';
@@ -34,88 +34,135 @@ import profileIcons from '../../../../constants/profileIcons';
 import ThemeToggleDark from '../../../../components/ThemeToggleDark/ThemeToggleDark';
 import AvatarCropModal from '../../../../components/AvatarCropModal/AvatarCropModal';
 import MultiSelect from './MultiSelect';
+import VisibilityToggle from './VisibilityToggle';
 
 import './EditProfileForm.scss';
 
 const INITIAL_VALUES = {
   firstName: '',
   lastName: '',
-  phone: '',
-  nationality: '',
+  username: '',
   gender: null,
   birthDate: '',
-  username: '',
+  phone: '',
 
+  nationality: '',
+  maritalStatus: null,
   bio: '',
   about: '',
-  profession: '',
 
   interests: [],
   hobbies: [],
+  profession: '',
   languages: [],
-
-  maritalStatus: null,
+  languagesInput: '',
 
   country: null,
-  region: '',
+  region: null,
   city: null,
 
   instagram: '',
-  telegram: '',
   tiktok: '',
+  telegram: '',
 
   profileVisibility: {
-    about: true,
-    interests: true,
-    hobbies: true,
-    languages: true,
-    profession: true,
-    maritalStatus: true,
-    nationality: true,
-    location: true,
-    instagram: true,
-    telegram: true,
-    tiktok: true,
+    about: false,
+    interests: false,
+    hobbies: false,
+    languages: false,
+    profession: false,
+    maritalStatus: false,
+    nationality: false,
+    location: false,
+    instagram: false,
+    telegram: false,
+    tiktok: false,
   },
 };
 
-function getBirthDateLimits() {
-  const today = new Date();
-  const max = new Date(today);
-  max.setFullYear(max.getFullYear() - 18);
-  const min = new Date(today.getFullYear() - 100, 0, 1);
-  return {
-    minStr: min.toISOString().slice(0, 10),
-    maxStr: max.toISOString().slice(0, 10),
-    minDate: min,
-    maxDate: max,
-  };
-}
-
 export default function EditProfileForm({ onBack, onSave }) {
+  // I18N / OPTIONS
   const { t } = useTranslation();
+
   const genderOptions = useGenderOptions();
   const maritalStatusOptions = useMaritalStatusOptions();
+
+  // FORM STATE
   const [values, setValues] = useState(INITIAL_VALUES);
   const [touched, setTouched] = useState({});
   const [errors, setErrors] = useState({});
+
   const [submitError, setSubmitError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // ===== AUTH / USER =====
+  // AUTH / USER
   const refreshMe = useAuthStore((s) => s.refreshMe);
   const user = useAuthStore((s) => s.user);
   const backendAvatarUrl = user?.avatarUrl || '';
 
-  // ===== AVATAR CROP STATE =====
+  // AVATAR STATE
   const [cropSrc, setCropSrc] = useState('');
   const [isCropOpen, setIsCropOpen] = useState(false);
   const [isAvatarUploading, setIsAvatarUploading] = useState(false);
   const [avatarError, setAvatarError] = useState('');
 
-  const fileRef = useMemo(() => ({ current: null }), []);
+  // REFS
+  const fileRef = useRef(null);
   const genderDropdownRef = useRef(null);
+
+  // UI STATE
   const [genderPickerOpen, setGenderPickerOpen] = useState(false);
+
+  // CUSTOM HOOKS
+  const { countryOptions, regionOptions, cityOptions, isRegionsLoading, isCitiesLoading } =
+    useLocationOptions(
+      values.country?.value || '',
+      values.region?.value || '',
+      values.city?.value || ''
+    );
+
+  usePrefillProfile({
+    setProfileCompleted: () => {},
+    setValues,
+    interestOptions,
+    hobbyOptions: profileHobbyOptions,
+    maritalStatusOptions,
+    locationApi,
+    profileApi,
+  });
+
+  // EFFECTS
+  useEffect(() => {
+    const id = setTimeout(() => {
+      const normalized = normalizeForValidation(values);
+      setErrors(translateValidationErrors(validateEditProfile(normalized), t));
+    }, 250);
+
+    return () => clearTimeout(id);
+  }, [values, t]);
+
+  useEffect(() => {
+    if (!genderPickerOpen) return;
+    const handleOutside = (e) => {
+      if (genderDropdownRef.current && !genderDropdownRef.current.contains(e.target)) {
+        setGenderPickerOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleOutside);
+    document.addEventListener('touchstart', handleOutside, { passive: true });
+    return () => {
+      document.removeEventListener('mousedown', handleOutside);
+      document.removeEventListener('touchstart', handleOutside);
+    };
+  }, [genderPickerOpen]);
+
+  // HANDLERS
+  const setField = (key, val) => {
+    setValues((v) => ({ ...v, [key]: val }));
+    setSubmitError('');
+  };
+
+  const onBlur = (key) => setTouched((t) => ({ ...t, [key]: true }));
 
   const pickAvatar = () => {
     setAvatarError('');
@@ -193,77 +240,6 @@ export default function EditProfileForm({ onBack, onSave }) {
     }
   };
 
-  // ===== REACT-SELECT PORTAL =====
-  const selectPortalTarget = typeof window !== 'undefined' ? document.body : null;
-
-  const selectCommonProps = useMemo(() => {
-    if (!selectPortalTarget) return {};
-    return {
-      menuPortalTarget: selectPortalTarget,
-      menuPosition: 'fixed',
-      styles: { menuPortal: (base) => ({ ...base, zIndex: 9999999 }) },
-    };
-  }, [selectPortalTarget]);
-
-  // ===== LOCATIONS =====
-  const [cityOptions, setCityOptions] = useState([]);
-  const [isCitiesLoading, setIsCitiesLoading] = useState(false);
-
-  const {
-    countryOptions,
-    cityOptions: citiesFromHook,
-    isCitiesLoading: citiesLoadingHook,
-  } = useLocationOptions(values.country?.value, values.city?.value, setValues);
-
-  useEffect(() => {
-    setCityOptions(citiesFromHook);
-    setIsCitiesLoading(citiesLoadingHook);
-  }, [citiesFromHook, citiesLoadingHook]);
-
-  // ===== PREFILL FROM USER ====
-  usePrefillProfile({
-    setProfileCompleted: () => {},
-    setValues,
-    interestOptions,
-    hobbyOptions: profileHobbyOptions,
-    maritalStatusOptions,
-    setCityOptions,
-    setIsCitiesLoading,
-    locationApi,
-    profileApi,
-  });
-
-  // ===== VALIDATION =====
-  useEffect(() => {
-    const normalized = normalizeForValidation(values);
-    setErrors(translateValidationErrors(validateCompleteProfile(normalized), t));
-  }, [values, t]);
-
-  useEffect(() => {
-    if (!genderPickerOpen) return;
-    const handleOutside = (e) => {
-      if (genderDropdownRef.current && !genderDropdownRef.current.contains(e.target)) {
-        setGenderPickerOpen(false);
-      }
-    };
-    document.addEventListener('mousedown', handleOutside);
-    document.addEventListener('touchstart', handleOutside, { passive: true });
-    return () => {
-      document.removeEventListener('mousedown', handleOutside);
-      document.removeEventListener('touchstart', handleOutside);
-    };
-  }, [genderPickerOpen]);
-
-  const onBlur = (key) => setTouched((t) => ({ ...t, [key]: true }));
-
-  const setField = (key, val) => {
-    setValues((v) => ({ ...v, [key]: val }));
-    setSubmitError('');
-  };
-
-  const showError = (key) => Boolean(touched[key] && errors[key]);
-
-  // ===== SUBMIT =====
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSubmitError('');
@@ -272,25 +248,16 @@ export default function EditProfileForm({ onBack, onSave }) {
       firstName: true,
       lastName: true,
       phone: true,
-      nationality: true,
       username: true,
-      bio: true,
-      interests: true,
-      hobbies: true,
-      maritalStatus: true,
-      country: true,
-      city: true,
-      gender: true,
-      birthDate: true,
     });
 
     const normalized = normalizeForValidation(values);
-    const nextErrors = translateValidationErrors(validateCompleteProfile(normalized), t);
+    const nextErrors = translateValidationErrors(validateEditProfile(normalized), t);
     setErrors(nextErrors);
 
     if (Object.keys(nextErrors).length > 0) return;
 
-    const username = normalized.username?.trim();
+    const username = values.username?.trim();
     if (username) {
       try {
         const res = await usersApi.getByUsername(username);
@@ -311,7 +278,15 @@ export default function EditProfileForm({ onBack, onSave }) {
       }
     }
 
-    const payload = toBackendPayload(values);
+    const safeValues = {
+      ...values,
+      languages: values.languagesInput
+        .split(',')
+        .map((s) => s.trim())
+        .filter(Boolean),
+    };
+
+    const payload = toEditProfilePayload(safeValues);
     console.log('PAYLOAD', payload);
     try {
       setIsSubmitting(true);
@@ -325,12 +300,20 @@ export default function EditProfileForm({ onBack, onSave }) {
     }
   };
 
-  const toYMDLocal = (d) => {
-    const y = d.getFullYear();
-    const m = String(d.getMonth() + 1).padStart(2, '0');
-    const day = String(d.getDate()).padStart(2, '0');
-    return `${y}-${m}-${day}`;
-  };
+  // HELPERS
+  const showError = (key) => Boolean(touched[key] && errors[key]);
+
+  // REACT-SELECT PORTAL
+  const selectPortalTarget = typeof window !== 'undefined' ? document.body : null;
+
+  const selectCommonProps = useMemo(() => {
+    if (!selectPortalTarget) return {};
+    return {
+      menuPortalTarget: selectPortalTarget,
+      menuPosition: 'fixed',
+      styles: { menuPortal: (base) => ({ ...base, zIndex: 9999999 }) },
+    };
+  }, [selectPortalTarget]);
 
   const currentAvatarSrc = backendAvatarUrl;
 
@@ -435,6 +418,21 @@ export default function EditProfileForm({ onBack, onSave }) {
             />
           </div>
           {showError('firstName') && <div className="field__hint">{errors.firstName}</div>}
+        </div>
+        {/* NICKNAME */}
+        <div className="field">
+          <div className="field__wrap">
+            <input
+              className={`text-input ${showError('username') ? 'is-error' : ''}`}
+              placeholder={t('profile.editForm.fields.username')}
+              value={values.username}
+              onChange={(e) => setField('username', e.target.value)}
+              onBlur={() => onBlur('username')}
+              maxLength={10}
+              aria-required="true"
+            />
+          </div>
+          {showError('username') && <div className="field__hint">{errors.username}</div>}
         </div>
         {/* СТАТЬ + ВІК: десктоп/планшет — 2 поля в одному рядку; мобілка — кожне поле - свій рядок */}
         <div className="grid-2">
@@ -551,7 +549,7 @@ export default function EditProfileForm({ onBack, onSave }) {
             <PhoneInput
               defaultCountry="ua"
               value={values.phone}
-              onChange={(val) => setField('phone', normalizePhone(val))}
+              onChange={(val) => setField('phone', val)}
               onBlur={() => onBlur('phone')}
               inputClassName={`phone-input ${showError('phone') ? 'is-error' : ''}`}
             />
@@ -567,91 +565,22 @@ export default function EditProfileForm({ onBack, onSave }) {
               value={values.nationality}
               onChange={(e) => setField('nationality', e.target.value)}
               onBlur={() => onBlur('nationality')}
-              // style={{ paddingRight: '40px' }}
-            />
-            <img
-              src={profileIcons.lockBlack}
-              alt={t('profile.editForm.lockedField')}
-              aria-hidden="true"
-              className="field__lock-icon"
             />
           </div>
           {showError('nationality') && <div className="field__hint">{errors.nationality}</div>}
+          <VisibilityToggle
+            checked={values.profileVisibility.nationality}
+            onChange={(checked) =>
+              setValues((prev) => ({
+                ...prev,
+                profileVisibility: {
+                  ...prev.profileVisibility,
+                  nationality: checked,
+                },
+              }))
+            }
+          />
         </div>
-        {/* NICKNAME */}
-        <div className="field">
-          <div className="field__wrap">
-            <input
-              className={`text-input ${showError('username') ? 'is-error' : ''}`}
-              placeholder={t('profile.editForm.fields.username')}
-              value={values.username}
-              onChange={(e) => setField('username', e.target.value)}
-              onBlur={() => onBlur('username')}
-              maxLength={10}
-              required
-              aria-required="true"
-            />
-          </div>
-          {showError('username') && <div className="field__hint">{errors.username}</div>}
-        </div>
-        {/* BIO */}
-        <div className="field">
-          <div className="field__wrap">
-            <textarea
-              className={`text-area ${showError('bio') ? 'is-error' : ''}`}
-              placeholder={t('profile.editForm.fields.bio')}
-              value={values.bio}
-              onChange={(e) => setField('bio', e.target.value)}
-              onBlur={() => onBlur('bio')}
-              rows={3}
-              maxLength={2000}
-            />
-          </div>
-
-          <div className="field__meta">
-            <span className="field__note">{t('profile.editForm.maxCharsNote')} </span>
-            <span className="field__counter">{(values.bio || '').length}/2000</span>
-          </div>
-
-          {showError('bio') && <div className="field__hint">{errors.bio}</div>}
-        </div>
-
-        {/* REGION */}
-        <div className="field">
-          <div className="field__wrap">
-            <input
-              className={`text-input ${showError('region') ? 'is-error' : ''}`}
-              placeholder="Регіон"
-              value={values.region}
-              onChange={(e) => setField('region', e.target.value)}
-              onBlur={() => onBlur('region')}
-            />
-          </div>
-
-          {showError('region') && <div className="field__hint">{errors.region}</div>}
-        </div>
-        {/* INTERESTS */}
-        <MultiSelect
-          value={values.interests}
-          onChange={(val) => setField('interests', val)}
-          options={interestOptions}
-          placeholder={t('profile.editForm.fields.interests')}
-          onBlur={() => onBlur('interests')}
-          error={showError('interests') && errors.interests}
-          maxItemsNote={t('profile.editForm.maxItemsNote', { max: 10 })}
-          selectProps={selectCommonProps}
-        />
-        {/* HOBBIES */}
-        <MultiSelect
-          value={values.hobbies}
-          onChange={(val) => setField('hobbies', val)}
-          options={profileHobbyOptions}
-          placeholder={t('profile.editForm.fields.hobbies')}
-          onBlur={() => onBlur('hobbies')}
-          error={showError('hobbies') && errors.hobbies}
-          maxItemsNote={t('profile.editForm.maxItemsNote', { max: 10 })}
-          selectProps={selectCommonProps}
-        />
         {/* MARITAL */}
         <div className="field">
           <div className="field__wrap select-wrap">
@@ -667,9 +596,176 @@ export default function EditProfileForm({ onBack, onSave }) {
           </div>
 
           {showError('maritalStatus') && <div className="field__hint">{errors.maritalStatus}</div>}
+          <VisibilityToggle
+            checked={values.profileVisibility.maritalStatus}
+            onChange={(checked) =>
+              setValues((prev) => ({
+                ...prev,
+                profileVisibility: {
+                  ...prev.profileVisibility,
+                  maritalStatus: checked,
+                },
+              }))
+            }
+          />
         </div>
-        {/* COUNTRY + CITY */}
+
+        {/* BIO */}
+        <div className="field">
+          <div className="field__wrap">
+            <textarea
+              className={`text-area ${showError('bio') ? 'is-error' : ''}`}
+              placeholder={t('profile.editForm.fields.bio')}
+              value={values.bio}
+              onChange={(e) => setField('bio', e.target.value)}
+              onBlur={() => onBlur('bio')}
+              rows={3}
+              maxLength={500}
+            />
+          </div>
+
+          <div className="field__meta">
+            <span className="field__note">{t('profile.editForm.maxCharsNote')} </span>
+            <span className="field__counter">{(values.bio || '').length}/500</span>
+          </div>
+          {showError('bio') && <div className="field__hint">{errors.bio}</div>}
+        </div>
+        {/* ABOUT */}
+        <div className="field">
+          <div className="field__wrap">
+            <textarea
+              className={`text-area ${showError('about') ? 'is-error' : ''}`}
+              placeholder={t('profile.editForm.fields.about')}
+              value={values.about}
+              onChange={(e) => setField('about', e.target.value)}
+              onBlur={() => onBlur('about')}
+              rows={3}
+              maxLength={2000}
+            />
+          </div>
+
+          <div className="field__meta">
+            <span className="field__note">{t('profile.editForm.maxCharsNote')} </span>
+            <span className="field__counter">{(values.about || '').length}/2000</span>
+          </div>
+
+          {showError('about') && <div className="field__hint">{errors.about}</div>}
+          <VisibilityToggle
+            checked={values.profileVisibility.about}
+            onChange={(checked) =>
+              setValues((prev) => ({
+                ...prev,
+                profileVisibility: {
+                  ...prev.profileVisibility,
+                  about: checked,
+                },
+              }))
+            }
+          />
+        </div>
+
+        {/* INTERESTS */}
+        <MultiSelect
+          value={values.interests}
+          onChange={(val) => setField('interests', val)}
+          options={interestOptions}
+          placeholder={t('profile.editForm.fields.interests')}
+          showVisibility
+          visibilityValue={values.profileVisibility.interests}
+          visibilityLabel={t('profile.editForm.visibility.title')}
+          onVisibilityChange={(checked) =>
+            setValues((prev) => ({
+              ...prev,
+              profileVisibility: {
+                ...prev.profileVisibility,
+                interests: checked,
+              },
+            }))
+          }
+          onBlur={() => onBlur('interests')}
+          error={showError('interests') && errors.interests}
+          maxItemsNote={t('profile.editForm.maxItemsNote', { max: 10 })}
+          selectProps={selectCommonProps}
+        />
+
+        {/* HOBBIES */}
+        <MultiSelect
+          value={values.hobbies}
+          onChange={(val) => setField('hobbies', val)}
+          options={profileHobbyOptions}
+          placeholder={t('profile.editForm.fields.hobbies')}
+          showVisibility
+          visibilityValue={values.profileVisibility.hobbies}
+          visibilityLabel={t('profile.editForm.visibility.title')}
+          onVisibilityChange={(checked) =>
+            setValues((prev) => ({
+              ...prev,
+              profileVisibility: {
+                ...prev.profileVisibility,
+                hobbies: checked,
+              },
+            }))
+          }
+          onBlur={() => onBlur('hobbies')}
+          error={showError('hobbies') && errors.hobbies}
+          maxItemsNote={t('profile.editForm.maxItemsNote', { max: 10 })}
+          selectProps={selectCommonProps}
+        />
+
         <div className="grid-2">
+          {/* PROFESSION */}
+          <div className="field">
+            <div className="field__wrap">
+              <input
+                className={`text-input ${showError('profession') ? 'is-error' : ''}`}
+                placeholder={t('profile.editForm.fields.profession')}
+                value={values.profession}
+                onChange={(e) => setField('profession', e.target.value)}
+                onBlur={() => onBlur('profession')}
+              />
+            </div>
+            {showError('profession') && <div className="field__hint">{errors.profession}</div>}
+            <VisibilityToggle
+              checked={values.profileVisibility.profession}
+              onChange={(checked) =>
+                setValues((prev) => ({
+                  ...prev,
+                  profileVisibility: {
+                    ...prev.profileVisibility,
+                    profession: checked,
+                  },
+                }))
+              }
+            />
+          </div>
+          {/* LANGUAGES */}
+          <div className="field">
+            <div className="field__wrap">
+              <input
+                className={`text-input ${showError('languages') ? 'is-error' : ''}`}
+                placeholder={t('profile.editForm.fields.languages')}
+                value={values.languagesInput}
+                onChange={(e) => setField('languagesInput', e.target.value)}
+                onBlur={() => onBlur('languages')}
+              />
+            </div>
+            {showError('languages') && <div className="field__hint">{errors.languages}</div>}
+            <VisibilityToggle
+              checked={values.profileVisibility.languages}
+              onChange={(checked) =>
+                setValues((prev) => ({
+                  ...prev,
+                  profileVisibility: {
+                    ...prev.profileVisibility,
+                    languages: checked,
+                  },
+                }))
+              }
+            />
+          </div>
+        </div>
+        {/* COUNTRY + REGION + CITY */}
+        <div className="grid-3">
           <div className="field">
             <div className="field__wrap select-wrap">
               <Select
@@ -677,12 +773,42 @@ export default function EditProfileForm({ onBack, onSave }) {
                 placeholder={t('profile.editForm.fields.country')}
                 value={values.country}
                 options={countryOptions}
-                onChange={(opt) => setField('country', opt)}
+                onChange={(opt) => {
+                  setValues((prev) => ({
+                    ...prev,
+                    country: opt,
+                    region: null,
+                    city: null,
+                  }));
+                }}
                 onBlur={() => onBlur('country')}
                 {...selectCommonProps}
               />
             </div>
             {showError('country') && <div className="field__hint">{errors.country}</div>}
+          </div>
+
+          <div className="field">
+            <div className="field__wrap select-wrap">
+              <Select
+                classNamePrefix="rs"
+                placeholder={t('profile.editForm.fields.region')}
+                value={values.region}
+                options={regionOptions}
+                isDisabled={!values.country}
+                isLoading={isRegionsLoading}
+                onChange={(opt) =>
+                  setValues((prev) => ({
+                    ...prev,
+                    region: opt,
+                    city: null,
+                  }))
+                }
+                onBlur={() => onBlur('region')}
+                {...selectCommonProps}
+              />
+            </div>
+            {showError('region') && <div className="field__hint">{errors.region}</div>}
           </div>
 
           <div className="field">
@@ -701,50 +827,21 @@ export default function EditProfileForm({ onBack, onSave }) {
             </div>
             {showError('city') && <div className="field__hint">{errors.city}</div>}
           </div>
-        </div>
-        <div className="grid-2">
-          {/* PROFESSION */}
-          <div className="field">
-            <div className="field__wrap">
-              <input
-                className={`text-input ${showError('profession') ? 'is-error' : ''}`}
-                placeholder="Професія"
-                value={values.profession}
-                onChange={(e) => setField('profession', e.target.value)}
-                onBlur={() => onBlur('profession')}
-              />
-            </div>
-            {showError('profession') && <div className="field__hint">{errors.profession}</div>}
-          </div>
-          {/* LANGUAGES */}
-          <div className="field">
-            <div className="field__wrap">
-              <input
-                className={`text-input ${showError('languages') ? 'is-error' : ''}`}
-                placeholder="Мови"
-                value={values.languages}
-                onChange={(e) => setField('languages', e.target.value)}
-                onBlur={() => onBlur('languages')}
-              />
-            </div>
-            {showError('languages') && <div className="field__hint">{errors.languages}</div>}
-          </div>
+          <VisibilityToggle
+            checked={values.profileVisibility.location}
+            label={t('profile.editForm.visibility.location')}
+            onChange={(checked) =>
+              setValues((prev) => ({
+                ...prev,
+                profileVisibility: {
+                  ...prev.profileVisibility,
+                  location: checked,
+                },
+              }))
+            }
+          />
         </div>
         <div className="grid-3">
-          {/* INSTAGRAM */}
-          <div className="field">
-            <div className="field__wrap">
-              <input
-                className={`text-input ${showError('instagram') ? 'is-error' : ''}`}
-                placeholder="Instagram"
-                value={values.instagram}
-                onChange={(e) => setField('instagram', e.target.value)}
-                onBlur={() => onBlur('instagram')}
-              />
-            </div>
-
-            {showError('instagram') && <div className="field__hint">{errors.instagram}</div>}
-          </div>{' '}
           {/* TELEGRAM */}
           <div className="field">
             <div className="field__wrap">
@@ -755,9 +852,51 @@ export default function EditProfileForm({ onBack, onSave }) {
                 onChange={(e) => setField('telegram', e.target.value)}
                 onBlur={() => onBlur('telegram')}
               />
+
+              <VisibilityToggle
+                checked={values.profileVisibility.telegram}
+                label={t('profile.editForm.visibility.telegram')}
+                onChange={(checked) =>
+                  setValues((prev) => ({
+                    ...prev,
+                    profileVisibility: {
+                      ...prev.profileVisibility,
+                      telegram: checked,
+                    },
+                  }))
+                }
+              />
             </div>
 
             {showError('telegram') && <div className="field__hint">{errors.telegram}</div>}
+          </div>{' '}
+          {/* INSTAGRAM */}
+          <div className="field">
+            <div className="field__wrap">
+              <input
+                className={`text-input ${showError('instagram') ? 'is-error' : ''}`}
+                placeholder="Instagram"
+                value={values.instagram}
+                onChange={(e) => setField('instagram', e.target.value)}
+                onBlur={() => onBlur('instagram')}
+              />
+
+              <VisibilityToggle
+                checked={values.profileVisibility.instagram}
+                label={t('profile.editForm.visibility.instagram')}
+                onChange={(checked) =>
+                  setValues((prev) => ({
+                    ...prev,
+                    profileVisibility: {
+                      ...prev.profileVisibility,
+                      instagram: checked,
+                    },
+                  }))
+                }
+              />
+            </div>
+
+            {showError('instagram') && <div className="field__hint">{errors.instagram}</div>}
           </div>{' '}
           {/* TIKTOK */}
           <div className="field">
@@ -768,6 +907,20 @@ export default function EditProfileForm({ onBack, onSave }) {
                 value={values.tiktok}
                 onChange={(e) => setField('tiktok', e.target.value)}
                 onBlur={() => onBlur('tiktok')}
+              />
+
+              <VisibilityToggle
+                checked={values.profileVisibility.tiktok}
+                label={t('profile.editForm.visibility.tiktok')}
+                onChange={(checked) =>
+                  setValues((prev) => ({
+                    ...prev,
+                    profileVisibility: {
+                      ...prev.profileVisibility,
+                      tiktok: checked,
+                    },
+                  }))
+                }
               />
             </div>
 

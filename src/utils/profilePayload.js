@@ -1,16 +1,23 @@
-import { normalizePhone } from './normalizePhone';
+import { normalizePhone } from './profileFormUtils';
 
 /** Перевірка формату YYYY-MM-DD та віку 18–100 */
 export function isValidBirthDate(s) {
   if (!s || typeof s !== 'string') return false;
   const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(s.trim());
   if (!match) return false;
-  const [, y, m, d] = match.map(Number);
+  const y = Number(match[1]);
+  const m = Number(match[2]);
+  const d = Number(match[3]);
   const date = new Date(y, m - 1, d);
   if (date.getFullYear() !== y || date.getMonth() !== m - 1 || date.getDate() !== d) return false;
 
-  const age = new Date().getFullYear() - y;
-  if (new Date() < new Date(y + age, m - 1, d)) return age >= 18 && age <= 100;
+  const today = new Date();
+  let age = today.getFullYear() - y;
+  const birthdayThisYear = new Date(today.getFullYear(), m - 1, d);
+  const hasBirthdayPassed = today >= birthdayThisYear;
+
+  if (!hasBirthdayPassed) age--;
+
   return age >= 18 && age <= 100;
 }
 
@@ -28,65 +35,110 @@ export function normalizeForValidation(v) {
     firstName: v.firstName,
     lastName: v.lastName,
     phone: normalizePhone(v.phone),
+
     nationality: v.nationality,
     username: v.username,
     bio: v.bio,
+    about: v.about,
 
+    profession: v.profession,
+
+    languages: mapSelectToStrings(v.languages, 20),
     interests: mapSelectToStrings(v.interests, MAX_INTERESTS),
     hobbies: mapSelectToStrings(v.hobbies, MAX_HOBBIES),
 
     maritalStatus: v.maritalStatus?.value || '',
     country: v.country?.value || '',
     city: v.city?.value || '',
+    region: v.region?.value || '',
+
     gender: v.gender,
     birthDate: v.birthDate,
+
+    instagram: v.instagram,
+    telegram: v.telegram,
+    profileVisibility: v.profileVisibility || {},
   };
 }
 
-export function toBackendPayload(v) {
+export function toEditProfilePayload(v) {
   const birthDate =
     v.birthDate && typeof v.birthDate === 'string' && v.birthDate.trim()
       ? v.birthDate.trim()
       : undefined;
 
+  const interests = mapSelectToStrings(v.interests, MAX_INTERESTS);
+  const hobbies = mapSelectToStrings(v.hobbies, MAX_HOBBIES);
+  const languages = mapSelectToStrings(v.languages, 20);
+
   const payload = {
     firstName: v.firstName?.trim(),
     lastName: v.lastName?.trim(),
+
+    birthDate: birthDate ? `${birthDate}T00:00:00.000Z` : undefined,
     phone: normalizePhone(v.phone),
+
+    nationality: v.nationality?.trim(),
+
+    country: v.country?.value || undefined,
+    city: v.city?.value || undefined,
+    region: v.region?.value || undefined,
+
+    maritalStatus: v.maritalStatus?.value || undefined,
+    gender: v.gender || undefined,
+
+    bio: v.bio?.trim() || undefined,
+    about: v.about?.trim() || undefined,
+    profession: v.profession?.trim() || undefined,
+
+    instagram: v.instagram?.trim() || undefined,
+    telegram: v.telegram?.trim() || undefined,
+    interests,
+    hobbies,
+    languages,
+
+    profileVisibility: v.profileVisibility || undefined,
+  };
+
+  if (v.username?.trim()) {
+    payload.username = v.username.trim();
+  }
+
+  return payload;
+}
+export function toCompleteProfilePayload(v) {
+  const birthDate =
+    v.birthDate && typeof v.birthDate === 'string' && v.birthDate.trim()
+      ? v.birthDate.trim()
+      : undefined;
+
+  const interests = mapSelectToStrings(v.interests, MAX_INTERESTS);
+  const hobbies = mapSelectToStrings(v.hobbies, MAX_HOBBIES);
+
+  const payload = {
+    firstName: v.firstName?.trim(),
+    lastName: v.lastName?.trim(),
+
+    birthDate: birthDate ? `${birthDate}T00:00:00.000Z` : undefined,
+    phone: normalizePhone(v.phone),
+
     nationality: v.nationality?.trim(),
 
     country: v.country?.value || undefined,
     city: v.city?.value || undefined,
 
     maritalStatus: v.maritalStatus?.value || undefined,
+    gender: v.gender || undefined,
+
     bio: v.bio?.trim() || undefined,
 
-    gender: v.gender === 'MALE' || v.gender === 'FEMALE' ? v.gender : undefined,
-
-    // ✅ твій фікс дати:
-    birthDate: birthDate ? `${birthDate}T12:00:00.000Z` : undefined,
+    interests,
+    hobbies,
   };
 
-  const username = v.username?.trim();
-  if (username) payload.username = username;
-
-  /* Інтереси та хобі — однаково: масив рядків (value). Бекенд має зберігати обидва в users (interests, hobbies). */
-  const interests = mapSelectToStrings(v.interests, MAX_INTERESTS);
-  const hobbies = mapSelectToStrings(v.hobbies, MAX_HOBBIES);
-  payload.about = v.about?.trim() || undefined;
-  payload.profession = v.profession?.trim() || undefined;
-
-  payload.region = v.region?.trim() || undefined;
-
-  payload.instagram = v.instagram?.trim() || undefined;
-  payload.telegram = v.telegram?.trim() || undefined;
-  payload.tiktok = v.tiktok?.trim() || undefined;
-
-  payload.profileVisibility = v.profileVisibility;
-  const languages = mapSelectToStrings(v.languages, 20);
-  payload.interests = [...(Array.isArray(interests) ? interests : [])];
-  payload.hobbies = [...(Array.isArray(hobbies) ? hobbies : [])];
-  payload.languages = languages;
+  if (v.username?.trim()) {
+    payload.username = v.username.trim();
+  }
 
   return payload;
 }
