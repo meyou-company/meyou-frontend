@@ -48,7 +48,9 @@ export default function AppBottomNav() {
                 : false;
 
         const onClick = () => {
-          if (item.action === 'MENU') return toggle();
+          if (item.action === 'MENU') {
+            return toggle();
+          }
 
           if (item.key === 'notifications') {
             return navigate('/notifications');
@@ -58,9 +60,18 @@ export default function AppBottomNav() {
             window.dispatchEvent(new CustomEvent("closeStoryOverlays"));
             return navigate('/first-page');
           }
-          if (isAvatar) return navigate('/profile');
-          if (item.key === 'user') return navigate('/friends');
-          if (item.path) navigate(item.path);
+          if (isAvatar) {
+            window.dispatchEvent(new CustomEvent("closeStoryOverlays"));
+            return navigate('/profile');
+          }
+          if (item.key === 'user') {
+            window.dispatchEvent(new CustomEvent("closeStoryOverlays"));
+            return navigate('/friends');
+          }
+          if (item.path) {
+            window.dispatchEvent(new CustomEvent("closeStoryOverlays"));
+            navigate(item.path);
+          }
         };
 
         if (item.key === 'notifications') {

@@ -831,7 +831,7 @@
   text-align: left;
 }
 
-.storyStatsModal__viewer > img {
+.storyStatsModal__viewer>img {
   width: 52px;
   height: 52px;
   border-radius: 50%;
@@ -860,7 +860,10 @@
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  font-size: 15px;
+  min-width: 28px;
+  justify-content: flex-end;
+  font-size: 20px;
+  line-height: 1;
 }
 
 .storyStatsModal__hint {
@@ -870,30 +873,133 @@
   font-weight: 700;
 }
 
-.storyStatsModal__summaryRow {
-  min-height: 112px;
-  border-bottom: 1.5px solid rgba(0, 0, 0, 0.42);
+.storyShareModal {
+  position: fixed;
+  inset: 0;
+  z-index: 220;
   display: grid;
-  grid-template-columns: 1fr 80px 1fr;
+  place-items: center;
+  padding: 18px;
+  background: rgba(0, 0, 0, 0.42);
+}
+
+.storyShareModal__dialog {
+  width: min(520px, 100%);
+  max-height: min(720px, calc(100dvh - 36px));
+  overflow: auto;
+  border-radius: 18px;
+  background: #fff;
+  color: #111;
+  padding: 18px;
+  box-shadow: 0 22px 70px rgba(0, 0, 0, 0.28);
+}
+
+.storyShareModal__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+
+  button {
+    width: 34px;
+    height: 34px;
+    border: 0;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.08);
+    font-size: 22px;
+  }
+}
+
+.storyShareModal__search,
+.storyShareModal__message {
+  width: 100%;
+  border: 1px solid rgba(0, 0, 0, 0.14);
+  border-radius: 12px;
+  padding: 12px 14px;
+  font: inherit;
+}
+
+.storyShareModal__list {
+  display: grid;
+  gap: 8px;
+  max-height: 300px;
+  overflow: auto;
+  margin: 14px 0;
+}
+
+.storyShareModal__user {
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr) 24px;
+  align-items: center;
+  gap: 10px;
+  border: 0;
+  border-radius: 12px;
+  background: transparent;
+  padding: 8px;
+  text-align: left;
+
+  img {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+
+  span {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-weight: 700;
+  }
+}
+
+.storyShareModal__user.is-selected {
+  background: rgba(255, 101, 189, 0.12);
+}
+
+.storyShareModal__send {
+  width: 100%;
+  min-height: 44px;
+  margin-top: 12px;
+  border: 0;
+  border-radius: 12px;
+  background: #ff4fb5;
+  color: #fff;
+  font-weight: 800;
+}
+
+.storyStatsModal__summaryRow {
+  display: flex;
+  justify-content: space-between;
   align-items: center;
   gap: 12px;
+  min-height: 112px;
+  margin: 0 10px;
+  border-bottom: 1.5px solid rgba(0, 0, 0, 0.42);
 }
 
 .storyStatsModal__summaryRow span {
-  font-size: 17px;
+  font-size: 15px;
   font-weight: 900;
 }
 
 .storyStatsModal__summaryRow strong {
-  font-size: 22px;
+  font-size: 17px;
   font-weight: 900;
   text-align: center;
 }
 
 .storyStatsModal__summaryRow small {
   color: rgba(0, 0, 0, 0.58);
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 700;
+}
+
+.storyStatsModal__summaryWrap {
+  display: flex;
+  flex-direction: column;
 }
 
 .storyStatsModal__reactionBreakdown {
@@ -976,20 +1082,17 @@
   padding: 0;
   text-align: left;
   font-size: 16px;
-  font-weight: 800;
+  font-weight: 600;
 }
 
-.storyStatsUserSheet button svg {
+.storyStatsUserSheet button svg,
+.storyStatsUserSheet button img{
   width: 24px;
   height: 24px;
   flex: 0 0 auto;
 }
 
 @media (min-width: 768px) {
-  .storyStatsModal {
-    padding: 22px 36px 52px;
-  }
-
   .storyStatsModal__header {
     min-height: 58px;
   }
@@ -1041,24 +1144,20 @@
     grid-template-columns: 58px minmax(0, auto) 14px 1fr;
   }
 
-  .storyStatsModal__viewer > img {
+  .storyStatsModal__viewer>img {
     width: 58px;
     height: 58px;
   }
 
-  .storyStatsModal__summary {
-    margin-top: 44px;
-  }
-
   .storyStatsModal__summaryRow {
-    min-height: 120px;
     grid-template-columns: 1fr 100px 1fr;
   }
 
   .storyStatsUserSheet {
     left: 50%;
     right: auto;
-    width: min(520px, calc(100% - 44px));
+    width: min(900px, calc(100% - 2px));
+    bottom: 0;
     transform: translateX(-50%);
     border-radius: 18px 18px 0 0;
   }
@@ -1067,7 +1166,6 @@
 @media (min-width: 1280px) {
   .storyStatsModal {
     background: #efe3ff;
-    padding: 26px 44px 60px;
   }
 
   .storyStatsModal__header,
@@ -1106,6 +1204,12 @@
     width: 142px;
     height: 244px;
     border-radius: 10px;
+    font-size: 16px;
+  }
+
+  .storyStatsModal__add svg, .storyStatsModal__add img {
+    width: 50px;
+    height: 50px;
   }
 
   .storyStatsModal__thumb.is-active {
@@ -1122,11 +1226,11 @@
   .storyStatsModal__tabs button {
     justify-content: flex-start;
     height: 52px;
-    font-size: 18px;
+    font-size: 22px;
   }
 
   .storyStatsModal__tabs button.is-active::after {
-    width: 150px;
+    width: 180px;
   }
 
   .storyStatsModal__viewsHead {
@@ -1145,7 +1249,6 @@
 
   .storyStatsModal__viewerList {
     gap: 22px;
-    padding-top: 22px;
   }
 
   .storyStatsModal__viewer {
@@ -1154,7 +1257,7 @@
     gap: 18px;
   }
 
-  .storyStatsModal__viewer > img {
+  .storyStatsModal__viewer>img {
     width: 72px;
     height: 72px;
   }
@@ -1172,32 +1275,27 @@
     font-size: 20px;
   }
 
-  .storyStatsModal__summary {
-    margin-top: 48px;
-  }
-
   .storyStatsModal__summaryRow {
-    min-height: 152px;
     grid-template-columns: 1fr 130px 1fr;
   }
 
   .storyStatsModal__summaryRow span {
-    font-size: 24px;
+    font-size: 22px;
+    font-weight: 700;
   }
 
   .storyStatsModal__summaryRow strong {
-    font-size: 34px;
+    font-size: 30px;
   }
 
   .storyStatsModal__summaryRow small {
     font-size: 18px;
+    font-weight: 500;
   }
 
   .storyStatsUserSheet {
-    width: min(560px, calc(100% - 60px));
-    left: 44px;
+    width: min(1060px, calc(100% - 30px));
     right: auto;
-    transform: none;
     border-radius: 18px 18px 0 0;
   }
 }
@@ -1256,9 +1354,10 @@
   color: rgba(255, 255, 255, 0.68);
 }
 
-[data-theme="dark"] .storyStatsModal__add,
+[data-theme="dark"] .storyStatsModal__add img,
 .dark .storyStatsModal__add img {
   color: #ffffff;
+  filter: brightness(0) invert(1);
 }
 
 
@@ -1302,6 +1401,10 @@
   .storyViewer__followBtn {
     padding: 6px 10px;
     font-size: 9px;
+  }
+
+  .storyStatsModal__summaryRow {
+    margin: 0;
   }
 }
 
@@ -1580,8 +1683,8 @@
 
   .storyViewer__viewers img,
   .storyViewer__viewersEmpty {
-    width: 60px;
-    height: 60px;
+    width: 50px;
+    height: 50px;
   }
 
   .storyViewer__viewers img:not(:first-child) {
@@ -1703,6 +1806,10 @@
 
 [data-theme="dark"] .storyViewer__analyticsGrid b,
 .dark .storyViewer__analyticsGrid b {
+  color: #fff;
+}
+
+[data-theme="dark"] .storyStatsUserSheet__person strong {
   color: #fff;
 }
 

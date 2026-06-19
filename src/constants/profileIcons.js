@@ -144,6 +144,9 @@ const profileIcons = {
   storyAdd: '/stories/add.svg',
   storyViews: '/stories/eye.svg',
   storyAnalytics: '/stories/analytics.svg',
+  storyViewerProfile: '/stories/viewer-profile.svg',
+  storyChat: '/stories/chat.svg',
+  storyBlock: '/stories/block.svg',
 };
 
 export default profileIcons;
