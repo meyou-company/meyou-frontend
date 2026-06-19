@@ -20,7 +20,10 @@ import { usePrefillProfile } from '../../../../hooks/usePrefillProfile';
 import { normalizeForValidation, toBackendPayload } from '../../../../utils/profilePayload';
 import { normalizePhone } from '../../../../utils/normalizePhone';
 import { cropImageToFile } from '../../../../utils/cropImageToFile';
-import { validateCompleteProfile, translateValidationErrors } from '../../../../utils/validationCompleteProfile';
+import {
+  validateCompleteProfile,
+  translateValidationErrors,
+} from '../../../../utils/validationCompleteProfile';
 import { getApiErrorMessage } from '../../../../utils/getApiErrorMessage';
 import { useGenderOptions, useMaritalStatusOptions } from '../../../../hooks/useProfileFormOptions';
 
@@ -42,17 +45,38 @@ const INITIAL_VALUES = {
   gender: null,
   birthDate: '',
   username: '',
+
   bio: '',
+  about: '',
+  profession: '',
+
   interests: [],
   hobbies: [],
+  languages: [],
+
   maritalStatus: null,
+
   country: null,
+  region: '',
   city: null,
-  // profession,
-  // languages,
-  // instagram,
-  // telegram,
-  // tiktok,
+
+  instagram: '',
+  telegram: '',
+  tiktok: '',
+
+  profileVisibility: {
+    about: true,
+    interests: true,
+    hobbies: true,
+    languages: true,
+    profession: true,
+    maritalStatus: true,
+    nationality: true,
+    location: true,
+    instagram: true,
+    telegram: true,
+    tiktok: true,
+  },
 };
 
 function getBirthDateLimits() {
@@ -314,7 +338,12 @@ export default function EditProfileForm({ onBack, onSave }) {
     <div className="edit-profile">
       <form className="edit-profile__form" onSubmit={handleSubmit}>
         <div className="ep-topbar">
-          <button type="button" className="back-arrow" onClick={onBack} aria-label={t('common.back')}>
+          <button
+            type="button"
+            className="back-arrow"
+            onClick={onBack}
+            aria-label={t('common.back')}
+          >
             <img
               src={profileIcons.arrowGradient}
               alt=""
@@ -337,7 +366,11 @@ export default function EditProfileForm({ onBack, onSave }) {
           <div className="ep-avatar">
             <div className="ep-avatar__ring" onClick={pickAvatar} role="button" tabIndex={0}>
               {currentAvatarSrc ? (
-                <img className="ep-avatar__img" src={currentAvatarSrc} alt={t('profile.editForm.avatarAlt')} />
+                <img
+                  className="ep-avatar__img"
+                  src={currentAvatarSrc}
+                  alt={t('profile.editForm.avatarAlt')}
+                />
               ) : (
                 <div className="ep-avatar__placeholder" aria-hidden="true">
                   <svg viewBox="0 0 24 24" className="ep-avatar__icon">
@@ -411,7 +444,9 @@ export default function EditProfileForm({ onBack, onSave }) {
           >
             {/* Десктоп/планшет: текст "СТАТЬ" навпроти опцій (один ряд) */}
             <div className="field__genderWrap field__genderWrap--desktop">
-              <label className="field__label field__label--row">{t('profile.editForm.fields.gender')}</label>
+              <label className="field__label field__label--row">
+                {t('profile.editForm.fields.gender')}
+              </label>
               <div className="field__genderGroup">
                 {genderOptions.map((opt) => (
                   <button
@@ -448,7 +483,9 @@ export default function EditProfileForm({ onBack, onSave }) {
                       {genderOptions.find((o) => o.value === values.gender)?.label ??
                         t('profile.editForm.select')}
                     </span>
-                    <span className="field__genderTriggerLabel">{t('profile.editForm.fields.gender')}</span>
+                    <span className="field__genderTriggerLabel">
+                      {t('profile.editForm.fields.gender')}
+                    </span>
                   </span>
                   <span className="field__genderChevron" aria-hidden="true" />
                 </button>
@@ -567,16 +604,31 @@ export default function EditProfileForm({ onBack, onSave }) {
               onChange={(e) => setField('bio', e.target.value)}
               onBlur={() => onBlur('bio')}
               rows={3}
-              maxLength={500}
+              maxLength={2000}
             />
           </div>
 
           <div className="field__meta">
             <span className="field__note">{t('profile.editForm.maxCharsNote')} </span>
-            <span className="field__counter">{(values.bio || '').length}/500</span>
+            <span className="field__counter">{(values.bio || '').length}/2000</span>
           </div>
 
           {showError('bio') && <div className="field__hint">{errors.bio}</div>}
+        </div>
+
+        {/* REGION */}
+        <div className="field">
+          <div className="field__wrap">
+            <input
+              className={`text-input ${showError('region') ? 'is-error' : ''}`}
+              placeholder="Регіон"
+              value={values.region}
+              onChange={(e) => setField('region', e.target.value)}
+              onBlur={() => onBlur('region')}
+            />
+          </div>
+
+          {showError('region') && <div className="field__hint">{errors.region}</div>}
         </div>
         {/* INTERESTS */}
         <MultiSelect
@@ -648,6 +700,78 @@ export default function EditProfileForm({ onBack, onSave }) {
               />
             </div>
             {showError('city') && <div className="field__hint">{errors.city}</div>}
+          </div>
+        </div>
+        <div className="grid-2">
+          {/* PROFESSION */}
+          <div className="field">
+            <div className="field__wrap">
+              <input
+                className={`text-input ${showError('profession') ? 'is-error' : ''}`}
+                placeholder="Професія"
+                value={values.profession}
+                onChange={(e) => setField('profession', e.target.value)}
+                onBlur={() => onBlur('profession')}
+              />
+            </div>
+            {showError('profession') && <div className="field__hint">{errors.profession}</div>}
+          </div>
+          {/* LANGUAGES */}
+          <div className="field">
+            <div className="field__wrap">
+              <input
+                className={`text-input ${showError('languages') ? 'is-error' : ''}`}
+                placeholder="Мови"
+                value={values.languages}
+                onChange={(e) => setField('languages', e.target.value)}
+                onBlur={() => onBlur('languages')}
+              />
+            </div>
+            {showError('languages') && <div className="field__hint">{errors.languages}</div>}
+          </div>
+        </div>
+        <div className="grid-3">
+          {/* INSTAGRAM */}
+          <div className="field">
+            <div className="field__wrap">
+              <input
+                className={`text-input ${showError('instagram') ? 'is-error' : ''}`}
+                placeholder="Instagram"
+                value={values.instagram}
+                onChange={(e) => setField('instagram', e.target.value)}
+                onBlur={() => onBlur('instagram')}
+              />
+            </div>
+
+            {showError('instagram') && <div className="field__hint">{errors.instagram}</div>}
+          </div>{' '}
+          {/* TELEGRAM */}
+          <div className="field">
+            <div className="field__wrap">
+              <input
+                className={`text-input ${showError('telegram') ? 'is-error' : ''}`}
+                placeholder="Telegram"
+                value={values.telegram}
+                onChange={(e) => setField('telegram', e.target.value)}
+                onBlur={() => onBlur('telegram')}
+              />
+            </div>
+
+            {showError('telegram') && <div className="field__hint">{errors.telegram}</div>}
+          </div>{' '}
+          {/* TIKTOK */}
+          <div className="field">
+            <div className="field__wrap">
+              <input
+                className={`text-input ${showError('tiktok') ? 'is-error' : ''}`}
+                placeholder="TikTok"
+                value={values.tiktok}
+                onChange={(e) => setField('tiktok', e.target.value)}
+                onBlur={() => onBlur('tiktok')}
+              />
+            </div>
+
+            {showError('tiktok') && <div className="field__hint">{errors.tiktok}</div>}
           </div>
         </div>
         {submitError && <div className="field__hint">{submitError}</div>}

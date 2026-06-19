@@ -73,8 +73,20 @@ export function toBackendPayload(v) {
   /* Інтереси та хобі — однаково: масив рядків (value). Бекенд має зберігати обидва в users (interests, hobbies). */
   const interests = mapSelectToStrings(v.interests, MAX_INTERESTS);
   const hobbies = mapSelectToStrings(v.hobbies, MAX_HOBBIES);
+  payload.about = v.about?.trim() || undefined;
+  payload.profession = v.profession?.trim() || undefined;
+
+  payload.region = v.region?.trim() || undefined;
+
+  payload.instagram = v.instagram?.trim() || undefined;
+  payload.telegram = v.telegram?.trim() || undefined;
+  payload.tiktok = v.tiktok?.trim() || undefined;
+
+  payload.profileVisibility = v.profileVisibility;
+  const languages = mapSelectToStrings(v.languages, 20);
   payload.interests = [...(Array.isArray(interests) ? interests : [])];
   payload.hobbies = [...(Array.isArray(hobbies) ? hobbies : [])];
+  payload.languages = languages;
 
   return payload;
 }
