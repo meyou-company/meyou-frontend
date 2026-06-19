@@ -139,15 +139,12 @@ function normalizeReactionList(value) {
   return [value].filter(Boolean);
 }
 
-function getReactionGlyph(type) {
-  const normalized = String(type || "").toLowerCase();
+function getReactionIcon(type) {
+  const normalized = String(type || "").toUpperCase();
 
-  if (normalized.includes("laugh") || normalized.includes("smile")) return "😂";
-  if (normalized.includes("wow") || normalized.includes("surprise")) return "😮";
-  if (normalized.includes("cry") || normalized.includes("sad")) return "😢";
-  if (normalized.includes("fire")) return "🔥";
-  if (normalized.includes("thumb")) return "👍";
-  return "❤️";
+  return storyReactions.find(
+    (reaction) => String(reaction.id).toUpperCase() === normalized
+  )?.icon;
 }
 
 function getReactionUserId(item) {
@@ -269,6 +266,17 @@ function extractStoryViewsList(response) {
               : [];
 }
 
+function extractStoryReactionsList(response) {
+  if (!response) return [];
+  if (Array.isArray(response)) return response;
+  if (Array.isArray(response.items)) return response.items;
+  if (Array.isArray(response.reactions)) return response.reactions;
+  if (Array.isArray(response.data)) return response.data;
+  if (Array.isArray(response.data?.items)) return response.data.items;
+  if (Array.isArray(response.data?.reactions)) return response.data.reactions;
+  return [];
+}
+
 function extractStoryViewsCount(response, views = []) {
   const rawCount =
     response?.viewsCount ??
@@ -328,15 +336,15 @@ function StoryAnalyticsModal({
       return acc;
     }, { byKey: new Map() });
   const viewersList = [...viewers.byKey.values()].map((viewer) => {
-      const analyticsReactions = reactionsByUser.get(String(viewer.id)) || [];
+    const analyticsReactions = reactionsByUser.get(String(viewer.id)) || [];
 
-      return {
-        ...viewer,
-        reactions: normalizeReactionList(viewer.reactions).length > 0
-          ? normalizeReactionList(viewer.reactions)
-          : analyticsReactions,
-      };
-    });
+    return {
+      ...viewer,
+      reactions: normalizeReactionList(viewer.reactions).length > 0
+        ? normalizeReactionList(viewer.reactions)
+        : analyticsReactions,
+    };
+  });
   const viewsCount = Math.max(
     Number(analytics?.viewsCount ?? 0),
     getStoryViewsCount(currentStory, storyViewersOnly),
@@ -444,6 +452,13 @@ function StoryAnalyticsModal({
                     ? ["heart"]
                     : [];
 
+                console.log({
+                  viewer: getUserDisplayName(viewer),
+                  viewerReactions: viewer.reactions,
+                  analyticsReactions: reactionsByUser.get(String(viewer.id)),
+                  visibleReactions,
+                });
+
                 return (
                   <button
                     type="button"
@@ -454,12 +469,26 @@ function StoryAnalyticsModal({
                     <img src={viewer.avatarUrl || profileIcons.userStory} alt="" />
                     <span className="storyStatsModal__viewerName">{getUserDisplayName(viewer)}</span>
                     {viewer.isFollower ? <span className="storyStatsModal__online" aria-label="Подписчик" /> : null}
-                    <span className="storyStatsModal__viewerReactions" aria-hidden="true">
-                      {visibleReactions.slice(0, 3).map((type, reactionIndex) => (
-                        <span key={`${type}-${reactionIndex}`}>{getReactionGlyph(type)}</span>
-                      ))}
-                    </span>
-                  </button>
+                    <div className="storyStatsModal__viewerReactions" aria-hidden="true">
+                      {visibleReactions.slice(0, 3).map((type, reactionIndex) => {
+                        const icon = getReactionIcon(type);
+
+                        if (!icon) return null;
+
+                        return (
+                          <span
+                            key={`${type}-${reactionIndex}`}
+                            className="storyStatsModal__viewerReaction"
+                          >
+                            <img
+                              src={icon}
+                              alt=""
+                              className="storyStatsModal__viewerReactionIcon"
+                            />
+                          </span>
+                        );
+                      })}
+                    </div>         </button>
                 );
               })}
               {viewersList.length === 0 ? <p className="storyStatsModal__hint">Пока нет просмотров</p> : null}
@@ -471,23 +500,23 @@ function StoryAnalyticsModal({
           <div className="storyStatsModal__summaryRow">
             <span>Просмотрели:</span>
             <div className="storyStatsModal__summaryWrap">
-            <strong>{viewsCount}</strong>
-            <small>Все пользователи</small>
+              <strong>{viewsCount}</strong>
+              <small>Все пользователи</small>
             </div>
           </div>
           <div className="storyStatsModal__summaryRow">
             <span>Поделились:</span>
-             <div className="storyStatsModal__summaryWrap">
-            <strong>{sharesCount}</strong>
-            <small>Все пользователи</small>
-             </div>
+            <div className="storyStatsModal__summaryWrap">
+              <strong>{sharesCount}</strong>
+              <small>Все пользователи</small>
+            </div>
           </div>
           <div className="storyStatsModal__summaryRow">
             <span>Реакции:</span>
-             <div className="storyStatsModal__summaryWrap">
-            <strong>{reactionsCount}</strong>
-            <small>Все пользователи</small>
-             </div>
+            <div className="storyStatsModal__summaryWrap">
+              <strong>{reactionsCount}</strong>
+              <small>Все пользователи</small>
+            </div>
           </div>
         </section>
       )}
@@ -518,11 +547,11 @@ function StoryStatsUserSheet({ user, onClose, onMessage, onProfile, onReport, on
         </div>
 
         <button type="button" onClick={onMessage}>
-            <img src={profileIcons.storyChat} alt="" />
+          <img src={profileIcons.storyChat} alt="" />
           Написать сообщение {name}
         </button>
         <button type="button" onClick={onProfile}>
-            <img src={profileIcons.storyViewerProfile} alt="" />
+          <img src={profileIcons.storyViewerProfile} alt="" />
           Посмотреть профиль
         </button>
         <button type="button" onClick={onReport}>
@@ -1100,7 +1129,7 @@ export default function StoryViewerModal({
       return;
     }
 
-    video.play?.().catch(() => {});
+    video.play?.().catch(() => { });
   }, [isStoryPaused, mediaType, storyId]);
 
   useEffect(() => {
@@ -1136,8 +1165,18 @@ export default function StoryViewerModal({
 
     try {
       setAnalyticsLoading(true);
-      const response = await storiesApi.getAnalytics(storyId);
-      setAnalytics(response?.data || response || {});
+      const [analyticsResponse, reactionsResponse] = await Promise.all([
+        storiesApi.getAnalytics(storyId),
+        storiesApi.getReactions(storyId).catch(() => null),
+      ]);
+
+      const analyticsData = analyticsResponse?.data || analyticsResponse || {};
+      const reactionsList = extractStoryReactionsList(reactionsResponse);
+
+      setAnalytics({
+        ...analyticsData,
+        reactions: reactionsList,
+      });
     } catch (error) {
       console.error("[story-analytics] failed", error);
       toast.error("Не удалось загрузить аналитику story");

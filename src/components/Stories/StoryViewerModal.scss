@@ -824,8 +824,7 @@
   border: 0;
   background: transparent;
   color: #111;
-  display: grid;
-  grid-template-columns: 54px minmax(0, auto) 14px 1fr;
+  display: flex;
   align-items: center;
   gap: 10px;
   text-align: left;
@@ -864,6 +863,26 @@
   justify-content: flex-end;
   font-size: 20px;
   line-height: 1;
+}
+
+.storyStatsModal__viewerReaction {
+  width: 26px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: -6px;
+}
+
+.storyStatsModal__viewerReaction:first-child {
+  margin-left: 0;
+}
+
+.storyStatsModal__viewerReactionIcon {
+  width: 26px;
+  height: 26px;
+  display: block;
+  object-fit: contain;
 }
 
 .storyStatsModal__hint {
@@ -1133,6 +1152,10 @@
 
   .storyStatsModal__viewsHead {
     min-height: 58px;
+  }
+
+  .storyStatsModal__viewer {
+    gap: 15px;
   }
 
   .storyStatsModal__viewerList {

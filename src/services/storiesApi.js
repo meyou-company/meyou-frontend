@@ -148,6 +148,12 @@ export const storiesApi = {
     return data;
   },
 
+  async getReactions(storyId) {
+    const { data } = await api.get(apiPath(`/stories/${encodeURIComponent(storyId)}/reactions`));
+
+    return data;
+  },
+
   async reply(storyId, text) {
     const { data } = await api.post(apiPath(`/stories/${encodeURIComponent(storyId)}/reply`), {
       text,
@@ -157,12 +163,16 @@ export const storiesApi = {
   },
 
   async muteAuthor(authorId) {
-    const { data } = await api.post(apiPath(`/stories/authors/${encodeURIComponent(authorId)}/mute`));
+    const { data } = await api.post(
+      apiPath(`/stories/authors/${encodeURIComponent(authorId)}/mute`)
+    );
     return data;
   },
 
   async unmuteAuthor(authorId) {
-    const { data } = await api.delete(apiPath(`/stories/authors/${encodeURIComponent(authorId)}/mute`));
+    const { data } = await api.delete(
+      apiPath(`/stories/authors/${encodeURIComponent(authorId)}/mute`)
+    );
     return data;
   },
 
@@ -172,7 +182,9 @@ export const storiesApi = {
   },
 
   async markNotInteresting(storyId) {
-    const { data } = await api.post(apiPath(`/stories/${encodeURIComponent(storyId)}/not-interesting`));
+    const { data } = await api.post(
+      apiPath(`/stories/${encodeURIComponent(storyId)}/not-interesting`)
+    );
     return data;
   },
 
