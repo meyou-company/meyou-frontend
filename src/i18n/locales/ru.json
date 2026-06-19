@@ -169,8 +169,10 @@
     }
   },
   "profile": {
-    "myMessages": "Мои сообщения",
+    "myBalance": "Мой баланс",
     "myGifts": "Мои подарки",
+    "myMessages": "Мои сообщения",
+    "myPhotos": "Мои фото",
     "saved": "Сохранённое",
     "gifts": "Подарки",
     "writeMessage": "Написать сообщение",
@@ -178,7 +180,6 @@
     "loading": "Загрузка профиля…",
     "notFound": "Профиль не найден{{username}}",
     "loadError": "Ошибка загрузки",
-    "myBalance": "Мой баланс",
     "editProfile": "Редактировать профиль",
     "viewPhoto": "Посмотреть фото",
     "viewPhotoFull": "Фото в полном размере",
@@ -254,7 +255,14 @@
       "giftsStat": "Подарки",
       "postsStat": "Посты",
       "contacts": "Контакты",
-      "emailHidden": "Email (скрыт)"
+      "emailHidden": "Email (скрыт)",
+      "editSection": "Редактировать раздел",
+      "save": "Сохранить",
+      "saved": "Информация сохранена",
+      "visibleTo": "Кому видно",
+      "onlyMe": "Только мне",
+      "everyone": "Всем",
+      "languagesPlaceholder": "Русский, Английский, Испанский"
     },
     "vip": {
       "vipFriends": "VIP",
@@ -391,8 +399,94 @@
     "loadMessagesError": "Не удалось загрузить сообщения",
     "sendError": "Не удалось отправить сообщение",
     "noMessages": "Нет сообщений",
-    "placeholder": "Напишите сообщение...",
-    "newMessageFrom": "Новое сообщение от {{name}}"
+    "placeholder": "Сообщение",
+    "newMessageFrom": "Новое сообщение от {{name}}",
+    "search": "Поиск",
+    "soundAria": "Звук сообщений",
+    "muteSound": "Выключить звук",
+    "unmuteSound": "Включить звук",
+    "dateToday": "Сегодня",
+    "dateYesterday": "Вчера",
+    "youReplied": "Вы ответили",
+    "copySuccess": "Скопировано",
+    "comingSoon": "Скоро",
+    "backToChats": "К списку чатов",
+    "menu": {
+      "reply": "Ответить",
+      "forward": "Переслать",
+      "copy": "Копировать",
+      "translate": "Перевести",
+      "pin": "Закрепить",
+      "deleteForMe": "Удалить у вас",
+      "deleteForAll": "Удалить у всех",
+      "report": "Пожаловаться",
+      "edit": "Редактировать",
+      "unpin": "Открепить"
+    },
+    "reactions": {
+      "aria": "Реакции на сообщение"
+    },
+    "composer": {
+      "voiceAria": "Голосовое сообщение",
+      "cameraAria": "Камера",
+      "galleryAria": "Галерея",
+      "sendAria": "Отправить",
+      "fileAria": "Прикрепить файл",
+      "attachmentsPreview": "Вложения для отправки",
+      "removeAttachment": "Удалить вложение",
+      "addEmoji": "Добавить эмодзи"
+    },
+    "deletedMessage": "Сообщение удалено",
+    "previewPhoto": "Фото",
+    "previewVideo": "Видео",
+    "previewVoice": "Голосовое сообщение",
+    "previewFile": "Файл",
+    "mediaViewer": {
+      "title": "Просмотр медиа",
+      "close": "Закрыть",
+      "openImage": "Открыть фото",
+      "openVideo": "Открыть видео на весь экран"
+    },
+    "edited": "изменено",
+    "typing": "{{name}} печатает…",
+    "repliedTo": "Ответ",
+    "forwarded": "Переслано",
+    "attachmentPreview": "Вложение",
+    "attachmentFile": "Файл",
+    "searchInChat": "Поиск в чате",
+    "searchInChatPlaceholder": "Искать сообщения…",
+    "searchNoResults": "Сообщения не найдены",
+    "pinned": "Закреплённое сообщение",
+    "pinSuccess": "Сообщение закреплено",
+    "unpinSuccess": "Сообщение откреплено",
+    "deleteSuccess": "Сообщение удалено",
+    "muteChat": "Отключить уведомления чата",
+    "unmuteChat": "Включить уведомления чата",
+    "muteSuccess": "Чат отключён",
+    "unmuteSuccess": "Чат включён",
+    "uploading": "Загрузка…",
+    "uploadError": "Не удалось загрузить",
+    "voiceNotSupported": "Запись голоса не поддерживается",
+    "voicePermissionDenied": "Нет доступа к микрофону",
+    "forward": {
+      "title": "Переслать",
+      "noChats": "Нет других чатов",
+      "success": "Сообщение переслано"
+    },
+    "report": {
+      "title": "Жалоба на сообщение",
+      "reasonLabel": "Причина",
+      "reasonPlaceholder": "Опишите проблему…",
+      "submit": "Отправить жалобу",
+      "success": "Жалоба отправлена"
+    },
+    "edit": {
+      "title": "Редактировать сообщение",
+      "success": "Сообщение обновлено"
+    },
+    "translate": {
+      "notAvailable": "Перевод пока недоступен"
+    }
   },
   "notifications": {
     "title": "Уведомления",

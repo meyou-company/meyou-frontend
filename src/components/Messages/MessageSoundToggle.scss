@@ -1,57 +1,35 @@
 .messageSoundToggle {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  margin-top: 12px;
-  flex-wrap: wrap;
-}
-
-.messageSoundToggle__label {
-  font-size: 13px;
-  font-weight: 500;
-  color: rgba(0, 0, 0, 0.72);
-}
-
-.messageSoundToggle__switch {
   display: inline-flex;
-  padding: 2px;
-  border-radius: 999px;
-  background: rgba(0, 0, 0, 0.06);
-  border: 1px solid rgba(0, 0, 0, 0.08);
-}
-
-.messageSoundToggle__option {
-  min-width: 44px;
-  padding: 4px 10px;
-  border: 0;
-  border-radius: 999px;
-  background: transparent;
-  color: rgba(0, 0, 0, 0.55);
-  font-size: 12px;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  flex-shrink: 0;
+  min-height: clamp(48px, 12vw, 56px);
+  padding: 0 clamp(16px, 4vw, 24px);
+  border-radius: 20px;
+  border: 1px solid #c2b8b8;
+  background: linear-gradient(180deg, #fceaff 0%, #f1e7ff 55%, #e1cbff 100%);
+  color: #000;
+  font: inherit;
+  font-size: 14px;
   font-weight: 600;
   cursor: pointer;
-  transition: background 0.15s, color 0.15s;
+  box-shadow:
+    0 4px 10px rgba(183, 140, 255, 0.25),
+    0 1px 2px rgba(0, 0, 0, 0.08);
+  transition: box-shadow 0.15s ease, transform 0.15s ease;
 
-  &.is-active {
-    background: linear-gradient(135deg, #4f6bff, #b05cff);
-    color: #fff;
-    box-shadow: 0 2px 8px rgba(79, 107, 255, 0.35);
+  &:hover {
+    box-shadow:
+      0 6px 14px rgba(183, 140, 255, 0.3),
+      0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+
+  &.is-muted {
+    color: rgba(0, 0, 0, 0.55);
   }
 }
 
-body.dark .messageSoundToggle__label,
-html[data-theme='dark'] .messageSoundToggle__label {
-  color: rgba(255, 255, 255, 0.78);
-}
-
-body.dark .messageSoundToggle__switch,
-html[data-theme='dark'] .messageSoundToggle__switch {
-  background: rgba(255, 255, 255, 0.08);
-  border-color: rgba(255, 255, 255, 0.12);
-}
-
-body.dark .messageSoundToggle__option,
-html[data-theme='dark'] .messageSoundToggle__option {
-  color: rgba(255, 255, 255, 0.55);
+.messageSoundToggle__text {
+  white-space: nowrap;
 }

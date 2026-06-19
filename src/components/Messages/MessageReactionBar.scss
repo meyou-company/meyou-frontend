@@ -1,0 +1,41 @@
+.msgReactionBar {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 4px 6px;
+  border-radius: 999px;
+  background: #fff;
+  box-shadow: 0 4px 16px rgba(79, 55, 130, 0.18);
+  border: 1px solid rgba(120, 90, 180, 0.12);
+}
+
+.msgReactionBar__btn {
+  width: 30px;
+  height: 30px;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  transition: transform 0.12s ease, background 0.12s ease;
+
+  &:hover {
+    transform: scale(1.12);
+    background: rgba(180, 150, 230, 0.15);
+  }
+
+  &.is-selected {
+    background: rgba(183, 140, 255, 0.35);
+    transform: scale(1.08);
+  }
+}
+
+body.dark,
+html[data-theme='dark'] {
+  .msgReactionBar {
+    background: rgba(30, 16, 42, 0.92);
+    border-color: rgba(255, 255, 255, 0.12);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+  }
+}

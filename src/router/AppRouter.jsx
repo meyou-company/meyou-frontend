@@ -10,6 +10,7 @@ import Profile from '../pages/Profile/Profile';
 import ProfileFriendsPage from '../pages/Profile/ProfileFriendsPage';
 import VipChat from '../pages/VipChat/VipChat';
 import MessagesPage from '../pages/Messages/MessagesPage';
+import StoryArchivePage from '../pages/Stories/StoryArchivePage';
 
 import LoginPage from '../pages/Auth/Login/LoginPage';
 import RegisterPage from '../pages/Auth/Register/RegisterPage';
@@ -46,6 +47,7 @@ import { useThemeStore } from '../zustand/useThemeStore';
 import Post from '../components/Post/Post';
 import { MessagesSocketProvider } from '../providers/MessagesSocketProvider';
 import { NotificationsSocketProvider } from '../providers/NotificationsSocketProvider';
+import { StoriesSocketProvider } from '../providers/StoriesSocketProvider';
 
 /** Глобальне бургер-меню — рендериться один раз, відкривається з будь-якої сторінки */
 function GlobalBurgerMenu() {
@@ -106,6 +108,7 @@ function AppLayout() {
               <Route path="/vip-chat" element={<VipChat />} />
               <Route path="/messages" element={<MessagesPage />} />
               <Route path="/messages/:conversationId" element={<MessagesPage />} />
+              <Route path="/stories/archive" element={<StoryArchivePage />} />
               <Route path="/first-page" element={<FirstPage />} />
               <Route path="/wallet" element={<WalletPage />} />
 
@@ -158,6 +161,7 @@ export default function AppRouter() {
     <BrowserRouter>
       <NotificationsSocketProvider />
       <MessagesSocketProvider />
+      <StoriesSocketProvider />
       <RouterLoaderSync />
       <UserProfileNavProvider>
         <ProfileGuard>

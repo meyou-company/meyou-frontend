@@ -4,21 +4,20 @@ import { useTranslation } from 'react-i18next';
 import profileIcons from '../../constants/profileIcons';
 import { useStoriesFeed } from "../../hooks/useStoriesFeed";
 import { postsApi } from '../../services/postsApi';
+import { storiesApi } from "../../services/storiesApi";
 import { useAuthStore } from "../../zustand/useAuthStore";
-import { mapApiPostToFeedItem } from '../../utils/mapApiPostToFeedItem';
 import { usePostFeedActions } from '../../hooks/usePostFeedActions';
-import PostCommentsSection from '../PostFeed/PostCommentsSection';
 import { getApiErrorMessage } from '../../utils/getApiErrorMessage';
+import { mapApiPostToFeedItem } from '../../utils/mapApiPostToFeedItem';
 import { applyPersistedLikes } from '../../utils/postLikePersistence';
 import { getProfileRouteHandle } from '../../utils/profileFriendNav';
+import { resolvePostMenuPermissions } from '../../utils/postMenuPermissions';
 import AppHeader from "../../components/Layout/AppHeader";
 import StoryCircle from "../../components/Stories/StoryCircle";
 import NotificationBell from '../../components/Notifications/NotificationBell';
 import PostFeedBody from '../../components/PostFeed/PostFeedBody';
-import '../../components/PostFeed/PostFeedBody.scss';
-import '../../components/PostFeed/RepostUi.scss';
+import PostCommentsSection from '../PostFeed/PostCommentsSection';
 import { isRepostCard, postAuthorDisplayName } from '../../utils/postShareContext';
-import { resolvePostMenuPermissions } from '../../utils/postMenuPermissions';
 import PostCardHeader from '../../components/PostFeed/PostCardHeader';
 import '../../components/PostFeed/PostCardHeader.scss';
 import SharePostModal from '../../components/PostFeed/SharePostModal';
@@ -27,6 +26,8 @@ import DeletePostConfirmDialog from '../../components/PostFeed/DeletePostConfirm
 import ImageLightbox from '../../components/PostFeed/ImageLightbox';
 import StoryUploadModal from "../../components/Stories/StoryUploadModal";
 import StoryViewerModal from "../../components/Stories/StoryViewerModal";
+import '../../components/PostFeed/PostFeedBody.scss';
+import '../../components/PostFeed/RepostUi.scss';
 import '../Users/Profile/ProfileHome/ProfileHome.scss';
 import './FirstPageView.scss';
 
@@ -143,11 +144,32 @@ export default function FirstPageView({
     setIsStoryViewerOpen(true);
   };
 
-  const closeStoryViewer = () => {
+  const closeStoryViewer = useCallback(() => {
     setIsStoryViewerOpen(false);
-  };
+  }, []);
 
-  const markStoryViewedLocally = (storyId) => {
+  const handleDeleteStory = useCallback(async (storyId) => {
+    try {
+      await storiesApi.deleteStory(storyId);
+
+      setStoriesGroups((prev) =>
+        prev
+          .map((group) => ({
+            ...group,
+            stories: (group.stories || []).filter(
+              (story) => String(story.id) !== String(storyId)
+            ),
+          }))
+          .filter((group) => group.stories.length > 0)
+      );
+
+      closeStoryViewer();
+    } catch (error) {
+      console.error("Delete story failed", error);
+    }
+  }, [setStoriesGroups, closeStoryViewer]);
+
+  const markStoryViewedLocally = useCallback((storyId) => {
     setStoriesGroups((prev) =>
       prev.map((group) => ({
         ...group,
@@ -160,7 +182,25 @@ export default function FirstPageView({
           : [],
       }))
     );
-  };
+  }, [setStoriesGroups]);
+
+  const markStoryReactionLocally = useCallback((storyId, reactionType) => {
+    setStoriesGroups((prev) =>
+      prev.map((group) => ({
+        ...group,
+        stories: Array.isArray(group?.stories)
+          ? group.stories.map((story) =>
+            String(story?.id) === String(storyId)
+              ? {
+                ...story,
+                myReaction: reactionType,
+              }
+              : story
+          )
+          : [],
+      }))
+    );
+  }, [setStoriesGroups]);
 
   const [feedPosts, setFeedPosts] = useState([]);
   const [feedLoading, setFeedLoading] = useState(true);
@@ -340,7 +380,7 @@ export default function FirstPageView({
 
         {/* FEED */}
         <main className="flex-1">
-          <div className="max-w-[1340px] mx-auto my-[10px] md:my-5 xl:my-[46px] px-7 md:px-[41px] lg:px-9 min-[1440px]:px-[66px] space-y-[10px] md:space-y-5">
+          <div className="feed max-w-[1340px] mx-auto my-[10px] md:my-5 xl:my-[46px] px-3.5 md:px-[41px] lg:px-9 min-[1440px]:px-[66px]">
             {feedLoading && (
               <p className="text-center text-sm md:text-base font-[Montserrat] text-gray-600 py-6">
                 {t('feed.loading')}
@@ -397,6 +437,8 @@ export default function FirstPageView({
           currentUserId={currentUserId}
           onClose={closeStoryViewer}
           onViewed={markStoryViewedLocally}
+          onDeleteStory={handleDeleteStory}
+          onReactionChange={markStoryReactionLocally}
         />
 
         <SharePostModal
@@ -506,7 +548,7 @@ function GlobalFeedPostCard({
   const menuPerms = resolvePostMenuPermissions(post, currentUserId);
 
   return (
-    <article className="first-page-post px-1.5 pt-1.5 pb-[11px] md:p-2.5 xl:!mb-[29px] my-4 space-y-3 relative overflow-visible">
+    <article className="first-page-post postCard relative overflow-visible xl:!mb-[29px]">
       <PostCardHeader
         avatarSrc={avatarSrc}
         onAvatarClick={handleOpenProfile}

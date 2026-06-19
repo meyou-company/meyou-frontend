@@ -52,6 +52,9 @@ export const useNotificationsStore = create((set, get) => ({
 
   addNotification: (notification, options = {}) =>
     set((state) => {
+      if (notification?.rawType === 'MESSAGE' || notification?.type === 'message') {
+        return state;
+      }
       const skipUnreadBump = options.skipUnreadBump === true;
       const exists = state.items.some((item) => item.id === notification.id);
       if (exists) {

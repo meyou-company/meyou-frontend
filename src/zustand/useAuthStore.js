@@ -101,7 +101,7 @@ export const useAuthStore = create((set) => ({
 
       try {
         try {
-          const user = await authApi.me();
+          const user = await loadMeWithRetry(2, 250);
           const token = await ensureAccessTokenInStore(
             set,
             user,
@@ -133,12 +133,15 @@ export const useAuthStore = create((set) => ({
         }
         markInitDone();
       } catch (err) {
+        const status = err?.response?.status;
         console.log(
           '[init] session restore failed:',
-          err?.response?.status,
+          status,
           err?.response?.data ?? err?.message,
         );
-        clearAuthSession(set);
+        if (status === 401 || status === 403) {
+          clearAuthSession(set);
+        }
       } finally {
         set({ isAuthLoading: false });
         initInFlight = null;

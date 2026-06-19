@@ -1,0 +1,336 @@
+.msgComposer {
+  position: relative;
+  z-index: 3;
+  flex-shrink: 0;
+  padding: clamp(14px, 3.5vw, 16px) clamp(16px, 4vw, 22px) clamp(18px, 4vw, 22px);
+  background: transparent;
+}
+
+.msgComposer__replyPreview {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-bottom: 10px;
+  padding: 8px 12px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.55);
+  border-left: 3px solid #b78cff;
+}
+
+.msgComposer__replyMeta {
+  flex: 1;
+  min-width: 0;
+}
+
+.msgComposer__replyLabel {
+  display: block;
+  font-size: 11px;
+  font-weight: 600;
+  color: rgba(0, 0, 0, 0.55);
+}
+
+.msgComposer__replyText {
+  margin: 2px 0 0;
+  font-size: 12px;
+  color: rgba(0, 0, 0, 0.55);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.msgComposer__replyCancel {
+  border: none;
+  background: transparent;
+  font-size: 20px;
+  line-height: 1;
+  color: rgba(0, 0, 0, 0.45);
+  cursor: pointer;
+}
+
+.msgComposer__row {
+  display: flex;
+  align-items: center;
+  gap: clamp(10px, 2.5vw, 16px);
+}
+
+.msgComposer__inputWrap {
+  position: relative;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+  height: clamp(48px, 12vw, 52px);
+  padding: 4px 6px 4px clamp(16px, 4vw, 22px);
+  border-radius: 999px;
+  background: #ffffff;
+  border: 1px solid rgba(183, 140, 255, 0.12);
+  box-shadow: 0 2px 12px rgba(120, 80, 180, 0.08);
+  overflow: visible;
+}
+
+.msgComposer__inputActions {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  flex-shrink: 0;
+}
+
+.msgComposer__emojiBtn.emoji-picker-btn--inline .emoji-picker-btn__trigger {
+  width: clamp(30px, 8vw, 34px);
+  height: clamp(30px, 8vw, 34px);
+}
+
+.msgComposer__inputWrap .emojiPickerPopup,
+.msgComposer__inputWrap .emoji-picker-btn__popover--inputWrapper {
+  position: absolute;
+  right: 8px;
+  bottom: calc(100% + 8px);
+  left: auto;
+  top: auto;
+  z-index: 10000;
+  width: min(300px, calc(100vw - 24px));
+  max-width: calc(100vw - 24px);
+  transform: none;
+}
+
+.msgComposer__input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  background: transparent;
+  font: inherit;
+  font-size: 15px;
+  padding: 8px 0;
+  outline: none;
+  color: #000;
+
+  &::placeholder {
+    color: rgba(0, 0, 0, 0.4);
+  }
+}
+
+.msgComposer__send {
+  flex-shrink: 0;
+  width: clamp(36px, 9vw, 40px);
+  height: clamp(36px, 9vw, 40px);
+  border: none;
+  border-radius: 50%;
+  background: #b78cff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 2px 10px rgba(120, 80, 180, 0.25);
+  transition: transform 0.12s ease, opacity 0.12s ease;
+
+  img {
+    width: 17px;
+    height: 17px;
+    filter: brightness(0) invert(1);
+  }
+
+  &:hover:not(:disabled) {
+    transform: scale(1.04);
+  }
+
+  &:disabled {
+    opacity: 0.45;
+    cursor: default;
+  }
+}
+
+.msgComposer__actions {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+.msgComposer__actionBtn {
+  width: auto;
+  height: auto;
+  min-width: 36px;
+  min-height: 36px;
+  padding: 2px;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  color: #3f2d66;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: none;
+  position: relative;
+  z-index: 1;
+
+  img {
+    width: clamp(22px, 6vw, 26px);
+    height: clamp(22px, 6vw, 26px);
+    object-fit: contain;
+    pointer-events: none;
+  }
+
+  svg {
+    width: clamp(22px, 6vw, 26px);
+    height: clamp(22px, 6vw, 26px);
+    pointer-events: none;
+  }
+
+  &:hover:not(:disabled) {
+    opacity: 0.7;
+  }
+
+  &:disabled {
+    opacity: 0.45;
+    cursor: default;
+  }
+}
+
+.msgComposer__fileInputs {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.msgComposer__fileInput {
+  position: fixed;
+  left: -9999px;
+  top: 0;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+}
+
+@media (max-width: 900px) {
+  .msgComposer {
+    --msg-composer-action-size: 32px;
+    --msg-composer-action-gap: 4px;
+
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
+  .msgComposer__row {
+    align-items: center;
+    gap: 8px;
+  }
+
+  .msgComposer__inputWrap {
+    flex: 1 1 auto;
+    min-width: 0;
+    padding-left: 14px;
+    padding-right: 4px;
+  }
+
+  .msgComposer__actions {
+    flex: 0 0 auto;
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: var(--msg-composer-action-gap);
+    width: calc(
+      var(--msg-composer-action-size) * 2.5 + var(--msg-composer-action-gap) * 2
+    );
+    max-width: calc(
+      var(--msg-composer-action-size) * 2.5 + var(--msg-composer-action-gap) * 2
+    );
+    overflow-x: auto;
+    overflow-y: hidden;
+    overscroll-behavior-x: contain;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    padding: 2px 0;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
+
+  .msgComposer__actionBtn {
+    flex: 0 0 var(--msg-composer-action-size);
+    width: var(--msg-composer-action-size);
+    min-width: var(--msg-composer-action-size);
+    min-height: var(--msg-composer-action-size);
+    padding: 0;
+
+    img,
+    svg {
+      width: 20px;
+      height: 20px;
+    }
+  }
+}
+
+.msgComposer__actionBtn.is-recording {
+  color: #ff4db8;
+  animation: msgComposerPulse 1s infinite;
+}
+
+.msgComposer__uploadHint {
+  margin: 6px 0 0;
+  font-size: 12px;
+  color: rgba(0, 0, 0, 0.55);
+}
+
+@keyframes msgComposerPulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.45;
+  }
+}
+
+body.dark,
+html[data-theme='dark'] {
+  .msgComposer__replyPreview {
+    background: rgba(255, 255, 255, 0.08);
+    border-left-color: #b78cff;
+  }
+
+  .msgComposer__replyLabel,
+  .msgComposer__replyText {
+    color: rgba(255, 255, 255, 0.62);
+  }
+
+  .msgComposer__replyCancel {
+    color: rgba(255, 255, 255, 0.55);
+  }
+
+  .msgComposer__inputWrap {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.12);
+    box-shadow: none;
+  }
+
+  .msgComposer__input {
+    color: #fff;
+
+    &::placeholder {
+      color: rgba(255, 255, 255, 0.45);
+    }
+  }
+
+  .msgComposer__actionBtn {
+    color: rgba(255, 255, 255, 0.85);
+
+    img {
+      filter: brightness(0) invert(1);
+      opacity: 0.9;
+    }
+  }
+
+  .msgComposer__uploadHint {
+    color: rgba(255, 255, 255, 0.55);
+  }
+}

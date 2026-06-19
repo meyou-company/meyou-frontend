@@ -1,0 +1,106 @@
+.msgSearchPanel {
+  padding: 10px 12px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  background: rgba(255, 255, 255, 0.45);
+}
+
+.msgSearchPanel__row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.msgSearchPanel__input {
+  flex: 1;
+  border: 1px solid #c2b8b8;
+  border-radius: 14px;
+  padding: 8px 12px;
+  font: inherit;
+  background: rgba(255, 255, 255, 0.85);
+}
+
+.msgSearchPanel__close {
+  border: none;
+  background: transparent;
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+  color: rgba(0, 0, 0, 0.55);
+}
+
+.msgSearchPanel__hint {
+  margin: 8px 0 0;
+  font-size: 12px;
+  color: rgba(0, 0, 0, 0.55);
+}
+
+.msgSearchPanel__hint--error {
+  color: #c0392b;
+}
+
+.msgSearchPanel__list {
+  list-style: none;
+  margin: 8px 0 0;
+  padding: 0;
+  max-height: 180px;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.msgSearchPanel__item {
+  width: 100%;
+  border: none;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.75);
+  padding: 8px 10px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.msgSearchPanel__text {
+  display: block;
+  font-size: 13px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.msgSearchPanel__time {
+  display: block;
+  margin-top: 2px;
+  font-size: 11px;
+  color: rgba(0, 0, 0, 0.45);
+}
+
+body.dark,
+html[data-theme='dark'] {
+  .msgSearchPanel {
+    background: rgba(255, 255, 255, 0.06);
+    border-bottom-color: rgba(255, 255, 255, 0.08);
+  }
+
+  .msgSearchPanel__input {
+    border-color: rgba(255, 255, 255, 0.15);
+    background: rgba(255, 255, 255, 0.08);
+    color: #fff;
+  }
+
+  .msgSearchPanel__close {
+    color: rgba(255, 255, 255, 0.55);
+  }
+
+  .msgSearchPanel__hint {
+    color: rgba(255, 255, 255, 0.55);
+  }
+
+  .msgSearchPanel__item {
+    background: rgba(255, 255, 255, 0.08);
+    color: #fff;
+  }
+
+  .msgSearchPanel__time {
+    color: rgba(255, 255, 255, 0.45);
+  }
+}

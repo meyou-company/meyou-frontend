@@ -63,7 +63,7 @@ export default function AppHeader({
             <img src={profileIcons.chat} alt="" aria-hidden="true" />
           </button>
 
-          <ThemeToggleDark className="themeBtn app-header-theme-toggle" />
+          <ThemeToggleDark className="app-header-theme-toggle hidden md:inline-flex" />
 
           <button
             type="button"

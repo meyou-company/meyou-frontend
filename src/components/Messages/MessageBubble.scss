@@ -1,0 +1,425 @@
+.msgBubbleRow {
+  position: relative;
+  display: flex;
+  max-width: min(76%, 420px);
+}
+
+.msgBubbleRow.is-mine {
+  align-self: flex-end;
+  justify-content: flex-end;
+}
+
+.msgBubbleRow.is-theirs {
+  align-self: flex-start;
+  align-items: flex-end;
+  gap: 10px;
+  max-width: min(80%, 460px);
+}
+
+.msgBubbleRow__avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  overflow: hidden;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #d4b8ff, #b78cff);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+.msgBubbleRow__content {
+  position: relative;
+  min-width: 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.msgBubbleRow.is-mine .msgBubbleRow__content {
+  align-items: flex-end;
+}
+
+.msgBubbleRow__hoverZone {
+  position: relative;
+  width: 100%;
+}
+
+.msgBubbleRow__hoverZone.can-react {
+  padding-top: 40px;
+  margin-top: -40px;
+}
+
+.msgBubbleRow__reactions {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 3;
+  padding-bottom: 12px;
+  margin-bottom: -8px;
+}
+
+.msgBubble {
+  position: relative;
+  width: 100%;
+  padding: 12px 16px 10px;
+  border-radius: 18px;
+  cursor: pointer;
+}
+
+.msgBubble--theirs {
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: none;
+  border: none;
+  color: #000;
+}
+
+.msgBubble--mine {
+  background: #b78cff;
+  box-shadow: none;
+  color: #fff;
+}
+
+.msgBubble__reply {
+  margin-bottom: 8px;
+  padding: 8px 10px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.22);
+  border-left: 3px solid rgba(255, 255, 255, 0.55);
+}
+
+.msgBubble--theirs .msgBubble__reply {
+  background: rgba(183, 140, 255, 0.1);
+  border-left-color: #b78cff;
+}
+
+.msgBubble__replyLabel {
+  display: block;
+  font-size: 11px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.9);
+  margin-bottom: 2px;
+}
+
+.msgBubble--theirs .msgBubble__replyLabel {
+  color: rgba(0, 0, 0, 0.55);
+}
+
+.msgBubble__replyQuote {
+  margin: 0;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.85);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.msgBubble--theirs .msgBubble__replyQuote {
+  color: rgba(0, 0, 0, 0.55);
+}
+
+.msgBubble__text {
+  margin: 0;
+  font-size: clamp(12px, 3.4vw, 14px);
+  line-height: 1.45;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.msgBubble__emoji {
+  font-size: 1.65em;
+  line-height: 1.1;
+  vertical-align: -0.08em;
+}
+
+.msgBubble__text--emojiOnly {
+  font-size: clamp(1.65rem, 7.5vw, 2.25rem);
+  line-height: 1.2;
+  letter-spacing: 0.02em;
+}
+
+.msgBubble__footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 5px;
+  margin-top: 6px;
+}
+
+.msgBubble__time {
+  font-size: 11px;
+  color: rgba(0, 0, 0, 0.45);
+}
+
+.msgBubble--mine .msgBubble__time {
+  color: rgba(255, 255, 255, 0.88);
+}
+
+.msgBubble__checks {
+  font-size: 12px;
+  line-height: 1;
+  color: rgba(255, 255, 255, 0.8);
+  letter-spacing: -2px;
+}
+
+.msgBubble__checks.is-read {
+  color: #fff;
+}
+
+.msgBubbleRow.is-highlight .msgBubble {
+  outline: 2px solid #ff4db8;
+  outline-offset: 2px;
+}
+
+.msgBubble__text--deleted {
+  font-style: italic;
+  opacity: 0.75;
+}
+
+.msgBubble__forwarded {
+  display: block;
+  font-size: 11px;
+  font-weight: 600;
+  opacity: 0.75;
+  margin-bottom: 4px;
+}
+
+.msgBubble__storyPreview {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  margin-bottom: 8px;
+  padding: 8px 10px 8px 8px;
+  border: 1px solid rgba(255, 255, 255, 0.26);
+  border-radius: 14px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.24), rgba(255, 255, 255, 0.12));
+  color: inherit;
+  font: inherit;
+  text-align: left;
+}
+
+.msgBubble--theirs .msgBubble__storyPreview {
+  border-color: rgba(183, 140, 255, 0.18);
+  background: linear-gradient(135deg, rgba(183, 140, 255, 0.14), rgba(255, 255, 255, 0.74));
+}
+
+.msgBubble__storyPreview--button {
+  width: 100%;
+  cursor: pointer;
+  transition:
+    transform 0.16s ease,
+    box-shadow 0.16s ease,
+    background 0.16s ease;
+}
+
+.msgBubble__storyPreview--button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.12);
+}
+
+.msgBubble__storyPreview--unavailable {
+  cursor: default;
+  opacity: 0.86;
+}
+
+.msgBubble__storyThumb {
+  position: relative;
+  width: 50px;
+  height: 66px;
+  flex-shrink: 0;
+  overflow: hidden;
+  padding: 2px;
+  border-radius: 13px;
+  background: linear-gradient(160deg, #ff4fb1 0%, #ffb347 48%, #7b61ff 100%);
+  box-shadow: 0 4px 12px rgba(87, 48, 144, 0.22);
+}
+
+.msgBubble__storyThumb--unavailable {
+  background: rgba(255, 255, 255, 0.28);
+  box-shadow: none;
+}
+
+.msgBubble__storyThumbPlaceholder {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: block;
+  overflow: hidden;
+  border-radius: 10px;
+  background: rgba(0, 0, 0, 0.14);
+}
+
+.msgBubble__storyThumb img,
+.msgBubble__storyThumb video {
+  width: 100%;
+  height: 100%;
+  display: block;
+  border-radius: 10px;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.24), rgba(255, 255, 255, 0.08)),
+    rgba(0, 0, 0, 0.18);
+  object-fit: cover;
+}
+
+.msgBubble--theirs .msgBubble__storyThumbPlaceholder {
+  background:
+    linear-gradient(135deg, rgba(183, 140, 255, 0.22), rgba(183, 140, 255, 0.08)),
+    rgba(0, 0, 0, 0.06);
+}
+
+.msgBubble__storyVideoMark {
+  position: absolute;
+  inset: 50% auto auto 50%;
+  transform: translate(-42%, -50%);
+  width: 0;
+  height: 0;
+  border-top: 6px solid transparent;
+  border-bottom: 6px solid transparent;
+  border-left: 9px solid #fff;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.35));
+}
+
+.msgBubble__storyMeta {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.msgBubble__storyLabel {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.msgBubble--theirs .msgBubble__storyLabel {
+  color: #8a5ee5;
+}
+
+.msgBubble__storyAuthor,
+.msgBubble__storyText,
+.msgBubble__storyUnavailable {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.msgBubble__storyAuthor {
+  font-size: 13px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.96);
+}
+
+.msgBubble--theirs .msgBubble__storyAuthor {
+  color: rgba(0, 0, 0, 0.78);
+}
+
+.msgBubble__storyText,
+.msgBubble__storyUnavailable {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.82);
+}
+
+.msgBubble__storyUnavailable {
+  font-style: italic;
+}
+
+.msgBubble--theirs .msgBubble__storyText,
+.msgBubble--theirs .msgBubble__storyUnavailable {
+  color: rgba(0, 0, 0, 0.56);
+}
+
+.msgBubble__edited {
+  font-size: 10px;
+  opacity: 0.7;
+}
+
+.msgBubble__reactions {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-right: auto;
+}
+
+.msgBubble__reactionChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  font-size: 13px;
+  line-height: 1;
+  padding: 2px 6px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.25);
+}
+
+.msgBubble--theirs .msgBubble__reactionChip {
+  background: rgba(183, 140, 255, 0.15);
+}
+
+.msgBubble__reactionCount {
+  font-size: 10px;
+  font-weight: 600;
+}
+
+body.dark,
+html[data-theme='dark'] {
+  .msgBubble--theirs {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: #f0f0f0;
+  }
+
+  .msgBubble--theirs .msgBubble__reply {
+    background: rgba(255, 255, 255, 0.08);
+    border-left-color: #b78cff;
+  }
+
+  .msgBubble--theirs .msgBubble__replyLabel,
+  .msgBubble--theirs .msgBubble__replyQuote {
+    color: rgba(255, 255, 255, 0.62);
+  }
+
+  .msgBubble--theirs .msgBubble__time {
+    color: rgba(255, 255, 255, 0.55);
+  }
+
+  .msgBubble--theirs .msgBubble__reactionChip {
+    background: rgba(255, 255, 255, 0.12);
+  }
+
+  .msgBubble--theirs .msgBubble__storyPreview {
+    border-color: rgba(255, 255, 255, 0.1);
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+  }
+
+  .msgBubble--theirs .msgBubble__storyLabel {
+    color: rgba(214, 190, 255, 0.92);
+  }
+
+  .msgBubble--theirs .msgBubble__storyAuthor {
+    color: rgba(255, 255, 255, 0.8);
+  }
+
+  .msgBubble--theirs .msgBubble__storyText,
+  .msgBubble--theirs .msgBubble__storyUnavailable {
+    color: rgba(255, 255, 255, 0.62);
+  }
+
+  .msgBubble__edited {
+    color: rgba(255, 255, 255, 0.55);
+  }
+}

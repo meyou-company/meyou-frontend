@@ -93,10 +93,10 @@ function appendFormFields(formData, fields) {
   });
 }
 
-export async function uploadStoryMedia(file) {
+export async function uploadStoryMedia(file, { durationSec } = {}) {
   validateStoryFile(file);
 
-  const presign = await storiesApi.getPresignedUrl(file);
+  const presign = await storiesApi.getPresignedUrl(file, { durationSec });
   const uploadUrl = extractUploadUrl(presign);
   const uploadFields = extractUploadFields(presign);
 

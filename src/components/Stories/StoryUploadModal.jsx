@@ -4,15 +4,67 @@ import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "../../zustand/useAuthStore";
 import { storiesApi } from "../../services/storiesApi";
 import { uploadStoryMedia } from "../../services/storyMediaUploadApi";
+import { getApiErrorMessage } from "../../utils/getApiErrorMessage";
 import AppHeader from "../Layout/AppHeader";
 import profileIcons from "../../constants/profileIcons";
 import "./StoryUploadModal.scss";
+
+const STORY_VISIBILITY_OPTIONS = [
+  { value: "FOLLOWERS", label: "Подписчики" },
+  { value: "FRIENDS", label: "Друзья" },
+  // { value: "CLOSE_FRIENDS", label: "Близкие друзья" },
+  { value: "PUBLIC", label: "Все" },
+  { value: "ONLY_ME", label: "Только я" },
+];
+
+const STORY_PUBLISH_PHASE = {
+  UPLOADING: "uploading",
+  PROCESSING: "processing",
+};
+
+function getPublishPhaseLabel(phase, isVideo) {
+  if (phase === STORY_PUBLISH_PHASE.UPLOADING) {
+    return isVideo
+      ? "Завантаження відео..."
+      : "Завантаження фото...";
+  }
+
+  if (phase === STORY_PUBLISH_PHASE.PROCESSING) {
+    return isVideo
+      ? "Відео обробляється..."
+      : "Публікація...";
+  }
+
+  return "";
+}
+
+function getStoryCreateErrorMessage(error) {
+  const raw = getApiErrorMessage(error) || error?.message || "";
+  const normalized = raw.toLowerCase();
+
+  if (normalized.includes("50") || normalized.includes("24 hours") || error?.response?.status === 429) {
+    return "Вы достигли лимита: максимум 50 stories за 24 часа.";
+  }
+
+  if (normalized.includes("100 active") || normalized.includes("active stories")) {
+    return "Вы достигли лимита: максимум 100 активных stories одновременно.";
+  }
+
+  if (normalized.includes("60 seconds") || normalized.includes("60 секунд")) {
+    return "Видео для story должно быть не длиннее 60 секунд.";
+  }
+
+  return raw || "Не удалось опубликовать story";
+}
 
 export default function StoryUploadModal({ isOpen, onClose, onCreated }) {
   const inputRef = useRef(null);
   const [fileItem, setFileItem] = useState(null);
   const [text, setText] = useState("");
   const [isPublishing, setIsPublishing] = useState(false);
+  const [publishPhase, setPublishPhase] = useState(null);
+  const [visibility, setVisibility] = useState("FOLLOWERS");
+  const [isVisibilityOpen, setIsVisibilityOpen] = useState(false);
 
   const navigate = useNavigate();
   const currentUser = useAuthStore((s) => s.user);
@@ -82,6 +134,7 @@ export default function StoryUploadModal({ isOpen, onClose, onCreated }) {
     setFileItem(null);
     setText("");
     setIsPublishing(false);
+    setPublishPhase(null);
   };
 
   const handleClose = () => {
@@ -146,12 +199,34 @@ export default function StoryUploadModal({ isOpen, onClose, onCreated }) {
       return;
     }
 
-    setFileItem({
-      file,
-      type: "video",
-      previewUrl,
-      orientation: "unknown",
-    });
+    const video = document.createElement("video");
+
+    video.preload = "metadata";
+
+    video.onloadedmetadata = () => {
+
+      const durationSec = Math.max(1, Math.ceil(video.duration || 0));
+
+      setFileItem({
+        file,
+        type: "video",
+        previewUrl,
+        orientation: "unknown",
+        durationSec,
+      });
+    };
+
+    video.onerror = () => {
+      setFileItem({
+        file,
+        type: "video",
+        previewUrl,
+        orientation: "unknown",
+        durationSec: 1,
+      });
+    };
+
+    video.src = previewUrl;
   };
 
   const handlePublish = async () => {
@@ -160,15 +235,30 @@ export default function StoryUploadModal({ isOpen, onClose, onCreated }) {
       return;
     }
 
+    if (fileItem.type === "video" && !fileItem.durationSec) {
+      toast.error("Не удалось определить длительность видео");
+      return;
+    }
+
     try {
       setIsPublishing(true);
+      const isVideo = fileItem.type === "video";
 
-      const uploaded = await uploadStoryMedia(fileItem.file);
+      setPublishPhase(STORY_PUBLISH_PHASE.UPLOADING);
+      const uploaded = await uploadStoryMedia(fileItem.file, {
+        durationSec: isVideo ? fileItem.durationSec : undefined,
+      });
 
+      setPublishPhase(STORY_PUBLISH_PHASE.PROCESSING);
       const created = await storiesApi.create({
         mediaUrl: uploaded.mediaUrl,
         mediaType: uploaded.mediaType,
         text: text.trim(),
+        visibility,
+        durationSec:
+          fileItem.type === "video"
+            ? Math.max(1, fileItem.durationSec)
+            : undefined,
       });
 
       toast.success("Story опубліковано");
@@ -176,8 +266,9 @@ export default function StoryUploadModal({ isOpen, onClose, onCreated }) {
       handleClose();
     } catch (e) {
       console.error("[story-upload] failed", e);
-      toast.error(e?.message || "Не вдалося опублікувати story");
+      toast.error(getStoryCreateErrorMessage(e));
       setIsPublishing(false);
+      setPublishPhase(null);
     }
   };
 
@@ -198,6 +289,25 @@ export default function StoryUploadModal({ isOpen, onClose, onCreated }) {
 
       <div className="storyUploadModal__page">
         <div className="storyUploadModal__bgDots" aria-hidden="true" />
+
+        {publishPhase && (
+          <div
+            className="storyUploadModal__publishOverlay"
+            role="status"
+            aria-live="polite"
+            aria-busy="true"
+          >
+            <div className="storyUploadModal__publishSpinner" aria-hidden="true" />
+            <p className="storyUploadModal__publishText">
+              {getPublishPhaseLabel(publishPhase, fileItem?.type === "video")}
+            </p>
+            {fileItem?.type === "video" && fileItem.durationSec > 60 && (
+              <p className="storyUploadModal__publishHint">
+                Довгі відео автоматично обрізаються до 60 секунд
+              </p>
+            )}
+          </div>
+        )}
 
         <div
           className={`storyUploadModal__content ${fileItem ? "storyUploadModal__content--editor" : ""
@@ -388,12 +498,44 @@ export default function StoryUploadModal({ isOpen, onClose, onCreated }) {
                   <span>Ваша история</span>
                 </button>
 
-                <button type="button" className="storyUploadModal__audienceBtn" onClick={handlePublish}
-                  disabled={isPublishing}>
-                  <span className="storyUploadModal__closeFriendsIcon">
-                    <img src={profileIcons.storyCloseFriends} alt="" /></span>
-                  <span>Близкие</span>
-                </button>
+                <div className="storyUploadModal__visibilityWrap">
+                  <button
+                    type="button"
+                    className="storyUploadModal__audienceBtn"
+                    onClick={() => setIsVisibilityOpen((prev) => !prev)}
+                    disabled={isPublishing}
+                  >
+                    <span className="storyUploadModal__closeFriendsIcon">
+                      <img src={profileIcons.storyVisibility || profileIcons.storyCloseFriends} alt="" />
+                    </span>
+                    <span>Видимость</span>
+                  </button>
+
+                  {isVisibilityOpen && (
+                    <div className="storyUploadModal__visibilityMenu">
+                      <p className="storyUploadModal__visibilityTitle">
+                        👁️ Кто может видеть эту сторис:
+                      </p>
+
+                      {STORY_VISIBILITY_OPTIONS.map((option) => (
+                        <button
+                          key={option.value}
+                          type="button"
+                          className="storyUploadModal__visibilityOption"
+                          onClick={() => {
+                            setVisibility(option.value);
+                            setIsVisibilityOpen(false);
+                          }}
+                        >
+                          <span className="storyUploadModal__visibilityRadio">
+                            {visibility === option.value ? "✓" : ""}
+                          </span>
+                          <span>{option.label}</span>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
 
                 <button
                   type="button"

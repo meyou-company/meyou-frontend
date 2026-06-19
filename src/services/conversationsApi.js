@@ -1,4 +1,4 @@
-import { api, apiPath } from "./api";
+import { api, apiPath } from './api';
 
 function extractList(payload) {
   if (!payload) return [];
@@ -10,12 +10,12 @@ function extractList(payload) {
 
 export const conversationsApi = {
   async getUnreadCount() {
-    const { data } = await api.get(apiPath("/conversations/unread-count"));
+    const { data } = await api.get(apiPath('/conversations/unread-count'));
     return data;
   },
 
   async list() {
-    const { data } = await api.get(apiPath("/conversations"));
+    const { data } = await api.get(apiPath('/conversations'));
     return extractList(data);
   },
 
@@ -26,8 +26,16 @@ export const conversationsApi = {
     return data;
   },
 
+  async muteConversation(conversationId, mutedUntil = null) {
+    const { data } = await api.patch(
+      apiPath(`/conversations/${encodeURIComponent(conversationId)}/mute`),
+      { mutedUntil },
+    );
+    return data;
+  },
+
   async create(participantId) {
-    const { data } = await api.post(apiPath("/conversations"), { participantId });
+    const { data } = await api.post(apiPath('/conversations'), { participantId });
     return data;
   },
 
@@ -46,10 +54,28 @@ export const conversationsApi = {
     };
   },
 
-  async sendMessage(conversationId, text) {
+  async searchMessages(conversationId, { q, page = 1, limit = 30 } = {}) {
+    const { data } = await api.get(
+      apiPath(`/conversations/${encodeURIComponent(conversationId)}/messages/search`),
+      { params: { q, page, limit } },
+    );
+    return {
+      items: extractList(data),
+      page: data?.page ?? page,
+      limit: data?.limit ?? limit,
+      total: data?.total ?? extractList(data).length,
+      q: data?.q ?? q,
+    };
+  },
+
+  async sendMessage(conversationId, payload) {
+    const body =
+      typeof payload === 'string'
+        ? { text: payload }
+        : payload;
     const { data } = await api.post(
       apiPath(`/conversations/${encodeURIComponent(conversationId)}/messages`),
-      { text },
+      body,
     );
     return data;
   },
@@ -57,6 +83,80 @@ export const conversationsApi = {
   async markRead(messageId) {
     const { data } = await api.patch(
       apiPath(`/messages/${encodeURIComponent(messageId)}/read`),
+    );
+    return data;
+  },
+
+  async editMessage(messageId, text) {
+    const { data } = await api.patch(
+      apiPath(`/messages/${encodeURIComponent(messageId)}`),
+      { text },
+    );
+    return data;
+  },
+
+  async deleteForMe(messageId) {
+    const { data } = await api.delete(
+      apiPath(`/messages/${encodeURIComponent(messageId)}/for-me`),
+    );
+    return data;
+  },
+
+  async deleteForEveryone(messageId) {
+    const { data } = await api.delete(
+      apiPath(`/messages/${encodeURIComponent(messageId)}/for-everyone`),
+    );
+    return data;
+  },
+
+  async forwardMessage(messageId, targetConversationId) {
+    const { data } = await api.post(
+      apiPath(`/messages/${encodeURIComponent(messageId)}/forward`),
+      { targetConversationId },
+    );
+    return data;
+  },
+
+  async addReaction(messageId, reactionType) {
+    const { data } = await api.post(
+      apiPath(`/messages/${encodeURIComponent(messageId)}/reactions`),
+      { reactionType },
+    );
+    return data;
+  },
+
+  async removeReaction(messageId) {
+    const { data } = await api.delete(
+      apiPath(`/messages/${encodeURIComponent(messageId)}/reactions`),
+    );
+    return data;
+  },
+
+  async pinMessage(messageId) {
+    const { data } = await api.post(
+      apiPath(`/messages/${encodeURIComponent(messageId)}/pin`),
+    );
+    return data;
+  },
+
+  async unpinMessage(messageId) {
+    const { data } = await api.delete(
+      apiPath(`/messages/${encodeURIComponent(messageId)}/pin`),
+    );
+    return data;
+  },
+
+  async translateMessage(messageId) {
+    const { data } = await api.post(
+      apiPath(`/messages/${encodeURIComponent(messageId)}/translate`),
+    );
+    return data;
+  },
+
+  async reportMessage(messageId, reason) {
+    const { data } = await api.post(
+      apiPath(`/messages/${encodeURIComponent(messageId)}/report`),
+      { reason },
     );
     return data;
   },

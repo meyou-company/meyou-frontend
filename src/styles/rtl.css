@@ -110,6 +110,18 @@ html.locale-ar .langSettings__list button {
   text-align: start;
 }
 
+html.locale-ar .msgComposer,
+html.locale-ar .msgContextMenu,
+html.locale-ar .messagesPage__search {
+  direction: rtl;
+  text-align: start;
+}
+
+html.locale-ar .msgComposer__input,
+html.locale-ar .messagesPage__search {
+  text-align: start;
+}
+
 /* Profile header: bar stays LTR; search text flows RTL */
 html.locale-ar .profile-header .topRow,
 html.locale-ar .profile-header .searchForm {

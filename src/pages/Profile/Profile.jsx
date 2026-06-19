@@ -25,6 +25,7 @@ const normalizeProfile = (u) => {
   const friendsCount = getFriendsCountNumber(rawFriendsCount);
 
   return {
+    ...u,
     id: u.id ?? u._id,
     firstName: u.firstName || "",
     lastName: u.lastName || "",
@@ -34,6 +35,40 @@ const normalizeProfile = (u) => {
     city: u.city || "",
     country: u.country || "",
     bio: u.bio,
+    about: u.about,
+    gender: u.gender ?? u.profile?.gender ?? u.personalInfo?.gender,
+    maritalStatus:
+      u.maritalStatus ??
+      u.relationshipStatus ??
+      u.profile?.maritalStatus ??
+      u.profile?.relationshipStatus ??
+      u.personalInfo?.maritalStatus,
+    relationshipStatus:
+      u.relationshipStatus ??
+      u.maritalStatus ??
+      u.profile?.relationshipStatus ??
+      u.profile?.maritalStatus,
+    nationality:
+      u.nationality ??
+      u.profile?.nationality ??
+      u.personalInfo?.nationality,
+    profession:
+      u.profession ??
+      u.job ??
+      u.profile?.profession ??
+      u.personalInfo?.profession,
+    job: u.job ?? u.profession,
+    languages:
+      u.languages ??
+      u.profile?.languages ??
+      u.personalInfo?.languages,
+    telegram: u.telegram ?? u.profile?.telegram,
+    instagram: u.instagram ?? u.profile?.instagram,
+    profileVisibility:
+      u.profileVisibility ??
+      u.visibility ??
+      u.profile?.profileVisibility ??
+      u.profile?.visibility,
     isVerified: u.isVerified,
     /** Інтереси та хобі з бекенду (зберігаються в DTO update-profile) */
     interests: Array.isArray(u.interests) ? u.interests : [],
@@ -41,12 +76,14 @@ const normalizeProfile = (u) => {
     friends: friendsArray,
     /** Загальна кількість друзів (підписники + підписки) з API */
     friendsCount,
+    postsCount: u.postsCount ?? u.stats?.postsCount,
+    giftsCount: u.giftsCount ?? u.stats?.giftsCount,
     viewType: u.viewType,
     subscriptionStatus: u.subscriptionStatus
       ? {
-          isSubscribed: u.subscriptionStatus.isSubscribed === true,
-          isBlocked: u.subscriptionStatus.isBlocked === true,
-        }
+        isSubscribed: u.subscriptionStatus.isSubscribed === true,
+        isBlocked: u.subscriptionStatus.isBlocked === true,
+      }
       : undefined,
   };
 };
@@ -159,7 +196,7 @@ export default function Profile() {
         usersApi
           .getUserFriends(urlUsernameNorm)
           .then((res) => mergeFriendsList(normalizeFriendsApiResponse(res)))
-          .catch(() => {}),
+          .catch(() => { }),
       );
 
     return () => {
@@ -209,7 +246,7 @@ export default function Profile() {
           const data = res?.data ?? res;
           const items = data?.items ?? [];
           setFollowingList(Array.isArray(items) ? items : []);
-        }).catch(() => {});
+        }).catch(() => { });
       }
     } catch (e) {
       console.error(e);
@@ -266,9 +303,9 @@ export default function Profile() {
   const onFindFriends = useCallback(() => navigate("/search"), [navigate]);
   const onAddToVip = useCallback(() => navigate("/friends"), [navigate]);
   const onMyGifts = useCallback(() => navigate("/my-gifts"), [navigate]);
-  const onGifts = useCallback(() => {}, []);
-  const onReport = useCallback(() => {}, []);
-  const onBlock = useCallback(() => {}, []);
+  const onGifts = useCallback(() => { }, []);
+  const onReport = useCallback(() => { }, []);
+  const onBlock = useCallback(() => { }, []);
 
   const loadingOwn = !urlUsername && !user;
   const loadingPublic = urlUsername && fetchedUser === null && !fetchError;
@@ -313,8 +350,8 @@ export default function Profile() {
           <div className={styles.loading}>
             {fetchError === "not_found"
               ? t('profile.notFound', {
-                  username: urlUsername ? `: @${urlUsername}` : "",
-                })
+                username: urlUsername ? `: @${urlUsername}` : "",
+              })
               : t('profile.loadError')}
           </div>
         </div>

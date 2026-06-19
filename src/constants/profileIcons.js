@@ -21,6 +21,7 @@ const profileIcons = {
   user: `${HOME}/user1.svg`,
   friends: `${HOME}/user-friends.svg`,
   saved: `${HOME}/saved.svg`,
+  myPhotos: `${HOME}/my-photos.svg`,
   like: `${HOME}/like.svg`,
   comments: `${HOME}/comments.svg`,
   location: `${HOME}/location.svg`,
@@ -140,6 +141,9 @@ const profileIcons = {
   storyReactionWow: '/stories/story-wow.svg',
   storyReactionCry: '/stories/story-cry.svg',
   storyReactionFire: '/stories/story-fire.svg',
+  storyAdd: '/stories/add.svg',
+  storyViews: '/stories/eye.svg',
+  storyAnalytics: '/stories/analytics.svg',
 };
 
 export default profileIcons;

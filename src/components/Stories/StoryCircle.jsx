@@ -49,7 +49,7 @@ export default function StoryCircle({
         </div>
       </div>
 
-      <span className="text-[8px] md:text-xs xl:text-xl font-[Montserrat] text-black underline max-w-[80px] truncate">
+      <span className="storyCircle__text text-[8px] md:text-xs xl:text-xl font-[Montserrat] text-black underline max-w-[80px] truncate">
         {username || "user"}
       </span>
     </button>

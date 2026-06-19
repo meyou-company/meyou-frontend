@@ -32,7 +32,9 @@ export function useNotifications() {
         limit: LIMIT,
       });
 
-      const newItems = res.data ?? [];
+      const newItems = (res.data ?? []).filter(
+        (n) => n.rawType !== 'MESSAGE' && n.type !== 'message',
+      );
       const nextMeta = res.meta ?? { page, total: 0, limit: LIMIT };
 
       setItems((prev) => {
