@@ -1,23 +1,26 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import {
-  LuBan,
-  LuFlag,
-  LuMessageCircle,
   LuRefreshCw,
-  LuUsers,
   LuX,
 } from "react-icons/lu";
 import { storiesApi } from "../../services/storiesApi";
 import { conversationsApi } from "../../services/conversationsApi";
+import { usersApi } from "../../services/usersApi";
+import { subscriptionsApi } from "../../services/subscriptionsApi";
 import { storyReactions } from "../../constants/storyReactions";
 import profileIcons from "../../constants/profileIcons";
+import {
+  extractFollowingFromResponse,
+  extractUsersFromSearchResponse,
+  recipientDisplayName,
+} from "../../utils/shareRecipients";
 import AppHeader from "../Layout/AppHeader";
 import "./StoryViewerModal.scss";
 import StoryUploadModal from "./StoryUploadModal";
 
-const DEFAULT_DURATION = 500000;
+const DEFAULT_DURATION = 10000;
 const IMAGE_DURATION = 10000;
 const MAX_VIDEO_DURATION = 60000;
 const storyViewsCache = new Map();
@@ -76,11 +79,13 @@ function normalizeStoryViewUser(item) {
   if (!user) return null;
 
   return {
-    id: user.id || user._id,
+    id: user.id || user._id || item?.userId || item?.viewerId,
     username: user.username || user.nick || user.nickname || "",
     firstName: user.firstName,
     lastName: user.lastName,
-    displayName: user.displayName || user.name,
+    displayName:
+      user.displayName ||
+      (user.name && user.name !== user.username ? user.name : ""),
     avatarUrl: user.avatarUrl || user.avatar || null,
     isFollower:
       item?.isFollower ??
@@ -91,17 +96,38 @@ function normalizeStoryViewUser(item) {
     reactions:
       item?.reactions ||
       item?.reactionTypes ||
+      item?.reactionType ||
+      item?.reaction?.type ||
+      item?.reaction?.reactionType ||
       item?.reaction ||
+      item?.viewerReaction ||
+      item?.viewerReaction?.type ||
+      item?.viewerReaction?.reactionType ||
+      item?.storyReaction ||
+      item?.storyReaction?.type ||
+      item?.storyReaction?.reactionType ||
       item?.type ||
       user?.reactions ||
+      user?.reactionType ||
+      user?.reaction?.type ||
+      user?.reaction ||
+      user?.viewerReaction ||
+      user?.viewerReaction?.type ||
       [],
+    reactionsCount:
+      item?.reactionsCount ??
+      item?.reactionCount ??
+      user?.reactionsCount ??
+      user?.reactionCount ??
+      0,
   };
 }
 
 function getUserDisplayName(user) {
   return (
-    user?.displayName ||
     [user?.firstName, user?.lastName].filter(Boolean).join(" ").trim() ||
+    user?.displayName ||
+    user?.name ||
     user?.username ||
     "User"
   );
@@ -113,26 +139,115 @@ function normalizeReactionList(value) {
   return [value].filter(Boolean);
 }
 
-function getReactionGlyph(type) {
-  const normalized = String(type || "").toLowerCase();
+function getReactionIcon(type) {
+  const normalized = String(type || "").toUpperCase();
 
-  if (normalized.includes("laugh") || normalized.includes("smile")) return "😂";
-  if (normalized.includes("wow") || normalized.includes("surprise")) return "😮";
-  if (normalized.includes("cry") || normalized.includes("sad")) return "😢";
-  if (normalized.includes("fire")) return "🔥";
-  if (normalized.includes("thumb")) return "👍";
-  return "❤️";
+  return storyReactions.find(
+    (reaction) => String(reaction.id).toUpperCase() === normalized
+  )?.icon;
+}
+
+function getReactionUserId(item) {
+  return (
+    item?.user?.id ||
+    item?.user?._id ||
+    item?.viewer?.id ||
+    item?.viewer?._id ||
+    item?.userId ||
+    item?.viewerId ||
+    item?.authorId ||
+    item?.id ||
+    item?._id ||
+    null
+  );
+}
+
+function getReactionType(item, fallbackType) {
+  return (
+    item?.type ||
+    item?.reactionType ||
+    item?.reaction?.type ||
+    item?.reaction?.reactionType ||
+    item?.reaction?.emoji ||
+    item?.viewerReaction?.type ||
+    item?.viewerReaction?.reactionType ||
+    item?.storyReaction?.type ||
+    item?.storyReaction?.reactionType ||
+    item?.reaction ||
+    item?.emoji ||
+    item?.name ||
+    fallbackType ||
+    null
+  );
+}
+
+function buildStoryReactionsByUser(analytics) {
+  const result = new Map();
+  const addReaction = (userId, reactionType) => {
+    if (!userId || !reactionType) return;
+
+    const key = String(userId);
+    const previous = result.get(key) || [];
+    result.set(key, [...previous, reactionType]);
+  };
+
+  [
+    analytics?.reactions,
+    analytics?.reactionsPreview,
+    analytics?.reactionList,
+    analytics?.reactionsList,
+    analytics?.viewerReactions,
+    analytics?.viewersReactions,
+    analytics?.reactionsByViewer,
+    analytics?.reactionsByUser,
+  ].filter(Array.isArray).forEach((list) => {
+    list.forEach((item) => addReaction(getReactionUserId(item), getReactionType(item)));
+  });
+
+  [
+    analytics?.viewerReactions,
+    analytics?.viewersReactions,
+    analytics?.reactionsByViewer,
+    analytics?.reactionsByUser,
+  ].filter((value) => value && !Array.isArray(value) && typeof value === "object").forEach((map) => {
+    Object.entries(map).forEach(([userId, value]) => {
+      normalizeReactionList(value).forEach((reaction) => {
+        addReaction(userId, getReactionType(reaction, reaction));
+      });
+    });
+  });
+
+  const grouped = analytics?.reactionsByType || analytics?.reactionsGrouped || {};
+  Object.entries(grouped).forEach(([type, value]) => {
+    const groupedItems = Array.isArray(value)
+      ? value
+      : [
+        value?.users,
+        value?.viewers,
+        value?.items,
+        value?.data,
+        value?.reactions,
+      ].find(Array.isArray) || [];
+
+    groupedItems.forEach((item) => addReaction(getReactionUserId(item), getReactionType(item, type)));
+  });
+
+  return result;
 }
 
 function getStoryViewsCount(story, views = []) {
-  return (
+  const listedViewsCount = Array.isArray(views) ? views.length : 0;
+  const rawCount =
     story?.viewsCount ??
     story?.viewCount ??
     story?.views_count ??
     story?.countViews ??
-    views.length ??
-    0
-  );
+    story?.analytics?.viewsCount ??
+    story?.stats?.viewsCount ??
+    0;
+  const numericCount = Number(rawCount);
+
+  return Math.max(Number.isFinite(numericCount) ? numericCount : 0, listedViewsCount);
 }
 
 function extractStoryViewsList(response) {
@@ -149,6 +264,36 @@ function extractStoryViewsList(response) {
             : Array.isArray(response?.data?.views)
               ? response.data.views
               : [];
+}
+
+function extractStoryReactionsList(response) {
+  if (!response) return [];
+  if (Array.isArray(response)) return response;
+  if (Array.isArray(response.items)) return response.items;
+  if (Array.isArray(response.reactions)) return response.reactions;
+  if (Array.isArray(response.data)) return response.data;
+  if (Array.isArray(response.data?.items)) return response.data.items;
+  if (Array.isArray(response.data?.reactions)) return response.data.reactions;
+  return [];
+}
+
+function extractStoryViewsCount(response, views = []) {
+  const rawCount =
+    response?.viewsCount ??
+    response?.viewCount ??
+    response?.count ??
+    response?.total ??
+    response?.meta?.total ??
+    response?.data?.viewsCount ??
+    response?.data?.viewCount ??
+    response?.data?.count ??
+    response?.data?.total;
+  const numericCount = Number(rawCount);
+
+  return Math.max(
+    Number.isFinite(numericCount) ? numericCount : 0,
+    Array.isArray(views) ? views.length : 0,
+  );
 }
 
 function StoryAnalyticsModal({
@@ -168,8 +313,42 @@ function StoryAnalyticsModal({
 }) {
   const reactions = analytics?.reactionsByType || analytics?.reactionsGrouped || {};
   const rawViewers = analytics?.viewersPreview || analytics?.viewers || storyViewersOnly || [];
-  const viewers = rawViewers.map(normalizeStoryViewUser).filter(Boolean);
-  const viewsCount = analytics?.viewsCount ?? currentStory?.viewsCount ?? storyViewersOnly?.length ?? 0;
+  const reactionsByUser = useMemo(() => buildStoryReactionsByUser(analytics), [analytics]);
+  const viewers = [...rawViewers, ...storyViewersOnly]
+    .map(normalizeStoryViewUser)
+    .filter(Boolean)
+    .reduce((acc, viewer) => {
+      const key = String(viewer.id || viewer.username || acc.length);
+      const previous = acc.byKey.get(key);
+      const previousReactions = normalizeReactionList(previous?.reactions);
+      const ownReactions = normalizeReactionList(viewer.reactions);
+      const merged = {
+        ...previous,
+        ...viewer,
+        reactions: ownReactions.length > 0 ? ownReactions : previousReactions,
+        reactionsCount: Math.max(
+          Number(previous?.reactionsCount || 0),
+          Number(viewer.reactionsCount || 0),
+        ),
+      };
+
+      acc.byKey.set(key, merged);
+      return acc;
+    }, { byKey: new Map() });
+  const viewersList = [...viewers.byKey.values()].map((viewer) => {
+    const analyticsReactions = reactionsByUser.get(String(viewer.id)) || [];
+
+    return {
+      ...viewer,
+      reactions: normalizeReactionList(viewer.reactions).length > 0
+        ? normalizeReactionList(viewer.reactions)
+        : analyticsReactions,
+    };
+  });
+  const viewsCount = Math.max(
+    Number(analytics?.viewsCount ?? 0),
+    getStoryViewsCount(currentStory, storyViewersOnly),
+  );
   const sharesCount = analytics?.sharesCount ?? analytics?.shareCount ?? currentStory?.sharesCount ?? 0;
   const reactionsCount = analytics?.reactionsCount ?? currentStory?.reactionsCount ?? 0;
   const activeStoryThumbRef = useRef(null);
@@ -265,8 +444,20 @@ function StoryAnalyticsModal({
             <p className="storyStatsModal__hint">Загрузка...</p>
           ) : (
             <div className="storyStatsModal__viewerList">
-              {viewers.map((viewer, index) => {
+              {viewersList.map((viewer, index) => {
                 const reactionsList = normalizeReactionList(viewer.reactions);
+                const visibleReactions = reactionsList.length > 0
+                  ? reactionsList
+                  : Number(viewer.reactionsCount || 0) > 0
+                    ? ["heart"]
+                    : [];
+
+                console.log({
+                  viewer: getUserDisplayName(viewer),
+                  viewerReactions: viewer.reactions,
+                  analyticsReactions: reactionsByUser.get(String(viewer.id)),
+                  visibleReactions,
+                });
 
                 return (
                   <button
@@ -278,15 +469,29 @@ function StoryAnalyticsModal({
                     <img src={viewer.avatarUrl || profileIcons.userStory} alt="" />
                     <span className="storyStatsModal__viewerName">{getUserDisplayName(viewer)}</span>
                     {viewer.isFollower ? <span className="storyStatsModal__online" aria-label="Подписчик" /> : null}
-                    <span className="storyStatsModal__viewerReactions" aria-hidden="true">
-                      {reactionsList.slice(0, 3).map((type, reactionIndex) => (
-                        <span key={`${type}-${reactionIndex}`}>{getReactionGlyph(type)}</span>
-                      ))}
-                    </span>
-                  </button>
+                    <div className="storyStatsModal__viewerReactions" aria-hidden="true">
+                      {visibleReactions.slice(0, 3).map((type, reactionIndex) => {
+                        const icon = getReactionIcon(type);
+
+                        if (!icon) return null;
+
+                        return (
+                          <span
+                            key={`${type}-${reactionIndex}`}
+                            className="storyStatsModal__viewerReaction"
+                          >
+                            <img
+                              src={icon}
+                              alt=""
+                              className="storyStatsModal__viewerReactionIcon"
+                            />
+                          </span>
+                        );
+                      })}
+                    </div>         </button>
                 );
               })}
-              {viewers.length === 0 ? <p className="storyStatsModal__hint">Пока нет просмотров</p> : null}
+              {viewersList.length === 0 ? <p className="storyStatsModal__hint">Пока нет просмотров</p> : null}
             </div>
           )}
         </section>
@@ -294,33 +499,32 @@ function StoryAnalyticsModal({
         <section className="storyStatsModal__summary">
           <div className="storyStatsModal__summaryRow">
             <span>Просмотрели:</span>
-            <strong>{viewsCount}</strong>
-            <small>Все пользователи</small>
+            <div className="storyStatsModal__summaryWrap">
+              <strong>{viewsCount}</strong>
+              <small>Все пользователи</small>
+            </div>
           </div>
           <div className="storyStatsModal__summaryRow">
             <span>Поделились:</span>
-            <strong>{sharesCount}</strong>
-            <small>Все пользователи</small>
+            <div className="storyStatsModal__summaryWrap">
+              <strong>{sharesCount}</strong>
+              <small>Все пользователи</small>
+            </div>
           </div>
           <div className="storyStatsModal__summaryRow">
             <span>Реакции:</span>
-            <strong>{reactionsCount}</strong>
-            <small>Все пользователи</small>
-          </div>
-          {Object.entries(reactions).length > 0 ? (
-            <div className="storyStatsModal__reactionBreakdown">
-              {Object.entries(reactions).map(([type, count]) => (
-                <span key={type}>{getReactionGlyph(type)} {count}</span>
-              ))}
+            <div className="storyStatsModal__summaryWrap">
+              <strong>{reactionsCount}</strong>
+              <small>Все пользователи</small>
             </div>
-          ) : null}
+          </div>
         </section>
       )}
     </div>
   );
 }
 
-function StoryStatsUserSheet({ user, onClose, onMessage, onProfile }) {
+function StoryStatsUserSheet({ user, onClose, onMessage, onProfile, onReport, onBlock }) {
   if (!user) return null;
 
   const name = getUserDisplayName(user);
@@ -343,23 +547,195 @@ function StoryStatsUserSheet({ user, onClose, onMessage, onProfile }) {
         </div>
 
         <button type="button" onClick={onMessage}>
-          <LuMessageCircle aria-hidden="true" />
+          <img src={profileIcons.storyChat} alt="" />
           Написать сообщение {name}
         </button>
         <button type="button" onClick={onProfile}>
-          <LuUsers aria-hidden="true" />
+          <img src={profileIcons.storyViewerProfile} alt="" />
           Посмотреть профиль
         </button>
-        <button type="button">
-          <LuFlag aria-hidden="true" />
+        <button type="button" onClick={onReport}>
+          <img src={profileIcons.complainBlack} alt="" />
           Пожаловаться
         </button>
-        <button type="button">
-          <LuBan aria-hidden="true" />
+        <button type="button" onClick={onBlock}>
+          <img src={profileIcons.storyBlock} alt="" />
           Заблокировать
         </button>
       </div>
     </>
+  );
+}
+
+function StoryShareModal({ isOpen, story, onClose }) {
+  const storyId = getStoryId(story);
+  const [query, setQuery] = useState("");
+  const [suggestions, setSuggestions] = useState([]);
+  const [results, setResults] = useState([]);
+  const [selected, setSelected] = useState(() => new Map());
+  const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [sending, setSending] = useState(false);
+
+  useEffect(() => {
+    if (!isOpen) {
+      setQuery("");
+      setResults([]);
+      setSelected(new Map());
+      setMessage("");
+      return;
+    }
+
+    let cancelled = false;
+    setLoading(true);
+    subscriptionsApi.getFollowing({ take: 50 })
+      .then((res) => {
+        if (!cancelled) setSuggestions(extractFollowingFromResponse(res));
+      })
+      .catch(() => {
+        if (!cancelled) setSuggestions([]);
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [isOpen]);
+
+  useEffect(() => {
+    if (!isOpen) return undefined;
+    const trimmed = query.trim();
+    if (!trimmed) {
+      setResults([]);
+      return undefined;
+    }
+
+    let cancelled = false;
+    const timer = window.setTimeout(() => {
+      setLoading(true);
+      usersApi.search({ q: trimmed })
+        .then((res) => {
+          if (!cancelled) setResults(extractUsersFromSearchResponse(res));
+        })
+        .catch(() => {
+          if (!cancelled) setResults([]);
+        })
+        .finally(() => {
+          if (!cancelled) setLoading(false);
+        });
+    }, 300);
+
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timer);
+    };
+  }, [isOpen, query]);
+
+  if (!isOpen || !storyId) return null;
+
+  const visibleUsers = query.trim() ? results : suggestions;
+  const selectedUsers = [...selected.values()];
+  const mediaUrl = getStoryMediaUrl(story);
+  const mediaType = getStoryMediaType(story);
+  const storyText = story?.text || "";
+
+  const toggleUser = (user) => {
+    if (!user?.id) return;
+    setSelected((prev) => {
+      const next = new Map(prev);
+      if (next.has(user.id)) next.delete(user.id);
+      else next.set(user.id, user);
+      return next;
+    });
+  };
+
+  const handleSend = async () => {
+    if (selectedUsers.length === 0 || sending) return;
+
+    try {
+      setSending(true);
+      await Promise.all(selectedUsers.map(async (user) => {
+        const conversation = await conversationsApi.create(user.id);
+        const conversationId = conversation?.id || conversation?._id;
+        if (!conversationId) return;
+
+        await conversationsApi.sendMessage(conversationId, {
+          storyId,
+          mediaUrl,
+          mediaType,
+          text: message.trim() || storyText || "Story",
+          metadata: {
+            storyPreview: {
+              storyId,
+              mediaUrl,
+              mediaType,
+              text: storyText,
+            },
+          },
+        });
+      }));
+      toast.success("Story отправлена");
+      onClose?.();
+    } catch (error) {
+      console.error("[story-share] failed", error);
+      toast.error("Не удалось отправить story");
+    } finally {
+      setSending(false);
+    }
+  };
+
+  return (
+    <div className="storyShareModal" role="presentation" onClick={onClose}>
+      <div className="storyShareModal__dialog" role="dialog" aria-modal="true" onClick={(e) => e.stopPropagation()}>
+        <header className="storyShareModal__header">
+          <strong>Поделиться story</strong>
+          <button type="button" onClick={onClose} aria-label="Закрыть">×</button>
+        </header>
+        <input
+          type="search"
+          className="storyShareModal__search"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="Поиск"
+        />
+        <div className="storyShareModal__list">
+          {loading ? <p>Загрузка...</p> : null}
+          {!loading && visibleUsers.length === 0 ? <p>Нет пользователей</p> : null}
+          {visibleUsers.map((user) => {
+            const isSelected = selected.has(user.id);
+            return (
+              <button
+                type="button"
+                key={user.id}
+                className={`storyShareModal__user ${isSelected ? "is-selected" : ""}`}
+                onClick={() => toggleUser(user)}
+              >
+                <img src={user.avatarUrl || user.avatar || profileIcons.userStory} alt="" />
+                <span>{recipientDisplayName(user)}</span>
+                <b>{isSelected ? "✓" : ""}</b>
+              </button>
+            );
+          })}
+        </div>
+        <textarea
+          className="storyShareModal__message"
+          rows={2}
+          value={message}
+          onChange={(e) => setMessage(e.target.value)}
+          placeholder="Сообщение"
+        />
+        <button
+          type="button"
+          className="storyShareModal__send"
+          disabled={selectedUsers.length === 0 || sending}
+          onClick={handleSend}
+        >
+          {sending ? "Отправка..." : "Отправить"}
+        </button>
+      </div>
+    </div>
   );
 }
 
@@ -381,6 +757,7 @@ export default function StoryViewerModal({
   const [duration, setDuration] = useState(DEFAULT_DURATION);
   const [mediaOrientation, setMediaOrientation] = useState("unknown");
   const [storyViews, setStoryViews] = useState([]);
+  const [storyViewsCount, setStoryViewsCount] = useState(null);
   const [storyViewsLoading, setStoryViewsLoading] = useState(false);
   const [replyText, setReplyText] = useState("");
   const [selectedReaction, setSelectedReaction] = useState(null);
@@ -393,8 +770,10 @@ export default function StoryViewerModal({
   const [analyticsTab, setAnalyticsTab] = useState("views");
   const [selectedStatsUser, setSelectedStatsUser] = useState(null);
   const [isStoryUploadOpen, setIsStoryUploadOpen] = useState(false);
+  const [isStoryShareOpen, setIsStoryShareOpen] = useState(false);
 
   const navigate = useNavigate();
+  const location = useLocation();
 
   const videoRef = useRef(null);
   const viewedRef = useRef(new Set());
@@ -406,6 +785,7 @@ export default function StoryViewerModal({
   const progressStartedRef = useRef(false);
   const wasOpenRef = useRef(false);
   const pendingCloseRef = useRef(false);
+  const locationPathRef = useRef(null);
 
   onCloseRef.current = onClose;
   onViewedRef.current = onViewed;
@@ -427,6 +807,15 @@ export default function StoryViewerModal({
       onCloseRef.current?.();
     });
   }, [scheduleAfterRender]);
+
+  const closeStoryOverlays = useCallback(() => {
+    setAnalyticsOpen(false);
+    setSelectedStatsUser(null);
+    setIsStoryUploadOpen(false);
+    setIsStoryShareOpen(false);
+    setIsMenuOpen(false);
+    requestClose();
+  }, [requestClose]);
 
   const safeGroups = Array.isArray(groups) ? groups : [];
 
@@ -575,10 +964,27 @@ export default function StoryViewerModal({
   }, [isOpen]);
 
   useEffect(() => {
+    if (!isOpen) {
+      locationPathRef.current = location.pathname;
+      return;
+    }
+
+    if (locationPathRef.current === null) {
+      locationPathRef.current = location.pathname;
+      return;
+    }
+
+    if (locationPathRef.current !== location.pathname) {
+      locationPathRef.current = location.pathname;
+      closeStoryOverlays();
+    }
+  }, [isOpen, location.pathname, closeStoryOverlays]);
+
+  useEffect(() => {
     if (!isOpen) return;
 
     const handleCloseStoryOverlays = () => {
-      requestClose();
+      closeStoryOverlays();
     };
 
     window.addEventListener(
@@ -592,7 +998,7 @@ export default function StoryViewerModal({
         handleCloseStoryOverlays
       );
     };
-  }, [isOpen, requestClose]);
+  }, [isOpen, closeStoryOverlays]);
 
   useEffect(() => {
     if (!isOpen || !storyId || viewedRef.current.has(storyId)) return;
@@ -620,13 +1026,16 @@ export default function StoryViewerModal({
       // чужим stories просмотры не нужны
       if (!isOwnStory) {
         setStoryViews([]);
+        setStoryViewsCount(null);
         return;
       }
 
       const cached = storyViewsCache.get(storyId);
 
       if (cached) {
-        setStoryViews(cached);
+        const cachedViews = Array.isArray(cached) ? cached : cached.views;
+        setStoryViews(Array.isArray(cachedViews) ? cachedViews : []);
+        setStoryViewsCount(Array.isArray(cached) ? cached.length : cached.count);
         return;
       }
 
@@ -634,7 +1043,11 @@ export default function StoryViewerModal({
         const cachedFromPending = await storyViewsRequests.get(storyId);
 
         if (!cancelled) {
-          setStoryViews(Array.isArray(cachedFromPending) ? cachedFromPending : []);
+          const pendingViews = Array.isArray(cachedFromPending)
+            ? cachedFromPending
+            : cachedFromPending?.views;
+          setStoryViews(Array.isArray(pendingViews) ? pendingViews : []);
+          setStoryViewsCount(Array.isArray(cachedFromPending) ? cachedFromPending.length : cachedFromPending?.count);
         }
 
         return;
@@ -645,19 +1058,24 @@ export default function StoryViewerModal({
 
         const request = storiesApi.getViews(storyId).then((response) => {
           const rawList = extractStoryViewsList(response);
-          return rawList.map(normalizeStoryViewUser).filter(Boolean);
+          const views = rawList.map(normalizeStoryViewUser).filter(Boolean);
+          return {
+            views,
+            count: extractStoryViewsCount(response, views),
+          };
         });
 
         storyViewsRequests.set(storyId, request);
 
-        const normalizedViews = await request;
+        const viewsPayload = await request;
 
         if (cancelled) return;
 
-        storyViewsCache.set(storyId, normalizedViews);
+        storyViewsCache.set(storyId, viewsPayload);
         storyViewsRequests.delete(storyId);
 
-        setStoryViews(normalizedViews);
+        setStoryViews(viewsPayload.views);
+        setStoryViewsCount(viewsPayload.count);
       } catch (e) {
         storyViewsRequests.delete(storyId);
         if (!cancelled) {
@@ -669,7 +1087,9 @@ export default function StoryViewerModal({
                 ? currentStory.viewedBy
                 : [];
 
-          setStoryViews(fallbackViews.map(normalizeStoryViewUser).filter(Boolean));
+          const normalizedFallbackViews = fallbackViews.map(normalizeStoryViewUser).filter(Boolean);
+          setStoryViews(normalizedFallbackViews);
+          setStoryViewsCount(getStoryViewsCount(currentStory, normalizedFallbackViews));
         }
       } finally {
         if (!cancelled) setStoryViewsLoading(false);
@@ -709,7 +1129,7 @@ export default function StoryViewerModal({
       return;
     }
 
-    video.play?.().catch(() => {});
+    video.play?.().catch(() => { });
   }, [isStoryPaused, mediaType, storyId]);
 
   useEffect(() => {
@@ -745,8 +1165,18 @@ export default function StoryViewerModal({
 
     try {
       setAnalyticsLoading(true);
-      const response = await storiesApi.getAnalytics(storyId);
-      setAnalytics(response?.data || response || {});
+      const [analyticsResponse, reactionsResponse] = await Promise.all([
+        storiesApi.getAnalytics(storyId),
+        storiesApi.getReactions(storyId).catch(() => null),
+      ]);
+
+      const analyticsData = analyticsResponse?.data || analyticsResponse || {};
+      const reactionsList = extractStoryReactionsList(reactionsResponse);
+
+      setAnalytics({
+        ...analyticsData,
+        reactions: reactionsList,
+      });
     } catch (error) {
       console.error("[story-analytics] failed", error);
       toast.error("Не удалось загрузить аналитику story");
@@ -759,6 +1189,24 @@ export default function StoryViewerModal({
     if (!analyticsOpen || !storyId || !isOwnStory) return;
     loadAnalytics();
   }, [analyticsOpen, storyId, isOwnStory, loadAnalytics]);
+
+  useEffect(() => {
+    if (!isOpen || !storyId || !isOwnStory || analyticsOpen) return;
+
+    let cancelled = false;
+
+    storiesApi.getAnalytics(storyId)
+      .then((response) => {
+        if (!cancelled) setAnalytics(response?.data || response || {});
+      })
+      .catch((error) => {
+        console.error("[story-analytics-preview] failed", error);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [isOpen, storyId, isOwnStory, analyticsOpen]);
 
   const handleOpenAnalytics = async () => {
     if (!storyId || !isOwnStory) return;
@@ -784,6 +1232,29 @@ export default function StoryViewerModal({
   const handleOpenStoryUpload = () => {
     setSelectedStatsUser(null);
     setIsStoryUploadOpen(true);
+  };
+
+  const handleStoryCreatedFromAnalytics = (createdStory) => {
+    const story = createdStory?.data || createdStory?.story || createdStory;
+
+    setIsStoryUploadOpen(false);
+
+    if (!story) return;
+
+    const nextStories = [...stories, story];
+    const nextIndex = nextStories.length - 1;
+
+    if (safeGroups[groupIndex]) {
+      safeGroups[groupIndex].stories = nextStories;
+    }
+
+    setStoryIndex(nextIndex);
+    setAnalytics(null);
+    setAnalyticsTab("views");
+    setSelectedStatsUser(null);
+    setProgress(0);
+    setDuration(DEFAULT_DURATION);
+    progressStartedRef.current = false;
   };
 
   const handleStatsUserMessage = async () => {
@@ -812,7 +1283,40 @@ export default function StoryViewerModal({
 
     if (handle) {
       requestClose();
-      scheduleAfterRender(() => onOpenProfile?.(handle));
+      scheduleAfterRender(() => {
+        if (onOpenProfile) onOpenProfile(handle);
+        else navigate(`/profile/${handle}`);
+      });
+    }
+  };
+
+  const handleStatsUserReport = async () => {
+    const userId = selectedStatsUser?.id;
+    if (!userId) return;
+
+    try {
+      toast.info("Report user endpoint is not connected yet");
+      return;
+      setSelectedStatsUser(null);
+      toast.success("Жалоба отправлена");
+    } catch (error) {
+      console.error("[story-stats-report] failed", error);
+      toast.error("Не удалось отправить жалобу");
+    }
+  };
+
+  const handleStatsUserBlock = async () => {
+    const userId = selectedStatsUser?.id;
+    if (!userId) return;
+
+    try {
+      toast.info("Block user endpoint is not connected yet");
+      return;
+      setSelectedStatsUser(null);
+      toast.success("Story больше не будет показываться в рекомендациях");
+    } catch (error) {
+      console.error("[story-stats-block-user] failed", error);
+      toast.error("Не удалось выполнить действие");
     }
   };
 
@@ -914,12 +1418,40 @@ export default function StoryViewerModal({
     });
   }, [stories, storyIndex, progress]);
 
-  const storyViewersOnly = (Array.isArray(storyViews) ? storyViews : []).filter(
+  const currentStoryViewers = useMemo(() => {
+    const candidates = [
+      storyViews,
+      analytics?.viewersPreview,
+      analytics?.viewers,
+      currentStory?.viewersPreview,
+      currentStory?.viewers,
+      currentStory?.views,
+      currentStory?.viewedBy,
+    ];
+
+    return candidates
+      .find((value) => Array.isArray(value) && value.length > 0)
+      ?.map(normalizeStoryViewUser)
+      .filter(Boolean) || [];
+  }, [analytics, currentStory, storyViews]);
+
+  const storyViewersOnly = currentStoryViewers.filter(
     (viewer) => String(viewer?.id ?? "") !== String(author?.id ?? "")
   );
 
-  const visibleViewers = storyViewersOnly.slice(0, 3);
-  const viewsCount = storyViewersOnly.length;
+  const viewsCount = Math.max(
+    getStoryViewsCount(currentStory, storyViewersOnly),
+    Number(storyViewsCount ?? 0),
+    Number(analytics?.viewsCount ?? 0),
+  );
+  const visibleViewers = storyViewersOnly.length > 0
+    ? storyViewersOnly.slice(0, 3)
+    : viewsCount > 0
+      ? Array.from({ length: Math.min(viewsCount, 3) }, (_, index) => ({
+        id: `viewer-placeholder-${index}`,
+        avatarUrl: profileIcons.userStory,
+      }))
+      : [];
 
   if (!isOpen || !hasStories) return null;
 
@@ -927,23 +1459,23 @@ export default function StoryViewerModal({
     <div className="storyViewer" role="dialog" aria-modal="true" aria-label="Перегляд story">
       <AppHeader
         onGoProfile={() => {
-          requestClose();
+          closeStoryOverlays();
           navigate("/profile");
         }}
         onGoExplore={() => {
-          requestClose();
+          closeStoryOverlays();
           navigate("/search");
         }}
         onGoWallet={() => {
-          requestClose();
+          closeStoryOverlays();
           navigate("/wallet");
         }}
         onGoVipChat={() => {
-          requestClose();
+          closeStoryOverlays();
           navigate("/vip-chat");
         }}
         onGoHome={() => {
-          requestClose();
+          closeStoryOverlays();
           navigate("/first-page");
         }}
       />
@@ -1137,7 +1669,7 @@ export default function StoryViewerModal({
               </button>
 
               <div className="storyViewer__actionsCenter">
-                <button type="button" className="storyViewer__action">
+                <button type="button" className="storyViewer__action" onClick={() => setIsStoryShareOpen(true)}>
                   <img
                     src={profileIcons.storyForward}
                     alt=""
@@ -1190,6 +1722,8 @@ export default function StoryViewerModal({
               onClose={() => setSelectedStatsUser(null)}
               onMessage={handleStatsUserMessage}
               onProfile={handleStatsUserProfile}
+              onReport={handleStatsUserReport}
+              onBlock={handleStatsUserBlock}
             />
           </>
         ) : (
@@ -1239,9 +1773,12 @@ export default function StoryViewerModal({
       <StoryUploadModal
         isOpen={isStoryUploadOpen}
         onClose={() => setIsStoryUploadOpen(false)}
-        onCreated={() => {
-          setIsStoryUploadOpen(false);
-        }}
+        onCreated={handleStoryCreatedFromAnalytics}
+      />
+      <StoryShareModal
+        isOpen={isStoryShareOpen}
+        story={currentStory}
+        onClose={() => setIsStoryShareOpen(false)}
       />
     </div>
   );

@@ -49,4 +49,16 @@ export const usersApi = {
     if (!value) return Promise.reject(new Error("username required"));
     return api.get(`/users/${encodeURIComponent(value)}/followers`);
   },
+
+  blockUser(userId) {
+    if (!userId) return Promise.reject(new Error("userId required"));
+    return api.post(`/users/${encodeURIComponent(userId)}/block`);
+  },
+
+  reportUser(userId, reason) {
+    if (!userId) return Promise.reject(new Error("userId required"));
+    return api.post(`/users/${encodeURIComponent(userId)}/report`, {
+      reason,
+    });
+  },
 };

@@ -53,6 +53,7 @@ export default function BurgerMenu({
     }
 
     if (id === 'profile') {
+      window.dispatchEvent(new CustomEvent('closeStoryOverlays'));
       navigate('/profile');
       onClose();
       return;
@@ -121,6 +122,7 @@ export default function BurgerMenu({
               type="button"
               className="profile-menu__userTap"
               onClick={() => {
+                window.dispatchEvent(new CustomEvent('closeStoryOverlays'));
                 navigate('/profile');
                 onClose();
               }}
