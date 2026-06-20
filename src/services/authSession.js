@@ -4,6 +4,7 @@ import {
   persistOAuthSessionTokens,
 } from './api';
 import { authApi } from './auth';
+import { clearFirstPageFeedCache } from '../utils/feedCache';
 
 export function pickAccessToken(source) {
   return source?.accessToken ?? source?.access_token ?? null;
@@ -54,6 +55,8 @@ export async function ensureAccessTokenInStore(setAuth, user, accessToken) {
 
 /** Production flow: /users/me → (401) /auth/refresh → /users/me + token у store. */
 export async function restoreOAuthSession(setAuth) {
+  clearFirstPageFeedCache();
+
   let accessFromQuery = null;
   let refreshFromQuery = null;
 

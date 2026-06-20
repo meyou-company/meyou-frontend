@@ -17,6 +17,8 @@ import { passwordApi } from '../services/passwordApi';
 import { disconnectSocket } from '../services/socket';
 import { useMessagesStore } from './useMessagesStore';
 import { shouldRunAuthBootstrap } from '../constants/publicRoutes';
+import { clearAllPostFeedCaches, clearFirstPageFeedCache } from '../utils/feedCache';
+import { clearAllPostLikeOverrides } from '../utils/postLikePersistence';
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -43,6 +45,8 @@ function isOAuthCallbackPath() {
 function clearAuthSession(set) {
   disconnectSocket();
   clearOAuthSessionTokens();
+  clearAllPostFeedCaches();
+  clearAllPostLikeOverrides();
   useMessagesStore.getState().reset();
   resetInitState();
   set({ user: null, token: null, isAuthed: false });
@@ -186,6 +190,7 @@ export const useAuthStore = create((set) => ({
   },
 
   login: async (payload) => {
+    clearFirstPageFeedCache();
     set({ isAuthLoading: true });
     try {
       const res = await authApi.login(payload);
@@ -217,6 +222,7 @@ export const useAuthStore = create((set) => ({
   },
 
   verifyEmailCode: async ({ code }) => {
+    clearFirstPageFeedCache();
     set({ isAuthLoading: true });
     try {
       await authApi.verifyEmail(code);

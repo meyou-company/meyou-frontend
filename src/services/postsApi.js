@@ -29,7 +29,6 @@ export const postsApi = {
   async list({ page = 1, limit = 10 } = {}) {
     const { data } = await api.get('/posts', {
       params: { page, limit },
-      skipAuth: true,
     });
     const list = extractPostsList(data);
 
@@ -38,7 +37,6 @@ export const postsApi = {
     if (Number(page) === 1 && list.length === 0) {
       const { data: dataZero } = await api.get('/posts', {
         params: { page: 0, limit },
-        skipAuth: true,
       });
       const listZero = extractPostsList(dataZero);
       if (listZero.length > 0) return listZero;

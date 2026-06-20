@@ -10,6 +10,13 @@ import { usePostFeedActions } from '../../hooks/usePostFeedActions';
 import { getApiErrorMessage } from '../../utils/getApiErrorMessage';
 import { mapApiPostToFeedItem } from '../../utils/mapApiPostToFeedItem';
 import { applyPersistedLikes } from '../../utils/postLikePersistence';
+import {
+  clearFirstPageFeedCache,
+  filterValidFeedPosts,
+  hasValidPostAuthor,
+  readFirstPageFeedCache,
+  writeFirstPageFeedCache,
+} from '../../utils/feedCache';
 import { getProfileRouteHandle } from '../../utils/profileFriendNav';
 import { resolvePostMenuPermissions } from '../../utils/postMenuPermissions';
 import AppHeader from "../../components/Layout/AppHeader";
@@ -39,6 +46,25 @@ const getReadableFeedError = (error, t) => {
   }
   return text;
 };
+
+/** Banner лише для 5xx, мережі та timeout — не для 400/401 та порожньої стрічки. */
+function isFeedBannerError(error) {
+  if (!error) return false;
+  const status = error?.response?.status;
+  if (status != null) {
+    return status >= 500;
+  }
+  const code = String(error?.code ?? '');
+  if (code === 'ECONNABORTED' || code === 'ERR_NETWORK' || code === 'ETIMEDOUT') {
+    return true;
+  }
+  const msg = String(error?.message ?? '').toLowerCase();
+  if (msg.includes('network error') || msg.includes('timeout')) {
+    return true;
+  }
+  // Немає response — зазвичай мережева помилка.
+  return true;
+}
 const PAGE_SIZE = 10;
 const byNewestPost = (a, b) =>
   new Date(b?.createdAt || 0).getTime() - new Date(a?.createdAt || 0).getTime();
@@ -203,40 +229,21 @@ export default function FirstPageView({
   }, [setStoriesGroups]);
 
   const [feedPosts, setFeedPosts] = useState([]);
+  const [previewPosts, setPreviewPosts] = useState([]);
   const [feedLoading, setFeedLoading] = useState(true);
   const [feedError, setFeedError] = useState(null);
   const [feedPage, setFeedPage] = useState(1);
   const [hasMoreFeed, setHasMoreFeed] = useState(true);
   const [feedLoadingMore, setFeedLoadingMore] = useState(false);
   const loadMoreRef = useRef(null);
-  const FEED_CACHE_KEY = 'first-page-feed-cache';
-  const feedActions = usePostFeedActions(setFeedPosts, {
-    currentUserId,
-    refetchFeed: () => fetchFeedPage(1, { append: false }),
-  });
 
   useEffect(() => {
-    if (typeof window === 'undefined') return;
-    try {
-      const raw = window.localStorage.getItem(FEED_CACHE_KEY);
-      if (!raw) return;
-      const parsed = JSON.parse(raw);
-      if (Array.isArray(parsed) && parsed.length > 0) {
-        setFeedPosts(parsed);
-      }
-    } catch {
-      // ignore broken cache
+    if (!currentUserId) {
+      setPreviewPosts([]);
+      return;
     }
-  }, []);
-
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-    try {
-      window.localStorage.setItem(FEED_CACHE_KEY, JSON.stringify(feedPosts));
-    } catch {
-      // ignore storage errors
-    }
-  }, [feedPosts]);
+    setPreviewPosts(readFirstPageFeedCache(currentUserId));
+  }, [currentUserId]);
 
   const fetchFeedPage = useCallback(async (page, { append } = { append: false }) => {
     try {
@@ -247,35 +254,67 @@ export default function FirstPageView({
       }
 
       const list = await postsApi.list({ page, limit: PAGE_SIZE });
-      const mapped = (Array.isArray(list) ? list : []).map(mapApiPostToFeedItem).filter(Boolean);
+      const mapped = filterValidFeedPosts(
+        (Array.isArray(list) ? list : []).map(mapApiPostToFeedItem).filter(Boolean),
+      );
       const withPersistedLikes = applyPersistedLikes(mapped);
 
+      if (!append && page === 1) {
+        setPreviewPosts([]);
+        if (withPersistedLikes.length === 0) {
+          setFeedPosts([]);
+          clearFirstPageFeedCache();
+        } else {
+          const sorted = [...withPersistedLikes].sort(byNewestPost);
+          setFeedPosts(sorted);
+          writeFirstPageFeedCache(sorted, currentUserId);
+        }
+        setFeedPage(1);
+        setHasMoreFeed(mapped.length === PAGE_SIZE);
+        return;
+      }
+
       setFeedPosts((prev) => {
-        if (!append) return [...withPersistedLikes].sort(byNewestPost);
         const merged = [...prev, ...withPersistedLikes];
         const seen = new Set();
-        return merged
+        const next = merged
           .filter((p) => {
             const id = String(p?.id ?? '');
             if (!id || seen.has(id)) return false;
             seen.add(id);
-            return true;
+            return hasValidPostAuthor(p);
           })
           .sort(byNewestPost);
+        writeFirstPageFeedCache(next, currentUserId);
+        return next;
       });
       setFeedPage(page);
       setHasMoreFeed(mapped.length === PAGE_SIZE);
     } catch (e) {
-      setFeedError(getReadableFeedError(e, t));
-      // Keep already loaded posts (or cache) on error to avoid blanking the feed.
+      if (!append) {
+        clearFirstPageFeedCache();
+        setFeedPosts([]);
+        setPreviewPosts([]);
+      }
+      if (isFeedBannerError(e)) {
+        setFeedError(getReadableFeedError(e, t));
+      } else {
+        setFeedError(null);
+      }
       setHasMoreFeed(false);
     } finally {
       if (append) setFeedLoadingMore(false);
       else setFeedLoading(false);
     }
-  }, [t]);
+  }, [t, currentUserId]);
+
+  const feedActions = usePostFeedActions(setFeedPosts, {
+    currentUserId,
+    refetchFeed: () => fetchFeedPage(1, { append: false }),
+  });
 
   useEffect(() => {
+    if (!currentUserId) return;
     let cancelled = false;
     (async () => {
       try {
@@ -291,7 +330,7 @@ export default function FirstPageView({
     return () => {
       cancelled = true;
     };
-  }, [fetchFeedPage]);
+  }, [currentUserId, fetchFeedPage]);
 
   useEffect(() => {
     if (!hasMoreFeed || feedLoading || feedLoadingMore) return;
@@ -310,6 +349,10 @@ export default function FirstPageView({
     observer.observe(node);
     return () => observer.disconnect();
   }, [hasMoreFeed, feedLoading, feedLoadingMore, feedPage, fetchFeedPage]);
+
+  const showPreview =
+    feedLoading && !feedError && previewPosts.length > 0 && feedPosts.length === 0;
+  const postsToShow = feedError ? [] : showPreview ? previewPosts : feedPosts;
 
   return (
     <div className="first-page-view relative -mx-4 flex min-h-screen w-[calc(100%+2rem)] max-w-[100vw] flex-col overflow-x-hidden pb-10 md:pb-0">
@@ -381,18 +424,32 @@ export default function FirstPageView({
         {/* FEED */}
         <main className="flex-1">
           <div className="feed max-w-[1340px] mx-auto my-[10px] md:my-5 xl:my-[46px] px-3.5 md:px-[41px] lg:px-9 min-[1440px]:px-[66px]">
-            {feedLoading && (
+            {feedError ? (
+              <div className="first-page-feed-error">
+                <p className="first-page-feed-error__text">{feedError}</p>
+                <button
+                  type="button"
+                  className="first-page-feed-error__btn"
+                  onClick={() => fetchFeedPage(1, { append: false })}
+                  disabled={feedLoading}
+                >
+                  {t('feed.refresh')}
+                </button>
+              </div>
+            ) : null}
+            {feedLoading && !feedError && !showPreview && (
               <p className="text-center text-sm md:text-base font-[Montserrat] text-gray-600 py-6">
                 {t('feed.loading')}
               </p>
             )}
-            {!feedLoading && feedPosts.length === 0 && (
-              <p className="text-center text-sm md:text-base font-[Montserrat] text-gray-600 py-6">
-                {t('feed.empty')}
-              </p>
+            {!feedLoading && !feedError && postsToShow.length === 0 && (
+              <div className="first-page-feed-empty">
+                <p className="first-page-feed-empty__title">{t('feed.empty')}</p>
+                <p className="first-page-feed-empty__hint">{t('feed.emptyHint')}</p>
+              </div>
             )}
-            {!feedLoading &&
-              feedPosts.map((post) => (
+            {!feedError &&
+              postsToShow.map((post) => (
                 <GlobalFeedPostCard
                   key={post.id}
                   post={post}

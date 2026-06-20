@@ -705,6 +705,8 @@
     "loading": "Loading feed…",
     "loadingMore": "Loading more posts…",
     "empty": "No posts yet",
+    "emptyHint": "Create your first post or add friends",
+    "refresh": "Refresh",
     "openProfile": "Open profile {{name}}",
     "profileUnavailable": "Profile unavailable",
     "error": {
