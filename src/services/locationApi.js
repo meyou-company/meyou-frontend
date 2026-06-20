@@ -1,10 +1,13 @@
-import axios from "axios";
+import axios from 'axios';
 
-const BASE = "https://countriesnow.space/api/v0.1";
+const BASE = 'https://countriesnow.space/api/v0.1';
 
 // простий кеш, щоб не смикати API по 100 разів
 let cachedCountries = null;
-const cachedCitiesByCountry = new Map();
+
+const cachedStatesByCountry = new Map();
+
+const cachedCities = new Map();
 
 export const locationApi = {
   async getCountries() {
@@ -19,7 +22,7 @@ export const locationApi = {
       .map((c) => ({
         value: c.name,
         label: c.name,
-        iso2: (c.Iso2 || "").toLowerCase(),
+        iso2: (c.Iso2 || '').toLowerCase(),
       }))
       .sort((a, b) => a.label.localeCompare(b.label));
 
@@ -27,26 +30,65 @@ export const locationApi = {
     return countries;
   },
 
-  async getCitiesByCountry(countryName) {
+  async getRegions(countryName) {
     if (!countryName) return [];
-
-    if (cachedCitiesByCountry.has(countryName)) {
-      return cachedCitiesByCountry.get(countryName);
+    if (cachedStatesByCountry.has(countryName)) {
+      return cachedStatesByCountry.get(countryName);
     }
 
-    const { data } = await axios.post(`${BASE}/countries/cities`, {
+    const { data } = await axios.post(`${BASE}/countries/states`, {
       country: countryName,
     });
 
-    // очікуємо: { error: false, data: ["City1", "City2", ...] }
-    const arr = Array.isArray(data?.data) ? data.data : [];
+    const arr = Array.isArray(data?.data?.states) ? data.data.states : [];
+
+    const regions = arr
+      .filter((r) => r?.name)
+      .map((r) => ({
+        value: r.name,
+        label: r.name,
+        code: r.state_code,
+      }))
+      .sort((a, b) => a.label.localeCompare(b.label));
+
+    cachedStatesByCountry.set(countryName, regions);
+
+    return regions;
+  },
+
+  async getCities(countryName, regionName = null) {
+    if (!countryName) return [];
+
+    const cacheKey = `${countryName}-${regionName || 'country'}`;
+
+    if (cachedCities.has(cacheKey)) {
+      return cachedCities.get(cacheKey);
+    }
+    let response;
+
+    if (regionName?.trim()) {
+      response = await axios.post(`${BASE}/countries/state/cities`, {
+        country: countryName,
+        state: regionName,
+      });
+    } else {
+      response = await axios.post(`${BASE}/countries/cities`, {
+        country: countryName,
+      });
+    }
+
+    const arr = Array.isArray(response?.data?.data) ? response.data.data : [];
 
     const cities = arr
       .filter(Boolean)
-      .map((name) => ({ value: name, label: name }))
+      .map((city) => ({
+        value: city,
+        label: city,
+      }))
       .sort((a, b) => a.label.localeCompare(b.label));
 
-    cachedCitiesByCountry.set(countryName, cities);
+    cachedCities.set(cacheKey, cities);
+
     return cities;
   },
 };

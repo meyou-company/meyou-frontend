@@ -1,189 +1,100 @@
-import { useEffect, useMemo, useRef, useState } from "react";
-import { useTranslation } from "react-i18next";
-import { toast } from "sonner";
-import Select from "react-select";
-import DatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css";
-import { PhoneInput } from "react-international-phone";
-import "react-international-phone/style.css";
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { toast } from 'sonner';
+import Select from 'react-select';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
+import { PhoneInput } from 'react-international-phone';
+import 'react-international-phone/style.css';
 
-import ThemeToggleDark from "../../../../components/ThemeToggleDark/ThemeToggleDark";
-import { useAuthStore } from "../../../../zustand/useAuthStore";
+import { useAuthStore } from '../../../../zustand/useAuthStore';
 
-import { profileApi } from "../../../../services/profileApi";
-import { locationApi } from "../../../../services/locationApi";
+import { authApi } from '../../../../services/auth';
+import { profileApi } from '../../../../services/profileApi';
+import { locationApi } from '../../../../services/locationApi';
 
-import { validateCompleteProfile, translateValidationErrors } from "../../../../utils/validationCompleteProfile";
-import { interestOptions } from "../../../../constants/interests";
-import { profileHobbyOptions } from "../../../../constants/hobbies";
-import { useLocationOptions } from "../../../../hooks/useLocationOptions";
-import { usePrefillProfile } from "../../../../hooks/usePrefillProfile";
-import { useGenderOptions, useMaritalStatusOptions } from "../../../../hooks/useProfileFormOptions";
+import { useLocationOptions } from '../../../../hooks/useLocationOptions';
+import { usePrefillProfile } from '../../../../hooks/usePrefillProfile';
+import { useGenderOptions, useMaritalStatusOptions } from '../../../../hooks/useProfileFormOptions';
 
-import { normalizeForValidation, toBackendPayload } from "../../../../utils/profilePayload";
-import { normalizePhone } from "../../../../utils/normalizePhone";
-import { getApiErrorMessage } from "../../../../utils/getApiErrorMessage";
+import {
+  validateCompleteProfile,
+  translateValidationErrors,
+} from '../../../../utils/validationProfile';
+import { normalizeForValidation, toCompleteProfilePayload } from '../../../../utils/profilePayload';
+import { cropImageToFile } from '../../../../utils/cropImageToFile';
+import { getApiErrorMessage } from '../../../../utils/getApiErrorMessage';
+import { getBirthDateLimits, toYMDLocal } from '../../../../utils/profileFormUtils';
 
-import AvatarCropModal from "../../../../components/AvatarCropModal/AvatarCropModal";
-import { cropImageToFile } from "../../../../utils/cropImageToFile";
-import { authApi } from "../../../../services/auth";
+import { interestOptions } from '../../../../constants/interests';
+import { profileHobbyOptions } from '../../../../constants/hobbies';
 
-import "./CompleteProfileForm.scss";
+import ThemeToggleDark from '../../../../components/ThemeToggleDark/ThemeToggleDark';
+import AvatarCropModal from '../../../../components/AvatarCropModal/AvatarCropModal';
+
+import './CompleteProfileForm.scss';
+import profileIcons from '../../../../constants/profileIcons';
+import MultiSelect from '../EditProfileForm/MultiSelect';
 
 const EMPTY = {
-  firstName: "",
-  lastName: "",
-  phone: "",
-  nationality: "",
-  username: "",
-  bio: "",
+  firstName: '',
+  lastName: '',
+  username: '',
+  gender: null,
+  birthDate: '',
+  phone: '',
+
+  nationality: '',
+  maritalStatus: null,
+  bio: '',
+
   interests: [],
   hobbies: [],
-  maritalStatus: null,
+
   country: null,
   city: null,
-  gender: null,
-  birthDate: "",
 };
 
-const MAX_INTERESTS = 7;
-const MAX_HOBBIES = 7;
-
-function getBirthDateLimits() {
-  const today = new Date();
-  const max = new Date(today);
-  max.setFullYear(max.getFullYear() - 18);
-  const min = new Date(today.getFullYear() - 100, 0, 1);
-  return {
-    minStr: min.toISOString().slice(0, 10),
-    maxStr: max.toISOString().slice(0, 10),
-    minDate: min,
-    maxDate: max,
-  };
-}
-
-export default function CompleteProfileForm({ onBack, onSuccess }) {
+export default function CompleteProfileForm({ onBack, onSave }) {
+  // I18N / OPTIONS
   const { t } = useTranslation();
+
   const genderOptions = useGenderOptions();
   const maritalStatusOptions = useMaritalStatusOptions();
 
+  // FORM STATE
   const [values, setValues] = useState(EMPTY);
   const [touched, setTouched] = useState({});
   const [errors, setErrors] = useState({});
-  const [submitError, setSubmitError] = useState("");
+
+  const [submitError, setSubmitError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+
   const [profileCompleted, setProfileCompleted] = useState(false);
 
+  // AUTH / USER
   const refreshMe = useAuthStore((s) => s.refreshMe);
   const user = useAuthStore((s) => s.user);
-  const backendAvatarUrl = user?.avatarUrl || "";
+  const backendAvatarUrl = user?.avatarUrl || '';
 
-  const [cropSrc, setCropSrc] = useState("");
+  // AVATAR STATE
+  const [cropSrc, setCropSrc] = useState('');
   const [isCropOpen, setIsCropOpen] = useState(false);
   const [isAvatarUploading, setIsAvatarUploading] = useState(false);
-  const [avatarError, setAvatarError] = useState("");
+  const [avatarError, setAvatarError] = useState('');
 
-  const fileRef = useMemo(() => ({ current: null }), []);
+  // REFS
+  const fileRef = useRef(null);
   const genderDropdownRef = useRef(null);
+
+  // UI STATE
   const [genderPickerOpen, setGenderPickerOpen] = useState(false);
 
-  const pickAvatar = () => {
-    setAvatarError("");
-    fileRef.current?.click?.();
-  };
-
-  const handlePickForCrop = (e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    const okTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
-    if (!okTypes.includes(file.type)) {
-      setAvatarError(t("profile.editForm.toast.invalidFileType"));
-      return;
-    }
-
-    const url = URL.createObjectURL(file);
-    setCropSrc(url);
-    setIsCropOpen(true);
-  };
-
-  const closeCrop = () => {
-    setIsCropOpen(false);
-    setCropSrc("");
-    setAvatarError("");
-    if (fileRef.current) fileRef.current.value = "";
-  };
-
-  const handleCropConfirm = async (croppedPixels) => {
-    try {
-      setIsAvatarUploading(true);
-      setAvatarError("");
-
-      const file = await cropImageToFile(cropSrc, croppedPixels, "avatar.jpg");
-      await authApi.uploadAvatar(file);
-      await refreshMe();
-      closeCrop();
-      toast.success(t("profile.editForm.toast.avatarUpdated"));
-    } catch (err) {
-      const raw = err?.response?.data?.message;
-      const msg =
-        err?.response?.status === 401
-          ? t("profile.toast.avatarSessionExpired")
-          : (Array.isArray(raw) ? raw[0] : raw) ||
-            err?.message ||
-            t("profile.editForm.toast.avatarUpdateError");
-      toast.error(String(msg));
-      setAvatarError(String(msg));
-    } finally {
-      setIsAvatarUploading(false);
-    }
-  };
-
-  const deleteAvatar = async () => {
-    try {
-      setIsAvatarUploading(true);
-      setAvatarError("");
-      await authApi.deleteAvatar();
-      await refreshMe();
-      toast.success(t("profile.editForm.toast.avatarDeleted"));
-    } catch (err) {
-      const raw = err?.response?.data?.message;
-      const msg =
-        err?.response?.status === 401
-          ? t("profile.toast.avatarSessionExpired")
-          : (Array.isArray(raw) ? raw[0] : raw) ||
-            err?.message ||
-            t("profile.editForm.toast.avatarDeleteError");
-      toast.error(String(msg));
-      setAvatarError(String(msg));
-    } finally {
-      setIsAvatarUploading(false);
-    }
-  };
-
-  const selectPortalTarget = typeof window !== "undefined" ? document.body : null;
-  const selectCommonProps = useMemo(() => {
-    if (!selectPortalTarget) return {};
-    return {
-      menuPortalTarget: selectPortalTarget,
-      menuPosition: "fixed",
-      styles: { menuPortal: (base) => ({ ...base, zIndex: 9999999 }) },
-    };
-  }, [selectPortalTarget]);
-
-  const [cityOptions, setCityOptions] = useState([]);
-  const [isCitiesLoading, setIsCitiesLoading] = useState(false);
-
-  const {
-    countryOptions,
-    cityOptions: citiesFromHook,
-    isCitiesLoading: citiesLoadingHook,
-  } = useLocationOptions(values.country?.value, values.city?.value, setValues);
-
-  useEffect(() => {
-    setCityOptions(citiesFromHook);
-    setIsCitiesLoading(citiesLoadingHook);
-  }, [citiesFromHook, citiesLoadingHook]);
+  // CUSTOM HOOKS
+  const { countryOptions, cityOptions, isCitiesLoading } = useLocationOptions(
+    values.country?.value || '',
+    values.city?.value || ''
+  );
 
   usePrefillProfile({
     setProfileCompleted,
@@ -191,12 +102,11 @@ export default function CompleteProfileForm({ onBack, onSuccess }) {
     interestOptions,
     hobbyOptions: profileHobbyOptions,
     maritalStatusOptions,
-    setCityOptions,
-    setIsCitiesLoading,
     locationApi,
     profileApi,
   });
 
+  // EFFECTS
   useEffect(() => {
     const normalized = normalizeForValidation(values);
     setErrors(translateValidationErrors(validateCompleteProfile(normalized), t));
@@ -209,71 +119,108 @@ export default function CompleteProfileForm({ onBack, onSuccess }) {
         setGenderPickerOpen(false);
       }
     };
-    document.addEventListener("mousedown", handleOutside);
-    document.addEventListener("touchstart", handleOutside, { passive: true });
+    document.addEventListener('mousedown', handleOutside);
+    document.addEventListener('touchstart', handleOutside, { passive: true });
     return () => {
-      document.removeEventListener("mousedown", handleOutside);
-      document.removeEventListener("touchstart", handleOutside);
+      document.removeEventListener('mousedown', handleOutside);
+      document.removeEventListener('touchstart', handleOutside);
     };
   }, [genderPickerOpen]);
 
-  const canSubmit = useMemo(() => Object.keys(errors).length === 0, [errors]);
-
-  const onBlur = (key) => setTouched((prev) => ({ ...prev, [key]: true }));
-
+  // HANDLERS
   const setField = (key, val) => {
     setValues((v) => ({ ...v, [key]: val }));
-    setSubmitError("");
+    setSubmitError('');
+  };
+  const onBlur = (key) => setTouched((prev) => ({ ...prev, [key]: true }));
+
+  const pickAvatar = () => {
+    setAvatarError('');
+    fileRef.current?.click?.();
   };
 
-  const showError = (key) => Boolean(touched[key] && errors[key]);
+  const handlePickForCrop = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
 
-  const showStar = (key) => {
-    const requiredKeys = [
-      "lastName",
-      "firstName",
-      "phone",
-      "nationality",
-      "username",
-      "interests",
-      "hobbies",
-      "maritalStatus",
-      "country",
-      "city",
-      "birthDate",
-      "gender",
-    ];
-    if (!requiredKeys.includes(key)) return false;
-
-    const v = values[key];
-    const isEmpty =
-      v === null ||
-      v === undefined ||
-      (typeof v === "string" && !v.trim()) ||
-      (Array.isArray(v) && v.length === 0);
-
-    if (isEmpty) return true;
-    if (key === "gender") {
-      if (values.gender !== "MALE" && values.gender !== "FEMALE") return true;
+    const okTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+    if (!okTypes.includes(file.type)) {
+      setAvatarError(t('profile.editForm.toast.invalidFileType'));
+      return;
     }
-    if (touched[key] && errors[key]) return true;
-    return false;
+
+    const url = URL.createObjectURL(file);
+    setCropSrc(url);
+    setIsCropOpen(true);
+  };
+
+  const closeCrop = () => {
+    setIsCropOpen(false);
+    setCropSrc('');
+    setAvatarError('');
+    if (fileRef.current) fileRef.current.value = '';
+  };
+
+  const handleCropConfirm = async (croppedPixels) => {
+    try {
+      setIsAvatarUploading(true);
+      setAvatarError('');
+
+      const file = await cropImageToFile(cropSrc, croppedPixels, 'avatar.jpg');
+
+      await authApi.uploadAvatar(file);
+
+      await refreshMe();
+      closeCrop();
+      toast.success(t('profile.editForm.toast.avatarUpdated'));
+    } catch (err) {
+      const raw = err?.response?.data?.message;
+      const msg =
+        err?.response?.status === 401
+          ? t('profile.toast.avatarSessionExpired')
+          : (Array.isArray(raw) ? raw[0] : raw) ||
+            err?.message ||
+            t('profile.editForm.toast.avatarUpdateError');
+      toast.error(String(msg));
+      setAvatarError(String(msg));
+    } finally {
+      setIsAvatarUploading(false);
+    }
+  };
+
+  const deleteAvatar = async () => {
+    try {
+      setIsAvatarUploading(true);
+      setAvatarError('');
+      await authApi.deleteAvatar();
+      await refreshMe();
+      toast.success(t('profile.editForm.toast.avatarDeleted'));
+    } catch (err) {
+      const raw = err?.response?.data?.message;
+      const msg =
+        err?.response?.status === 401
+          ? t('profile.toast.avatarSessionExpired')
+          : (Array.isArray(raw) ? raw[0] : raw) ||
+            err?.message ||
+            t('profile.editForm.toast.avatarDeleteError');
+      toast.error(String(msg));
+      setAvatarError(String(msg));
+    } finally {
+      setIsAvatarUploading(false);
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setSubmitError("");
+    setSubmitError('');
 
     setTouched({
       firstName: true,
       lastName: true,
       phone: true,
       nationality: true,
-      username: true,
-      bio: true,
       interests: true,
       hobbies: true,
-      maritalStatus: true,
       country: true,
       city: true,
       gender: true,
@@ -283,51 +230,87 @@ export default function CompleteProfileForm({ onBack, onSuccess }) {
     const normalized = normalizeForValidation(values);
     const nextErrors = translateValidationErrors(validateCompleteProfile(normalized), t);
     setErrors(nextErrors);
+
     if (Object.keys(nextErrors).length > 0) return;
 
-    const payload = toBackendPayload(values);
+    const payload = toCompleteProfilePayload(values);
 
     try {
       setIsSubmitting(true);
+      onSave?.(payload);
 
       const status = await profileApi.getProfileStatus();
       const isCompleted = Boolean(status?.profileCompleted);
 
       if (isCompleted) await profileApi.updateProfile(payload);
-      else await profileApi.completeProfile(payload);
 
       setProfileCompleted(true);
-      await refreshMe();
-      toast.success(t("profile.completeForm.toast.profileSaved"));
-      onSuccess?.();
     } catch (err) {
-      const msg = getApiErrorMessage(err) || t("profile.completeForm.errors.saveError");
-      toast.error(msg);
+      const msg = getApiErrorMessage(err) || t('profile.completeForm.errors.saveError');
       setSubmitError(msg);
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const handleBack = () => {
-    if (onBack) onBack();
-    else window.history.back();
+  // HELPERS
+  const showError = (key) => Boolean(touched[key] && errors[key]);
+  const showStar = (key) => {
+    const requiredKeys = [
+      'lastName',
+      'firstName',
+      'phone',
+      'nationality',
+      'interests',
+      'hobbies',
+      'country',
+      'city',
+      'birthDate',
+      'gender',
+    ];
+    if (!requiredKeys.includes(key)) return false;
+
+    const v = values[key];
+    const isEmpty =
+      v === null ||
+      v === undefined ||
+      (typeof v === 'string' && !v.trim()) ||
+      (Array.isArray(v) && v.length === 0);
+
+    if (isEmpty) return true;
+
+    if (key === 'phone') {
+      const onlyCountryCode = v && typeof v === 'string' && v.trim().length <= 4;
+
+      return !v || onlyCountryCode;
+    }
+
+    if (key === 'gender') {
+      if (values.gender !== 'MALE' && values.gender !== 'FEMALE') return true;
+    }
+    if (touched[key] && errors[key]) return true;
+    return false;
   };
 
-  const toYMDLocal = (d) => {
-    const y = d.getFullYear();
-    const m = String(d.getMonth() + 1).padStart(2, "0");
-    const day = String(d.getDate()).padStart(2, "0");
-    return `${y}-${m}-${day}`;
-  };
+  // REACT-SELECT PORTAL
+  const selectPortalTarget = typeof window !== 'undefined' ? document.body : null;
+
+  const selectCommonProps = useMemo(() => {
+    if (!selectPortalTarget) return {};
+    return {
+      menuPortalTarget: selectPortalTarget,
+      menuPosition: 'fixed',
+      styles: { menuPortal: (base) => ({ ...base, zIndex: 9999999 }) },
+    };
+  }, [selectPortalTarget]);
 
   const currentAvatarSrc = backendAvatarUrl;
 
   const submitLabel = isSubmitting
-    ? t("profile.completeForm.saving")
+    ? t('profile.completeForm.saving')
     : profileCompleted
-      ? t("profile.completeForm.update")
-      : t("profile.completeForm.save");
+      ? t('profile.completeForm.update')
+      : t('profile.completeForm.save');
 
   return (
     <div className="complete-profile">
@@ -336,11 +319,11 @@ export default function CompleteProfileForm({ onBack, onSuccess }) {
           <button
             type="button"
             className="back-arrow"
-            onClick={handleBack}
-            aria-label={t("common.back")}
+            onClick={onBack}
+            aria-label={t('common.back')}
           >
             <img
-              src="/icon1/Vector.png"
+              src={profileIcons.arrowGradient}
               alt=""
               aria-hidden="true"
               className="back-arrow__icon"
@@ -355,9 +338,9 @@ export default function CompleteProfileForm({ onBack, onSuccess }) {
         </div>
 
         <div className="cp-divider" />
-
+        {/* HEADER */}
         <div className="cp-head">
-          <div className="cp-head__title">{t("profile.completeForm.title")}</div>
+          <div className="cp-head__title">{t('profile.completeForm.title')}</div>
 
           <div className="cp-avatar">
             <div className="cp-avatar__ring" onClick={pickAvatar} role="button" tabIndex={0}>
@@ -365,7 +348,7 @@ export default function CompleteProfileForm({ onBack, onSuccess }) {
                 <img
                   className="cp-avatar__img"
                   src={currentAvatarSrc}
-                  alt={t("profile.editForm.avatarAlt")}
+                  alt={t('profile.editForm.avatarAlt')}
                 />
               ) : (
                 <div className="cp-avatar__placeholder" aria-hidden="true">
@@ -383,20 +366,14 @@ export default function CompleteProfileForm({ onBack, onSuccess }) {
             </div>
           </div>
 
-          <div className="cp-head__link">{t("profile.completeForm.addPhoto")}</div>
-          <div className="cp-head__note">{t("profile.completeForm.photoNote")}</div>
+          <div className="cp-head__link">{t('profile.completeForm.addPhoto')}</div>
+          <div className="cp-head__note">{t('profile.completeForm.photoNote')}</div>
 
           <div className="cp-head__actions">
-            <input
-              ref={fileRef}
-              type="file"
-              accept="image/*"
-              hidden
-              onChange={handlePickForCrop}
-            />
+            <input ref={fileRef} type="file" accept="image/*" hidden onChange={handlePickForCrop} />
 
             <button type="button" className="cp-pill" onClick={pickAvatar}>
-              {t("profile.editForm.upload")}
+              {t('profile.editForm.upload')}
             </button>
 
             <button
@@ -405,59 +382,78 @@ export default function CompleteProfileForm({ onBack, onSuccess }) {
               onClick={deleteAvatar}
               disabled={isAvatarUploading}
             >
-              {isAvatarUploading ? "..." : t("profile.editForm.delete")}
+              {isAvatarUploading ? '...' : t('profile.editForm.delete')}
             </button>
           </div>
 
           {avatarError && <div className="auth__error">{avatarError}</div>}
         </div>
-
+        {/* LAST NAME */}
         <div className="field">
           <div className="field__wrap">
-            {showStar("lastName") && <span className="field__star">*</span>}
+            {showStar('lastName') && <span className="field__star">*</span>}
             <input
-              className={`text-input ${showError("lastName") ? "is-error" : ""}`}
-              placeholder={t("profile.editForm.fields.lastName")}
+              className={`text-input ${showError('lastName') ? 'is-error' : ''}`}
+              placeholder={t('profile.editForm.fields.lastName')}
               value={values.lastName}
-              onChange={(e) => setField("lastName", e.target.value)}
-              onBlur={() => onBlur("lastName")}
+              onChange={(e) => setField('lastName', e.target.value)}
+              onBlur={() => onBlur('lastName')}
+              required
             />
           </div>
-          {showError("lastName") && <div className="field__hint">{errors.lastName}</div>}
+          {showError('lastName') && <div className="field__hint">{errors.lastName}</div>}
         </div>
-
+        {/* NAME */}
         <div className="field">
           <div className="field__wrap">
-            {showStar("firstName") && <span className="field__star">*</span>}
+            {showStar('firstName') && <span className="field__star">*</span>}
             <input
-              className={`text-input ${showError("firstName") ? "is-error" : ""}`}
-              placeholder={t("profile.editForm.fields.firstName")}
+              className={`text-input ${showError('firstName') ? 'is-error' : ''}`}
+              placeholder={t('profile.editForm.fields.firstName')}
               value={values.firstName}
-              onChange={(e) => setField("firstName", e.target.value)}
-              onBlur={() => onBlur("firstName")}
+              onChange={(e) => setField('firstName', e.target.value)}
+              onBlur={() => onBlur('firstName')}
+              required
             />
           </div>
-          {showError("firstName") && <div className="field__hint">{errors.firstName}</div>}
+          {showError('firstName') && <div className="field__hint">{errors.firstName}</div>}
         </div>
-
-        <div className="grid-2 grid-2--gender-age">
+        {/* NICKNAME */}
+        <div className="field">
+          <div className="field__wrap">
+            <input
+              className={`text-input ${showError('username') ? 'is-error' : ''}`}
+              placeholder={t('profile.editForm.fields.username')}
+              value={values.username}
+              onChange={(e) => setField('username', e.target.value)}
+              onBlur={() => onBlur('username')}
+              maxLength={10}
+              aria-required="true"
+            />
+          </div>
+          {showError('username') && <div className="field__hint">{errors.username}</div>}
+        </div>
+        {/* СТАТЬ + ВІК: десктоп/планшет — 2 поля в одному рядку; мобілка — кожне поле - свій рядок */}
+        <div className="grid-2">
           <div
-            className={`field field--gender ${genderPickerOpen ? "field--genderOpen" : ""}`}
+            className={`field field--gender ${genderPickerOpen ? 'field--genderOpen' : ''}`}
             ref={genderDropdownRef}
           >
+            {/* Десктоп/планшет: текст "СТАТЬ" навпроти опцій (один ряд) */}
             <div className="field__genderWrap field__genderWrap--desktop">
               <label className="field__label field__label--row">
-                {showStar("gender") && <span className="field__star">*</span>}
-                {t("profile.editForm.fields.gender")}
+                {showStar('gender') && <span className="field__star">*</span>}
+                {t('profile.editForm.fields.gender')}
               </label>
               <div className="field__genderGroup">
                 {genderOptions.map((opt) => (
                   <button
                     key={opt.value}
                     type="button"
-                    className={`field__genderBtn ${values.gender === opt.value ? "field__genderBtnActive" : ""}`}
-                    onClick={() => setField("gender", opt.value)}
-                    onBlur={() => onBlur("gender")}
+                    className={`field__genderBtn ${values.gender === opt.value ? 'field__genderBtnActive' : ''}`}
+                    onClick={() => setField('gender', opt.value)}
+                    onBlur={() => onBlur('gender')}
+                    required
                   >
                     <span className="field__genderLabel">{opt.label}</span>
                     <span className="field__genderToggle" aria-hidden="true" />
@@ -465,7 +461,7 @@ export default function CompleteProfileForm({ onBack, onSuccess }) {
                 ))}
               </div>
             </div>
-
+            {/* Мобілка: один ряд, по натисканню — вибір поверх полів */}
             <div className="field__genderWrap field__genderWrap--mobile">
               <div className="field__genderTriggerWrap">
                 <button
@@ -475,16 +471,16 @@ export default function CompleteProfileForm({ onBack, onSuccess }) {
                   aria-expanded={genderPickerOpen}
                   aria-haspopup="listbox"
                 >
-                  {showStar("gender") && <span className="field__star">*</span>}
+                  {showStar('gender') && <span className="field__star">*</span>}
                   <span className="field__genderTriggerText">
                     <span
-                      className={`field__genderTriggerValue ${!values.gender ? "field__genderTriggerValue--placeholder" : ""}`}
+                      className={`field__genderTriggerValue ${!values.gender ? 'field__genderTriggerValue--placeholder' : ''}`}
                     >
                       {genderOptions.find((o) => o.value === values.gender)?.label ??
-                        t("profile.editForm.select")}
+                        t('profile.editForm.select')}
                     </span>
                     <span className="field__genderTriggerLabel">
-                      {t("profile.editForm.fields.gender")}
+                      {t('profile.editForm.fields.gender')}
                     </span>
                   </span>
                   <span className="field__genderChevron" aria-hidden="true" />
@@ -498,12 +494,13 @@ export default function CompleteProfileForm({ onBack, onSuccess }) {
                       type="button"
                       role="option"
                       aria-selected={values.gender === opt.value}
-                      className={`field__genderDropdownItem ${values.gender === opt.value ? "field__genderDropdownItemActive" : ""}`}
+                      className={`field__genderDropdownItem ${values.gender === opt.value ? 'field__genderDropdownItemActive' : ''}`}
                       onClick={() => {
-                        setField("gender", opt.value);
-                        onBlur("gender");
+                        setField('gender', opt.value);
+                        onBlur('gender');
                         setGenderPickerOpen(false);
                       }}
+                      required
                     >
                       {opt.label}
                     </button>
@@ -511,22 +508,26 @@ export default function CompleteProfileForm({ onBack, onSuccess }) {
                 </div>
               )}
             </div>
-            {showError("gender") && <div className="field__hint">{errors.gender}</div>}
+            {showError('gender') && <div className="field__hint">{errors.gender}</div>}
           </div>
-
           <div className="field">
             <div className="field__wrap field__wrap--birthDate">
-              {showStar("birthDate") && <span className="field__star">*</span>}
+              {showStar('birthDate') && <span className="field__star">*</span>}
               <DatePicker
-                className={`text-input field__date-input ${showError("birthDate") ? "is-error" : ""}`}
-                placeholderText={t("profile.editForm.fields.birthDatePlaceholder")}
-                aria-label={t("profile.editForm.fields.birthDate")}
+                className={`text-input field__date-input ${showError('birthDate') ? 'is-error' : ''}`}
+                placeholderText={t('profile.editForm.fields.birthDatePlaceholder')}
+                aria-label={t('profile.editForm.fields.birthDate')}
                 dateFormat="yyyy-MM-dd"
-                selected={values.birthDate ? new Date(values.birthDate + "T12:00:00") : null}
+                selected={
+                  values?.birthDate && !isNaN(new Date(values.birthDate).getTime())
+                    ? new Date(values.birthDate)
+                    : null
+                }
                 minDate={getBirthDateLimits().minDate}
                 maxDate={getBirthDateLimits().maxDate}
-                onChange={(d) => setField("birthDate", d ? toYMDLocal(d) : "")}
-                onBlur={() => onBlur("birthDate")}
+                onChange={(d) => setField('birthDate', d ? toYMDLocal(d) : '')}
+                onBlur={() => onBlur('birthDate')}
+                required
                 popperClassName="birthDate-picker"
                 showMonthDropdown
                 showYearDropdown
@@ -535,185 +536,148 @@ export default function CompleteProfileForm({ onBack, onSuccess }) {
               />
               <span className="field__date-indicator" aria-hidden="true" />
             </div>
-            {showError("birthDate") && <div className="field__hint">{errors.birthDate}</div>}
+            {showError('birthDate') && <div className="field__hint">{errors.birthDate}</div>}
           </div>
         </div>
-
+        {/* PHONE */}
         <div className="field">
           <div className="field__wrap phone-wrap">
-            {showStar("phone") && <span className="field__star">*</span>}
+            {showStar('phone') && <span className="field__star">*</span>}
             <PhoneInput
               defaultCountry="ua"
               value={values.phone}
-              onChange={(val) => setField("phone", normalizePhone(val))}
-              onBlur={() => onBlur("phone")}
-              inputClassName={`phone-input ${showError("phone") ? "is-error" : ""}`}
-            />
-          </div>
-          {showError("phone") && <div className="field__hint">{errors.phone}</div>}
-        </div>
-
-        <div className="field">
-          <div className="field__wrap">
-            {showStar("nationality") && <span className="field__star">*</span>}
-            <input
-              className={`text-input ${showError("nationality") ? "is-error" : ""}`}
-              placeholder={t("profile.editForm.fields.nationality")}
-              value={values.nationality}
-              onChange={(e) => setField("nationality", e.target.value)}
-              onBlur={() => onBlur("nationality")}
-            />
-          </div>
-          {showError("nationality") && <div className="field__hint">{errors.nationality}</div>}
-        </div>
-
-        <div className="field">
-          <div className="field__wrap">
-            {showStar("username") && <span className="field__star">*</span>}
-            <input
-              className={`text-input ${showError("username") ? "is-error" : ""}`}
-              placeholder={t("profile.editForm.fields.username")}
-              value={values.username}
-              onChange={(e) => setField("username", e.target.value)}
-              onBlur={() => onBlur("username")}
-              maxLength={10}
+              onChange={(val) => setField('phone', val)}
+              onBlur={() => onBlur('phone')}
               required
-              aria-required="true"
+              inputClassName={`phone-input ${showError('phone') ? 'is-error' : ''}`}
             />
           </div>
-          {showError("username") && <div className="field__hint">{errors.username}</div>}
+          {showError('phone') && <div className="field__hint">{errors.phone}</div>}
         </div>
-
+        {/* NATIONALITY */}
+        <div className="field">
+          <div className="field__wrap">
+            {showStar('nationality') && <span className="field__star">*</span>}
+            <input
+              className={`text-input ${showError('nationality') ? 'is-error' : ''}`}
+              placeholder={t('profile.editForm.fields.nationality')}
+              value={values.nationality}
+              onChange={(e) => setField('nationality', e.target.value)}
+              onBlur={() => onBlur('nationality')}
+              required
+            />
+          </div>
+          {showError('nationality') && <div className="field__hint">{errors.nationality}</div>}
+        </div>
+        {/* MARITAL */}
+        <div className="field">
+          <div className="field__wrap select-wrap">
+            <Select
+              classNamePrefix="rs"
+              placeholder={t('profile.editForm.fields.maritalStatus')}
+              value={values.maritalStatus}
+              options={maritalStatusOptions}
+              onChange={(opt) => setField('maritalStatus', opt)}
+              onBlur={() => onBlur('maritalStatus')}
+              {...selectCommonProps}
+            />
+          </div>
+          {showError('maritalStatus') && <div className="field__hint">{errors.maritalStatus}</div>}
+        </div>
+        {/* BIO */}
         <div className="field">
           <div className="field__wrap">
             <textarea
-              className={`text-area ${showError("bio") ? "is-error" : ""}`}
-              placeholder={t("profile.editForm.fields.bio")}
+              className={`text-area ${showError('bio') ? 'is-error' : ''}`}
+              placeholder={t('profile.editForm.fields.bio')}
               value={values.bio}
-              onChange={(e) => setField("bio", e.target.value)}
-              onBlur={() => onBlur("bio")}
+              onChange={(e) => setField('bio', e.target.value)}
+              onBlur={() => onBlur('bio')}
               rows={3}
               maxLength={500}
             />
           </div>
+
           <div className="field__meta">
-            <span className="field__note">{t("profile.editForm.maxCharsNote")} </span>
-            <span className="field__counter">{(values.bio || "").length}/500</span>
+            <span className="field__note">{t('profile.editForm.maxCharsNote')} </span>
+            <span className="field__counter">{(values.bio || '').length}/500</span>
           </div>
-          {showError("bio") && <div className="field__hint">{errors.bio}</div>}
+          {showError('bio') && <div className="field__hint">{errors.bio}</div>}
         </div>
-
-        <div className="field">
-          <div className="field__wrap select-wrap">
-            {showStar("interests") && <span className="field__star">*</span>}
-            <Select
-              classNamePrefix="rs"
-              placeholder={t("profile.editForm.fields.interests")}
-              isMulti
-              value={values.interests}
-              options={interestOptions}
-              onChange={(arr) => setField("interests", (arr || []).slice(0, MAX_INTERESTS))}
-              onBlur={() => onBlur("interests")}
-              isOptionDisabled={() => (values.interests || []).length >= MAX_INTERESTS}
-              {...selectCommonProps}
-            />
-          </div>
-          <div className="field__meta">
-            <span className="field__note">
-              {t("profile.completeForm.maxLimit", { max: MAX_INTERESTS })}
-            </span>
-            <span className="field__counter">
-              {(values.interests || []).length}/{MAX_INTERESTS}
-            </span>
-          </div>
-          {showError("interests") && <div className="field__hint">{errors.interests}</div>}
-        </div>
-
-        <div className="field">
-          <div className="field__wrap select-wrap">
-            {showStar("hobbies") && <span className="field__star">*</span>}
-            <Select
-              classNamePrefix="rs"
-              placeholder={t("profile.editForm.fields.hobbies")}
-              isMulti
-              value={values.hobbies}
-              options={profileHobbyOptions}
-              onChange={(arr) => setField("hobbies", (arr || []).slice(0, MAX_HOBBIES))}
-              onBlur={() => onBlur("hobbies")}
-              isOptionDisabled={() => (values.hobbies || []).length >= MAX_HOBBIES}
-              {...selectCommonProps}
-            />
-          </div>
-          <div className="field__meta">
-            <span className="field__note">
-              {t("profile.completeForm.maxLimit", { max: MAX_HOBBIES })}
-            </span>
-            <span className="field__counter">
-              {(values.hobbies || []).length}/{MAX_HOBBIES}
-            </span>
-          </div>
-          {showError("hobbies") && <div className="field__hint">{errors.hobbies}</div>}
-        </div>
-
-        <div className="field">
-          <div className="field__wrap select-wrap">
-            {showStar("maritalStatus") && <span className="field__star">*</span>}
-            <Select
-              classNamePrefix="rs"
-              placeholder={t("profile.editForm.fields.maritalStatus")}
-              value={values.maritalStatus}
-              options={maritalStatusOptions}
-              onChange={(opt) => setField("maritalStatus", opt)}
-              onBlur={() => onBlur("maritalStatus")}
-              {...selectCommonProps}
-            />
-          </div>
-          {showError("maritalStatus") && <div className="field__hint">{errors.maritalStatus}</div>}
-        </div>
-
+        {/* INTERESTS */}
+        <MultiSelect
+          value={values.interests}
+          onChange={(val) => setField('interests', val)}
+          options={interestOptions}
+          placeholder={t('profile.editForm.fields.interests')}
+          onBlur={() => onBlur('interests')}
+          error={showError('interests') && errors.interests}
+          maxItemsNote={t('profile.editForm.maxItemsNote', { max: 10 })}
+          selectProps={selectCommonProps}
+          showStar={showStar('interests')}
+        />
+        {/* HOBBIES */}
+        <MultiSelect
+          value={values.hobbies}
+          onChange={(val) => setField('hobbies', val)}
+          options={profileHobbyOptions}
+          placeholder={t('profile.editForm.fields.hobbies')}
+          showStar={showStar('hobbies')}
+          onBlur={() => onBlur('hobbies')}
+          error={showError('hobbies') && errors.hobbies}
+          maxItemsNote={t('profile.editForm.maxItemsNote', { max: 10 })}
+          selectProps={selectCommonProps}
+        />
+        {/* COUNTRY +  CITY */}
         <div className="grid-2">
           <div className="field">
             <div className="field__wrap select-wrap">
-              {showStar("country") && <span className="field__star">*</span>}
+              {showStar('country') && <span className="field__star">*</span>}
               <Select
                 classNamePrefix="rs"
-                placeholder={t("profile.editForm.fields.country")}
+                placeholder={t('profile.editForm.fields.country')}
                 value={values.country}
                 options={countryOptions}
-                onChange={(opt) => setField("country", opt)}
-                onBlur={() => onBlur("country")}
+                onChange={(opt) => {
+                  setValues((prev) => ({
+                    ...prev,
+                    country: opt,
+                    city: null,
+                  }));
+                }}
+                onBlur={() => onBlur('country')}
                 {...selectCommonProps}
               />
             </div>
-            {showError("country") && <div className="field__hint">{errors.country}</div>}
+            {showError('country') && <div className="field__hint">{errors.country}</div>}
           </div>
 
           <div className="field">
             <div className="field__wrap select-wrap">
-              {showStar("city") && <span className="field__star">*</span>}
+              {showStar('city') && <span className="field__star">*</span>}
               <Select
                 classNamePrefix="rs"
-                placeholder={t("profile.editForm.fields.city")}
+                placeholder={t('profile.editForm.fields.city')}
                 value={values.city}
                 options={cityOptions}
                 isDisabled={!values.country}
                 isLoading={isCitiesLoading}
-                onChange={(opt) => setField("city", opt)}
-                onBlur={() => onBlur("city")}
+                onChange={(opt) => setField('city', opt)}
+                onBlur={() => onBlur('city')}
                 {...selectCommonProps}
               />
             </div>
-            {showError("city") && <div className="field__hint">{errors.city}</div>}
+            {showError('city') && <div className="field__hint">{errors.city}</div>}
           </div>
         </div>
 
         {submitError && <div className="auth__error">{submitError}</div>}
 
-        <button className="btn-gradient wide" disabled={isSubmitting || !canSubmit}>
+        <button className="btn-gradient wide" disabled={isSubmitting}>
           {submitLabel}
         </button>
       </form>
-
+      {/* CROP MODAL */}
       {isCropOpen && (
         <AvatarCropModal src={cropSrc} onClose={closeCrop} onConfirm={handleCropConfirm} />
       )}

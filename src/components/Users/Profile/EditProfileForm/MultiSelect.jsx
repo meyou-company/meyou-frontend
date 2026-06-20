@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import Select, { components } from 'react-select';
+import VisibilityToggle from './VisibilityToggle';
 
 const DESKTOP_VISIBLE = 5;
 const TABLET_VISIBLE = 3;
@@ -34,6 +35,12 @@ export default function MultiSelect({
   error,
   maxItemsNote,
   selectProps = {},
+
+  showStar,
+  showVisibility = false,
+  visibilityValue = false,
+  onVisibilityChange,
+  visibilityLabel = 'Показувати в профілі',
 }) {
   const visibleCount = useVisibleCount();
 
@@ -156,6 +163,7 @@ export default function MultiSelect({
   return (
     <div className="field">
       <div className="field__wrap select-wrap">
+        {showStar && <span className="field__star">*</span>}
         <Select
           classNamePrefix="rs"
           isMulti
@@ -178,6 +186,13 @@ export default function MultiSelect({
       </div>
 
       {error && <div className="field__hint">{error}</div>}
+      {showVisibility && (
+        <VisibilityToggle
+          checked={visibilityValue}
+          onChange={onVisibilityChange}
+          label={visibilityLabel}
+        />
+      )}
     </div>
   );
 }
