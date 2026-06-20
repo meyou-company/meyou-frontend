@@ -81,6 +81,13 @@
   color: rgba(255, 255, 255, 0.6);
 }
 
+.authPolicy__link {
+  color: rgba(255, 255, 255, 0.92);
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
 /* SUBMIT ERROR BOX */
 .auth__error {
   padding: 10px 12px;

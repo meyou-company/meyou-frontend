@@ -41,6 +41,11 @@ import AccountSettingsPage from '../pages/Settings/AccountSettingsPage';
 import ChangePasswordPage from '../pages/Settings/ChangePasswordPage';
 import PrivacySettingsPage from '../pages/Settings/PrivacySettingsPage';
 import SecuritySettingsPage from '../pages/Settings/SecuritySettingsPage';
+import LegalPrivacyPage from '../app/legal/privacy/page';
+import LegalTermsPage from '../app/legal/terms/page';
+import LegalCommunityGuidelinesPage from '../app/legal/community-guidelines/page';
+import LegalDeleteAccountPage from '../app/legal/delete-account/page';
+import LegalAcceptTermsPage from '../app/legal/accept-terms/page';
 import { useBurgerMenuStore } from '../zustand/useBurgerMenuStore';
 import { useLocaleStore } from '../zustand/useLocaleStore';
 import { useThemeStore } from '../zustand/useThemeStore';
@@ -80,12 +85,14 @@ function AppLayout() {
 
   const isAuthRoute =
     location.pathname.startsWith('/auth') || location.pathname === '/auth/callback';
+  const isLegalRoute = location.pathname.startsWith('/legal');
   const hideBottomNavRoutes = new Set(['/users/profile/complete']);
   const isLanding = location.pathname === '/';
   /** Нижня навігація (mobile): лише після завершення профілю, не на головній з входом/реєстрацією. */
   const profileComplete = user?.profileCompleted === true;
   const shouldHideBottomNav =
     isAuthRoute ||
+    isLegalRoute ||
     hideBottomNavRoutes.has(location.pathname) ||
     !isAuthed ||
     !user ||
@@ -133,6 +140,12 @@ function AppLayout() {
               <Route path="/settings/change-password" element={<ChangePasswordPage />} />
               <Route path="/settings/privacy" element={<PrivacySettingsPage />} />
               <Route path="/settings/security" element={<SecuritySettingsPage />} />
+
+              <Route path="/legal/privacy" element={<LegalPrivacyPage />} />
+              <Route path="/legal/terms" element={<LegalTermsPage />} />
+              <Route path="/legal/community-guidelines" element={<LegalCommunityGuidelinesPage />} />
+              <Route path="/legal/delete-account" element={<LegalDeleteAccountPage />} />
+              <Route path="/legal/accept-terms" element={<LegalAcceptTermsPage />} />
 
               <Route path="/auth/login" element={<LoginPage />} />
               <Route path="/auth/register" element={<RegisterPage />} />

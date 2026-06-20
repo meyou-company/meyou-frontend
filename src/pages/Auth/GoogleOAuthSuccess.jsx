@@ -6,6 +6,9 @@ import { useAuthStore } from '../../zustand/useAuthStore';
 import AuthLoadingScreen from '../../components/Auth/AuthLoadingScreen';
 
 function postAuthPath(user) {
+  const needsTerms = !user?.acceptedTermsAt && !user?.accepted_terms_at;
+  if (needsTerms) return '/legal/accept-terms';
+
   const verified =
     user.isVerified === true ||
     user.emailVerified === true ||

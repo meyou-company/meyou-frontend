@@ -1,4 +1,5 @@
 import { api } from "./api";
+import { authApi } from "./auth";
 
 export const profileApi = {
   async getProfileStatus() {
@@ -18,6 +19,16 @@ export const profileApi = {
 
   async updateLanguage(language) {
     const { data } = await api.patch("/users/me/language", { language });
+    return data;
+  },
+
+  async acceptTerms() {
+    const { data } = await api.patch("/users/me/accept-terms", { acceptedTerms: true });
+    return data;
+  },
+
+  async deleteAccount() {
+    const { data } = await api.delete("/users/me");
     return data;
   },
 };

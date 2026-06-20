@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { useAuthStore } from "../../../zustand/useAuthStore";
@@ -52,6 +53,11 @@ export default function RegisterForm({ onBack, onGoLogin, onSuccess }) {
   );
 
   const handleGoogle = () => {
+    if (!form.acceptPolicy) {
+      setTouched((prev) => ({ ...prev, acceptPolicy: true }));
+      setSubmitError(t("auth.validation.acceptPolicy"));
+      return;
+    }
     window.location.href = `${resolvedApiBaseUrl}/auth/google`;
   };
 
@@ -100,6 +106,7 @@ export default function RegisterForm({ onBack, onGoLogin, onSuccess }) {
       email: form.email.trim(),
       password: form.password,
       confirmPassword: form.confirmPassword,
+      acceptedTerms: true,
     };
 
     setIsSubmitting(true);
@@ -283,7 +290,17 @@ export default function RegisterForm({ onBack, onGoLogin, onSuccess }) {
             onChange={onChange}
             onBlur={onBlur}
           />
-          <p className="authPolicy__text">{t("auth.register.policyText")}</p>
+          <p className="authPolicy__text">
+            {t("auth.register.policyPrefix")}{" "}
+            <Link className="authPolicy__link" to="/legal/privacy">
+              {t("auth.register.policyPrivacyLink")}
+            </Link>{" "}
+            {t("auth.register.policyAnd")}{" "}
+            <Link className="authPolicy__link" to="/legal/terms">
+              {t("auth.register.policyTermsLink")}
+            </Link>
+            .
+          </p>
         </div>
 
         {submitError && <div className="auth__error">{submitError}</div>}

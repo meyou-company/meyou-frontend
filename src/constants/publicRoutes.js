@@ -10,6 +10,11 @@ export const PUBLIC_PATHS = [
   '/auth/reset/new-password',
   '/auth/verify-email',
   '/users/profile/complete',
+  '/legal/privacy',
+  '/legal/terms',
+  '/legal/community-guidelines',
+  '/legal/delete-account',
+  '/legal/accept-terms',
 ];
 
 export function normalizePathname(pathname) {
@@ -20,5 +25,6 @@ export function normalizePathname(pathname) {
 export function isPublicPath(pathname) {
   const path = normalizePathname(pathname);
   if (PUBLIC_PATHS.includes(path)) return true;
+  if (path.startsWith('/legal/')) return true;
   return path.startsWith('/auth/');
 }

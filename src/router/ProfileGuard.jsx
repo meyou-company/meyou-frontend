@@ -29,6 +29,14 @@ export default function ProfileGuard({ children }) {
       user.email_verified === true ||
       Boolean(user.emailVerifiedAt);
 
+    const needsTerms = !user.acceptedTermsAt && !user.accepted_terms_at;
+    const isLegalPage = pathname.startsWith('/legal/');
+
+    if (needsTerms && !isLegalPage) {
+      navigate('/legal/accept-terms', { replace: true });
+      return;
+    }
+
     // 1) НЕ verified → ведемо на verify-email (але не чіпаємо public)
     if (!isVerified && !isPublicPage) {
       navigate("/auth/verify-email", { replace: true });
