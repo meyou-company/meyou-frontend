@@ -1,7 +1,6 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { getLegalNav, getLegalUi } from '../../i18n/legal';
-import LanguageSwitcher from '../../components/LanguageSwitcher/LanguageSwitcher';
 import './legal.scss';
 
 export default function LegalLayout({ children }) {
@@ -17,7 +16,6 @@ export default function LegalLayout({ children }) {
         <header className="legalLayout__header">
           <h1 className="legalLayout__brand">{ui.brand}</h1>
           <div className="legalLayout__headerActions">
-            <LanguageSwitcher />
             <button
               type="button"
               className="legalLayout__homeLink"

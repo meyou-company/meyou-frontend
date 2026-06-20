@@ -2,7 +2,6 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useForceDarkTheme } from '../../hooks/useForceDarkTheme';
 import { getFeatureNav, getFeatureUi } from '../../i18n/features';
-import LanguageSwitcher from '../../components/LanguageSwitcher/LanguageSwitcher';
 import './features.scss';
 
 export default function FeatureLayout({ children }) {
@@ -20,7 +19,6 @@ export default function FeatureLayout({ children }) {
         <header className="featureLayout__header">
           <p className="featureLayout__brand">{ui.brand}</p>
           <div className="featureLayout__headerActions">
-            <LanguageSwitcher />
             <button
               type="button"
               className="featureLayout__homeLink"

@@ -5,7 +5,6 @@ import { useAuthStore } from "../../../zustand/useAuthStore";
 import { resolvedApiBaseUrl } from "../../../services/api";
 import { useForceDarkTheme } from "../../../hooks/useForceDarkTheme";
 import { getApiErrorMessage } from "../../../utils/getApiErrorMessage";
-import LanguageSwitcher from "../../LanguageSwitcher/LanguageSwitcher";
 import "./LoginForm.scss";
 
 export default function LoginForm({ onBack, onForgot, onSuccess }) {
@@ -75,9 +74,6 @@ export default function LoginForm({ onBack, onForgot, onSuccess }) {
 
   return (
     <section className="auth auth--login">
-      <div className="auth__langSwitchWrap">
-        <LanguageSwitcher />
-      </div>
       <button type="button" className="back-arrow" onClick={onBack} aria-label={t("common.back")}>
         <img src="/icon1/Vector.png" alt="" aria-hidden="true" className="back-arrow__icon" />
       </button>
