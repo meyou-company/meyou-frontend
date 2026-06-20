@@ -2,6 +2,9 @@
    LAYOUT
    ========================= */
 
+@import '../profileFormDropdowns.scss';
+@import '../profileFormFields.scss';
+
 .complete-profile {
   --field-radius: 20px;
   --field-radius-inner: 19px; /* inset 1px */
@@ -209,7 +212,6 @@
 
 .field__wrap {
   position: relative;
-  height: 52px;
   border-radius: var(--field-radius);
   overflow: hidden;
 
@@ -218,14 +220,12 @@
   transition: box-shadow 0.25s ease, filter 0.25s ease;
 }
 
-/* textarea wrapper */
-.field__wrap:has(.text-area) {
-  height: auto;
+/* phone: don't clip country dropdown */
+.field__wrap.phone-wrap {
+  overflow: visible;
 }
 
-/* ✅ select/phone: don't clip dropdown */
-.field__wrap.select-wrap,
-.field__wrap.phone-wrap {
+.field__wrap.select-wrap:has(.rs__menu) {
   overflow: visible;
 }
 
@@ -268,7 +268,7 @@
 }
 
 @media (hover: hover) and (pointer: fine) {
-  .field__wrap:hover {
+  .field__wrap:not(:has(.rs__menu)):hover {
     filter: brightness(1.05);
   }
 }
@@ -334,15 +334,15 @@
   pointer-events: none;
 }
 
-/* Десктоп/планшет: висота така ж як у решти полів (52px) */
+/* Десктоп/планшет: висота така ж як у решти полів */
 .field__genderWrap--desktop {
   display: flex;
   flex-direction: row;
   align-items: center;
   gap: 14px;
-  height: 52px;
-  min-height: 52px;
-  max-height: 52px;
+  height: var(--field-control-height);
+  min-height: var(--field-control-height);
+  max-height: var(--field-control-height);
   padding: 0 16px 0 14px;
 }
 
@@ -993,13 +993,14 @@ body.night .field__date-indicator::after,
 @media (max-width: 768px) {
   body.dark .field__genderDropdown,
   html[data-theme="dark"] .field__genderDropdown {
-    background: #0d0d0d;
-    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: #12051f;
+    border: 1px solid rgba(255, 255, 255, 0.15);
   }
 
   body.dark .field__genderDropdownItem,
   [data-theme="dark"] .field__genderDropdownItem {
-    color: var(--select-text);
+    color: #ffffff;
+    font-weight: 500;
   }
 }
 
@@ -1025,8 +1026,6 @@ body.night .field__date-indicator::after,
 .select-wrap .rs__control {
   position: relative;
   z-index: 2;
-  height: 100%;
-  min-height: unset !important;
 
   background: transparent !important;
   border: 0 !important;
@@ -1081,17 +1080,20 @@ body.night .field__date-indicator::after,
   box-shadow: 0 12px 30px rgba(123, 92, 255, 0.25) !important;
 }
 
-/* Темна тема: чорний дропдаун react-select */
+/* Темна тема: контрастний дропдаун react-select */
 body.dark .rs__menu,
 html[data-theme="dark"] .rs__menu {
-  background: #0d0d0d !important;
-  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  background: #12051f !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
   box-shadow: 0 12px 32px rgba(0, 0, 0, 0.6) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
 }
 
 body.dark .rs__option,
 html[data-theme="dark"] .rs__option {
-  color: rgba(255, 255, 255, 0.95) !important;
+  color: #ffffff !important;
+  font-weight: 500 !important;
 }
 
 /* Dark theme: selected tags should stay dark too */
@@ -1132,6 +1134,7 @@ html[data-theme="night"] .rs__multi-value__remove:hover {
   cursor: pointer !important;
 
   color: var(--select-text) !important;
+  font-weight: 500 !important;
   background: transparent !important;
 }
 
@@ -1141,7 +1144,7 @@ html[data-theme="night"] .rs__multi-value__remove:hover {
 
 .rs__option--is-selected {
   background: var(--select-option-selected-bg) !important;
-  color: #fff !important;
+  color: #ffffff !important;
   font-weight: 600 !important;
 }
 
@@ -1268,11 +1271,7 @@ html[data-theme="dark"] .phone-wrap .react-international-phone-country-selector-
    TABLET+
    ========================= */
 
-@media (min-width: 768px) {
-  .field__wrap {
-    height: 56px;
-  }
-}
+/* field heights — profileFormFields.scss */
 
 /* =========================
    MOBILE (<= 480px)
@@ -1358,24 +1357,14 @@ html[data-theme="dark"] .phone-wrap .react-international-phone-country-selector-
     --field-radius-inner: 9px;
   }
 
-  .field__wrap {
-    height: 40px;
-    border-radius: var(--field-radius);
-  }
-
-  .field__wrap::before {
-    border-radius: var(--field-radius-inner);
-  }
-
   .text-input,
   .text-area {
     font-size: 13px;
     padding: 10px 12px 10px 22px;
   }
 
-  .text-area {
+  .field--bio .text-area {
     padding-top: 10px;
-    min-height: 84px;
   }
 
   .field__star {
@@ -1460,10 +1449,6 @@ html[data-theme="dark"] .phone-wrap .react-international-phone-country-selector-
     width: 108px;
     height: 30px;
     font-size: 12px;
-  }
-
-  .field__wrap {
-    height: 38px;
   }
 
   .text-input,

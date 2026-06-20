@@ -123,7 +123,9 @@ export function usePrefillProfile({
             ? { value: u.region, label: u.region }
             : null,
 
-          city: cities.some((c) => c.value === u.city) ? { value: u.city, label: u.city } : null,
+          city: cities.some((c) => c.value === u.city)
+            ? { value: u.city, label: u.city }
+            : u.city || null,
         }));
       } catch (e) {
         console.error('usePrefillProfile error:', e);

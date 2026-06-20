@@ -1,5 +1,6 @@
 import {
   getSessionAccessToken,
+  getSessionRefreshToken,
   persistOAuthSessionTokens,
 } from './api';
 import { authApi } from './auth';
@@ -38,11 +39,15 @@ export async function ensureAccessTokenInStore(setAuth, user, accessToken) {
   const applied = applyAuthFromSession(setAuth, user, accessToken);
   if (applied) return applied;
 
+  if (!user) return null;
+
   try {
     const refreshData = await authApi.refresh();
     return applyAuthFromSession(setAuth, user, pickAccessToken(refreshData));
   } catch (err) {
-    console.warn('[authSession] ensureAccessToken failed:', err?.response?.data ?? err?.message);
+    if (err?.response?.status !== 401) {
+      console.warn('[authSession] ensureAccessToken failed:', err?.response?.data ?? err?.message);
+    }
     return null;
   }
 }
@@ -79,6 +84,11 @@ export async function restoreOAuthSession(setAuth) {
     }
     return user;
   } catch (meErr) {
+    const refreshToken = refreshFromQuery ?? getSessionRefreshToken();
+    if (!refreshToken && !queryAccess) {
+      throw meErr;
+    }
+
     const refreshData = await authApi.refresh();
     const user = await authApi.me();
     const token = await ensureAccessTokenInStore(

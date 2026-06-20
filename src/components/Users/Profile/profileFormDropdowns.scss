@@ -1,0 +1,308 @@
+/* Shared dropdown styles — CompleteProfileForm + EditProfileForm */
+
+/* Always dark readable surface on profile forms (even in light theme) */
+.profile-dropdown-menu,
+.profile-form-dropdown.profile-dropdown-menu,
+.rs__menu.profile-dropdown-menu {
+  --profile-dropdown-bg: #12051f;
+  --profile-dropdown-border: rgba(255, 255, 255, 0.15);
+  --profile-dropdown-text: #ffffff;
+  --profile-dropdown-muted: rgba(255, 255, 255, 0.72);
+  --profile-dropdown-hover: rgba(255, 255, 255, 0.08);
+  --profile-dropdown-selected: linear-gradient(90deg, #4f6bff 0%, #b05cff 55%, #ff4fb1 100%);
+
+  position: relative;
+  z-index: 5;
+  isolation: isolate;
+  border-radius: 16px;
+  overflow: hidden;
+  opacity: 1 !important;
+  filter: none !important;
+  mix-blend-mode: normal !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  background: var(--profile-dropdown-bg) !important;
+  background-color: var(--profile-dropdown-bg) !important;
+  border: 1px solid var(--profile-dropdown-border) !important;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45) !important;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.profile-form-dropdown:not(.profile-dropdown-menu) {
+  border-radius: 16px;
+}
+
+/* Birth date calendar anchor — layout only */
+.birthDate-picker-anchor.profile-form-dropdown {
+  background: transparent !important;
+  background-color: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  overflow: visible;
+  z-index: auto;
+}
+
+.profile-dropdown-menu__list,
+.profile-dropdown-menu .rs__menu-list {
+  padding: 6px !important;
+  opacity: 1 !important;
+  filter: none !important;
+  background: transparent !important;
+}
+
+/* Explicit option classes + react-select rs__option fallback */
+.profile-dropdown-option,
+.profile-dropdown-menu .rs__option,
+.profile-form-dropdown .rs__option {
+  color: #ffffff !important;
+  opacity: 1 !important;
+  filter: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  text-shadow: none !important;
+  font-weight: 600 !important;
+  font-size: 15px !important;
+  padding: 12px 14px !important;
+  border-radius: 12px !important;
+  cursor: pointer !important;
+  background: transparent !important;
+  mix-blend-mode: normal !important;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.profile-dropdown-option--focused,
+.profile-dropdown-menu .rs__option--is-focused,
+.profile-form-dropdown .rs__option--is-focused {
+  background: rgba(255, 255, 255, 0.08) !important;
+  color: #ffffff !important;
+}
+
+.profile-dropdown-option--selected,
+.profile-dropdown-menu .rs__option--is-selected,
+.profile-form-dropdown .rs__option--is-selected {
+  background: linear-gradient(90deg, #4f6bff 0%, #b05cff 55%, #ff4fb1 100%) !important;
+  color: #ffffff !important;
+  font-weight: 600 !important;
+}
+
+.profile-dropdown-option--disabled,
+.profile-dropdown-menu .rs__option--is-disabled,
+.profile-form-dropdown .rs__option--is-disabled {
+  color: rgba(255, 255, 255, 0.72) !important;
+  opacity: 1 !important;
+  cursor: not-allowed !important;
+  background: transparent !important;
+}
+
+.profile-dropdown-option--empty,
+.profile-dropdown-option--loading {
+  color: rgba(255, 255, 255, 0.72) !important;
+  opacity: 1 !important;
+  font-weight: 500 !important;
+}
+
+/* Gender custom dropdown */
+.profile-dropdown-menu .field__genderDropdownItem,
+.profile-form-dropdown .field__genderDropdownItem {
+  display: block;
+  width: 100%;
+  padding: 12px 14px;
+  border: 0;
+  background: transparent;
+  color: #ffffff !important;
+  opacity: 1 !important;
+  filter: none !important;
+  font-size: 15px;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: background 0.15s ease;
+}
+
+.profile-dropdown-menu .field__genderDropdownItem:hover,
+.profile-dropdown-menu .field__genderDropdownItem:focus-visible,
+.profile-form-dropdown .field__genderDropdownItem:hover,
+.profile-form-dropdown .field__genderDropdownItem:focus-visible {
+  background: rgba(255, 255, 255, 0.08);
+  outline: none;
+}
+
+.profile-dropdown-menu .field__genderDropdownItemActive,
+.profile-dropdown-option--selected.field__genderDropdownItem,
+.profile-form-dropdown .field__genderDropdownItemActive {
+  background: linear-gradient(90deg, #4f6bff 0%, #b05cff 55%, #ff4fb1 100%) !important;
+  color: #ffffff !important;
+  font-weight: 600 !important;
+}
+
+/* Prevent glass overlay from covering open dropdown content */
+.field__wrap.select-wrap:has(.rs__menu)::before,
+.field__wrap.select-wrap:has(.profile-dropdown-menu)::before {
+  display: none;
+}
+
+.field__wrap.select-wrap:has(.rs__menu),
+.field__wrap.select-wrap:has(.profile-dropdown-menu) {
+  filter: none !important;
+  opacity: 1 !important;
+}
+
+.field--genderOpen .field__genderTriggerWrap::before {
+  display: none;
+}
+
+.field--genderOpen .field__genderTriggerWrap {
+  filter: none !important;
+  opacity: 1 !important;
+}
+
+.field--genderOpen .profile-dropdown-menu,
+.field--genderOpen .field__genderDropdown {
+  position: relative;
+  z-index: 5;
+  opacity: 1 !important;
+  filter: none !important;
+}
+
+@media (max-width: 768px) {
+  .complete-profile__form,
+  .edit-profile__form {
+    overflow: visible;
+  }
+
+  .complete-profile__form .field:focus-within,
+  .edit-profile__form .field:focus-within {
+    z-index: 2;
+  }
+
+  .complete-profile__form .field--genderOpen,
+  .edit-profile__form .field--genderOpen {
+    z-index: 3;
+  }
+
+  .profile-dropdown-option,
+  .profile-dropdown-menu .rs__option,
+  .profile-dropdown-menu .field__genderDropdownItem {
+    font-size: 16px !important;
+    padding: 13px 14px !important;
+  }
+
+  .complete-profile__form .field__wrap.select-wrap:has(.rs__menu),
+  .edit-profile__form .field__wrap.select-wrap:has(.rs__menu) {
+    height: auto;
+    max-height: none;
+    min-height: var(--field-control-height, 52px);
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    overflow: visible;
+    filter: none !important;
+    opacity: 1 !important;
+  }
+
+  .complete-profile__form .select-wrap .rs__container,
+  .edit-profile__form .select-wrap .rs__container {
+    width: 100%;
+    opacity: 1 !important;
+    filter: none !important;
+  }
+
+  .complete-profile__form .field__wrap.select-wrap:has(.rs__menu) .rs__control,
+  .edit-profile__form .field__wrap.select-wrap:has(.rs__menu) .rs__control {
+    height: var(--field-control-height, 52px) !important;
+    min-height: var(--field-control-height, 52px) !important;
+    max-height: var(--field-control-height, 52px) !important;
+    position: relative;
+    z-index: 2;
+  }
+
+  .complete-profile__form .select-wrap .rs__menu,
+  .edit-profile__form .select-wrap .rs__menu,
+  .complete-profile__form .select-wrap .profile-dropdown-menu,
+  .edit-profile__form .select-wrap .profile-dropdown-menu {
+    position: static !important;
+    top: auto !important;
+    left: auto !important;
+    right: auto !important;
+    width: 100% !important;
+    margin-top: 8px;
+    transform: none !important;
+    max-height: 240px;
+    overflow-y: auto;
+    z-index: 5 !important;
+    opacity: 1 !important;
+    filter: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+
+  .complete-profile__form .select-wrap .rs__menu-list,
+  .edit-profile__form .select-wrap .rs__menu-list {
+    max-height: 240px;
+  }
+
+  .complete-profile__form .field__genderWrap--mobile .field__genderDropdown,
+  .edit-profile__form .field__genderWrap--mobile .field__genderDropdown,
+  .complete-profile__form .field__genderWrap--mobile .profile-dropdown-menu,
+  .edit-profile__form .field__genderWrap--mobile .profile-dropdown-menu {
+    position: static;
+    margin-top: 8px;
+    max-height: 240px;
+    overflow-y: auto;
+    z-index: 5;
+  }
+
+  .field__wrap--birthDate:has(.birthDate-picker-anchor) {
+    height: auto;
+    max-height: none;
+    min-height: var(--field-control-height, 52px);
+    overflow: visible;
+  }
+
+  .field__wrap--birthDate:has(.birthDate-picker-anchor)::before {
+    display: none;
+  }
+
+  .birthDate-picker-anchor {
+    position: static;
+    top: auto;
+    left: auto;
+    transform: none;
+    width: 100%;
+    max-width: 100%;
+    margin-top: 8px;
+    z-index: 5;
+  }
+
+  .birthDate-picker-anchor .birthDate-picker.react-datepicker,
+  .birthDate-picker-anchor .react-datepicker {
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .birthDate-picker-anchor .react-datepicker__month-container {
+    float: none;
+    width: 100%;
+  }
+}
+
+@media (max-width: 430px) {
+  .complete-profile__form .select-wrap .rs__menu,
+  .edit-profile__form .select-wrap .rs__menu,
+  .complete-profile__form .field__genderWrap--mobile .profile-dropdown-menu,
+  .edit-profile__form .field__genderWrap--mobile .profile-dropdown-menu {
+    max-height: 220px;
+  }
+}
+
+@media (max-width: 375px) {
+  .complete-profile__form .select-wrap .rs__menu,
+  .edit-profile__form .select-wrap .rs__menu,
+  .complete-profile__form .field__genderWrap--mobile .profile-dropdown-menu,
+  .edit-profile__form .field__genderWrap--mobile .profile-dropdown-menu {
+    max-height: 200px;
+  }
+}

@@ -81,6 +81,15 @@ export function getSessionAccessToken() {
   return readSessionAccess();
 }
 
+export function getSessionRefreshToken() {
+  return readSessionRefresh();
+}
+
+/** Чи є JWT у sessionStorage (httpOnly cookies з JS не читаються). */
+export function hasStoredAuthCredentials() {
+  return Boolean(readSessionAccess() || readSessionRefresh());
+}
+
 export const AUTH_SESSION_CLEARED_EVENT = 'meyou:auth-session-cleared';
 
 function readSessionAccess() {
@@ -195,6 +204,17 @@ api.interceptors.response.use(
     }
 
     if (err.response?.status === 401 && !original?._retry) {
+      const url = String(original?.url ?? "");
+      const isAuthSessionEndpoint =
+        url.includes("/users/me") || url.includes("/auth/refresh");
+      const hadBearer = Boolean(original?.headers?.Authorization);
+      const hasRefresh = Boolean(readSessionRefresh());
+
+      // Guest probes on /users/me or /auth/refresh: don't chain another refresh.
+      if (isAuthSessionEndpoint && !hadBearer && !hasRefresh) {
+        return Promise.reject(err);
+      }
+
       original._retry = true;
 
       if (isRefreshing) {

@@ -1,9 +1,7 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import Select from 'react-select';
-import DatePicker from 'react-datepicker';
-import 'react-datepicker/dist/react-datepicker.css';
 import { PhoneInput } from 'react-international-phone';
 import 'react-international-phone/style.css';
 
@@ -14,6 +12,7 @@ import { profileApi } from '../../../../services/profileApi';
 import { locationApi } from '../../../../services/locationApi';
 
 import { useLocationOptions } from '../../../../hooks/useLocationOptions';
+import { useProfileSelectProps } from '../../../../hooks/useProfileSelectProps';
 import { usePrefillProfile } from '../../../../hooks/usePrefillProfile';
 import { useGenderOptions, useMaritalStatusOptions } from '../../../../hooks/useProfileFormOptions';
 
@@ -24,13 +23,14 @@ import {
 import { normalizeForValidation, toCompleteProfilePayload } from '../../../../utils/profilePayload';
 import { cropImageToFile } from '../../../../utils/cropImageToFile';
 import { getApiErrorMessage } from '../../../../utils/getApiErrorMessage';
-import { getBirthDateLimits, toYMDLocal } from '../../../../utils/profileFormUtils';
+import { applyBirthDateNormalization } from '../../../../utils/profileFormUtils';
 
 import { interestOptions } from '../../../../constants/interests';
 import { profileHobbyOptions } from '../../../../constants/hobbies';
 
 import ThemeToggleDark from '../../../../components/ThemeToggleDark/ThemeToggleDark';
 import AvatarCropModal from '../../../../components/AvatarCropModal/AvatarCropModal';
+import BirthDateField from '../BirthDateField/BirthDateField';
 
 import './CompleteProfileForm.scss';
 import profileIcons from '../../../../constants/profileIcons';
@@ -91,10 +91,8 @@ export default function CompleteProfileForm({ onBack, onSave }) {
   const [genderPickerOpen, setGenderPickerOpen] = useState(false);
 
   // CUSTOM HOOKS
-  const { countryOptions, cityOptions, isCitiesLoading } = useLocationOptions(
-    values.country?.value || '',
-    values.city?.value || ''
-  );
+  const { countryOptions, cityOptions, cityInputMode, isCitiesLoading } =
+    useLocationOptions(values.country?.value || '', '');
 
   usePrefillProfile({
     setProfileCompleted,
@@ -227,13 +225,18 @@ export default function CompleteProfileForm({ onBack, onSave }) {
       birthDate: true,
     });
 
-    const normalized = normalizeForValidation(values);
+    const submitValues = applyBirthDateNormalization(values);
+    if (submitValues.birthDate !== values.birthDate) {
+      setValues(submitValues);
+    }
+
+    const normalized = normalizeForValidation(submitValues);
     const nextErrors = translateValidationErrors(validateCompleteProfile(normalized), t);
     setErrors(nextErrors);
 
     if (Object.keys(nextErrors).length > 0) return;
 
-    const payload = toCompleteProfilePayload(values);
+    const payload = toCompleteProfilePayload(submitValues);
 
     try {
       setIsSubmitting(true);
@@ -292,17 +295,8 @@ export default function CompleteProfileForm({ onBack, onSave }) {
     return false;
   };
 
-  // REACT-SELECT PORTAL
-  const selectPortalTarget = typeof window !== 'undefined' ? document.body : null;
-
-  const selectCommonProps = useMemo(() => {
-    if (!selectPortalTarget) return {};
-    return {
-      menuPortalTarget: selectPortalTarget,
-      menuPosition: 'fixed',
-      styles: { menuPortal: (base) => ({ ...base, zIndex: 9999999 }) },
-    };
-  }, [selectPortalTarget]);
+  // REACT-SELECT: portal on desktop, inline on mobile
+  const selectCommonProps = useProfileSelectProps();
 
   const currentAvatarSrc = backendAvatarUrl;
 
@@ -487,14 +481,21 @@ export default function CompleteProfileForm({ onBack, onSave }) {
                 </button>
               </div>
               {genderPickerOpen && (
-                <div className="field__genderDropdown" role="listbox">
+                <div
+                  className="field__genderDropdown profile-form-dropdown profile-dropdown-menu"
+                  role="listbox"
+                >
                   {genderOptions.map((opt) => (
                     <button
                       key={opt.value}
                       type="button"
                       role="option"
                       aria-selected={values.gender === opt.value}
-                      className={`field__genderDropdownItem ${values.gender === opt.value ? 'field__genderDropdownItemActive' : ''}`}
+                      className={`profile-dropdown-option field__genderDropdownItem ${
+                        values.gender === opt.value
+                          ? 'profile-dropdown-option--selected field__genderDropdownItemActive'
+                          : ''
+                      }`}
                       onClick={() => {
                         setField('gender', opt.value);
                         onBlur('gender');
@@ -511,31 +512,16 @@ export default function CompleteProfileForm({ onBack, onSave }) {
             {showError('gender') && <div className="field__hint">{errors.gender}</div>}
           </div>
           <div className="field">
-            <div className="field__wrap field__wrap--birthDate">
-              {showStar('birthDate') && <span className="field__star">*</span>}
-              <DatePicker
-                className={`text-input field__date-input ${showError('birthDate') ? 'is-error' : ''}`}
-                placeholderText={t('profile.editForm.fields.birthDatePlaceholder')}
-                aria-label={t('profile.editForm.fields.birthDate')}
-                dateFormat="yyyy-MM-dd"
-                selected={
-                  values?.birthDate && !isNaN(new Date(values.birthDate).getTime())
-                    ? new Date(values.birthDate)
-                    : null
-                }
-                minDate={getBirthDateLimits().minDate}
-                maxDate={getBirthDateLimits().maxDate}
-                onChange={(d) => setField('birthDate', d ? toYMDLocal(d) : '')}
-                onBlur={() => onBlur('birthDate')}
-                required
-                popperClassName="birthDate-picker"
-                showMonthDropdown
-                showYearDropdown
-                dropdownMode="select"
-                yearDropdownItemNumber={100}
-              />
-              <span className="field__date-indicator" aria-hidden="true" />
-            </div>
+            <BirthDateField
+              value={values.birthDate}
+              onChange={(val) => setField('birthDate', val)}
+              onBlur={() => onBlur('birthDate')}
+              hasError={showError('birthDate')}
+              showStar={showStar('birthDate')}
+              placeholderText="DD.MM.YYYY"
+              ariaLabel={t('profile.editForm.fields.birthDate')}
+              required
+            />
             {showError('birthDate') && <div className="field__hint">{errors.birthDate}</div>}
           </div>
         </div>
@@ -585,7 +571,7 @@ export default function CompleteProfileForm({ onBack, onSave }) {
           {showError('maritalStatus') && <div className="field__hint">{errors.maritalStatus}</div>}
         </div>
         {/* BIO */}
-        <div className="field">
+        <div className="field field--bio">
           <div className="field__wrap">
             <textarea
               className={`text-area ${showError('bio') ? 'is-error' : ''}`}
@@ -628,7 +614,7 @@ export default function CompleteProfileForm({ onBack, onSave }) {
           maxItemsNote={t('profile.editForm.maxItemsNote', { max: 10 })}
           selectProps={selectCommonProps}
         />
-        {/* COUNTRY +  CITY */}
+        {/* COUNTRY + CITY */}
         <div className="grid-2">
           <div className="field">
             <div className="field__wrap select-wrap">
@@ -655,17 +641,29 @@ export default function CompleteProfileForm({ onBack, onSave }) {
           <div className="field">
             <div className="field__wrap select-wrap">
               {showStar('city') && <span className="field__star">*</span>}
-              <Select
-                classNamePrefix="rs"
-                placeholder={t('profile.editForm.fields.city')}
-                value={values.city}
-                options={cityOptions}
-                isDisabled={!values.country}
-                isLoading={isCitiesLoading}
-                onChange={(opt) => setField('city', opt)}
-                onBlur={() => onBlur('city')}
-                {...selectCommonProps}
-              />
+              {cityInputMode === 'manual' ? (
+                <input
+                  className={`text-input ${showError('city') ? 'is-error' : ''}`}
+                  placeholder={t('profile.editForm.fields.city')}
+                  value={typeof values.city === 'string' ? values.city : values.city?.value || ''}
+                  onChange={(e) => setField('city', e.target.value)}
+                  onBlur={() => onBlur('city')}
+                  disabled={!values.country}
+                  required
+                />
+              ) : (
+                <Select
+                  classNamePrefix="rs"
+                  placeholder={t('profile.editForm.fields.city')}
+                  value={typeof values.city === 'string' ? null : values.city}
+                  options={cityOptions}
+                  isDisabled={!values.country}
+                  isLoading={isCitiesLoading}
+                  onChange={(opt) => setField('city', opt)}
+                  onBlur={() => onBlur('city')}
+                  {...selectCommonProps}
+                />
+              )}
             </div>
             {showError('city') && <div className="field__hint">{errors.city}</div>}
           </div>

@@ -366,7 +366,7 @@
         "genderRequired": "Оберіть стать",
         "birthDateRequired": "Оберіть дату народження",
         "birthDateFormat": "Формат: РРРР-ММ-ДД",
-        "birthDateInvalid": "Невірна дата",
+        "birthDateInvalid": "Оберіть коректну дату народження",
         "birthDateAge": "Вік має бути від 18 до 100",
         "firstNameLettersOnly": "Ім'я має містити лише літери",
         "lastNameLettersOnly": "Прізвище має містити лише літери",

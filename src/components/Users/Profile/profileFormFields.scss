@@ -1,0 +1,102 @@
+/* Shared field heights: CompleteProfileForm + EditProfileForm */
+
+.complete-profile,
+.edit-profile {
+  --field-control-height: 52px;
+  --field-bio-min-height: 100px;
+}
+
+@media (min-width: 768px) {
+  .complete-profile,
+  .edit-profile {
+    --field-control-height: 56px;
+    --field-bio-min-height: 120px;
+  }
+}
+
+@media (max-width: 480px) {
+  .complete-profile,
+  .edit-profile {
+    --field-control-height: 40px;
+    --field-bio-min-height: 84px;
+  }
+}
+
+@media (max-width: 360px) {
+  .complete-profile,
+  .edit-profile {
+    --field-control-height: 38px;
+  }
+}
+
+.complete-profile .field__wrap,
+.edit-profile .field__wrap {
+  height: var(--field-control-height);
+  min-height: var(--field-control-height);
+  max-height: var(--field-control-height);
+}
+
+.complete-profile .field--bio .field__wrap,
+.edit-profile .field--bio .field__wrap {
+  height: auto;
+  min-height: var(--field-bio-min-height);
+  max-height: none;
+}
+
+.complete-profile .field__wrap.select-wrap:not(:has(.rs__menu)),
+.edit-profile .field__wrap.select-wrap:not(:has(.rs__menu)),
+.complete-profile .field__wrap.phone-wrap,
+.edit-profile .field__wrap.phone-wrap,
+.complete-profile .field__wrap--birthDate:not(:has(.birthDate-picker-anchor)),
+.edit-profile .field__wrap--birthDate:not(:has(.birthDate-picker-anchor)) {
+  height: var(--field-control-height);
+  min-height: var(--field-control-height);
+  max-height: var(--field-control-height);
+  overflow: hidden;
+}
+
+.complete-profile .field__wrap.select-wrap:has(.rs__menu),
+.edit-profile .field__wrap.select-wrap:has(.rs__menu) {
+  overflow: visible;
+}
+
+.complete-profile .select-wrap .rs__control,
+.edit-profile .select-wrap .rs__control {
+  height: 100% !important;
+  min-height: 100% !important;
+  max-height: 100%;
+  align-items: center !important;
+}
+
+.complete-profile .select-wrap .rs__value-container,
+.edit-profile .select-wrap .rs__value-container {
+  flex-wrap: nowrap !important;
+  overflow: hidden;
+  align-items: center !important;
+  height: 100%;
+  max-height: 100%;
+}
+
+.complete-profile .select-wrap .rs__indicators,
+.edit-profile .select-wrap .rs__indicators {
+  align-items: center !important;
+  padding-top: 0 !important;
+  align-self: stretch;
+}
+
+.complete-profile .select-wrap .rs__indicator-separator,
+.edit-profile .select-wrap .rs__indicator-separator {
+  margin-top: 0 !important;
+  align-self: center;
+}
+
+.complete-profile .field--bio .text-area,
+.edit-profile .field--bio .text-area {
+  min-height: calc(var(--field-bio-min-height) - 8px);
+}
+
+.complete-profile .text-input,
+.edit-profile .text-input {
+  height: 100%;
+  box-sizing: border-box;
+}

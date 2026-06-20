@@ -2,6 +2,9 @@
    LAYOUT
    ========================= */
 
+@import '../profileFormDropdowns.scss';
+@import '../profileFormFields.scss';
+
 .edit-profile {
   --field-radius: 20px;
   --field-radius-inner: 19px;
@@ -208,10 +211,8 @@
 
 .field__wrap {
   position: relative;
-  min-height: 56px;
-  // height: auto;
   border-radius: var(--field-radius);
-  overflow: visible;
+  overflow: hidden;
 
   background: var(--field-grad);
   box-shadow: var(--field-shadow);
@@ -234,17 +235,13 @@
 [data-theme='dark'] .field__lock-icon {
   filter: brightness(0) invert(1);
 }
-/* textarea wrapper */
-.field__wrap:has(.text-area) {
-  height: auto;
-}
-
-/* ✅ select/phone: don't clip dropdown */
-.field__wrap.select-wrap,
+/* phone: don't clip country dropdown */
 .field__wrap.phone-wrap {
   overflow: visible;
-  min-height: 56px;
-  height: auto;
+}
+
+.field__wrap.select-wrap:has(.rs__menu) {
+  overflow: visible;
 }
 
 .field__wrap::before {
@@ -291,7 +288,7 @@
 }
 
 @media (hover: hover) and (pointer: fine) {
-  .field__wrap:hover {
+  .field__wrap:not(:has(.rs__menu)):hover {
     z-index: 10;
     filter: brightness(1.05);
   }
@@ -364,14 +361,15 @@
   pointer-events: none;
 }
 
-/* Десктоп/планшет: висота така ж як у решти полів (56px) */
+/* Десктоп/планшет: висота така ж як у решти полів */
 .field__genderWrap--desktop {
   display: flex;
   flex-direction: row;
   align-items: center;
   gap: 14px;
-  min-height: 56px;
-  height: auto;
+  min-height: var(--field-control-height);
+  height: var(--field-control-height);
+  max-height: var(--field-control-height);
   padding: 0 16px 0 14px;
 }
 
@@ -1026,14 +1024,25 @@ body.night .field__date-indicator::after,
 @media (max-width: 767px) {
   body.dark .field__genderDropdown,
   [data-theme='dark'] .field__genderDropdown {
-    background: var(--select-menu-bg);
-    border-color: rgba(255, 255, 255, 0.1);
+    background: #12051f;
+    border: 1px solid rgba(255, 255, 255, 0.15);
   }
 
   body.dark .field__genderDropdownItem,
   [data-theme='dark'] .field__genderDropdownItem {
-    color: var(--select-text);
+    color: #ffffff;
+    font-weight: 500;
   }
+}
+
+.edit-profile .field--about .field__wrap {
+  height: auto;
+  min-height: calc(var(--field-control-height) + 28px);
+  max-height: none;
+}
+
+.edit-profile .field--about .text-area {
+  min-height: calc(var(--field-control-height) + 20px);
 }
 
 /* =========================
@@ -1044,15 +1053,9 @@ body.night .field__date-indicator::after,
   position: relative;
   z-index: 2;
 
-  // min-height: 56px;
-  // height: auto;
-
   background: transparent !important;
-  // background: red !important;
   border: 0 !important;
   box-shadow: none !important;
-
-  // align-items: flex-start;
 }
 
 /* container з тегами */
@@ -1061,12 +1064,7 @@ body.night .field__date-indicator::after,
   padding-left: 28px !important;
 
   display: flex;
-  flex-wrap: wrap;
   align-items: center;
-
-  // gap: 4px;
-
-  overflow: visible;
 }
 
 /* input */
@@ -1107,12 +1105,13 @@ body.night .field__date-indicator::after,
 }
 
 .select-wrap .rs__indicators {
-  align-items: flex-start;
-  padding-top: 8px;
+  align-items: center;
+  padding-top: 0;
 }
 
 .select-wrap .rs__indicator-separator {
-  margin-top: 8px;
+  margin-top: 0;
+  align-self: center;
 }
 
 /* single value */
@@ -1150,6 +1149,7 @@ body.night .field__date-indicator::after,
   cursor: pointer !important;
 
   color: var(--select-text) !important;
+  font-weight: 500 !important;
   background: transparent !important;
 }
 
@@ -1170,16 +1170,17 @@ body.night .field__date-indicator::after,
 
 body.dark .rs__menu,
 html[data-theme='dark'] .rs__menu {
-  background: #0d0d0d !important;
-
-  border: 1px solid rgba(255, 255, 255, 0.12) !important;
-
+  background: #12051f !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
   box-shadow: 0 12px 32px rgba(0, 0, 0, 0.6) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
 }
 
 body.dark .rs__option,
 html[data-theme='dark'] .rs__option {
-  color: rgba(255, 255, 255, 0.95) !important;
+  color: #ffffff !important;
+  font-weight: 500 !important;
 }
 
 /* Dark theme: selected tags (interests/hobbies) keep dark background */
@@ -1424,24 +1425,9 @@ body.dark .phone-wrap .react-international-phone-country-selector-dropdown,
   .edit-profile {
     padding: 16px 14px 26px;
   }
-  .field__wrap {
-    min-height: 42px;
-    height: auto;
-  }
-  .field__wrap.select-wrap {
-    overflow: visible;
-    min-height: 42px;
-    height: auto;
-  }
-
+  .field__wrap.select-wrap,
   .field__wrap.phone-wrap {
     overflow: visible;
-    min-height: 42px;
-    height: auto;
-  }
-  .field__genderWrap--desktop {
-    min-height: 42px;
-    height: auto;
   }
   .field__genderBtn {
     padding: 6px 10px 6px 12px;
@@ -1569,24 +1555,15 @@ body.dark .phone-wrap .react-international-phone-country-selector-dropdown,
 
   /* fields */
   .field__wrap {
-    min-height: 38px;
-    height: auto;
     border-radius: var(--field-radius);
   }
 
   .field__wrap::before {
     border-radius: var(--field-radius-inner);
   }
-  .field__wrap.select-wrap {
-    overflow: visible;
-    min-height: 38px;
-    height: auto;
-  }
-
+  .field__wrap.select-wrap,
   .field__wrap.phone-wrap {
     overflow: visible;
-    min-height: 38px;
-    height: auto;
   }
   .select-wrap .rs__indicators {
     padding-top: 0px;
@@ -1598,9 +1575,9 @@ body.dark .phone-wrap .react-international-phone-country-selector-dropdown,
     padding: 8px 12px 8px 22px;
   }
 
-  .text-area {
+  .field--about .text-area {
     padding-top: 10px;
-    min-height: 84px;
+    min-height: 60px;
   }
 
   .field__hint {
@@ -1611,8 +1588,7 @@ body.dark .phone-wrap .react-international-phone-country-selector-dropdown,
   .field__genderTriggerWrap {
     display: flex;
     align-items: center;
-    min-height: 38px;
-    height: auto;
+    min-height: var(--field-control-height);
   }
 
   /* react-select */

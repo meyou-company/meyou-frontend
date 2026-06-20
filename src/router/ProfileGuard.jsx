@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { isPublicPath } from '../constants/publicRoutes';
+import { clearOAuthSessionTokens } from '../services/api';
 import { useAuthStore } from '../zustand/useAuthStore';
 
 export default function ProfileGuard({ children }) {
@@ -15,6 +16,7 @@ export default function ProfileGuard({ children }) {
 
     // ✅ якщо не залогінений і це не public сторінка → редірект на логін
     if ((!isAuthed || !user) && !isPublicPage) {
+      clearOAuthSessionTokens();
       navigate("/auth/login", { replace: true });
       return;
     }

@@ -4,6 +4,7 @@ import {
   clearOAuthSessionTokens,
   clearSessionAccessToken,
   getSessionAccessToken,
+  getSessionRefreshToken,
   persistOAuthSessionTokens,
 } from '../services/api';
 import { authApi } from '../services/auth';
@@ -15,6 +16,7 @@ import {
 import { passwordApi } from '../services/passwordApi';
 import { disconnectSocket } from '../services/socket';
 import { useMessagesStore } from './useMessagesStore';
+import { shouldRunAuthBootstrap } from '../constants/publicRoutes';
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -46,6 +48,12 @@ function clearAuthSession(set) {
   set({ user: null, token: null, isAuthed: false });
 }
 
+function setGuestSession(set) {
+  clearOAuthSessionTokens();
+  set({ user: null, token: null, isAuthed: false });
+  markInitDone();
+}
+
 async function loadMeWithRetry(retries = 2, delayMs = 200) {
   let lastErr;
   for (let attempt = 0; attempt <= retries; attempt += 1) {
@@ -54,7 +62,8 @@ async function loadMeWithRetry(retries = 2, delayMs = 200) {
     } catch (e) {
       lastErr = e;
       const status = e?.response?.status;
-      if (status !== 401 || attempt === retries) break;
+      if (status === 401) break;
+      if (attempt === retries) break;
       await sleep(delayMs);
     }
   }
@@ -99,9 +108,16 @@ export const useAuthStore = create((set) => ({
         return;
       }
 
+      if (!shouldRunAuthBootstrap()) {
+        setGuestSession(set);
+        set({ isAuthLoading: false });
+        initInFlight = null;
+        return;
+      }
+
       try {
         try {
-          const user = await loadMeWithRetry(2, 250);
+          const user = await authApi.me({ force: true });
           const token = await ensureAccessTokenInStore(
             set,
             user,
@@ -121,26 +137,44 @@ export const useAuthStore = create((set) => ({
           }
         }
 
-        const refreshData = await authApi.refresh();
-        const user = await authApi.me({ force: true });
-        const token = await ensureAccessTokenInStore(
-          set,
-          user,
-          pickAccessToken(refreshData) ?? getSessionAccessToken(),
-        );
-        if (!token) {
-          throw new Error('init: session restored without access token');
+        if (!getSessionRefreshToken()) {
+          setGuestSession(set);
+          return;
         }
-        markInitDone();
+
+        try {
+          const refreshData = await authApi.refresh();
+          const user = await authApi.me({ force: true });
+          const token = await ensureAccessTokenInStore(
+            set,
+            user,
+            pickAccessToken(refreshData) ?? getSessionAccessToken(),
+          );
+          if (token) {
+            markInitDone();
+            return;
+          }
+        } catch (e) {
+          const status = e?.response?.status;
+          if (status === 401 || status === 403) {
+            setGuestSession(set);
+            return;
+          }
+          throw e;
+        }
+
+        setGuestSession(set);
       } catch (err) {
         const status = err?.response?.status;
-        console.log(
-          '[init] session restore failed:',
-          status,
-          err?.response?.data ?? err?.message,
-        );
+        if (status !== 401 && status !== 403) {
+          console.log(
+            '[init] session restore failed:',
+            status,
+            err?.response?.data ?? err?.message,
+          );
+        }
         if (status === 401 || status === 403) {
-          clearAuthSession(set);
+          setGuestSession(set);
         }
       } finally {
         set({ isAuthLoading: false });
@@ -260,6 +294,10 @@ export const useAuthStore = create((set) => ({
       const status = e?.response?.status;
       if (status === 401) {
         clearSessionAccessToken();
+        if (!getSessionRefreshToken()) {
+          clearAuthSession(set);
+          throw e;
+        }
         try {
           const refreshData = await authApi.refresh();
           const user = await authApi.me({ force: true });
