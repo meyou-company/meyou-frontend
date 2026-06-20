@@ -504,4 +504,5 @@ export const FEATURE_UI = {
   comingSoonLabel: 'Незабаром',
   comingSoonSectionTitle: 'Скоро в MeYou',
   exploreMore: 'Можливості MeYou',
+  cardsSwipeHint: 'Свайпніть вправо, щоб побачити більше →',
 };

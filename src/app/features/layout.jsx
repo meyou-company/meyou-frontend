@@ -16,7 +16,7 @@ export default function FeatureLayout({ children }) {
     <div className="featureLayout">
       <div className="featureLayout__inner">
         <header className="featureLayout__header">
-          <h1 className="featureLayout__brand">{ui.brand}</h1>
+          <p className="featureLayout__brand">{ui.brand}</p>
           <button
             type="button"
             className="featureLayout__homeLink"
