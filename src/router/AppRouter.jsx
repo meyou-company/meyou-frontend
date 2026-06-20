@@ -46,6 +46,12 @@ import LegalTermsPage from '../app/legal/terms/page';
 import LegalCommunityGuidelinesPage from '../app/legal/community-guidelines/page';
 import LegalDeleteAccountPage from '../app/legal/delete-account/page';
 import LegalAcceptTermsPage from '../app/legal/accept-terms/page';
+import EarnPage from '../app/earn/page';
+import FeatureChatPage from '../app/features/chat/page';
+import FeatureSecurityPage from '../app/features/security/page';
+import FeatureStoriesPage from '../app/features/stories/page';
+import FeatureProfilePage from '../app/features/profile/page';
+import FeatureGiftsPage from '../app/features/gifts/page';
 import { useBurgerMenuStore } from '../zustand/useBurgerMenuStore';
 import { useLocaleStore } from '../zustand/useLocaleStore';
 import { useThemeStore } from '../zustand/useThemeStore';
@@ -86,6 +92,8 @@ function AppLayout() {
   const isAuthRoute =
     location.pathname.startsWith('/auth') || location.pathname === '/auth/callback';
   const isLegalRoute = location.pathname.startsWith('/legal');
+  const isFeatureRoute =
+    location.pathname.startsWith('/features') || location.pathname === '/earn';
   const hideBottomNavRoutes = new Set(['/users/profile/complete']);
   const isLanding = location.pathname === '/';
   /** Нижня навігація (mobile): лише після завершення профілю, не на головній з входом/реєстрацією. */
@@ -93,6 +101,7 @@ function AppLayout() {
   const shouldHideBottomNav =
     isAuthRoute ||
     isLegalRoute ||
+    isFeatureRoute ||
     hideBottomNavRoutes.has(location.pathname) ||
     !isAuthed ||
     !user ||
@@ -146,6 +155,13 @@ function AppLayout() {
               <Route path="/legal/community-guidelines" element={<LegalCommunityGuidelinesPage />} />
               <Route path="/legal/delete-account" element={<LegalDeleteAccountPage />} />
               <Route path="/legal/accept-terms" element={<LegalAcceptTermsPage />} />
+
+              <Route path="/earn" element={<EarnPage />} />
+              <Route path="/features/chat" element={<FeatureChatPage />} />
+              <Route path="/features/stories" element={<FeatureStoriesPage />} />
+              <Route path="/features/gifts" element={<FeatureGiftsPage />} />
+              <Route path="/features/profile" element={<FeatureProfilePage />} />
+              <Route path="/features/security" element={<FeatureSecurityPage />} />
 
               <Route path="/auth/login" element={<LoginPage />} />
               <Route path="/auth/register" element={<RegisterPage />} />

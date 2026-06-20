@@ -15,6 +15,12 @@ export const PUBLIC_PATHS = [
   '/legal/community-guidelines',
   '/legal/delete-account',
   '/legal/accept-terms',
+  '/earn',
+  '/features/chat',
+  '/features/stories',
+  '/features/gifts',
+  '/features/profile',
+  '/features/security',
 ];
 
 export function normalizePathname(pathname) {
@@ -26,5 +32,7 @@ export function isPublicPath(pathname) {
   const path = normalizePathname(pathname);
   if (PUBLIC_PATHS.includes(path)) return true;
   if (path.startsWith('/legal/')) return true;
+  if (path.startsWith('/features/')) return true;
+  if (path === '/earn') return true;
   return path.startsWith('/auth/');
 }

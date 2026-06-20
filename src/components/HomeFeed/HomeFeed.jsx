@@ -1,24 +1,25 @@
+import { Link } from "react-router-dom";
 import "./HomeFeed.scss";
 import { useForceDarkTheme } from "../../hooks/useForceDarkTheme";
-function Feature({ icon, title, onClick }) {
-  
+
+function Feature({ icon, title, to }) {
   return (
-    <button className="feature" onClick={onClick} type="button">
+    <Link className="feature" to={to}>
       <span
         className="feature__icon"
         style={{ "--icon-url": `url(${icon})` }}
         aria-hidden="true"
       />
       <span className="feature__text">{title}</span>
-    </button>
+    </Link>
   );
 }
 
 export default function HomeFeed({ onRegister, onLogin }) {
-   useForceDarkTheme();
+  useForceDarkTheme();
+
   return (
     <section className="home auth">
-      {/* LOGO */}
       <div className="home__logoSection">
         <div className="home__logoCard">
           <img
@@ -29,28 +30,26 @@ export default function HomeFeed({ onRegister, onLogin }) {
         </div>
       </div>
 
-      {/* FEATURES */}
       <div className="home__featuresSection">
         <div className="home__features">
           <Feature
             icon="/icon1/1.png"
-            title="Бонусы за друзей"
-            onClick={onRegister}
+            title="Бонуси за друзів"
+            to="/earn"
           />
           <Feature
             icon="/icon1/2.png"
-            title="Современный чат"
-            onClick={onLogin}
+            title="Сучасний чат"
+            to="/features/chat"
           />
           <Feature
             icon="/icon1/3.png"
-            title="Полная безопасность"
-            onClick={onLogin}
+            title="Повна безпека"
+            to="/features/security"
           />
         </div>
       </div>
 
-      {/* ACTIONS */}
       <div className="home__actionsSection">
         <div className="home__actions">
           <button
