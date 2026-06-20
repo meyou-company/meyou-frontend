@@ -12,6 +12,13 @@
   overflow: hidden;
 }
 
+.auth__langSwitchWrap {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  z-index: 20;
+}
+
 /* logo */
 .auth__logoCard {
   margin-top: 10px;
@@ -140,6 +147,11 @@
 @media (max-width: 420px) {
   .auth.auth--login {
     padding: 18px 12px 18px;
+  }
+
+  .auth__langSwitchWrap {
+    top: 10px;
+    right: 10px;
   }
 
   .auth__logoCard {

@@ -1,6 +1,8 @@
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import "./HomeFeed.scss";
 import { useForceDarkTheme } from "../../hooks/useForceDarkTheme";
+import LanguageSwitcher from "../LanguageSwitcher/LanguageSwitcher";
 
 function Feature({ icon, title, to }) {
   return (
@@ -17,34 +19,39 @@ function Feature({ icon, title, to }) {
 
 export default function HomeFeed({ onRegister, onLogin }) {
   useForceDarkTheme();
+  const { t } = useTranslation();
 
   return (
     <section className="home auth">
+      <div className="home__langSwitcher">
+        <LanguageSwitcher />
+      </div>
       <div className="home__logoSection">
         <div className="home__logoCard">
           <img
             className="home__logoImg"
             src="/Logo/photo.png"
-            alt="Me You logo"
+            alt={t("auth.common.logoAlt")}
           />
         </div>
+        <p className="home__tagline">{t("landing.tagline")}</p>
       </div>
 
       <div className="home__featuresSection">
         <div className="home__features">
           <Feature
             icon="/icon1/1.png"
-            title="Бонуси за друзів"
+            title={t("landing.features.earn")}
             to="/earn"
           />
           <Feature
             icon="/icon1/2.png"
-            title="Сучасний чат"
+            title={t("landing.features.chat")}
             to="/features/chat"
           />
           <Feature
             icon="/icon1/3.png"
-            title="Повна безпека"
+            title={t("landing.features.security")}
             to="/features/security"
           />
         </div>
@@ -57,7 +64,7 @@ export default function HomeFeed({ onRegister, onLogin }) {
             className="btn-gradient home__btn"
             onClick={onRegister}
           >
-            Создать аккаунт
+            {t("auth.register.submit")}
           </button>
 
           <button
@@ -65,7 +72,7 @@ export default function HomeFeed({ onRegister, onLogin }) {
             className="btn-gradient home__btn"
             onClick={onLogin}
           >
-            Войти
+            {t("auth.login.submit")}
           </button>
         </div>
       </div>

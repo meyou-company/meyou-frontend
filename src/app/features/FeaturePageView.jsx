@@ -72,8 +72,9 @@ function FeatureCardsGrid({ cards, comingSoonLabel, swipeHint, variant }) {
  */
 export default function FeaturePageView({ pageKey }) {
   const { i18n } = useTranslation();
-  const page = getFeaturePage(i18n.language, pageKey);
-  const ui = getFeatureUi(i18n.language);
+  const language = i18n.resolvedLanguage || i18n.language;
+  const page = getFeaturePage(language, pageKey);
+  const ui = getFeatureUi(language);
   const isMobile = useFeatureMobile();
   const accordionOpen = !isMobile;
 
@@ -82,7 +83,7 @@ export default function FeaturePageView({ pageKey }) {
   const iconStyle = page.icon ? { '--icon-url': `url(${page.icon})` } : undefined;
 
   return (
-    <article className="featurePage">
+    <article key={`${pageKey}-${language}`} className="featurePage">
       <header className="featurePage__hero">
         <div className="featurePage__heroRow">
           <div className="featurePage__iconWrap">

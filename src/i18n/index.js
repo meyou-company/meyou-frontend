@@ -1,7 +1,6 @@
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 
-import ar from './locales/ar.json';
 import cs from './locales/cs.json';
 import en from './locales/en.json';
 import es from './locales/es.json';
@@ -23,7 +22,6 @@ const resources = {
   cs: { translation: cs },
   es: { translation: es },
   ru: { translation: ru },
-  ar: { translation: ar },
 };
 
 let initialized = false;

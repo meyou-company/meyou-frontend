@@ -47,7 +47,7 @@ export const useLocaleStore = create((set, get) => ({
   setLocale: async (nextLocale, { persistRemote = true } = {}) => {
     const locale = normalizeLocale(nextLocale);
     const prev = get().locale;
-    if (prev === locale) return locale;
+    if (prev === locale && i18nLanguageMatches(locale)) return locale;
 
     set({ isSaving: true });
     try {
@@ -72,5 +72,5 @@ export const useLocaleStore = create((set, get) => ({
 }));
 
 function i18nLanguageMatches(locale) {
-  return i18n.language === locale;
+  return normalizeLocale(i18n.language) === normalizeLocale(locale);
 }

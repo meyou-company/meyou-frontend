@@ -29,6 +29,7 @@ import StoryViewerModal from "../../components/Stories/StoryViewerModal";
 import '../../components/PostFeed/PostFeedBody.scss';
 import '../../components/PostFeed/RepostUi.scss';
 import '../Users/Profile/ProfileHome/ProfileHome.scss';
+import LanguageSwitcher from '../LanguageSwitcher/LanguageSwitcher';
 import './FirstPageView.scss';
 
 const getReadableFeedError = (error, t) => {
@@ -321,6 +322,9 @@ export default function FirstPageView({
       />
 
       <div className="relative flex flex-col flex-1 w-full min-w-0">
+        <div className="first-page-lang-switcher">
+          <LanguageSwitcher />
+        </div>
         {/* HEADER */}
         <AppHeader
           onGoProfile={onGoProfile}

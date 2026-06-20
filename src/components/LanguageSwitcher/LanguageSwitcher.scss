@@ -1,0 +1,109 @@
+.langSwitch {
+  position: relative;
+  z-index: 120;
+}
+
+.langSwitch__trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  background:
+    radial-gradient(120% 160% at 0% 0%, rgba(255, 79, 177, 0.2) 0%, rgba(255, 79, 177, 0) 48%),
+    radial-gradient(120% 160% at 100% 100%, rgba(79, 107, 255, 0.2) 0%, rgba(79, 107, 255, 0) 50%),
+    rgba(17, 8, 27, 0.84);
+  color: #fff;
+  border-radius: 999px;
+  padding: 8px 11px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  backdrop-filter: blur(12px) saturate(125%);
+  -webkit-backdrop-filter: blur(12px) saturate(125%);
+  box-shadow:
+    0 8px 24px rgba(8, 3, 16, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.18);
+  transition: border-color 0.24s ease, box-shadow 0.24s ease, transform 0.18s ease;
+}
+
+.langSwitch__trigger:hover {
+  border-color: rgba(255, 255, 255, 0.36);
+  box-shadow:
+    0 12px 28px rgba(27, 12, 44, 0.55),
+    0 0 0 1px rgba(255, 79, 177, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.24);
+  transform: translateY(-1px);
+}
+
+.langSwitch__trigger:active {
+  transform: translateY(0) scale(0.98);
+}
+
+.langSwitch__trigger:focus-visible {
+  outline: 2px solid rgba(255, 79, 177, 0.65);
+  outline-offset: 2px;
+}
+
+.langSwitch__arrow {
+  font-size: 10px;
+  line-height: 1;
+  opacity: 0.95;
+  transform: translateY(1px);
+  transition: transform 0.2s ease;
+}
+
+.langSwitch__arrow.is-open {
+  transform: rotate(180deg);
+}
+
+.langSwitch__menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  min-width: 160px;
+  max-height: min(52vh, 280px);
+  overflow: auto;
+  border-radius: 14px;
+  padding: 6px;
+  background: #12051f;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow: 0 14px 28px rgba(0, 0, 0, 0.35);
+}
+
+.langSwitch__item {
+  width: 100%;
+  border: 0;
+  border-radius: 10px;
+  padding: 9px 10px;
+  text-align: left;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.88);
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.langSwitch__item:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+}
+
+.langSwitch__item.is-active {
+  background: linear-gradient(135deg, rgba(255, 79, 177, 0.3), rgba(79, 107, 255, 0.3));
+  color: #fff;
+}
+
+.langSwitch__label {
+  opacity: 0.9;
+}
+
+@media (max-width: 768px) {
+  .langSwitch__trigger {
+    padding: 6px 10px;
+    font-size: 11px;
+  }
+}

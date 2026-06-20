@@ -11,8 +11,15 @@
   align-items: center;
   text-align: center;
 
-  padding: clamp(24px, 12vw, 40px) 0;
-  gap: clamp(24px, 16vw, 56px);
+  padding: clamp(18px, 8vw, 32px) 0;
+  gap: clamp(16px, 6vw, 28px);
+}
+
+.home__langSwitcher {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 12;
 }
 
 /* =========================
@@ -23,6 +30,8 @@
 .home__actionsSection {
   width: 100%;
   display: flex;
+  flex-direction: column;
+  align-items: center;
   justify-content: center;
 }
 
@@ -53,6 +62,15 @@
   height: 100%;
   object-fit: cover;
   display: block;
+}
+
+.home__tagline {
+  max-width: min(680px, calc(100% - 32px));
+  margin: 14px 0 0;
+  color: rgba(255, 255, 255, 0.82);
+  font-size: clamp(13px, 2.3vw, 16px);
+  line-height: 1.45;
+  text-wrap: balance;
 }
 
 /* =========================
@@ -153,7 +171,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: clamp(22px, 12vw, 28px);
+  gap: clamp(14px, 4vw, 20px);
 
   padding: 0 16px;
 }
@@ -171,10 +189,21 @@
    RESPONSIVE
    ========================= */
 @media (min-width: 768px) {
+  .home__langSwitcher {
+    top: 16px;
+    right: 16px;
+  }
+
   .home__logoCard {
-    width: 380px;
-    height: 380px;
-    border-radius: 26px;
+    width: 310px;
+    height: 310px;
+    border-radius: 24px;
+  }
+
+  .home__tagline {
+    margin-top: 12px;
+    font-size: 14px;
+    max-width: 600px;
   }
 
   .home__btn {
@@ -185,9 +214,14 @@
 
 @media (min-width: 1024px) {
   .home__logoCard {
-    width: 440px;
-    height: 440px;
-    border-radius: 32px;
+    width: 360px;
+    height: 360px;
+    border-radius: 28px;
+  }
+
+  .home__tagline {
+    font-size: 15px;
+    max-width: 640px;
   }
 
   .home__btn {
@@ -198,9 +232,14 @@
 
 @media (min-width: 1440px) {
   .home__logoCard {
-    width: 500px;
-    height: 500px;
-    border-radius: 34px;
+    width: 410px;
+    height: 410px;
+    border-radius: 32px;
+  }
+
+  .home__tagline {
+    font-size: 16px;
+    max-width: 700px;
   }
 
   .home__btn {

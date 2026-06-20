@@ -22,6 +22,14 @@
     "messages": "Mensajes",
     "profile": "Perfil"
   },
+  "landing": {
+    "tagline": "MeYou es una plataforma moderna para citas, comunicación y conexiones sociales seguras.",
+    "features": {
+      "earn": "Bonos por amigos",
+      "chat": "Chat moderno",
+      "security": "Seguridad total"
+    }
+  },
   "menu": {
     "myProfile": "My profile",
     "edit": "Edit",

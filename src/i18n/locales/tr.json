@@ -22,6 +22,14 @@
     "messages": "Mesajlar",
     "profile": "Profil"
   },
+  "landing": {
+    "tagline": "MeYou, tanisma, iletisim ve guvenli sosyal baglantilar icin modern bir platformdur.",
+    "features": {
+      "earn": "Arkadaş bonusları",
+      "chat": "Modern sohbet",
+      "security": "Tam güvenlik"
+    }
+  },
   "menu": {
     "myProfile": "My profile",
     "edit": "Edit",

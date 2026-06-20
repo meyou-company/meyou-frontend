@@ -22,6 +22,14 @@
     "messages": "Zprávy",
     "profile": "Profil"
   },
+  "landing": {
+    "tagline": "MeYou je moderní platforma pro seznamování, komunikaci a bezpečné sociální vazby.",
+    "features": {
+      "earn": "Bonusy za přátele",
+      "chat": "Moderní chat",
+      "security": "Plná bezpečnost"
+    }
+  },
   "menu": {
     "myProfile": "My profile",
     "edit": "Edit",

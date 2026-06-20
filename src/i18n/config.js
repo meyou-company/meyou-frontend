@@ -1,11 +1,12 @@
 /** Shared locale config for web and future React Native / Expo. */
-export const SUPPORTED_LOCALES = ['uk', 'en', 'tr', 'fr', 'cs', 'es', 'ru', 'ar'];
+export const SUPPORTED_LOCALES = ['uk', 'en', 'ru', 'cs', 'fr', 'es', 'tr'];
 
 export const DEFAULT_LOCALE = 'uk';
 
-export const RTL_LOCALES = new Set(['ar']);
+export const RTL_LOCALES = new Set();
 
-export const LOCALE_STORAGE_KEY = 'meyou_locale';
+export const LOCALE_STORAGE_KEY = 'meyou_language';
+export const LEGACY_LOCALE_STORAGE_KEY = 'meyou_locale';
 
 export function isSupportedLocale(value) {
   return typeof value === 'string' && SUPPORTED_LOCALES.includes(value.toLowerCase());
@@ -62,8 +63,14 @@ export function detectBrowserLocale() {
 
 export function readStoredLocale() {
   try {
-    const stored = localStorage.getItem(LOCALE_STORAGE_KEY);
-    if (stored && isSupportedLocale(stored)) return stored;
+    const current = localStorage.getItem(LOCALE_STORAGE_KEY);
+    if (current && isSupportedLocale(current)) return current;
+
+    const legacy = localStorage.getItem(LEGACY_LOCALE_STORAGE_KEY);
+    if (legacy && isSupportedLocale(legacy)) {
+      localStorage.setItem(LOCALE_STORAGE_KEY, normalizeLocale(legacy));
+      return normalizeLocale(legacy);
+    }
   } catch {
     /* ignore */
   }

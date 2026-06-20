@@ -22,6 +22,12 @@
   margin-bottom: 20px;
 }
 
+.featureLayout__headerActions {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
 .featureLayout__brand {
   margin: 0;
   font-size: clamp(22px, 4vw, 30px);
@@ -480,6 +486,11 @@
   .featureLayout__homeLink {
     padding: 7px 12px;
     font-size: 12px;
+  }
+
+  .featureLayout__headerActions {
+    width: 100%;
+    justify-content: space-between;
   }
 
   .featureLayout__nav {
