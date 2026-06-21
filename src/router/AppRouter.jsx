@@ -55,6 +55,10 @@ import FeatureGiftsPage from '../app/features/gifts/page';
 import { useBurgerMenuStore } from '../zustand/useBurgerMenuStore';
 import { useLocaleStore } from '../zustand/useLocaleStore';
 import { useThemeStore } from '../zustand/useThemeStore';
+import AdminLayout from '../pages/Admin/AdminLayout';
+import AdminDashboardPage from '../pages/Admin/AdminDashboardPage';
+import AdminReportsPage from '../pages/Admin/AdminReportsPage';
+import AdminUsersPage from '../pages/Admin/AdminUsersPage';
 import Post from '../components/Post/Post';
 import { MessagesSocketProvider } from '../providers/MessagesSocketProvider';
 import { NotificationsSocketProvider } from '../providers/NotificationsSocketProvider';
@@ -96,12 +100,14 @@ function AppLayout() {
     location.pathname.startsWith('/features') || location.pathname === '/earn';
   const hideBottomNavRoutes = new Set(['/users/profile/complete']);
   const isLanding = location.pathname === '/';
+  const isAdminRoute = location.pathname.startsWith('/admin');
   /** Нижня навігація (mobile): лише після завершення профілю, не на головній з входом/реєстрацією. */
   const profileComplete = user?.profileCompleted === true;
   const shouldHideBottomNav =
     isAuthRoute ||
     isLegalRoute ||
     isFeatureRoute ||
+    isAdminRoute ||
     hideBottomNavRoutes.has(location.pathname) ||
     !isAuthed ||
     !user ||
@@ -149,6 +155,12 @@ function AppLayout() {
               <Route path="/settings/change-password" element={<ChangePasswordPage />} />
               <Route path="/settings/privacy" element={<PrivacySettingsPage />} />
               <Route path="/settings/security" element={<SecuritySettingsPage />} />
+
+              <Route path="/admin" element={<AdminLayout />}>
+                <Route index element={<AdminDashboardPage />} />
+                <Route path="reports" element={<AdminReportsPage />} />
+                <Route path="users" element={<AdminUsersPage />} />
+              </Route>
 
               <Route path="/legal/privacy" element={<LegalPrivacyPage />} />
               <Route path="/legal/terms" element={<LegalTermsPage />} />

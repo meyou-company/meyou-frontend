@@ -24,6 +24,9 @@ export default function ProfileGuard({ children }) {
     // ✅ якщо не залогінений на public — не чіпаємо (але виходимо, бо user=null)
     if (!user) return;
 
+    const isAdminPath = pathname.startsWith('/admin');
+    if (isAdminPath) return;
+
     // ✅ факт email-верифікації
     const isVerified =
       user.isVerified === true ||
