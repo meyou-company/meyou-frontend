@@ -218,8 +218,15 @@ export const useAuthStore = create((set) => ({
   register: async (payload) => {
     set({ isAuthLoading: true });
     try {
-      await authApi.register(payload);
-      clearAuthSession(set);
+      const res = await authApi.register(payload);
+      const accessToken = pickAccessToken(res);
+      persistOAuthSessionTokens(
+        accessToken,
+        res?.refreshToken ?? res?.refresh_token,
+      );
+      disconnectSocket();
+      resetInitState();
+      set({ user: null, token: accessToken, isAuthed: false });
       return { ok: true, requiresEmailVerification: true };
     } catch (e) {
       return { ok: false, error: e };

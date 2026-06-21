@@ -39,15 +39,21 @@ export default function ProfileGuard({ children }) {
       return;
     }
 
-    // 1) НЕ verified → ведемо на verify-email (але не чіпаємо public)
-    if (!isVerified && !isPublicPage) {
+    const isVerifyEmailPage = pathname === '/auth/verify-email';
+
+    // 1) НЕ verified → verify-email (окрім самої сторінки верифікації та інших public)
+    if (!isVerified && !isVerifyEmailPage && !isPublicPage) {
       navigate("/auth/verify-email", { replace: true });
       return;
     }
 
-    // 2) Verified, але профіль не завершений → ведемо на complete
-    // важливо: редіректимо з НЕ-public, щоб не було циклу
-    if (isVerified && user.profileCompleted === false && !isPublicPage) {
+    // 2) Verified, але профіль не завершений → complete (лише після email-верифікації)
+    if (
+      isVerified &&
+      user.profileCompleted === false &&
+      pathname !== '/users/profile/complete' &&
+      !isPublicPage
+    ) {
       navigate("/users/profile/complete", { replace: true });
     }
   }, [isAuthLoading, isAuthed, user, pathname, navigate]);

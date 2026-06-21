@@ -188,7 +188,8 @@ api.interceptors.response.use(
     const url = res.config?.url ?? "";
     if (
       (String(url).includes('/auth/refresh') ||
-        String(url).includes('/auth/login')) &&
+        String(url).includes('/auth/login') ||
+        String(url).includes('/auth/register')) &&
       res.config?.method === 'post'
     ) {
       persistTokensFromResponseBody(res.data);

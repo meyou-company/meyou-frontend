@@ -20,6 +20,16 @@ export default function LoginPage() {
         } catch {}
 
         const u = user || useAuthStore.getState().user;
+        const isVerified =
+          u?.isVerified === true ||
+          u?.emailVerified === true ||
+          u?.email_verified === true ||
+          Boolean(u?.emailVerifiedAt);
+
+        if (!isVerified) {
+          navigate("/auth/verify-email", { replace: true });
+          return;
+        }
 
         if (u?.profileCompleted) {
           navigate(redirectTo || "/profile", { replace: true });
