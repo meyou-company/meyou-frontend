@@ -635,7 +635,20 @@
       "logoutAll": "Выйти на всех устройствах",
       "logoutAllConfirm": "Выйти из аккаунта на этом устройстве?",
       "logoutAllSuccess": "Вы вышли из аккаунта",
-      "comingSoon": "Скоро"
+      "comingSoon": "Скоро",
+      "deleteAccount": {
+        "dangerZoneTitle": "Опасная зона",
+        "dangerZoneDesc": "Безвозвратное удаление аккаунта. Это действие нельзя отменить.",
+        "deleteButton": "Удалить аккаунт",
+        "modalTitle": "Удалить аккаунт?",
+        "modalWarning": "Это действие нельзя отменить. Ваши персональные данные будут удалены, доступ к аккаунту прекратится.",
+        "modalInputLabel": "Введите DELETE для подтверждения",
+        "modalConfirm": "Удалить аккаунт",
+        "modalConfirming": "Удаление…",
+        "modalCancel": "Отмена",
+        "success": "Аккаунт удалён",
+        "error": "Не удалось удалить аккаунт"
+      }
     }
   },
   "video": {

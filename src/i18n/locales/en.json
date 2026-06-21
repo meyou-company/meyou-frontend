@@ -643,7 +643,20 @@
       "logoutAll": "Log out on all devices",
       "logoutAllConfirm": "Log out of your account on this device?",
       "logoutAllSuccess": "You have been logged out",
-      "comingSoon": "Coming soon"
+      "comingSoon": "Coming soon",
+      "deleteAccount": {
+        "dangerZoneTitle": "Danger zone",
+        "dangerZoneDesc": "Permanently delete your account. This cannot be undone.",
+        "deleteButton": "Delete account",
+        "modalTitle": "Delete account?",
+        "modalWarning": "This action cannot be undone. Your personal data will be removed and you will lose access to this account.",
+        "modalInputLabel": "Type DELETE to confirm",
+        "modalConfirm": "Delete account",
+        "modalConfirming": "Deleting…",
+        "modalCancel": "Cancel",
+        "success": "Account deleted",
+        "error": "Could not delete account"
+      }
     }
   },
   "video": {

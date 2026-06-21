@@ -644,7 +644,20 @@
       "logoutAll": "Вийти на всіх пристроях",
       "logoutAllConfirm": "Вийти з акаунта на цьому пристрої?",
       "logoutAllSuccess": "Ви вийшли з акаунта",
-      "comingSoon": "Незабаром"
+      "comingSoon": "Незабаром",
+      "deleteAccount": {
+        "dangerZoneTitle": "Небезпечна зона",
+        "dangerZoneDesc": "Видалення акаунта назавжди. Цю дію неможливо скасувати.",
+        "deleteButton": "Видалити акаунт",
+        "modalTitle": "Видалити акаунт?",
+        "modalWarning": "Цю дію неможливо скасувати. Ваші персональні дані буде видалено, а доступ до акаунта припиниться.",
+        "modalInputLabel": "Введіть DELETE для підтвердження",
+        "modalConfirm": "Видалити акаунт",
+        "modalConfirming": "Видалення…",
+        "modalCancel": "Скасувати",
+        "success": "Акаунт видалено",
+        "error": "Не вдалося видалити акаунт"
+      }
     }
   },
   "video": {

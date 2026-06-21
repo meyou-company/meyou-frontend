@@ -47,6 +47,13 @@ function clearAuthSession(set) {
   clearOAuthSessionTokens();
   clearAllPostFeedCaches();
   clearAllPostLikeOverrides();
+  try {
+    if (typeof window !== 'undefined') {
+      window.localStorage.removeItem('current-user-avatar');
+    }
+  } catch {
+    /* ignore */
+  }
   useMessagesStore.getState().reset();
   resetInitState();
   set({ user: null, token: null, isAuthed: false });
