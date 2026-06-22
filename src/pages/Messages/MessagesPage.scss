@@ -642,6 +642,18 @@
   }
 }
 
+@media (max-width: 768px) {
+  .messagesPage--chatOpen .msgComposer {
+    padding-bottom: calc(48px + env(safe-area-inset-bottom, 0px));
+  }
+}
+
+@media (max-width: 420px) {
+  .messagesPage--chatOpen .msgComposer {
+    padding-bottom: calc(48px + env(safe-area-inset-bottom, 0px));
+  }
+}
+
 body.dark,
 html[data-theme='dark'] {
   .messagesPage {

@@ -185,6 +185,7 @@ export default function CreatePostModal({
               inputRef={textareaRef}
               value={text}
               onChange={handleTextChange}
+              layout="post"
               className="createPostModal__emojiBtn"
               ariaLabel={t('posts.create.addEmoji')}
             />

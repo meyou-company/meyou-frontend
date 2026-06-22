@@ -180,6 +180,7 @@ export default function EditPostModal({
             inputRef={textareaRef}
             value={text}
             onChange={setText}
+            layout="post"
             className="editPostModal__emojiBtn"
             ariaLabel={t('posts.edit.addEmoji')}
           />

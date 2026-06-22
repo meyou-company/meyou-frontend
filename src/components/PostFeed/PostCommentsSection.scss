@@ -377,29 +377,6 @@ $pcs-input-bg: #f0f2f5;
   overflow: visible;
 }
 
-/* Emoji popup — над полем, праворуч (як Telegram) */
-.commentInputWrapper .emojiPickerPopup,
-.commentInputWrapper .emoji-picker-btn__popover--inputWrapper {
-  position: absolute;
-  right: 12px;
-  bottom: calc(100% + 8px);
-  left: auto;
-  top: auto;
-  z-index: 10000;
-  width: min(300px, calc(100vw - 24px));
-  max-width: calc(100vw - 24px);
-  transform: none;
-}
-
-@media (max-width: 768px) {
-  .commentInputWrapper .emojiPickerPopup,
-  .commentInputWrapper .emoji-picker-btn__popover--inputWrapper {
-    right: 0;
-    width: min(300px, calc(100vw - 24px));
-    max-width: calc(100vw - 24px);
-  }
-}
-
 .postCommentsSection__input {
   display: block;
   width: 100%;

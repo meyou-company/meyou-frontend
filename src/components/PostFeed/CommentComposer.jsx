@@ -14,7 +14,6 @@ export default function CommentComposer({
 }) {
   const { t } = useTranslation();
   const inputRef = useRef(null);
-  const wrapperRef = useRef(null);
   const draftTrimmed = (value ?? '').trim();
   const canSend = draftTrimmed.length > 0;
 
@@ -44,10 +43,7 @@ export default function CommentComposer({
 
   return (
     <div className={rootClass}>
-      <div
-        ref={wrapperRef}
-        className="commentComposer__inputWrapper commentInputWrapper"
-      >
+      <div className="commentComposer__inputWrapper commentInputWrapper">
         <textarea
           ref={inputRef}
           className="postCommentsSection__input commentComposer__input"
@@ -64,8 +60,7 @@ export default function CommentComposer({
             value={value ?? ''}
             onChange={onChange}
             variant="inline"
-            popoverContainerRef={wrapperRef}
-            pickerClassName="emojiPickerPopup"
+            layout="post"
             ariaLabel={t('comments.addEmoji')}
           />
           <button
