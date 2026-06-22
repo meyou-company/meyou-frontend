@@ -1831,7 +1831,7 @@ html[data-theme="dark"] .profile-home .postActionCount {
     }
   }
 
-  /* ===== RIGHT SIDE: show BOTH buttons (messages + saved) ===== */
+  /* ===== RIGHT SIDE: 4 кнопки як на desktop (2×2) ===== */
   .profileRight {
     flex: 0 0 auto;
     padding-top: 12px;
@@ -1840,6 +1840,18 @@ html[data-theme="dark"] .profile-home .postActionCount {
     align-items: flex-start;
     justify-content: flex-end;
     gap: 14px;
+  }
+
+  .profileRight__stack {
+    display: grid;
+    grid-template-columns: repeat(2, 110px);
+    gap: 14px;
+    align-items: stretch;
+    justify-content: end;
+  }
+
+  .btnMessages--desktopExtra {
+    display: flex;
   }
 
   /* remove desktop shift on tablet */
