@@ -687,6 +687,10 @@
     "search": "Search",
     "messages": "Messages"
   },
+  "explore": {
+    "searchPlaceholder": "İsim, kullanıcı adı veya şehre göre yeni arkadaşlar bulun…",
+    "searchAria": "Yeni arkadaşlar ara"
+  },
   "feed": {
     "loading": "Loading feed…",
     "loadingMore": "Loading more posts…",

@@ -687,6 +687,10 @@
     "search": "Search",
     "messages": "Messages"
   },
+  "explore": {
+    "searchPlaceholder": "Najděte nové přátele podle jména, uživatelského jména nebo města…",
+    "searchAria": "Hledat nové přátele"
+  },
   "feed": {
     "loading": "Loading feed…",
     "loadingMore": "Loading more posts…",

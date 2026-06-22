@@ -687,6 +687,10 @@
     "search": "Search",
     "messages": "Messages"
   },
+  "explore": {
+    "searchPlaceholder": "Trouvez de nouveaux amis par nom, pseudo ou ville…",
+    "searchAria": "Rechercher de nouveaux amis"
+  },
   "feed": {
     "loading": "Loading feed…",
     "loadingMore": "Loading more posts…",
