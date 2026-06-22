@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import profileIcons from "../../constants/profileIcons";
 import EmojiPickerButton from "../EmojiPicker/EmojiPickerButton";
@@ -17,17 +17,6 @@ function syncComposerTextareaHeight(el) {
   const cap = Math.max(TEXTAREA_MIN_PX, Math.floor(window.innerHeight * TEXTAREA_MAX_VH));
   el.style.height = "auto";
   el.style.height = `${Math.min(Math.max(el.scrollHeight, TEXTAREA_MIN_PX), cap)}px`;
-}
-
-function parsePostLocation(location) {
-  const text = (location ?? "").trim();
-  if (!text) return { city: "", country: "" };
-  const comma = text.indexOf(",");
-  if (comma === -1) return { city: text, country: "" };
-  return {
-    city: text.slice(0, comma).trim(),
-    country: text.slice(comma + 1).trim(),
-  };
 }
 
 function ActionCard({
@@ -89,11 +78,6 @@ export default function CreatePostModal({
 }) {
   const { t } = useTranslation();
   const resolvedPlaceholder = placeholder ?? t('posts.placeholder');
-
-  const { city, country } = useMemo(
-    () => parsePostLocation(postLocation),
-    [postLocation]
-  );
 
   const hasPhoto = postMediaFiles.some((m) => m.type === "image");
   const hasVideo = postMediaFiles.some((m) => m.type === "video");
@@ -288,29 +272,8 @@ export default function CreatePostModal({
                 <span className="createPostModal__mapPin">📍</span>
               </div>
 
-              {hasLocation ? (
-                <div className="createPostModal__locationSelected">
-                  <div className="createPostModal__locationSelectedText">
-                    {city ? (
-                      <span className="createPostModal__locationCity">{city}</span>
-                    ) : null}
-                    {country ? (
-                      <span className="createPostModal__locationCountry">
-                        {country}
-                      </span>
-                    ) : null}
-                  </div>
-                  <button
-                    type="button"
-                    className="createPostModal__locationClear"
-                    onClick={onClearLocation}
-                    aria-label={t('posts.create.locationClear')}
-                  >
-                    ×
-                  </button>
-                </div>
-              ) : (
-                <label className="createPostModal__locationManual">
+              <div className="createPostModal__locationManual">
+                <label className="createPostModal__locationManualField">
                   <span className="visually-hidden">{t('posts.create.locationPlaceholder')}</span>
                   <input
                     type="text"
@@ -321,7 +284,17 @@ export default function CreatePostModal({
                     autoComplete="off"
                   />
                 </label>
-              )}
+                {hasLocation ? (
+                  <button
+                    type="button"
+                    className="createPostModal__locationClear"
+                    onClick={onClearLocation}
+                    aria-label={t('posts.create.locationClear')}
+                  >
+                    ×
+                  </button>
+                ) : null}
+              </div>
 
               <button
                 type="button"
