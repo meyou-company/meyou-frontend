@@ -196,9 +196,11 @@ export default function ProfileInfoPanel({
       setDraft({
         telegram: user?.telegram || '',
         instagram: user?.instagram || '',
+        tiktok: user?.tiktok || '',
         visibility: {
           telegram: visibility.telegram,
           instagram: visibility.instagram,
+          tiktok: visibility.tiktok,
         },
       });
     }
@@ -593,9 +595,11 @@ export default function ProfileInfoPanel({
           saveSection(() => ({
             telegram: draft.telegram?.trim() || '',
             instagram: draft.instagram?.trim() || '',
+            tiktok: draft.tiktok?.trim() || '',
             profileVisibility: {
               telegram: draft.visibility?.telegram !== false,
               instagram: draft.visibility?.instagram !== false,
+              tiktok: draft.visibility?.tiktok !== false,
             },
           }))
         }
@@ -621,6 +625,16 @@ export default function ProfileInfoPanel({
                 maxLength={200}
               />
             </label>
+            <label className="infoField">
+              <span>TikTok</span>
+              <input
+                className="infoField__input"
+                value={draft.tiktok || ''}
+                onChange={(e) => setDraft((d) => ({ ...d, tiktok: e.target.value }))}
+                placeholder="@username"
+                maxLength={200}
+              />
+            </label>
             <VisibilityTable
               rows={[
                 {
@@ -633,10 +647,16 @@ export default function ProfileInfoPanel({
                   label: 'Instagram',
                   value: draft.instagram?.trim() || t('profile.notSpecified'),
                 },
+                {
+                  key: 'tiktok',
+                  label: 'TikTok',
+                  value: draft.tiktok?.trim() || t('profile.notSpecified'),
+                },
               ]}
               visibility={{
                 telegram: draft.visibility?.telegram !== false,
                 instagram: draft.visibility?.instagram !== false,
+                tiktok: draft.visibility?.tiktok !== false,
               }}
               onChange={(key, value) =>
                 setDraft((d) => ({
@@ -657,9 +677,9 @@ export default function ProfileInfoPanel({
             <img src={profileIcons.profileInfoInstagram} alt="" />
             Instagram
           </button>
-          <button type="button" className="contactsText" disabled>
-            <img src={profileIcons.profileInfoLock} alt="" />
-            {t('profile.info.emailHidden')}
+          <button type="button" className="contactsText contactsText--tiktok" disabled={!user?.tiktok}>
+            <img src={profileIcons.profileInfoTiktok} alt="" />
+            TikTok
           </button>
         </div>
       </ProfileInfoSection>

@@ -116,6 +116,7 @@ const profileIcons = {
   profileInfoPhone: `${PROFILE_INFO}/phone.svg`,
   profileInfoTelegram: `${PROFILE_INFO}/telegram.svg`,
   profileInfoInstagram: `${PROFILE_INFO}/instagram.svg`,
+  profileInfoTiktok: `${PROFILE_INFO}/tiktok.svg`,
   profileInfoLock: `${PROFILE_INFO}/light_lock.svg`,
 
   /* === STORIES === */

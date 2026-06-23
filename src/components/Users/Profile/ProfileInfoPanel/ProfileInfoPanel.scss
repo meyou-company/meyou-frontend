@@ -395,8 +395,9 @@
   color: #F44E55; /* Instagram */
 }
 
-.contacts button:nth-child(3) {
-  color: #C2B8B8; /* Email */
+.contacts button:nth-child(3),
+.contactsText--tiktok {
+  color: #010101; /* TikTok */
 }
 
 .contacts button:hover {
@@ -636,8 +637,9 @@
     color: #ff6b73;
   }
 
-  .contacts button:nth-child(3) {
-    color: #8a8a8a;
+  .contacts button:nth-child(3),
+  .contactsText--tiktok {
+    color: #f5f5f5;
   }
 
   .contacts button:disabled {
