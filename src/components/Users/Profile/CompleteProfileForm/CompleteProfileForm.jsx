@@ -119,7 +119,7 @@ export default function CompleteProfileForm({ onBack, onSave }) {
   }, [values, t]);
 
   useEffect(() => {
-    const raw = String(values.username || '').trim().toLowerCase();
+    const raw = String(values.username || '').trim();
     if (!raw || errors.username) {
       setUsernameCheck({ loading: false, available: null, suggestions: [] });
       if (errors.username) {
@@ -179,15 +179,6 @@ export default function CompleteProfileForm({ onBack, onSave }) {
     }
   };
   const onBlur = (key) => setTouched((prev) => ({ ...prev, [key]: true }));
-  const onUsernameBlur = () => {
-    onBlur('username');
-    const normalized = String(values.username || '')
-      .replace(/\s+/g, '')
-      .toLowerCase();
-    if (normalized !== values.username) {
-      setValues((v) => ({ ...v, username: normalized }));
-    }
-  };
 
   const pickAvatar = () => {
     setAvatarError('');
@@ -331,7 +322,7 @@ export default function CompleteProfileForm({ onBack, onSave }) {
 
         if (!suggestions.length && values.username?.trim()) {
           try {
-            const res = await usersApi.checkUsername(values.username.trim().toLowerCase());
+            const res = await usersApi.checkUsername(values.username.trim());
             const data = res?.data ?? res;
             if (Array.isArray(data?.suggestions)) {
               suggestions = data.suggestions;
@@ -540,7 +531,7 @@ export default function CompleteProfileForm({ onBack, onSave }) {
               placeholder={t('profile.editForm.fields.username')}
               value={values.username}
               onChange={(e) => setField('username', e.target.value)}
-              onBlur={onUsernameBlur}
+              onBlur={() => onBlur('username')}
               maxLength={10}
               aria-required="true"
             />

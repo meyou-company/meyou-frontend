@@ -71,7 +71,7 @@ function applySharedRules(values, e) {
     if (u.length > 10) {
       e.username = 'usernameMaxLength';
     }
-    if (!/^[a-z0-9._]+$/.test(u.toLowerCase())) {
+    if (!/^[a-zA-Z0-9._]+$/.test(u)) {
       e.username = 'usernameFormat';
     }
   }
