@@ -671,7 +671,18 @@
     "STORY_VIDEO_TOO_LONG": "Story video is too long.",
     "STORY_CANNOT_REPLY_SELF": "Cannot reply to your own story.",
     "STORY_CANNOT_ADD_SELF_CLOSE_FRIEND": "Cannot add yourself to close friends.",
-    "VIDEO_TOO_LONG": "Video is too long."
+    "VIDEO_TOO_LONG": "Video is too long.",
+    "NETWORK_ERROR": "Impossible de se connecter au serveur. Vérifiez votre connexion Internet.",
+    "EMAIL_ALREADY_EXISTS": "Un utilisateur avec cet e-mail existe déjà.",
+    "INVALID_CREDENTIALS": "E-mail ou mot de passe incorrect.",
+    "EMAIL_NOT_VERIFIED": "Vérifiez votre e-mail avant de vous connecter.",
+    "USERNAME_TAKEN": "Ce nom d'utilisateur est déjà pris. Choisissez-en un autre.",
+    "USERNAME_REQUIRED": "Indiquez un nom d'utilisateur pour compléter votre profil.",
+    "DUPLICATE_REPORT": "Vous avez déjà envoyé ce signalement.",
+    "USER_BLOCKED": "L'interaction avec cet utilisateur n'est pas disponible.",
+    "CANNOT_REPORT_SELF": "Vous ne pouvez pas vous signaler vous-même.",
+    "ACCOUNT_SUSPENDED": "Votre compte a été suspendu.",
+    "ACCOUNT_DELETED": "Ce compte a été supprimé."
   },
   "navigation": {
     "home": "Home",

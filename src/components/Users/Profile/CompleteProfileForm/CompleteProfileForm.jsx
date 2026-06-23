@@ -10,6 +10,7 @@ import { useAuthStore } from '../../../../zustand/useAuthStore';
 import { authApi } from '../../../../services/auth';
 import { profileApi } from '../../../../services/profileApi';
 import { locationApi } from '../../../../services/locationApi';
+import { usersApi } from '../../../../services/usersApi';
 
 import { useLocationOptions } from '../../../../hooks/useLocationOptions';
 import { useProfileSelectProps } from '../../../../hooks/useProfileSelectProps';
@@ -22,7 +23,7 @@ import {
 } from '../../../../utils/validationProfile';
 import { normalizeForValidation, toCompleteProfilePayload } from '../../../../utils/profilePayload';
 import { cropImageToFile } from '../../../../utils/cropImageToFile';
-import { getApiErrorMessage } from '../../../../utils/getApiErrorMessage';
+import { getApiErrorCode, getApiErrorMessage, getApiErrorSuggestions } from '../../../../utils/getApiErrorMessage';
 import { applyBirthDateNormalization } from '../../../../utils/profileFormUtils';
 
 import { interestOptions } from '../../../../constants/interests';
@@ -68,7 +69,14 @@ export default function CompleteProfileForm({ onBack, onSave }) {
   const [errors, setErrors] = useState({});
 
   const [submitError, setSubmitError] = useState('');
+  const [submitErrorCode, setSubmitErrorCode] = useState('');
+  const [usernameSuggestions, setUsernameSuggestions] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [usernameCheck, setUsernameCheck] = useState({
+    loading: false,
+    available: null,
+    suggestions: [],
+  });
 
   const [profileCompleted, setProfileCompleted] = useState(false);
 
@@ -111,6 +119,38 @@ export default function CompleteProfileForm({ onBack, onSave }) {
   }, [values, t]);
 
   useEffect(() => {
+    const raw = String(values.username || '').trim().toLowerCase();
+    if (!raw || errors.username) {
+      setUsernameCheck({ loading: false, available: null, suggestions: [] });
+      if (errors.username) {
+        setUsernameSuggestions([]);
+      }
+      return;
+    }
+
+    const timer = window.setTimeout(async () => {
+      try {
+        setUsernameCheck((prev) => ({ ...prev, loading: true }));
+        const res = await usersApi.checkUsername(raw);
+        const data = res?.data ?? res;
+        const suggestions = Array.isArray(data?.suggestions) ? data.suggestions : [];
+        setUsernameCheck({
+          loading: false,
+          available: data?.available === true,
+          suggestions,
+        });
+        if (data?.available === false && suggestions.length > 0) {
+          setUsernameSuggestions(suggestions);
+        }
+      } catch {
+        setUsernameCheck({ loading: false, available: null, suggestions: [] });
+      }
+    }, 450);
+
+    return () => window.clearTimeout(timer);
+  }, [values.username, errors.username]);
+
+  useEffect(() => {
     if (!genderPickerOpen) return;
     const handleOutside = (e) => {
       if (genderDropdownRef.current && !genderDropdownRef.current.contains(e.target)) {
@@ -127,8 +167,16 @@ export default function CompleteProfileForm({ onBack, onSave }) {
 
   // HANDLERS
   const setField = (key, val) => {
-    setValues((v) => ({ ...v, [key]: val }));
+    const nextValue =
+      key === 'username' && typeof val === 'string'
+        ? val.toLowerCase().replace(/\s+/g, '')
+        : val;
+    setValues((v) => ({ ...v, [key]: nextValue }));
     setSubmitError('');
+    setSubmitErrorCode('');
+    if (key === 'username') {
+      setUsernameSuggestions([]);
+    }
   };
   const onBlur = (key) => setTouched((prev) => ({ ...prev, [key]: true }));
 
@@ -172,13 +220,10 @@ export default function CompleteProfileForm({ onBack, onSave }) {
       closeCrop();
       toast.success(t('profile.editForm.toast.avatarUpdated'));
     } catch (err) {
-      const raw = err?.response?.data?.message;
       const msg =
         err?.response?.status === 401
           ? t('profile.toast.avatarSessionExpired')
-          : (Array.isArray(raw) ? raw[0] : raw) ||
-            err?.message ||
-            t('profile.editForm.toast.avatarUpdateError');
+          : getApiErrorMessage(err, 'profile.editForm.toast.avatarUpdateError');
       toast.error(String(msg));
       setAvatarError(String(msg));
     } finally {
@@ -194,13 +239,10 @@ export default function CompleteProfileForm({ onBack, onSave }) {
       await refreshMe();
       toast.success(t('profile.editForm.toast.avatarDeleted'));
     } catch (err) {
-      const raw = err?.response?.data?.message;
       const msg =
         err?.response?.status === 401
           ? t('profile.toast.avatarSessionExpired')
-          : (Array.isArray(raw) ? raw[0] : raw) ||
-            err?.message ||
-            t('profile.editForm.toast.avatarDeleteError');
+          : getApiErrorMessage(err, 'profile.editForm.toast.avatarDeleteError');
       toast.error(String(msg));
       setAvatarError(String(msg));
     } finally {
@@ -215,6 +257,7 @@ export default function CompleteProfileForm({ onBack, onSave }) {
     setTouched({
       firstName: true,
       lastName: true,
+      username: true,
       phone: true,
       nationality: true,
       interests: true,
@@ -236,21 +279,63 @@ export default function CompleteProfileForm({ onBack, onSave }) {
 
     if (Object.keys(nextErrors).length > 0) return;
 
+    if (usernameCheck.loading) {
+      setSubmitError(t('common.loading'));
+      return;
+    }
+
+    if (usernameCheck.available === false) {
+      const takenMsg = t('errors.USERNAME_TAKEN');
+      setSubmitError(takenMsg);
+      setSubmitErrorCode('USERNAME_TAKEN');
+      toast.error(takenMsg);
+      if (usernameSuggestions.length === 0 && usernameCheck.suggestions.length > 0) {
+        setUsernameSuggestions(usernameCheck.suggestions);
+      }
+      return;
+    }
+
     const payload = toCompleteProfilePayload(submitValues);
 
     try {
       setIsSubmitting(true);
-      onSave?.(payload);
-
-      const status = await profileApi.getProfileStatus();
-      const isCompleted = Boolean(status?.profileCompleted);
-
-      if (isCompleted) await profileApi.updateProfile(payload);
-
+      await onSave?.(payload);
       setProfileCompleted(true);
     } catch (err) {
+      console.log('[CompleteProfileForm] submit error', err?.response?.data || err);
+
+      const code = getApiErrorCode(err) || '';
       const msg = getApiErrorMessage(err) || t('profile.completeForm.errors.saveError');
+      let suggestions = getApiErrorSuggestions(err);
+
       setSubmitError(msg);
+      setSubmitErrorCode(code);
+      toast.error(msg);
+
+      if (code === 'USERNAME_TAKEN') {
+        setUsernameCheck((prev) => ({
+          ...prev,
+          loading: false,
+          available: false,
+        }));
+        setTouched((prev) => ({ ...prev, username: true }));
+
+        if (!suggestions.length && values.username?.trim()) {
+          try {
+            const res = await usersApi.checkUsername(values.username.trim().toLowerCase());
+            const data = res?.data ?? res;
+            if (Array.isArray(data?.suggestions)) {
+              suggestions = data.suggestions;
+            }
+          } catch {
+            /* check endpoint optional */
+          }
+        }
+
+        if (suggestions.length > 0) {
+          setUsernameSuggestions(suggestions);
+        }
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -262,6 +347,7 @@ export default function CompleteProfileForm({ onBack, onSave }) {
     const requiredKeys = [
       'lastName',
       'firstName',
+      'username',
       'phone',
       'nationality',
       'interests',
@@ -305,6 +391,30 @@ export default function CompleteProfileForm({ onBack, onSave }) {
     : profileCompleted
       ? t('profile.completeForm.update')
       : t('profile.completeForm.save');
+
+  const showUsernameTaken =
+    usernameCheck.available === false || submitErrorCode === 'USERNAME_TAKEN';
+  const displayedUsernameSuggestions =
+    usernameSuggestions.length > 0 ? usernameSuggestions : usernameCheck.suggestions;
+
+  const renderUsernameSuggestions = () =>
+    displayedUsernameSuggestions.length > 0 ? (
+      <div className="complete-profile__usernameSuggestions">
+        {displayedUsernameSuggestions.map((suggestion) => (
+          <button
+            key={suggestion}
+            type="button"
+            className="cp-pill"
+            onClick={() => {
+              setField('username', suggestion);
+              onBlur('username');
+            }}
+          >
+            @{suggestion}
+          </button>
+        ))}
+      </div>
+    ) : null;
 
   return (
     <div className="complete-profile">
@@ -415,8 +525,9 @@ export default function CompleteProfileForm({ onBack, onSave }) {
         {/* NICKNAME */}
         <div className="field">
           <div className="field__wrap">
+            {showStar('username') && <span className="field__star">*</span>}
             <input
-              className={`text-input ${showError('username') ? 'is-error' : ''}`}
+              className={`text-input ${showError('username') || showUsernameTaken ? 'is-error' : ''}`}
               placeholder={t('profile.editForm.fields.username')}
               value={values.username}
               onChange={(e) => setField('username', e.target.value)}
@@ -426,6 +537,13 @@ export default function CompleteProfileForm({ onBack, onSave }) {
             />
           </div>
           {showError('username') && <div className="field__hint">{errors.username}</div>}
+          {!showError('username') && usernameCheck.loading ? (
+            <div className="field__hint">{t('common.loading')}</div>
+          ) : null}
+          {!showError('username') && showUsernameTaken ? (
+            <div className="field__hint">{t('errors.USERNAME_TAKEN')}</div>
+          ) : null}
+          {!showError('username') && showUsernameTaken ? renderUsernameSuggestions() : null}
         </div>
         {/* СТАТЬ + ВІК: десктоп/планшет — 2 поля в одному рядку; мобілка — кожне поле - свій рядок */}
         <div className="grid-2">
@@ -669,9 +787,17 @@ export default function CompleteProfileForm({ onBack, onSave }) {
           </div>
         </div>
 
-        {submitError && <div className="auth__error">{submitError}</div>}
+        {submitError ? (
+          <div className="complete-profile__submitError" role="alert" data-testid="complete-profile-submit-error">
+            {submitError}
+          </div>
+        ) : null}
+        {showUsernameTaken ? renderUsernameSuggestions() : null}
 
-        <button className="btn-gradient wide" disabled={isSubmitting}>
+        <button
+          className="btn-gradient wide"
+          disabled={isSubmitting || usernameCheck.loading}
+        >
           {submitLabel}
         </button>
       </form>

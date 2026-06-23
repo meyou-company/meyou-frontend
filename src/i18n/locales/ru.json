@@ -690,7 +690,18 @@
     "STORY_VIDEO_TOO_LONG": "Story video is too long.",
     "STORY_CANNOT_REPLY_SELF": "Cannot reply to your own story.",
     "STORY_CANNOT_ADD_SELF_CLOSE_FRIEND": "Cannot add yourself to close friends.",
-    "VIDEO_TOO_LONG": "Video is too long."
+    "VIDEO_TOO_LONG": "Видео слишком длинное.",
+    "NETWORK_ERROR": "Не удалось подключиться к серверу. Проверьте интернет-соединение.",
+    "EMAIL_ALREADY_EXISTS": "Пользователь с такой электронной почтой уже существует.",
+    "INVALID_CREDENTIALS": "Неверный email или пароль.",
+    "EMAIL_NOT_VERIFIED": "Подтвердите электронную почту перед входом.",
+    "USERNAME_TAKEN": "Этот никнейм уже занят. Выберите другой.",
+    "USERNAME_REQUIRED": "Укажите никнейм для завершения профиля.",
+    "DUPLICATE_REPORT": "Вы уже отправляли такую жалобу.",
+    "USER_BLOCKED": "Взаимодействие с этим пользователем недоступно.",
+    "CANNOT_REPORT_SELF": "Нельзя пожаловаться на себя.",
+    "ACCOUNT_SUSPENDED": "Ваш аккаунт заблокирован.",
+    "ACCOUNT_DELETED": "Аккаунт удалён."
   },
   "navigation": {
     "home": "Главная",

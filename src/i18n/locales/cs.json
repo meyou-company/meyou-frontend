@@ -671,7 +671,18 @@
     "STORY_VIDEO_TOO_LONG": "Story video is too long.",
     "STORY_CANNOT_REPLY_SELF": "Cannot reply to your own story.",
     "STORY_CANNOT_ADD_SELF_CLOSE_FRIEND": "Cannot add yourself to close friends.",
-    "VIDEO_TOO_LONG": "Video is too long."
+    "VIDEO_TOO_LONG": "Video is too long.",
+    "NETWORK_ERROR": "Nepodařilo se připojit k serveru. Zkontrolujte připojení k internetu.",
+    "EMAIL_ALREADY_EXISTS": "Uživatel s tímto e-mailem již existuje.",
+    "INVALID_CREDENTIALS": "Neplatný e-mail nebo heslo.",
+    "EMAIL_NOT_VERIFIED": "Před přihlášením ověřte svůj e-mail.",
+    "USERNAME_TAKEN": "Toto uživatelské jméno je již obsazené. Zvolte jiné.",
+    "USERNAME_REQUIRED": "Zadejte uživatelské jméno pro dokončení profilu.",
+    "DUPLICATE_REPORT": "Toto hlášení jste již odeslali.",
+    "USER_BLOCKED": "Interakce s tímto uživatelem není k dispozici.",
+    "CANNOT_REPORT_SELF": "Nemůžete nahlásit sami sebe.",
+    "ACCOUNT_SUSPENDED": "Váš účet byl pozastaven.",
+    "ACCOUNT_DELETED": "Tento účet byl smazán."
   },
   "navigation": {
     "home": "Home",

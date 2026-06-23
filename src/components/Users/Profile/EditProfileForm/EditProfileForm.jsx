@@ -200,13 +200,10 @@ export default function EditProfileForm({ onBack, onSave }) {
       closeCrop();
       toast.success(t('profile.editForm.toast.avatarUpdated'));
     } catch (err) {
-      const raw = err?.response?.data?.message;
       const msg =
         err?.response?.status === 401
           ? t('profile.toast.avatarSessionExpired')
-          : (Array.isArray(raw) ? raw[0] : raw) ||
-            err?.message ||
-            t('profile.editForm.toast.avatarUpdateError');
+          : getApiErrorMessage(err, 'profile.editForm.toast.avatarUpdateError');
       toast.error(String(msg));
       setAvatarError(String(msg));
     } finally {
@@ -222,13 +219,10 @@ export default function EditProfileForm({ onBack, onSave }) {
       await refreshMe();
       toast.success(t('profile.editForm.toast.avatarDeleted'));
     } catch (err) {
-      const raw = err?.response?.data?.message;
       const msg =
         err?.response?.status === 401
           ? t('profile.toast.avatarSessionExpired')
-          : (Array.isArray(raw) ? raw[0] : raw) ||
-            err?.message ||
-            t('profile.editForm.toast.avatarDeleteError');
+          : getApiErrorMessage(err, 'profile.editForm.toast.avatarDeleteError');
       toast.error(String(msg));
       setAvatarError(String(msg));
     } finally {

@@ -314,6 +314,30 @@
   padding-left: 10px;
 }
 
+.complete-profile__submitError {
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: 1px solid rgba(252, 0, 0, 0.35);
+  background: rgba(252, 0, 0, 0.08);
+  color: #fc0000;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.complete-profile__usernameSuggestions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 4px 10px 0;
+}
+
+body.dark .complete-profile__submitError,
+html[data-theme="dark"] .complete-profile__submitError {
+  border-color: rgba(255, 118, 159, 0.45);
+  background: rgba(255, 118, 159, 0.14);
+  color: #ffb8c9;
+}
+
 /* Поле Пол — такий самий колір/стиль як інші поля (градієнт + внутрішній фон) */
 .field__genderWrap {
   position: relative;

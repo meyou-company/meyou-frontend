@@ -71,6 +71,9 @@ function applySharedRules(values, e) {
     if (u.length > 10) {
       e.username = 'usernameMaxLength';
     }
+    if (!/^[a-z0-9._]+$/.test(u.toLowerCase())) {
+      e.username = 'usernameFormat';
+    }
   }
 
   if (values.bio?.length > 500) {
@@ -91,6 +94,7 @@ export function validateCompleteProfile(values) {
 
   req(values, e, 'firstName', 'firstNameRequired');
   req(values, e, 'lastName', 'lastNameRequired');
+  req(values, e, 'username', 'usernameRequired');
   req(values, e, 'phone', 'phoneRequired');
 
   req(values, e, 'nationality', 'nationalityRequired');

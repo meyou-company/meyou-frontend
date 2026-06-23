@@ -671,7 +671,18 @@
     "STORY_VIDEO_TOO_LONG": "Story video is too long.",
     "STORY_CANNOT_REPLY_SELF": "Cannot reply to your own story.",
     "STORY_CANNOT_ADD_SELF_CLOSE_FRIEND": "Cannot add yourself to close friends.",
-    "VIDEO_TOO_LONG": "Video is too long."
+    "VIDEO_TOO_LONG": "Video is too long.",
+    "NETWORK_ERROR": "Sunucuya bağlanılamadı. İnternet bağlantınızı kontrol edin.",
+    "EMAIL_ALREADY_EXISTS": "Bu e-posta adresiyle kayıtlı bir kullanıcı zaten var.",
+    "INVALID_CREDENTIALS": "Geçersiz e-posta veya şifre.",
+    "EMAIL_NOT_VERIFIED": "Giriş yapmadan önce e-postanızı doğrulayın.",
+    "USERNAME_TAKEN": "Bu kullanıcı adı zaten alınmış. Başka bir tane seçin.",
+    "USERNAME_REQUIRED": "Profilinizi tamamlamak için bir kullanıcı adı girin.",
+    "DUPLICATE_REPORT": "Bu şikayeti zaten gönderdiniz.",
+    "USER_BLOCKED": "Bu kullanıcıyla etkileşim kullanılamıyor.",
+    "CANNOT_REPORT_SELF": "Kendinizi şikayet edemezsiniz.",
+    "ACCOUNT_SUSPENDED": "Hesabınız askıya alındı.",
+    "ACCOUNT_DELETED": "Bu hesap silindi."
   },
   "navigation": {
     "home": "Home",

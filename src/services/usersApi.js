@@ -6,6 +6,10 @@ import { api } from "./api";
  * viewType: 'OWNER' | 'VISITOR', subscriptionStatus: { isSubscribed, isBlocked }.
  */
 export const usersApi = {
+  checkUsername(username) {
+    return api.get("/users/username/check", { params: { username } });
+  },
+
   search(params) {
     return api.get("/users/search", { params });
   },

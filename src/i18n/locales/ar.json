@@ -663,7 +663,18 @@
     "STORY_VIDEO_TOO_LONG": "Story video is too long.",
     "STORY_CANNOT_REPLY_SELF": "Cannot reply to your own story.",
     "STORY_CANNOT_ADD_SELF_CLOSE_FRIEND": "Cannot add yourself to close friends.",
-    "VIDEO_TOO_LONG": "Video is too long."
+    "VIDEO_TOO_LONG": "Video is too long.",
+    "NETWORK_ERROR": "تعذر الاتصال بالخادم. تحقق من اتصال الإنترنت.",
+    "EMAIL_ALREADY_EXISTS": "يوجد مستخدم بهذا البريد الإلكتروني بالفعل.",
+    "INVALID_CREDENTIALS": "البريد الإلكتروني أو كلمة المرور غير صحيحة.",
+    "EMAIL_NOT_VERIFIED": "يرجى تأكيد بريدك الإلكتروني قبل تسجيل الدخول.",
+    "USERNAME_TAKEN": "اسم المستخدم هذا مستخدم بالفعل. اختر اسمًا آخر.",
+    "USERNAME_REQUIRED": "أدخل اسم مستخدم لإكمال ملفك الشخصي.",
+    "DUPLICATE_REPORT": "لقد أرسلت هذا البلاغ من قبل.",
+    "USER_BLOCKED": "التفاعل مع هذا المستخدم غير متاح.",
+    "CANNOT_REPORT_SELF": "لا يمكنك الإبلاغ عن نفسك.",
+    "ACCOUNT_SUSPENDED": "تم تعليق حسابك.",
+    "ACCOUNT_DELETED": "تم حذف هذا الحساب."
   },
   "navigation": {
     "home": "Home",
