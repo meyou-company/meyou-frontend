@@ -169,7 +169,7 @@ export default function CompleteProfileForm({ onBack, onSave }) {
   const setField = (key, val) => {
     const nextValue =
       key === 'username' && typeof val === 'string'
-        ? val.toLowerCase().replace(/\s+/g, '')
+        ? val.replace(/\s+/g, '')
         : val;
     setValues((v) => ({ ...v, [key]: nextValue }));
     setSubmitError('');
@@ -179,6 +179,15 @@ export default function CompleteProfileForm({ onBack, onSave }) {
     }
   };
   const onBlur = (key) => setTouched((prev) => ({ ...prev, [key]: true }));
+  const onUsernameBlur = () => {
+    onBlur('username');
+    const normalized = String(values.username || '')
+      .replace(/\s+/g, '')
+      .toLowerCase();
+    if (normalized !== values.username) {
+      setValues((v) => ({ ...v, username: normalized }));
+    }
+  };
 
   const pickAvatar = () => {
     setAvatarError('');
@@ -531,7 +540,7 @@ export default function CompleteProfileForm({ onBack, onSave }) {
               placeholder={t('profile.editForm.fields.username')}
               value={values.username}
               onChange={(e) => setField('username', e.target.value)}
-              onBlur={() => onBlur('username')}
+              onBlur={onUsernameBlur}
               maxLength={10}
               aria-required="true"
             />
