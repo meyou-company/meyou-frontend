@@ -54,20 +54,25 @@ export const usersApi = {
     return api.get(`/users/${encodeURIComponent(value)}/followers`);
   },
 
-  blockUser(userId) {
-    if (!userId) return Promise.reject(new Error('userId required'));
-    return api.post(`/users/${encodeURIComponent(userId)}/block`);
+  async blockUser(userId) {
+    if (!userId) throw new Error('userId required');
+
+    const { data } = await api.post(`/users/${encodeURIComponent(userId)}/block`);
+    return data;
   },
 
-  unblockUser(userId) {
-    if (!userId) return Promise.reject(new Error('userId required'));
-    return api.delete(`/users/${encodeURIComponent(userId)}/block`);
+  async unblockUser(userId) {
+    if (!userId) throw new Error('userId required');
+
+    const { data } = await api.delete(`/users/${encodeURIComponent(userId)}/block`);
+    return data;
   },
 
-  getBlockedUsers() {
-    return api.get('/users/blocked');
+  async getBlockedUsers() {
+    const { data } = await api.get('/users/blocked');
+    return data;
   },
-
+  
   reportUser(userId, reason) {
     if (!userId) return Promise.reject(new Error('userId required'));
     return api.post(`/users/${encodeURIComponent(userId)}/report`, {

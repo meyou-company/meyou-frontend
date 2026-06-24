@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { getMyReactionEmoji } from '../../constants/messageReactions';
 import { isMessageSeenByPeer } from '../../utils/messageReadReceipt';
 import { isEmojiOnlyMessage, splitMessageTextWithEmoji } from '../../utils/messageTextDisplay';
-import { getStoryReplyPreview } from '../../utils/storyMessagePreview';
+import { getStoryMessageText, getStoryReplyPreview } from '../../utils/storyMessagePreview';
 import MessageAttachments from './MessageAttachments';
 import MessageReactionBar from './MessageReactionBar';
 import './MessageBubble.scss';
@@ -97,6 +97,7 @@ function StoryReplyPreview({ preview, onOpenStory, authorFallback }) {
   const isVideo = preview.mediaType === 'video' || preview.mediaType?.startsWith('video');
   const content = (
     <>
+        <span className="msgBubble__storyAuthor">{authorLabel}</span>
       <div className="msgBubble__storyThumb" aria-hidden="true">
         {isVideo ? (
           <video src={preview.mediaUrl} muted playsInline preload="metadata" />
@@ -106,10 +107,11 @@ function StoryReplyPreview({ preview, onOpenStory, authorFallback }) {
         {isVideo ? <span className="msgBubble__storyVideoMark" /> : null}
       </div>
       <div className="msgBubble__storyMeta">
-        <span className="msgBubble__storyLabel">
-          {t('messenger.storyReply', { defaultValue: 'Story reply' })}
-        </span>
-        <span className="msgBubble__storyAuthor">{authorLabel}</span>
+        {preview.kind === 'reply' ? (
+          <span className="msgBubble__storyLabel">
+            {t('messenger.storyReply', { defaultValue: 'Story reply' })}
+          </span>
+        ) : null}
         {preview.text ? <span className="msgBubble__storyText">{preview.text}</span> : null}
       </div>
     </>
@@ -155,6 +157,7 @@ export default function MessageBubble({
   const hideReactionsTimerRef = useRef(null);
   const replyTo = message.replyTo;
   const storyPreview = getStoryReplyPreview(message);
+  const displayText = getStoryMessageText(message);
   const deletedForEveryone = message.deletedForEveryone === true;
   const myReaction = getMyReactionEmoji(message.reactions, currentUserId);
   const reactionSummary = aggregateReactions(message.reactions || []);
@@ -311,12 +314,14 @@ export default function MessageBubble({
                 onOpenStory={onOpenStory}
                 authorFallback={storyAuthorFallback}
               />
-              <MessageAttachments
-                attachments={message.attachments}
-                isMine={isMine}
-                messageType={message.type}
-              />
-              {message.text ? <MessageText text={message.text} /> : null}
+              {!storyPreview ? (
+                <MessageAttachments
+                  attachments={message.attachments}
+                  isMine={isMine}
+                  messageType={message.type}
+                />
+              ) : null}
+              {displayText ? <MessageText text={displayText} /> : null}
             </>
           )}
 
