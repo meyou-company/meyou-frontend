@@ -670,15 +670,15 @@ export default function ProfileInfoPanel({
       >
         <div className="contacts">
           <button type="button" className="contactsText" disabled={!user?.telegram}>
-            <img src={profileIcons.profileInfoTelegram} alt="" />
+            <img src={profileIcons.telegram} alt="" />
             Telegram
           </button>
           <button type="button" className="contactsText" disabled={!user?.instagram}>
-            <img src={profileIcons.profileInfoInstagram} alt="" />
+            <img src={profileIcons.instagram} alt="" />
             Instagram
           </button>
           <button type="button" className="contactsText contactsText--tiktok" disabled={!user?.tiktok}>
-            <img src={profileIcons.profileInfoTiktok} alt="" />
+            <img src={profileIcons.tiktok} alt="" />
             TikTok
           </button>
         </div>

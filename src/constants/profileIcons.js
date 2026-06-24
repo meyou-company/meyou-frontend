@@ -8,6 +8,7 @@ const VIDEO = '/video';
 const GIFTS = '/gifts/icon';
 const PROFILE_INFO = '/ProfileInfo';
 const STORIES = '/stories';
+const SOCIAL_MEDIA = "/social_media";
 
 const profileIcons = {
   /* === HOME === */
@@ -35,8 +36,6 @@ const profileIcons = {
   present: `${HOME}/present.svg`,
   chat: `${HOME}/my-massages.svg`,
   complaint: `${HOME}/complaints.svg`,
-
-  present: `${HOME}/present.svg`,
   complaints: `${HOME}/complaints.svg`,
   /* ========= ICON1 ========= */
   userStory: `${ICON1}/user.svg`,
@@ -114,9 +113,6 @@ const profileIcons = {
   profileInfoPresent: `${PROFILE_INFO}/present.svg`,
   profileInfoPencil: `${PROFILE_INFO}/pensil.svg`,
   profileInfoPhone: `${PROFILE_INFO}/phone.svg`,
-  profileInfoTelegram: `${PROFILE_INFO}/telegram.svg`,
-  profileInfoInstagram: `${PROFILE_INFO}/instagram.svg`,
-  profileInfoTiktok: `${PROFILE_INFO}/tiktok.svg`,
   profileInfoLock: `${PROFILE_INFO}/light_lock.svg`,
 
   /* === STORIES === */
@@ -126,7 +122,6 @@ const profileIcons = {
   storyMusic: '/stories/music.svg',
   storySettings: '/stories/settings.svg',
   storyTemplate: '/stories/template.svg',
-
   storyText: '/stories/aa.svg',
   storySticker: '/stories/fluent_sticker-12-regular.svg',
   storyBrush: '/stories/boxicons_brush-sparkles.svg',
@@ -148,6 +143,14 @@ const profileIcons = {
   storyViewerProfile: '/stories/viewer-profile.svg',
   storyChat: '/stories/chat.svg',
   storyBlock: '/stories/block.svg',
+
+  /* === SOCIAL MEDIA === */
+  whatsapp: `${SOCIAL_MEDIA}/whatsapp-icon.svg`,
+  facebook: `${SOCIAL_MEDIA}/facebook.svg`,
+  telegram: `${SOCIAL_MEDIA}/telegram.svg`,
+  instagram: `${SOCIAL_MEDIA}/instagram.svg`,
+  tiktok: `${SOCIAL_MEDIA}/tiktok.svg`,
+  twitter: `${SOCIAL_MEDIA}/twitter.svg`,
 };
 
 export default profileIcons;

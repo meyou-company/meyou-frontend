@@ -1,4 +1,4 @@
-import { getStoryReplyPreview } from './storyMessagePreview';
+import { getStoryMessageText, getStoryReplyPreview } from './storyMessagePreview';
 
 export function getConversationLastMessagePreview(lastMessage, t) {
   if (!lastMessage?.id) {
@@ -9,16 +9,18 @@ export function getConversationLastMessagePreview(lastMessage, t) {
     return t('messenger.deletedMessage');
   }
 
-  const text = lastMessage.text?.trim();
-  if (text) return text;
-
   const storyPreview = getStoryReplyPreview(lastMessage);
   if (storyPreview?.isUnavailable) {
     return t('messenger.storyUnavailable', { defaultValue: 'Story is no longer available' });
   }
   if (storyPreview) {
-    return t('messenger.storyReply', { defaultValue: 'Story reply' });
+    return storyPreview.kind === 'forward'
+      ? t('messenger.storyForwarded', { defaultValue: 'Сторис переслали' })
+      : t('messenger.storyReply', { defaultValue: 'Story reply' });
   }
+
+  const text = getStoryMessageText(lastMessage).trim();
+  if (text) return text;
 
   if (lastMessage.forwardedFrom) {
     return t('messenger.forwarded');

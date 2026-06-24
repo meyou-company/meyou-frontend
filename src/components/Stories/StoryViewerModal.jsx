@@ -16,6 +16,14 @@ import {
   extractUsersFromSearchResponse,
   recipientDisplayName,
 } from "../../utils/shareRecipients";
+import {
+  buildFacebookShareUrl,
+  buildTelegramShareUrl,
+  buildTwitterShareUrl,
+  buildWhatsAppShareUrl,
+  openExternalShareUrl,
+} from "../../utils/externalShareLinks";
+import { encodeStoryMessageMarker } from "../../utils/storyMessagePreview";
 import AppHeader from "../Layout/AppHeader";
 import "./StoryViewerModal.scss";
 import StoryUploadModal from "./StoryUploadModal";
@@ -25,6 +33,13 @@ const IMAGE_DURATION = 10000;
 const MAX_VIDEO_DURATION = 60000;
 const storyViewsCache = new Map();
 const storyViewsRequests = new Map();
+const STORY_SHARE_PROVIDERS = [
+  { id: "telegram", label: "Telegram", icon: "/social_media/telegram.svg" },
+  { id: "instagram", label: "Instagram", icon: "/social_media/instagram.svg" },
+  { id: "whatsapp", label: "WhatsApp", icon: "/social_media/whatsapp-icon.svg" },
+  { id: "facebook", label: "Facebook", icon: "/social_media/facebook.svg" },
+  { id: "twitter", label: "Twitter", icon: "/social_media/twitter.svg" },
+];
 
 function getStoryId(story) {
   return story?.id || story?._id || story?.storyId || null;
@@ -80,13 +95,49 @@ function normalizeStoryViewUser(item) {
 
   return {
     id: user.id || user._id || item?.userId || item?.viewerId,
-    username: user.username || user.nick || user.nickname || "",
-    firstName: user.firstName,
-    lastName: user.lastName,
+    username:
+      user.username ||
+      user.nick ||
+      user.nickname ||
+      item?.username ||
+      item?.viewerUsername ||
+      "",
+
+    firstName:
+      user.firstName ||
+      user.first_name ||
+      user.profile?.firstName ||
+      user.profile?.first_name ||
+      item?.firstName ||
+      item?.first_name ||
+      item?.viewerFirstName ||
+      item?.viewer?.firstName ||
+      "",
+
+    lastName:
+      user.lastName ||
+      user.last_name ||
+      user.profile?.lastName ||
+      user.profile?.last_name ||
+      item?.lastName ||
+      item?.last_name ||
+      item?.viewerLastName ||
+      item?.viewer?.lastName ||
+      "",
+
     displayName:
       user.displayName ||
-      (user.name && user.name !== user.username ? user.name : ""),
-    avatarUrl: user.avatarUrl || user.avatar || null,
+      user.fullName ||
+      item?.displayName ||
+      item?.fullName ||
+      "",
+
+    avatarUrl:
+      user.avatarUrl ||
+      user.avatar ||
+      item?.avatarUrl ||
+      item?.avatar ||
+      null,
     isFollower:
       item?.isFollower ??
       item?.isSubscriber ??
@@ -124,13 +175,28 @@ function normalizeStoryViewUser(item) {
 }
 
 function getUserDisplayName(user) {
-  return (
-    [user?.firstName, user?.lastName].filter(Boolean).join(" ").trim() ||
+  const fullName = [user?.firstName, user?.lastName]
+    .filter(Boolean)
+    .join(" ")
+    .trim();
+
+  const displayName =
+    fullName ||
     user?.displayName ||
-    user?.name ||
-    user?.username ||
-    "User"
-  );
+    user?.fullName ||
+    user?.name;
+
+  if (displayName && displayName !== user?.username) {
+    return displayName;
+  }
+
+  return user?.username || user?.nick || user?.nickname || "User";
+}
+
+function getUserUsername(user) {
+  const username = user?.username || user?.nick || user?.nickname || "";
+
+  return username ? `@${String(username).replace(/^@/, "")}` : "";
 }
 
 function normalizeReactionList(value) {
@@ -501,21 +567,21 @@ function StoryAnalyticsModal({
             <span>Просмотрели:</span>
             <div className="storyStatsModal__summaryWrap">
               <strong>{viewsCount}</strong>
-              <small>Все пользователи</small>
+              {/* <small>Все пользователи</small> */}
             </div>
           </div>
           <div className="storyStatsModal__summaryRow">
             <span>Поделились:</span>
             <div className="storyStatsModal__summaryWrap">
               <strong>{sharesCount}</strong>
-              <small>Все пользователи</small>
+              {/* <small>Все пользователи</small> */}
             </div>
           </div>
           <div className="storyStatsModal__summaryRow">
             <span>Реакции:</span>
             <div className="storyStatsModal__summaryWrap">
               <strong>{reactionsCount}</strong>
-              <small>Все пользователи</small>
+              {/* <small>Все пользователи</small> */}
             </div>
           </div>
         </section>
@@ -524,7 +590,14 @@ function StoryAnalyticsModal({
   );
 }
 
-function StoryStatsUserSheet({ user, onClose, onMessage, onProfile, onReport, onBlock }) {
+function StoryStatsUserSheet({ user,
+  onClose,
+  onMessage,
+  onProfile,
+  onReport,
+  onBlock,
+  onUnblock,
+  isBlocked, }) {
   if (!user) return null;
 
   const name = getUserDisplayName(user);
@@ -542,7 +615,7 @@ function StoryStatsUserSheet({ user, onClose, onMessage, onProfile, onReport, on
           <img src={user.avatarUrl || profileIcons.userStory} alt="" />
           <div>
             <strong>{name}</strong>
-            <span>{user.isFollower ? "Ваш подписчик" : user.username ? `@${user.username}` : "Пользователь"}</span>
+            <span>{getUserUsername(user) || (user.isFollower ? "Ваш подписчик" : "Пользователь")}</span>
           </div>
         </div>
 
@@ -558,10 +631,17 @@ function StoryStatsUserSheet({ user, onClose, onMessage, onProfile, onReport, on
           <img src={profileIcons.complainBlack} alt="" />
           Пожаловаться
         </button>
-        <button type="button" onClick={onBlock}>
-          <img src={profileIcons.storyBlock} alt="" />
-          Заблокировать
-        </button>
+        {isBlocked ? (
+          <button type="button" onClick={onUnblock}>
+            <img src={profileIcons.storyBlock} alt="" />
+            Разблокировать
+          </button>
+        ) : (
+          <button type="button" onClick={onBlock}>
+            <img src={profileIcons.storyBlock} alt="" />
+            Заблокировать
+          </button>
+        )}
       </div>
     </>
   );
@@ -640,6 +720,9 @@ function StoryShareModal({ isOpen, story, onClose }) {
   const mediaUrl = getStoryMediaUrl(story);
   const mediaType = getStoryMediaType(story);
   const storyText = story?.text || "";
+  const storyUrl = `${window.location.origin}/stories/${encodeURIComponent(storyId)}`;
+  const shareText = storyText || "ME YOU story";
+  const storyAuthor = story?.author || story?.user || {};
 
   const toggleUser = (user) => {
     if (!user?.id) return;
@@ -661,19 +744,39 @@ function StoryShareModal({ isOpen, story, onClose }) {
         const conversationId = conversation?.id || conversation?._id;
         if (!conversationId) return;
 
-        await conversationsApi.sendMessage(conversationId, {
+        const isVideoStory = String(mediaType).toLowerCase() === "video";
+        const storyMarker = encodeStoryMessageMarker({
           storyId,
           mediaUrl,
           mediaType,
-          text: message.trim() || storyText || "Story",
-          metadata: {
-            storyPreview: {
-              storyId,
-              mediaUrl,
-              mediaType,
-              text: storyText,
-            },
+          text: storyText,
+          createdAt: story?.createdAt || story?.created_at,
+          expiresAt: story?.expiresAt || story?.expires_at,
+          author: {
+            id: storyAuthor?.id || storyAuthor?._id || story?.authorId || story?.userId,
+            username: storyAuthor?.username || storyAuthor?.nick || storyAuthor?.nickname || "",
+            name: getAuthorName(storyAuthor),
+            firstName: storyAuthor?.firstName || storyAuthor?.first_name || "",
+            lastName: storyAuthor?.lastName || storyAuthor?.last_name || "",
+            avatarUrl: storyAuthor?.avatarUrl || storyAuthor?.avatar || null,
           },
+        });
+        const composedText = [
+          storyMarker,
+          message.trim(),
+        ].filter(Boolean).join("\n");
+        const attachments = mediaUrl
+          ? [{
+              url: mediaUrl,
+              mimeType: isVideoStory ? "video/mp4" : "image/jpeg",
+              fileName: "story",
+            }]
+          : undefined;
+
+        await conversationsApi.sendMessage(conversationId, {
+          type: attachments ? (isVideoStory ? "VIDEO" : "IMAGE") : "TEXT",
+          text: composedText || undefined,
+          attachments,
         });
       }));
       toast.success("Story отправлена");
@@ -686,13 +789,40 @@ function StoryShareModal({ isOpen, story, onClose }) {
     }
   };
 
+  const handleCopyLink = async () => {
+    try {
+      await navigator.clipboard.writeText(storyUrl);
+      toast.success("Ссылка скопирована");
+    } catch {
+      toast.error("Не удалось скопировать ссылку");
+    }
+  };
+
+  const handleExternalProvider = (provider) => {
+    switch (provider) {
+      case "telegram":
+        openExternalShareUrl(buildTelegramShareUrl(storyUrl, shareText));
+        break;
+      case "whatsapp":
+        openExternalShareUrl(buildWhatsAppShareUrl(storyUrl, shareText));
+        break;
+      case "facebook":
+        openExternalShareUrl(buildFacebookShareUrl(storyUrl));
+        break;
+      case "twitter":
+        openExternalShareUrl(buildTwitterShareUrl(storyUrl, shareText));
+        break;
+      case "instagram":
+        handleCopyLink();
+        break;
+      default:
+        break;
+    }
+  };
+
   return (
     <div className="storyShareModal" role="presentation" onClick={onClose}>
       <div className="storyShareModal__dialog" role="dialog" aria-modal="true" onClick={(e) => e.stopPropagation()}>
-        <header className="storyShareModal__header">
-          <strong>Поделиться story</strong>
-          <button type="button" onClick={onClose} aria-label="Закрыть">×</button>
-        </header>
         <input
           type="search"
           className="storyShareModal__search"
@@ -702,7 +832,7 @@ function StoryShareModal({ isOpen, story, onClose }) {
         />
         <div className="storyShareModal__list">
           {loading ? <p>Загрузка...</p> : null}
-          {!loading && visibleUsers.length === 0 ? <p>Нет пользователей</p> : null}
+          {!loading && visibleUsers.length === 0 ? <p className="storyShareModal_noUsers">Нет пользователей</p> : null}
           {visibleUsers.map((user) => {
             const isSelected = selected.has(user.id);
             return (
@@ -712,7 +842,9 @@ function StoryShareModal({ isOpen, story, onClose }) {
                 className={`storyShareModal__user ${isSelected ? "is-selected" : ""}`}
                 onClick={() => toggleUser(user)}
               >
-                <img src={user.avatarUrl || user.avatar || profileIcons.userStory} alt="" />
+                <span className="storyShareModal__avatarRing">
+                  <img src={user.avatarUrl || user.avatar || profileIcons.userStory} alt="" />
+                </span>
                 <span>{recipientDisplayName(user)}</span>
                 <b>{isSelected ? "✓" : ""}</b>
               </button>
@@ -734,6 +866,22 @@ function StoryShareModal({ isOpen, story, onClose }) {
         >
           {sending ? "Отправка..." : "Отправить"}
         </button>
+        <div className="storyShareModal__social" aria-label="Share story">
+          {STORY_SHARE_PROVIDERS.map((provider) => (
+            <button
+              type="button"
+              key={provider.id}
+              className="storyShareModal__socialBtn"
+              onClick={() => handleExternalProvider(provider.id)}
+              title={provider.label}
+              aria-label={provider.label}
+            >
+              <span className="storyShareModal__socialIcon">
+                <img src={provider.icon} alt="" />
+              </span>
+            </button>
+          ))}
+        </div>
       </div>
     </div>
   );
@@ -750,6 +898,7 @@ export default function StoryViewerModal({
   onDeleteStory,
   onOpenProfile,
   onReactionChange,
+  onBlockedAuthor,
 }) {
   const [groupIndex, setGroupIndex] = useState(initialGroupIndex);
   const [storyIndex, setStoryIndex] = useState(0);
@@ -771,6 +920,36 @@ export default function StoryViewerModal({
   const [selectedStatsUser, setSelectedStatsUser] = useState(null);
   const [isStoryUploadOpen, setIsStoryUploadOpen] = useState(false);
   const [isStoryShareOpen, setIsStoryShareOpen] = useState(false);
+  const [blockConfirmUser, setBlockConfirmUser] = useState(null);
+  const [blockedUserIds, setBlockedUserIds] = useState(() => new Set());
+
+  const isUserBlocked = (userId) =>
+    blockedUserIds.has(String(userId ?? ""));
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    let cancelled = false;
+
+    usersApi.getBlockedUsers()
+      .then((response) => {
+        if (cancelled) return;
+
+        const ids = extractBlockedUsers(response)
+          .map(getBlockedUserId)
+          .filter(Boolean)
+          .map(String);
+
+        setBlockedUserIds(new Set(ids));
+      })
+      .catch((error) => {
+        console.error("[blocked-users] failed", error?.response?.data || error);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [isOpen]);
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -836,7 +1015,7 @@ export default function StoryViewerModal({
   const isOwnStory =
     String(author?.id ?? currentStory?.authorId ?? "") === String(currentUserId ?? "");
   const authorId = author?.id ?? currentStory?.authorId ?? currentStory?.userId;
-  const isStoryPaused = analyticsOpen || Boolean(selectedStatsUser);
+  const isStoryPaused = analyticsOpen || Boolean(selectedStatsUser) || isStoryShareOpen;
 
   const handleOpenAuthorProfile = () => {
     const username = author?.username || author?.nick || author?.nickname;
@@ -1277,6 +1456,13 @@ export default function StoryViewerModal({
   };
 
   const handleStatsUserProfile = () => {
+    const userId = selectedStatsUser?.id;
+
+    if (isUserBlocked(userId)) {
+      toast.info("Сначала разблокируйте пользователя");
+      return;
+    }
+
     const handle = selectedStatsUser?.username || selectedStatsUser?.id;
     setSelectedStatsUser(null);
     setAnalyticsOpen(false);
@@ -1290,33 +1476,58 @@ export default function StoryViewerModal({
     }
   };
 
-  const handleStatsUserReport = async () => {
-    const userId = selectedStatsUser?.id;
-    if (!userId) return;
-
-    try {
-      toast.info("Report user endpoint is not connected yet");
-      return;
-      setSelectedStatsUser(null);
-      toast.success("Жалоба отправлена");
-    } catch (error) {
-      console.error("[story-stats-report] failed", error);
-      toast.error("Не удалось отправить жалобу");
-    }
+  const handleStatsUserReport = () => {
+    toast.info("Жалоба на пользователя пока недоступна на backend");
   };
+
+  // const handleStatsUserReport = async () => {
+  //   if (!storyId) return;
+
+  //   const reason = window.prompt("Причина жалобы");
+
+  //   if (!reason?.trim()) return;
+
+  //   try {
+  //     await storiesApi.reportStory(storyId, reason.trim());
+
+  //     setSelectedStatsUser(null);
+  //     toast.success("Жалобу отправлено");
+  //   } catch (error) {
+  //     console.error("[story-stats-report-story] failed", error?.response?.data || error);
+  //     toast.error(error?.response?.data?.message || "Не удалось отправить жалобу");
+  //   }
+  // };
+
+
 
   const handleStatsUserBlock = async () => {
     const userId = selectedStatsUser?.id;
     if (!userId) return;
 
+    setBlockConfirmUser({
+      id: userId,
+      name: getUserDisplayName(selectedStatsUser),
+      source: "analytics",
+    });
+  };
+
+  const handleStatsUserUnblock = async () => {
+    const userId = selectedStatsUser?.id;
+    if (!userId) return;
+
     try {
-      toast.info("Block user endpoint is not connected yet");
-      return;
-      setSelectedStatsUser(null);
-      toast.success("Story больше не будет показываться в рекомендациях");
+      await usersApi.unblockUser(userId);
+
+      setBlockedUserIds((prev) => {
+        const next = new Set(prev);
+        next.delete(String(userId));
+        return next;
+      });
+
+      toast.success("Користувача розблоковано");
     } catch (error) {
-      console.error("[story-stats-block-user] failed", error);
-      toast.error("Не удалось выполнить действие");
+      console.error("[story-unblock-user] failed", error?.response?.data || error);
+      toast.error(error?.response?.data?.message || "Не вдалося розблокувати користувача");
     }
   };
 
@@ -1373,6 +1584,42 @@ export default function StoryViewerModal({
     }
   };
 
+  const handleConfirmBlockUser = async () => {
+    const userId = blockConfirmUser?.id;
+
+    if (!userId) return;
+
+    try {
+      await usersApi.blockUser(userId);
+
+      setBlockedUserIds((prev) => {
+        const next = new Set(prev);
+        next.add(String(userId));
+        return next;
+      });
+
+      if (blockConfirmUser?.source === "analytics") {
+        setBlockConfirmUser(null);
+        toast.success("Користувача заблоковано");
+        return;
+      }
+
+      toast.success("Користувача заблоковано");
+
+      setBlockConfirmUser(null);
+      setIsMenuOpen(false);
+      setSelectedStatsUser(null);
+      setAnalyticsOpen(false);
+
+      onBlockedAuthor?.(userId);
+
+      requestClose();
+    } catch (error) {
+      console.error("[story-block-user] failed", error);
+      toast.error("Не вдалося заблокувати користувача");
+    }
+  };
+
   const handleVisitorMenuAction = async (action) => {
     if (!storyId || isOwnStory) return;
 
@@ -1398,17 +1645,51 @@ export default function StoryViewerModal({
 
       if (action === "report") {
         const reason = window.prompt("Причина жалобы");
+
         if (!reason?.trim()) return;
+
+        if (reason.trim().length < 3) {
+          toast.error("Причина жалобы должна быть длиннее");
+          return;
+        }
+
         await storiesApi.reportStory(storyId, reason.trim());
-        toast.success("Жалоба отправлена");
+        toast.success("Жалобу отправлено");
       }
 
       setIsMenuOpen(false);
     } catch (error) {
-      console.error("[story-menu-action] failed", error);
-      toast.error("Не удалось выполнить действие");
+      console.error("[story-menu-action] failed", error?.response?.data || error);
+      toast.error(error?.response?.data?.message || "Не удалось выполнить действие");
     }
   };
+
+  function extractBlockedUsers(response) {
+    if (!response) return [];
+    if (Array.isArray(response)) return response;
+    if (Array.isArray(response.items)) return response.items;
+    if (Array.isArray(response.users)) return response.users;
+    if (Array.isArray(response.blockedUsers)) return response.blockedUsers;
+    if (Array.isArray(response.data)) return response.data;
+    if (Array.isArray(response.data?.items)) return response.data.items;
+    if (Array.isArray(response.data?.users)) return response.data.users;
+    if (Array.isArray(response.data?.blockedUsers)) return response.data.blockedUsers;
+    return [];
+  }
+
+  function getBlockedUserId(item) {
+    return (
+      item?.blockedUser?.id ||
+      item?.blockedUser?._id ||
+      item?.user?.id ||
+      item?.user?._id ||
+      item?.blockedUserId ||
+      item?.userId ||
+      item?.id ||
+      item?._id ||
+      null
+    );
+  }
 
   const progressBars = useMemo(() => {
     return stories.map((story, index) => {
@@ -1540,6 +1821,18 @@ export default function StoryViewerModal({
                 </button>
                 <button type="button" onClick={() => handleVisitorMenuAction("report")}>
                   Пожаловаться
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsMenuOpen(false);
+                    setBlockConfirmUser({
+                      id: authorId,
+                      name: getAuthorName(author),
+                    });
+                  }}
+                >
+                  Заблокировать
                 </button>
               </div>
             </>
@@ -1724,6 +2017,8 @@ export default function StoryViewerModal({
               onProfile={handleStatsUserProfile}
               onReport={handleStatsUserReport}
               onBlock={handleStatsUserBlock}
+              onUnblock={handleStatsUserUnblock}
+              isBlocked={isUserBlocked(selectedStatsUser?.id)}
             />
           </>
         ) : (
@@ -1745,9 +2040,9 @@ export default function StoryViewerModal({
 
               <button
                 type="button"
-                className="storyViewer__sendBtn"
-                onClick={handleSendStoryReply}
-                disabled={isReplySending || !replyText.trim()}
+                className="storyViewer__sendBtn storyViewer__shareBtn"
+                onClick={() => setIsStoryShareOpen(true)}
+                aria-label="Поделиться story"
               >
                 <img src={profileIcons.storyForward} alt="" />
               </button>
@@ -1777,9 +2072,36 @@ export default function StoryViewerModal({
       />
       <StoryShareModal
         isOpen={isStoryShareOpen}
-        story={currentStory}
+        story={currentStory ? { ...currentStory, author } : currentStory}
         onClose={() => setIsStoryShareOpen(false)}
       />
+
+      {blockConfirmUser && (
+        <div className="storyBlockConfirm" role="dialog" aria-modal="true">
+          <div
+            className="storyBlockConfirm__backdrop"
+            onClick={() => setBlockConfirmUser(null)}
+          />
+
+          <div className="storyBlockConfirm__card">
+            <p>Ви впевнені, що хочете заблокувати цього користувача?</p>
+
+            <div className="storyBlockConfirm__actions">
+              <button type="button" onClick={() => setBlockConfirmUser(null)}>
+                Скасувати
+              </button>
+
+              <button
+                type="button"
+                className="storyBlockConfirm__danger"
+                onClick={handleConfirmBlockUser}
+              >
+                Заблокувати
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

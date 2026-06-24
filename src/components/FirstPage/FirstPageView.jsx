@@ -496,6 +496,13 @@ export default function FirstPageView({
           onViewed={markStoryViewedLocally}
           onDeleteStory={handleDeleteStory}
           onReactionChange={markStoryReactionLocally}
+          onBlockedAuthor={(blockedUserId) => {
+            setStoriesGroups((prev) =>
+              prev.filter(
+                (group) => String(group?.author?.id ?? "") !== String(blockedUserId)
+              )
+            );
+          }}
         />
 
         <SharePostModal
