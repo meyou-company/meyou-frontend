@@ -907,6 +907,10 @@
   .storyUploadModal__publishRow {
     flex-direction: column;
   }
+
+  .storyUploadModal--editorMode .storyUploadModal__editor {
+    padding-bottom: 65px;
+  }
 }
 
 @media (max-width: 480px) {
@@ -936,6 +940,10 @@
 
   .storyUploadModal__tile {
     min-height: 0;
+  }
+
+  .storyUploadModal--editorMode .storyUploadModal__editor {
+    padding-bottom: 50px;
   }
 }
 
@@ -995,30 +1003,85 @@
   }
 }
 
-@media (min-width: 768px) {
-  .storyUpload__card {
-    width: min(620px, calc(100% - 64px));
-    max-height: 100dvh;
-    overflow: hidden;
+.storyUploadModal--editorMode {
+  overflow: hidden;
+}
+
+.storyUploadModal--editorMode .storyUploadModal__page {
+  height: calc(100dvh - 84px);
+  min-height: 0;
+  overflow: hidden;
+}
+
+.storyUploadModal--editorMode .storyUploadModal__content--editor {
+  height: 100%;
+  padding: 6px 0 10px;
+  display: flex;
+  flex-direction: column;
+}
+
+.storyUploadModal--editorMode .storyUploadModal__editor {
+  flex: 1;
+  min-height: 0;
+  margin-bottom: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.storyUploadModal--editorMode .storyUploadModal__editorCard {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.storyUploadModal--editorMode .storyUploadModal__editorTop {
+  flex: 0 0 auto;
+  padding: 10px 15px;
+}
+
+.storyUploadModal--editorMode .storyUploadModal__mediaFrame {
+  flex: 1;
+  min-height: 0;
+  height: auto;
+}
+
+.storyUploadModal--editorMode .storyUploadModal__caption {
+  flex: 0 0 auto;
+}
+
+.storyUploadModal--editorMode .storyUploadModal__bottomActions {
+  flex: 0 0 auto;
+  margin-top: 8px;
+  padding-bottom: 10px;
+}
+
+@media (max-width: 767px) {
+  .storyUploadModal--editorMode .storyUploadModal__page {
+    height: calc(100dvh - 76px);
   }
 
-  .storyUpload__preview,
-  .storyUpload__canvas {
-    height: min(560px, calc(100dvh - 260px));
-    min-height: 0;
+  .storyUploadModal--editorMode .storyUploadModal__content--editor {
+    width: calc(100% - 24px);
+    padding: 6px 0 8px;
+  }
+
+  .storyUploadModal--editorMode .storyUploadModal__editorTop {
+    padding: 8px 12px;
+  }
+
+  .storyUploadModal--editorMode .storyUploadModal__bottomActions {
+    margin-top: 6px;
   }
 }
 
 @media (min-width: 1280px) {
-  .storyUpload__card {
-    width: min(560px, calc(100% - 96px));
-    max-height: 100dvh;
+  .storyUploadModal--editorMode .storyUploadModal__content--editor {
+    width: min(600px, calc(100% - 96px));
   }
 
-  .storyUpload__preview,
-  .storyUpload__canvas {
-    height: min(520px, calc(100dvh - 260px));
-    min-height: 0;
+  .storyUploadModal--editorMode .storyUploadModal__editorTop {
+    padding: 10px 15px;
   }
 }
 
