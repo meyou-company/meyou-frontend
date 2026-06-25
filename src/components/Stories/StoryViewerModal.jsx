@@ -53,6 +53,44 @@ function getStoryMediaType(story) {
   return String(story?.mediaType || story?.media_type || story?.type || "image").toLowerCase();
 }
 
+function getStoryCreatedTime(story) {
+  const value =
+    story?.createdAt ||
+    story?.created_at ||
+    story?.publishedAt ||
+    story?.published_at ||
+    story?.updatedAt ||
+    story?.updated_at;
+  const time = new Date(value || 0).getTime();
+  return Number.isFinite(time) ? time : 0;
+}
+
+function sortStoriesOldToNew(stories = []) {
+  return [...stories]
+    .map((story, index) => ({ story, index }))
+    .sort((a, b) => {
+      const diff = getStoryCreatedTime(a.story) - getStoryCreatedTime(b.story);
+      return diff || a.index - b.index;
+    })
+    .map((item) => item.story);
+}
+
+function getInitialFollowingState(author, story, group) {
+  const value =
+    author?.amIFollowing ??
+    author?.isFollowing ??
+    author?.isFollowedByMe ??
+    story?.amIFollowingAuthor ??
+    story?.amIFollowing ??
+    story?.isFollowingAuthor ??
+    story?.isAuthorFollowedByMe ??
+    group?.amIFollowingAuthor ??
+    group?.isFollowingAuthor ??
+    group?.isAuthorFollowedByMe;
+
+  return value === undefined || value === null ? false : Boolean(value);
+}
+
 function getStoryDurationMs(story, mediaType) {
   if (mediaType !== "video") return IMAGE_DURATION;
 
@@ -922,6 +960,8 @@ export default function StoryViewerModal({
   const [isStoryShareOpen, setIsStoryShareOpen] = useState(false);
   const [blockConfirmUser, setBlockConfirmUser] = useState(null);
   const [blockedUserIds, setBlockedUserIds] = useState(() => new Set());
+  const [followingByAuthorId, setFollowingByAuthorId] = useState(() => new Map());
+  const [followLoading, setFollowLoading] = useState(false);
 
   const isUserBlocked = (userId) =>
     blockedUserIds.has(String(userId ?? ""));
@@ -996,7 +1036,13 @@ export default function StoryViewerModal({
     requestClose();
   }, [requestClose]);
 
-  const safeGroups = Array.isArray(groups) ? groups : [];
+  const safeGroups = useMemo(() => {
+    const list = Array.isArray(groups) ? groups : [];
+    return list.map((group) => ({
+      ...group,
+      stories: sortStoriesOldToNew(Array.isArray(group?.stories) ? group.stories : []),
+    }));
+  }, [groups]);
 
   const currentGroup = safeGroups[groupIndex];
   const stories = Array.isArray(currentGroup?.stories) ? currentGroup.stories : [];
@@ -1015,7 +1061,39 @@ export default function StoryViewerModal({
   const isOwnStory =
     String(author?.id ?? currentStory?.authorId ?? "") === String(currentUserId ?? "");
   const authorId = author?.id ?? currentStory?.authorId ?? currentStory?.userId;
+  const initialFollowingAuthor = getInitialFollowingState(author, currentStory, currentGroup);
+  const isFollowingAuthor = authorId && followingByAuthorId.has(String(authorId))
+    ? followingByAuthorId.get(String(authorId))
+    : initialFollowingAuthor;
   const isStoryPaused = analyticsOpen || Boolean(selectedStatsUser) || isStoryShareOpen;
+
+  useEffect(() => {
+    if (!isOpen || isOwnStory || !authorId) return undefined;
+
+    let cancelled = false;
+    subscriptionsApi.getFollowing({ take: 200 })
+      .then((response) => {
+        if (cancelled) return;
+
+        const items = extractFollowingFromResponse(response);
+        const isFollowing = items.some((item) =>
+          String(item?.id ?? item?._id ?? item?.userId ?? "") === String(authorId)
+        );
+
+        setFollowingByAuthorId((prev) => {
+          const updated = new Map(prev);
+          updated.set(String(authorId), isFollowing);
+          return updated;
+        });
+      })
+      .catch((error) => {
+        console.error("[story-following-state] failed", error?.response?.data || error);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [isOpen, isOwnStory, authorId]);
 
   const handleOpenAuthorProfile = () => {
     const username = author?.username || author?.nick || author?.nickname;
@@ -1024,6 +1102,36 @@ export default function StoryViewerModal({
 
     requestClose();
     scheduleAfterRender(() => onOpenProfile?.(username));
+  };
+
+  const handleToggleFollowAuthor = async () => {
+    if (!authorId || followLoading) return;
+
+    const key = String(authorId);
+    const previous = Boolean(isFollowingAuthor);
+    const next = !previous;
+
+    setFollowLoading(true);
+    setFollowingByAuthorId((prev) => {
+      const updated = new Map(prev);
+      updated.set(key, next);
+      return updated;
+    });
+
+    try {
+      if (next) await subscriptionsApi.subscribe(authorId);
+      else await subscriptionsApi.unsubscribe(authorId);
+    } catch (error) {
+      setFollowingByAuthorId((prev) => {
+        const updated = new Map(prev);
+        updated.set(key, previous);
+        return updated;
+      });
+      console.error("[story-follow] failed", error?.response?.data || error);
+      toast.error("Не удалось обновить подписку");
+    } finally {
+      setFollowLoading(false);
+    }
   };
 
   const handleSaveStoryMedia = async () => {
@@ -1113,8 +1221,19 @@ export default function StoryViewerModal({
 
   useEffect(() => {
     if (isOpen && !wasOpenRef.current) {
-      setGroupIndex(initialGroupIndex || 0);
-      setStoryIndex(initialStoryIndex || 0);
+      const nextGroupIndex = initialGroupIndex || 0;
+      const originalStories = Array.isArray(groups?.[nextGroupIndex]?.stories)
+        ? groups[nextGroupIndex].stories
+        : [];
+      const initialStory = originalStories[initialStoryIndex || 0];
+      const initialStoryId = getStoryId(initialStory);
+      const sortedStories = safeGroups[nextGroupIndex]?.stories || [];
+      const nextStoryIndex = initialStoryId
+        ? sortedStories.findIndex((story) => String(getStoryId(story)) === String(initialStoryId))
+        : -1;
+
+      setGroupIndex(nextGroupIndex);
+      setStoryIndex(nextStoryIndex >= 0 ? nextStoryIndex : initialStoryIndex || 0);
       setProgress(0);
       setDuration(DEFAULT_DURATION);
       progressStartedRef.current = false;
@@ -1129,7 +1248,7 @@ export default function StoryViewerModal({
     }
 
     wasOpenRef.current = isOpen;
-  }, [isOpen, initialGroupIndex, initialStoryIndex]);
+  }, [isOpen, initialGroupIndex, initialStoryIndex, groups, safeGroups]);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -1788,8 +1907,17 @@ export default function StoryViewerModal({
           </button>
 
           {!isOwnStory && (
-            <button type="button" className="storyViewer__followBtn">
-              Подписаться
+            <button
+              type="button"
+              className="storyViewer__followBtn"
+              onClick={handleToggleFollowAuthor}
+              disabled={!authorId || followLoading}
+            >
+              {followLoading
+                ? "..."
+                : isFollowingAuthor
+                  ? "Отписаться"
+                  : "Подписаться"}
             </button>
           )}
 

@@ -274,7 +274,7 @@ export default function StoryUploadModal({ isOpen, onClose, onCreated }) {
 
   return (
     <div
-      className="storyUploadModal"
+      className={`storyUploadModal ${fileItem ? "storyUploadModal--editorMode" : ""}`}
       role="dialog"
       aria-modal="true"
       aria-label="Додати story"

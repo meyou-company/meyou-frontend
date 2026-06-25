@@ -449,6 +449,11 @@
   font-size: 10px;
 }
 
+.storyViewer__followBtn:disabled {
+  cursor: default;
+  opacity: 0.72;
+}
+
 .storyViewer__menuOverlay {
   position: fixed;
   inset: 0;
@@ -1712,9 +1717,9 @@
 /* tablet */
 @media (min-width: 768px) {
   .storyViewer__card {
-    width: calc(100% - 64px);
-    height: calc(100dvh - 190px);
-    min-height: 600px;
+    width: min(620px, calc(100% - 64px));
+    height: calc(100dvh - 170px);
+    min-height: 0;
     border-radius: 26px;
   }
 
@@ -1730,7 +1735,7 @@
   }
 
   .storyViewer__actions {
-    width: calc(100% - 74px);
+    width: 600px;
   }
 
   .storyViewer__analyticsCard {
@@ -1846,7 +1851,6 @@
   .storyViewer__followBtn {
     top: 34px;
     right: 52px;
-    min-width: 163px;
     border-radius: 18px;
     font-size: 15px;
   }
@@ -1866,6 +1870,43 @@
   }
 }
 
+@media (min-width: 1024px) {
+  .storyViewer__viewerReplyBar {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(260px, 360px);
+    align-items: center;
+    width: min(760px, calc(100% - 72px));
+    gap: 16px;
+  }
+
+  .storyViewer__messageWrap {
+    min-width: 0;
+    gap: 14px;
+  }
+
+  .storyViewer__messageInput {
+    min-width: 0;
+  }
+
+  .storyViewer__reactions {
+    width: 100%;
+    min-width: 0;
+    padding: 0 12px;
+    gap: 10px;
+    justify-content: space-between;
+  }
+
+  .storyViewer__reactionBtn,
+  .storyViewer__reactionBtn img {
+    width: 32px;
+    height: 32px;
+  }
+
+  .storyViewer__card--visitor {
+    height: calc(100dvh - 35px);
+  }
+}
+
 /* desktop */
 @media (min-width: 1280px) {
   .storyViewer__page {
@@ -1873,13 +1914,14 @@
   }
 
   .storyViewer__card {
-    width: min(1000px, calc(100% - 96px));
-    height: calc(100dvh - 220px);
+    width: min(600px, calc(100% - 96px));
+    height: calc(100dvh - 160px);
+    min-height: 0;
     border-radius: 32px;
   }
 
   .storyViewer__card--visitor {
-    height: calc(100dvh - 275px);
+    height: calc(100dvh - 200px);
   }
 
   .storyViewer__menu {
@@ -1889,8 +1931,8 @@
   }
 
   .storyViewer__actions {
-    width: min(1000px, calc(100% - 96px));
-    margin-top: 14px;
+    width: min(560px, calc(100% - 96px));
+    margin-top: 12px;
   }
 
   .storyViewer__analyticsCard {
@@ -1909,7 +1951,6 @@
 
   .storyViewer__author {
     top: 46px;
-    left: 38px;
 
     img {
       width: 80px;
@@ -1956,7 +1997,7 @@
   .storyViewer__viewerReplyBar {
     width: min(1000px, calc(100% - 96px));
     margin-top: 20px;
-    grid-template-columns: 360px minmax(0, 1fr) 60px;
+    grid-template-columns: minmax(0, 1fr) minmax(300px, 420px);
     gap: 18px;
   }
 
@@ -1977,7 +2018,7 @@
   }
 
   .storyViewer__viewerReplyBar {
-    width: min(1000px, calc(100% - 96px));
+    width: min(950px, calc(100% - 96px));
     margin-top: 20px;
     gap: 18px;
   }
@@ -1999,19 +2040,17 @@
   }
 
   .storyViewer__reactions {
-    padding: 4px 34px;
+    padding: 4px 14px;
   }
 
   .storyViewer__reactionBtn,
   .storyViewer__reactionBtn img {
-    width: 44px;
-    height: 44px;
+    width: 40px;
+    height: 40px;
   }
 
   .storyViewer__followBtn {
     top: 44px;
-    right: 72px;
-    min-width: 240px;
     padding: 9px 20px;
     font-size: 20px;
   }
@@ -2024,10 +2063,54 @@
   .storyShareModal__avatarRing {
     width: 92px;
     height: 92px;
-  } 
+  }
 
   .storyShareModal__list {
     grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  }
+}
+
+
+@media (min-width: 768px) {
+  .storyViewer {
+    overflow: hidden;
+  }
+
+  .storyViewer__page {
+    height: calc(100dvh - 84px);
+    min-height: 0;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .storyViewer__card {
+    flex: 0 1 auto;
+  }
+
+  .storyViewer__card--own {
+    height: calc(100dvh - 200px);
+    min-height: 0;
+  }
+
+  .storyViewer__actions {
+    flex: 0 0 auto;
+    margin-top: 10px;
+  }
+}
+
+@media (min-width: 1280px) {
+  .storyViewer__page {
+    height: calc(100dvh - 96px);
+  }
+
+  .storyViewer__card--own {
+    height: calc(100dvh - 200px);
+    min-height: 0;
+  }
+
+  .storyViewer__actions {
+    margin-top: 10px;
   }
 }
 
