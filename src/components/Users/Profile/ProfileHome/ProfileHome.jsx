@@ -113,7 +113,7 @@ export default function ProfileHome({
   const myPhotosSectionRef = useRef(null);
 
   const handleMyPhotos = () => {
-    myPhotosSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    navigate("/profile/photos");
   };
 
   const username =

@@ -28,7 +28,9 @@ function VerifiedBadge() {
  * Спільний список друзів для /friends та /profile/:user/friends.
  * Декоративні іконки (друзі, верифікація, стрілка) — лише від tablet/desktop (див. SCSS .friends-content__desktopOnly).
  */
-export default function FriendsListRows({ users, onOpenProfile }) {
+export default function FriendsListRows({ users, onOpenProfile, onOpenUser }) {
+  const openProfile = onOpenProfile ?? onOpenUser;
+
   return (
     <ul className="friends-content__list" role="list">
       {users.map((user) => {
@@ -40,7 +42,7 @@ export default function FriendsListRows({ users, onOpenProfile }) {
               type="button"
               className="friends-content__userBtn"
               disabled={!handle}
-              onClick={() => handle && onOpenProfile(handle)}
+              onClick={() => handle && openProfile?.(handle)}
               aria-label={
                 handle ? `Відкрити профіль ${name}, @${handle}` : `Профіль: ${name}`
               }

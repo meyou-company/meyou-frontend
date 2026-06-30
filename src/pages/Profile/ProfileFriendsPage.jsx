@@ -133,7 +133,7 @@ export default function ProfileFriendsPage() {
         ) : (
           <FriendsListRows
             users={filtered}
-            onOpenUser={(handle) => navigate(`/profile/${handle}`)}
+            onOpenProfile={(handle) => navigate(`/profile/${handle}`)}
           />
         )}
       </div>
