@@ -4,8 +4,21 @@ import { toast } from "sonner";
 import { useAuthStore } from "../../../zustand/useAuthStore";
 import { resolvedApiBaseUrl } from "../../../services/api";
 import { useForceDarkTheme } from "../../../hooks/useForceDarkTheme";
-import { getApiErrorMessage } from "../../../utils/getApiErrorMessage";
+import { getApiErrorCode, getApiErrorMessage } from "../../../utils/getApiErrorMessage";
 import "./LoginForm.scss";
+
+function getLoginErrorMessage(error, t) {
+  const status = error?.response?.status || error?.status;
+  const code = getApiErrorCode(error);
+
+  if (status === 401 || code === "UNAUTHORIZED") {
+    return t("errors.INVALID_CREDENTIALS", {
+      defaultValue: t("auth.login.errors.loginFailed"),
+    });
+  }
+
+  return getApiErrorMessage(error) || t("auth.login.errors.loginFailed");
+}
 
 export default function LoginForm({ onBack, onForgot, onSuccess }) {
   useForceDarkTheme();
@@ -59,12 +72,12 @@ export default function LoginForm({ onBack, onForgot, onSuccess }) {
         toast.success(t("auth.login.toastSuccess"));
         onSuccess?.();
       } else {
-        const msg = getApiErrorMessage(res?.error) || t("auth.login.errors.loginFailed");
+        const msg = getLoginErrorMessage(res?.error, t);
         toast.error(msg);
         setSubmitError(msg);
       }
     } catch (err) {
-      const msg = getApiErrorMessage(err) || t("auth.login.errors.loginFailed");
+      const msg = getLoginErrorMessage(err, t);
       toast.error(msg);
       setSubmitError(msg || t("auth.common.somethingWentWrong"));
     } finally {

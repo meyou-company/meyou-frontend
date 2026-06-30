@@ -89,7 +89,7 @@ export default function PrivacySettingsPage() {
       <SettingsPageShell
         title={t('settings.privacy.title')}
         subtitle={t('settings.privacy.subtitle')}
-        onBack={() => navigate('/settings/account')}
+        onBack={() => navigate('/profile')}
       >
         <p>{t('settings.privacy.loading')}</p>
       </SettingsPageShell>
@@ -100,7 +100,7 @@ export default function PrivacySettingsPage() {
     <SettingsPageShell
       title={t('settings.privacy.title')}
       subtitle={t('settings.privacy.subtitle')}
-      onBack={() => navigate('/settings/account')}
+      onBack={() => navigate('/profile')}
     >
       <div className="settings-card">
         {PRIVACY_KEYS.map(({ key, itemKey }) => (

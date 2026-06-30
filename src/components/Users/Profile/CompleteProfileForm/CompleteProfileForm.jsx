@@ -304,8 +304,12 @@ export default function CompleteProfileForm({ onBack, onSave }) {
     } catch (err) {
       console.log('[CompleteProfileForm] submit error', err?.response?.data || err);
 
-      const code = getApiErrorCode(err) || '';
-      const msg = getApiErrorMessage(err) || t('profile.completeForm.errors.saveError');
+      const rawCode = getApiErrorCode(err) || '';
+      const isPhoneConflict = rawCode === 'CONFLICT' && Boolean(payload.phone);
+      const code = isPhoneConflict ? 'PHONE_ALREADY_EXISTS' : rawCode;
+      const msg = isPhoneConflict
+        ? t('errors.PHONE_ALREADY_EXISTS')
+        : getApiErrorMessage(err) || t('profile.completeForm.errors.saveError');
       let suggestions = getApiErrorSuggestions(err);
 
       setSubmitError(msg);

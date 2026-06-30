@@ -11,7 +11,7 @@ export const authApi = {
   },
 
   async login(payload) {
-    const { data } = await api.post("/auth/login", payload);
+    const { data } = await api.post("/auth/login", payload, { skipAuth: true });
     return data;
   },
 
