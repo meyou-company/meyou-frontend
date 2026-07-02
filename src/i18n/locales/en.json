@@ -701,6 +701,7 @@
     "VIDEO_TOO_LONG": "Video is too long.",
     "NETWORK_ERROR": "Could not connect to the server. Check your internet connection.",
     "EMAIL_ALREADY_EXISTS": "A user with this email already exists.",
+    "PHONE_ALREADY_EXISTS": "This phone number is already taken.",
     "INVALID_CREDENTIALS": "Invalid email or password.",
     "EMAIL_NOT_VERIFIED": "Verify your email before signing in.",
     "USERNAME_TAKEN": "This username is already taken. Choose another one.",

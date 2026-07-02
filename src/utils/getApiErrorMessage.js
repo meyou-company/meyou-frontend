@@ -13,6 +13,8 @@ const TECHNICAL_MESSAGE_PATTERNS = [
 
 /** Map legacy / generic server messages to stable API error codes. */
 const MESSAGE_CODE_HINTS = [
+  { pattern: /phone.*(already|exists|taken|busy|conflict)/i, code: 'PHONE_ALREADY_EXISTS' },
+  { pattern: /(already|exists|taken|busy|conflict).*phone/i, code: 'PHONE_ALREADY_EXISTS' },
   { pattern: /email.*(already|exists|існує|занят|exist)/i, code: 'EMAIL_ALREADY_EXISTS' },
   {
     pattern: /(invalid|неверн|невірн|wrong).*(email|password|пароль|e-mail)/i,
@@ -81,6 +83,15 @@ function inferCodeFromMessage(message) {
   return null;
 }
 
+function payloadMentionsPhone(payload) {
+  if (!payload) return false;
+  try {
+    return JSON.stringify(payload).toLowerCase().includes('phone');
+  } catch {
+    return false;
+  }
+}
+
 function translateErrorCode(code) {
   const key = `errors.${code}`;
   if (i18n.exists(key)) return i18n.t(key);
@@ -99,6 +110,10 @@ function isNetworkError(error) {
 function resolveErrorCode(payload, error) {
   let code = extractCode(payload, error);
   const serverMessage = extractServerMessage(payload);
+
+  if ((code === 'CONFLICT' || error?.response?.status === 409 || error?.status === 409) && payloadMentionsPhone(payload)) {
+    return 'PHONE_ALREADY_EXISTS';
+  }
 
   if (code === 'CONFLICT' && serverMessage) {
     const inferred = inferCodeFromMessage(serverMessage);

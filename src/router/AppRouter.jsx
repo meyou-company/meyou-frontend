@@ -8,6 +8,7 @@ import Explore from '../pages/Explore/Explore';
 import Friends from '../pages/Friends/Friends';
 import Profile from '../pages/Profile/Profile';
 import ProfileFriendsPage from '../pages/Profile/ProfileFriendsPage';
+import ProfilePhotosPage from '../pages/Profile/ProfilePhotosPage';
 import VipChat from '../pages/VipChat/VipChat';
 import MessagesPage from '../pages/Messages/MessagesPage';
 import StoryArchivePage from '../pages/Stories/StoryArchivePage';
@@ -125,6 +126,7 @@ function AppLayout() {
               <Route path="/search" element={<Explore />} />
               <Route path="/friends" element={<Friends />} />
               <Route path="/profile" element={<Profile />} />
+              <Route path="/profile/photos" element={<ProfilePhotosPage />} />
               <Route path="/profile/:username" element={<Profile />} />
               <Route path="/profile/:username/friends" element={<ProfileFriendsPage />} />
               <Route path="/vip-chat" element={<VipChat />} />

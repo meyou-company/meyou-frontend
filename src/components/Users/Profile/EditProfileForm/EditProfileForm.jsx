@@ -23,7 +23,7 @@ import {
   validateEditProfile,
   translateValidationErrors,
 } from '../../../../utils/validationProfile';
-import { getApiErrorMessage } from '../../../../utils/getApiErrorMessage';
+import { getApiErrorCode, getApiErrorMessage } from '../../../../utils/getApiErrorMessage';
 import { applyBirthDateNormalization } from '../../../../utils/profileFormUtils';
 
 import { interestOptions } from '../../../../constants/interests';
@@ -289,7 +289,10 @@ export default function EditProfileForm({ onBack, onSave }) {
       await onSave?.(payload);
     } catch (err) {
       console.log('ERR RAW', err);
-      const msg = getApiErrorMessage(err) || t('profile.editForm.errors.updateError');
+      const code = getApiErrorCode(err) || '';
+      const msg = code === 'CONFLICT' && payload.phone
+        ? t('errors.PHONE_ALREADY_EXISTS')
+        : getApiErrorMessage(err) || t('profile.editForm.errors.updateError');
       setSubmitError(msg);
     } finally {
       setIsSubmitting(false);
