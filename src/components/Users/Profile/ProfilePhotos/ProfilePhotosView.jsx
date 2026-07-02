@@ -1,19 +1,28 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
 import AvatarCropModal from "../../../AvatarCropModal/AvatarCropModal";
 import CreatePostModal from "../../../PostFeed/CreatePostModal";
-import ImageLightbox from "../../../PostFeed/ImageLightbox";
 import { authApi } from "../../../../services/auth";
 import { postsApi } from "../../../../services/postsApi";
 import { uploadPostImage } from "../../../../services/postImageUploadApi";
 import { cropImageToFile } from "../../../../utils/cropImageToFile";
 import { getApiErrorMessage } from "../../../../utils/getApiErrorMessage";
 import { mapApiPostToFeedItem } from "../../../../utils/mapApiPostToFeedItem";
+import profileIcons from '../../../../constants/profileIcons';
 import "./ProfilePhotosView.scss";
 
 const DEFAULT_AVATAR = "/Logo/photo.png";
+
+function getTimestamp(value) {
+  const time = value ? new Date(value).getTime() : 0;
+  return Number.isFinite(time) ? time : 0;
+}
+
+function sortPhotosNewestFirst(items) {
+  return [...items].sort((a, b) => getTimestamp(b.createdAt) - getTimestamp(a.createdAt));
+}
 
 function normalizePostImages(post) {
   const mapped = mapApiPostToFeedItem(post);
@@ -31,7 +40,14 @@ function normalizePostImages(post) {
         post,
         mediaIndex: index,
         rawMediaItem: rawMedia[index],
-        createdAt: mapped?.createdAt || post?.createdAt || null,
+        createdAt:
+          rawMedia[index]?.createdAt ||
+          rawMedia[index]?.created_at ||
+          rawMedia[index]?.uploadedAt ||
+          rawMedia[index]?.uploaded_at ||
+          mapped?.createdAt ||
+          post?.createdAt ||
+          null,
       };
     })
     .filter(Boolean);
@@ -78,14 +94,17 @@ export default function ProfilePhotosView({
   const [loading, setLoading] = useState(true);
   const [openMenuId, setOpenMenuId] = useState(null);
   const [cropTarget, setCropTarget] = useState(null);
-  const [lightboxIndex, setLightboxIndex] = useState(null);
+  const [viewerIndex, setViewerIndex] = useState(null);
   const [postMediaFiles, setPostMediaFiles] = useState([]);
   const [postText, setPostText] = useState("");
   const [isComposerOpen, setIsComposerOpen] = useState(false);
   const [isPublishing, setIsPublishing] = useState(false);
   const [isSavingPhoto, setIsSavingPhoto] = useState(false);
+  const [photoActionLoading, setPhotoActionLoading] = useState(false);
+  const [hiddenAvatarUrl, setHiddenAvatarUrl] = useState(null);
 
   const avatarUrl = user?.avatarUrl || user?.avatar || "";
+  const visibleAvatarUrl = avatarUrl && avatarUrl !== hiddenAvatarUrl ? avatarUrl : "";
   const displayAvatar = avatarUrl || DEFAULT_AVATAR;
   const authorName =
     [user?.firstName, user?.lastName].filter(Boolean).join(" ").trim() ||
@@ -93,7 +112,10 @@ export default function ProfilePhotosView({
     t("common.user");
   const authorId = user?.id || user?._id;
 
-  const lightboxImages = useMemo(() => photos.map((photo) => photo.url), [photos]);
+  const selectedPhoto =
+    viewerIndex !== null && photos.length > 0
+      ? photos[Math.min(Math.max(viewerIndex, 0), photos.length - 1)]
+      : null;
 
   const loadPhotos = async () => {
     if (!authorId) {
@@ -102,25 +124,32 @@ export default function ProfilePhotosView({
       return;
     }
 
-    const avatarPhoto = avatarUrl
+    const avatarPhoto = visibleAvatarUrl
       ? [{
           id: "avatar",
           type: "avatar",
-          url: avatarUrl,
+          url: visibleAvatarUrl,
+          createdAt:
+            user?.avatarUpdatedAt ||
+            user?.avatar_updated_at ||
+            user?.avatarCreatedAt ||
+            user?.avatar_created_at ||
+            user?.updatedAt ||
+            user?.createdAt ||
+            null,
         }]
       : [];
 
-    setPhotos(avatarPhoto);
     setLoading(true);
     try {
       const posts = await postsApi.listByAuthor(authorId);
       const postPhotos = (Array.isArray(posts) ? posts : []).flatMap(normalizePostImages);
-      const nextPhotos = [...avatarPhoto, ...postPhotos];
+      const nextPhotos = sortPhotosNewestFirst([...avatarPhoto, ...postPhotos]);
       setPhotos(nextPhotos);
     } catch (err) {
       console.error("[profile photos] failed", err);
       toast.error(getApiErrorMessage(err) || t("profile.photos.loadError", { defaultValue: "Не удалось загрузить фото" }));
-      setPhotos(avatarUrl ? [{ id: "avatar", type: "avatar", url: avatarUrl }] : []);
+      setPhotos(avatarPhoto);
     } finally {
       setLoading(false);
     }
@@ -128,7 +157,7 @@ export default function ProfilePhotosView({
 
   useEffect(() => {
     loadPhotos();
-  }, [authorId, avatarUrl]);
+  }, [authorId, visibleAvatarUrl, user?.updatedAt]);
 
   useEffect(() => {
     return () => {
@@ -209,7 +238,15 @@ export default function ProfilePhotosView({
 
   const openCrop = (photo) => {
     setOpenMenuId(null);
+    setViewerIndex(null);
     setCropTarget(photo);
+  };
+
+  const fileFromPhotoUrl = async (photo, fileName = "profile-photo.jpg") => {
+    const response = await fetch(photo.url);
+    if (!response.ok) throw new Error("Photo download failed");
+    const blob = await response.blob();
+    return new File([blob], fileName, { type: blob.type || "image/jpeg" });
   };
 
   const handleCropConfirm = async (croppedPixels) => {
@@ -225,6 +262,7 @@ export default function ProfilePhotosView({
 
       if (cropTarget.type === "avatar") {
         await authApi.uploadAvatar(file);
+        setHiddenAvatarUrl(null);
         await refreshMe?.();
       } else {
         const url = await uploadPostImage(file);
@@ -237,6 +275,7 @@ export default function ProfilePhotosView({
       }
 
       setCropTarget(null);
+      setViewerIndex(null);
       toast.success(t("profile.photos.updated", { defaultValue: "Фото обновлено" }));
       await loadPhotos();
     } catch (err) {
@@ -250,7 +289,9 @@ export default function ProfilePhotosView({
     setOpenMenuId(null);
 
     try {
+      setPhotos((prev) => prev.filter((item) => item.id !== photo.id));
       if (photo.type === "avatar") {
+        setHiddenAvatarUrl(photo.url);
         await authApi.deleteAvatar();
         await refreshMe?.();
       } else {
@@ -267,29 +308,62 @@ export default function ProfilePhotosView({
       }
 
       toast.success(t("profile.photos.deleted", { defaultValue: "Фото удалено" }));
-      await loadPhotos();
+      setViewerIndex(null);
     } catch (err) {
+      await loadPhotos();
       toast.error(getApiErrorMessage(err) || t("profile.photos.deleteError", { defaultValue: "Не удалось удалить фото" }));
     }
   };
 
-  const handleShare = async (photo) => {
+  const handleSavePhoto = async (photo) => {
     setOpenMenuId(null);
     try {
-      if (navigator.share) {
-        await navigator.share({
-          title: t("profile.photos.shareTitle", { defaultValue: "Фото ME YOU" }),
-          url: photo.url,
-        });
-        return;
-      }
-      await navigator.clipboard?.writeText(photo.url);
-      toast.success(t("profile.photos.linkCopied", { defaultValue: "Ссылка скопирована" }));
+      setPhotoActionLoading(true);
+      const response = await fetch(photo.url);
+      if (!response.ok) throw new Error("Photo download failed");
+      const blob = await response.blob();
+      const objectUrl = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = objectUrl;
+      link.download = photo.type === "avatar" ? "meyou-profile-photo.jpg" : "meyou-photo.jpg";
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(objectUrl);
     } catch (err) {
-      if (err?.name !== "AbortError") {
-        toast.error(t("profile.photos.shareError", { defaultValue: "Не удалось отправить фото" }));
-      }
+      console.error("[profile photos] save failed", err);
+      window.open(photo.url, "_blank", "noopener,noreferrer");
+    } finally {
+      setPhotoActionLoading(false);
     }
+  };
+
+  const handleMakeProfilePhoto = async (photo) => {
+    setOpenMenuId(null);
+    try {
+      setPhotoActionLoading(true);
+      const file = await fileFromPhotoUrl(photo, "avatar.jpg");
+      await authApi.uploadAvatar(file);
+      setHiddenAvatarUrl(null);
+      await refreshMe?.();
+      toast.success(t("profile.editForm.toast.avatarUpdated", { defaultValue: "Фото профиля обновлено" }));
+      setViewerIndex(null);
+      await loadPhotos();
+    } catch (err) {
+      toast.error(getApiErrorMessage(err) || t("profile.toast.avatarSaveError", { defaultValue: "Не удалось сохранить фото профиля" }));
+    } finally {
+      setPhotoActionLoading(false);
+    }
+  };
+
+  const showPreviousPhoto = () => {
+    setViewerIndex((value) => (value == null ? value : Math.max(0, value - 1)));
+  };
+
+  const showNextPhoto = () => {
+    setViewerIndex((value) => (
+      value == null ? value : Math.min(photos.length - 1, value + 1)
+    ));
   };
 
   return (
@@ -310,15 +384,11 @@ export default function ProfilePhotosView({
           onClick={onBack}
           aria-label={t("common.back")}
         >
-          ←
+          <img src={profileIcons.arrowLeftBlack} alt="" />
         </button>
         <h1 className="profilePhotos__title">
           {t("profile.photos.title", { defaultValue: "Мои фото" })}
         </h1>
-        <button type="button" className="profilePhotos__addBtn" onClick={openAddPhoto}>
-          <span aria-hidden="true">+</span>
-          {t("profile.photos.add", { defaultValue: "Добавить фото" })}
-        </button>
       </div>
 
       <section
@@ -332,7 +402,7 @@ export default function ProfilePhotosView({
               <button
                 type="button"
                 className="profilePhotos__imageBtn"
-                onClick={() => setLightboxIndex(index)}
+                onClick={() => setViewerIndex(index)}
                 aria-label={t("profile.viewPhotoFull")}
               >
                 <img src={photo.url} alt="" className="profilePhotos__image" loading="lazy" />
@@ -358,13 +428,20 @@ export default function ProfilePhotosView({
                   <button type="button" role="menuitem" onClick={() => handleDelete(photo)}>
                     {t("profile.photos.delete", { defaultValue: "Удалить" })}
                   </button>
-                  <button type="button" role="menuitem" onClick={() => handleShare(photo)}>
-                    {t("profile.photos.send", { defaultValue: "Отправить" })}
+                  <button type="button" role="menuitem" onClick={() => handleSavePhoto(photo)}>
+                    {t("profile.photos.save", { defaultValue: "Сохранить" })}
+                  </button>
+                  <button type="button" role="menuitem" onClick={() => handleMakeProfilePhoto(photo)}>
+                    {t("profile.photos.makeProfile", { defaultValue: "Сделать фото профиля" })}
                   </button>
                 </div>
               ) : null}
             </article>
           ))
+        ) : loading ? (
+          <p className="profilePhotos__empty profilePhotos__empty--loading">
+            {t("common.loading")}
+          </p>
         ) : (
           <p className="profilePhotos__empty">
             {t("profile.photos.empty", { defaultValue: "Пока нет фото" })}
@@ -377,6 +454,9 @@ export default function ProfilePhotosView({
           src={cropTarget.url}
           onClose={() => !isSavingPhoto && setCropTarget(null)}
           onConfirm={handleCropConfirm}
+          aspect={cropTarget.type === "avatar" ? 1 : undefined}
+          cropShape={cropTarget.type === "avatar" ? "round" : "rect"}
+          showGrid={cropTarget.type !== "avatar"}
         />
       ) : null}
 
@@ -401,15 +481,66 @@ export default function ProfilePhotosView({
         />
       ) : null}
 
-      {lightboxIndex !== null ? (
-        <ImageLightbox
-          isOpen={lightboxIndex !== null}
-          images={lightboxImages}
-          index={lightboxIndex}
-          onClose={() => setLightboxIndex(null)}
-          onPrev={() => setLightboxIndex((value) => Math.max(0, value - 1))}
-          onNext={() => setLightboxIndex((value) => Math.min(lightboxImages.length - 1, value + 1))}
-        />
+      {selectedPhoto ? (
+        <div
+          className="profilePhotosViewer"
+          role="dialog"
+          aria-modal="true"
+          aria-label={t("profile.viewPhotoFull")}
+          onClick={() => setViewerIndex(null)}
+        >
+          <div className="profilePhotosViewer__panel" onClick={(event) => event.stopPropagation()}>
+            <button
+              type="button"
+              className="profilePhotosViewer__close"
+              onClick={() => setViewerIndex(null)}
+              aria-label={t("common.close")}
+            >
+              <img src={profileIcons.close} alt="" />
+            </button>
+
+            {photos.length > 1 ? (
+              <button
+                type="button"
+                className="profilePhotosViewer__nav profilePhotosViewer__nav--prev"
+                onClick={showPreviousPhoto}
+                disabled={viewerIndex <= 0}
+                aria-label={t("posts.lightbox.prev")}
+              >
+                <img src={profileIcons.arrowRightFilledBlack} alt="" aria-hidden="true" />
+              </button>
+            ) : null}
+
+            <img src={selectedPhoto.url} alt="" className="profilePhotosViewer__image" />
+
+            {photos.length > 1 ? (
+              <button
+                type="button"
+                className="profilePhotosViewer__nav profilePhotosViewer__nav--next"
+                onClick={showNextPhoto}
+                disabled={viewerIndex >= photos.length - 1}
+              aria-label={t("posts.lightbox.next")}
+            >
+                <img src={profileIcons.arrowRightFilledBlack} alt="" aria-hidden="true" />
+              </button>
+            ) : null}
+
+            <div className="profilePhotosViewer__actions">
+              <button type="button" onClick={() => openCrop(selectedPhoto)} disabled={photoActionLoading}>
+                {t("profile.photos.edit", { defaultValue: "Редактировать" })}
+              </button>
+              <button type="button" onClick={() => handleDelete(selectedPhoto)} disabled={photoActionLoading}>
+                {t("profile.photos.delete", { defaultValue: "Удалить" })}
+              </button>
+              <button type="button" onClick={() => handleSavePhoto(selectedPhoto)} disabled={photoActionLoading}>
+                {t("profile.photos.save", { defaultValue: "Сохранить" })}
+              </button>
+              <button type="button" onClick={() => handleMakeProfilePhoto(selectedPhoto)} disabled={photoActionLoading}>
+                {t("profile.photos.makeProfile", { defaultValue: "Сделать фото профиля" })}
+              </button>
+            </div>
+          </div>
+        </div>
       ) : null}
     </main>
   );

@@ -11,7 +11,7 @@ export default function ProfilePhotosPage() {
   const currentUserAvatar = user?.avatarUrl || user?.avatar;
 
   return (
-    <div className={styles.page}>
+    <div className={`${styles.page} profilePhotosPage`}>
       <ProfileHeader
         variant="owner"
         currentUserAvatar={currentUserAvatar}
