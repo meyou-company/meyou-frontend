@@ -5,8 +5,6 @@ const BASE = 'https://countriesnow.space/api/v0.1';
 // простий кеш, щоб не смикати API по 100 разів
 let cachedCountries = null;
 
-const cachedStatesByCountry = new Map();
-
 const cachedCities = new Map();
 
 export const locationApi = {
@@ -30,54 +28,18 @@ export const locationApi = {
     return countries;
   },
 
-  async getRegions(countryName) {
+  async getCities(countryName) {
     if (!countryName) return [];
-    if (cachedStatesByCountry.has(countryName)) {
-      return cachedStatesByCountry.get(countryName);
+
+    if (cachedCities.has(countryName)) {
+      return cachedCities.get(countryName);
     }
 
-    const { data } = await axios.post(`${BASE}/countries/states`, {
+    const { data } = await axios.post(`${BASE}/countries/cities`, {
       country: countryName,
     });
 
-    const arr = Array.isArray(data?.data?.states) ? data.data.states : [];
-
-    const regions = arr
-      .filter((r) => r?.name)
-      .map((r) => ({
-        value: r.name,
-        label: r.name,
-        code: r.state_code,
-      }))
-      .sort((a, b) => a.label.localeCompare(b.label));
-
-    cachedStatesByCountry.set(countryName, regions);
-
-    return regions;
-  },
-
-  async getCities(countryName, regionName = null) {
-    if (!countryName) return [];
-
-    const cacheKey = `${countryName}-${regionName || 'country'}`;
-
-    if (cachedCities.has(cacheKey)) {
-      return cachedCities.get(cacheKey);
-    }
-    let response;
-
-    if (regionName?.trim()) {
-      response = await axios.post(`${BASE}/countries/state/cities`, {
-        country: countryName,
-        state: regionName,
-      });
-    } else {
-      response = await axios.post(`${BASE}/countries/cities`, {
-        country: countryName,
-      });
-    }
-
-    const arr = Array.isArray(response?.data?.data) ? response.data.data : [];
+    const arr = Array.isArray(data?.data) ? data.data : [];
 
     const cities = arr
       .filter(Boolean)
@@ -87,7 +49,7 @@ export const locationApi = {
       }))
       .sort((a, b) => a.label.localeCompare(b.label));
 
-    cachedCities.set(cacheKey, cities);
+    cachedCities.set(countryName, cities);
 
     return cities;
   },

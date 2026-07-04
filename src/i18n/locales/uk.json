@@ -316,7 +316,6 @@
         "profession": "Професія",
         "languages": "Мови (через кому)",
         "country": "Країна",
-        "region": "Область",
         "city": "Місто"
       },
       "visibility": {
@@ -358,7 +357,6 @@
         "nationalityRequired": "Вкажіть національність",
         "maritalStatusRequired": "Оберіть сімейне положення",
         "countryRequired": "Оберіть країну",
-        "regionRequired": "Оберіть область",
         "cityRequired": "Оберіть місто",
         "interestsRequired": "Оберіть інтереси",
         "hobbiesRequired": "Оберіть хобі",

@@ -316,7 +316,6 @@
         "profession": "Profession",
         "languages": "Languages ​​(through commas)",
         "country": "Country",
-        "region": "Region",
         "city": "City"
       },
       "visibility": {

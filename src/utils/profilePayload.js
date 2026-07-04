@@ -50,7 +50,6 @@ export function normalizeForValidation(v) {
     maritalStatus: v.maritalStatus?.value || '',
     country: v.country?.value || '',
     city: v.city?.value || '',
-    region: v.region?.value || '',
 
     gender: v.gender,
     birthDate: v.birthDate,
@@ -82,7 +81,6 @@ export function toEditProfilePayload(v) {
 
     country: v.country?.value || undefined,
     city: v.city?.value || undefined,
-    region: v.region?.value || undefined,
 
     maritalStatus: v.maritalStatus?.value || undefined,
     gender: v.gender || undefined,

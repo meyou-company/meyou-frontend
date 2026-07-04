@@ -13,9 +13,9 @@ import { authApi } from '../../../../services/auth';
 import { profileApi } from '../../../../services/profileApi';
 import { locationApi } from '../../../../services/locationApi';
 
-import { useLocationOptions } from '../../../../hooks/useLocationOptions';
 import { usePrefillProfile } from '../../../../hooks/usePrefillProfile';
 import { useGenderOptions, useMaritalStatusOptions } from '../../../../hooks/useProfileFormOptions';
+import { useLocationSystem } from '../../../../hooks/useLocationSystem';
 
 import {
   validateCompleteProfile,
@@ -28,18 +28,18 @@ import { getBirthDateLimits, toYMDLocal } from '../../../../utils/profileFormUti
 
 import { interestOptions } from '../../../../constants/interests';
 import { profileHobbyOptions } from '../../../../constants/hobbies';
+import profileIcons from '../../../../constants/profileIcons';
 
 import ThemeToggleDark from '../../../../components/ThemeToggleDark/ThemeToggleDark';
 import AvatarCropModal from '../../../../components/AvatarCropModal/AvatarCropModal';
 
 import './CompleteProfileForm.scss';
-import profileIcons from '../../../../constants/profileIcons';
 import MultiSelect from '../EditProfileForm/MultiSelect';
 
 const EMPTY = {
   firstName: '',
-  lastName: '',
   username: '',
+  lastName: '',
   gender: null,
   birthDate: '',
   phone: '',
@@ -91,10 +91,7 @@ export default function CompleteProfileForm({ onBack, onSave }) {
   const [genderPickerOpen, setGenderPickerOpen] = useState(false);
 
   // CUSTOM HOOKS
-  const { countryOptions, cityOptions, isCitiesLoading } = useLocationOptions(
-    values.country?.value || '',
-    values.city?.value || ''
-  );
+  const { countries, cities, citiesLoading } = useLocationSystem(values.country?.value || '');
 
   usePrefillProfile({
     setProfileCompleted,
@@ -300,7 +297,7 @@ export default function CompleteProfileForm({ onBack, onSave }) {
     return {
       menuPortalTarget: selectPortalTarget,
       menuPosition: 'fixed',
-      styles: { menuPortal: (base) => ({ ...base, zIndex: 9999999 }) },
+      styles: { menuPortal: (base) => ({ ...base, zIndex: 200 }) },
     };
   }, [selectPortalTarget]);
 
@@ -318,7 +315,7 @@ export default function CompleteProfileForm({ onBack, onSave }) {
         <div className="cp-topbar">
           <button
             type="button"
-            className="back-arrow"
+            className="back-arrow cp-arrow"
             onClick={onBack}
             aria-label={t('common.back')}
           >
@@ -342,7 +339,7 @@ export default function CompleteProfileForm({ onBack, onSave }) {
         <div className="cp-head">
           <div className="cp-head__title">{t('profile.completeForm.title')}</div>
 
-          <div className="cp-avatar">
+          <div>
             <div className="cp-avatar__ring" onClick={pickAvatar} role="button" tabIndex={0}>
               {currentAvatarSrc ? (
                 <img
@@ -352,14 +349,17 @@ export default function CompleteProfileForm({ onBack, onSave }) {
                 />
               ) : (
                 <div className="cp-avatar__placeholder" aria-hidden="true">
-                  <svg viewBox="0 0 24 24" width="54" height="54">
-                    <path
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="1.6"
-                      d="M12 12c2.2 0 4-1.8 4-4s-1.8-4-4-4-4 1.8-4 4 1.8 4 4 4Zm0 2c-3.9 0-7 2.1-7 4.6V20h14v-1.4c0-2.5-3.1-4.6-7-4.6Z"
-                    />
-                  </svg>
+                  <div className="cp-avatar__placeholder-inner">
+                    <svg viewBox="0 0 24 24" width="54" height="54">
+                      <path
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="1.6"
+                        d="M12 12c2.2 0 4-1.8 4-4s-1.8-4-4-4-4 1.8-4 4 1.8 4 4 4Zm0 2c-3.9 0-7 2.1-7 4.6V20h14v-1.4c0-2.5-3.1-4.6-7-4.6Z"
+                      />
+                    </svg>
+                    <span>{t('profile.editForm.avatarAlt')}</span>
+                  </div>
                 </div>
               )}
               <span className="cp-avatar__dot" />
@@ -510,6 +510,7 @@ export default function CompleteProfileForm({ onBack, onSave }) {
             </div>
             {showError('gender') && <div className="field__hint">{errors.gender}</div>}
           </div>
+
           <div className="field">
             <div className="field__wrap field__wrap--birthDate">
               {showStar('birthDate') && <span className="field__star">*</span>}
@@ -637,7 +638,7 @@ export default function CompleteProfileForm({ onBack, onSave }) {
                 classNamePrefix="rs"
                 placeholder={t('profile.editForm.fields.country')}
                 value={values.country}
-                options={countryOptions}
+                options={countries}
                 onChange={(opt) => {
                   setValues((prev) => ({
                     ...prev,
@@ -659,9 +660,9 @@ export default function CompleteProfileForm({ onBack, onSave }) {
                 classNamePrefix="rs"
                 placeholder={t('profile.editForm.fields.city')}
                 value={values.city}
-                options={cityOptions}
+                options={cities}
                 isDisabled={!values.country}
-                isLoading={isCitiesLoading}
+                isLoading={citiesLoading}
                 onChange={(opt) => setField('city', opt)}
                 onBlur={() => onBlur('city')}
                 {...selectCommonProps}
@@ -673,7 +674,7 @@ export default function CompleteProfileForm({ onBack, onSave }) {
 
         {submitError && <div className="auth__error">{submitError}</div>}
 
-        <button className="btn-gradient wide" disabled={isSubmitting}>
+        <button className="btn-gradient btn-gradient--lg" disabled={isSubmitting}>
           {submitLabel}
         </button>
       </form>

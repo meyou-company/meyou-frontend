@@ -311,7 +311,6 @@
         "profession": "Профессия",
         "languages": "Языки (через запятую)",
         "country": "Страна",
-        "region": "Регион",
         "city": "Город"
       },
       "visibility": {
