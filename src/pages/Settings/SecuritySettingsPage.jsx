@@ -46,6 +46,15 @@ export default function SecuritySettingsPage() {
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
+  const handleBack = () => {
+    if ((window.history.state?.idx ?? 0) > 0) {
+      navigate(-1);
+      return;
+    }
+
+    navigate('/profile');
+  };
+
   const handleLogoutAll = async () => {
     if (!window.confirm(t('settings.security.logoutAllConfirm'))) return;
     try {
@@ -85,7 +94,7 @@ export default function SecuritySettingsPage() {
     <SettingsPageShell
       title={t('settings.security.title')}
       subtitle={t('settings.security.subtitle')}
-      onBack={() => navigate('/settings/account')}
+      onBack={handleBack}
     >
       <div className="settings-card">
         <SettingsNavRow
