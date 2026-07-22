@@ -2,8 +2,8 @@
    LAYOUT
    ========================= */
 
-@import '../profileFormDropdowns.scss';
-@import '../profileFormFields.scss';
+// @import '../profileFormDropdowns.scss';
+// @import '../profileFormFields.scss';
 
 .edit-profile {
   --field-radius: 20px;
@@ -34,26 +34,15 @@
   align-items: center;
 }
 
-.ep-topbar .back-arrow {
+/* Додаткове позиціонування стрілки «назад»  */
+.back-arrow.ep-arrow {
   position: relative;
   top: auto;
   left: auto;
-  width: 44px;
-  height: 44px;
-  margin: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
-.ep-topbar .back-arrow__icon {
-  width: 24px;
-  height: 34px;
 }
 
 /* brand centered — типографіка: .app-brand-wordmark */
-.ep-topbar__brand {
+.ep-topbar__brand.app-brand-wordmark {
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
@@ -63,17 +52,6 @@
 /* dark mode right */
 .ep-topbar__right {
   margin-left: auto;
-  width: 44px;
-  height: 44px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-  z-index: 1;
-}
-
-/* if ThemeToggleDark has absolute inside */
-.ep-topbar__right * {
   position: relative !important;
 }
 
@@ -81,8 +59,7 @@
 .ep-divider {
   width: 100%;
   height: 1px;
-  margin: 0 0 14px;
-  background: rgba(0, 0, 0, 0.12);
+  background: var(--select-option-selected-bg);
 }
 
 /* =========================
@@ -93,15 +70,14 @@
   display: grid;
   justify-items: center;
   gap: 8px;
-  padding: 6px 0 10px;
 }
 
 .ep-head__title {
-  font-size: 40px;
+  font-size: 44px;
   font-weight: 800;
   letter-spacing: 0.4px;
 
-  background: linear-gradient(90deg, #4f6bff, #b05cff 55%, #ff4fb1);
+  background: var(--select-option-selected-bg);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
@@ -112,12 +88,14 @@
 .ep-avatar__ring {
   width: 216px;
   height: 216px;
-  border-radius: 999px;
-  display: grid;
-  place-items: center;
+
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   position: relative;
 
-  background: linear-gradient(135deg, #4f6bff, #b05cff 55%, #ff4fb1);
+  background: rgba(123, 92, 255, 0.9);
   padding: 4px;
 }
 
@@ -125,46 +103,48 @@
   content: '';
   position: absolute;
   inset: 4px;
-  border-radius: 999px;
+  border-radius: 50%;
   background: #d5d5d5;
   opacity: 0.85;
 }
 
-.ep-avatar__placeholder {
-  position: relative;
-  z-index: 2;
-  color: rgba(123, 92, 255, 0.9);
-}
-.ep-avatar__icon {
-  width: 100px;
-  height: 100px;
-}
-
 .ep-avatar__img {
   position: relative;
-  z-index: 2;
   width: 100%;
   height: 100%;
-  border-radius: 999px;
+  border-radius: 50%;
   object-fit: cover;
+}
+
+.ep-avatar__placeholder {
+  position: relative;
+  color: rgba(123, 92, 255, 0.9);
+}
+
+.ep-avatar__placeholder-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
 }
 
 .ep-avatar__dot {
   position: absolute;
   top: 22px;
   right: 28px;
-  width: 20px;
-  height: 20px;
+  width: 14px;
+  height: 14px;
   border-radius: 50%;
   background: #16c60c;
-  z-index: 3;
+  z-index: 1;
 }
 
 .ep-head__link {
-  font-size: 36px;
-  font-weight: 400;
+  font-size: 28px;
+  font-weight: 700;
 
-  background: linear-gradient(90deg, #4f6bff, #b05cff 55%, #ff4fb1);
+  background: var(--select-option-selected-bg);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
@@ -183,11 +163,11 @@
   border-radius: 999px;
   background: transparent;
   color: #7b5cff;
-  border: 1px solid rgba(176, 92, 255, 0.35);
+  border: 2px solid rgba(176, 92, 255, 0.35);
 }
 
 [data-theme='dark'] .ep-pill {
-  background: linear-gradient(90deg, #4f6bff 0%, #b05cff 55%, #ff4fb1 100%);
+  background: var(--select-option-selected-bg);
   color: #fff;
   border: none;
 }
@@ -197,20 +177,24 @@
      ========================= */
 
 .field {
-  display: grid;
-  gap: 6px;
-
+  display: flex;
+  min-width: 0;
+  width: 100%;
+  flex-direction: column;
+  gap: 10px;
   /* allow stacking for dropdowns */
   position: relative;
   z-index: 1;
 }
 
 .field:focus-within {
-  z-index: 100; /* bring active field above others */
+  z-index: 10; /* bring active field above others */
 }
 
 .field__wrap {
   position: relative;
+  width: 100%;
+  min-width: 0;
   border-radius: var(--field-radius);
   overflow: hidden;
 
@@ -221,26 +205,14 @@
     filter 0.25s ease;
 }
 
-.field__lock-icon {
-  position: absolute;
-  right: 20px;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 20px;
-  height: 20px;
-  pointer-events: none;
-  z-index: 2;
+/* textarea wrapper */
+.field__wrap:has(.text-area) {
+  height: auto;
 }
 
-[data-theme='dark'] .field__lock-icon {
-  filter: brightness(0) invert(1);
-}
-/* phone: don't clip country dropdown */
+/* ✅ select/phone: don't clip dropdown */
+.field__wrap.select-wrap,
 .field__wrap.phone-wrap {
-  overflow: visible;
-}
-
-.field__wrap.select-wrap:has(.rs__menu) {
   overflow: visible;
 }
 
@@ -250,7 +222,6 @@
   inset: 1px;
   border-radius: var(--field-radius-inner);
   background: var(--field-inner);
-  z-index: 1;
   pointer-events: none;
 }
 
@@ -261,19 +232,21 @@
   z-index: 2;
 
   width: 100%;
+  min-width: 0;
   height: 100%;
+  box-sizing: border-box;
   background: transparent;
   border: 0;
   outline: none;
 
   color: var(--field-text);
   padding: 14px 16px 14px 28px;
-  font-size: 16px;
+  font-size: 14px;
 }
 
-.react-datepicker-wrapper {
-  max-width: 300px;
-  width: 100%;
+.text-input::placeholder,
+.text-area::placeholder {
+  color: var(--field-placeholder);
 }
 
 .text-area {
@@ -282,9 +255,10 @@
   padding-top: 12px;
 }
 
-.text-input::placeholder,
-.text-area::placeholder {
-  color: var(--field-placeholder);
+/* error */
+.text-input .is-error,
+.text-area .is-error {
+  color: #ff1b1b;
 }
 
 @media (hover: hover) and (pointer: fine) {
@@ -301,12 +275,6 @@
     0 0 32px rgba(255, 65, 193, 0.25);
 }
 
-/* error */
-.text-input.is-error,
-.text-area.is-error {
-  color: #ff1b1b;
-}
-
 .field__wrap:has(.is-error)::after {
   content: '';
   position: absolute;
@@ -315,6 +283,19 @@
   pointer-events: none;
   z-index: 3;
   box-shadow: inset 0 0 0 2px #ff1b1b;
+}
+
+/* star */
+.field__star {
+  position: absolute;
+  left: 10px;
+  top: 10px;
+  z-index: 5;
+  color: #fc0000;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1;
+  pointer-events: none;
 }
 
 /* hint */
@@ -342,6 +323,8 @@
 /* Поле Стать — такий самий колір/стиль як інші поля (градієнт + внутрішній фон) */
 .field__genderWrap {
   position: relative;
+  width: 100%;
+  min-width: 0;
   border-radius: var(--field-radius);
   overflow: visible;
   background: var(--field-grad);
@@ -367,9 +350,9 @@
   flex-direction: row;
   align-items: center;
   gap: 14px;
-  min-height: var(--field-control-height);
-  height: var(--field-control-height);
-  max-height: var(--field-control-height);
+  height: 56px;
+  min-height: 56px;
+  max-height: 56px;
   padding: 0 16px 0 14px;
 }
 
@@ -383,7 +366,7 @@
   z-index: 2;
 }
 
-.field__genderWrap--desktop .field__label--row {
+.field__genderWrap--desktop .field__label--row .field__star {
   position: static;
   margin-right: 2px;
   color: #fc0000;
@@ -402,22 +385,20 @@
 }
 
 /* Відкритий вибір на мобілці — не ховатись під полями */
-.field--gender.field--genderOpen {
-  z-index: 999999;
+.field.field--genderOpen {
+  z-index: 10;
   position: relative;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 767px) {
   .field__genderWrap--desktop {
     display: none;
   }
 
   .field__genderWrap--mobile {
     display: block;
-    padding: 0;
-    min-height: 0;
-    background: transparent;
-    box-shadow: none;
+    width: 100%;
+    min-width: 0;
   }
 
   .field__genderWrap--mobile::before {
@@ -426,7 +407,10 @@
 
   .field__genderTriggerWrap {
     position: relative;
-    height: 52px;
+    width: 100%;
+    min-width: 0;
+    min-height: 45px;
+    height: 45px;
     border-radius: var(--field-radius);
     overflow: visible;
     background: var(--field-grad);
@@ -453,7 +437,6 @@
     height: 100%;
     padding: 0 16px 0 22px;
     border-radius: var(--field-radius);
-    border: 0;
     background: transparent;
     color: var(--field-text);
     font-size: 14px;
@@ -465,17 +448,27 @@
     z-index: 2;
   }
 
+  .field__genderTrigger .field__star {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    margin: 0;
+    color: #fc0000;
+  }
+
   .field__genderTriggerText {
-    flex: 1;
     display: flex;
+    gap: 12px;
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
-    gap: 12px;
+    width: 100%;
     min-width: 0;
   }
 
   .field__genderTriggerLabel {
+    flex-shrink: 0;
     font-size: 14px;
     font-weight: 400;
     opacity: 1;
@@ -483,9 +476,11 @@
   }
 
   .field__genderTriggerValue {
+    flex: 1;
+    min-width: 0;
     font-size: 14px;
     font-weight: 400;
-    text-align: right;
+    text-align: left;
     color: var(--field-text);
   }
 
@@ -509,7 +504,7 @@
     top: calc(100% + 6px);
     left: 0;
     right: 0;
-    z-index: 100000;
+    z-index: 200;
     border-radius: 16px;
     overflow: hidden;
     background: var(--select-menu-bg, #fff);
@@ -550,7 +545,13 @@
   color: var(--field-placeholder);
 }
 
-/* Дві опції в один ряд горизонтально */
+.field__label--inside .field__star {
+  position: static;
+  margin-right: 4px;
+  color: #fc0000;
+}
+
+/* Три опції в один ряд горизонтально */
 .field__genderGroup {
   display: flex;
   flex-direction: row;
@@ -696,13 +697,17 @@
 }
 
 /* Збільшений календар, що вискакує для вибору дати */
-.birthDate-picker.react-datepicker {
+.birthDate-picker .react-datepicker {
   font-size: 14px;
   border-radius: 16px;
   overflow: hidden;
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
   border: 1px solid rgba(0, 0, 0, 0.08);
   background: var(--select-menu-bg, #fff);
+}
+
+.react-datepicker-popper {
+  z-index: 300 !important;
 }
 
 .birthDate-picker .react-datepicker__header {
@@ -736,8 +741,10 @@
   color: var(--field-text);
 }
 
-.birthDate-picker .react-datepicker__day--selected,
-.birthDate-picker .react-datepicker__day--keyboard-selected {
+.birthDate-picker
+  .react-datepicker__day--selected3
+  .birthDate-picker
+  .react-datepicker__day--keyboard-selected {
   background: linear-gradient(90deg, #4f6bff 0%, #b05cff 55%, #ff4fb1 100%) !important;
   color: #fff !important;
 }
@@ -993,7 +1000,7 @@ body.night .field__date-indicator::after,
 
 /* Мобілка: календар меншого розміру */
 @media (max-width: 767px) {
-  .birthDate-picker.react-datepicker {
+  .birthDate-picker .react-datepicker {
     font-size: 14px;
   }
 
@@ -1021,11 +1028,11 @@ body.night .field__date-indicator::after,
   }
 }
 
-@media (max-width: 767px) {
+@media (max-width: 768px) {
   body.dark .field__genderDropdown,
   [data-theme='dark'] .field__genderDropdown {
-    background: #12051f;
-    border: 1px solid rgba(255, 255, 255, 0.15);
+    background: #0d0d0d;
+    border: 1px solid rgba(255, 255, 255, 0.12);
   }
 
   body.dark .field__genderDropdownItem,
@@ -1048,142 +1055,85 @@ body.night .field__date-indicator::after,
 /* =========================
      react-select (PORTAL)
      ========================= */
-
 .select-wrap .rs__control {
-  position: relative;
-  z-index: 2;
+  position: relative !important;
+  z-index: 2 !important;
+  min-height: 42px !important;
+  height: 100% !important;
 
   background: transparent !important;
   border: 0 !important;
   box-shadow: none !important;
+  display: flex;
+  align-items: center !important;
 }
 
 /* container з тегами */
-
 .select-wrap .rs__value-container {
   padding-left: 28px !important;
 
-  display: flex;
-  align-items: center;
+  display: flex !important;
+  align-items: center !important;
+  flex-wrap: nowrap !important;
+
+  gap: 4px;
+  min-width: 0;
+  overflow: hidden !important;
 }
 
-/* input */
-
-.select-wrap .rs__input-container {
-  margin: 2px;
+.select-wrap .rs__indicators {
+  display: flex !important;
+  align-items: center !important;
 }
 
-/* selected tags */
-
-.rs__multi-value {
-  margin: 2px;
-
-  background: var(--select-tag-bg);
-  border-radius: 10px;
-
-  font-size: 13px;
+.select-wrap .rs__indicator-separator {
+  margin-top: 8px;
 }
-
-.rs__multi-value__label {
-  color: var(--select-tag-text);
-  padding: 2px 6px;
-}
-
-.rs__multi-value__remove {
-  cursor: pointer;
-}
-
-.rs__multi-value__remove:hover {
-  background: rgba(255, 0, 0, 0.15);
-}
-
-/* placeholder */
 
 .select-wrap .rs__placeholder {
+  display: flex;
+  align-items: center;
   color: var(--select-placeholder) !important;
   font-size: 14px !important;
 }
 
-.select-wrap .rs__indicators {
-  align-items: center;
-  padding-top: 0;
-}
+/* selected tags (interests/hobbies) */
+.select-wrap .rs__multi-value {
+  flex-shrink: 0;
 
-.select-wrap .rs__indicator-separator {
-  margin-top: 0;
-  align-self: center;
+  display: flex;
+  align-items: center;
+
+  margin: 2px !important;
+
+  background: rgba(255, 255, 255, 0.95) !important;
+  border-radius: 10px !important;
 }
 
 /* single value */
-
 .select-wrap .rs__single-value {
   color: var(--field-text) !important;
   font-size: 14px !important;
+
+  overflow: visible;
+  white-space: nowrap;
 }
 
-/* =========================
-     dropdown menu (portal)
-     ========================= */
-
-.rs__menu-portal {
-  z-index: 2000 !important;
+.select-wrap .rs__multi-value__label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.rs__menu {
-  background: var(--select-menu-bg) !important;
-
-  border-radius: 16px !important;
-  padding: 6px !important;
-
-  box-shadow: 0 12px 30px rgba(123, 92, 255, 0.25) !important;
+.select-wrap .rs__multi-value__remove {
+  cursor: pointer;
 }
 
-/* options */
-
-.rs__option {
-  font-size: 15px !important;
-
-  padding: 10px 14px !important;
-  border-radius: 12px !important;
-
-  cursor: pointer !important;
-
-  color: var(--select-text) !important;
-  font-weight: 500 !important;
-  background: transparent !important;
+.select-wrap .rs__multi-value__remove:hover {
+  background: rgba(255, 0, 0, 0.15);
 }
 
-.rs__option--is-focused {
-  background: var(--select-option-hover-bg) !important;
-}
-
-.rs__option--is-selected {
-  background: var(--select-option-selected-bg) !important;
-
-  color: #fff !important;
-  font-weight: 600 !important;
-}
-
-/* =========================
-     dark theme
-     ========================= */
-
-body.dark .rs__menu,
-html[data-theme='dark'] .rs__menu {
-  background: #12051f !important;
-  border: 1px solid rgba(255, 255, 255, 0.15) !important;
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.6) !important;
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
-}
-
-body.dark .rs__option,
-html[data-theme='dark'] .rs__option {
-  color: #ffffff !important;
-  font-weight: 500 !important;
-}
-
-/* Dark theme: selected tags (interests/hobbies) keep dark background */
+/* Dark theme: selected tags should stay dark too */
 body.dark .rs__multi-value,
 body.night .rs__multi-value,
 html[data-theme='dark'] .rs__multi-value,
@@ -1214,74 +1164,58 @@ html[data-theme='night'] .rs__multi-value__remove:hover {
   color: #fff !important;
 }
 
-.more-badge {
-  position: relative;
+/* input */
+.select-wrap .rs__input-container {
+  flex: 1 1 auto !important;
+
+  min-width: 2px !important;
+
   display: flex;
   align-items: center;
+
+  margin: 0 !important;
 }
 
-.more-button {
-  cursor: pointer;
-
-  padding: 4px 8px;
-  margin-left: 4px;
-
-  border-radius: 12px;
-  border: none;
-
-  background: #f1f1f1;
-  font-size: 13px;
-  font-weight: 500;
+.rs__menu {
+  background: var(--select-menu-bg) !important;
+  border-radius: 16px !important;
+  padding: 6px !important;
+  box-shadow: 0 12px 30px rgba(123, 92, 255, 0.25) !important;
 }
 
-[data-theme='dark'] .more-button,
-.more-popover {
-  background: rgba(255, 255, 255, 0.95);
-  color: #0d0d0d;
+.rs__option {
+  font-size: 16px !important;
+  padding: 12px 14px !important;
+  border-radius: 12px !important;
+  cursor: pointer !important;
+
+  color: var(--select-text) !important;
+  background: transparent !important;
 }
 
-.more-popover {
-  position: absolute;
-  top: calc(100% + 8px);
-  left: 0;
-
-  z-index: 2100;
-
-  background: white;
-  border-radius: 12px;
-
-  border: 1px solid #e6e6e6;
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
-
-  padding: 8px;
-
-  min-width: 180px;
+.rs__option--is-focused {
+  background: var(--select-option-hover-bg) !important;
 }
 
-.popover-item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+.rs__option--is-selected {
+  background: var(--select-option-selected-bg) !important;
 
-  padding: 6px 8px;
-  border-radius: 8px;
+  color: #fff !important;
+  font-weight: 600 !important;
 }
 
-.popover-item:hover {
-  background: #f5f5f5;
+/* Темна тема: чорний дропдаун react-select */
+
+body.dark .rs__menu,
+html[data-theme='dark'] .rs__menu {
+  background: #0d0d0d !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.6) !important;
 }
 
-.remove-btn {
-  border: none;
-  background: transparent;
-
-  cursor: pointer;
-  font-size: 14px;
-  color: #888;
-}
-
-.remove-btn:hover {
-  color: #ff4d4f;
+body.dark .rs__option,
+html[data-theme='dark'] .rs__option {
+  color: rgba(255, 255, 255, 0.95) !important;
 }
 
 /* =========================
@@ -1302,9 +1236,9 @@ html[data-theme='night'] .rs__multi-value__remove:hover {
   background: transparent !important;
 
   color: var(--field-text) !important;
-  font-size: 18px;
+  font-size: 14px;
   outline: none;
-  // padding-left: 4px; /* space for star */
+  padding-left: 4px; /* space for star */
 }
 
 .phone-wrap .react-international-phone-country-selector-button {
@@ -1319,7 +1253,7 @@ html[data-theme='night'] .rs__multi-value__remove:hover {
 /* dropdown */
 .phone-wrap .react-international-phone-country-selector-dropdown {
   position: absolute;
-  z-index: 9999999 !important;
+  z-index: 200 !important;
 
   width: 320px !important;
   max-width: min(360px, calc(100vw - 40px)) !important;
@@ -1334,11 +1268,13 @@ html[data-theme='night'] .rs__multi-value__remove:hover {
   overflow: auto !important;
 }
 
-/* Dark mode: country names readable (white text) */
+/* Темна тема: чорний дропдаун країн */
 body.dark .phone-wrap .react-international-phone-country-selector-dropdown,
-[data-theme='dark'] .phone-wrap .react-international-phone-country-selector-dropdown {
-  background: var(--select-menu-bg) !important;
-  color: var(--select-text) !important;
+html[data-theme='dark'] .phone-wrap .react-international-phone-country-selector-dropdown {
+  background: #0d0d0d !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  color: rgba(255, 255, 255, 0.95) !important;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.6) !important;
 
   .react-international-phone-country-selector-dropdown__list-item,
   .react-international-phone-country-selector-dropdown__list-item-name,
@@ -1368,100 +1304,39 @@ body.dark .phone-wrap .react-international-phone-country-selector-dropdown,
 .grid-2 {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 30px;
+  gap: 14px;
 }
-.grid-3 {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 20px;
-}
-
 /* below 680px: single column */
 @media (max-width: 680px) {
   .grid-2 {
     grid-template-columns: 1fr;
-  }
-  .ep-topbar .back-arrow {
-    width: 40px;
-    height: 40px;
-  }
-
-  .ep-topbar .back-arrow__icon {
-    width: 14px;
-    height: 24px;
+    gap: 30px;
   }
 }
 
-/* =========================
-     SUBMIT BUTTON
-     ========================= */
+.grid-3 {
+  display: grid;
+  align-items: start;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
 
-.btn-gradient.wide {
   width: 100%;
-  max-width: 356px;
-  height: 80px;
-  border-radius: 50px;
-  border: 0;
-  margin-top: 20px;
-  // margin: 0 auto;
-  font-size: 18px;
-  font-weight: 700;
-  color: #fff;
-
-  cursor: pointer;
-  background: linear-gradient(90deg, #4f6bff, #b05cff 52%, #ff4fb1);
+  max-width: 100%;
 }
 
-.btn-gradient.wide:disabled {
-  opacity: 0.55;
-  cursor: not-allowed;
+@media (max-width: 680px) {
+  .grid-3 {
+    grid-template-columns: 1fr;
+  }
 }
 
 /* =========================
      TABLET+
      ========================= */
 
-@media (min-width: 768px) and (max-width: 1024px) {
-  .edit-profile {
-    padding: 16px 14px 26px;
-  }
-  .field__wrap.select-wrap,
-  .field__wrap.phone-wrap {
-    overflow: visible;
-  }
-  .field__genderBtn {
-    padding: 6px 10px 6px 12px;
-  }
-  .text-input,
-  .text-area {
-    padding: 10px 16px 10px 28px;
-    font-size: 16px;
-  }
-  .select-wrap .rs__indicators {
-    padding-top: 0px;
-  }
-  .ep-head__title {
-    font-size: 28px;
-    font-weight: 400;
-    letter-spacing: 0.2px;
-  }
-  .ep-head__link {
-    font-size: 20px;
-    font-weight: 400;
-  }
-  .ep-avatar__ring {
-    width: 120px;
-    height: 120px;
-  }
-  .ep-avatar__dot {
-    top: 14px;
-    right: 12px;
-    width: 12px;
-    height: 12px;
-  }
-  .ep-avatar__icon {
-    width: 50px;
-    height: 50px;
+@media (min-width: 768px) {
+  .field__wrap {
+    height: 56px;
   }
 }
 
@@ -1469,18 +1344,13 @@ body.dark .phone-wrap .react-international-phone-country-selector-dropdown,
      MOBILE (<= 480px)
      ========================= */
 
-@media (max-width: 768px) {
-  .edit-profile__form {
-    max-width: 420px;
-    gap: 18px;
-  }
-  .ep-head__title {
-    font-size: 20px;
-    font-weight: 700;
-    letter-spacing: 0.2px;
+@media (max-width: 480px) {
+  .ep-profile {
+    padding: 16px 14px 26px;
   }
 
-  .grid-2 {
+  .edit-profile__form {
+    max-width: 400px;
     gap: 18px;
   }
 
@@ -1511,8 +1381,8 @@ body.dark .phone-wrap .react-international-phone-country-selector-dropdown,
   }
 
   .ep-avatar__ring {
-    width: 60px;
-    height: 60px;
+    width: 92px;
+    height: 92px;
     padding: 3px;
   }
 
@@ -1521,19 +1391,15 @@ body.dark .phone-wrap .react-international-phone-country-selector-dropdown,
   }
 
   .ep-avatar__dot {
-    top: 2px;
-    right: 8px;
+    top: 8px;
+    right: 10px;
     width: 10px;
     height: 10px;
   }
-  .ep-avatar__icon {
-    width: 30px;
-    height: 30px;
-  }
 
   .ep-head__link {
-    font-size: 12px;
-    font-weight: 400;
+    font-size: 14px;
+    font-weight: 600;
   }
 
   .ep-head__actions {
@@ -1555,29 +1421,35 @@ body.dark .phone-wrap .react-international-phone-country-selector-dropdown,
 
   /* fields */
   .field__wrap {
+    height: 40px;
     border-radius: var(--field-radius);
   }
 
   .field__wrap::before {
     border-radius: var(--field-radius-inner);
   }
-  .field__wrap.select-wrap,
-  .field__wrap.phone-wrap {
-    overflow: visible;
-  }
-  .select-wrap .rs__indicators {
-    padding-top: 0px;
-  }
 
   .text-input,
   .text-area {
     font-size: 13px;
-    padding: 8px 12px 8px 22px;
+    padding: 10px 12px 10px 22px;
   }
 
   .field--about .text-area {
     padding-top: 10px;
-    min-height: 60px;
+    min-height: 84px;
+  }
+
+  .field__star {
+    left: 8px;
+    top: 8px;
+    font-size: 14px;
+  }
+
+  .field__star {
+    left: 8px;
+    top: 8px;
+    font-size: 14px;
   }
 
   .field__hint {
@@ -1585,10 +1457,9 @@ body.dark .phone-wrap .react-international-phone-country-selector-dropdown,
     padding-left: 6px;
   }
 
-  .field__genderTriggerWrap {
-    display: flex;
-    align-items: center;
-    min-height: var(--field-control-height);
+  .grid-2 {
+    grid-template-columns: 1fr;
+    gap: 14px;
   }
 
   /* react-select */
@@ -1613,15 +1484,27 @@ body.dark .phone-wrap .react-international-phone-country-selector-dropdown,
     transform-origin: left center;
   }
 
-  /* submit */
-  .btn-gradient.wide {
-    width: 100%;
-    margin-top: 20px;
-    max-width: 356px;
-    height: 80px;
-    border-radius: 50px;
-    // margin: 20px auto 0;
-    font-size: 16px;
+  .field__wrap.select-wrap,
+  .field__wrap.phone-wrap {
+    overflow: visible;
+    min-height: 38px;
+    height: auto;
+  }
+
+  .select-wrap .rs__indicators {
+    padding-top: 0px;
+  }
+
+  .field__hint {
+    font-size: 12px;
+    padding-left: 6px;
+  }
+
+  .field__genderTriggerWrap {
+    display: flex;
+    align-items: center;
+    min-height: 38px;
+    height: auto;
   }
 }
 
@@ -1661,10 +1544,8 @@ body.dark .phone-wrap .react-international-phone-country-selector-dropdown,
     font-size: 12px;
   }
 
-  .field__lock-icon {
-    right: 20px;
-    width: 15px;
-    height: 15px;
+  .field__wrap {
+    height: 38px;
   }
 
   .text-input,
@@ -1673,17 +1554,85 @@ body.dark .phone-wrap .react-international-phone-country-selector-dropdown,
     padding: 9px 10px 9px 20px;
   }
 
+  .field__star {
+    left: 7px;
+    top: 7px;
+    font-size: 13px;
+  }
   .phone-wrap .react-international-phone-input {
     font-size: 13px;
     padding-left: 6px;
   }
+}
 
-  .btn-gradient.wide {
-    width: 100%;
-    margin-top: 20px;
-    max-width: 190px;
-    height: 48px;
-    border-radius: 999px;
-    font-size: 16px;
-  }
+// MultiSelect //////////
+
+.more-badge {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.more-button {
+  cursor: pointer;
+
+  padding: 4px 8px;
+  margin-left: 4px;
+
+  border-radius: 12px;
+  border: none;
+
+  background: #f1f1f1;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.more-popover {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+
+  z-index: 2100;
+
+  background: white;
+  border-radius: 12px;
+
+  border: 1px solid #e6e6e6;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
+
+  padding: 8px;
+
+  min-width: 180px;
+}
+
+[data-theme='dark'] .more-button,
+.more-popover {
+  background: rgba(255, 255, 255, 0.95);
+  color: #0d0d0d;
+}
+
+.popover-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  padding: 6px 8px;
+  border-radius: 8px;
+}
+
+.popover-item:hover {
+  background: #f5f5f5;
+}
+
+.remove-btn {
+  border: none;
+  background: transparent;
+
+  cursor: pointer;
+  font-size: 14px;
+  color: #888;
+}
+
+.remove-btn:hover {
+  color: #ff4d4f;
 }

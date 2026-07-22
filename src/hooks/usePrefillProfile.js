@@ -33,7 +33,6 @@ export function usePrefillProfile({
           maritalStatusOptions.find((o) => o.value === u.maritalStatus) || null;
 
         const countrySelected = u.country ? { value: u.country, label: u.country } : null;
-        const regionSelected = u.region ? { value: u.region, label: u.region } : null;
         const citySelected = u.city ? { value: u.city, label: u.city } : null;
 
         const rawBirth = u.birthDate || u.birth_date;
@@ -73,7 +72,6 @@ export function usePrefillProfile({
           maritalStatus: maritalSelected,
 
           country: countrySelected,
-          region: regionSelected,
           city: citySelected,
 
           instagram: u.instagram || '',
@@ -105,23 +103,17 @@ export function usePrefillProfile({
         if (!u.country) {
           setValues((prev) => ({
             ...prev,
-            region: null,
             city: null,
           }));
           return;
         }
 
-        const regions = await locationApi.getRegions(u.country);
-        const validRegion = regions.find((r) => r.value === u.region);
-        const cities = await locationApi.getCities(u.country, validRegion?.value || null);
+        const cities = await locationApi.getCities(u.country);
 
         if (!alive) return;
 
         setValues((prev) => ({
           ...prev,
-          region: regions.some((r) => r.value === u.region)
-            ? { value: u.region, label: u.region }
-            : null,
 
           city: cities.some((c) => c.value === u.city)
             ? { value: u.city, label: u.city }

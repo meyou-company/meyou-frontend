@@ -2,9 +2,9 @@
    ШРИФТ ДЛЯ ТЕКСТУ В УСІХ КНОПКАХ (глобально)
    ========================= */
 button,
-input[type="submit"],
-input[type="button"],
-[role="button"] {
+input[type='submit'],
+input[type='button'],
+[role='button'] {
   font-family: Montserrat, sans-serif;
 }
 
@@ -35,7 +35,7 @@ input[type="button"],
   display: inline-flex;
   align-items: center;
   justify-content: center;
-
+  margin: 0 auto;
   border: 0;
   cursor: pointer;
   user-select: none;
@@ -52,13 +52,17 @@ input[type="button"],
   border-radius: 40px;
 
   box-shadow: 0 14px 34px rgba(176, 92, 255, 0.22);
-  transition: background 0.25s ease, box-shadow 0.25s ease, transform 0.15s ease;
+  transition:
+    background 0.25s ease,
+    box-shadow 0.25s ease,
+    transform 0.15s ease;
 }
 
 @media (hover: hover) and (pointer: fine) {
   .btn-gradient:hover {
     background: linear-gradient(90deg, #ff4fb1 0%, #b05cff 48%, #4f6bff 100%);
-    box-shadow: 0 0 20px rgba(255, 79, 177, 0.55),
+    box-shadow:
+      0 0 20px rgba(255, 79, 177, 0.55),
       0 0 40px rgba(176, 92, 255, 0.45),
       0 18px 46px rgba(79, 107, 255, 0.35);
   }
@@ -66,7 +70,8 @@ input[type="button"],
 
 .btn-gradient:active {
   transform: scale(0.985);
-  box-shadow: 0 0 14px rgba(176, 92, 255, 0.45),
+  box-shadow:
+    0 0 14px rgba(176, 92, 255, 0.45),
     0 10px 28px rgba(176, 92, 255, 0.35);
 }
 
@@ -83,7 +88,7 @@ input[type="button"],
 }
 
 .btn-gradient--lg {
-  width: min(425px, 90vw);
+  width: min(260px, 90vw);
   min-height: 56px;
   padding: 16px 22px;
   font-size: 16px;

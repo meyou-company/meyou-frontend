@@ -5,11 +5,8 @@ import { toast } from 'sonner';
 
 import profileIcons from '../../../../constants/profileIcons';
 import { interestOptions } from '../../../../constants/interests';
-import { useLocationOptions } from '../../../../hooks/useLocationOptions';
-import {
-  useGenderOptions,
-  useMaritalStatusOptions,
-} from '../../../../hooks/useProfileFormOptions';
+import { useGenderOptions, useMaritalStatusOptions } from '../../../../hooks/useProfileFormOptions';
+import { useLocationSystem } from '../../../../hooks/useLocationSystem';
 import { profileApi } from '../../../../services/profileApi';
 import { getApiErrorMessage } from '../../../../utils/getApiErrorMessage';
 import MultiSelect from '../EditProfileForm/MultiSelect';
@@ -91,13 +88,7 @@ function VisibilityTable({ rows, visibility, onChange }) {
   );
 }
 
-export default function ProfileInfoPanel({
-  user,
-  isOpen,
-  editable = false,
-  onUserUpdated,
-  id,
-}) {
+export default function ProfileInfoPanel({ user, isOpen, editable = false, onUserUpdated, id }) {
   const { t } = useTranslation();
   const genderOptions = useGenderOptions();
   const maritalStatusOptions = useMaritalStatusOptions();
@@ -116,7 +107,7 @@ export default function ProfileInfoPanel({
         const option = interestOptions.find((o) => o.value === value);
         return option?.label || value;
       }),
-    [interests],
+    [interests]
   );
 
   const genderLabel =
@@ -125,20 +116,15 @@ export default function ProfileInfoPanel({
     t('profile.notSpecified');
 
   const maritalLabel =
-    maritalStatusOptions.find(
-      (o) => o.value === (user?.maritalStatus || user?.relationshipStatus),
-    )?.label ||
+    maritalStatusOptions.find((o) => o.value === (user?.maritalStatus || user?.relationshipStatus))
+      ?.label ||
     user?.maritalStatus ||
     user?.relationshipStatus ||
     t('profile.notSpecified');
 
   const languagesText = formatLanguages(user?.languages) || t('profile.notSpecified');
 
-  const {
-    countryOptions,
-    cityOptions,
-    isCitiesLoading,
-  } = useLocationOptions(draft.country?.value, draft.city?.value, setDraft);
+  const { countries, cities, citiesLoading } = useLocationSystem(draft.country?.value || '');
 
   useEffect(() => {
     if (!isOpen) setEditingSection(null);
@@ -168,7 +154,7 @@ export default function ProfileInfoPanel({
         gender: user?.gender || null,
         maritalStatus:
           maritalStatusOptions.find(
-            (o) => o.value === (user?.maritalStatus || user?.relationshipStatus),
+            (o) => o.value === (user?.maritalStatus || user?.relationshipStatus)
           ) || null,
         nationality: user?.nationality || '',
         profession: user?.profession || user?.job || '',
@@ -269,9 +255,7 @@ export default function ProfileInfoPanel({
                 },
               ]}
               visibility={{ about: draft.visibilityAbout !== false }}
-              onChange={(_, value) =>
-                setDraft((d) => ({ ...d, visibilityAbout: value }))
-              }
+              onChange={(_, value) => setDraft((d) => ({ ...d, visibilityAbout: value }))}
             />
           </>
         }
@@ -311,9 +295,7 @@ export default function ProfileInfoPanel({
                 },
               ]}
               visibility={{ interests: draft.visibilityInterests !== false }}
-              onChange={(_, value) =>
-                setDraft((d) => ({ ...d, visibilityInterests: value }))
-              }
+              onChange={(_, value) => setDraft((d) => ({ ...d, visibilityInterests: value }))}
             />
           </>
         }
@@ -341,10 +323,7 @@ export default function ProfileInfoPanel({
         {...sectionProps('personal')}
         onSave={() =>
           saveSection(() => ({
-            gender:
-              draft.gender === 'MALE' || draft.gender === 'FEMALE'
-                ? draft.gender
-                : undefined,
+            gender: draft.gender === 'MALE' || draft.gender === 'FEMALE' ? draft.gender : undefined,
             maritalStatus: draft.maritalStatus?.value || undefined,
             nationality: draft.nationality?.trim() || '',
             profession: draft.profession?.trim() || '',
@@ -393,9 +372,7 @@ export default function ProfileInfoPanel({
               <input
                 className="infoField__input"
                 value={draft.nationality || ''}
-                onChange={(e) =>
-                  setDraft((d) => ({ ...d, nationality: e.target.value }))
-                }
+                onChange={(e) => setDraft((d) => ({ ...d, nationality: e.target.value }))}
                 maxLength={120}
               />
             </label>
@@ -405,9 +382,7 @@ export default function ProfileInfoPanel({
               <input
                 className="infoField__input"
                 value={draft.profession || ''}
-                onChange={(e) =>
-                  setDraft((d) => ({ ...d, profession: e.target.value }))
-                }
+                onChange={(e) => setDraft((d) => ({ ...d, profession: e.target.value }))}
                 maxLength={200}
               />
             </label>
@@ -417,9 +392,7 @@ export default function ProfileInfoPanel({
               <input
                 className="infoField__input"
                 value={draft.languagesText || ''}
-                onChange={(e) =>
-                  setDraft((d) => ({ ...d, languagesText: e.target.value }))
-                }
+                onChange={(e) => setDraft((d) => ({ ...d, languagesText: e.target.value }))}
                 placeholder={t('profile.info.languagesPlaceholder')}
               />
             </label>
@@ -464,26 +437,26 @@ export default function ProfileInfoPanel({
         }
       >
         <div className="infoSection__body">
-        <div className="gridRow">
-          <span>{t('profile.info.gender')}</span>
-          <span>{genderLabel}</span>
-        </div>
-        <div className="gridRow">
-          <span>{t('profile.info.maritalStatus')}</span>
-          <span>{maritalLabel}</span>
-        </div>
-        <div className="gridRow">
-          <span>{t('profile.info.nationality')}</span>
-          <span>{user?.nationality || t('profile.notSpecified')}</span>
-        </div>
-        <div className="gridRow">
-          <span>{t('profile.info.profession')}</span>
-          <span>{user?.profession || user?.job || t('profile.notSpecified')}</span>
-        </div>
-        <div className="gridRow">
-          <span>{t('profile.info.languages')}</span>
-          <span>{languagesText}</span>
-        </div>
+          <div className="gridRow">
+            <span>{t('profile.info.gender')}</span>
+            <span>{genderLabel}</span>
+          </div>
+          <div className="gridRow">
+            <span>{t('profile.info.maritalStatus')}</span>
+            <span>{maritalLabel}</span>
+          </div>
+          <div className="gridRow">
+            <span>{t('profile.info.nationality')}</span>
+            <span>{user?.nationality || t('profile.notSpecified')}</span>
+          </div>
+          <div className="gridRow">
+            <span>{t('profile.info.profession')}</span>
+            <span>{user?.profession || user?.job || t('profile.notSpecified')}</span>
+          </div>
+          <div className="gridRow">
+            <span>{t('profile.info.languages')}</span>
+            <span>{languagesText}</span>
+          </div>
         </div>
       </ProfileInfoSection>
 
@@ -509,10 +482,8 @@ export default function ProfileInfoPanel({
                 classNamePrefix="rs"
                 placeholder={t('profile.editForm.fields.country')}
                 value={draft.country}
-                options={countryOptions}
-                onChange={(opt) =>
-                  setDraft((d) => ({ ...d, country: opt, city: null }))
-                }
+                options={countries}
+                onChange={(opt) => setDraft((d) => ({ ...d, country: opt, city: null }))}
               />
             </label>
             <label className="infoField">
@@ -521,9 +492,9 @@ export default function ProfileInfoPanel({
                 classNamePrefix="rs"
                 placeholder={t('profile.editForm.fields.city')}
                 value={draft.city}
-                options={cityOptions}
+                options={cities}
                 isDisabled={!draft.country}
-                isLoading={isCitiesLoading}
+                isLoading={citiesLoading}
                 onChange={(opt) => setDraft((d) => ({ ...d, city: opt }))}
               />
             </label>
@@ -532,28 +503,26 @@ export default function ProfileInfoPanel({
                 {
                   key: 'location',
                   label: t('profile.info.location'),
-                  value: [draft.city?.label, draft.country?.label]
-                    .filter(Boolean)
-                    .join(', ') || t('profile.notSpecified'),
+                  value:
+                    [draft.city?.label, draft.country?.label].filter(Boolean).join(', ') ||
+                    t('profile.notSpecified'),
                 },
               ]}
               visibility={{ location: draft.visibilityLocation !== false }}
-              onChange={(_, value) =>
-                setDraft((d) => ({ ...d, visibilityLocation: value }))
-              }
+              onChange={(_, value) => setDraft((d) => ({ ...d, visibilityLocation: value }))}
             />
           </div>
         }
       >
         <div className="infoSection__body">
-        <div className="gridRow">
-          <span>{t('profile.info.country')}</span>
-          <span>{user?.country || t('profile.notSpecified')}</span>
-        </div>
-        <div className="gridRow">
-          <span>{t('profile.info.city')}</span>
-          <span>{user?.city || t('profile.notSpecified')}</span>
-        </div>
+          <div className="gridRow">
+            <span>{t('profile.info.country')}</span>
+            <span>{user?.country || t('profile.notSpecified')}</span>
+          </div>
+          <div className="gridRow">
+            <span>{t('profile.info.city')}</span>
+            <span>{user?.city || t('profile.notSpecified')}</span>
+          </div>
         </div>
       </ProfileInfoSection>
 
@@ -619,9 +588,7 @@ export default function ProfileInfoPanel({
               <input
                 className="infoField__input"
                 value={draft.instagram || ''}
-                onChange={(e) =>
-                  setDraft((d) => ({ ...d, instagram: e.target.value }))
-                }
+                onChange={(e) => setDraft((d) => ({ ...d, instagram: e.target.value }))}
                 maxLength={200}
               />
             </label>

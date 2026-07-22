@@ -2,8 +2,8 @@
    LAYOUT
    ========================= */
 
-@import '../profileFormDropdowns.scss';
-@import '../profileFormFields.scss';
+// @import '../profileFormDropdowns.scss';
+// @import '../profileFormFields.scss';
 
 .complete-profile {
   --field-radius: 20px;
@@ -34,27 +34,15 @@
   align-items: center;
 }
 
-/* Стрілка «назад» — як даркмод, з іншого боку логотипу (такий самий блок 44×44) */
-.cp-topbar .back-arrow {
+/* Додаткове позиціонування стрілки «назад»  */
+.back-arrow.cp-arrow {
   position: relative;
   top: auto;
   left: auto;
-  width: 44px;
-  height: 44px;
-  margin: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
-.cp-topbar .back-arrow__icon {
-  width: 24px;
-  height: 34px;
 }
 
 /* brand centered — типографіка: .app-brand-wordmark */
-.cp-topbar__brand {
+.cp-topbar__brand.app-brand-wordmark {
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
@@ -64,17 +52,6 @@
 /* dark mode right */
 .cp-topbar__right {
   margin-left: auto;
-  width: 44px;
-  height: 44px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-  z-index: 1;
-}
-
-/* if ThemeToggleDark has absolute inside */
-.cp-topbar__right * {
   position: relative !important;
 }
 
@@ -82,8 +59,7 @@
 .cp-divider {
   width: 100%;
   height: 1px;
-  margin: 0 0 14px;
-  background: rgba(0, 0, 0, 0.12);
+  background: var(--select-option-selected-bg);
 }
 
 /* =========================
@@ -94,7 +70,6 @@
   display: grid;
   justify-items: center;
   gap: 8px;
-  padding: 6px 0 10px;
 }
 
 .cp-head__title {
@@ -102,7 +77,7 @@
   font-weight: 800;
   letter-spacing: 0.4px;
 
-  background: linear-gradient(90deg, #4f6bff, #b05cff 55%, #ff4fb1);
+  background: var(--select-option-selected-bg);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
@@ -111,37 +86,45 @@
 .cp-avatar__ring {
   width: 216px;
   height: 216px;
-  border-radius: 999px;
-  display: grid;
-  place-items: center;
+
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   position: relative;
 
-  background: linear-gradient(135deg, #4f6bff, #b05cff 55%, #ff4fb1);
+  background: rgba(123, 92, 255, 0.9);
   padding: 4px;
 }
 
 .cp-avatar__ring::before {
-  content: "";
+  content: '';
   position: absolute;
   inset: 4px;
-  border-radius: 999px;
+  border-radius: 50%;
   background: #d5d5d5;
   opacity: 0.85;
 }
 
+.cp-avatar__img {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
 .cp-avatar__placeholder {
   position: relative;
-  z-index: 2;
   color: rgba(123, 92, 255, 0.9);
 }
 
-.cp-avatar__img {
-  position: relative;
-  z-index: 2;
-  width: 100%;
-  height: 100%;
-  border-radius: 999px;
-  object-fit: cover;
+.cp-avatar__placeholder-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
 }
 
 .cp-avatar__dot {
@@ -152,14 +135,14 @@
   height: 14px;
   border-radius: 50%;
   background: #16c60c;
-  z-index: 3;
+  z-index: 1;
 }
 
 .cp-head__link {
   font-size: 28px;
   font-weight: 700;
 
-  background: linear-gradient(90deg, #4f6bff, #b05cff 55%, #ff4fb1);
+  background: var(--select-option-selected-bg);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
@@ -184,11 +167,11 @@
   border-radius: 999px;
   background: transparent;
   color: #7b5cff;
-  border: 1px solid rgba(176, 92, 255, 0.35);
+  border: 2px solid rgba(176, 92, 255, 0.35);
 }
 
-[data-theme="dark"] .cp-pill {
-  background: linear-gradient(90deg, #4f6bff 0%, #b05cff 55%, #ff4fb1 100%);
+[data-theme='dark'] .cp-pill {
+  background: var(--select-option-selected-bg);
   color: #fff;
   border: none;
 }
@@ -198,44 +181,53 @@
    ========================= */
 
 .field {
-  display: grid;
-  gap: 6px;
-
+  display: flex;
+  min-width: 0;
+  width: 100%;
+  flex-direction: column;
+  gap: 10px;
   /* allow stacking for dropdowns */
   position: relative;
   z-index: 1;
 }
 
 .field:focus-within {
-  z-index: 999999; /* bring active field above others */
+  z-index: 10; /* bring active field above others */
 }
 
 .field__wrap {
   position: relative;
+  width: 100%;
+  min-width: 0;
   border-radius: var(--field-radius);
-  overflow: hidden;
+  overflow: visible;
 
   background: var(--field-grad);
   box-shadow: var(--field-shadow);
-  transition: box-shadow 0.25s ease, filter 0.25s ease;
+  transition:
+    box-shadow 0.25s ease,
+    filter 0.25s ease;
 }
 
 /* phone: don't clip country dropdown */
 .field__wrap.phone-wrap {
   overflow: visible;
+  min-height: 56px;
+  height: auto;
 }
 
 .field__wrap.select-wrap:has(.rs__menu) {
   overflow: visible;
+  min-height: 56px;
+  height: auto;
 }
 
 .field__wrap::before {
-  content: "";
+  content: '';
   position: absolute;
   inset: 1px;
   border-radius: var(--field-radius-inner);
   background: var(--field-inner);
-  z-index: 1;
   pointer-events: none;
 }
 
@@ -246,7 +238,9 @@
   z-index: 2;
 
   width: 100%;
+  min-width: 0;
   height: 100%;
+  box-sizing: border-box;
   background: transparent;
   border: 0;
   outline: none;
@@ -256,26 +250,15 @@
   font-size: 14px;
 }
 
-.text-area {
-  height: auto;
-  resize: none;
-  padding-top: 12px;
-}
-
 .text-input::placeholder,
 .text-area::placeholder {
   color: var(--field-placeholder);
 }
 
-@media (hover: hover) and (pointer: fine) {
-  .field__wrap:not(:has(.rs__menu)):hover {
-    filter: brightness(1.05);
-  }
-}
-
-.field__wrap:focus-within {
-  box-shadow: 0 0 24px rgba(82, 126, 255, 0.45),
-    0 0 32px rgba(255, 65, 193, 0.25);
+.text-area {
+  height: auto;
+  resize: none;
+  padding-top: 12px;
 }
 
 /* error */
@@ -284,8 +267,22 @@
   color: #ff1b1b;
 }
 
+@media (hover: hover) and (pointer: fine) {
+  .field__wrap:hover {
+    z-index: 10;
+    filter: brightness(1.05);
+  }
+}
+
+.field__wrap:focus-within {
+  z-index: 10;
+  box-shadow:
+    0 0 24px rgba(82, 126, 255, 0.45),
+    0 0 32px rgba(255, 65, 193, 0.25);
+}
+
 .field__wrap:has(.is-error)::after {
-  content: "";
+  content: '';
   position: absolute;
   inset: 0;
   border-radius: var(--field-radius);
@@ -314,42 +311,37 @@
   padding-left: 10px;
 }
 
-.complete-profile__submitError {
-  padding: 12px 14px;
-  border-radius: 14px;
-  border: 1px solid rgba(252, 0, 0, 0.35);
-  background: rgba(252, 0, 0, 0.08);
-  color: #fc0000;
-  font-size: 14px;
-  line-height: 1.4;
-}
-
-.complete-profile__usernameSuggestions {
+/* meta row */
+.field__meta {
+  margin-top: 6px;
   display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  padding: 4px 10px 0;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
 }
 
-body.dark .complete-profile__submitError,
-html[data-theme="dark"] .complete-profile__submitError {
-  border-color: rgba(255, 118, 159, 0.45);
-  background: rgba(255, 118, 159, 0.14);
-  color: #ffb8c9;
+.field__note,
+.field__counter {
+  font-size: 12px;
+  opacity: 0.75;
 }
 
 /* Поле Пол — такий самий колір/стиль як інші поля (градієнт + внутрішній фон) */
 .field__genderWrap {
   position: relative;
+  width: 100%;
+  min-width: 0;
   border-radius: var(--field-radius);
   overflow: visible;
   background: var(--field-grad);
   box-shadow: var(--field-shadow);
-  transition: box-shadow 0.25s ease, filter 0.25s ease;
+  transition:
+    box-shadow 0.25s ease,
+    filter 0.25s ease;
 }
 
 .field__genderWrap::before {
-  content: "";
+  content: '';
   position: absolute;
   inset: 1px;
   border-radius: var(--field-radius-inner);
@@ -358,15 +350,15 @@ html[data-theme="dark"] .complete-profile__submitError {
   pointer-events: none;
 }
 
-/* Десктоп/планшет: висота така ж як у решти полів */
+/* Десктоп/планшет: висота така ж як у решти полів (56px) */
 .field__genderWrap--desktop {
   display: flex;
   flex-direction: row;
   align-items: center;
   gap: 14px;
-  height: var(--field-control-height);
-  min-height: var(--field-control-height);
-  max-height: var(--field-control-height);
+  height: 56px;
+  min-height: 56px;
+  max-height: 56px;
   padding: 0 16px 0 14px;
 }
 
@@ -400,21 +392,25 @@ html[data-theme="dark"] .complete-profile__submitError {
 
 /* Відкритий вибір на мобілці — не ховатись під полями */
 .field--gender.field--genderOpen {
-  z-index: 999999;
+  z-index: 10;
   position: relative;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 767px) {
+  .field__wrap.phone-wrap {
+    overflow: visible;
+    min-height: 45px;
+    height: auto;
+  }
+
   .field__genderWrap--desktop {
     display: none;
   }
 
   .field__genderWrap--mobile {
     display: block;
-    padding: 0;
-    min-height: 0;
-    background: transparent;
-    box-shadow: none;
+    width: 100%;
+    min-width: 0;
   }
 
   .field__genderWrap--mobile::before {
@@ -423,16 +419,21 @@ html[data-theme="dark"] .complete-profile__submitError {
 
   .field__genderTriggerWrap {
     position: relative;
-    height: 42px;
+    width: 100%;
+    min-width: 0;
+    min-height: 45px;
+    height: 45px;
     border-radius: var(--field-radius);
     overflow: visible;
     background: var(--field-grad);
     box-shadow: var(--field-shadow);
-    transition: box-shadow 0.25s ease, filter 0.25s ease;
+    transition:
+      box-shadow 0.25s ease,
+      filter 0.25s ease;
   }
 
   .field__genderTriggerWrap::before {
-    content: "";
+    content: '';
     position: absolute;
     inset: 1px;
     border-radius: var(--field-radius-inner);
@@ -446,7 +447,7 @@ html[data-theme="dark"] .complete-profile__submitError {
     align-items: center;
     width: 100%;
     height: 100%;
-    padding: 0 16px 0 28px;
+    padding: 0 16px 0 22px;
     border-radius: var(--field-radius);
     border: 0;
     background: transparent;
@@ -470,16 +471,17 @@ html[data-theme="dark"] .complete-profile__submitError {
   }
 
   .field__genderTriggerText {
-    flex: 1;
     display: flex;
+    gap: 12px;
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
-    gap: 12px;
+    width: 100%;
     min-width: 0;
   }
 
   .field__genderTriggerLabel {
+    flex-shrink: 0;
     font-size: 14px;
     font-weight: 400;
     opacity: 1;
@@ -487,6 +489,8 @@ html[data-theme="dark"] .complete-profile__submitError {
   }
 
   .field__genderTriggerValue {
+    flex: 1;
+    min-width: 0;
     font-size: 14px;
     font-weight: 400;
     text-align: left;
@@ -513,7 +517,7 @@ html[data-theme="dark"] .complete-profile__submitError {
     top: calc(100% + 6px);
     left: 0;
     right: 0;
-    z-index: 100000;
+    z-index: 200;
     border-radius: 16px;
     overflow: hidden;
     background: var(--select-menu-bg, #fff);
@@ -583,7 +587,9 @@ html[data-theme="dark"] .complete-profile__submitError {
   color: var(--field-text);
   text-align: left;
   -webkit-tap-highlight-color: transparent;
-  transition: border-color 0.2s, background 0.2s;
+  transition:
+    border-color 0.2s,
+    background 0.2s;
 }
 
 .field__genderBtn:hover {
@@ -619,7 +625,7 @@ html[data-theme="dark"] .complete-profile__submitError {
 }
 
 .field__genderToggle::after {
-  content: "";
+  content: '';
   position: absolute;
   top: 2px;
   left: 2px;
@@ -672,7 +678,7 @@ html[data-theme="dark"] .complete-profile__submitError {
 
 /* Вертикальна сіра лінія-роздільник */
 .field__date-indicator::before {
-  content: "";
+  content: '';
   position: absolute;
   left: 0;
   top: 12px;
@@ -683,7 +689,7 @@ html[data-theme="dark"] .complete-profile__submitError {
 
 /* Стрілка вниз — світло-сірий шеврон */
 .field__date-indicator::after {
-  content: "";
+  content: '';
   position: absolute;
   right: 12px;
   top: 50%;
@@ -698,17 +704,23 @@ html[data-theme="dark"] .complete-profile__submitError {
 
 /* Помилку показуємо на wrap, індикатор залишається */
 .field__wrap--birthDate:has(.is-error) {
-  box-shadow: var(--field-shadow), inset 0 0 0 2px #ff1b1b;
+  box-shadow:
+    var(--field-shadow),
+    inset 0 0 0 2px #ff1b1b;
 }
 
 /* Збільшений календар, що вискакує для вибору дати */
-.birthDate-picker.react-datepicker {
+.birthDate-picker .react-datepicker {
   font-size: 14px;
   border-radius: 16px;
   overflow: hidden;
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
   border: 1px solid rgba(0, 0, 0, 0.08);
   background: var(--select-menu-bg, #fff);
+}
+
+.react-datepicker-popper {
+  z-index: 300 !important;
 }
 
 .birthDate-picker .react-datepicker__header {
@@ -774,10 +786,10 @@ body.dark .birthDate-picker.react-datepicker,
 body.dark .birthDate-picker .react-datepicker,
 body.night .birthDate-picker.react-datepicker,
 body.night .birthDate-picker .react-datepicker,
-html[data-theme="dark"] .birthDate-picker.react-datepicker,
-html[data-theme="dark"] .birthDate-picker .react-datepicker,
-html[data-theme="night"] .birthDate-picker.react-datepicker,
-html[data-theme="night"] .birthDate-picker .react-datepicker {
+html[data-theme='dark'] .birthDate-picker.react-datepicker,
+html[data-theme='dark'] .birthDate-picker .react-datepicker,
+html[data-theme='night'] .birthDate-picker.react-datepicker,
+html[data-theme='night'] .birthDate-picker .react-datepicker {
   background: #0d0d0d !important;
   background-color: #0d0d0d !important;
   border: 1px solid rgba(255, 255, 255, 0.12) !important;
@@ -788,8 +800,8 @@ html[data-theme="night"] .birthDate-picker .react-datepicker {
 
 body.dark .birthDate-picker .react-datepicker__header,
 body.night .birthDate-picker .react-datepicker__header,
-[data-theme="dark"] .birthDate-picker .react-datepicker__header,
-[data-theme="night"] .birthDate-picker .react-datepicker__header {
+[data-theme='dark'] .birthDate-picker .react-datepicker__header,
+[data-theme='night'] .birthDate-picker .react-datepicker__header {
   background: rgba(0, 0, 0, 0.25) !important;
   border-bottom-color: rgba(255, 255, 255, 0.12);
 }
@@ -797,8 +809,8 @@ body.night .birthDate-picker .react-datepicker__header,
 /* Сіра шапка та біла сітка — перебиваємо білий фон з бібліотеки */
 body.dark .birthDate-picker .react-datepicker__month-container,
 body.night .birthDate-picker .react-datepicker__month-container,
-[data-theme="dark"] .birthDate-picker .react-datepicker__month-container,
-[data-theme="night"] .birthDate-picker .react-datepicker__month-container {
+[data-theme='dark'] .birthDate-picker .react-datepicker__month-container,
+[data-theme='night'] .birthDate-picker .react-datepicker__month-container {
   background: transparent !important;
 }
 
@@ -806,31 +818,31 @@ body.dark .birthDate-picker .react-datepicker__current-month,
 body.dark .birthDate-picker .react-datepicker__day-name,
 body.night .birthDate-picker .react-datepicker__current-month,
 body.night .birthDate-picker .react-datepicker__day-name,
-[data-theme="dark"] .birthDate-picker .react-datepicker__current-month,
-[data-theme="dark"] .birthDate-picker .react-datepicker__day-name,
-[data-theme="night"] .birthDate-picker .react-datepicker__current-month,
-[data-theme="night"] .birthDate-picker .react-datepicker__day-name {
+[data-theme='dark'] .birthDate-picker .react-datepicker__current-month,
+[data-theme='dark'] .birthDate-picker .react-datepicker__day-name,
+[data-theme='night'] .birthDate-picker .react-datepicker__current-month,
+[data-theme='night'] .birthDate-picker .react-datepicker__day-name {
   color: var(--select-text);
 }
 
 body.dark .birthDate-picker .react-datepicker__day,
 body.night .birthDate-picker .react-datepicker__day,
-[data-theme="dark"] .birthDate-picker .react-datepicker__day,
-[data-theme="night"] .birthDate-picker .react-datepicker__day {
+[data-theme='dark'] .birthDate-picker .react-datepicker__day,
+[data-theme='night'] .birthDate-picker .react-datepicker__day {
   color: var(--select-text);
 }
 
 body.dark .birthDate-picker .react-datepicker__day--outside-month,
 body.night .birthDate-picker .react-datepicker__day--outside-month,
-[data-theme="dark"] .birthDate-picker .react-datepicker__day--outside-month,
-[data-theme="night"] .birthDate-picker .react-datepicker__day--outside-month {
+[data-theme='dark'] .birthDate-picker .react-datepicker__day--outside-month,
+[data-theme='night'] .birthDate-picker .react-datepicker__day--outside-month {
   color: rgba(255, 255, 255, 0.35);
 }
 
 body.dark .birthDate-picker .react-datepicker__day:hover,
 body.night .birthDate-picker .react-datepicker__day:hover,
-[data-theme="dark"] .birthDate-picker .react-datepicker__day:hover,
-[data-theme="night"] .birthDate-picker .react-datepicker__day:hover {
+[data-theme='dark'] .birthDate-picker .react-datepicker__day:hover,
+[data-theme='night'] .birthDate-picker .react-datepicker__day:hover {
   background: var(--select-option-hover-bg);
 }
 
@@ -838,10 +850,10 @@ body.dark .birthDate-picker .react-datepicker__month-read-view,
 body.dark .birthDate-picker .react-datepicker__year-read-view,
 body.night .birthDate-picker .react-datepicker__month-read-view,
 body.night .birthDate-picker .react-datepicker__year-read-view,
-[data-theme="dark"] .birthDate-picker .react-datepicker__month-read-view,
-[data-theme="dark"] .birthDate-picker .react-datepicker__year-read-view,
-[data-theme="night"] .birthDate-picker .react-datepicker__month-read-view,
-[data-theme="night"] .birthDate-picker .react-datepicker__year-read-view {
+[data-theme='dark'] .birthDate-picker .react-datepicker__month-read-view,
+[data-theme='dark'] .birthDate-picker .react-datepicker__year-read-view,
+[data-theme='night'] .birthDate-picker .react-datepicker__month-read-view,
+[data-theme='night'] .birthDate-picker .react-datepicker__year-read-view {
   color: var(--select-text);
 }
 
@@ -850,10 +862,10 @@ body.dark .birthDate-picker .react-datepicker__month-select,
 body.dark .birthDate-picker .react-datepicker__year-select,
 body.night .birthDate-picker .react-datepicker__month-select,
 body.night .birthDate-picker .react-datepicker__year-select,
-[data-theme="dark"] .birthDate-picker .react-datepicker__month-select,
-[data-theme="dark"] .birthDate-picker .react-datepicker__year-select,
-[data-theme="night"] .birthDate-picker .react-datepicker__month-select,
-[data-theme="night"] .birthDate-picker .react-datepicker__year-select {
+[data-theme='dark'] .birthDate-picker .react-datepicker__month-select,
+[data-theme='dark'] .birthDate-picker .react-datepicker__year-select,
+[data-theme='night'] .birthDate-picker .react-datepicker__month-select,
+[data-theme='night'] .birthDate-picker .react-datepicker__year-select {
   background: #111216 !important;
   color: #f4f6ff !important;
   border: 1px solid rgba(255, 255, 255, 0.2) !important;
@@ -864,10 +876,10 @@ body.dark .birthDate-picker .react-datepicker__month-select option,
 body.dark .birthDate-picker .react-datepicker__year-select option,
 body.night .birthDate-picker .react-datepicker__month-select option,
 body.night .birthDate-picker .react-datepicker__year-select option,
-[data-theme="dark"] .birthDate-picker .react-datepicker__month-select option,
-[data-theme="dark"] .birthDate-picker .react-datepicker__year-select option,
-[data-theme="night"] .birthDate-picker .react-datepicker__month-select option,
-[data-theme="night"] .birthDate-picker .react-datepicker__year-select option {
+[data-theme='dark'] .birthDate-picker .react-datepicker__month-select option,
+[data-theme='dark'] .birthDate-picker .react-datepicker__year-select option,
+[data-theme='night'] .birthDate-picker .react-datepicker__month-select option,
+[data-theme='night'] .birthDate-picker .react-datepicker__year-select option {
   background: #111216;
   color: #f4f6ff;
 }
@@ -875,23 +887,35 @@ body.night .birthDate-picker .react-datepicker__year-select option,
 /* Стрілки навігації календаря (місяць/рік) — темна тема */
 body.dark .birthDate-picker .react-datepicker__navigation-icon::before,
 body.night .birthDate-picker .react-datepicker__navigation-icon::before,
-[data-theme="dark"] .birthDate-picker .react-datepicker__navigation-icon::before,
-[data-theme="night"] .birthDate-picker .react-datepicker__navigation-icon::before {
+[data-theme='dark'] .birthDate-picker .react-datepicker__navigation-icon::before,
+[data-theme='night'] .birthDate-picker .react-datepicker__navigation-icon::before {
   border-color: rgba(255, 255, 255, 0.75);
 }
 
-body.dark .birthDate-picker .react-datepicker__navigation:hover .react-datepicker__navigation-icon::before,
-body.night .birthDate-picker .react-datepicker__navigation:hover .react-datepicker__navigation-icon::before,
-[data-theme="dark"] .birthDate-picker .react-datepicker__navigation:hover .react-datepicker__navigation-icon::before,
-[data-theme="night"] .birthDate-picker .react-datepicker__navigation:hover .react-datepicker__navigation-icon::before {
+body.dark
+  .birthDate-picker
+  .react-datepicker__navigation:hover
+  .react-datepicker__navigation-icon::before,
+body.night
+  .birthDate-picker
+  .react-datepicker__navigation:hover
+  .react-datepicker__navigation-icon::before,
+[data-theme='dark']
+  .birthDate-picker
+  .react-datepicker__navigation:hover
+  .react-datepicker__navigation-icon::before,
+[data-theme='night']
+  .birthDate-picker
+  .react-datepicker__navigation:hover
+  .react-datepicker__navigation-icon::before {
   border-color: rgba(255, 255, 255, 0.95);
 }
 
 /* Трикутник поппера (стрілка до поля) — темна тема */
 body.dark .birthDate-picker .react-datepicker__triangle,
 body.night .birthDate-picker .react-datepicker__triangle,
-html[data-theme="dark"] .birthDate-picker .react-datepicker__triangle,
-html[data-theme="night"] .birthDate-picker .react-datepicker__triangle {
+html[data-theme='dark'] .birthDate-picker .react-datepicker__triangle,
+html[data-theme='night'] .birthDate-picker .react-datepicker__triangle {
   fill: #0d0d0d !important;
   stroke: rgba(255, 255, 255, 0.12) !important;
   color: var(--select-menu-bg) !important;
@@ -900,30 +924,30 @@ html[data-theme="night"] .birthDate-picker .react-datepicker__triangle {
 /* Темна тема: Пол і підписи — колір як у плейсхолдера «Національність» */
 body.dark .field__label--inside,
 body.dark .field__label--row,
-[data-theme="dark"] .field__label--inside,
-[data-theme="dark"] .field__label--row {
+[data-theme='dark'] .field__label--inside,
+[data-theme='dark'] .field__label--row {
   color: var(--field-placeholder);
 }
 
 body.dark .field__genderTriggerLabel,
-[data-theme="dark"] .field__genderTriggerLabel {
+[data-theme='dark'] .field__genderTriggerLabel {
   color: var(--field-placeholder);
 }
 
 body.dark .field__genderTriggerValue--placeholder,
-[data-theme="dark"] .field__genderTriggerValue--placeholder {
+[data-theme='dark'] .field__genderTriggerValue--placeholder {
   color: var(--field-placeholder);
 }
 
 body.dark .field__genderBtn,
-[data-theme="dark"] .field__genderBtn {
+[data-theme='dark'] .field__genderBtn {
   border-color: rgba(255, 255, 255, 0.15);
   background: rgba(255, 255, 255, 0.08);
   color: var(--field-text);
 }
 
 body.dark .field__genderBtn:hover,
-[data-theme="dark"] .field__genderBtn:hover {
+[data-theme='dark'] .field__genderBtn:hover {
   border-color: rgba(255, 255, 255, 0.22);
   background: rgba(255, 255, 255, 0.12);
 }
@@ -931,40 +955,42 @@ body.dark .field__genderBtn:hover,
 /* У темному та нічному режимі обрана кнопка (наприклад Женский) світиться */
 body.dark .field__genderBtnActive,
 body.night .field__genderBtnActive,
-[data-theme="dark"] .field__genderBtnActive,
-[data-theme="night"] .field__genderBtnActive {
+[data-theme='dark'] .field__genderBtnActive,
+[data-theme='night'] .field__genderBtnActive {
   border-color: rgba(255, 79, 177, 0.6);
   background: rgba(255, 79, 177, 0.2);
-  box-shadow: 0 0 20px rgba(255, 79, 177, 0.45), 0 0 28px rgba(79, 107, 255, 0.3);
+  box-shadow:
+    0 0 20px rgba(255, 79, 177, 0.45),
+    0 0 28px rgba(79, 107, 255, 0.3);
 }
 
 body.dark .field__genderBtnActive .field__genderToggle,
 body.night .field__genderBtnActive .field__genderToggle,
-[data-theme="dark"] .field__genderBtnActive .field__genderToggle,
-[data-theme="night"] .field__genderBtnActive .field__genderToggle {
+[data-theme='dark'] .field__genderBtnActive .field__genderToggle,
+[data-theme='night'] .field__genderBtnActive .field__genderToggle {
   border-color: transparent;
 }
 
 body.dark .field__genderToggle,
-[data-theme="dark"] .field__genderToggle {
+[data-theme='dark'] .field__genderToggle {
   background: rgba(255, 255, 255, 0.2);
   border-color: rgba(255, 255, 255, 0.25);
 }
 
 body.dark .field__genderToggle::after,
-[data-theme="dark"] .field__genderToggle::after {
+[data-theme='dark'] .field__genderToggle::after {
   background: rgba(255, 255, 255, 0.95);
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 
 body.dark .field__wrap--birthDate .field__date-input,
-[data-theme="dark"] .field__wrap--birthDate .field__date-input {
+[data-theme='dark'] .field__wrap--birthDate .field__date-input {
   color: var(--field-text);
 }
 
 /* У темній темі теж лише наша стрілка, нативна іконка прихована */
 body.dark .field__wrap--birthDate .field__date-input::-webkit-calendar-picker-indicator,
-[data-theme="dark"] .field__wrap--birthDate .field__date-input::-webkit-calendar-picker-indicator {
+[data-theme='dark'] .field__wrap--birthDate .field__date-input::-webkit-calendar-picker-indicator {
   opacity: 0;
   filter: none;
 }
@@ -972,20 +998,20 @@ body.dark .field__wrap--birthDate .field__date-input::-webkit-calendar-picker-in
 /* Темна тема: лінія й стрілка — світло-сірі */
 body.dark .field__date-indicator::before,
 body.night .field__date-indicator::before,
-[data-theme="dark"] .field__date-indicator::before,
-[data-theme="night"] .field__date-indicator::before {
+[data-theme='dark'] .field__date-indicator::before,
+[data-theme='night'] .field__date-indicator::before {
   background: rgba(255, 255, 255, 0.35);
 }
 
 body.dark .field__date-indicator::after,
 body.night .field__date-indicator::after,
-[data-theme="dark"] .field__date-indicator::after,
-[data-theme="night"] .field__date-indicator::after {
+[data-theme='dark'] .field__date-indicator::after,
+[data-theme='night'] .field__date-indicator::after {
   border-top-color: rgba(255, 255, 255, 0.6);
 }
 
 /* Мобілка: календар меншого розміру */
-@media (max-width: 768px) {
+@media (max-width: 767px) {
   .birthDate-picker.react-datepicker {
     font-size: 14px;
   }
@@ -1016,78 +1042,58 @@ body.night .field__date-indicator::after,
 
 @media (max-width: 768px) {
   body.dark .field__genderDropdown,
-  html[data-theme="dark"] .field__genderDropdown {
-    background: #12051f;
-    border: 1px solid rgba(255, 255, 255, 0.15);
+  html[data-theme='dark'] .field__genderDropdown {
+    background: #0d0d0d;
+    border: 1px solid rgba(255, 255, 255, 0.12);
   }
 
   body.dark .field__genderDropdownItem,
-  [data-theme="dark"] .field__genderDropdownItem {
-    color: #ffffff;
-    font-weight: 500;
+  [data-theme='dark'] .field__genderDropdownItem {
+    color: var(--select-text);
   }
-}
-
-/* meta row */
-.field__meta {
-  margin-top: 6px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-}
-
-.field__note,
-.field__counter {
-  font-size: 12px;
-  opacity: 0.75;
 }
 
 /* =========================
    react-select (PORTAL)
    ========================= */
-
 .select-wrap .rs__control {
-  position: relative;
-  z-index: 2;
+  position: relative !important;
+  z-index: 2 !important;
+  min-height: 42px !important;
+  height: 100% !important;
 
   background: transparent !important;
   border: 0 !important;
   box-shadow: none !important;
+  display: flex;
+  align-items: center !important;
 }
 
+/* container з тегами */
 .select-wrap .rs__value-container {
   padding-left: 28px !important;
+
+  display: flex !important;
+  align-items: center !important;
+  flex-wrap: nowrap !important;
+
+  gap: 4px;
+  min-width: 0;
+  overflow: hidden !important;
 }
 
-.select-wrap .rs__single-value,
-.select-wrap .rs__input-container {
-  color: var(--field-text) !important;
-  font-size: 14px !important;
+.select-wrap .rs__indicators {
+  display: flex !important;
+  align-items: center !important;
 }
 
-/* selected tags (interests/hobbies) */
-.rs__multi-value {
-  margin: 2px;
-  background: rgba(255, 255, 255, 0.9);
-  border-radius: 10px;
-  font-size: 13px;
-}
-
-.rs__multi-value__label {
-  color: #111216;
-  padding: 2px 6px;
-}
-
-.rs__multi-value__remove {
-  cursor: pointer;
-}
-
-.rs__multi-value__remove:hover {
-  background: rgba(255, 0, 0, 0.15);
+.select-wrap .rs__indicator-separator {
+  margin-top: 8px;
 }
 
 .select-wrap .rs__placeholder {
+  display: flex;
+  align-items: center;
   color: var(--select-placeholder) !important;
   font-size: 14px !important;
 }
@@ -1104,51 +1110,67 @@ body.night .field__date-indicator::after,
   box-shadow: 0 12px 30px rgba(123, 92, 255, 0.25) !important;
 }
 
-/* Темна тема: контрастний дропдаун react-select */
+/* Темна тема: чорний дропдаун react-select */
 body.dark .rs__menu,
-html[data-theme="dark"] .rs__menu {
-  background: #12051f !important;
-  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+html[data-theme='dark'] .rs__menu {
+  background: #0d0d0d !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
   box-shadow: 0 12px 32px rgba(0, 0, 0, 0.6) !important;
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
 }
 
 body.dark .rs__option,
-html[data-theme="dark"] .rs__option {
-  color: #ffffff !important;
-  font-weight: 500 !important;
+html[data-theme='dark'] .rs__option {
+  color: rgba(255, 255, 255, 0.95) !important;
 }
 
 /* Dark theme: selected tags should stay dark too */
 body.dark .rs__multi-value,
 body.night .rs__multi-value,
-html[data-theme="dark"] .rs__multi-value,
-html[data-theme="night"] .rs__multi-value {
+html[data-theme='dark'] .rs__multi-value,
+html[data-theme='night'] .rs__multi-value {
   background: #12131a !important;
   border: 1px solid rgba(255, 255, 255, 0.16);
 }
 
 body.dark .rs__multi-value__label,
 body.night .rs__multi-value__label,
-html[data-theme="dark"] .rs__multi-value__label,
-html[data-theme="night"] .rs__multi-value__label {
+html[data-theme='dark'] .rs__multi-value__label,
+html[data-theme='night'] .rs__multi-value__label {
   color: rgba(245, 247, 255, 0.95) !important;
 }
 
 body.dark .rs__multi-value__remove,
 body.night .rs__multi-value__remove,
-html[data-theme="dark"] .rs__multi-value__remove,
-html[data-theme="night"] .rs__multi-value__remove {
+html[data-theme='dark'] .rs__multi-value__remove,
+html[data-theme='night'] .rs__multi-value__remove {
   color: rgba(255, 255, 255, 0.85) !important;
 }
 
 body.dark .rs__multi-value__remove:hover,
 body.night .rs__multi-value__remove:hover,
-html[data-theme="dark"] .rs__multi-value__remove:hover,
-html[data-theme="night"] .rs__multi-value__remove:hover {
+html[data-theme='dark'] .rs__multi-value__remove:hover,
+html[data-theme='night'] .rs__multi-value__remove:hover {
   background: rgba(255, 79, 177, 0.25) !important;
   color: #fff !important;
+}
+
+/* input */
+.select-wrap .rs__input-container {
+  flex: 1 1 auto !important;
+
+  min-width: 2px !important;
+
+  display: flex;
+  align-items: center;
+
+  margin: 0 !important;
+}
+
+.rs__menu {
+  background: var(--select-menu-bg) !important;
+  border-radius: 16px !important;
+  padding: 6px !important;
+  box-shadow: 0 12px 30px rgba(123, 92, 255, 0.25) !important;
 }
 
 .rs__option {
@@ -1168,8 +1190,22 @@ html[data-theme="night"] .rs__multi-value__remove:hover {
 
 .rs__option--is-selected {
   background: var(--select-option-selected-bg) !important;
-  color: #ffffff !important;
+
+  color: #fff !important;
   font-weight: 600 !important;
+}
+/* Темна тема: чорний дропдаун react-select */
+
+body.dark .rs__menu,
+html[data-theme='dark'] .rs__menu {
+  background: #0d0d0d !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.6) !important;
+}
+
+body.dark .rs__option,
+html[data-theme='dark'] .rs__option {
+  color: rgba(255, 255, 255, 0.95) !important;
 }
 
 /* =========================
@@ -1207,7 +1243,7 @@ html[data-theme="night"] .rs__multi-value__remove:hover {
 /* dropdown */
 .phone-wrap .react-international-phone-country-selector-dropdown {
   position: absolute;
-  z-index: 9999999 !important;
+  z-index: 200 !important;
 
   width: 320px !important;
   max-width: min(360px, calc(100vw - 40px)) !important;
@@ -1224,7 +1260,7 @@ html[data-theme="night"] .rs__multi-value__remove:hover {
 
 /* Темна тема: чорний дропдаун країн */
 body.dark .phone-wrap .react-international-phone-country-selector-dropdown,
-html[data-theme="dark"] .phone-wrap .react-international-phone-country-selector-dropdown {
+html[data-theme='dark'] .phone-wrap .react-international-phone-country-selector-dropdown {
   background: #0d0d0d !important;
   border: 1px solid rgba(255, 255, 255, 0.12) !important;
   color: rgba(255, 255, 255, 0.95) !important;
@@ -1233,19 +1269,19 @@ html[data-theme="dark"] .phone-wrap .react-international-phone-country-selector-
   .react-international-phone-country-selector-dropdown__list-item,
   .react-international-phone-country-selector-dropdown__list-item-name,
   .react-international-phone-country-selector-dropdown__list-item-dial-code,
-  [class*="list-item"],
-  [class*="list-item"] span {
+  [class*='list-item'],
+  [class*='list-item'] span {
     color: rgba(255, 255, 255, 0.92) !important;
     background: transparent !important;
   }
 
   .react-international-phone-country-selector-dropdown__list-item:hover,
-  [class*="list-item"]:hover {
+  [class*='list-item']:hover {
     background: var(--select-option-hover-bg) !important;
   }
 
   .react-international-phone-country-selector-dropdown__list-item--selected,
-  [class*="list-item"][class*="selected"] {
+  [class*='list-item'][class*='selected'] {
     background: var(--select-option-selected-bg) !important;
     color: #fff !important;
   }
@@ -1265,30 +1301,8 @@ html[data-theme="dark"] .phone-wrap .react-international-phone-country-selector-
 @media (max-width: 680px) {
   .grid-2 {
     grid-template-columns: 1fr;
+    gap: 0px;
   }
-}
-
-/* =========================
-   SUBMIT BUTTON
-   ========================= */
-
-.btn-gradient.wide {
-  width: 356px;
-  height: 80px;
-  border-radius: 50px;
-  border: 0;
-  margin: 0 auto;
-  font-size: 18px;
-  font-weight: 700;
-  color: #fff;
-
-  cursor: pointer;
-  background: linear-gradient(90deg, #4f6bff, #b05cff 52%, #ff4fb1);
-}
-
-.btn-gradient.wide:disabled {
-  opacity: 0.55;
-  cursor: not-allowed;
 }
 
 /* =========================
@@ -1307,7 +1321,7 @@ html[data-theme="dark"] .phone-wrap .react-international-phone-country-selector-
   }
 
   .complete-profile__form {
-    max-width: 420px;
+    max-width: 400px;
     gap: 18px;
   }
 
@@ -1402,6 +1416,11 @@ html[data-theme="dark"] .phone-wrap .react-international-phone-country-selector-
     padding-left: 6px;
   }
 
+  .grid-2 {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
   /* react-select */
   .select-wrap .rs__value-container {
     padding-left: 22px !important;
@@ -1424,14 +1443,27 @@ html[data-theme="dark"] .phone-wrap .react-international-phone-country-selector-
     transform-origin: left center;
   }
 
-  /* submit */
-  .btn-gradient.wide {
-    width: 356px;
-    max-width: 100%;
-    height: 80px;
-    border-radius: 50px;
-    margin: 10px auto 0;
-    font-size: 16px;
+  .field__wrap.select-wrap,
+  .field__wrap.phone-wrap {
+    overflow: visible;
+    min-height: 38px;
+    height: auto;
+  }
+
+  .select-wrap .rs__indicators {
+    padding-top: 0px;
+  }
+
+  .field__hint {
+    font-size: 12px;
+    padding-left: 6px;
+  }
+
+  .field__genderTriggerWrap {
+    display: flex;
+    align-items: center;
+    min-height: 38px;
+    height: auto;
   }
 }
 
@@ -1491,11 +1523,76 @@ html[data-theme="dark"] .phone-wrap .react-international-phone-country-selector-
     font-size: 13px;
     padding-left: 6px;
   }
+}
 
-  .btn-gradient.wide {
-    width: 100%;
-    height: 48px;
-    border-radius: 999px;
-    font-size: 16px;
-  }
+// MultiSelect //////////
+
+.more-badge {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.more-button {
+  cursor: pointer;
+
+  padding: 4px 8px;
+  margin-left: 4px;
+
+  border-radius: 12px;
+  border: none;
+
+  background: #f1f1f1;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.more-popover {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+
+  z-index: 2100;
+
+  background: white;
+  border-radius: 12px;
+
+  border: 1px solid #e6e6e6;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
+
+  padding: 8px;
+
+  min-width: 180px;
+}
+
+[data-theme='dark'] .more-button,
+.more-popover {
+  background: rgba(255, 255, 255, 0.95);
+  color: #0d0d0d;
+}
+
+.popover-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  padding: 6px 8px;
+  border-radius: 8px;
+}
+
+.popover-item:hover {
+  background: #f5f5f5;
+}
+
+.remove-btn {
+  border: none;
+  background: transparent;
+
+  cursor: pointer;
+  font-size: 14px;
+  color: #888;
+}
+
+.remove-btn:hover {
+  color: #ff4d4f;
 }

@@ -30,11 +30,6 @@ const mapSelectToStrings = (arr, max) =>
     .filter(Boolean)
     .slice(0, max);
 
-function cityValue(city) {
-  if (typeof city === 'string') return city.trim();
-  return city?.value?.trim() || '';
-}
-
 export function normalizeForValidation(v) {
   return {
     firstName: v.firstName,
@@ -54,8 +49,7 @@ export function normalizeForValidation(v) {
 
     maritalStatus: v.maritalStatus?.value || '',
     country: v.country?.value || '',
-    city: cityValue(v.city),
-    region: v.region?.value || '',
+    city: v.city?.value || '',
 
     gender: v.gender,
     birthDate: v.birthDate,
@@ -86,8 +80,7 @@ export function toEditProfilePayload(v) {
     nationality: v.nationality?.trim(),
 
     country: v.country?.value || undefined,
-    city: cityValue(v.city) || undefined,
-    region: v.region?.value || undefined,
+    city: v.city?.value || undefined,
 
     maritalStatus: v.maritalStatus?.value || undefined,
     gender: v.gender || undefined,
