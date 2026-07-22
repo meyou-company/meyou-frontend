@@ -22,6 +22,14 @@
     "messages": "Messages",
     "profile": "Profil"
   },
+  "landing": {
+    "tagline": "MeYou est une plateforme moderne pour les rencontres, la communication et des liens sociaux sécurisés.",
+    "features": {
+      "earn": "Bonus pour les amis",
+      "chat": "Chat moderne",
+      "security": "Sécurité totale"
+    }
+  },
   "menu": {
     "myProfile": "My profile",
     "edit": "Edit",
@@ -607,7 +615,20 @@
       "logoutAll": "Log out on all devices",
       "logoutAllConfirm": "Log out of your account on this device?",
       "logoutAllSuccess": "You have been logged out",
-      "comingSoon": "Coming soon"
+      "comingSoon": "Coming soon",
+      "deleteAccount": {
+        "dangerZoneTitle": "Danger zone",
+        "dangerZoneDesc": "Permanently delete your account. This cannot be undone.",
+        "deleteButton": "Delete account",
+        "modalTitle": "Delete account?",
+        "modalWarning": "This action cannot be undone. Your personal data will be removed and you will lose access to this account.",
+        "modalInputLabel": "Type DELETE to confirm",
+        "modalConfirm": "Delete account",
+        "modalConfirming": "Deleting…",
+        "modalCancel": "Cancel",
+        "success": "Account deleted",
+        "error": "Could not delete account"
+      }
     }
   },
   "video": {
@@ -649,7 +670,18 @@
     "STORY_VIDEO_TOO_LONG": "Story video is too long.",
     "STORY_CANNOT_REPLY_SELF": "Cannot reply to your own story.",
     "STORY_CANNOT_ADD_SELF_CLOSE_FRIEND": "Cannot add yourself to close friends.",
-    "VIDEO_TOO_LONG": "Video is too long."
+    "VIDEO_TOO_LONG": "Video is too long.",
+    "NETWORK_ERROR": "Impossible de se connecter au serveur. Vérifiez votre connexion Internet.",
+    "EMAIL_ALREADY_EXISTS": "Un utilisateur avec cet e-mail existe déjà.",
+    "INVALID_CREDENTIALS": "E-mail ou mot de passe incorrect.",
+    "EMAIL_NOT_VERIFIED": "Vérifiez votre e-mail avant de vous connecter.",
+    "USERNAME_TAKEN": "Ce nom d'utilisateur est déjà pris. Choisissez-en un autre.",
+    "USERNAME_REQUIRED": "Indiquez un nom d'utilisateur pour compléter votre profil.",
+    "DUPLICATE_REPORT": "Vous avez déjà envoyé ce signalement.",
+    "USER_BLOCKED": "L'interaction avec cet utilisateur n'est pas disponible.",
+    "CANNOT_REPORT_SELF": "Vous ne pouvez pas vous signaler vous-même.",
+    "ACCOUNT_SUSPENDED": "Votre compte a été suspendu.",
+    "ACCOUNT_DELETED": "Ce compte a été supprimé."
   },
   "navigation": {
     "home": "Home",
@@ -665,10 +697,16 @@
     "search": "Search",
     "messages": "Messages"
   },
+  "explore": {
+    "searchPlaceholder": "Trouvez de nouveaux amis par nom, pseudo ou ville…",
+    "searchAria": "Rechercher de nouveaux amis"
+  },
   "feed": {
     "loading": "Loading feed…",
     "loadingMore": "Loading more posts…",
     "empty": "No posts yet",
+    "emptyHint": "Create your first post or add friends",
+    "refresh": "Refresh",
     "openProfile": "Open profile {{name}}",
     "profileUnavailable": "Profile unavailable",
     "error": {

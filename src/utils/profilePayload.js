@@ -123,7 +123,7 @@ export function toCompleteProfilePayload(v) {
     nationality: v.nationality?.trim(),
 
     country: v.country?.value || undefined,
-    city: v.city?.value || undefined,
+    city: cityValue(v.city) || undefined,
 
     maritalStatus: v.maritalStatus?.value || undefined,
     gender: v.gender || undefined,

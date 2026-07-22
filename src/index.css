@@ -59,17 +59,12 @@
     --field-text: rgba(255, 255, 255, 0.92);
     --field-placeholder: rgba(255, 255, 255, 0.45);
 
-    /* ✅ DARK — SELECT: чорний дропдаун, читабельний текст */
-    --select-menu-bg: #0d0d0d;
-    --select-text: rgba(255, 255, 255, 0.95);
+    /* ✅ DARK — SELECT: контрастний дропдаун, чіткий текст */
+    --select-menu-bg: #12051f;
+    --select-text: #ffffff;
     --select-placeholder: rgba(255, 255, 255, 0.55);
 
-    --select-option-hover-bg: linear-gradient(
-      90deg,
-      rgba(79, 107, 255, 0.22),
-      rgba(176, 92, 255, 0.22),
-      rgba(255, 79, 177, 0.22)
-    );
+    --select-option-hover-bg: rgba(255, 255, 255, 0.08);
 
     --select-option-selected-bg: linear-gradient(
       90deg,
@@ -81,17 +76,19 @@
 
   /* Явна темна тема: чорні дропдауни, контрастний текст */
   html[data-theme="dark"] {
-    --select-menu-bg: #0d0d0d;
-    --select-text: rgba(255, 255, 255, 0.95);
+    --select-menu-bg: #12051f;
+    --select-text: #ffffff;
     --select-placeholder: rgba(255, 255, 255, 0.55);
+    --select-option-hover-bg: rgba(255, 255, 255, 0.08);
     --field-inner: rgba(12, 12, 18, 0.85);
     --field-text: rgba(255, 255, 255, 0.95);
     --field-placeholder: rgba(255, 255, 255, 0.5);
   }
 
   body.dark {
-    --select-menu-bg: #0d0d0d;
-    --select-text: rgba(255, 255, 255, 0.95);
+    --select-menu-bg: #12051f;
+    --select-text: #ffffff;
+    --select-option-hover-bg: rgba(255, 255, 255, 0.08);
     --field-inner: rgba(12, 12, 18, 0.85);
     --field-text: rgba(255, 255, 255, 0.95);
   }

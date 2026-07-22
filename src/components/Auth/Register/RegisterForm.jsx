@@ -11,11 +11,12 @@ import {
   isEmptyErrors,
 } from "../../../utils/validationRegister";
 import { getApiErrorMessage } from "../../../utils/getApiErrorMessage";
+import LanguageSwitcher from "../../LanguageSwitcher/LanguageSwitcher";
 import "./RegisterForm.scss";
 
 export default function RegisterForm({ onBack, onGoLogin, onSuccess }) {
   useForceDarkTheme();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const register = useAuthStore((s) => s.register);
 
   const [form, setForm] = useState({
@@ -107,6 +108,7 @@ export default function RegisterForm({ onBack, onGoLogin, onSuccess }) {
       password: form.password,
       confirmPassword: form.confirmPassword,
       acceptedTerms: true,
+      language: (i18n.language || 'uk').split('-')[0].toLowerCase(),
     };
 
     setIsSubmitting(true);
@@ -136,6 +138,9 @@ export default function RegisterForm({ onBack, onGoLogin, onSuccess }) {
 
   return (
     <section className="auth auth--register">
+      <div className="auth__langSwitchWrap">
+        <LanguageSwitcher />
+      </div>
       <button type="button" className="back-arrow" onClick={onBack} aria-label={t("common.back")}>
         <img src="/icon1/Vector.png" alt="" aria-hidden="true" className="back-arrow__icon" />
       </button>

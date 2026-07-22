@@ -204,3 +204,19 @@ html[data-theme="dark"] .editPostModal__textarea {
   border-color: rgba(255, 255, 255, 0.15);
   color: rgba(255, 255, 255, 0.92);
 }
+
+body.dark .editPostModal__locationLabel,
+html[data-theme="dark"] .editPostModal__locationLabel {
+  color: rgba(255, 255, 255, 0.72);
+}
+
+body.dark .editPostModal__locationInput,
+html[data-theme="dark"] .editPostModal__locationInput {
+  background: rgba(58, 59, 60, 0.95);
+  border-color: rgba(255, 255, 255, 0.15);
+  color: #fff;
+
+  &::placeholder {
+    color: rgba(255, 255, 255, 0.45);
+  }
+}

@@ -18,7 +18,8 @@ export default function CompleteProfilePage() {
       await useAuthStore.getState().refreshMe();
       navigate('/profile', { replace: true });
     } catch (error) {
-      console.error(t('profile.completeForm.errors.saveError:'), error);
+      console.log('[CompleteProfilePage] save error', error?.response?.data || error);
+      throw error;
     }
   };
 

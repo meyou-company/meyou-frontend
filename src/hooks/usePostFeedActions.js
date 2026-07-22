@@ -33,37 +33,38 @@ import {
   getCommentBackendId,
   stringifyCommentId,
 } from "../utils/mapApiPostToFeedItem";
+import {
+  FIRST_PAGE_FEED_CACHE_KEY,
+  listFeedCacheKeys,
+  parseFirstPageFeedCacheRaw,
+  writeFirstPageFeedCache,
+} from "../utils/feedCache";
 
 function removeDeletedPostFromCaches(postId) {
   if (typeof window === "undefined" || !postId) return;
   const targetId = String(postId);
   try {
-    const keys = ["first-page-feed-cache"];
-    for (let i = 0; i < window.localStorage.length; i += 1) {
-      const key = window.localStorage.key(i);
-      if (key && key.startsWith("profile-feed-cache:")) keys.push(key);
-    }
-    keys.forEach((key) => {
+    listFeedCacheKeys().forEach((key) => {
       const raw = window.localStorage.getItem(key);
       if (!raw) return;
+      if (key === FIRST_PAGE_FEED_CACHE_KEY) {
+        const { viewerId, posts } = parseFirstPageFeedCacheRaw(raw);
+        const next = posts.filter((p) => String(p?.id) !== targetId);
+        writeFirstPageFeedCache(next, viewerId);
+        return;
+      }
       const parsed = JSON.parse(raw);
       if (!Array.isArray(parsed)) return;
       const next = parsed.filter((p) => String(p?.id) !== targetId);
-      window.localStorage.setItem(key, JSON.stringify(next));
+      if (next.length) {
+        window.localStorage.setItem(key, JSON.stringify(next));
+      } else {
+        window.localStorage.removeItem(key);
+      }
     });
   } catch {
     // ignore cache sync errors
   }
-}
-
-function listFeedCacheKeys() {
-  if (typeof window === "undefined") return [];
-  const keys = ["first-page-feed-cache"];
-  for (let i = 0; i < window.localStorage.length; i += 1) {
-    const key = window.localStorage.key(i);
-    if (key && key.startsWith("profile-feed-cache:")) keys.push(key);
-  }
-  return keys;
 }
 
 function syncPostInCaches(postId, updater) {
@@ -73,6 +74,14 @@ function syncPostInCaches(postId, updater) {
     listFeedCacheKeys().forEach((key) => {
       const raw = window.localStorage.getItem(key);
       if (!raw) return;
+      if (key === FIRST_PAGE_FEED_CACHE_KEY) {
+        const { viewerId, posts } = parseFirstPageFeedCacheRaw(raw);
+        const next = posts.map((p) =>
+          String(p?.id) === targetId ? updater(p) : p
+        );
+        writeFirstPageFeedCache(next, viewerId);
+        return;
+      }
       const parsed = JSON.parse(raw);
       if (!Array.isArray(parsed)) return;
       const next = parsed.map((p) =>

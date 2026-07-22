@@ -1,4 +1,7 @@
 const DAY_MS = 24 * 60 * 60 * 1000;
+export const STORY_MESSAGE_MARKER = '[[MEYOU_STORY:';
+const STORY_MESSAGE_MARKER_END = ']]';
+const STORY_URL_RE = /(?:^|\s)(?:https?:\/\/[^\s]+)?\/stories\/([^/\s?#]+)/i;
 
 function pickFirstString(...values) {
   return values.find((value) => typeof value === 'string' && value.trim())?.trim() || '';
@@ -6,6 +9,41 @@ function pickFirstString(...values) {
 
 function pickFirstValue(...values) {
   return values.find((value) => value !== undefined && value !== null);
+}
+
+function firstAttachment(message) {
+  return Array.isArray(message?.attachments) ? message.attachments.find((item) => item?.url) : null;
+}
+
+export function encodeStoryMessageMarker(preview) {
+  try {
+    return `${STORY_MESSAGE_MARKER}${encodeURIComponent(JSON.stringify(preview || {}))}${STORY_MESSAGE_MARKER_END}`;
+  } catch {
+    return '';
+  }
+}
+
+export function getStoryMessageMarker(text = '') {
+  if (typeof text !== 'string') return null;
+  const start = text.indexOf(STORY_MESSAGE_MARKER);
+  if (start < 0) return null;
+  const contentStart = start + STORY_MESSAGE_MARKER.length;
+  const end = text.indexOf(STORY_MESSAGE_MARKER_END, contentStart);
+  if (end < 0) return null;
+
+  try {
+    return JSON.parse(decodeURIComponent(text.slice(contentStart, end)));
+  } catch {
+    return null;
+  }
+}
+
+export function getStoryMessageText(message) {
+  const raw = typeof message?.text === 'string' ? message.text : '';
+  if (!raw) return raw;
+
+  const withoutMarker = raw.replace(/\[\[MEYOU_STORY:[^\]]+\]\]\s*/g, '').trim();
+  return withoutMarker.replace(STORY_URL_RE, '').trim();
 }
 
 function getTime(value) {
@@ -52,15 +90,19 @@ export function hasStoryReference(message) {
     message?.metadata?.storyId ||
     message?.metadata?.story_id ||
     message?.metadata?.storyPreview ||
-    message?.storyPreview,
+    message?.storyPreview ||
+    getStoryMessageMarker(message?.text)
   );
 }
 
 export function getStoryReplyPreview(message) {
-  if (!hasStoryReference(message)) return null;
-
   const metadata = message?.metadata || {};
-  const preview = metadata.storyPreview || message?.storyPreview || {};
+  const markerPreview = getStoryMessageMarker(message?.text);
+  const storyUrlMatch = typeof message?.text === 'string' ? message.text.match(STORY_URL_RE) : null;
+  const attachment = firstAttachment(message);
+  const preview = metadata.storyPreview || message?.storyPreview || markerPreview || {};
+  if (!hasStoryReference(message) && !(storyUrlMatch?.[1] && attachment?.url)) return null;
+
   const storyId = pickFirstValue(
     message?.storyId,
     message?.story_id,
@@ -68,6 +110,7 @@ export function getStoryReplyPreview(message) {
     metadata.story_id,
     preview.id,
     preview.storyId,
+    storyUrlMatch?.[1],
   );
 
   const mediaUrl = pickFirstString(
@@ -81,6 +124,7 @@ export function getStoryReplyPreview(message) {
     message?.storyMediaUrl,
     message?.mediaUrl,
     message?.media_url,
+    attachment?.url,
   );
   const mediaType = pickFirstString(
     preview.mediaType,
@@ -89,6 +133,9 @@ export function getStoryReplyPreview(message) {
     message?.storyMediaType,
     message?.mediaType,
     message?.media_type,
+    attachment?.mimeType,
+    attachment?.mime_type,
+    message?.type,
   ).toLowerCase();
   const text = pickFirstString(preview.text, preview.caption, metadata.storyText);
   const createdAt = pickFirstValue(preview.createdAt, preview.created_at, metadata.storyCreatedAt);
@@ -125,6 +172,7 @@ export function getStoryReplyPreview(message) {
     createdAt,
     expiresAt: expiresAtRaw,
     author: getAuthor(preview, message),
+    kind: markerPreview ? 'forward' : 'reply',
     isUnavailable,
   };
 }

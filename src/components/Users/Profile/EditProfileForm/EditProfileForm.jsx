@@ -2,8 +2,6 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import Select from 'react-select';
-import DatePicker from 'react-datepicker';
-import 'react-datepicker/dist/react-datepicker.css';
 import { PhoneInput } from 'react-international-phone';
 import 'react-international-phone/style.css';
 
@@ -24,8 +22,11 @@ import {
   validateEditProfile,
   translateValidationErrors,
 } from '../../../../utils/validationProfile';
-import { getApiErrorMessage } from '../../../../utils/getApiErrorMessage';
-import { getBirthDateLimits, toYMDLocal } from '../../../../utils/profileFormUtils';
+import { getApiErrorCode, getApiErrorMessage } from '../../../../utils/getApiErrorMessage';
+import {
+  applyBirthDateNormalization,
+  getBirthDateLimits,
+} from '../../../../utils/profileFormUtils';
 
 import { interestOptions } from '../../../../constants/interests';
 import { profileHobbyOptions } from '../../../../constants/hobbies';
@@ -33,10 +34,12 @@ import profileIcons from '../../../../constants/profileIcons';
 
 import ThemeToggleDark from '../../../../components/ThemeToggleDark/ThemeToggleDark';
 import AvatarCropModal from '../../../../components/AvatarCropModal/AvatarCropModal';
+import BirthDateField from '../BirthDateField/BirthDateField';
 import MultiSelect from './MultiSelect';
 import VisibilityToggle from './VisibilityToggle';
 
 import './EditProfileForm.scss';
+import DatePicker from 'react-datepicker';
 
 const INITIAL_VALUES = {
   firstName: '',
@@ -198,13 +201,10 @@ export default function EditProfileForm({ onBack, onSave }) {
       closeCrop();
       toast.success(t('profile.editForm.toast.avatarUpdated'));
     } catch (err) {
-      const raw = err?.response?.data?.message;
       const msg =
         err?.response?.status === 401
           ? t('profile.toast.avatarSessionExpired')
-          : (Array.isArray(raw) ? raw[0] : raw) ||
-            err?.message ||
-            t('profile.editForm.toast.avatarUpdateError');
+          : getApiErrorMessage(err, 'profile.editForm.toast.avatarUpdateError');
       toast.error(String(msg));
       setAvatarError(String(msg));
     } finally {
@@ -220,13 +220,10 @@ export default function EditProfileForm({ onBack, onSave }) {
       await refreshMe();
       toast.success(t('profile.editForm.toast.avatarDeleted'));
     } catch (err) {
-      const raw = err?.response?.data?.message;
       const msg =
         err?.response?.status === 401
           ? t('profile.toast.avatarSessionExpired')
-          : (Array.isArray(raw) ? raw[0] : raw) ||
-            err?.message ||
-            t('profile.editForm.toast.avatarDeleteError');
+          : getApiErrorMessage(err, 'profile.editForm.toast.avatarDeleteError');
       toast.error(String(msg));
       setAvatarError(String(msg));
     } finally {
@@ -243,9 +240,15 @@ export default function EditProfileForm({ onBack, onSave }) {
       lastName: true,
       phone: true,
       username: true,
+      birthDate: true,
     });
 
-    const normalized = normalizeForValidation(values);
+    const submitValues = applyBirthDateNormalization(values);
+    if (submitValues.birthDate !== values.birthDate) {
+      setValues(submitValues);
+    }
+
+    const normalized = normalizeForValidation(submitValues);
     const nextErrors = translateValidationErrors(validateEditProfile(normalized), t);
     setErrors(nextErrors);
 
@@ -272,13 +275,13 @@ export default function EditProfileForm({ onBack, onSave }) {
       }
     }
 
-    const safeValues = {
-      ...values,
+    const safeValues = applyBirthDateNormalization({
+      ...submitValues,
       languages: values.languagesInput
         .split(',')
         .map((s) => s.trim())
         .filter(Boolean),
-    };
+    });
 
     const payload = toEditProfilePayload(safeValues);
     console.log('PAYLOAD', payload);
@@ -287,7 +290,11 @@ export default function EditProfileForm({ onBack, onSave }) {
       await onSave?.(payload);
     } catch (err) {
       console.log('ERR RAW', err);
-      const msg = getApiErrorMessage(err) || t('profile.editForm.errors.updateError');
+      const code = getApiErrorCode(err) || '';
+      const msg =
+        code === 'CONFLICT' && payload.phone
+          ? t('errors.PHONE_ALREADY_EXISTS')
+          : getApiErrorMessage(err) || t('profile.editForm.errors.updateError');
       setSubmitError(msg);
     } finally {
       setIsSubmitting(false);
@@ -483,7 +490,10 @@ export default function EditProfileForm({ onBack, onSave }) {
                 </button>
               </div>
               {genderPickerOpen && (
-                <div className="field__genderDropdown" role="listbox">
+                <div
+                  className="field__genderDropdown profile-form-dropdown profile-dropdown-menu"
+                  role="listbox"
+                >
                   {genderOptions.map((opt) => (
                     <button
                       key={opt.value}
@@ -605,7 +615,7 @@ export default function EditProfileForm({ onBack, onSave }) {
         </div>
 
         {/* BIO */}
-        <div className="field">
+        <div className="field field--bio">
           <div className="field__wrap">
             <textarea
               className={`text-area ${showError('bio') ? 'is-error' : ''}`}
@@ -625,7 +635,7 @@ export default function EditProfileForm({ onBack, onSave }) {
           {showError('bio') && <div className="field__hint">{errors.bio}</div>}
         </div>
         {/* ABOUT */}
-        <div className="field">
+        <div className="field field--about">
           <div className="field__wrap">
             <textarea
               className={`text-area ${showError('about') ? 'is-error' : ''}`}

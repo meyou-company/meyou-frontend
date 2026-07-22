@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 import profileIcons from "../../constants/profileIcons";
 import { getInterestLabel } from "../../constants/interests";
@@ -35,6 +36,7 @@ function isVip(user) {
 
 export default function ExploreContent({ onBack, onOpenProfile }) {
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const [query, setQuery] = useState("");
   const [sortBy, setSortBy] = useState("popular");
@@ -199,10 +201,10 @@ export default function ExploreContent({ onBack, onOpenProfile }) {
           <input
             type="search"
             className="explore-content__input"
-            placeholder="Поиск людей, интересов, городов..."
+            placeholder={t("explore.searchPlaceholder")}
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            aria-label="Поиск"
+            aria-label={t("explore.searchAria")}
           />
           {query && (
             <button

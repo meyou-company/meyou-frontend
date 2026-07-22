@@ -2,7 +2,14 @@ import { useState } from "react";
 import Cropper from "react-easy-crop";
 import "./AvatarCropModal.scss";
 
-export default function AvatarCropModal({ src, onClose, onConfirm }) {
+export default function AvatarCropModal({
+  src,
+  onClose,
+  onConfirm,
+  aspect = 1,
+  cropShape = "round",
+  showGrid = false,
+}) {
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
   const [croppedPixels, setCroppedPixels] = useState(null);
@@ -18,9 +25,9 @@ export default function AvatarCropModal({ src, onClose, onConfirm }) {
             image={src}
             crop={crop}
             zoom={zoom}
-            aspect={1}
-            cropShape="round"
-            showGrid={false}
+            aspect={aspect ?? undefined}
+            cropShape={cropShape}
+            showGrid={showGrid}
             onCropChange={setCrop}
             onZoomChange={setZoom}
             onCropComplete={(area, areaPixels) => setCroppedPixels(areaPixels)}

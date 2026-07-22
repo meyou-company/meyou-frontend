@@ -1,56 +1,62 @@
+import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import "./HomeFeed.scss";
 import { useForceDarkTheme } from "../../hooks/useForceDarkTheme";
-function Feature({ icon, title, onClick }) {
-  
+import LanguageSwitcher from "../LanguageSwitcher/LanguageSwitcher";
+
+function Feature({ icon, title, to }) {
   return (
-    <button className="feature" onClick={onClick} type="button">
+    <Link className="feature" to={to}>
       <span
         className="feature__icon"
         style={{ "--icon-url": `url(${icon})` }}
         aria-hidden="true"
       />
       <span className="feature__text">{title}</span>
-    </button>
+    </Link>
   );
 }
 
 export default function HomeFeed({ onRegister, onLogin }) {
-   useForceDarkTheme();
+  useForceDarkTheme();
+  const { t } = useTranslation();
+
   return (
     <section className="home auth">
-      {/* LOGO */}
+      <div className="home__langSwitcher">
+        <LanguageSwitcher />
+      </div>
       <div className="home__logoSection">
         <div className="home__logoCard">
           <img
             className="home__logoImg"
             src="/Logo/photo.png"
-            alt="Me You logo"
+            alt={t("auth.common.logoAlt")}
           />
         </div>
+        <p className="home__tagline">{t("landing.tagline")}</p>
       </div>
 
-      {/* FEATURES */}
       <div className="home__featuresSection">
         <div className="home__features">
           <Feature
             icon="/icon1/1.png"
-            title="Бонусы за друзей"
-            onClick={onRegister}
+            title={t("landing.features.earn")}
+            to="/earn"
           />
           <Feature
             icon="/icon1/2.png"
-            title="Современный чат"
-            onClick={onLogin}
+            title={t("landing.features.chat")}
+            to="/features/chat"
           />
           <Feature
             icon="/icon1/3.png"
-            title="Полная безопасность"
-            onClick={onLogin}
+            title={t("landing.features.security")}
+            to="/features/security"
           />
         </div>
       </div>
 
-      {/* ACTIONS */}
       <div className="home__actionsSection">
         <div className="home__actions">
           <button
@@ -58,7 +64,7 @@ export default function HomeFeed({ onRegister, onLogin }) {
             className="btn-gradient home__btn"
             onClick={onRegister}
           >
-            Создать аккаунт
+            {t("auth.register.submit")}
           </button>
 
           <button
@@ -66,7 +72,7 @@ export default function HomeFeed({ onRegister, onLogin }) {
             className="btn-gradient home__btn"
             onClick={onLogin}
           >
-            Войти
+            {t("auth.login.submit")}
           </button>
         </div>
       </div>

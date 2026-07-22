@@ -2,6 +2,9 @@
    LAYOUT
    ========================= */
 
+// @import '../profileFormDropdowns.scss';
+// @import '../profileFormFields.scss';
+
 .edit-profile {
   --field-radius: 20px;
   --field-radius-inner: 19px;
@@ -193,7 +196,7 @@
   width: 100%;
   min-width: 0;
   border-radius: var(--field-radius);
-  overflow: visible;
+  overflow: hidden;
 
   background: var(--field-grad);
   box-shadow: var(--field-shadow);
@@ -211,8 +214,6 @@
 .field__wrap.select-wrap,
 .field__wrap.phone-wrap {
   overflow: visible;
-  min-height: 56px;
-  height: auto;
 }
 
 .field__wrap::before {
@@ -261,7 +262,7 @@
 }
 
 @media (hover: hover) and (pointer: fine) {
-  .field__wrap:hover {
+  .field__wrap:not(:has(.rs__menu)):hover {
     z-index: 10;
     filter: brightness(1.05);
   }
@@ -343,7 +344,7 @@
   pointer-events: none;
 }
 
-/* Десктоп/планшет: висота така ж як у решти полів (56px) */
+/* Десктоп/планшет: висота така ж як у решти полів */
 .field__genderWrap--desktop {
   display: flex;
   flex-direction: row;
@@ -1036,8 +1037,19 @@ body.night .field__date-indicator::after,
 
   body.dark .field__genderDropdownItem,
   [data-theme='dark'] .field__genderDropdownItem {
-    color: var(--select-text);
+    color: #ffffff;
+    font-weight: 500;
   }
+}
+
+.edit-profile .field--about .field__wrap {
+  height: auto;
+  min-height: calc(var(--field-control-height) + 28px);
+  max-height: none;
+}
+
+.edit-profile .field--about .text-area {
+  min-height: calc(var(--field-control-height) + 20px);
 }
 
 /* =========================
@@ -1423,9 +1435,15 @@ html[data-theme='dark'] .phone-wrap .react-international-phone-country-selector-
     padding: 10px 12px 10px 22px;
   }
 
-  .text-area {
+  .field--about .text-area {
     padding-top: 10px;
     min-height: 84px;
+  }
+
+  .field__star {
+    left: 8px;
+    top: 8px;
+    font-size: 14px;
   }
 
   .field__star {

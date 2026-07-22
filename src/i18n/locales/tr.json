@@ -22,6 +22,14 @@
     "messages": "Mesajlar",
     "profile": "Profil"
   },
+  "landing": {
+    "tagline": "MeYou, tanisma, iletisim ve guvenli sosyal baglantilar icin modern bir platformdur.",
+    "features": {
+      "earn": "Arkadaş bonusları",
+      "chat": "Modern sohbet",
+      "security": "Tam güvenlik"
+    }
+  },
   "menu": {
     "myProfile": "My profile",
     "edit": "Edit",
@@ -607,7 +615,20 @@
       "logoutAll": "Log out on all devices",
       "logoutAllConfirm": "Log out of your account on this device?",
       "logoutAllSuccess": "You have been logged out",
-      "comingSoon": "Coming soon"
+      "comingSoon": "Coming soon",
+      "deleteAccount": {
+        "dangerZoneTitle": "Danger zone",
+        "dangerZoneDesc": "Permanently delete your account. This cannot be undone.",
+        "deleteButton": "Delete account",
+        "modalTitle": "Delete account?",
+        "modalWarning": "This action cannot be undone. Your personal data will be removed and you will lose access to this account.",
+        "modalInputLabel": "Type DELETE to confirm",
+        "modalConfirm": "Delete account",
+        "modalConfirming": "Deleting…",
+        "modalCancel": "Cancel",
+        "success": "Account deleted",
+        "error": "Could not delete account"
+      }
     }
   },
   "video": {
@@ -649,7 +670,18 @@
     "STORY_VIDEO_TOO_LONG": "Story video is too long.",
     "STORY_CANNOT_REPLY_SELF": "Cannot reply to your own story.",
     "STORY_CANNOT_ADD_SELF_CLOSE_FRIEND": "Cannot add yourself to close friends.",
-    "VIDEO_TOO_LONG": "Video is too long."
+    "VIDEO_TOO_LONG": "Video is too long.",
+    "NETWORK_ERROR": "Sunucuya bağlanılamadı. İnternet bağlantınızı kontrol edin.",
+    "EMAIL_ALREADY_EXISTS": "Bu e-posta adresiyle kayıtlı bir kullanıcı zaten var.",
+    "INVALID_CREDENTIALS": "Geçersiz e-posta veya şifre.",
+    "EMAIL_NOT_VERIFIED": "Giriş yapmadan önce e-postanızı doğrulayın.",
+    "USERNAME_TAKEN": "Bu kullanıcı adı zaten alınmış. Başka bir tane seçin.",
+    "USERNAME_REQUIRED": "Profilinizi tamamlamak için bir kullanıcı adı girin.",
+    "DUPLICATE_REPORT": "Bu şikayeti zaten gönderdiniz.",
+    "USER_BLOCKED": "Bu kullanıcıyla etkileşim kullanılamıyor.",
+    "CANNOT_REPORT_SELF": "Kendinizi şikayet edemezsiniz.",
+    "ACCOUNT_SUSPENDED": "Hesabınız askıya alındı.",
+    "ACCOUNT_DELETED": "Bu hesap silindi."
   },
   "navigation": {
     "home": "Home",
@@ -665,10 +697,16 @@
     "search": "Search",
     "messages": "Messages"
   },
+  "explore": {
+    "searchPlaceholder": "İsim, kullanıcı adı veya şehre göre yeni arkadaşlar bulun…",
+    "searchAria": "Yeni arkadaşlar ara"
+  },
   "feed": {
     "loading": "Loading feed…",
     "loadingMore": "Loading more posts…",
     "empty": "No posts yet",
+    "emptyHint": "Create your first post or add friends",
+    "refresh": "Refresh",
     "openProfile": "Open profile {{name}}",
     "profileUnavailable": "Profile unavailable",
     "error": {

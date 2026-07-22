@@ -179,7 +179,7 @@ const ruProfileNav = {
     actions: {
       addStory: 'Дополнить историю',
       addStoryShort: 'История',
-      addReels: 'Добавить рилс',
+      addReels: 'Рилс',
       reels: 'Reels',
       live: 'Эфир',
       liveDesktop: 'Прямой эфир',
@@ -305,7 +305,7 @@ const ukProfileNav = {
     actions: {
       addStory: 'Доповнити історію',
       addStoryShort: 'Історія',
-      addReels: 'Додати рілс',
+      addReels: 'Рілс',
       reels: 'Reels',
       live: 'Ефір',
       liveDesktop: 'Прямий ефір',

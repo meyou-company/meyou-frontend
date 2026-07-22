@@ -21,8 +21,19 @@ export function logApiResponse(id, response) {
   console.log(`[api] ← #${id} ${status}`);
 }
 
+function isExpectedGuestAuthError(error) {
+  const status = error?.response?.status;
+  if (status !== 401) return false;
+  const url = [error.config?.baseURL, error.config?.url]
+    .filter(Boolean)
+    .join('')
+    .replace(/([^:]\/)\/+/g, '$1');
+  return url.includes('/users/me') || url.includes('/auth/refresh');
+}
+
 export function logApiError(id, error) {
   if (!ENABLED || id == null) return;
+  if (isExpectedGuestAuthError(error)) return;
   const status = error?.response?.status ?? 'ERR';
   console.warn(`[api] ✕ #${id} ${status}`, error?.message);
 }

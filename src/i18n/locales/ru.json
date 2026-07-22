@@ -22,6 +22,14 @@
     "messages": "Сообщения",
     "profile": "Профиль"
   },
+  "landing": {
+    "tagline": "MeYou — современная платформа для знакомств, общения и безопасных социальных связей.",
+    "features": {
+      "earn": "Бонусы за друзей",
+      "chat": "Современный чат",
+      "security": "Полная безопасность"
+    }
+  },
   "menu": {
     "myProfile": "Мой профиль",
     "edit": "Редактировать",
@@ -196,7 +204,7 @@
     "actions": {
       "addStory": "Дополнить историю",
       "addStoryShort": "История",
-      "addReels": "Добавить рилс",
+      "addReels": "Рилс",
       "reels": "Reels",
       "live": "Эфир",
       "liveDesktop": "Прямой эфир"
@@ -626,7 +634,20 @@
       "logoutAll": "Выйти на всех устройствах",
       "logoutAllConfirm": "Выйти из аккаунта на этом устройстве?",
       "logoutAllSuccess": "Вы вышли из аккаунта",
-      "comingSoon": "Скоро"
+      "comingSoon": "Скоро",
+      "deleteAccount": {
+        "dangerZoneTitle": "Опасная зона",
+        "dangerZoneDesc": "Безвозвратное удаление аккаунта. Это действие нельзя отменить.",
+        "deleteButton": "Удалить аккаунт",
+        "modalTitle": "Удалить аккаунт?",
+        "modalWarning": "Это действие нельзя отменить. Ваши персональные данные будут удалены, доступ к аккаунту прекратится.",
+        "modalInputLabel": "Введите DELETE для подтверждения",
+        "modalConfirm": "Удалить аккаунт",
+        "modalConfirming": "Удаление…",
+        "modalCancel": "Отмена",
+        "success": "Аккаунт удалён",
+        "error": "Не удалось удалить аккаунт"
+      }
     }
   },
   "video": {
@@ -668,7 +689,19 @@
     "STORY_VIDEO_TOO_LONG": "Story video is too long.",
     "STORY_CANNOT_REPLY_SELF": "Cannot reply to your own story.",
     "STORY_CANNOT_ADD_SELF_CLOSE_FRIEND": "Cannot add yourself to close friends.",
-    "VIDEO_TOO_LONG": "Video is too long."
+    "VIDEO_TOO_LONG": "Видео слишком длинное.",
+    "NETWORK_ERROR": "Не удалось подключиться к серверу. Проверьте интернет-соединение.",
+    "EMAIL_ALREADY_EXISTS": "Пользователь с такой электронной почтой уже существует.",
+    "PHONE_ALREADY_EXISTS": "Этот номер телефона уже занят.",
+    "INVALID_CREDENTIALS": "Неверный email или пароль.",
+    "EMAIL_NOT_VERIFIED": "Подтвердите электронную почту перед входом.",
+    "USERNAME_TAKEN": "Этот никнейм уже занят. Выберите другой.",
+    "USERNAME_REQUIRED": "Укажите никнейм для завершения профиля.",
+    "DUPLICATE_REPORT": "Вы уже отправляли такую жалобу.",
+    "USER_BLOCKED": "Взаимодействие с этим пользователем недоступно.",
+    "CANNOT_REPORT_SELF": "Нельзя пожаловаться на себя.",
+    "ACCOUNT_SUSPENDED": "Ваш аккаунт заблокирован.",
+    "ACCOUNT_DELETED": "Аккаунт удалён."
   },
   "navigation": {
     "home": "Главная",
@@ -684,10 +717,16 @@
     "search": "Поиск",
     "messages": "Сообщения"
   },
+  "explore": {
+    "searchPlaceholder": "Найдите новых друзей по имени, нику или городу…",
+    "searchAria": "Поиск новых друзей"
+  },
   "feed": {
     "loading": "Загрузка ленты…",
     "loadingMore": "Загрузка ещё постов…",
     "empty": "Пока нет постов",
+    "emptyHint": "Создайте первый пост или добавьте друзей",
+    "refresh": "Обновить",
     "openProfile": "Открыть профиль {{name}}",
     "profileUnavailable": "Профиль недоступен",
     "error": {

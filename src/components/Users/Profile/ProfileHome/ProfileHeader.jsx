@@ -97,8 +97,8 @@ export default function ProfileHeader({
             value={searchValue}
             onChange={(e) => setSearchValue(e.target.value)}
             onFocus={handleSearchOpen}
-            placeholder={t('navigation.search')}
-            aria-label={t('navigation.search')}
+            placeholder={t('explore.searchPlaceholder')}
+            aria-label={t('explore.searchAria')}
           />
         </form>
 

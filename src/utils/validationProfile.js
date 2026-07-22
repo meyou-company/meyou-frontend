@@ -17,7 +17,7 @@ function validateBirthDate(value, errors) {
   const s = String(value).trim();
 
   if (!/^\d{4}-\d{2}-\d{2}$/.test(s)) {
-    errors.birthDate = 'birthDateFormat';
+    errors.birthDate = 'birthDateInvalid';
     return;
   }
 
@@ -71,6 +71,9 @@ function applySharedRules(values, e) {
     if (u.length > 10) {
       e.username = 'usernameMaxLength';
     }
+    if (!/^[a-zA-Z0-9._]+$/.test(u)) {
+      e.username = 'usernameFormat';
+    }
   }
 
   if (values.bio?.length > 500) {
@@ -91,6 +94,7 @@ export function validateCompleteProfile(values) {
 
   req(values, e, 'firstName', 'firstNameRequired');
   req(values, e, 'lastName', 'lastNameRequired');
+  req(values, e, 'username', 'usernameRequired');
   req(values, e, 'phone', 'phoneRequired');
 
   req(values, e, 'nationality', 'nationalityRequired');

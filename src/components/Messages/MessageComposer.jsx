@@ -231,6 +231,7 @@ export default function MessageComposer({
               value={value ?? ''}
               onChange={handleEmojiChange}
               variant="inline"
+              layout="messenger"
               popoverContainerRef={inputWrapRef}
               pickerClassName="emojiPickerPopup"
               closeOnSelect

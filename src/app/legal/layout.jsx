@@ -15,13 +15,15 @@ export default function LegalLayout({ children }) {
       <div className="legalLayout__inner">
         <header className="legalLayout__header">
           <h1 className="legalLayout__brand">{ui.brand}</h1>
-          <button
-            type="button"
-            className="legalLayout__homeLink"
-            onClick={() => navigate('/')}
-          >
-            {ui.backHome}
-          </button>
+          <div className="legalLayout__headerActions">
+            <button
+              type="button"
+              className="legalLayout__homeLink"
+              onClick={() => navigate('/')}
+            >
+              {ui.backHome}
+            </button>
+          </div>
         </header>
 
         <nav className="legalLayout__nav" aria-label="Legal documents">

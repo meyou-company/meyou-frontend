@@ -22,6 +22,14 @@
     "messages": "Повідомлення",
     "profile": "Профіль"
   },
+  "landing": {
+    "tagline": "MeYou — сучасна платформа для знайомств, спілкування та безпечних соціальних зв'язків.",
+    "features": {
+      "earn": "Бонуси за друзів",
+      "chat": "Сучасний чат",
+      "security": "Повна безпека"
+    }
+  },
   "menu": {
     "myProfile": "Мій профіль",
     "edit": "Редагувати",
@@ -184,7 +192,6 @@
     "notFound": "Профіль не знайдено{{username}}",
     "loadError": "Помилка завантаження",
     "myBalance": "Мій баланс",
-    "myPhotos": "Мої фото",
     "editProfile": "Редагувати профіль",
     "viewPhoto": "Переглянути фото",
     "viewPhotoFull": "Фото в повному розмірі",
@@ -201,7 +208,7 @@
     "actions": {
       "addStory": "Доповнити історію",
       "addStoryShort": "Історія",
-      "addReels": "Додати рілс",
+      "addReels": "Рілс",
       "reels": "Reels",
       "live": "Ефір",
       "liveDesktop": "Прямий ефір"
@@ -364,7 +371,7 @@
         "genderRequired": "Оберіть стать",
         "birthDateRequired": "Оберіть дату народження",
         "birthDateFormat": "Формат: РРРР-ММ-ДД",
-        "birthDateInvalid": "Невірна дата",
+        "birthDateInvalid": "Оберіть коректну дату народження",
         "birthDateAge": "Вік має бути від 18 до 100",
         "firstNameLettersOnly": "Ім'я має містити лише літери",
         "lastNameLettersOnly": "Прізвище має містити лише літери",
@@ -634,7 +641,20 @@
       "logoutAll": "Вийти на всіх пристроях",
       "logoutAllConfirm": "Вийти з акаунта на цьому пристрої?",
       "logoutAllSuccess": "Ви вийшли з акаунта",
-      "comingSoon": "Незабаром"
+      "comingSoon": "Незабаром",
+      "deleteAccount": {
+        "dangerZoneTitle": "Небезпечна зона",
+        "dangerZoneDesc": "Видалення акаунта назавжди. Цю дію неможливо скасувати.",
+        "deleteButton": "Видалити акаунт",
+        "modalTitle": "Видалити акаунт?",
+        "modalWarning": "Цю дію неможливо скасувати. Ваші персональні дані буде видалено, а доступ до акаунта припиниться.",
+        "modalInputLabel": "Введіть DELETE для підтвердження",
+        "modalConfirm": "Видалити акаунт",
+        "modalConfirming": "Видалення…",
+        "modalCancel": "Скасувати",
+        "success": "Акаунт видалено",
+        "error": "Не вдалося видалити акаунт"
+      }
     }
   },
   "video": {
@@ -676,7 +696,19 @@
     "STORY_VIDEO_TOO_LONG": "Відео в історії занадто довге.",
     "STORY_CANNOT_REPLY_SELF": "Не можна відповісти на власну історію.",
     "STORY_CANNOT_ADD_SELF_CLOSE_FRIEND": "Не можна додати себе до близьких друзів.",
-    "VIDEO_TOO_LONG": "Відео занадто довге."
+    "VIDEO_TOO_LONG": "Відео занадто довге.",
+    "NETWORK_ERROR": "Не вдалося підключитися до сервера. Перевірте інтернет-з'єднання.",
+    "EMAIL_ALREADY_EXISTS": "Користувач з такою електронною поштою вже існує.",
+    "PHONE_ALREADY_EXISTS": "Цей номер телефону вже зайнятий.",
+    "INVALID_CREDENTIALS": "Невірний email або пароль.",
+    "EMAIL_NOT_VERIFIED": "Підтвердіть свою електронну пошту перед входом.",
+    "USERNAME_TAKEN": "Цей нікнейм уже зайнятий. Оберіть інший.",
+    "USERNAME_REQUIRED": "Вкажіть нікнейм для завершення профілю.",
+    "DUPLICATE_REPORT": "Ви вже надсилали таку скаргу.",
+    "USER_BLOCKED": "Взаємодія з цим користувачем недоступна.",
+    "CANNOT_REPORT_SELF": "Не можна надіслати скаргу на себе.",
+    "ACCOUNT_SUSPENDED": "Ваш акаунт заблоковано.",
+    "ACCOUNT_DELETED": "Акаунт видалено."
   },
   "navigation": {
     "home": "Головна",
@@ -692,10 +724,16 @@
     "search": "Пошук",
     "messages": "Повідомлення"
   },
+  "explore": {
+    "searchPlaceholder": "Знайдіть нових друзів за імʼям, нікнеймом або містом…",
+    "searchAria": "Пошук нових друзів"
+  },
   "feed": {
     "loading": "Завантаження стрічки…",
     "loadingMore": "Завантаження ще постів…",
     "empty": "Поки що немає постів",
+    "emptyHint": "Створіть перший пост або додайте друзів",
+    "refresh": "Оновити",
     "openProfile": "Відкрити профіль {{name}}",
     "profileUnavailable": "Профіль недоступний",
     "error": {

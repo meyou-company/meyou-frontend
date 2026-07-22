@@ -115,7 +115,9 @@ export function usePrefillProfile({
         setValues((prev) => ({
           ...prev,
 
-          city: cities.some((c) => c.value === u.city) ? { value: u.city, label: u.city } : null,
+          city: cities.some((c) => c.value === u.city)
+            ? { value: u.city, label: u.city }
+            : u.city || null,
         }));
       } catch (e) {
         console.error('usePrefillProfile error:', e);

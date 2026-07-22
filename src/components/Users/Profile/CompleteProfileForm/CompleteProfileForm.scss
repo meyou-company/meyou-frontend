@@ -2,6 +2,9 @@
    LAYOUT
    ========================= */
 
+// @import '../profileFormDropdowns.scss';
+// @import '../profileFormFields.scss';
+
 .complete-profile {
   --field-radius: 20px;
   --field-radius-inner: 19px; /* inset 1px */
@@ -206,14 +209,14 @@
     filter 0.25s ease;
 }
 
-/* textarea wrapper */
-.field__wrap:has(.text-area) {
+/* phone: don't clip country dropdown */
+.field__wrap.phone-wrap {
+  overflow: visible;
+  min-height: 56px;
   height: auto;
 }
 
-/* ✅ select/phone: don't clip dropdown */
-.field__wrap.select-wrap,
-.field__wrap.phone-wrap {
+.field__wrap.select-wrap:has(.rs__menu) {
   overflow: visible;
   min-height: 56px;
   height: auto;
@@ -394,6 +397,12 @@
 }
 
 @media (max-width: 767px) {
+  .field__wrap.phone-wrap {
+    overflow: visible;
+    min-height: 45px;
+    height: auto;
+  }
+
   .field__genderWrap--desktop {
     display: none;
   }
@@ -1089,40 +1098,29 @@ body.night .field__date-indicator::after,
   font-size: 14px !important;
 }
 
-/* selected tags (interests/hobbies) */
-.select-wrap .rs__multi-value {
-  flex-shrink: 0;
-
-  display: flex;
-  align-items: center;
-
-  margin: 2px !important;
-
-  background: rgba(255, 255, 255, 0.95) !important;
-  border-radius: 10px !important;
+/* menu renders in BODY (portal) */
+.rs__menu-portal {
+  z-index: 9999999 !important;
 }
 
-/* single value */
-.select-wrap .rs__single-value {
-  color: var(--field-text) !important;
-  font-size: 14px !important;
-
-  overflow: visible;
-  white-space: nowrap;
+.rs__menu {
+  background: var(--select-menu-bg) !important;
+  border-radius: 16px !important;
+  padding: 6px !important;
+  box-shadow: 0 12px 30px rgba(123, 92, 255, 0.25) !important;
 }
 
-.select-wrap .rs__multi-value__label {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+/* Темна тема: чорний дропдаун react-select */
+body.dark .rs__menu,
+html[data-theme='dark'] .rs__menu {
+  background: #0d0d0d !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.6) !important;
 }
 
-.select-wrap .rs__multi-value__remove {
-  cursor: pointer;
-}
-
-.select-wrap .rs__multi-value__remove:hover {
-  background: rgba(255, 0, 0, 0.15);
+body.dark .rs__option,
+html[data-theme='dark'] .rs__option {
+  color: rgba(255, 255, 255, 0.95) !important;
 }
 
 /* Dark theme: selected tags should stay dark too */
@@ -1182,6 +1180,7 @@ html[data-theme='night'] .rs__multi-value__remove:hover {
   cursor: pointer !important;
 
   color: var(--select-text) !important;
+  font-weight: 500 !important;
   background: transparent !important;
 }
 
@@ -1310,11 +1309,7 @@ html[data-theme='dark'] .phone-wrap .react-international-phone-country-selector-
    TABLET+
    ========================= */
 
-@media (min-width: 768px) {
-  .field__wrap {
-    height: 56px;
-  }
-}
+/* field heights — profileFormFields.scss */
 
 /* =========================
    MOBILE (<= 480px)
@@ -1400,24 +1395,14 @@ html[data-theme='dark'] .phone-wrap .react-international-phone-country-selector-
     --field-radius-inner: 9px;
   }
 
-  .field__wrap {
-    height: 40px;
-    border-radius: var(--field-radius);
-  }
-
-  .field__wrap::before {
-    border-radius: var(--field-radius-inner);
-  }
-
   .text-input,
   .text-area {
     font-size: 13px;
     padding: 10px 12px 10px 22px;
   }
 
-  .text-area {
+  .field--bio .text-area {
     padding-top: 10px;
-    min-height: 84px;
   }
 
   .field__star {
@@ -1520,10 +1505,6 @@ html[data-theme='dark'] .phone-wrap .react-international-phone-country-selector-
     width: 108px;
     height: 30px;
     font-size: 12px;
-  }
-
-  .field__wrap {
-    height: 38px;
   }
 
   .text-input,

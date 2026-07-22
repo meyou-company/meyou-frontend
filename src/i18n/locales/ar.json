@@ -607,7 +607,20 @@
       "logoutAll": "Log out on all devices",
       "logoutAllConfirm": "Log out of your account on this device?",
       "logoutAllSuccess": "You have been logged out",
-      "comingSoon": "Coming soon"
+      "comingSoon": "Coming soon",
+      "deleteAccount": {
+        "dangerZoneTitle": "Danger zone",
+        "dangerZoneDesc": "Permanently delete your account. This cannot be undone.",
+        "deleteButton": "Delete account",
+        "modalTitle": "Delete account?",
+        "modalWarning": "This action cannot be undone. Your personal data will be removed and you will lose access to this account.",
+        "modalInputLabel": "Type DELETE to confirm",
+        "modalConfirm": "Delete account",
+        "modalConfirming": "Deleting…",
+        "modalCancel": "Cancel",
+        "success": "Account deleted",
+        "error": "Could not delete account"
+      }
     }
   },
   "video": {
@@ -649,7 +662,18 @@
     "STORY_VIDEO_TOO_LONG": "Story video is too long.",
     "STORY_CANNOT_REPLY_SELF": "Cannot reply to your own story.",
     "STORY_CANNOT_ADD_SELF_CLOSE_FRIEND": "Cannot add yourself to close friends.",
-    "VIDEO_TOO_LONG": "Video is too long."
+    "VIDEO_TOO_LONG": "Video is too long.",
+    "NETWORK_ERROR": "تعذر الاتصال بالخادم. تحقق من اتصال الإنترنت.",
+    "EMAIL_ALREADY_EXISTS": "يوجد مستخدم بهذا البريد الإلكتروني بالفعل.",
+    "INVALID_CREDENTIALS": "البريد الإلكتروني أو كلمة المرور غير صحيحة.",
+    "EMAIL_NOT_VERIFIED": "يرجى تأكيد بريدك الإلكتروني قبل تسجيل الدخول.",
+    "USERNAME_TAKEN": "اسم المستخدم هذا مستخدم بالفعل. اختر اسمًا آخر.",
+    "USERNAME_REQUIRED": "أدخل اسم مستخدم لإكمال ملفك الشخصي.",
+    "DUPLICATE_REPORT": "لقد أرسلت هذا البلاغ من قبل.",
+    "USER_BLOCKED": "التفاعل مع هذا المستخدم غير متاح.",
+    "CANNOT_REPORT_SELF": "لا يمكنك الإبلاغ عن نفسك.",
+    "ACCOUNT_SUSPENDED": "تم تعليق حسابك.",
+    "ACCOUNT_DELETED": "تم حذف هذا الحساب."
   },
   "navigation": {
     "home": "Home",
@@ -665,10 +689,16 @@
     "search": "Search",
     "messages": "Messages"
   },
+  "explore": {
+    "searchPlaceholder": "Find new friends by name, username or city…",
+    "searchAria": "Search for new friends"
+  },
   "feed": {
     "loading": "Loading feed…",
     "loadingMore": "Loading more posts…",
     "empty": "No posts yet",
+    "emptyHint": "Create your first post or add friends",
+    "refresh": "Refresh",
     "openProfile": "Open profile {{name}}",
     "profileUnavailable": "Profile unavailable",
     "error": {

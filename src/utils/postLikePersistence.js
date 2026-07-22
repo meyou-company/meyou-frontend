@@ -35,6 +35,15 @@ export function clearPostLikeOverride(postId) {
   writeMap(map);
 }
 
+export function clearAllPostLikeOverrides() {
+  if (typeof window === 'undefined') return;
+  try {
+    window.localStorage.removeItem(LIKES_KEY);
+  } catch {
+    // ignore
+  }
+}
+
 export function applyPersistedLikes(posts) {
   const list = Array.isArray(posts) ? posts : [];
   const map = readMap();

@@ -8,6 +8,7 @@ import Explore from '../pages/Explore/Explore';
 import Friends from '../pages/Friends/Friends';
 import Profile from '../pages/Profile/Profile';
 import ProfileFriendsPage from '../pages/Profile/ProfileFriendsPage';
+import ProfilePhotosPage from '../pages/Profile/ProfilePhotosPage';
 import VipChat from '../pages/VipChat/VipChat';
 import MessagesPage from '../pages/Messages/MessagesPage';
 import StoryArchivePage from '../pages/Stories/StoryArchivePage';
@@ -46,9 +47,19 @@ import LegalTermsPage from '../app/legal/terms/page';
 import LegalCommunityGuidelinesPage from '../app/legal/community-guidelines/page';
 import LegalDeleteAccountPage from '../app/legal/delete-account/page';
 import LegalAcceptTermsPage from '../app/legal/accept-terms/page';
+import EarnPage from '../app/earn/page';
+import FeatureChatPage from '../app/features/chat/page';
+import FeatureSecurityPage from '../app/features/security/page';
+import FeatureStoriesPage from '../app/features/stories/page';
+import FeatureProfilePage from '../app/features/profile/page';
+import FeatureGiftsPage from '../app/features/gifts/page';
 import { useBurgerMenuStore } from '../zustand/useBurgerMenuStore';
 import { useLocaleStore } from '../zustand/useLocaleStore';
 import { useThemeStore } from '../zustand/useThemeStore';
+import AdminLayout from '../pages/Admin/AdminLayout';
+import AdminDashboardPage from '../pages/Admin/AdminDashboardPage';
+import AdminReportsPage from '../pages/Admin/AdminReportsPage';
+import AdminUsersPage from '../pages/Admin/AdminUsersPage';
 import Post from '../components/Post/Post';
 import { MessagesSocketProvider } from '../providers/MessagesSocketProvider';
 import { NotificationsSocketProvider } from '../providers/NotificationsSocketProvider';
@@ -86,13 +97,18 @@ function AppLayout() {
   const isAuthRoute =
     location.pathname.startsWith('/auth') || location.pathname === '/auth/callback';
   const isLegalRoute = location.pathname.startsWith('/legal');
+  const isFeatureRoute =
+    location.pathname.startsWith('/features') || location.pathname === '/earn';
   const hideBottomNavRoutes = new Set(['/users/profile/complete']);
   const isLanding = location.pathname === '/';
+  const isAdminRoute = location.pathname.startsWith('/admin');
   /** Нижня навігація (mobile): лише після завершення профілю, не на головній з входом/реєстрацією. */
   const profileComplete = user?.profileCompleted === true;
   const shouldHideBottomNav =
     isAuthRoute ||
     isLegalRoute ||
+    isFeatureRoute ||
+    isAdminRoute ||
     hideBottomNavRoutes.has(location.pathname) ||
     !isAuthed ||
     !user ||
@@ -110,6 +126,7 @@ function AppLayout() {
               <Route path="/search" element={<Explore />} />
               <Route path="/friends" element={<Friends />} />
               <Route path="/profile" element={<Profile />} />
+              <Route path="/profile/photos" element={<ProfilePhotosPage />} />
               <Route path="/profile/:username" element={<Profile />} />
               <Route path="/profile/:username/friends" element={<ProfileFriendsPage />} />
               <Route path="/vip-chat" element={<VipChat />} />
@@ -141,11 +158,24 @@ function AppLayout() {
               <Route path="/settings/privacy" element={<PrivacySettingsPage />} />
               <Route path="/settings/security" element={<SecuritySettingsPage />} />
 
+              <Route path="/admin" element={<AdminLayout />}>
+                <Route index element={<AdminDashboardPage />} />
+                <Route path="reports" element={<AdminReportsPage />} />
+                <Route path="users" element={<AdminUsersPage />} />
+              </Route>
+
               <Route path="/legal/privacy" element={<LegalPrivacyPage />} />
               <Route path="/legal/terms" element={<LegalTermsPage />} />
               <Route path="/legal/community-guidelines" element={<LegalCommunityGuidelinesPage />} />
               <Route path="/legal/delete-account" element={<LegalDeleteAccountPage />} />
               <Route path="/legal/accept-terms" element={<LegalAcceptTermsPage />} />
+
+              <Route path="/earn" element={<EarnPage />} />
+              <Route path="/features/chat" element={<FeatureChatPage />} />
+              <Route path="/features/stories" element={<FeatureStoriesPage />} />
+              <Route path="/features/gifts" element={<FeatureGiftsPage />} />
+              <Route path="/features/profile" element={<FeatureProfilePage />} />
+              <Route path="/features/security" element={<FeatureSecurityPage />} />
 
               <Route path="/auth/login" element={<LoginPage />} />
               <Route path="/auth/register" element={<RegisterPage />} />

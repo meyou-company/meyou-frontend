@@ -2,7 +2,6 @@ import axios from 'axios';
 
 const BASE = 'https://countriesnow.space/api/v0.1';
 
-// простий кеш, щоб не смикати API по 100 разів
 let cachedCountries = null;
 
 const cachedCities = new Map();
