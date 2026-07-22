@@ -1,11 +1,11 @@
 /* =========================
    ProfileVisitorPublic — публічний профіль (без підписки)
    ========================= */
-$phVisitorGradient: linear-gradient(236.31deg, #FF4FB1 11.54%, #4F6BFF 88.46%);
-$phVisitorGold: linear-gradient(90deg, #E7C577 0%, #FFE9B1 38%, #F4D695 70%, #D8B66D 100%);
-$phVisitorPinkPurple: linear-gradient(236.31deg, #FF4FB1 11.54%, #4F6BFF 88.46%);
+$phVisitorGradient: linear-gradient(236.31deg, #ff4fb1 11.54%, #4f6bff 88.46%);
+$phVisitorGold: linear-gradient(90deg, #e7c577 0%, #ffe9b1 38%, #f4d695 70%, #d8b66d 100%);
+$phVisitorPinkPurple: linear-gradient(236.31deg, #ff4fb1 11.54%, #4f6bff 88.46%);
 $phVisitorBluePurple: linear-gradient(135deg, #4f6bff, #b05cff);
-$phVisitorTabBeige: #FCE9E9;
+$phVisitorTabBeige: #fce9e9;
 
 .profile-visitor-public .profile-container {
   max-width: 1200px;
@@ -15,8 +15,8 @@ $phVisitorTabBeige: #FCE9E9;
 .profile-visitor-public .profileBlock--visitorNotSub {
   display: grid;
   grid-template-areas:
-    "left right"
-    "left tabs";
+    'left right'
+    'left tabs';
   align-items: flex-start;
   gap: 18px 26px;
 }
@@ -107,8 +107,8 @@ $phVisitorTabBeige: #FCE9E9;
   display: grid;
   grid-template-columns: minmax(240px, 1fr) 286px 286px;
   grid-template-areas:
-    "identity report vip"
-    "identity subscribe block";
+    'identity report vip'
+    'identity subscribe block';
   align-items: start;
   gap: 28px 28px;
   padding-top: 10px;
@@ -141,8 +141,8 @@ $phVisitorTabBeige: #FCE9E9;
   height: 34px;
   flex-shrink: 0;
   background: $phVisitorGradient;
-  -webkit-mask: url("/home/complaints.svg") center / contain no-repeat;
-  mask: url("/home/complaints.svg") center / contain no-repeat;
+  -webkit-mask: url('/home/complaints.svg') center / contain no-repeat;
+  mask: url('/home/complaints.svg') center / contain no-repeat;
 }
 
 .profile-visitor-public .ph-visitor-tools__reportLabel {
@@ -375,6 +375,7 @@ $phVisitorTabBeige: #FCE9E9;
 .profile-visitor-public .ph-visitor-tabs {
   display: flex;
   flex-wrap: wrap;
+  justify-content: space-between;
   gap: 22px 28px;
   width: 100%;
 }
@@ -387,7 +388,7 @@ $phVisitorTabBeige: #FCE9E9;
 }
 
 .profile-visitor-public .ph-visitor-tabs--mobile {
-  display: none;
+  // display: none;
 }
 
 .profile-visitor-public .showMoreBtn {
@@ -433,36 +434,36 @@ $phVisitorTabBeige: #FCE9E9;
 
 /* Dark theme */
 body.dark .profile-visitor-public .ph-visitor-tools__report,
-html[data-theme="dark"] .profile-visitor-public .ph-visitor-tools__report {
+html[data-theme='dark'] .profile-visitor-public .ph-visitor-tools__report {
   color: rgba(255, 255, 255, 0.85);
 }
 body.dark .profile-visitor-public .ph-visitor-tools__vip,
-html[data-theme="dark"] .profile-visitor-public .ph-visitor-tools__vip {
+html[data-theme='dark'] .profile-visitor-public .ph-visitor-tools__vip {
   border-color: rgba(255, 255, 255, 0.2);
   color: rgba(255, 255, 255, 0.95);
 }
 body.dark .profile-visitor-public .ph-visitor-bio__line,
-html[data-theme="dark"] .profile-visitor-public .ph-visitor-bio__line {
+html[data-theme='dark'] .profile-visitor-public .ph-visitor-bio__line {
   color: #a5b4ff;
 }
 body.dark .profile-visitor-public .ph-visitor-tabs__tab:not(.is-active),
-html[data-theme="dark"] .profile-visitor-public .ph-visitor-tabs__tab:not(.is-active) {
+html[data-theme='dark'] .profile-visitor-public .ph-visitor-tabs__tab:not(.is-active) {
   background: rgba(255, 255, 255, 0.1);
   border-color: rgba(255, 255, 255, 0.15);
   color: rgba(255, 255, 255, 0.85);
 }
 body.dark .profile-visitor-public .ph-visitor-tabs__lock,
-html[data-theme="dark"] .profile-visitor-public .ph-visitor-tabs__lock {
+html[data-theme='dark'] .profile-visitor-public .ph-visitor-tabs__lock {
   filter: brightness(0) invert(1);
   opacity: 0.7;
 }
 body.dark .profile-visitor-public .ph-visitor-onlineDot,
-html[data-theme="dark"] .profile-visitor-public .ph-visitor-onlineDot {
+html[data-theme='dark'] .profile-visitor-public .ph-visitor-onlineDot {
   border-color: rgba(20, 10, 30, 0.95);
 }
 
 body.dark .profile-visitor-public .ph-visitor-avatarInfoBtn,
-html[data-theme="dark"] .profile-visitor-public .ph-visitor-avatarInfoBtn {
+html[data-theme='dark'] .profile-visitor-public .ph-visitor-avatarInfoBtn {
   color: #fff;
 }
 
@@ -509,7 +510,7 @@ html[data-theme="dark"] .profile-visitor-public .ph-visitor-avatarInfoBtn {
   }
 
   .profile-visitor-public .ph-visitor-name {
-    font-size: 36px;
+    font-size: 28px;
     margin-bottom: 10px;
   }
 
@@ -518,7 +519,7 @@ html[data-theme="dark"] .profile-visitor-public .ph-visitor-avatarInfoBtn {
   }
 
   .profile-visitor-public .ph-visitor-bio__line {
-    font-size: 18px; 
+    font-size: 18px;
   }
 
   .profile-visitor-public .ph-visitor-tools__reportIconWrap {
@@ -565,6 +566,13 @@ html[data-theme="dark"] .profile-visitor-public .ph-visitor-avatarInfoBtn {
     font-size: 15px;
   }
 
+  .profile-visitor-public .ph-visitor-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    gap: 22px 28px;
+    width: 100%;
+  }
   .profile-visitor-public .ph-visitor-tabs__lock {
     width: 14px;
     height: 14px;
@@ -698,7 +706,10 @@ html[data-theme="dark"] .profile-visitor-public .ph-visitor-avatarInfoBtn {
     font-weight: 500;
   }
 
-  .profile-visitor-public .ph-visitor-mobileActions .ph-visitor-tools__vip .ph-visitor-tools__vipIcon {
+  .profile-visitor-public
+    .ph-visitor-mobileActions
+    .ph-visitor-tools__vip
+    .ph-visitor-tools__vipIcon {
     width: 14px;
     height: 14px;
   }
@@ -809,7 +820,10 @@ html[data-theme="dark"] .profile-visitor-public .ph-visitor-avatarInfoBtn {
     font-weight: 500;
   }
 
-  .profile-visitor-public .ph-visitor-mobileActions .ph-visitor-tools__vip .ph-visitor-tools__vipIcon {
+  .profile-visitor-public
+    .ph-visitor-mobileActions
+    .ph-visitor-tools__vip
+    .ph-visitor-tools__vipIcon {
     width: 13px;
     height: 13px;
   }
@@ -926,7 +940,10 @@ html[data-theme="dark"] .profile-visitor-public .ph-visitor-avatarInfoBtn {
     font-weight: 500;
   }
 
-  .profile-visitor-public .ph-visitor-mobileActions .ph-visitor-tools__vip .ph-visitor-tools__vipIcon {
+  .profile-visitor-public
+    .ph-visitor-mobileActions
+    .ph-visitor-tools__vip
+    .ph-visitor-tools__vipIcon {
     width: 12px;
     height: 12px;
   }
@@ -976,16 +993,26 @@ html[data-theme="dark"] .profile-visitor-public .ph-visitor-avatarInfoBtn {
 }
 
 @media only screen and (min-width: 768px) and (max-width: 1023.98px) {
-    .profile-visitor-public .profileBlock--visitorNotSub .profileLeft {
+  .profile-visitor-public .profileBlock--visitorNotSub .profileLeft {
     flex: 0 0 200px;
   }
 }
 
-@media (min-width: 1045px) and (max-width: 1279px) {
-    .profile-visitor-public .ph-visitor-right {
-    grid-template-columns: minmax(150px, 1fr) 180px 180px;
+@media (min-width: 1044px) and (max-width: 1279px) {
+  .profile-visitor-public .ph-visitor-right {
+    grid-template-columns: minmax(180px, 1fr) 180px 180px;
     padding-top: 6px;
-    gap: 22px 45px;
+    gap: 22px 28px;
+  }
+  .profile-visitor-public .ph-visitor-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    gap: 22px 28px;
+    width: 100%;
+  }
+  .profile-visitor-public .ph-visitor-name {
+    font-size: 30px;
   }
 
   .profile-visitor-public .ph-visitor-tools__vip {
@@ -994,9 +1021,16 @@ html[data-theme="dark"] .profile-visitor-public .ph-visitor-avatarInfoBtn {
 }
 
 @media only screen and (min-width: 1024px) {
-    .profile-visitor-public .ph-visitor-name {
-      margin-bottom: 20px;
-    }
+  .profile-visitor-public .ph-visitor-name {
+    margin-bottom: 20px;
+  }
+  .profile-visitor-public .ph-visitor-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    gap: 22px 28px;
+    width: 100%;
+  }
 }
 
 @media only screen and (min-width: 1045px) {
@@ -1012,15 +1046,14 @@ html[data-theme="dark"] .profile-visitor-public .ph-visitor-avatarInfoBtn {
 }
 
 @media only screen and (min-width: 1280px) {
-
   .profile-visitor-public .ph-visitor-right {
     grid-template-columns: minmax(260px, 1fr) 220px 260px;
     padding-top: 6px;
-}
+  }
 
   .profile-visitor-public .ph-visitor-actions__subscribe {
     height: 57px;
-}
+  }
 }
 
 .ph-visitor-avatarWrap--hasStories,

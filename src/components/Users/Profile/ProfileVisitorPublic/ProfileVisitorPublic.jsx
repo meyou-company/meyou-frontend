@@ -1,22 +1,22 @@
 /** Чужий профіль без підписки */
-import { useEffect, useMemo, useRef, useState } from "react";
-import { useTranslation } from "react-i18next";
-import profileIcons from "../../../../constants/profileIcons";
-import { getFriendsCountNumber } from "../../../../utils/profileFriends";
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import profileIcons from '../../../../constants/profileIcons';
+import { getFriendsCountNumber } from '../../../../utils/profileFriends';
 import {
   normalizeFriendListItem,
   getFriendRouteHandle,
   getFriendDisplayLabel,
-} from "../../../../utils/profileFriendNav";
-import { dedupeAsync } from "../../../../utils/dedupeAsync";
-import { useProfileAuthorFeed } from "../../../../hooks/useProfileAuthorFeed";
-import ProfilePostsFeed from "../ProfilePostsFeed/ProfilePostsFeed";
-import ProfileInfoPanel from "../ProfileInfoPanel/ProfileInfoPanel";
-import { storiesApi } from "../../../../services/storiesApi";
-import StoryViewerModal from "../../../Stories/StoryViewerModal";
-import { useProfileTabs } from "../../../../hooks/useProfileTabs";
-import "../ProfileHome/ProfileHome.scss";
-import "./ProfileVisitorPublic.scss";
+} from '../../../../utils/profileFriendNav';
+import { dedupeAsync } from '../../../../utils/dedupeAsync';
+import { useProfileAuthorFeed } from '../../../../hooks/useProfileAuthorFeed';
+import ProfilePostsFeed from '../ProfilePostsFeed/ProfilePostsFeed';
+import ProfileInfoPanel from '../ProfileInfoPanel/ProfileInfoPanel';
+import { storiesApi } from '../../../../services/storiesApi';
+import StoryViewerModal from '../../../Stories/StoryViewerModal';
+import { useProfileTabs } from '../../../../hooks/useProfileTabs';
+import '../ProfileHome/ProfileHome.scss';
+import './ProfileVisitorPublic.scss';
 
 /**
  * Public (non-subscribed) visitor profile view.
@@ -38,7 +38,7 @@ export default function ProfileVisitorPublic({
 }) {
   const { t } = useTranslation();
   const visitorTabs = useProfileTabs({ withLocks: true });
-  const [visitorTab, setVisitorTab] = useState("info");
+  const [visitorTab, setVisitorTab] = useState('info');
   const [viewImageUrl, setViewImageUrl] = useState(null);
   const [profileStories, setProfileStories] = useState([]);
   const [profileStoriesLoading, setProfileStoriesLoading] = useState(false);
@@ -49,9 +49,9 @@ export default function ProfileVisitorPublic({
 
   useEffect(() => {
     if (!viewImageUrl) return;
-    const onEscape = (e) => e.key === "Escape" && setViewImageUrl(null);
-    window.addEventListener("keydown", onEscape);
-    return () => window.removeEventListener("keydown", onEscape);
+    const onEscape = (e) => e.key === 'Escape' && setViewImageUrl(null);
+    window.addEventListener('keydown', onEscape);
+    return () => window.removeEventListener('keydown', onEscape);
   }, [viewImageUrl]);
 
   useEffect(() => {
@@ -64,21 +64,21 @@ export default function ProfileVisitorPublic({
     };
 
     const onEscape = (e) => {
-      if (e.key === "Escape") setIsMobileMenuOpen(false);
+      if (e.key === 'Escape') setIsMobileMenuOpen(false);
     };
 
-    document.addEventListener("mousedown", onPointerDown);
-    document.addEventListener("touchstart", onPointerDown);
-    window.addEventListener("keydown", onEscape);
+    document.addEventListener('mousedown', onPointerDown);
+    document.addEventListener('touchstart', onPointerDown);
+    window.addEventListener('keydown', onEscape);
 
     return () => {
-      document.removeEventListener("mousedown", onPointerDown);
-      document.removeEventListener("touchstart", onPointerDown);
-      window.removeEventListener("keydown", onEscape);
+      document.removeEventListener('mousedown', onPointerDown);
+      document.removeEventListener('touchstart', onPointerDown);
+      window.removeEventListener('keydown', onEscape);
     };
   }, [isMobileMenuOpen]);
 
-  const username = user?.username || user?.nick || user?.nickname || user?.login || "";
+  const username = user?.username || user?.nick || user?.nickname || user?.login || '';
   const profileUserId = user?.id || user?._id || postsAuthorId;
 
   useEffect(() => {
@@ -96,22 +96,21 @@ export default function ProfileVisitorPublic({
         setProfileStoriesLoading(true);
 
         const list = await dedupeAsync(`stories:user:${profileUserId}`, () =>
-          storiesApi.getUserStories(profileUserId),
+          storiesApi.getUserStories(profileUserId)
         );
 
         if (cancelled) return;
 
-        const normalized =
-          Array.isArray(list?.[0]?.stories)
-            ? list[0].stories
-            : Array.isArray(list)
-              ? list
-              : [];
+        const normalized = Array.isArray(list?.[0]?.stories)
+          ? list[0].stories
+          : Array.isArray(list)
+            ? list
+            : [];
 
         setProfileStories(normalized);
       } catch (e) {
         if (!cancelled) {
-          console.error("[profile stories] failed", e);
+          console.error('[profile stories] failed', e);
           setProfileStories([]);
         }
       } finally {
@@ -125,24 +124,24 @@ export default function ProfileVisitorPublic({
       cancelled = true;
     };
   }, [profileUserId, loadSecondary]);
-  const fullNameReal = [user?.firstName, user?.lastName].filter(Boolean).join(" ") || "";
+  const fullNameReal = [user?.firstName, user?.lastName].filter(Boolean).join(' ') || '';
   const titleName = username || fullNameReal || t('common.user');
-  const displayAvatar = user?.avatarUrl || user?.avatar || "/Logo/photo.png";
+  const displayAvatar = user?.avatarUrl || user?.avatar || '/Logo/photo.png';
   const hasProfileStories = profileStories.length > 0;
 
   const profileStoryGroups = hasProfileStories
     ? [
-      {
-        author: {
-          id: user?.id,
-          firstName: user?.firstName,
-          lastName: user?.lastName,
-          username,
-          avatarUrl: displayAvatar,
+        {
+          author: {
+            id: user?.id,
+            firstName: user?.firstName,
+            lastName: user?.lastName,
+            username,
+            avatarUrl: displayAvatar,
+          },
+          stories: profileStories,
         },
-        stories: profileStories,
-      },
-    ]
+      ]
     : [];
 
   const findFirstUnviewedStoryIndex = (stories = []) => {
@@ -155,9 +154,9 @@ export default function ProfileVisitorPublic({
     setIsStoryViewerOpen(true);
   };
 
-  const location = [user?.city, user?.country].filter(Boolean).join(", ") || "";
-  const bioLine1 = fullNameReal ? `${fullNameReal}.` : "";
-  const bioLine2 = location ? `${location}.` : "";
+  const location = [user?.city, user?.country].filter(Boolean).join(', ') || '';
+  const bioLine1 = fullNameReal ? `${fullNameReal}.` : '';
+  const bioLine2 = location ? `${location}.` : '';
 
   const friends = useMemo(() => {
     if (!Array.isArray(user?.friends)) return [];
@@ -171,15 +170,16 @@ export default function ProfileVisitorPublic({
   const hasFriends = friends.length > 0;
   const apiCount = getFriendsCountNumber(user?.friendsCount ?? user?.friends_count);
   const displayFriendsCount =
-    typeof apiCount === "number" && apiCount >= 0
+    typeof apiCount === 'number' && apiCount >= 0
       ? apiCount
       : Array.isArray(user?.friends)
         ? user.friends.length
         : 0;
 
   const authorId = postsAuthorId ?? user?.id ?? user?._id;
-  const { feedPosts, feedLoading, feedError, feedActions } =
-    useProfileAuthorFeed(authorId, { enabled: loadSecondary });
+  const { feedPosts, feedLoading, feedError, feedActions } = useProfileAuthorFeed(authorId, {
+    enabled: loadSecondary,
+  });
 
   return (
     <div className="profile-visitor-public profile-home">
@@ -189,7 +189,7 @@ export default function ProfileVisitorPublic({
           <div className="profileLeft">
             <div className="ph-visitor-avatarBlock">
               <div
-                className={`ph-visitor-avatarWrap ${hasProfileStories ? "ph-visitor-avatarWrap--hasStories" : ""}`}
+                className={`ph-visitor-avatarWrap ${hasProfileStories ? 'ph-visitor-avatarWrap--hasStories' : ''}`}
                 role="button"
                 tabIndex={0}
                 onClick={() => {
@@ -203,7 +203,7 @@ export default function ProfileVisitorPublic({
                   setViewImageUrl(displayAvatar);
                 }}
                 onKeyDown={(e) => {
-                  if (e.key !== "Enter") return;
+                  if (e.key !== 'Enter') return;
                   if (profileStoriesLoading) return;
 
                   if (hasProfileStories) {
@@ -218,13 +218,13 @@ export default function ProfileVisitorPublic({
                 <img src={displayAvatar} alt={titleName} className="avatar" />
               </div>
               <span className="ph-visitor-onlineDot" aria-hidden="true" />
-              <button
+              {/* <button
                 type="button"
-                className={`ph-visitor-avatarInfoBtn${visitorTab === "info" ? " is-active" : ""}`}
-                onClick={() => setVisitorTab("info")}
+                className={`ph-visitor-avatarInfoBtn${visitorTab === 'info' ? ' is-active' : ''}`}
+                onClick={() => setVisitorTab('info')}
               >
                 {t('profile.tabs.info')}
-              </button>
+              </button> */}
             </div>
           </div>
           <div className="ph-visitor-right">
@@ -235,14 +235,26 @@ export default function ProfileVisitorPublic({
                   {bioLine1 && (
                     <p className="ph-visitor-bio__line">
                       {bioLine1.split(/(\s+)/).map((part, i) =>
-                        /\s/.test(part) ? part : <span key={i} className="ph-visitor-bio__word">{part}</span>
+                        /\s/.test(part) ? (
+                          part
+                        ) : (
+                          <span key={i} className="ph-visitor-bio__word">
+                            {part}
+                          </span>
+                        )
                       )}
                     </p>
                   )}
                   {bioLine2 && (
                     <p className="ph-visitor-bio__line">
                       {bioLine2.split(/(\s+)/).map((part, i) =>
-                        /\s/.test(part) ? part : <span key={i} className="ph-visitor-bio__word">{part}</span>
+                        /\s/.test(part) ? (
+                          part
+                        ) : (
+                          <span key={i} className="ph-visitor-bio__word">
+                            {part}
+                          </span>
+                        )
                       )}
                     </p>
                   )}
@@ -258,14 +270,7 @@ export default function ProfileVisitorPublic({
               <span className="ph-visitor-tools__reportIconWrap" aria-hidden="true" />
               <span className="ph-visitor-tools__reportLabel">{t('profile.visitor.report')}</span>
             </button>
-            <button
-              type="button"
-              className="ph-visitor-actions__message"
-              onClick={onWriteMessage}
-              aria-label={t('profile.visitor.writeMessage')}
-            >
-              {t('profile.visitor.writeMessage')}
-            </button>
+
             <button
               type="button"
               className="ph-visitor-actions__block"
@@ -280,7 +285,9 @@ export default function ProfileVisitorPublic({
               onClick={onSubscribe}
               disabled={subscriptionLoading}
             >
-              {subscriptionLoading ? t('profile.visitor.subscribing') : t('profile.visitor.subscribe')}
+              {subscriptionLoading
+                ? t('profile.visitor.subscribing')
+                : t('profile.visitor.subscribe')}
             </button>
             <button
               type="button"
@@ -292,41 +299,50 @@ export default function ProfileVisitorPublic({
               <img src={profileIcons.vipButton} alt="" className="ph-visitor-tools__vipIcon" />
             </button>
           </div>
-          <section className="ph-visitor-tabs ph-visitor-tabs--desktop" role="tablist" aria-label={t('profile.visitor.profileTabs')}>
-            {visitorTabs.filter((tab) => tab.id !== "info").map((tab) => (
-              <button
-                key={tab.id}
-                type="button"
-                role="tab"
-                aria-selected={visitorTab === tab.id}
-                aria-disabled={tab.locked}
-                className={`ph-visitor-tabs__tab${visitorTab === tab.id ? " is-active" : ""}${tab.locked ? " is-locked" : ""}`}
-                onClick={() => !tab.locked && setVisitorTab(tab.id)}
-              >
-                <span>{tab.label}</span>
-                {tab.locked && (
-                  <img src={profileIcons.lockBlack} alt="" className="ph-visitor-tabs__lock" aria-hidden />
-                )}
-              </button>
-            ))}
-          </section>
+          {/* <section
+            className="ph-visitor-tabs ph-visitor-tabs--desktop"
+            role="tablist"
+            aria-label={t('profile.visitor.profileTabs')}
+          >
+            {visitorTabs
+              .filter((tab) => tab.id !== 'info')
+              .map((tab) => (
+                <button
+                  key={tab.id}
+                  type="button"
+                  role="tab"
+                  aria-selected={visitorTab === tab.id}
+                  aria-disabled={tab.locked}
+                  className={`ph-visitor-tabs__tab${visitorTab === tab.id ? ' is-active' : ''}${tab.locked ? ' is-locked' : ''}`}
+                  onClick={() => !tab.locked && setVisitorTab(tab.id)}
+                >
+                  <span>{tab.label}</span>
+                  {tab.locked && (
+                    <img
+                      src={profileIcons.lockBlack}
+                      alt=""
+                      className="ph-visitor-tabs__lock"
+                      aria-hidden
+                    />
+                  )}
+                </button>
+              ))}
+          </section> */}
         </section>
 
-        <section className="ph-visitor-mobileActions" aria-label={t('profile.visitor.profileActions')}>
-          <button
-            type="button"
-            className="ph-visitor-actions__message"
-            onClick={onWriteMessage}
-          >
-            {t('profile.visitor.writeMessage')}
-          </button>
+        <section
+          className="ph-visitor-mobileActions"
+          aria-label={t('profile.visitor.profileActions')}
+        >
           <button
             type="button"
             className="ph-visitor-actions__subscribe"
             onClick={onSubscribe}
             disabled={subscriptionLoading}
           >
-            {subscriptionLoading ? t('profile.visitor.subscribing') : t('profile.visitor.subscribe')}
+            {subscriptionLoading
+              ? t('profile.visitor.subscribing')
+              : t('profile.visitor.subscribe')}
           </button>
           <button
             type="button"
@@ -346,10 +362,16 @@ export default function ProfileVisitorPublic({
               aria-haspopup="menu"
               onClick={() => setIsMobileMenuOpen((prev) => !prev)}
             >
-              <span className="ph-visitor-tools__moreDots" aria-hidden="true">•••</span>
+              <span className="ph-visitor-tools__moreDots" aria-hidden="true">
+                •••
+              </span>
             </button>
             {isMobileMenuOpen && (
-              <div className="ph-visitor-mobileMenu" role="menu" aria-label={t('profile.visitor.profileActions')}>
+              <div
+                className="ph-visitor-mobileMenu"
+                role="menu"
+                aria-label={t('profile.visitor.profileActions')}
+              >
                 <button
                   type="button"
                   className="ph-visitor-mobileMenu__item"
@@ -359,7 +381,12 @@ export default function ProfileVisitorPublic({
                     onBlock?.();
                   }}
                 >
-                  <img src={profileIcons.lockBlack} alt="" className="ph-visitor-mobileMenu__icon" aria-hidden="true" />
+                  <img
+                    src={profileIcons.lockBlack}
+                    alt=""
+                    className="ph-visitor-mobileMenu__icon"
+                    aria-hidden="true"
+                  />
                   <span>{t('profile.visitor.block')}</span>
                 </button>
                 <button
@@ -371,7 +398,12 @@ export default function ProfileVisitorPublic({
                     onReport?.();
                   }}
                 >
-                  <img src={profileIcons.complaints} alt="" className="ph-visitor-mobileMenu__icon" aria-hidden="true" />
+                  <img
+                    src={profileIcons.complaints}
+                    alt=""
+                    className="ph-visitor-mobileMenu__icon"
+                    aria-hidden="true"
+                  />
                   <span>{t('profile.visitor.report')}</span>
                 </button>
               </div>
@@ -379,9 +411,12 @@ export default function ProfileVisitorPublic({
           </div>
         </section>
 
-
         {/* ================= TABS ================= */}
-        <section className="ph-visitor-tabs ph-visitor-tabs--mobile" role="tablist" aria-label={t('profile.visitor.profileTabs')}>
+        <section
+          className="ph-visitor-tabs ph-visitor-tabs--mobile"
+          role="tablist"
+          aria-label={t('profile.visitor.profileTabs')}
+        >
           {visitorTabs.map((tab) => (
             <button
               key={tab.id}
@@ -389,26 +424,28 @@ export default function ProfileVisitorPublic({
               role="tab"
               aria-selected={visitorTab === tab.id}
               aria-disabled={tab.locked}
-              className={`ph-visitor-tabs__tab${visitorTab === tab.id ? " is-active" : ""}${tab.locked ? " is-locked" : ""}`}
+              className={`ph-visitor-tabs__tab${visitorTab === tab.id ? ' is-active' : ''}${tab.locked ? ' is-locked' : ''}`}
               onClick={() => !tab.locked && setVisitorTab(tab.id)}
             >
               <span>{tab.label}</span>
               {tab.locked && (
-                <img src={profileIcons.lockBlack} alt="" className="ph-visitor-tabs__lock" aria-hidden />
+                <img
+                  src={profileIcons.lockBlack}
+                  alt=""
+                  className="ph-visitor-tabs__lock"
+                  aria-hidden
+                />
               )}
             </button>
           ))}
         </section>
 
-        <ProfileInfoPanel
-          user={user}
-          isOpen={visitorTab === "info"}
-        />
+        <ProfileInfoPanel user={user} isOpen={visitorTab === 'info'} />
 
         {/* ================= FRIENDS ================= */}
         <section className="vipCard">
           <div className="friendsTitle">
-            <span className="friendsTitle__label">{t('profile.friends.title')}</span>{" "}
+            <span className="friendsTitle__label">{t('profile.friends.title')}</span>{' '}
             <span className="friendsTitle__count">{displayFriendsCount}</span>
           </div>
           {hasFriends ? (
@@ -432,11 +469,7 @@ export default function ProfileVisitorPublic({
                               : t('profile.friends.profileUnavailable')
                           }
                         >
-                          <img
-                            src={v.avatar || "/icon1/image0.png"}
-                            className="vipAvatar"
-                            alt=""
-                          />
+                          <img src={v.avatar || '/icon1/image0.png'} className="vipAvatar" alt="" />
                           <span className="onlineDot" />
                         </button>
                         {(label || canOpen) && (
@@ -457,9 +490,7 @@ export default function ProfileVisitorPublic({
                               className="vipFriendNameIcon"
                               aria-hidden="true"
                             />
-                            <span className="vipFriendNameText">
-                              {label || handle || "—"}
-                            </span>
+                            <span className="vipFriendNameText">{label || handle || '—'}</span>
                           </button>
                         )}
                       </div>
