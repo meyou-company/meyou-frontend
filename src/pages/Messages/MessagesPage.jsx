@@ -27,8 +27,10 @@ import MessageSoundToggle from '../../components/Messages/MessageSoundToggle';
 import MessagesNavBadge from '../../components/Messages/MessagesNavBadge';
 import ReportMessageModal from '../../components/Messages/ReportMessageModal';
 import TypingIndicator from '../../components/Messages/TypingIndicator';
+import OnlineStatus from '../../components/Presence/OnlineStatus';
 import StoryViewerModal from '../../components/Stories/StoryViewerModal';
 import { conversationsApi } from '../../services/conversationsApi';
+import { usePresenceStore } from '../../zustand/usePresenceStore';
 import { getApiErrorMessage } from '../../utils/getApiErrorMessage';
 import {
   collectSeenOutgoingIds,
@@ -284,7 +286,11 @@ export default function MessagesPage() {
       setLoadingList(true);
       setListError('');
       const items = await conversationsApi.list();
-      setConversations(sortConversations(Array.isArray(items) ? items : []));
+      const list = sortConversations(Array.isArray(items) ? items : []);
+      usePresenceStore.getState().hydrateMany(
+        list.map((c) => c.participant).filter(Boolean),
+      );
+      setConversations(list);
     } catch (err) {
       console.error('[messages] list failed', err);
       setListError(getApiErrorMessage(err, 'messenger.loadChatsError'));
@@ -754,6 +760,11 @@ export default function MessagesPage() {
                           ) : (
                             <span>{name.charAt(0).toUpperCase()}</span>
                           )}
+                          <OnlineStatus
+                            userId={chat.participant?.id}
+                            user={chat.participant}
+                            className="onlineStatus--onAvatar"
+                          />
                         </div>
                         <div className="messagesPage__chatMeta">
                           <div className="messagesPage__chatTop">
@@ -798,8 +809,20 @@ export default function MessagesPage() {
                         ) : (
                           <span>{peerName.charAt(0).toUpperCase()}</span>
                         )}
+                        <OnlineStatus
+                          userId={activeConversation?.participant?.id}
+                          user={activeConversation?.participant}
+                          className="onlineStatus--onAvatar"
+                        />
                       </div>
-                      <h2 className="messagesPage__chatTitle">{peerName}</h2>
+                      <div className="messagesPage__chatHeadPresence">
+                        <h2 className="messagesPage__chatTitle">{peerName}</h2>
+                        <OnlineStatus
+                          userId={activeConversation?.participant?.id}
+                          user={activeConversation?.participant}
+                          variant="label"
+                        />
+                      </div>
                     </div>
                     <div className="messagesPage__chatActions">
                       <button

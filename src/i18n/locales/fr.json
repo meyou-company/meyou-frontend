@@ -15,6 +15,16 @@
     "off": "Off",
     "appLoadError": "Failed to load the app. Please refresh the page."
   },
+  "presence": {
+    "online": "En ligne",
+    "offline": "Hors ligne",
+    "lastSeenJustNow": "Vu(e) à l'instant",
+    "lastSeenMinutes": "Vu(e) il y a {{count}} min",
+    "lastSeenHours": "Vu(e) il y a {{count}} h",
+    "lastSeenDays": "Vu(e) il y a {{count}} j",
+    "lastSeenOn": "Vu(e) le {{date}}",
+    "lastSeenUnknown": "Hors ligne depuis longtemps"
+  },
   "nav": {
     "home": "Accueil",
     "people": "Personnes",
@@ -188,7 +198,6 @@
     "notFound": "Profile not found{{username}}",
     "loadError": "Failed to load profile",
     "myBalance": "My balance",
-    "myPhotos": "My photos",
     "editProfile": "Edit profile",
     "viewPhoto": "View photo",
     "viewPhotoFull": "Full-size photo",
@@ -317,7 +326,6 @@
       },
       "visibility": {
         "title": "Show on profile",
-
         "location": "Show location on profile",
         "instagram": "Show Instagram on profile",
         "telegram": "Show Telegram on profile",

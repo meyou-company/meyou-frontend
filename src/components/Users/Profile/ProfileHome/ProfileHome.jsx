@@ -32,6 +32,7 @@ import { detectCurrentLocationLabel } from "../../../../utils/postGeolocation";
 import StoryViewerModal from "../../../Stories/StoryViewerModal";
 import StoryUploadModal from "../../../Stories/StoryUploadModal";
 import ProfileInfoPanel from "../ProfileInfoPanel/ProfileInfoPanel";
+import OnlineStatus from "../../../Presence/OnlineStatus";
 import "./ProfileHome.scss";
 
 /** Іконки тільки для actionsBlock (чорно-білі SVG) */
@@ -721,7 +722,11 @@ export default function ProfileHome({
                             className="vipAvatar"
                             alt=""
                           />
-                          <span className="onlineDot" />
+                          <OnlineStatus
+                            userId={v.id}
+                            user={v}
+                            className="onlineStatus--onAvatar onlineDot"
+                          />
                         </button>
                         {(label || canOpen) && (
                           <button
@@ -811,7 +816,7 @@ export default function ProfileHome({
         <CreatePostModal
           authorName={titleName}
           displayAvatar={displayAvatar}
-          showOnlineDot={user?.online !== false}
+          showOnlineDot={user?.isOnline === true || user?.online === true}
           text={newPostText}
           onTextChange={setNewPostText}
           placeholder={t('posts.placeholder')}

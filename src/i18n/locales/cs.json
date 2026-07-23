@@ -15,6 +15,16 @@
     "off": "Off",
     "appLoadError": "Failed to load the app. Please refresh the page."
   },
+  "presence": {
+    "online": "Online",
+    "offline": "Offline",
+    "lastSeenJustNow": "Naposledy právě teď",
+    "lastSeenMinutes": "Naposledy před {{count}} min",
+    "lastSeenHours": "Naposledy před {{count}} h",
+    "lastSeenDays": "Naposledy před {{count}} d",
+    "lastSeenOn": "Naposledy {{date}}",
+    "lastSeenUnknown": "Dávno offline"
+  },
   "nav": {
     "home": "Domů",
     "people": "Lidé",
@@ -188,7 +198,6 @@
     "notFound": "Profile not found{{username}}",
     "loadError": "Failed to load profile",
     "myBalance": "My balance",
-    "myPhotos": "My photos",
     "editProfile": "Edit profile",
     "viewPhoto": "View photo",
     "viewPhotoFull": "Full-size photo",
@@ -317,7 +326,6 @@
       },
       "visibility": {
         "title": "Show on profile",
-
         "location": "Show location on profile",
         "instagram": "Show Instagram on profile",
         "telegram": "Show Telegram on profile",

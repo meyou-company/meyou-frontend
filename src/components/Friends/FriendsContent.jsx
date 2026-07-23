@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { subscriptionsApi } from "../../services/subscriptionsApi";
 import { getProfileRouteHandle } from "../../utils/profileFriendNav";
+import { usePresenceStore } from "../../zustand/usePresenceStore";
 import FriendsListRows from "./FriendsListRows";
 import "./FriendsContent.scss";
 
@@ -35,7 +36,9 @@ export default function FriendsContent({ onBack, onOpenProfile }) {
       .getFollowing({ take: 200 })
       .then((res) => {
         const data = res?.data ?? res;
-        setFollowing(Array.isArray(data?.items) ? data.items : []);
+        const items = Array.isArray(data?.items) ? data.items : [];
+        usePresenceStore.getState().hydrateMany(items);
+        setFollowing(items);
       })
       .catch(() => {
         setError("Не вдалося завантажити список");

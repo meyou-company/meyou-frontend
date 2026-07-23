@@ -26,7 +26,7 @@ const DEFAULT_FILTER = {
   interestsEnabled: true,
   interestsQuery: "",
   selectedInterests: [],
-  online: true,
+  online: false,
   vip: false,
   new: false,
 };
@@ -64,7 +64,7 @@ export default function SearchFilterModal({
       ageMin: initialParams.ageMin ?? 18,
       ageMax: initialParams.ageMax ?? 30,
       nearMe: initialParams.nearMe ?? true,
-      online: initialParams.online ?? true,
+      online: initialParams.online ?? false,
       vip: initialParams.top ?? false,
       new: initialParams.new ?? false,
       selectedInterests: Array.isArray(initialParams.interests) ? [...initialParams.interests] : [],

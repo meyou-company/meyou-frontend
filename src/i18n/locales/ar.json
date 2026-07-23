@@ -15,6 +15,16 @@
     "off": "Off",
     "appLoadError": "Failed to load the app. Please refresh the page."
   },
+  "presence": {
+    "online": "متصل",
+    "offline": "غير متصل",
+    "lastSeenJustNow": "آخر ظهور الآن",
+    "lastSeenMinutes": "آخر ظهور منذ {{count}} د",
+    "lastSeenHours": "آخر ظهور منذ {{count}} س",
+    "lastSeenDays": "آخر ظهور منذ {{count}} ي",
+    "lastSeenOn": "آخر ظهور في {{date}}",
+    "lastSeenUnknown": "غير متصل منذ فترة"
+  },
   "nav": {
     "home": "الرئيسية",
     "people": "الأشخاص",
@@ -180,7 +190,6 @@
     "notFound": "Profile not found{{username}}",
     "loadError": "Failed to load profile",
     "myBalance": "My balance",
-    "myPhotos": "My photos",
     "editProfile": "Edit profile",
     "viewPhoto": "View photo",
     "viewPhotoFull": "Full-size photo",
@@ -309,7 +318,6 @@
       },
       "visibility": {
         "title": "Show on profile",
-
         "location": "Show location on profile",
         "instagram": "Show Instagram on profile",
         "telegram": "Show Telegram on profile",

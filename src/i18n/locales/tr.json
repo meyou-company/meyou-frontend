@@ -15,6 +15,16 @@
     "off": "Off",
     "appLoadError": "Failed to load the app. Please refresh the page."
   },
+  "presence": {
+    "online": "Çevrimiçi",
+    "offline": "Çevrimdışı",
+    "lastSeenJustNow": "Az önce görüldü",
+    "lastSeenMinutes": "{{count}} dk önce görüldü",
+    "lastSeenHours": "{{count}} sa önce görüldü",
+    "lastSeenDays": "{{count}} gün önce görüldü",
+    "lastSeenOn": "{{date}} tarihinde görüldü",
+    "lastSeenUnknown": "Uzun süredir çevrimdışı"
+  },
   "nav": {
     "home": "Ana sayfa",
     "people": "İnsanlar",
@@ -188,7 +198,6 @@
     "notFound": "Profile not found{{username}}",
     "loadError": "Failed to load profile",
     "myBalance": "My balance",
-    "myPhotos": "My photos",
     "editProfile": "Edit profile",
     "viewPhoto": "View photo",
     "viewPhotoFull": "Full-size photo",
@@ -317,7 +326,6 @@
       },
       "visibility": {
         "title": "Show on profile",
-
         "location": "Show location on profile",
         "instagram": "Show Instagram on profile",
         "telegram": "Show Telegram on profile",

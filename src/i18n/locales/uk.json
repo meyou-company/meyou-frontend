@@ -15,6 +15,16 @@
     "off": "Off",
     "appLoadError": "Не вдалося завантажити додаток. Спробуйте оновити сторінку."
   },
+  "presence": {
+    "online": "Онлайн",
+    "offline": "Офлайн",
+    "lastSeenJustNow": "Був(ла) щойно",
+    "lastSeenMinutes": "Був(ла) {{count}} хв тому",
+    "lastSeenHours": "Був(ла) {{count}} год тому",
+    "lastSeenDays": "Був(ла) {{count}} дн. тому",
+    "lastSeenOn": "Був(ла) {{date}}",
+    "lastSeenUnknown": "Давно не був(ла) в мережі"
+  },
   "nav": {
     "home": "Головна",
     "people": "Люди",

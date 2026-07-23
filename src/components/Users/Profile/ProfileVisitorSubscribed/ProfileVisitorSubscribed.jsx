@@ -16,6 +16,7 @@ import ProfilePostsFeed from "../ProfilePostsFeed/ProfilePostsFeed";
 import ProfileInfoPanel from "../ProfileInfoPanel/ProfileInfoPanel";
 import { storiesApi } from "../../../../services/storiesApi";
 import StoryViewerModal from "../../../Stories/StoryViewerModal";
+import OnlineStatus from "../../../Presence/OnlineStatus";
 import { useProfileTabs } from "../../../../hooks/useProfileTabs";
 import "../ProfileHome/ProfileHome.scss";
 import "./ProfileVisitorSubscribed.scss";
@@ -133,7 +134,6 @@ export default function ProfileVisitorSubscribed({
     setStoryViewerStoryIndex(findFirstUnviewedStoryIndex(profileStories));
     setIsStoryViewerOpen(true);
   };
-  const isOnline = user?.online !== false;
 
   const friends = useMemo(() => {
     if (!Array.isArray(user?.friends)) return [];
@@ -209,7 +209,11 @@ export default function ProfileVisitorSubscribed({
             >
               <img src={displayAvatar} alt="" className="profile-visitor-subscribed__avatar" />
             </div>
-            {isOnline && <span className="profile-visitor-subscribed__onlineDot" aria-hidden="true" />}
+            <OnlineStatus
+              userId={user?.id}
+              user={user}
+              className="onlineStatus--onAvatar profile-visitor-subscribed__onlineDot"
+            />
           </div>
 
           {/* На мобілці нік/ім'я/локація під аватаром */}
@@ -355,7 +359,11 @@ export default function ProfileVisitorSubscribed({
                           className="vipAvatar"
                           alt=""
                         />
-                        <span className="onlineDot" aria-hidden="true" />
+                        <OnlineStatus
+                          userId={f.id}
+                          user={f}
+                          className="onlineStatus--onAvatar onlineDot"
+                        />
                       </button>
                       {friends.length > 0 && (label || canOpen) && (
                         <button

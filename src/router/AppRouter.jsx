@@ -63,6 +63,7 @@ import AdminUsersPage from '../pages/Admin/AdminUsersPage';
 import Post from '../components/Post/Post';
 import { MessagesSocketProvider } from '../providers/MessagesSocketProvider';
 import { NotificationsSocketProvider } from '../providers/NotificationsSocketProvider';
+import { PresenceSocketProvider } from '../providers/PresenceSocketProvider';
 import { StoriesSocketProvider } from '../providers/StoriesSocketProvider';
 
 /** Глобальне бургер-меню — рендериться один раз, відкривається з будь-якої сторінки */
@@ -205,6 +206,7 @@ export default function AppRouter() {
       <NotificationsSocketProvider />
       <MessagesSocketProvider />
       <StoriesSocketProvider />
+      <PresenceSocketProvider />
       <RouterLoaderSync />
       <UserProfileNavProvider>
         <ProfileGuard>

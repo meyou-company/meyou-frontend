@@ -6,6 +6,7 @@ import {
   getFriendRouteHandle,
 } from "../../../../utils/profileFriendNav";
 import { useVipProfileTabs } from "../../../../hooks/useProfileTabs";
+import OnlineStatus from "../../../Presence/OnlineStatus";
 import "./ProfileVisitorVip.scss";
 import { FeedCard } from "../../../FirstPage/FirstPageView";
 
@@ -66,10 +67,8 @@ export default function ProfileVisitorVip({
   const displayAvatar =
     user?.avatarUrl || user?.avatar || "/Logo/photo.png";
 
-    const locationParts = [user.city, user.country].filter(Boolean);
-    const locationStr = locationParts.length > 0 ? locationParts.join(", ") : (user.location || user.subtitle || "");
-
-  const isOnline = user?.online !== false;
+  const locationParts = [user.city, user.country].filter(Boolean);
+  const locationStr = locationParts.length > 0 ? locationParts.join(", ") : (user.location || user.subtitle || "");
 
   const friends = useMemo(() => {
       if (Array.isArray(followingList) && followingList.length > 0) {
@@ -139,9 +138,11 @@ export default function ProfileVisitorVip({
               alt=""
               className="profile-visitor-vip__avatar"
             />
-            {isOnline && (
-              <span className="profile-visitor-vip__onlineDot" />
-            )}
+            <OnlineStatus
+              userId={user?.id}
+              user={user}
+              className="onlineStatus--onAvatar profile-visitor-vip__onlineDot"
+            />
           </div>
 
 
@@ -239,7 +240,11 @@ export default function ProfileVisitorVip({
         >
           <div className="profile-visitor-vip__friendAvatar profile-visitor-vip__friendAvatar--vip">
             <img src={friend.avatar || "/icon1/image0.png"} alt="" />
-            {isOnline && ( <span className="profile-visitor-vip__onlineDot--friend" /> )}
+            <OnlineStatus
+              userId={friend.id}
+              user={friend}
+              className="onlineStatus--onAvatar profile-visitor-vip__onlineDot--friend"
+            />
           </div>
         </div>
       ))}
@@ -263,7 +268,11 @@ export default function ProfileVisitorVip({
     >
       <div className="profile-visitor-vip__friendAvatar">
          <img src={friend.avatar || "/icon1/image0.png"} alt="" />
-        {isOnline && ( <span className="profile-visitor-vip__onlineDot--friend" /> )}
+        <OnlineStatus
+          userId={friend.id}
+          user={friend}
+          className="onlineStatus--onAvatar profile-visitor-vip__onlineDot--friend"
+        />
       </div>
     </div>
     ))}

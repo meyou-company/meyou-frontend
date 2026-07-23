@@ -13,6 +13,7 @@ import { subscriptionsApi } from "../../services/subscriptionsApi";
 import { conversationsApi } from "../../services/conversationsApi";
 import { getApiErrorMessage } from "../../utils/getApiErrorMessage";
 import { getFriendsFromUser, getFriendsCountNumber, normalizeFriendsApiResponse } from "../../utils/profileFriends";
+import { usePresenceStore } from "../../zustand/usePresenceStore";
 import styles from "./Profile.module.scss";
 
 /** Нормалізація профілю з GET /users/:username (viewType, subscriptionStatus, friendsCount, interests) */
@@ -24,6 +25,8 @@ const normalizeProfile = (u) => {
     ?? u.friends?.total ?? u.friends?.totalCount ?? u.stats?.friendsCount ?? u.stats?.friends_count;
   const friendsCount = getFriendsCountNumber(rawFriendsCount);
 
+  const isOnline = u.isOnline === true || u.online === true;
+
   return {
     ...u,
     id: u.id ?? u._id,
@@ -32,6 +35,9 @@ const normalizeProfile = (u) => {
     username: u.username || u.nick || u.nickname || u.login || "",
     avatar: u.avatarUrl || u.avatar || "",
     avatarUrl: u.avatarUrl || u.avatar || "",
+    isOnline,
+    online: isOnline,
+    lastSeenAt: isOnline ? null : (u.lastSeenAt ?? null),
     city: u.city || "",
     country: u.country || "",
     bio: u.bio,
@@ -142,7 +148,22 @@ export default function Profile() {
     const fetchProfile = (username) =>
       usersApi.getByUsername(username).then((res) => {
         const data = res?.data ?? res;
-        if (!cancelled) setFetchedUser(data);
+        if (!cancelled) {
+          usePresenceStore.getState().hydrateMany([
+            data,
+            ...(Array.isArray(data?.followers) ? data.followers.map((f) => ({
+              id: f._id ?? f.id,
+              isOnline: f.isOnline,
+              lastSeenAt: f.lastSeenAt,
+            })) : []),
+            ...(Array.isArray(data?.following) ? data.following.map((f) => ({
+              id: f._id ?? f.id,
+              isOnline: f.isOnline,
+              lastSeenAt: f.lastSeenAt,
+            })) : []),
+          ]);
+          setFetchedUser(data);
+        }
       });
 
     const firstTry = urlUsernameNorm;

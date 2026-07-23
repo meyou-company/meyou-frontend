@@ -15,6 +15,16 @@
     "off": "Off",
     "appLoadError": "Failed to load the app. Please refresh the page."
   },
+  "presence": {
+    "online": "Online",
+    "offline": "Offline",
+    "lastSeenJustNow": "Last seen just now",
+    "lastSeenMinutes": "Last seen {{count}} min ago",
+    "lastSeenHours": "Last seen {{count}} h ago",
+    "lastSeenDays": "Last seen {{count}} d ago",
+    "lastSeenOn": "Last seen {{date}}",
+    "lastSeenUnknown": "Last seen a while ago"
+  },
   "nav": {
     "home": "Home",
     "people": "People",

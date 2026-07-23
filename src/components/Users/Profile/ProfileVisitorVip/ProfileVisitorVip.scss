@@ -69,24 +69,35 @@ $desktop: 1440px;
   position: absolute;
   top: 4px;
   right: -1px;
-  width: 10px;
-  height: 10px;
-  background: #0B8604;
-  border-radius: 50%;
+  width: auto;
+  height: auto;
+  background: transparent;
+  border-radius: 0;
   z-index: 2;
 
-   @media (min-width: $tablet) {  
-    width: 12px;
-    height: 12px;
-    top: 12px;
-    right: 5px;
+  .onlineStatus__dot {
+    width: 10px;
+    height: 10px;
   }
 
-  @media (min-width: $desktop) {  
-    width: 16px;
-    height: 16px;
+   @media (min-width: $tablet) {
+    top: 12px;
+    right: 5px;
+
+    .onlineStatus__dot {
+      width: 12px;
+      height: 12px;
+    }
+  }
+
+  @media (min-width: $desktop) {
     top: 26px;
     right: 12px;
+
+    .onlineStatus__dot {
+      width: 16px;
+      height: 16px;
+    }
   }
 }
 
@@ -455,19 +466,27 @@ $desktop: 1440px;
   position: absolute;
   top: 4px;
   right: -1px;
-  width: 8px;
-  height: 8px;
-  background: #0B8604;
-  border-radius: 50%;
+  width: auto;
+  height: auto;
+  background: transparent;
+  border-radius: 0;
 
-   @media (min-width: $tablet) {  
-    width: 12px;
-    height: 12px;
-    top: 12px;
-    right: 5px;
+  .onlineStatus__dot {
+    width: 8px;
+    height: 8px;
   }
 
-  @media (min-width: $desktop) {  
+  @media (min-width: $tablet) {
+    top: 12px;
+    right: 5px;
+
+    .onlineStatus__dot {
+      width: 12px;
+      height: 12px;
+    }
+  }
+
+  @media (min-width: $desktop) {
     top: 18px;
     right: 12px;
   }

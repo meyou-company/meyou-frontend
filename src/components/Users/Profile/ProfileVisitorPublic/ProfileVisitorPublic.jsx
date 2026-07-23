@@ -14,6 +14,7 @@ import ProfilePostsFeed from "../ProfilePostsFeed/ProfilePostsFeed";
 import ProfileInfoPanel from "../ProfileInfoPanel/ProfileInfoPanel";
 import { storiesApi } from "../../../../services/storiesApi";
 import StoryViewerModal from "../../../Stories/StoryViewerModal";
+import OnlineStatus from "../../../Presence/OnlineStatus";
 import { useProfileTabs } from "../../../../hooks/useProfileTabs";
 import "../ProfileHome/ProfileHome.scss";
 import "./ProfileVisitorPublic.scss";
@@ -217,7 +218,11 @@ export default function ProfileVisitorPublic({
               >
                 <img src={displayAvatar} alt={titleName} className="avatar" />
               </div>
-              <span className="ph-visitor-onlineDot" aria-hidden="true" />
+              <OnlineStatus
+                userId={user?.id}
+                user={user}
+                className="onlineStatus--onAvatar ph-visitor-onlineDot"
+              />
               <button
                 type="button"
                 className={`ph-visitor-avatarInfoBtn${visitorTab === "info" ? " is-active" : ""}`}
@@ -437,7 +442,11 @@ export default function ProfileVisitorPublic({
                             className="vipAvatar"
                             alt=""
                           />
-                          <span className="onlineDot" />
+                          <OnlineStatus
+                            userId={v.id}
+                            user={v}
+                            className="onlineStatus--onAvatar onlineDot"
+                          />
                         </button>
                         {(label || canOpen) && (
                           <button

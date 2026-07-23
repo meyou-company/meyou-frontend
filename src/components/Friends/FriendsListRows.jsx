@@ -1,5 +1,6 @@
 import profileIcons from "../../constants/profileIcons";
 import { getProfileRouteHandle } from "../../utils/profileFriendNav";
+import OnlineStatus from "../Presence/OnlineStatus";
 
 const DEFAULT_AVATAR = "/icon1/image0.png";
 
@@ -52,6 +53,11 @@ export default function FriendsListRows({ users, onOpenProfile, onOpenUser }) {
                   src={user.avatarUrl || user.avatar || DEFAULT_AVATAR}
                   alt=""
                   className="friends-content__avatar"
+                />
+                <OnlineStatus
+                  userId={user.id}
+                  user={user}
+                  className="onlineStatus--onAvatar"
                 />
               </div>
               <div className="friends-content__userInfo">

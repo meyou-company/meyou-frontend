@@ -431,16 +431,16 @@ body.dark .explore-content__filterBtnInInput:hover {
 }
 
 .explore-content__cardOnlineDot {
-  position: absolute;
   top: 8px;
   left: 8px;
+  right: auto;
+  bottom: auto;
+}
+
+.explore-content__cardOnlineDot .onlineStatus__dot {
   width: 10px;
   height: 10px;
-  border-radius: 50%;
-  background: #22c55e;
   border: 2px solid #fff;
-  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.2);
-  z-index: 2;
 }
 
 .explore-content__cardCaption {

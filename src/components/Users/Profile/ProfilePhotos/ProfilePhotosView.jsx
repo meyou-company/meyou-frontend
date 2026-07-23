@@ -464,7 +464,7 @@ export default function ProfilePhotosView({
         <CreatePostModal
           authorName={authorName}
           displayAvatar={displayAvatar}
-          showOnlineDot={user?.online !== false}
+          showOnlineDot={user?.isOnline === true || user?.online === true}
           text={postText}
           onTextChange={setPostText}
           textareaRef={textareaRef}

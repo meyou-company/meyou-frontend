@@ -8,6 +8,8 @@ import { getHobbyLabel } from "../../constants/hobbies";
 import { usersApi } from "../../services/usersApi";
 import { getProfileRouteHandle } from "../../utils/profileFriendNav";
 import { subscriptionsApi } from "../../services/subscriptionsApi";
+import OnlineStatus from "../Presence/OnlineStatus";
+import { usePresenceStore } from "../../zustand/usePresenceStore";
 import SearchFilterModal from "./SearchFilterModal";
 import "./ExploreContent.scss";
 
@@ -78,9 +80,20 @@ export default function ExploreContent({ onBack, onOpenProfile }) {
 
         const params = {
           sort: filterParams.sort || sortBy,
-          ...filterParams,
         };
         if (query.trim()) params.q = query.trim();
+        if (filterParams.country) params.country = filterParams.country;
+        if (filterParams.city) params.city = filterParams.city;
+        if (filterParams.gender) params.gender = filterParams.gender;
+        if (filterParams.maritalStatus) params.maritalStatus = filterParams.maritalStatus;
+        if (filterParams.ageMin != null) params.ageMin = filterParams.ageMin;
+        if (filterParams.ageMax != null) params.ageMax = filterParams.ageMax;
+        if (Array.isArray(filterParams.interests) && filterParams.interests.length > 0) {
+          params.interests = filterParams.interests;
+        }
+        if (filterParams.online === true) params.onlyOnline = true;
+        if (filterParams.top === true) params.isVip = true;
+        if (filterParams.new === true) params.isNew = true;
 
         const res = await usersApi.search(params);
 
@@ -92,6 +105,7 @@ export default function ExploreContent({ onBack, onOpenProfile }) {
 
         // payload має бути або масив, або { users: [...] }
         const list = Array.isArray(payload) ? payload : (payload?.users ?? []);
+        usePresenceStore.getState().hydrateMany(list);
         setUsers(list);
         setSubscribedIds((prev) => {
           const next = new Set(prev);
@@ -288,7 +302,7 @@ export default function ExploreContent({ onBack, onOpenProfile }) {
                         else navigate(`/profile/${h}`);
                       }}
                     >
-                      <div className="explore-content__cardPhoto">
+                        <div className="explore-content__cardPhoto">
                         <img
                           src={user.avatar || user.avatarUrl || DEFAULT_AVATAR}
                           alt=""
@@ -296,9 +310,11 @@ export default function ExploreContent({ onBack, onOpenProfile }) {
                         />
                         <div className="explore-content__cardPhotoOverlay" />
 
-                        {user.online && (
-                          <span className="explore-content__cardOnlineDot" aria-hidden="true" />
-                        )}
+                        <OnlineStatus
+                          userId={user.id}
+                          user={user}
+                          className="onlineStatus--onAvatar explore-content__cardOnlineDot"
+                        />
 
                         {isVip(user) && (
                           <span className="explore-content__vipBadge" aria-hidden="true">VIP</span>

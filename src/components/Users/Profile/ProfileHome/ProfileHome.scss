@@ -524,10 +524,15 @@
   position: absolute;
   top: -2px;
   right: -2px;
+  width: auto;
+  height: auto;
+  background: transparent;
+  border: none;
+}
+
+.onlineDot .onlineStatus__dot {
   width: 10px;
   height: 10px;
-  border-radius: 50%;
-  background: #22c55e;
   border: 2px solid #fff;
 }
 
