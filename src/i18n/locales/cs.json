@@ -1,6 +1,8 @@
 {
   "common": {
     "loading": "Načítání...",
+    "unsubscribe": "Přestat sledovat",
+    "subscribe": "Sledovat",
     "save": "Uložit",
     "cancel": "Zrušit",
     "close": "Zavřít",
@@ -485,7 +487,17 @@
     }
   },
   "notifications": {
-    "title": "Notifications",
+    "title": "Oznámení",
+    "all": "Vše",
+    "unread": "Nepřečtené",
+    "markAllAsRead": "Označit vše jako přečtené",
+    "today": "Dnes",
+    "yesterday": "Včera",
+    "earlier": "Dříve",
+    "justNow": "Právě teď",
+    "minutesAgo": "před {{count}} min",
+    "hoursAgo": "před {{count}} h",
+    "daysAgo": "Před {{count}} d",
     "empty": "You have no notifications yet",
     "emptyUnread": "You have no unread notifications",
     "settingsTitle": "Notification settings",
@@ -495,38 +507,50 @@
       "system": "System",
       "delivery": "Delivery method"
     },
+    "messages": {
+      "newFollower": "{{name}} vás začal(a) sledovat",
+      "postLike": "{{name}} označil(a) váš příspěvek jako To se mi líbí",
+      "postComment": "{{name}} okomentoval(a) váš příspěvek",
+      "postCommentReply": "{{name}} odpověděl(a) na váš komentář",
+      "mention": "{{name}} vás zmínil(a) v příspěvku nebo komentáři",
+      "newPost": "{{name}} zveřejnil(a) nový příspěvek",
+      "postShare": "{{name}} sdílel(a) váš příspěvek",
+      "postSharedToUser": "{{name}} s vámi sdílel(a) příspěvek",
+      "message": "{{name}} vám poslal(a) zprávu",
+      "system": "Systémové oznámení"
+    },
     "items": {
       "follow": {
-        "title": "Follows",
-        "desc": "When someone follows you"
+        "title": "Sledující",
+        "desc": "Když vás někdo začne sledovat"
       },
       "like": {
-        "title": "Likes",
-        "desc": "When someone likes your posts"
+        "title": "To se mi líbí",
+        "desc": "Když někdo označí vaše příspěvky jako To se mi líbí"
       },
       "comment": {
-        "title": "Comments",
-        "desc": "Comments on your posts"
+        "title": "Komentáře",
+        "desc": "Komentáře k vašim příspěvkům"
       },
       "mention": {
-        "title": "Mentions",
-        "desc": "When you are mentioned in posts or comments"
+        "title": "Zmínky",
+        "desc": "Když jste zmíněni v příspěvcích nebo komentářích"
       },
       "post": {
-        "title": "New posts",
-        "desc": "New posts from people you follow"
+        "title": "Nové příspěvky",
+        "desc": "Nové příspěvky od lidí, které sledujete"
       },
       "system": {
-        "title": "System notifications",
-        "desc": "Security, updates and important events"
+        "title": "Systémová oznámení",
+        "desc": "Zabezpečení, aktualizace a důležité události"
       },
       "push": {
-        "title": "Push notifications",
-        "desc": "In-app notifications"
+        "title": "Push oznámení",
+        "desc": "Oznámení v aplikaci"
       },
       "email": {
-        "title": "Email notifications",
-        "desc": "Receive notifications by email"
+        "title": "E-mailová oznámení",
+        "desc": "Dostávat oznámení e-mailem"
       }
     }
   },

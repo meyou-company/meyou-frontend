@@ -1,6 +1,8 @@
 {
   "common": {
     "loading": "Chargement...",
+    "unsubscribe": "Ne plus suivre",
+    "subscribe": "Suivre",
     "save": "Enregistrer",
     "cancel": "Annuler",
     "close": "Fermer",
@@ -486,6 +488,16 @@
   },
   "notifications": {
     "title": "Notifications",
+    "all": "Tous",
+    "unread": "Non lus",
+    "markAllAsRead": "Tout marquer comme lu",
+    "today": "Aujourd'hui",
+    "yesterday": "Hier",
+    "earlier": "Plus tôt",
+    "justNow": "À l'instant",
+    "minutesAgo": "Il y a {{count}} min",
+    "hoursAgo": "Il y a {{count}} h",
+    "daysAgo": "Il y a {{count}} j",
     "empty": "You have no notifications yet",
     "emptyUnread": "You have no unread notifications",
     "settingsTitle": "Notification settings",
@@ -495,38 +507,50 @@
       "system": "System",
       "delivery": "Delivery method"
     },
+    "messages": {
+      "newFollower": "{{name}} a commencé à vous suivre",
+      "postLike": "{{name}} a aimé votre publication",
+      "postComment": "{{name}} a commenté votre publication",
+      "postCommentReply": "{{name}} a répondu à votre commentaire",
+      "mention": "{{name}} vous a mentionné dans une publication ou un commentaire",
+      "newPost": "{{name}} a publié une nouvelle publication",
+      "postShare": "{{name}} a partagé votre publication",
+      "postSharedToUser": "{{name}} a partagé une publication avec vous",
+      "message": "{{name}} vous a envoyé un message",
+      "system": "Notification système"
+    },
     "items": {
       "follow": {
-        "title": "Follows",
-        "desc": "When someone follows you"
+        "title": "Abonnés",
+        "desc": "Lorsqu'une personne vous suit"
       },
       "like": {
-        "title": "Likes",
-        "desc": "When someone likes your posts"
+        "title": "Mentions J'aime",
+        "desc": "Lorsqu'une personne aime vos publications"
       },
       "comment": {
-        "title": "Comments",
-        "desc": "Comments on your posts"
+        "title": "Commentaires",
+        "desc": "Commentaires sur vos publications"
       },
       "mention": {
         "title": "Mentions",
-        "desc": "When you are mentioned in posts or comments"
+        "desc": "Lorsque vous êtes mentionné dans des publications ou des commentaires"
       },
       "post": {
-        "title": "New posts",
-        "desc": "New posts from people you follow"
+        "title": "Nouvelles publications",
+        "desc": "Nouvelles publications des personnes que vous suivez"
       },
       "system": {
-        "title": "System notifications",
-        "desc": "Security, updates and important events"
+        "title": "Notifications système",
+        "desc": "Sécurité, mises à jour et événements importants"
       },
       "push": {
-        "title": "Push notifications",
-        "desc": "In-app notifications"
+        "title": "Notifications push",
+        "desc": "Notifications dans l'application"
       },
       "email": {
-        "title": "Email notifications",
-        "desc": "Receive notifications by email"
+        "title": "Notifications par e-mail",
+        "desc": "Recevoir les notifications par e-mail"
       }
     }
   },

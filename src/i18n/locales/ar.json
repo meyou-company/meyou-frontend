@@ -1,6 +1,8 @@
 {
   "common": {
     "loading": "جارٍ التحميل...",
+    "unsubscribe": "إلغاء المتابعة",
+    "subscribe": "متابعة",
     "save": "حفظ",
     "cancel": "إلغاء",
     "close": "إغلاق",
@@ -477,7 +479,17 @@
     }
   },
   "notifications": {
-    "title": "Notifications",
+    "title": "الإشعارات",
+    "all": "الكل",
+    "unread": "غير المقروءة",
+    "markAllAsRead": "تحديد الكل كمقروء",
+    "today": "اليوم",
+    "yesterday": "أمس",
+    "earlier": "سابقًا",
+    "justNow": "الآن",
+    "minutesAgo": "منذ {{count}} دقيقة",
+    "hoursAgo": "منذ {{count}} ساعة",
+    "daysAgo": "منذ {{count}} يوم",
     "empty": "You have no notifications yet",
     "emptyUnread": "You have no unread notifications",
     "settingsTitle": "Notification settings",
@@ -487,38 +499,50 @@
       "system": "System",
       "delivery": "Delivery method"
     },
+    "messages": {
+      "newFollower": "بدأ {{name}} بمتابعتك",
+      "postLike": "أعجب {{name}} بمنشورك",
+      "postComment": "علّق {{name}} على منشورك",
+      "postCommentReply": "ردّ {{name}} على تعليقك",
+      "mention": "أشار {{name}} إليك في منشور أو تعليق",
+      "newPost": "نشر {{name}} منشورًا جديدًا",
+      "postShare": "شارك {{name}} منشورك",
+      "postSharedToUser": "شارك {{name}} منشورًا معك",
+      "message": "أرسل {{name}} إليك رسالة",
+      "system": "إشعار النظام"
+    },
     "items": {
       "follow": {
-        "title": "Follows",
-        "desc": "When someone follows you"
+        "title": "المتابعون",
+        "desc": "عندما يتابعك شخص ما"
       },
       "like": {
-        "title": "Likes",
-        "desc": "When someone likes your posts"
+        "title": "الإعجابات",
+        "desc": "عندما يعجب شخص بمنشوراتك"
       },
       "comment": {
-        "title": "Comments",
-        "desc": "Comments on your posts"
+        "title": "التعليقات",
+        "desc": "التعليقات على منشوراتك"
       },
       "mention": {
-        "title": "Mentions",
-        "desc": "When you are mentioned in posts or comments"
+        "title": "الإشارات",
+        "desc": "عندما تتم الإشارة إليك في المنشورات أو التعليقات"
       },
       "post": {
-        "title": "New posts",
-        "desc": "New posts from people you follow"
+        "title": "منشورات جديدة",
+        "desc": "منشورات جديدة من الأشخاص الذين تتابعهم"
       },
       "system": {
-        "title": "System notifications",
-        "desc": "Security, updates and important events"
+        "title": "إشعارات النظام",
+        "desc": "الأمان والتحديثات والأحداث المهمة"
       },
       "push": {
-        "title": "Push notifications",
-        "desc": "In-app notifications"
+        "title": "الإشعارات الفورية",
+        "desc": "الإشعارات داخل التطبيق"
       },
       "email": {
-        "title": "Email notifications",
-        "desc": "Receive notifications by email"
+        "title": "إشعارات البريد الإلكتروني",
+        "desc": "تلقي الإشعارات عبر البريد الإلكتروني"
       }
     }
   },

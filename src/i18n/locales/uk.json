@@ -1,6 +1,8 @@
 {
   "common": {
     "loading": "Завантаження...",
+    "unsubscribe": "Відписатися",
+    "subscribe": "Підписатися",
     "save": "Зберегти",
     "cancel": "Скасувати",
     "close": "Закрити",
@@ -514,6 +516,16 @@
   },
   "notifications": {
     "title": "Сповіщення",
+    "all": "Всі",
+    "unread": "Непрочитані",
+    "markAllAsRead": "Прочитати все",
+    "today": "Сьогодні",
+    "yesterday": "Вчора",
+    "earlier": "Раніше",
+    "justNow": "Щойно",
+    "minutesAgo": "{{count}} хв тому",
+    "hoursAgo": "{{count}} год тому",
+    "daysAgo": "{{count}} дн тому",
     "empty": "У вас поки немає сповіщень",
     "emptyUnread": "У вас немає непрочитаних сповіщень",
     "settingsTitle": "Налаштування сповіщень",
@@ -522,6 +534,18 @@
       "activity": "Активність",
       "system": "Система",
       "delivery": "Спосіб отримання"
+    },
+    "messages": {
+      "newFollower": "{{name}} підписався(-лася) на вас",
+      "postLike": "{{name}} вподобав(-ла) ваш допис",
+      "postComment": "{{name}} прокоментував(-ла) ваш допис",
+      "postCommentReply": "{{name}} відповів(-ла) на ваш коментар",
+      "mention": "{{name}} згадав(-ла) вас у дописі або коментарі",
+      "newPost": "{{name}} опублікував(-ла) новий допис",
+      "postShare": "{{name}} поширив(-ла) ваш допис",
+      "postSharedToUser": "{{name}} поділився(-лася) з вами дописом",
+      "message": "{{name}} надіслав(-ла) вам повідомлення",
+      "system": "Системне сповіщення"
     },
     "items": {
       "follow": {

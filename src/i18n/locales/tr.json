@@ -1,6 +1,8 @@
 {
   "common": {
     "loading": "Yükleniyor...",
+    "unsubscribe": "Takibi bırak",
+    "subscribe": "Takip et",
     "save": "Kaydet",
     "cancel": "İptal",
     "close": "Kapat",
@@ -485,7 +487,17 @@
     }
   },
   "notifications": {
-    "title": "Notifications",
+    "title": "Bildirimler",
+    "all": "Tümü",
+    "unread": "Okunmamış",
+    "markAllAsRead": "Tümünü okundu olarak işaretle",
+    "today": "Bugün",
+    "yesterday": "Dün",
+    "earlier": "Daha önce",
+    "justNow": "Az önce",
+    "minutesAgo": "{{count}} dk önce",
+    "hoursAgo": "{{count}} sa önce",
+    "daysAgo": "{{count}} g önce",
     "empty": "You have no notifications yet",
     "emptyUnread": "You have no unread notifications",
     "settingsTitle": "Notification settings",
@@ -495,38 +507,50 @@
       "system": "System",
       "delivery": "Delivery method"
     },
+    "messages": {
+      "newFollower": "{{name}} sizi takip etmeye başladı",
+      "postLike": "{{name}} gönderinizi beğendi",
+      "postComment": "{{name}} gönderinize yorum yaptı",
+      "postCommentReply": "{{name}} yorumunuza yanıt verdi",
+      "mention": "{{name}} sizden bir gönderide veya yorumda bahsetti",
+      "newPost": "{{name}} yeni bir gönderi paylaştı",
+      "postShare": "{{name}} gönderinizi paylaştı",
+      "postSharedToUser": "{{name}} sizinle bir gönderi paylaştı",
+      "message": "{{name}} size bir mesaj gönderdi",
+      "system": "Sistem bildirimi"
+    },
     "items": {
       "follow": {
-        "title": "Follows",
-        "desc": "When someone follows you"
+        "title": "Takipçiler",
+        "desc": "Biri sizi takip ettiğinde"
       },
       "like": {
-        "title": "Likes",
-        "desc": "When someone likes your posts"
+        "title": "Beğeniler",
+        "desc": "Biri gönderilerinizi beğendiğinde"
       },
       "comment": {
-        "title": "Comments",
-        "desc": "Comments on your posts"
+        "title": "Yorumlar",
+        "desc": "Gönderilerinize yapılan yorumlar"
       },
       "mention": {
-        "title": "Mentions",
-        "desc": "When you are mentioned in posts or comments"
+        "title": "Bahsetmeler",
+        "desc": "Gönderilerde veya yorumlarda sizden bahsedildiğinde"
       },
       "post": {
-        "title": "New posts",
-        "desc": "New posts from people you follow"
+        "title": "Yeni gönderiler",
+        "desc": "Takip ettiğiniz kişilerin yeni gönderileri"
       },
       "system": {
-        "title": "System notifications",
-        "desc": "Security, updates and important events"
+        "title": "Sistem bildirimleri",
+        "desc": "Güvenlik, güncellemeler ve önemli olaylar"
       },
       "push": {
-        "title": "Push notifications",
-        "desc": "In-app notifications"
+        "title": "Anlık bildirimler",
+        "desc": "Uygulama içi bildirimler"
       },
       "email": {
-        "title": "Email notifications",
-        "desc": "Receive notifications by email"
+        "title": "E-posta bildirimleri",
+        "desc": "Bildirimleri e-posta ile alın"
       }
     }
   },
