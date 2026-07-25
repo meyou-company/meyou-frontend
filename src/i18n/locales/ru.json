@@ -1,6 +1,8 @@
 {
   "common": {
     "loading": "Загрузка...",
+    "unsubscribe": "Отписаться",
+    "subscribe": "Подписаться",
     "save": "Сохранить",
     "cancel": "Отмена",
     "close": "Закрыть",
@@ -506,6 +508,16 @@
   },
   "notifications": {
     "title": "Уведомления",
+    "all": "Все",
+    "unread": "Непрочитанные",
+    "markAllAsRead": "Прочитать все",
+    "today": "Сегодня",
+    "yesterday": "Вчера",
+    "earlier": "Раньше",
+    "justNow": "Только что",
+    "minutesAgo": "{{count}} мин назад",
+    "hoursAgo": "{{count}} ч назад",
+    "daysAgo": "{{count}} дн назад",
     "empty": "У вас пока нет уведомлений",
     "emptyUnread": "У вас нет непрочитанных уведомлений",
     "settingsTitle": "Настройки уведомлений",
@@ -515,38 +527,50 @@
       "system": "Система",
       "delivery": "Способ получения"
     },
+    "messages": {
+      "newFollower": "{{name}} подписался(-ась) на вас",
+      "postLike": "{{name}} понравился ваш пост",
+      "postComment": "{{name}} прокомментировал(-а) ваш пост",
+      "postCommentReply": "{{name}} ответил(-а) на ваш комментарий",
+      "mention": "{{name}} упомянул(-а) вас в публикации или комментарии",
+      "newPost": "{{name}} опубликовал(-а) новый пост",
+      "postShare": "{{name}} поделился(-ась) вашим постом",
+      "postSharedToUser": "{{name}} поделился(-ась) с вами публикацией",
+      "message": "{{name}} отправил(-а) вам сообщение",
+      "system": "Системное уведомление"
+    },
     "items": {
       "follow": {
-        "title": "Follows",
-        "desc": "When someone follows you"
+        "title": "Подписчики",
+        "desc": "Когда кто-то подписывается на вас"
       },
       "like": {
-        "title": "Likes",
-        "desc": "When someone likes your posts"
+        "title": "Лайки",
+        "desc": "Когда кто-то лайкает ваши публикации"
       },
       "comment": {
-        "title": "Comments",
-        "desc": "Comments on your posts"
+        "title": "Комментарии",
+        "desc": "Комментарии к вашим публикациям"
       },
       "mention": {
-        "title": "Mentions",
-        "desc": "When you are mentioned in posts or comments"
+        "title": "Упоминания",
+        "desc": "Когда вас упоминают в публикациях или комментариях"
       },
       "post": {
-        "title": "New posts",
-        "desc": "New posts from people you follow"
+        "title": "Новые публикации",
+        "desc": "Новые публикации пользователей, на которых вы подписаны"
       },
       "system": {
-        "title": "System notifications",
-        "desc": "Security, updates and important events"
+        "title": "Системные уведомления",
+        "desc": "Безопасность, обновления и важные события"
       },
       "push": {
-        "title": "Push notifications",
-        "desc": "In-app notifications"
+        "title": "Push-уведомления",
+        "desc": "Уведомления в приложении"
       },
       "email": {
-        "title": "Email notifications",
-        "desc": "Receive notifications by email"
+        "title": "Email-уведомления",
+        "desc": "Получать уведомления по электронной почте"
       }
     }
   },

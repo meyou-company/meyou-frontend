@@ -42,7 +42,7 @@ export default function Notifications({ onGoBack }) {
 
   const grouped = useMemo(() => {
     return filtered.reduce((acc, item) => {
-      const day = getDayLabel(getNotificationDate(item));
+      const day = getDayLabel(getNotificationDate(item), t);
 
       if (!acc[day]) acc[day] = [];
 
@@ -50,7 +50,7 @@ export default function Notifications({ onGoBack }) {
 
       return acc;
     }, {});
-  }, [filtered]);
+  }, [filtered, t]);
 
   return (
     <div className="notifications">
@@ -80,7 +80,7 @@ export default function Notifications({ onGoBack }) {
 
         {Object.entries(grouped).map(([day, items]) => (
           <div key={day}>
-            <h4>{day}</h4>
+            <h4 className="h">{day}</h4>
 
             {items.map((item) => (
               <NotificationItem key={item.id} item={item} onRead={markAsRead} />
@@ -118,11 +118,7 @@ const Header = ({ onClick, onOpenSettings, title, settingsLabel, backLabel }) =>
 
     <h1 className="notifications__title">{title}</h1>
 
-    <button
-      className="notifications__settings"
-      aria-label={settingsLabel}
-      onClick={onOpenSettings}
-    >
+    <button className="notifications__settings" aria-label={settingsLabel} onClick={onOpenSettings}>
       <img src={profileIcons.settingsBlack} alt={settingsLabel} />
     </button>
   </header>

@@ -1,7 +1,9 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 export default function NotificationsTabs({ onChange, onMarkAllRead }) {
   const [active, setActive] = useState('all');
+  const { t } = useTranslation();
 
   const handleClick = (tab) => {
     setActive(tab);
@@ -12,18 +14,18 @@ export default function NotificationsTabs({ onChange, onMarkAllRead }) {
     <div className="tabs">
       <div className="group">
         <button className={active === 'all' ? 'active' : ''} onClick={() => handleClick('all')}>
-          Все
+          {t('notifications.all')}
         </button>
 
         <button
           className={active === 'unread' ? 'active' : ''}
           onClick={() => handleClick('unread')}
         >
-          Непрочитанные
+          {t('notifications.unread')}
         </button>
       </div>
 
-      <button onClick={onMarkAllRead}>Прочитать все</button>
+      <button onClick={onMarkAllRead}>{t('notifications.markAllAsRead')}</button>
     </div>
   );
 }

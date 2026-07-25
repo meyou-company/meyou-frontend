@@ -40,7 +40,7 @@ $bp-desktop: 1440px;
   gap: 12px;
 
   @media (max-width: 767px) {
-    margin: 0 0 16px 6px;
+    margin: 0 0 16px 0;
   }
 
   @media (min-width: $bp-tablet) {
@@ -151,7 +151,7 @@ $bp-desktop: 1440px;
 .divider-top,
 .divider-bottom {
   width: 100%;
-  height: 1px;
+  height: 0.5px;
   margin: 0 0 14px;
   background: #000000;
 }
@@ -163,18 +163,25 @@ $bp-desktop: 1440px;
 }
 
 .tabs {
-  display: flex;
-  justify-content: space-between;
-  margin: 0 20px 0 20px;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 16px;
 
-  font-size: 18px;
+  margin: 0 20px;
 }
 
 .group {
   display: flex;
-  gap: 50px;
+  gap: clamp(16px, 4vw, 50px);
 }
 
+.tabs > button:last-child {
+  justify-self: end;
+  text-align: right;
+  max-width: 220px;
+  white-space: normal;
+}
 .notifications__empty {
   padding: 40px 20px;
   text-align: center;
@@ -223,8 +230,11 @@ body.dark {
       background: #280247;
     }
 
+    &:hover {
+      background: #ff4fb124;
+    }
+
     &__text {
-      font-size: 14px;
       color: white;
     }
 
@@ -236,9 +246,6 @@ body.dark {
       color: #d8b5b5;
     }
   }
-  .notification:hover {
-    background: #ff4fb124;
-  }
 }
 
 .notification {
@@ -247,15 +254,32 @@ body.dark {
   gap: 12px;
 
   padding: 12px;
-  border-radius: 12px;
+  margin-bottom: 10px;
 
+  border-radius: 12px;
   background: #f3edf7;
   border: 1px solid #ddd;
 
-  margin-bottom: 10px;
-
   &.unread {
     background: #f6e1f5;
+  }
+
+  &:hover {
+    background: #ff4fb124;
+  }
+
+  &__avatar {
+    position: relative;
+    flex-shrink: 0;
+    cursor: pointer;
+
+    img {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      object-fit: cover;
+      display: block;
+    }
   }
 
   &__dot {
@@ -269,75 +293,85 @@ body.dark {
     background: #2ecc71;
   }
 
-  &__avatar {
-    position: relative;
-
-    img {
-      width: 44px;
-      height: 44px;
-      border-radius: 50%;
-      object-fit: cover;
-    }
-  }
-
   &__content {
     flex: 1;
+    min-width: 0;
+
     display: flex;
-    gap: 10px;
     justify-content: space-between;
     align-items: flex-start;
-    gap: 10px;
+    gap: 12px;
   }
 
   &__main {
     flex: 1;
+    min-width: 0;
+
     display: flex;
     flex-direction: column;
+
+    cursor: pointer;
+  }
+
+  &__texts {
+    min-width: 0;
   }
 
   &__text {
     font-size: 14px;
     color: #333;
 
-    // display: -webkit-box;
-    // -webkit-line-clamp: 2; // максимум 2 рядки
-    // -webkit-box-orient: vertical;
-    overflow: hidden;
+    overflow-wrap: anywhere;
+    word-break: break-word;
   }
 
   &__comment {
     font-size: 13px;
     color: #777;
-    margin-top: 2px;
+    margin-top: 4px;
+
+    overflow-wrap: anywhere;
+    word-break: break-word;
   }
 
   &__time {
+    margin-top: 6px;
+
     font-size: 12px;
     color: #999;
-    margin-top: 4px;
   }
 
   &__right {
     display: flex;
     align-items: center;
-    gap: 10px;
-    flex-shrink: 0;
-    width: 80px;
     justify-content: flex-end;
+    gap: 10px;
+
+    flex-shrink: 0;
+  }
+
+  &__actions {
+    display: flex;
+    align-items: center;
   }
 
   &__preview {
     position: relative;
+
     width: 60px;
     height: 60px;
+
+    flex-shrink: 0;
+
     border-radius: 8px;
     overflow: hidden;
-    flex-shrink: 0;
+    cursor: pointer;
 
     img {
       width: 100%;
       height: 100%;
       object-fit: cover;
+      display: block;
     }
   }
   &__overlay {
@@ -360,40 +394,176 @@ body.dark {
     backdrop-filter: blur(4px);
   }
 
-  &__actions {
-    display: flex;
-    align-items: center;
-  }
-
   &__icon {
     font-size: 18px;
   }
 }
 
-.notification:hover {
-  background: #ff4fb124;
-}
-
 .follow-btn {
-  background: linear-gradient(90deg, #7b61ff, #ff4fb1);
-  color: white;
+  padding: 6px 14px;
+
   border: none;
   border-radius: 20px;
-  padding: 6px 14px;
+
+  background: linear-gradient(90deg, #7b61ff, #ff4fb1);
+
+  color: white;
   font-size: 12px;
   white-space: nowrap;
   cursor: pointer;
 }
 
-@media (max-width: 420px) {
+@media (max-width: 1024px) {
+  .notification {
+    &__preview {
+      width: 54px;
+      height: 54px;
+    }
+
+    &__text {
+      font-size: 13px;
+    }
+
+    &__comment {
+      font-size: 12px;
+    }
+  }
+
   .follow-btn {
+    font-size: 11px;
+    padding: 6px 12px;
+  }
+}
+
+@media (max-width: 768px) {
+  .notification {
+    gap: 10px;
+    padding: 10px;
+
+    &__avatar img {
+      width: 40px;
+      height: 40px;
+    }
+
+    &__preview {
+      width: 48px;
+      height: 48px;
+    }
+
+    &__right {
+      gap: 8px;
+    }
+
+    &__text {
+      font-size: 13px;
+    }
+
+    &__comment {
+      font-size: 12px;
+    }
+
+    &__time {
+      font-size: 11px;
+    }
+  }
+
+  .follow-btn {
+    padding: 5px 10px;
+    font-size: 11px;
+  }
+}
+
+@media (max-width: 480px) {
+  .notification {
+    &__avatar img {
+      width: 36px;
+      height: 36px;
+    }
+
+    &__preview {
+      width: 42px;
+      height: 42px;
+    }
+
+    &__content {
+      gap: 8px;
+    }
+
+    &__text {
+      font-size: 12px;
+    }
+
+    &__comment {
+      font-size: 11px;
+    }
+
+    &__time {
+      font-size: 10px;
+    }
+  }
+
+  .follow-btn {
+    padding: 5px 8px;
     font-size: 10px;
   }
-  // .notification {
-  //   &__content {
-  //     margin-right: 5px;
-  //   }
-  // }
+}
+
+@media (max-width: 360px) {
+  .notification {
+    &__content {
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    &__right {
+      width: 100%;
+      justify-content: space-between;
+    }
+
+    &__preview {
+      width: 48px;
+      height: 48px;
+    }
+  }
+
+  .follow-btn {
+    max-width: 140px;
+  }
+}
+
+@media (max-width: 320px) {
+  .notification {
+    gap: 8px;
+    padding: 8px;
+
+    &__avatar img {
+      width: 32px;
+      height: 32px;
+    }
+
+    &__preview {
+      width: 40px;
+      height: 40px;
+    }
+
+    &__text {
+      font-size: 11px;
+    }
+
+    &__comment {
+      font-size: 10px;
+    }
+
+    &__time {
+      font-size: 9px;
+    }
+  }
+
+  .follow-btn {
+    max-width: 120px;
+    padding: 4px 6px;
+    font-size: 10px;
+  }
 }
 
 // NotificationBell
@@ -441,12 +611,38 @@ body.dark {
       height: 36px;
     }
   }
+  .tabs {
+    font-size: 14px;
+    gap: 12px;
+  }
+
+  .group {
+    gap: 20px;
+  }
+
+  .tabs > button:last-child {
+    max-width: 170px;
+  }
 }
 
 @media (max-width: 420px) {
   .notification-bell {
     width: 48px;
     height: 48px;
+  }
+
+  .tabs {
+    font-size: 12px;
+    gap: 8px;
+  }
+
+  .group {
+    gap: 12px;
+  }
+
+  .tabs > button:last-child {
+    max-width: 110px;
+    line-height: 1.2;
   }
 }
 

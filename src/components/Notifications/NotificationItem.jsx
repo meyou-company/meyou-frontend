@@ -1,12 +1,14 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { formatTime } from '../../utils/utils';
+import { useTranslation } from 'react-i18next';
 
+import { formatTime } from '../../utils/utils';
 import { getNotificationDate } from '../../utils/getNotificationDate';
 import { useFollowingStore } from '../../zustand/useFollowingStore';
 
 export default function NotificationItem({ item, onRead }) {
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const isFollowing = useFollowingStore((s) => s.isFollowing);
   const follow = useFollowingStore((s) => s.follow);
@@ -41,8 +43,8 @@ export default function NotificationItem({ item, onRead }) {
     }
   };
 
-  const action = renderAction(item, isSubscribed, handleFollow, loadingFollow);
-
+  const action = renderAction(item, isSubscribed, handleFollow, loadingFollow, t);
+  console.log(item.type);
   return (
     <div className={`notification ${!item.readAt ? 'unread' : ''}`}>
       <div className="notification__avatar" onClick={handleClick}>
@@ -53,12 +55,17 @@ export default function NotificationItem({ item, onRead }) {
       <div className="notification__content">
         <div className="notification__main" onClick={handleClick}>
           <div className="notification__texts">
-            <p className="notification__text">{item.body}</p>
+            <p className="notification__text">
+              {' '}
+              {t(`notifications.messages.${item.type}`, {
+                name: `${item.actor.username} `,
+              })}
+            </p>
           </div>
 
           {item.previewText && <p className="notification__comment">“{item.previewText}”</p>}
 
-          <span className="notification__time">{formatTime(getNotificationDate(item))}</span>
+          <span className="notification__time">{formatTime(getNotificationDate(item), t)}</span>
         </div>
 
         <div className="notification__right">
@@ -102,21 +109,23 @@ function buildLink(item) {
       return `/profile/${item.actor.username}`;
 
     case 'conversation':
-      return item.target.conversationId
-        ? `/messages/${item.target.conversationId}`
-        : '/messages';
+      return item.target.conversationId ? `/messages/${item.target.conversationId}` : '/messages';
 
     default:
       return '/notifications';
   }
 }
 
-function renderAction(item, isSubscribed, onFollow, loading) {
+function renderAction(item, isSubscribed, onFollow, loading, t) {
   if (item.type !== 'newFollower') return null;
 
   return (
     <button className="follow-btn" onClick={onFollow} disabled={loading}>
-      {loading ? 'Загрузка...' : isSubscribed ? 'Отписаться' : 'Подписаться'}
+      {loading
+        ? t('common.loading')
+        : isSubscribed
+          ? t('common.unsubscribe')
+          : t('common.subscribe')}
     </button>
   );
 }

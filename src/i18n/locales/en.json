@@ -1,6 +1,8 @@
 {
   "common": {
     "loading": "Loading...",
+    "unsubscribe": "Unfollow",
+    "subscribe": "Follow",
     "save": "Save",
     "cancel": "Cancel",
     "close": "Close",
@@ -202,7 +204,6 @@
     "notFound": "Profile not found{{username}}",
     "loadError": "Failed to load profile",
     "myBalance": "My balance",
-    "myPhotos": "My photos",
     "editProfile": "Edit profile",
     "viewPhoto": "View photo",
     "viewPhotoFull": "Full-size photo",
@@ -515,6 +516,16 @@
   },
   "notifications": {
     "title": "Notifications",
+    "all": "All",
+    "unread": "Unread",
+    "markAllAsRead": "Mark all as read",
+    "today": "Today",
+    "yesterday": "Yesterday",
+    "earlier": "Earlier",
+    "justNow": "Just now",
+    "minutesAgo": "{{count}} min ago",
+    "hoursAgo": "{{count}} h ago",
+    "daysAgo": "{{count}} d ago",
     "empty": "You have no notifications yet",
     "emptyUnread": "You have no unread notifications",
     "settingsTitle": "Notification settings",
@@ -523,6 +534,18 @@
       "activity": "Activity",
       "system": "System",
       "delivery": "Delivery method"
+    },
+    "messages": {
+      "newFollower": "{{name}} started following you",
+      "postLike": "{{name}} liked your post",
+      "postComment": "{{name}} commented on your post",
+      "postCommentReply": "{{name}} replied to your comment",
+      "mention": "{{name}} mentioned you in a post or comment",
+      "newPost": "{{name}} published a new post",
+      "postShare": "{{name}} shared your post",
+      "postSharedToUser": "{{name}} shared a post with you",
+      "message": "{{name}} sent you a message",
+      "system": "System notification"
     },
     "items": {
       "follow": {
