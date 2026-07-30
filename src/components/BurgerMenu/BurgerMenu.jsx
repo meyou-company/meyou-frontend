@@ -87,6 +87,33 @@ export default function BurgerMenu({
       return;
     }
 
+    if (
+      [
+        'guest',
+        'favorites',
+        'blocked',
+        'support',
+        'report',
+        'about',
+      ].includes(id)
+    ) {
+      navigate('/oops');
+      onClose();
+      return;
+    }
+
+    if (id === 'terms') {
+      navigate('/legal/terms');
+      onClose();
+      return;
+    }
+
+    if (id === 'privacy') {
+      navigate('/legal/privacy');
+      onClose();
+      return;
+    }
+
     if (id === 'dark') {
       toggleTheme();
     } else {
