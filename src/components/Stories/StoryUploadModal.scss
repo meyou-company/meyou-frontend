@@ -437,7 +437,8 @@
 .storyTextEditor__overlay {
   position: absolute;
   z-index: 3;
-  max-width: 90%;
+  width: max-content;
+  max-width: calc(100% - 16px);
   padding: 4px 7px;
   transform: translate(-50%, -50%);
   font-family: Montserrat, sans-serif;
