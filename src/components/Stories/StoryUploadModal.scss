@@ -361,6 +361,17 @@
   }
 }
 
+.storyUploadModal__editorTool:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.storyUploadModal__editorTool--active {
+  box-shadow:
+    0 0 0 3px #fff,
+    0 0 0 5px rgba(155, 122, 230, 0.65);
+}
+
 .storyUploadModal__editorTool--small {
   height: 21px;
   border-radius: 999px;
@@ -372,6 +383,7 @@
 }
 
 .storyUploadModal__mediaFrame {
+  position: relative;
   width: 100%;
   background: transparent;
 }
@@ -393,7 +405,7 @@
   border: 0;
   resize: none;
   background: transparent;
-  padding: 15px 15px 10px;
+  padding: 15px 58px 10px 15px;
   color: #fff;
   font-family: Montserrat, sans-serif;
   font-size: 14px;
@@ -403,6 +415,187 @@
   &::placeholder {
     color: #fff;
     opacity: 1;
+  }
+}
+
+.storyUploadModal__captionWrap {
+  position: relative;
+  flex: 0 0 auto;
+}
+
+.storyUploadModal__captionCount {
+  position: absolute;
+  right: 15px;
+  bottom: 10px;
+  color: rgba(255, 255, 255, 0.78);
+  font-family: Montserrat, sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  pointer-events: none;
+}
+
+.storyTextEditor__overlay {
+  position: absolute;
+  z-index: 3;
+  max-width: 90%;
+  padding: 4px 7px;
+  transform: translate(-50%, -50%);
+  font-family: Montserrat, sans-serif;
+  font-weight: 700;
+  line-height: 1.12;
+  letter-spacing: 0;
+  text-align: center;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.55);
+}
+
+.storyTextEditor__overlay:active {
+  cursor: grabbing;
+}
+
+.storyTextEditor__overlay--placeholder {
+  color: rgba(255, 255, 255, 0.8) !important;
+  border: 1px dashed rgba(255, 255, 255, 0.8);
+  border-radius: 6px;
+  font-size: 24px !important;
+}
+
+.storyTextEditor__controls {
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+  left: 10px;
+  z-index: 5;
+  padding: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.32);
+  border-radius: 8px;
+  background: rgba(16, 13, 22, 0.88);
+  box-shadow: 0 8px 26px rgba(0, 0, 0, 0.28);
+  backdrop-filter: blur(10px);
+}
+
+.storyTextEditor__input {
+  width: 100%;
+  min-width: 0;
+  height: 38px;
+  padding: 0 11px;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: 6px;
+  outline: none;
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+  font-family: Montserrat, sans-serif;
+  font-size: 14px;
+
+  &::placeholder {
+    color: rgba(255, 255, 255, 0.66);
+  }
+
+  &:focus {
+    border-color: #d9c2ff;
+  }
+}
+
+.storyTextEditor__settings {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.storyTextEditor__size {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: #fff;
+  font-family: Montserrat, sans-serif;
+}
+
+.storyTextEditor__sizeLabel {
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.storyTextEditor__size input {
+  width: clamp(76px, 22vw, 150px);
+  accent-color: #c6a6ff;
+}
+
+.storyTextEditor__sizeValue {
+  width: 22px;
+  font-size: 11px;
+  text-align: right;
+}
+
+.storyTextEditor__colors {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.storyTextEditor__color {
+  width: 23px;
+  height: 23px;
+  padding: 0;
+  flex: 0 0 auto;
+  border: 2px solid rgba(255, 255, 255, 0.5);
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.storyTextEditor__color--active {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
+
+.storyTextEditor__hint {
+  margin: 8px 0 0;
+  color: rgba(255, 255, 255, 0.7);
+  font-family: Montserrat, sans-serif;
+  font-size: 10px;
+  text-align: center;
+}
+
+@media (max-width: 480px) {
+  .storyTextEditor__controls {
+    right: 7px;
+    bottom: 7px;
+    left: 7px;
+    padding: 8px;
+  }
+
+  .storyTextEditor__settings {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+    margin-top: 8px;
+  }
+
+  .storyTextEditor__size {
+    justify-content: center;
+  }
+
+  .storyTextEditor__size input {
+    width: min(54vw, 180px);
+  }
+
+  .storyTextEditor__colors {
+    justify-content: center;
+  }
+
+  .storyTextEditor__color {
+    width: 21px;
+    height: 21px;
+  }
+
+  .storyTextEditor__hint {
+    margin-top: 6px;
   }
 }
 

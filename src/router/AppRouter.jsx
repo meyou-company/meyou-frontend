@@ -27,6 +27,7 @@ import ResetNewPasswordPage from '../pages/Auth/ResetNewPassword/ResetNewPasswor
 import CompleteProfilePage from '../pages/Users/Profile/CompleteProfilePage';
 import EditProfilePage from '../pages/Users/Profile/EditProfilePage';
 import VideoPage from '../pages/Video/VideoPage';
+import OopsPage from '../pages/Oops/OopsPage';
 
 import FirstPage from '../pages/FirstPage/FirstPage';
 import WalletPage from '../pages/Wallet/WalletPage';
@@ -151,6 +152,7 @@ function AppLayout() {
               <Route path="/my-gifts" element={<MyGiftsPage />} />
 
               <Route path="/video" element={<VideoPage />} />
+              <Route path="/oops" element={<OopsPage />} />
               <Route path="/users/profile/complete" element={<CompleteProfilePage />} />
               <Route path="/users/profile/edit" element={<EditProfilePage />} />
 

@@ -5,8 +5,10 @@ import { useAuthStore } from "../../zustand/useAuthStore";
 import { storiesApi } from "../../services/storiesApi";
 import { uploadStoryMedia } from "../../services/storyMediaUploadApi";
 import { getApiErrorMessage } from "../../utils/getApiErrorMessage";
+import { composeStoryImage } from "../../utils/composeStoryImage";
 import AppHeader from "../Layout/AppHeader";
 import profileIcons from "../../constants/profileIcons";
+import StoryTextEditor from "./StoryTextEditor";
 import "./StoryUploadModal.scss";
 
 const STORY_VISIBILITY_OPTIONS = [
@@ -21,6 +23,11 @@ const STORY_PUBLISH_PHASE = {
   UPLOADING: "uploading",
   PROCESSING: "processing",
 };
+
+const DEFAULT_STORY_TEXT_POSITION = { x: 50, y: 45 };
+const DEFAULT_STORY_TEXT_COLOR = "#ffffff";
+const DEFAULT_STORY_TEXT_SIZE = 32;
+const STORY_CAPTION_MAX_LENGTH = 25;
 
 function getPublishPhaseLabel(phase, isVideo) {
   if (phase === STORY_PUBLISH_PHASE.UPLOADING) {
@@ -59,8 +66,17 @@ function getStoryCreateErrorMessage(error) {
 
 export default function StoryUploadModal({ isOpen, onClose, onCreated }) {
   const inputRef = useRef(null);
+  const visibilityWrapRef = useRef(null);
+  const mediaFrameRef = useRef(null);
   const [fileItem, setFileItem] = useState(null);
   const [text, setText] = useState("");
+  const [storyText, setStoryText] = useState("");
+  const [storyTextColor, setStoryTextColor] = useState(DEFAULT_STORY_TEXT_COLOR);
+  const [storyTextSize, setStoryTextSize] = useState(DEFAULT_STORY_TEXT_SIZE);
+  const [storyTextPosition, setStoryTextPosition] = useState(
+    DEFAULT_STORY_TEXT_POSITION,
+  );
+  const [isTextEditorOpen, setIsTextEditorOpen] = useState(false);
   const [isPublishing, setIsPublishing] = useState(false);
   const [publishPhase, setPublishPhase] = useState(null);
   const [visibility, setVisibility] = useState("FOLLOWERS");
@@ -124,7 +140,31 @@ export default function StoryUploadModal({ isOpen, onClose, onCreated }) {
     };
   }, [fileItem]);
 
+  useEffect(() => {
+    if (!isVisibilityOpen) return undefined;
+
+    const handleOutsidePointerDown = (event) => {
+      if (!visibilityWrapRef.current?.contains(event.target)) {
+        setIsVisibilityOpen(false);
+      }
+    };
+
+    document.addEventListener("pointerdown", handleOutsidePointerDown, true);
+
+    return () => {
+      document.removeEventListener("pointerdown", handleOutsidePointerDown, true);
+    };
+  }, [isVisibilityOpen]);
+
   if (!isOpen) return null;
+
+  const resetStoryText = () => {
+    setStoryText("");
+    setStoryTextColor(DEFAULT_STORY_TEXT_COLOR);
+    setStoryTextSize(DEFAULT_STORY_TEXT_SIZE);
+    setStoryTextPosition(DEFAULT_STORY_TEXT_POSITION);
+    setIsTextEditorOpen(false);
+  };
 
   const reset = () => {
     if (fileItem?.previewUrl) {
@@ -133,6 +173,8 @@ export default function StoryUploadModal({ isOpen, onClose, onCreated }) {
 
     setFileItem(null);
     setText("");
+    resetStoryText();
+    setIsVisibilityOpen(false);
     setIsPublishing(false);
     setPublishPhase(null);
   };
@@ -149,6 +191,8 @@ export default function StoryUploadModal({ isOpen, onClose, onCreated }) {
 
     setFileItem(null);
     setText("");
+    resetStoryText();
+    setIsVisibilityOpen(false);
   };
 
   const handleSelectFile = (e) => {
@@ -168,6 +212,10 @@ export default function StoryUploadModal({ isOpen, onClose, onCreated }) {
     if (fileItem?.previewUrl) {
       URL.revokeObjectURL(fileItem.previewUrl);
     }
+
+    setText("");
+    resetStoryText();
+    setIsVisibilityOpen(false);
 
     const previewUrl = URL.createObjectURL(file);
 
@@ -243,9 +291,21 @@ export default function StoryUploadModal({ isOpen, onClose, onCreated }) {
     try {
       setIsPublishing(true);
       const isVideo = fileItem.type === "video";
+      const mediaFrame = mediaFrameRef.current?.getBoundingClientRect();
+      const uploadFile = !isVideo && storyText.trim()
+        ? await composeStoryImage({
+            file: fileItem.file,
+            text: storyText,
+            color: storyTextColor,
+            fontSize: storyTextSize,
+            position: storyTextPosition,
+            frameWidth: mediaFrame?.width,
+            frameHeight: mediaFrame?.height,
+          })
+        : fileItem.file;
 
       setPublishPhase(STORY_PUBLISH_PHASE.UPLOADING);
-      const uploaded = await uploadStoryMedia(fileItem.file, {
+      const uploaded = await uploadStoryMedia(uploadFile, {
         durationSec: isVideo ? fileItem.durationSec : undefined,
       });
 
@@ -419,7 +479,12 @@ export default function StoryUploadModal({ isOpen, onClose, onCreated }) {
                   <div className="storyUploadModal__editorTools">
                     <button
                       type="button"
-                      className="storyUploadModal__editorTool"
+                      className={`storyUploadModal__editorTool ${isTextEditorOpen ? "storyUploadModal__editorTool--active" : ""}`}
+                      onClick={() => setIsTextEditorOpen((prev) => !prev)}
+                      disabled={fileItem.type !== "image" || isPublishing}
+                      aria-label="Добавить текст на фото"
+                      aria-pressed={isTextEditorOpen}
+                      title={fileItem.type === "image" ? "Добавить текст" : "Текст доступен для фото"}
                     >
                       <span className="storyUploadModal__editorToolIcon storyUploadModal__editorToolIcon--text">
                         Aa
@@ -457,6 +522,7 @@ export default function StoryUploadModal({ isOpen, onClose, onCreated }) {
                 </div>
 
                 <div
+                  ref={mediaFrameRef}
                   className={`storyUploadModal__mediaFrame ${fileItem.orientation === "landscape"
                     ? "storyUploadModal__mediaFrame--landscape"
                     : fileItem.orientation === "portrait"
@@ -477,16 +543,37 @@ export default function StoryUploadModal({ isOpen, onClose, onCreated }) {
                       className="storyUploadModal__editorMedia"
                     />
                   )}
+
+                  {fileItem.type === "image" && (
+                    <StoryTextEditor
+                      isOpen={isTextEditorOpen}
+                      text={storyText}
+                      color={storyTextColor}
+                      fontSize={storyTextSize}
+                      position={storyTextPosition}
+                      disabled={isPublishing}
+                      onTextChange={setStoryText}
+                      onColorChange={setStoryTextColor}
+                      onFontSizeChange={setStoryTextSize}
+                      onPositionChange={setStoryTextPosition}
+                    />
+                  )}
                 </div>
 
-                <textarea
-                  className="storyUploadModal__caption"
-                  value={text}
-                  onChange={(e) => setText(e.target.value)}
-                  placeholder="Добавьте подпись..."
-                  rows={1}
-                  disabled={isPublishing}
-                />
+                <div className="storyUploadModal__captionWrap">
+                  <textarea
+                    className="storyUploadModal__caption"
+                    value={text}
+                    onChange={(e) => setText(e.target.value.slice(0, STORY_CAPTION_MAX_LENGTH))}
+                    placeholder="Добавьте подпись..."
+                    rows={1}
+                    maxLength={STORY_CAPTION_MAX_LENGTH}
+                    disabled={isPublishing}
+                  />
+                  <span className="storyUploadModal__captionCount">
+                    {text.length}/{STORY_CAPTION_MAX_LENGTH}
+                  </span>
+                </div>
               </div>
 
               <div className="storyUploadModal__bottomActions">
@@ -498,7 +585,10 @@ export default function StoryUploadModal({ isOpen, onClose, onCreated }) {
                   <span>Ваша история</span>
                 </button>
 
-                <div className="storyUploadModal__visibilityWrap">
+                <div
+                  ref={visibilityWrapRef}
+                  className="storyUploadModal__visibilityWrap"
+                >
                   <button
                     type="button"
                     className="storyUploadModal__audienceBtn"
