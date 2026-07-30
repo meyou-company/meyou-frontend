@@ -34,6 +34,64 @@ function canvasToBlob(canvas, mimeType) {
   });
 }
 
+function splitLongWord(context, word, maxWidth) {
+  const parts = [];
+  let currentPart = "";
+
+  Array.from(word).forEach((character) => {
+    const nextPart = `${currentPart}${character}`;
+
+    if (currentPart && context.measureText(nextPart).width > maxWidth) {
+      parts.push(currentPart);
+      currentPart = character;
+      return;
+    }
+
+    currentPart = nextPart;
+  });
+
+  if (currentPart) parts.push(currentPart);
+  return parts;
+}
+
+function wrapText(context, text, maxWidth) {
+  const lines = [];
+
+  text.split(/\r?\n/).forEach((paragraph) => {
+    const words = paragraph.trim().split(/\s+/).filter(Boolean);
+
+    if (!words.length) {
+      lines.push("");
+      return;
+    }
+
+    let currentLine = "";
+
+    words.forEach((word) => {
+      const wordParts =
+        context.measureText(word).width > maxWidth
+          ? splitLongWord(context, word, maxWidth)
+          : [word];
+
+      wordParts.forEach((part) => {
+        const candidate = currentLine ? `${currentLine} ${part}` : part;
+
+        if (currentLine && context.measureText(candidate).width > maxWidth) {
+          lines.push(currentLine);
+          currentLine = part;
+          return;
+        }
+
+        currentLine = candidate;
+      });
+    });
+
+    if (currentLine) lines.push(currentLine);
+  });
+
+  return lines;
+}
+
 export async function composeStoryImage({
   file,
   text,
@@ -86,12 +144,17 @@ export async function composeStoryImage({
     : "rgba(0, 0, 0, 0.6)";
   context.shadowBlur = Math.max(2, sourceFontSize * 0.08);
   context.shadowOffsetY = Math.max(1, sourceFontSize * 0.04);
-  context.fillText(
-    normalizedText,
-    sourceX,
-    sourceY,
-    image.naturalWidth * 0.9,
+  const maxTextWidth = Math.min(
+    image.naturalWidth * 0.94,
+    (safeFrameWidth * 0.94) / coverScale,
   );
+  const lines = wrapText(context, normalizedText, maxTextWidth);
+  const lineHeight = sourceFontSize * 1.18;
+  const firstLineY = sourceY - ((lines.length - 1) * lineHeight) / 2;
+
+  lines.forEach((line, index) => {
+    context.fillText(line, sourceX, firstLineY + index * lineHeight);
+  });
   context.restore();
 
   const mimeType = file.type === "image/png" ? "image/png" : "image/jpeg";

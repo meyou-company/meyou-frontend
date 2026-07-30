@@ -310,10 +310,19 @@ export default function StoryUploadModal({ isOpen, onClose, onCreated }) {
       });
 
       setPublishPhase(STORY_PUBLISH_PHASE.PROCESSING);
+      const normalizedCaption = text.trim();
+      const normalizedOverlayText = storyText.trim();
+      const captionDuplicatesOverlay =
+        fileItem.type === "image" &&
+        normalizedOverlayText &&
+        normalizedCaption.localeCompare(normalizedOverlayText, undefined, {
+          sensitivity: "base",
+        }) === 0;
+
       const created = await storiesApi.create({
         mediaUrl: uploaded.mediaUrl,
         mediaType: uploaded.mediaType,
-        text: text.trim(),
+        text: captionDuplicatesOverlay ? "" : normalizedCaption,
         visibility,
         durationSec:
           fileItem.type === "video"

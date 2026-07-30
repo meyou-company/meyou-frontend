@@ -28,6 +28,7 @@ import CompleteProfilePage from '../pages/Users/Profile/CompleteProfilePage';
 import EditProfilePage from '../pages/Users/Profile/EditProfilePage';
 import VideoPage from '../pages/Video/VideoPage';
 import OopsPage from '../pages/Oops/OopsPage';
+import LivePage from '../pages/Live/LivePage';
 
 import FirstPage from '../pages/FirstPage/FirstPage';
 import WalletPage from '../pages/Wallet/WalletPage';
@@ -104,6 +105,7 @@ function AppLayout() {
   const hideBottomNavRoutes = new Set(['/users/profile/complete']);
   const isLanding = location.pathname === '/';
   const isAdminRoute = location.pathname.startsWith('/admin');
+  const isLiveRoute = location.pathname.startsWith('/live');
   /** Нижня навігація (mobile): лише після завершення профілю, не на головній з входом/реєстрацією. */
   const profileComplete = user?.profileCompleted === true;
   const shouldHideBottomNav =
@@ -111,6 +113,7 @@ function AppLayout() {
     isLegalRoute ||
     isFeatureRoute ||
     isAdminRoute ||
+    isLiveRoute ||
     hideBottomNavRoutes.has(location.pathname) ||
     !isAuthed ||
     !user ||
@@ -152,6 +155,8 @@ function AppLayout() {
               <Route path="/my-gifts" element={<MyGiftsPage />} />
 
               <Route path="/video" element={<VideoPage />} />
+              <Route path="/live" element={<LivePage />} />
+              <Route path="/live/:liveId" element={<LivePage />} />
               <Route path="/oops" element={<OopsPage />} />
               <Route path="/users/profile/complete" element={<CompleteProfilePage />} />
               <Route path="/users/profile/edit" element={<EditProfilePage />} />

@@ -636,7 +636,11 @@ export default function ProfileHome({
                 </span>
               </button>
 
-              <button className="actionBtn actionBtnDesktop" type="button">
+              <button
+                className="actionBtn actionBtnDesktop"
+                type="button"
+                onClick={() => navigate("/live", { state: { mode: "owner" } })}
+              >
                 <span className="actionBtnLeft">
                   <span className="actionRound">
                     <img src={actionIcons.video} alt="" />
