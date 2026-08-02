@@ -13,9 +13,11 @@
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
+    "@livekit/components-react": "^2.9.23",
     "axios": "^1.13.2",
     "emoji-picker-react": "^4.19.1",
     "i18next": "^26.3.1",
+    "livekit-client": "^2.21.0",
     "react": "^19.2.0",
     "react-datepicker": "^9.1.0",
     "react-dom": "^19.2.0",
