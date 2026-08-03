@@ -67,6 +67,7 @@ function OwnerSettings({
 
 export default function LiveStage({
   isOwner,
+  isLive,
   host,
   elapsed,
   isEnded,
@@ -138,7 +139,7 @@ export default function LiveStage({
         </div>
 
         <div className="liveStage__topRight">
-          {!isEnded && <LiveStatus elapsed={elapsed} />}
+          {isLive && !isEnded && <LiveStatus elapsed={elapsed} />}
           {isOwner && !isEnded && (
             <button
               type="button"
@@ -193,7 +194,7 @@ export default function LiveStage({
           >
             <span>{isPlaying ? "Ⅱ" : "▶"}</span>
           </button>
-        ) : isOwner && !videoTrack && !isEnded ? (
+        ) : isOwner && !isLive && !isEnded ? (
           <button
             type="button"
             className="liveStage__cameraStart"
@@ -214,7 +215,7 @@ export default function LiveStage({
             </div>
 
             <div className="liveStage__ownerActions">
-              {!isEnded && (
+              {isLive && !isEnded && (
                 <button
                   type="button"
                   className="liveStage__stopButton"
@@ -228,7 +229,7 @@ export default function LiveStage({
                 <button type="button" className="liveStage__outlineButton" onClick={onOpenChat}>
                   Перейти в чат
                 </button>
-                {!isEnded && (
+                {isLive && !isEnded && (
                   <button type="button" className="liveStage__outlineButton" onClick={onEnd}>
                     Завершить трансляцию
                   </button>

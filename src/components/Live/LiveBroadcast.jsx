@@ -16,6 +16,9 @@ import "./LiveBroadcast.scss";
 const DEFAULT_AVATAR = "/Logo/photo.png";
 const LIVE_STATUS = "LIVE";
 const ENDED_STATUS = "ENDED";
+const LIVE_MESSAGES_CACHE_PREFIX = "meyou_live_messages:";
+const LIVE_HOST_MEDIA_PREFIX = "meyou_live_host_media:";
+const MAX_CACHED_MESSAGES = 100;
 
 function unwrap(value) {
   return value?.data && !Array.isArray(value.data) ? value.data : value;
@@ -37,13 +40,19 @@ function getUserId(user) {
 
 function normalizeStream(payload) {
   const value = unwrap(payload) || {};
-  const host = value.host || value.author || value.user || value.owner || {};
+  const host = value.host || value.hostUser || value.author || value.user || value.owner || {};
   return {
     ...value,
     id: value.id || value._id,
     status: String(value.status || "SCHEDULED").toUpperCase(),
     host,
-    hostId: value.hostId || value.authorId || value.userId || getUserId(host),
+    hostId:
+      value.hostId ||
+      value.hostUserId ||
+      value.ownerId ||
+      value.authorId ||
+      value.userId ||
+      getUserId(host),
     startedAt: value.startedAt || value.started_at || null,
     endedAt: value.endedAt || value.ended_at || null,
     isSoundEnabled: value.isSoundEnabled !== false,
@@ -66,13 +75,73 @@ function normalizeMessage(raw) {
       value.avatar || author.avatarUrl || author.avatar || author.photoUrl || DEFAULT_AVATAR,
     text: String(value.text || value.message || value.content || ""),
     createdAt: value.createdAt || value.created_at || new Date().toISOString(),
-    isPersisted: Boolean(id),
+    isPersisted: value.isPersisted ?? Boolean(id),
   };
 }
 
 function appendUniqueMessage(list, message) {
   if (!message?.id || list.some((item) => item.id === message.id)) return list;
   return [...list, message];
+}
+
+function mergeMessages(...collections) {
+  const byId = new Map();
+  collections.flat().forEach((message) => {
+    const normalized = normalizeMessage(message);
+    if (normalized.id) byId.set(normalized.id, normalized);
+  });
+  return [...byId.values()]
+    .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt))
+    .slice(-MAX_CACHED_MESSAGES);
+}
+
+function readCachedMessages(streamId) {
+  if (!streamId) return [];
+  try {
+    const value = JSON.parse(localStorage.getItem(`${LIVE_MESSAGES_CACHE_PREFIX}${streamId}`));
+    return Array.isArray(value) ? value : [];
+  } catch {
+    return [];
+  }
+}
+
+function cacheMessages(streamId, messages) {
+  if (!streamId) return;
+  try {
+    localStorage.setItem(
+      `${LIVE_MESSAGES_CACHE_PREFIX}${streamId}`,
+      JSON.stringify(messages.slice(-MAX_CACHED_MESSAGES)),
+    );
+  } catch {
+    // Storage can be unavailable in private browsing; chat still works in memory.
+  }
+}
+
+function readHostMedia(streamId) {
+  if (!streamId) return null;
+  try {
+    return JSON.parse(sessionStorage.getItem(`${LIVE_HOST_MEDIA_PREFIX}${streamId}`));
+  } catch {
+    return null;
+  }
+}
+
+function cacheHostMedia(streamId, media) {
+  if (!streamId || !media?.url || !media?.token) return;
+  try {
+    sessionStorage.setItem(`${LIVE_HOST_MEDIA_PREFIX}${streamId}`, JSON.stringify(media));
+  } catch {
+    // A fresh host token can still be requested from the start endpoint.
+  }
+}
+
+function removeHostMedia(streamId) {
+  if (!streamId) return;
+  try {
+    sessionStorage.removeItem(`${LIVE_HOST_MEDIA_PREFIX}${streamId}`);
+  } catch {
+    // Ignore unavailable storage.
+  }
 }
 
 function formatCompactCount(value) {
@@ -102,6 +171,7 @@ export default function LiveBroadcast() {
   const authUser = useAuthStore((state) => state.user);
   const chatRef = useRef(null);
   const streamRef = useRef(null);
+  const hostReconnectRef = useRef(null);
 
   const currentUser = useMemo(
     () => ({
@@ -130,8 +200,10 @@ export default function LiveBroadcast() {
   const [likesCount, setLikesCount] = useState(0);
   const [pinnedMessageId, setPinnedMessageId] = useState(null);
   const [messages, setMessages] = useState([]);
+  const [areMessagesHydrated, setAreMessagesHydrated] = useState(false);
   const [playbackUrl, setPlaybackUrl] = useState(null);
   const [pickerMode, setPickerMode] = useState(null);
+  const [isRestoringHost, setIsRestoringHost] = useState(false);
 
   const setStream = useCallback((nextStream) => {
     const normalized = nextStream ? normalizeStream(nextStream) : null;
@@ -207,8 +279,10 @@ export default function LiveBroadcast() {
     }
 
     let cancelled = false;
-    setIsLoading(true);
+    const isRefreshingCurrent = String(streamRef.current?.id) === String(liveId);
+    if (!isRefreshingCurrent) setIsLoading(true);
     setLoadError("");
+    if (!isRefreshingCurrent) setAreMessagesHydrated(false);
 
     Promise.all([
       liveStreamsApi.getById(liveId),
@@ -221,11 +295,8 @@ export default function LiveBroadcast() {
         setIsMuted(!normalized.isSoundEnabled);
         setShouldSave(normalized.isSaved);
         setLikesCount(normalized.reactionsCount);
-        setMessages(
-          messagePayload.items
-            .map(normalizeMessage)
-            .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt)),
-        );
+        setMessages(mergeMessages(readCachedMessages(liveId), messagePayload.items));
+        setAreMessagesHydrated(true);
 
         if (normalized.startedAt) {
           setElapsed(Math.max(0, Math.floor((Date.now() - Date.parse(normalized.startedAt)) / 1000)));
@@ -241,7 +312,15 @@ export default function LiveBroadcast() {
         }
       })
       .catch((error) => {
-        if (!cancelled) setLoadError(getApiErrorMessage(error, "errors.generic"));
+        if (!cancelled) {
+          if (isRefreshingCurrent) {
+            console.error("[live-stream-refresh] failed", error);
+          } else {
+            setMessages(mergeMessages(readCachedMessages(liveId)));
+            setAreMessagesHydrated(true);
+            setLoadError(getApiErrorMessage(error, "errors.generic"));
+          }
+        }
       })
       .finally(() => {
         if (!cancelled) setIsLoading(false);
@@ -251,6 +330,71 @@ export default function LiveBroadcast() {
       cancelled = true;
     };
   }, [liveId, setStream]);
+
+  useEffect(() => {
+    const activeId = stream?.id || liveId;
+    if (areMessagesHydrated && activeId) cacheMessages(activeId, messages);
+  }, [areMessagesHydrated, liveId, messages, stream?.id]);
+
+  useEffect(() => {
+    const activeId = stream?.id;
+    if (
+      !activeId ||
+      stream.status !== LIVE_STATUS ||
+      !isOwner ||
+      isLoading ||
+      isStarting ||
+      liveKit.isConnected ||
+      liveKit.isConnecting ||
+      hostReconnectRef.current === activeId
+    ) {
+      return;
+    }
+
+    hostReconnectRef.current = activeId;
+    setIsRestoringHost(true);
+
+    const restoreHostConnection = async () => {
+      let media = readHostMedia(activeId);
+
+      try {
+        if (media) {
+          try {
+            await liveKit.connect(media, { isHost: true });
+          } catch {
+            media = null;
+          }
+        }
+
+        if (!media) {
+          const refreshed = await liveStreamsApi.start(activeId);
+          media = extractLiveMedia(refreshed);
+          cacheHostMedia(activeId, media);
+          await liveKit.connect(media, { isHost: true });
+          setStream({ ...streamRef.current, ...refreshed, status: LIVE_STATUS });
+        }
+
+        if (isMuted) await liveKit.setMicrophoneEnabled(false);
+        setIsPlaying(true);
+      } catch (error) {
+        hostReconnectRef.current = null;
+        toast.error(getApiErrorMessage(error, "errors.generic"));
+      } finally {
+        setIsRestoringHost(false);
+      }
+    };
+
+    restoreHostConnection();
+  }, [
+    isLoading,
+    isMuted,
+    isOwner,
+    isStarting,
+    liveKit,
+    setStream,
+    stream?.id,
+    stream?.status,
+  ]);
 
   useEffect(() => {
     if (isEnded || stream?.status !== LIVE_STATUS) return undefined;
@@ -277,12 +421,15 @@ export default function LiveBroadcast() {
     try {
       setIsStarting(true);
       let target = stream;
+      const createScheduledStream = async () => normalizeStream(
+        await liveStreamsApi.create({
+          title: `Прямой эфир ${currentUser.name}`,
+        }),
+      );
 
       if (!target?.id) {
         try {
-          target = normalizeStream(await liveStreamsApi.create({
-            title: `Прямой эфир ${currentUser.name}`,
-          }));
+          target = await createScheduledStream();
         } catch (error) {
           if (error?.response?.status !== 409 || !currentUser.username) throw error;
           const ownStreams = await liveStreamsApi.listByUsername(currentUser.username);
@@ -294,10 +441,28 @@ export default function LiveBroadcast() {
         }
       }
 
-      const startedPayload = await liveStreamsApi.start(target.id);
+      let startedPayload = null;
+      if (target.status === LIVE_STATUS) {
+        const cachedMedia = readHostMedia(target.id);
+        if (cachedMedia?.url && cachedMedia?.token) {
+          startedPayload = { ...target, media: cachedMedia };
+        } else {
+          await liveStreamsApi.end(target.id, {});
+          removeHostMedia(target.id);
+          target = await createScheduledStream();
+          toast.info("Предыдущий зависший эфир завершён, запускаем новый");
+        }
+      }
+
+      if (!startedPayload) {
+        startedPayload = await liveStreamsApi.start(target.id);
+      }
       const started = setStream({ ...target, ...startedPayload, status: LIVE_STATUS });
       startedStreamId = started.id;
-      await liveKit.connect(extractLiveMedia(startedPayload), { isHost: true });
+      hostReconnectRef.current = started.id;
+      const hostMedia = extractLiveMedia(startedPayload);
+      cacheHostMedia(started.id, hostMedia);
+      await liveKit.connect(hostMedia, { isHost: true });
       if (isMuted) await liveKit.setMicrophoneEnabled(false);
       if (isMuted || shouldSave) {
         await liveStreamsApi.updateSettings(started.id, {
@@ -318,6 +483,8 @@ export default function LiveBroadcast() {
       if (startedStreamId) {
         await liveStreamsApi.end(startedStreamId, {}).catch(() => {});
         await liveKit.disconnect().catch(() => {});
+        removeHostMedia(startedStreamId);
+        hostReconnectRef.current = null;
         const failedStream = streamRef.current;
         setStream(failedStream?.id === startedStreamId
           ? { ...failedStream, status: ENDED_STATUS }
@@ -421,6 +588,8 @@ export default function LiveBroadcast() {
       await liveKit.publishData({ type: "stream.ended" }).catch(() => {});
       const endedPayload = await liveStreamsApi.end(stream.id, {});
       await liveKit.disconnect();
+      removeHostMedia(stream.id);
+      hostReconnectRef.current = null;
       setStream({ ...stream, ...endedPayload, status: ENDED_STATUS });
       setIsEnded(true);
       setIsPlaying(false);
@@ -531,6 +700,7 @@ export default function LiveBroadcast() {
           <div className="livePage__broadcastLayout">
             <LiveStage
               isOwner={isOwner}
+              isLive={stream?.status === LIVE_STATUS}
               host={host}
               elapsed={elapsed}
               isEnded={isEnded}
@@ -541,7 +711,7 @@ export default function LiveBroadcast() {
               videoTrack={liveKit.videoTrack}
               audioTrack={liveKit.audioTrack}
               playbackUrl={playbackUrl}
-              isCameraStarting={isStarting || liveKit.isConnecting}
+              isCameraStarting={isStarting || isRestoringHost || liveKit.isConnecting}
               viewerCount={formatCompactCount(viewerCount)}
               likesCount={formatCompactCount(likesCount)}
               onTogglePlaying={handleTogglePlaying}
