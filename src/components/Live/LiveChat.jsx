@@ -26,13 +26,17 @@ const LiveChat = forwardRef(function LiveChat(
     messagesEndRef.current?.scrollIntoView({ block: "nearest" });
   }, [messages]);
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
     const normalized = value.trim();
     if (!normalized || isEnded) return;
 
-    onSend(normalized);
-    setValue("");
+    try {
+      await onSend(normalized);
+      setValue("");
+    } catch {
+      // Parent displays the user-facing error.
+    }
   };
 
   const handleReply = (message) => {
@@ -88,23 +92,27 @@ const LiveChat = forwardRef(function LiveChat(
                     </button>
                     <button type="button" onClick={() => handleReply(message)}>Ответить</button>
                     <button type="button" onClick={() => {
-                      onDelete(message.id);
+                      onDelete(message);
                       setMenuMessageId(null);
                     }}>
                       Удалить
                     </button>
-                    <button type="button" onClick={() => {
-                      onModerate("block", message);
-                      setMenuMessageId(null);
-                    }}>
-                      Заблокировать
-                    </button>
-                    <button type="button" onClick={() => {
-                      onModerate("report", message);
-                      setMenuMessageId(null);
-                    }}>
-                      Пожаловаться
-                    </button>
+                    {String(message.authorId) !== String(currentUser.id) && (
+                      <>
+                        <button type="button" onClick={() => {
+                          onModerate("block", message);
+                          setMenuMessageId(null);
+                        }}>
+                          Заблокировать
+                        </button>
+                        <button type="button" onClick={() => {
+                          onModerate("report", message);
+                          setMenuMessageId(null);
+                        }}>
+                          Пожаловаться
+                        </button>
+                      </>
+                    )}
                   </div>
                 )}
               </div>
