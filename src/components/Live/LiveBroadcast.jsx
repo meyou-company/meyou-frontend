@@ -19,6 +19,8 @@ const DEFAULT_AVATAR = "/Logo/photo.png";
 const LIVE_STATUS = "LIVE";
 const ENDED_STATUS = "ENDED";
 const LIVE_HOST_MEDIA_PREFIX = "meyou_live_host_media:";
+const LIVE_MESSAGES_CACHE_PREFIX = "meyou_live_messages:";
+const LIVE_PINNED_CACHE_PREFIX = "meyou_live_pinned_messages:";
 const MAX_VISIBLE_MESSAGES = 100;
 
 function unwrap(value) {
@@ -78,6 +80,7 @@ function normalizeMessage(raw) {
     createdAt:
       value.createdAt || value.created_at || value.sentAt || new Date().toISOString(),
     isPersisted: value.isPersisted ?? Boolean(id),
+    isPinned: Boolean(value.isPinned ?? value.pinned),
   };
 }
 
@@ -182,6 +185,25 @@ function removeHostMedia(streamId) {
   }
 }
 
+function readLiveCache(prefix, streamId, fallback = []) {
+  if (!streamId) return fallback;
+  try {
+    const value = JSON.parse(localStorage.getItem(`${prefix}${streamId}`));
+    return Array.isArray(value) ? value : fallback;
+  } catch {
+    return fallback;
+  }
+}
+
+function writeLiveCache(prefix, streamId, value) {
+  if (!streamId) return;
+  try {
+    localStorage.setItem(`${prefix}${streamId}`, JSON.stringify(value));
+  } catch {
+    // The backend history remains available when browser storage is disabled.
+  }
+}
+
 function formatCompactCount(value) {
   const number = Number(value) || 0;
   if (number >= 1000) {
@@ -238,8 +260,9 @@ export default function LiveBroadcast() {
   const [shouldSave, setShouldSave] = useState(false);
   const [isStarting, setIsStarting] = useState(false);
   const [likesCount, setLikesCount] = useState(0);
-  const [pinnedMessageId, setPinnedMessageId] = useState(null);
+  const [pinnedMessageIds, setPinnedMessageIds] = useState([]);
   const [messages, setMessages] = useState([]);
+  const [areMessagesHydrated, setAreMessagesHydrated] = useState(false);
   const [playbackUrl, setPlaybackUrl] = useState(null);
   const [pickerMode, setPickerMode] = useState(null);
   const [isRestoringHost, setIsRestoringHost] = useState(false);
@@ -272,13 +295,20 @@ export default function LiveBroadcast() {
     switch (packet?.type) {
       case "chat.delete":
         setMessages((current) => current.filter((item) => item.id !== packet.messageId));
-        setPinnedMessageId((current) =>
-          current === packet.messageId ? null : current,
+        setPinnedMessageIds((current) =>
+          current.filter((messageId) => messageId !== packet.messageId),
         );
         break;
-      case "chat.pin":
-        setPinnedMessageId(packet.messageId || null);
+      case "chat.pin": {
+        if (!packet.messageId) break;
+        setPinnedMessageIds((current) => {
+          const withoutMessage = current.filter((messageId) => messageId !== packet.messageId);
+          return packet.isPinned === false
+            ? withoutMessage
+            : [...withoutMessage, packet.messageId];
+        });
         break;
+      }
       case "reaction":
         setLikesCount((current) => current + 1);
         break;
@@ -316,6 +346,7 @@ export default function LiveBroadcast() {
     const isRefreshingCurrent = String(streamRef.current?.id) === String(liveId);
     if (!isRefreshingCurrent) setIsLoading(true);
     setLoadError("");
+    if (!isRefreshingCurrent) setAreMessagesHydrated(false);
 
     Promise.all([
       liveStreamsApi.getById(liveId),
@@ -328,7 +359,17 @@ export default function LiveBroadcast() {
         setIsMuted(!normalized.isSoundEnabled);
         setShouldSave(normalized.isSaved);
         setLikesCount(normalized.reactionsCount);
-        setMessages((current) => mergeMessages(current, messagePayload.items));
+        const cachedMessages = readLiveCache(LIVE_MESSAGES_CACHE_PREFIX, liveId);
+        const cachedPinnedIds = readLiveCache(LIVE_PINNED_CACHE_PREFIX, liveId);
+        const backendPinnedIds = messagePayload.items
+          .map(normalizeMessage)
+          .filter((message) => message.isPinned)
+          .map((message) => message.id);
+        setMessages((current) =>
+          mergeMessages(cachedMessages, current, messagePayload.items),
+        );
+        setPinnedMessageIds([...new Set([...cachedPinnedIds, ...backendPinnedIds])]);
+        setAreMessagesHydrated(true);
 
         if (normalized.startedAt) {
           setElapsed(Math.max(0, Math.floor((Date.now() - Date.parse(normalized.startedAt)) / 1000)));
@@ -363,6 +404,17 @@ export default function LiveBroadcast() {
 
   useEffect(() => {
     const activeId = stream?.id || liveId;
+    if (!activeId || !areMessagesHydrated) return;
+    writeLiveCache(
+      LIVE_MESSAGES_CACHE_PREFIX,
+      activeId,
+      messages.slice(-MAX_VISIBLE_MESSAGES),
+    );
+    writeLiveCache(LIVE_PINNED_CACHE_PREFIX, activeId, pinnedMessageIds);
+  }, [areMessagesHydrated, liveId, messages, pinnedMessageIds, stream?.id]);
+
+  useEffect(() => {
+    const activeId = stream?.id || liveId;
     if (!activeId || !accessToken) return undefined;
 
     const socket = connectSocket(accessToken);
@@ -379,6 +431,11 @@ export default function LiveBroadcast() {
       const message = getPersistedSocketMessage(payload);
       if (!message) return;
       setMessages((current) => reconcileMessage(current, message));
+      if (message.isPinned) {
+        setPinnedMessageIds((current) =>
+          current.includes(message.id) ? current : [...current, message.id],
+        );
+      }
     };
 
     const handleSocketException = (payload) => {
@@ -700,7 +757,9 @@ export default function LiveBroadcast() {
         await liveStreamsApi.deleteMessage(stream.id, message.id);
       }
       setMessages((current) => current.filter((item) => item.id !== message.id));
-      setPinnedMessageId((current) => current === message.id ? null : current);
+      setPinnedMessageIds((current) =>
+        current.filter((messageId) => messageId !== message.id),
+      );
       await liveKit.publishData({ type: "chat.delete", messageId: message.id }).catch(() => {});
     } catch (error) {
       toast.error(getApiErrorMessage(error, "errors.generic"));
@@ -708,9 +767,15 @@ export default function LiveBroadcast() {
   };
 
   const handlePinMessage = async (messageId) => {
-    const nextId = pinnedMessageId === messageId ? null : messageId;
-    setPinnedMessageId(nextId);
-    await liveKit.publishData({ type: "chat.pin", messageId: nextId }).catch(() => {});
+    const isPinned = pinnedMessageIds.includes(messageId);
+    setPinnedMessageIds((current) => isPinned
+      ? current.filter((id) => id !== messageId)
+      : [...current, messageId]);
+    await liveKit.publishData({
+      type: "chat.pin",
+      messageId,
+      isPinned: !isPinned,
+    }).catch(() => {});
   };
 
   const handleModerate = async (action, message) => {
@@ -824,7 +889,7 @@ export default function LiveBroadcast() {
               isOwner={isOwner}
               currentUser={currentUser}
               messages={messages}
-              pinnedMessageId={pinnedMessageId}
+              pinnedMessageIds={pinnedMessageIds}
               isEnded={isEnded}
               onSend={handleSend}
               onReact={handleReact}

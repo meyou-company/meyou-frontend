@@ -605,6 +605,23 @@
   padding: 12px 12px 24px;
 }
 
+.liveChat__pinnedMessages {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  max-height: min(42%, 240px);
+  margin: -12px -12px 18px;
+  padding: 20px 12px 2px;
+  overflow: visible;
+  border-bottom: 1px solid rgba(155, 122, 230, 0.35);
+  background: #f2e5ff;
+  box-shadow: 0 8px 14px rgba(59, 37, 82, 0.08);
+
+  .liveChat__message:last-child {
+    margin-bottom: 10px;
+  }
+}
+
 .liveChat__message {
   position: relative;
   display: grid;
@@ -1105,7 +1122,7 @@
   }
 
   .liveChat__messages {
-    padding: 18px 12px 30px;
+    padding: 0 12px 30px;
   }
 
   .liveChat__footer {
@@ -1149,6 +1166,13 @@
 .dark .liveChat {
   border-color: rgba(255, 255, 255, 0.2);
   background: #241b31;
+}
+
+[data-theme="dark"] .liveChat__pinnedMessages,
+.dark .liveChat__pinnedMessages {
+  border-color: rgba(210, 183, 255, 0.25);
+  background: #241b31;
+  box-shadow: 0 8px 14px rgba(0, 0, 0, 0.2);
 }
 
 [data-theme="dark"] .liveChat__messageContent p,

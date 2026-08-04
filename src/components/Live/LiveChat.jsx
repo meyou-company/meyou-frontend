@@ -1,4 +1,4 @@
-import { forwardRef, useEffect, useRef, useState } from "react";
+import { forwardRef, useEffect, useMemo, useRef, useState } from "react";
 import { REACTIONS } from "./LiveStage";
 
 const LiveChat = forwardRef(function LiveChat(
@@ -6,7 +6,7 @@ const LiveChat = forwardRef(function LiveChat(
     isOwner,
     currentUser,
     messages,
-    pinnedMessageId,
+    pinnedMessageIds,
     isEnded,
     onSend,
     onReact,
@@ -21,6 +21,16 @@ const LiveChat = forwardRef(function LiveChat(
   const [menuMessageId, setMenuMessageId] = useState(null);
   const inputRef = useRef(null);
   const messagesEndRef = useRef(null);
+  const pinnedIds = useMemo(() => new Set(pinnedMessageIds), [pinnedMessageIds]);
+  const groupedMessages = useMemo(() => {
+    const pinned = [];
+    const regular = [];
+    messages.forEach((message) => {
+      if (pinnedIds.has(message.id)) pinned.push(message);
+      else regular.push(message);
+    });
+    return { pinned, regular };
+  }, [messages, pinnedIds]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ block: "nearest" });
@@ -46,6 +56,72 @@ const LiveChat = forwardRef(function LiveChat(
     inputRef.current?.focus();
   };
 
+  const renderMessage = (message) => (
+    <article
+      key={message.id}
+      className={`liveChat__message ${pinnedIds.has(message.id) ? "liveChat__message--pinned" : ""}`}
+    >
+      {pinnedIds.has(message.id) && (
+        <span className="liveChat__pin" aria-label="Закреплено">📌</span>
+      )}
+      <img src={message.avatar} alt="" />
+      <div className="liveChat__messageContent">
+        <span className="liveChat__author">{message.authorName}</span>
+        <p>{message.text}</p>
+      </div>
+
+      {isOwner && (
+        <div className="liveChat__messageMenuWrap">
+          <button
+            type="button"
+            className="liveChat__messageMenuButton"
+            onClick={() => setMenuMessageId((current) =>
+              current === message.id ? null : message.id
+            )}
+            aria-label="Действия с сообщением"
+            aria-expanded={menuMessageId === message.id}
+          >
+            ⋮
+          </button>
+
+          {menuMessageId === message.id && (
+            <div className="liveChat__messageMenu">
+              <button type="button" onClick={() => {
+                onPin(message.id);
+                setMenuMessageId(null);
+              }}>
+                {pinnedIds.has(message.id) ? "Открепить" : "Закрепить"}
+              </button>
+              <button type="button" onClick={() => handleReply(message)}>Ответить</button>
+              <button type="button" onClick={() => {
+                onDelete(message);
+                setMenuMessageId(null);
+              }}>
+                Удалить
+              </button>
+              {String(message.authorId) !== String(currentUser.id) && (
+                <>
+                  <button type="button" onClick={() => {
+                    onModerate("block", message);
+                    setMenuMessageId(null);
+                  }}>
+                    Заблокировать
+                  </button>
+                  <button type="button" onClick={() => {
+                    onModerate("report", message);
+                    setMenuMessageId(null);
+                  }}>
+                    Пожаловаться
+                  </button>
+                </>
+              )}
+            </div>
+          )}
+        </div>
+      )}
+    </article>
+  );
+
   return (
     <section className="liveChat" ref={ref}>
       <header className="liveChat__header">
@@ -54,71 +130,12 @@ const LiveChat = forwardRef(function LiveChat(
       </header>
 
       <div className="liveChat__messages">
-        {messages.map((message) => (
-          <article
-            key={message.id}
-            className={`liveChat__message ${message.id === pinnedMessageId ? "liveChat__message--pinned" : ""}`}
-          >
-            {message.id === pinnedMessageId && (
-              <span className="liveChat__pin" aria-label="Закреплено">📌</span>
-            )}
-            <img src={message.avatar} alt="" />
-            <div className="liveChat__messageContent">
-              <span className="liveChat__author">{message.authorName}</span>
-              <p>{message.text}</p>
-            </div>
-
-            {isOwner && (
-              <div className="liveChat__messageMenuWrap">
-                <button
-                  type="button"
-                  className="liveChat__messageMenuButton"
-                  onClick={() => setMenuMessageId((current) =>
-                    current === message.id ? null : message.id
-                  )}
-                  aria-label="Действия с сообщением"
-                  aria-expanded={menuMessageId === message.id}
-                >
-                  ⋮
-                </button>
-
-                {menuMessageId === message.id && (
-                  <div className="liveChat__messageMenu">
-                    <button type="button" onClick={() => {
-                      onPin(message.id);
-                      setMenuMessageId(null);
-                    }}>
-                      {message.id === pinnedMessageId ? "Открепить" : "Закрепить"}
-                    </button>
-                    <button type="button" onClick={() => handleReply(message)}>Ответить</button>
-                    <button type="button" onClick={() => {
-                      onDelete(message);
-                      setMenuMessageId(null);
-                    }}>
-                      Удалить
-                    </button>
-                    {String(message.authorId) !== String(currentUser.id) && (
-                      <>
-                        <button type="button" onClick={() => {
-                          onModerate("block", message);
-                          setMenuMessageId(null);
-                        }}>
-                          Заблокировать
-                        </button>
-                        <button type="button" onClick={() => {
-                          onModerate("report", message);
-                          setMenuMessageId(null);
-                        }}>
-                          Пожаловаться
-                        </button>
-                      </>
-                    )}
-                  </div>
-                )}
-              </div>
-            )}
-          </article>
-        ))}
+        {groupedMessages.pinned.length > 0 && (
+          <div className="liveChat__pinnedMessages">
+            {groupedMessages.pinned.map(renderMessage)}
+          </div>
+        )}
+        {groupedMessages.regular.map(renderMessage)}
         <div ref={messagesEndRef} />
       </div>
 
