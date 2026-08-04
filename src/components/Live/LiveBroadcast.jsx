@@ -4,6 +4,8 @@ import { toast } from "sonner";
 import { useAuthStore } from "../../zustand/useAuthStore";
 import { useLiveKitBroadcast } from "../../hooks/useLiveKitBroadcast";
 import { extractLiveMedia, liveStreamsApi } from "../../services/liveStreamsApi";
+import { getSessionAccessToken } from "../../services/api";
+import { connectSocket, getSocket } from "../../services/socket";
 import { usersApi } from "../../services/usersApi";
 import { getApiErrorMessage } from "../../utils/getApiErrorMessage";
 import profileIcons from "../../constants/profileIcons";
@@ -16,9 +18,8 @@ import "./LiveBroadcast.scss";
 const DEFAULT_AVATAR = "/Logo/photo.png";
 const LIVE_STATUS = "LIVE";
 const ENDED_STATUS = "ENDED";
-const LIVE_MESSAGES_CACHE_PREFIX = "meyou_live_messages:";
 const LIVE_HOST_MEDIA_PREFIX = "meyou_live_host_media:";
-const MAX_CACHED_MESSAGES = 100;
+const MAX_VISIBLE_MESSAGES = 100;
 
 function unwrap(value) {
   return value?.data && !Array.isArray(value.data) ? value.data : value;
@@ -73,48 +74,85 @@ function normalizeMessage(raw) {
     authorName: value.authorName || getDisplayName(author),
     avatar:
       value.avatar || author.avatarUrl || author.avatar || author.photoUrl || DEFAULT_AVATAR,
-    text: String(value.text || value.message || value.content || ""),
-    createdAt: value.createdAt || value.created_at || new Date().toISOString(),
+    text: String(value.text || value.message || value.content || value.body || ""),
+    createdAt:
+      value.createdAt || value.created_at || value.sentAt || new Date().toISOString(),
     isPersisted: value.isPersisted ?? Boolean(id),
   };
 }
 
 function appendUniqueMessage(list, message) {
   if (!message?.id || list.some((item) => item.id === message.id)) return list;
-  return [...list, message];
+  return [...list, message].slice(-MAX_VISIBLE_MESSAGES);
+}
+
+function reconcileMessage(list, incoming) {
+  if (!incoming?.id) return list;
+  if (list.some((item) => item.id === incoming.id)) return list;
+
+  const incomingTime = Date.parse(incoming.createdAt) || Date.now();
+  const pendingIndex = list.findIndex((item) => {
+    if (item.isPersisted || item.text !== incoming.text) return false;
+    const sameAuthor =
+      !incoming.authorId ||
+      !item.authorId ||
+      String(item.authorId) === String(incoming.authorId);
+    const itemTime = Date.parse(item.createdAt) || incomingTime;
+    return sameAuthor && Math.abs(incomingTime - itemTime) < 30_000;
+  });
+
+  if (pendingIndex === -1) return appendUniqueMessage(list, incoming);
+
+  const next = [...list];
+  next[pendingIndex] = incoming;
+  return next.slice(-MAX_VISIBLE_MESSAGES);
 }
 
 function mergeMessages(...collections) {
-  const byId = new Map();
-  collections.flat().forEach((message) => {
-    const normalized = normalizeMessage(message);
-    if (normalized.id) byId.set(normalized.id, normalized);
-  });
-  return [...byId.values()]
-    .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt))
-    .slice(-MAX_CACHED_MESSAGES);
+  return collections
+    .flat()
+    .map(normalizeMessage)
+    .sort((a, b) => {
+      const timeDifference = new Date(a.createdAt) - new Date(b.createdAt);
+      const sameCandidate =
+        a.text === b.text &&
+        (!a.authorId || !b.authorId || String(a.authorId) === String(b.authorId)) &&
+        Math.abs(timeDifference) < 30_000;
+      if (sameCandidate && a.isPersisted !== b.isPersisted) {
+        return a.isPersisted ? 1 : -1;
+      }
+      return timeDifference;
+    })
+    .reduce((list, message) => reconcileMessage(list, message), []);
 }
 
-function readCachedMessages(streamId) {
-  if (!streamId) return [];
-  try {
-    const value = JSON.parse(localStorage.getItem(`${LIVE_MESSAGES_CACHE_PREFIX}${streamId}`));
-    return Array.isArray(value) ? value : [];
-  } catch {
-    return [];
+function getLiveMessageEnvelope(payload) {
+  const value = unwrap(payload) || {};
+  if (value.message && typeof value.message === "object") return value.message;
+  if (value.data?.message && typeof value.data.message === "object") {
+    return value.data.message;
   }
+  if (value.data && typeof value.data === "object") return value.data;
+  return value;
 }
 
-function cacheMessages(streamId, messages) {
-  if (!streamId) return;
-  try {
-    localStorage.setItem(
-      `${LIVE_MESSAGES_CACHE_PREFIX}${streamId}`,
-      JSON.stringify(messages.slice(-MAX_CACHED_MESSAGES)),
-    );
-  } catch {
-    // Storage can be unavailable in private browsing; chat still works in memory.
-  }
+function getPersistedSocketMessage(payload) {
+  const value = getLiveMessageEnvelope(payload);
+  const id = value?.id || value?._id || value?.messageId;
+  if (!id) return null;
+  return normalizeMessage(value);
+}
+
+function getLiveMessageStreamId(payload) {
+  const value = unwrap(payload) || {};
+  const message = getLiveMessageEnvelope(value);
+  return (
+    value.streamId ||
+    value.liveStreamId ||
+    message?.streamId ||
+    message?.liveStreamId ||
+    null
+  );
 }
 
 function readHostMedia(streamId) {
@@ -169,6 +207,8 @@ export default function LiveBroadcast() {
   const location = useLocation();
   const { liveId } = useParams();
   const authUser = useAuthStore((state) => state.user);
+  const storeToken = useAuthStore((state) => state.token);
+  const accessToken = storeToken || getSessionAccessToken();
   const chatRef = useRef(null);
   const streamRef = useRef(null);
   const hostReconnectRef = useRef(null);
@@ -200,7 +240,6 @@ export default function LiveBroadcast() {
   const [likesCount, setLikesCount] = useState(0);
   const [pinnedMessageId, setPinnedMessageId] = useState(null);
   const [messages, setMessages] = useState([]);
-  const [areMessagesHydrated, setAreMessagesHydrated] = useState(false);
   const [playbackUrl, setPlaybackUrl] = useState(null);
   const [pickerMode, setPickerMode] = useState(null);
   const [isRestoringHost, setIsRestoringHost] = useState(false);
@@ -231,11 +270,6 @@ export default function LiveBroadcast() {
 
   const handleRoomData = useCallback((packet) => {
     switch (packet?.type) {
-      case "chat.message": {
-        const message = normalizeMessage(packet.message);
-        setMessages((current) => appendUniqueMessage(current, message));
-        break;
-      }
       case "chat.delete":
         setMessages((current) => current.filter((item) => item.id !== packet.messageId));
         setPinnedMessageId((current) =>
@@ -282,7 +316,6 @@ export default function LiveBroadcast() {
     const isRefreshingCurrent = String(streamRef.current?.id) === String(liveId);
     if (!isRefreshingCurrent) setIsLoading(true);
     setLoadError("");
-    if (!isRefreshingCurrent) setAreMessagesHydrated(false);
 
     Promise.all([
       liveStreamsApi.getById(liveId),
@@ -295,8 +328,7 @@ export default function LiveBroadcast() {
         setIsMuted(!normalized.isSoundEnabled);
         setShouldSave(normalized.isSaved);
         setLikesCount(normalized.reactionsCount);
-        setMessages(mergeMessages(readCachedMessages(liveId), messagePayload.items));
-        setAreMessagesHydrated(true);
+        setMessages((current) => mergeMessages(current, messagePayload.items));
 
         if (normalized.startedAt) {
           setElapsed(Math.max(0, Math.floor((Date.now() - Date.parse(normalized.startedAt)) / 1000)));
@@ -316,8 +348,6 @@ export default function LiveBroadcast() {
           if (isRefreshingCurrent) {
             console.error("[live-stream-refresh] failed", error);
           } else {
-            setMessages(mergeMessages(readCachedMessages(liveId)));
-            setAreMessagesHydrated(true);
             setLoadError(getApiErrorMessage(error, "errors.generic"));
           }
         }
@@ -333,8 +363,40 @@ export default function LiveBroadcast() {
 
   useEffect(() => {
     const activeId = stream?.id || liveId;
-    if (areMessagesHydrated && activeId) cacheMessages(activeId, messages);
-  }, [areMessagesHydrated, liveId, messages, stream?.id]);
+    if (!activeId || !accessToken) return undefined;
+
+    const socket = connectSocket(accessToken);
+    if (!socket) return undefined;
+
+    const joinStream = () => {
+      socket.emit("live:join", { streamId: activeId });
+    };
+
+    const handleNewMessage = (payload) => {
+      const messageStreamId = getLiveMessageStreamId(payload);
+      if (messageStreamId && String(messageStreamId) !== String(activeId)) return;
+
+      const message = getPersistedSocketMessage(payload);
+      if (!message) return;
+      setMessages((current) => reconcileMessage(current, message));
+    };
+
+    const handleSocketException = (payload) => {
+      const message = payload?.message || payload?.error;
+      if (message) toast.error(String(message));
+    };
+
+    socket.on("connect", joinStream);
+    socket.on("live:message:new", handleNewMessage);
+    socket.on("exception", handleSocketException);
+    if (socket.connected) joinStream();
+
+    return () => {
+      socket.off("connect", joinStream);
+      socket.off("live:message:new", handleNewMessage);
+      socket.off("exception", handleSocketException);
+    };
+  }, [accessToken, liveId, stream?.id]);
 
   useEffect(() => {
     const activeId = stream?.id;
@@ -509,27 +571,58 @@ export default function LiveBroadcast() {
   };
 
   const handleSend = async (messageText) => {
-    let pendingMessage = null;
-    try {
-      if (!liveKit.isConnected) await ensureViewerConnected();
-      pendingMessage = {
-        id: crypto.randomUUID?.() || `${Date.now()}-${currentUser.id}`,
-        authorId: currentUser.id,
-        authorName: currentUser.name,
-        avatar: currentUser.avatar,
-        text: messageText,
-        createdAt: new Date().toISOString(),
-        isPersisted: false,
-      };
-      setMessages((current) => appendUniqueMessage(current, pendingMessage));
-      await liveKit.publishData({ type: "chat.message", message: pendingMessage });
-    } catch (error) {
-      if (pendingMessage) {
-        setMessages((current) => current.filter((item) => item.id !== pendingMessage.id));
-      }
-      toast.error(getApiErrorMessage(error, "errors.generic"));
+    const activeId = stream?.id || liveId;
+    const socket = getSocket() || connectSocket(accessToken);
+    if (!activeId || !socket) {
+      const error = new Error("Нет подключения к чату эфира");
+      toast.error(error.message);
       throw error;
     }
+
+    const pendingMessage = {
+      id: `pending-${crypto.randomUUID?.() || `${Date.now()}-${currentUser.id}`}`,
+      authorId: currentUser.id,
+      authorName: currentUser.name,
+      avatar: currentUser.avatar,
+      text: messageText,
+      createdAt: new Date().toISOString(),
+      isPersisted: false,
+    };
+    setMessages((current) => appendUniqueMessage(current, pendingMessage));
+
+    socket.emit(
+      "live:message:send",
+      { streamId: activeId, text: messageText },
+      (...acknowledgement) => {
+        const response = acknowledgement.length > 1
+          ? acknowledgement[1]
+          : acknowledgement[0];
+        const hasError =
+          response?.success === false ||
+          response?.ok === false ||
+          Number(response?.statusCode) >= 400 ||
+          Boolean(response?.error);
+
+        if (hasError) {
+          setMessages((current) => current.filter((item) => item.id !== pendingMessage.id));
+          toast.error(response?.message || response?.error || "Не удалось отправить комментарий");
+          return;
+        }
+
+        const savedMessage = getPersistedSocketMessage(response);
+        if (savedMessage) {
+          setMessages((current) => reconcileMessage(current, savedMessage));
+        }
+      },
+    );
+
+    window.setTimeout(() => {
+      liveStreamsApi.getMessages(activeId)
+        .then((history) => {
+          setMessages((current) => mergeMessages(current, history.items));
+        })
+        .catch(() => {});
+    }, 800);
   };
 
   const handleReact = async (reaction) => {

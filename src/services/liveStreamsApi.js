@@ -5,11 +5,25 @@ function unwrap(payload) {
 }
 
 function extractItems(payload) {
-  const value = unwrap(payload);
-  if (Array.isArray(value)) return value;
-  if (Array.isArray(value?.items)) return value.items;
-  if (Array.isArray(value?.streams)) return value.streams;
-  if (Array.isArray(value?.data)) return value.data;
+  let value = payload;
+  for (let depth = 0; depth < 5 && value; depth += 1) {
+    if (Array.isArray(value)) return value;
+
+    for (const key of ["items", "messages", "streams", "results", "rows", "records"]) {
+      if (Array.isArray(value?.[key])) return value[key];
+    }
+
+    if (Array.isArray(value?.data)) return value.data;
+    if (value?.data && typeof value.data === "object") {
+      value = value.data;
+      continue;
+    }
+    if (value?.result && typeof value.result === "object") {
+      value = value.result;
+      continue;
+    }
+    break;
+  }
   return [];
 }
 
