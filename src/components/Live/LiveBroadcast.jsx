@@ -263,6 +263,7 @@ export default function LiveBroadcast() {
   const [pinnedMessageIds, setPinnedMessageIds] = useState([]);
   const [messages, setMessages] = useState([]);
   const [areMessagesHydrated, setAreMessagesHydrated] = useState(false);
+  const [isChatOpen, setIsChatOpen] = useState(true);
   const [playbackUrl, setPlaybackUrl] = useState(null);
   const [pickerMode, setPickerMode] = useState(null);
   const [isRestoringHost, setIsRestoringHost] = useState(false);
@@ -830,6 +831,18 @@ export default function LiveBroadcast() {
     navigate(isOwner ? "/profile" : "/first-page");
   };
 
+  const handleToggleChat = () => {
+    setIsChatOpen((current) => {
+      const next = !current;
+      if (next) {
+        window.requestAnimationFrame(() => {
+          chatRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+        });
+      }
+      return next;
+    });
+  };
+
   const viewerCount = liveKit.participantCount > 0
     ? Math.max(0, liveKit.participantCount - 1)
     : stream?.viewersCount || 0;
@@ -855,7 +868,7 @@ export default function LiveBroadcast() {
         ) : null}
 
         {!isLoading && !loadError ? (
-          <div className="livePage__broadcastLayout">
+          <div className={`livePage__broadcastLayout ${!isChatOpen ? "livePage__broadcastLayout--chatClosed" : ""}`}>
             <LiveStage
               isOwner={isOwner}
               isLive={stream?.status === LIVE_STATUS}
@@ -880,24 +893,27 @@ export default function LiveBroadcast() {
               onMention={() => stream?.id ? setPickerMode("tag") : toast.info("Сначала запустите эфир")}
               onShare={() => stream?.id ? setPickerMode("share") : toast.info("Сначала запустите эфир")}
               onReact={handleReact}
-              onOpenChat={() => chatRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })}
+              isChatOpen={isChatOpen}
+              onToggleChat={handleToggleChat}
               onEnd={handleEnd}
             />
 
-            <LiveChat
-              ref={chatRef}
-              isOwner={isOwner}
-              currentUser={currentUser}
-              messages={messages}
-              pinnedMessageIds={pinnedMessageIds}
-              isEnded={isEnded}
-              onSend={handleSend}
-              onReact={handleReact}
-              onPin={handlePinMessage}
-              onDelete={handleDeleteMessage}
-              onReply={() => {}}
-              onModerate={handleModerate}
-            />
+            {isChatOpen && (
+              <LiveChat
+                ref={chatRef}
+                isOwner={isOwner}
+                currentUser={currentUser}
+                messages={messages}
+                pinnedMessageIds={pinnedMessageIds}
+                isEnded={isEnded}
+                onSend={handleSend}
+                onReact={handleReact}
+                onPin={handlePinMessage}
+                onDelete={handleDeleteMessage}
+                onReply={() => {}}
+                onModerate={handleModerate}
+              />
+            )}
           </div>
         ) : null}
       </div>

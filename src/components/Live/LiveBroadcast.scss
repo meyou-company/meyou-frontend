@@ -971,6 +971,14 @@
     gap: 0;
   }
 
+  .livePage__broadcastLayout--chatClosed {
+    grid-template-columns: minmax(0, 1fr);
+
+    .liveStage {
+      border-radius: 16px;
+    }
+  }
+
   .liveStage {
     height: 100%;
     min-height: 0;

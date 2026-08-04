@@ -89,7 +89,8 @@ export default function LiveStage({
   onMention,
   onShare,
   onReact,
-  onOpenChat,
+  isChatOpen,
+  onToggleChat,
   onEnd,
 }) {
   const videoRef = useRef(null);
@@ -226,8 +227,8 @@ export default function LiveStage({
                 </button>
               )}
               <div>
-                <button type="button" className="liveStage__outlineButton" onClick={onOpenChat}>
-                  Перейти в чат
+                <button type="button" className="liveStage__outlineButton" onClick={onToggleChat}>
+                  {isChatOpen ? "Закрыть чат" : "Открыть чат"}
                 </button>
                 {isLive && !isEnded && (
                   <button type="button" className="liveStage__outlineButton" onClick={onEnd}>
@@ -251,8 +252,8 @@ export default function LiveStage({
                 </button>
               ))}
             </div>
-            <button type="button" className="liveStage__outlineButton" onClick={onOpenChat}>
-              Написать сообщение
+            <button type="button" className="liveStage__outlineButton" onClick={onToggleChat}>
+              {isChatOpen ? "Закрыть чат" : "Открыть чат"}
             </button>
           </>
         )}
