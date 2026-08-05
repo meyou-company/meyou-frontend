@@ -15,7 +15,23 @@
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
 }
 
+.callOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 12000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(18, 10, 28, 0.72);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  pointer-events: auto;
+}
+
 .callOverlay__card {
+  position: relative;
+  z-index: 1;
   width: min(100%, 360px);
   text-align: center;
   padding: 28px 22px 24px;
@@ -23,6 +39,7 @@
   background: linear-gradient(165deg, #2a183a 0%, #1a1024 100%);
   color: #fff;
   box-shadow: 0 18px 48px rgba(0, 0, 0, 0.35);
+  pointer-events: auto;
 }
 
 .callOverlay__avatar {
@@ -74,6 +91,9 @@
   display: flex;
   gap: 12px;
   justify-content: center;
+  position: relative;
+  z-index: 2;
+  pointer-events: auto;
 }
 
 .callOverlay__btn {
@@ -84,6 +104,9 @@
   font-size: 15px;
   font-weight: 600;
   cursor: pointer;
+  pointer-events: auto;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
 
   &:disabled {
     opacity: 0.5;

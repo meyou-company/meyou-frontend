@@ -1,3 +1,4 @@
+import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import './Calls.scss';
 
@@ -28,8 +29,12 @@ export default function OutgoingCallScreen({
     statusText = t('messenger.calls.connecting');
   }
 
-  return (
-    <div className="callOverlay callOverlay--outgoing" role="dialog" aria-modal="true">
+  const ui = (
+    <div
+      className="callOverlay callOverlay--outgoing"
+      role="dialog"
+      aria-modal="true"
+    >
       <div className="callOverlay__card">
         <div className="callOverlay__avatar" aria-hidden="true">
           {peer?.avatarUrl ? (
@@ -47,7 +52,11 @@ export default function OutgoingCallScreen({
           <button
             type="button"
             className="callOverlay__btn callOverlay__btn--reject"
-            onClick={onCancel}
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              onCancel?.(e);
+            }}
           >
             {t('messenger.calls.cancel')}
           </button>
@@ -55,4 +64,6 @@ export default function OutgoingCallScreen({
       </div>
     </div>
   );
+
+  return createPortal(ui, document.body);
 }

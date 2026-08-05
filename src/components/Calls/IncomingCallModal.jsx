@@ -1,3 +1,4 @@
+import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import './Calls.scss';
 
@@ -21,8 +22,13 @@ export default function IncomingCallModal({
   const name = displayName(caller) || t('messenger.calls.unknown');
   const isVideo = call.mediaType === 'VIDEO';
 
-  return (
-    <div className="callOverlay callOverlay--incoming" role="dialog" aria-modal="true">
+  const ui = (
+    <div
+      className="callOverlay callOverlay--incoming"
+      role="dialog"
+      aria-modal="true"
+      aria-label={t('messenger.calls.incomingAudio')}
+    >
       <div className="callOverlay__card">
         <div className="callOverlay__avatar" aria-hidden="true">
           {caller?.avatarUrl ? (
@@ -44,7 +50,11 @@ export default function IncomingCallModal({
           <button
             type="button"
             className="callOverlay__btn callOverlay__btn--reject"
-            onClick={onReject}
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              onReject?.(e);
+            }}
             disabled={busy}
           >
             {t('messenger.calls.reject')}
@@ -52,7 +62,11 @@ export default function IncomingCallModal({
           <button
             type="button"
             className="callOverlay__btn callOverlay__btn--accept"
-            onClick={onAccept}
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              onAccept?.(e);
+            }}
             disabled={busy}
           >
             {t('messenger.calls.accept')}
@@ -61,4 +75,6 @@ export default function IncomingCallModal({
       </div>
     </div>
   );
+
+  return createPortal(ui, document.body);
 }

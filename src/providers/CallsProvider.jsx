@@ -284,33 +284,49 @@ export function CallsProvider() {
   }, [phase, error]);
 
   const handleAccept = async () => {
-    if (!call?.id) return;
+    const callId = call?.id || useCallsStore.getState().call?.id;
+    console.log('[CALL UI] accept click', { callId, phase });
+    if (!callId) {
+      toast.error(t('messenger.calls.acceptFailed'));
+      return;
+    }
     stopRinging();
     try {
-      const data = await callsApi.accept(call.id);
+      const data = await callsApi.accept(callId);
+      console.log('[CALL UI] accept ok', data?.call?.id);
       useCallsStore.getState().setActive({
         call: data.call,
         media: data.media,
         role: 'callee',
       });
     } catch (e) {
+      console.error('[CALL UI] accept failed', e);
       toast.error(getApiErrorMessage(e) || t('messenger.calls.acceptFailed'));
       clearCall();
     }
   };
 
   const handleReject = () => {
+    const callId = call?.id || useCallsStore.getState().call?.id;
+    console.log('[CALL UI] reject click', { callId, phase });
+    if (!callId) return;
     stopRinging();
-    void hangupRemote(call?.id, 'reject');
+    void hangupRemote(callId, 'reject');
   };
   const handleCancel = () => {
+    const callId = call?.id || useCallsStore.getState().call?.id;
+    console.log('[CALL UI] cancel click', { callId, phase });
+    if (!callId) return;
     stopRinging();
-    void hangupRemote(call?.id, 'cancel');
+    void hangupRemote(callId, 'cancel');
   };
   const handleEnd = () => {
+    const callId = call?.id || useCallsStore.getState().call?.id;
+    console.log('[CALL UI] end click', { callId, phase });
+    if (!callId) return;
     stopRinging();
     void playEnded();
-    void hangupRemote(call?.id, 'end');
+    void hangupRemote(callId, 'end');
   };
 
   const unlockHint = needsUnlock ? (

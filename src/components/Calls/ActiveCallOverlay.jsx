@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import {
   ConnectionState,
@@ -379,7 +380,7 @@ export default function ActiveCallOverlay({
   const name = displayName(peerUser) || remoteName || t('messenger.calls.unknown');
   const showVideoUi = (mediaType || call?.mediaType) === 'VIDEO';
 
-  return (
+  return createPortal(
     <div className="callOverlay callOverlay--active" role="dialog" aria-modal="true">
       <div className="callActive">
         <div className="callActive__stage">
@@ -463,6 +464,7 @@ export default function ActiveCallOverlay({
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }
