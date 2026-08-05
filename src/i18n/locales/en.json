@@ -539,6 +539,7 @@
       "calling": "Calling…",
       "connecting": "Connecting…",
       "connected": "Connected",
+      "inCall": "In call",
       "reconnecting": "Reconnecting…",
       "disconnected": "Disconnected",
       "accept": "Accept",

@@ -556,7 +556,8 @@
       "connectFailed": "Could not connect",
       "connectTimeout": "Connection timed out",
       "unknown": "User",
-      "enableSound": "Tap to enable call sounds"
+      "enableSound": "Tap to enable call sounds",
+      "inCall": "In call"
     }
   },
   "notifications": {

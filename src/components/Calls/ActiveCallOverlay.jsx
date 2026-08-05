@@ -5,7 +5,6 @@ import {
   Room,
   RoomEvent,
   Track,
-  createLocalTracks,
 } from 'livekit-client';
 import './Calls.scss';
 
@@ -31,11 +30,22 @@ function mapConnectError(err, t) {
   if (
     msg.includes('network') ||
     msg.includes('websocket') ||
-    msg.includes('timeout')
+    msg.includes('timeout') ||
+    msg.includes('connection')
   ) {
     return t('messenger.calls.networkError');
   }
   return t('messenger.calls.connectFailed');
+}
+
+function formatDuration(totalSec) {
+  const s = Math.max(0, Math.floor(totalSec));
+  const hh = Math.floor(s / 3600);
+  const mm = Math.floor((s % 3600) / 60);
+  const ss = s % 60;
+  const two = (n) => String(n).padStart(2, '0');
+  if (hh > 0) return `${two(hh)}:${two(mm)}:${two(ss)}`;
+  return `${two(mm)}:${two(ss)}`;
 }
 
 export default function ActiveCallOverlay({
@@ -56,9 +66,15 @@ export default function ActiveCallOverlay({
   const localVideoRef = useRef(null);
   const remoteVideoRef = useRef(null);
   const remoteAudioRef = useRef(null);
-  const connectingRef = useRef(false);
+  const connectGenRef = useRef(0);
+  const connectedAtRef = useRef(null);
+  const durationTimerRef = useRef(null);
+
   const [statusLabel, setStatusLabel] = useState(t('messenger.calls.connecting'));
+  const [isConnected, setIsConnected] = useState(false);
+  const [durationSec, setDurationSec] = useState(0);
   const [remoteName, setRemoteName] = useState('');
+  const isConnectedRef = useRef(false);
 
   const initialPeer =
     localUserId && call?.callerId === localUserId
@@ -79,17 +95,60 @@ export default function ActiveCallOverlay({
     const url = media?.url;
     const token = media?.token;
     if (!url || !token) {
+      console.warn('CALL CONNECT START aborted: missing url/token', {
+        hasUrl: Boolean(url),
+        hasToken: Boolean(token),
+      });
       onFatalError?.(t('messenger.calls.connectFailed'));
       return undefined;
     }
-    if (connectingRef.current) return undefined;
 
-    connectingRef.current = true;
+    const gen = ++connectGenRef.current;
     const room = new Room({
       adaptiveStream: true,
       dynacast: true,
+      audioCaptureDefaults: { autoGainControl: true, echoCancellation: true },
     });
     roomRef.current = room;
+
+    console.log('CALL CONNECT START', {
+      callId: call?.id,
+      roomName: media?.roomName,
+      url,
+      identity: localUserId,
+      mediaType: mediaType || call?.mediaType,
+      gen,
+    });
+
+    const clearDurationTimer = () => {
+      if (durationTimerRef.current) {
+        clearInterval(durationTimerRef.current);
+        durationTimerRef.current = null;
+      }
+    };
+
+    const markConnected = () => {
+      if (cancelled || connectGenRef.current !== gen) return;
+      console.log('CALL CONNECTED', {
+        callId: call?.id,
+        roomState: room.state,
+        localIdentity: room.localParticipant?.identity,
+        remoteCount: room.remoteParticipants.size,
+      });
+      connectedAtRef.current = Date.now();
+      isConnectedRef.current = true;
+      setIsConnected(true);
+      setStatusLabel(t('messenger.calls.inCall'));
+      onConnectionStatus?.('connected');
+      clearDurationTimer();
+      setDurationSec(0);
+      durationTimerRef.current = setInterval(() => {
+        if (!connectedAtRef.current) return;
+        setDurationSec(
+          Math.floor((Date.now() - connectedAtRef.current) / 1000),
+        );
+      }, 1000);
+    };
 
     const attachRemote = () => {
       const remote = [...room.remoteParticipants.values()][0];
@@ -97,6 +156,11 @@ export default function ActiveCallOverlay({
         setRemoteName('');
         return;
       }
+      console.log('REMOTE PARTICIPANT JOINED', {
+        identity: remote.identity,
+        name: remote.name,
+        publications: [...remote.trackPublications.keys()],
+      });
       setRemoteName(remote.name || remote.identity);
       if (call?.caller?.id === remote.identity) setPeerUser(call.caller);
       else if (call?.callee?.id === remote.identity) setPeerUser(call.callee);
@@ -112,7 +176,12 @@ export default function ActiveCallOverlay({
       });
     };
 
-    const onTrackSubscribed = (track) => {
+    const onTrackSubscribed = (track, publication, participant) => {
+      console.log('REMOTE TRACK SUBSCRIBED', {
+        kind: track.kind,
+        source: publication?.source,
+        participant: participant?.identity,
+      });
       if (track.kind === Track.Kind.Video && remoteVideoRef.current) {
         track.attach(remoteVideoRef.current);
       }
@@ -122,102 +191,152 @@ export default function ActiveCallOverlay({
     };
 
     const onConnection = (state) => {
+      console.log('ROOM STATE', {
+        state,
+        roomState: room.state,
+        remotes: room.remoteParticipants.size,
+      });
       if (state === ConnectionState.Connected) {
-        if (connectTimeout) {
-          clearTimeout(connectTimeout);
-          connectTimeout = null;
-        }
-        setStatusLabel(t('messenger.calls.connected'));
-        onConnectionStatus?.('connected');
+        markConnected();
       } else if (state === ConnectionState.Reconnecting) {
         setStatusLabel(t('messenger.calls.reconnecting'));
         onConnectionStatus?.('reconnecting');
       } else if (state === ConnectionState.Disconnected) {
+        console.log('CALL DISCONNECTED', { callId: call?.id });
+        clearDurationTimer();
+        isConnectedRef.current = false;
+        setIsConnected(false);
         setStatusLabel(t('messenger.calls.disconnected'));
         onConnectionStatus?.('disconnected');
-      } else {
-        setStatusLabel(t('messenger.calls.connecting'));
-        onConnectionStatus?.('connecting');
+      } else if (
+        state === ConnectionState.Connecting ||
+        state === ConnectionState.SignalReconnecting
+      ) {
+        if (!isConnectedRef.current) {
+          setStatusLabel(t('messenger.calls.connecting'));
+          onConnectionStatus?.('connecting');
+        }
       }
     };
 
+    room.on(RoomEvent.Connected, markConnected);
+    room.on(RoomEvent.ConnectionStateChanged, onConnection);
     room.on(RoomEvent.TrackSubscribed, onTrackSubscribed);
     room.on(RoomEvent.ParticipantConnected, attachRemote);
-    room.on(RoomEvent.ConnectionStateChanged, onConnection);
+    room.on(RoomEvent.Disconnected, () => {
+      console.log('CALL DISCONNECTED', { callId: call?.id, via: 'RoomEvent' });
+    });
 
     let connectTimeout = null;
 
     (async () => {
       try {
         const wantVideo = (mediaType || call?.mediaType) === 'VIDEO';
-        // Permission prompts can take a long time — do not start connect timeout yet.
-        const tracks = await createLocalTracks({
-          audio: true,
-          video: wantVideo ? { facingMode: 'user' } : false,
-        });
-
-        if (cancelled) {
-          tracks.forEach((tr) => tr.stop());
-          return;
-        }
 
         connectTimeout = setTimeout(() => {
           if (room.state !== ConnectionState.Connected) {
+            console.warn('CALL CONNECT TIMEOUT', {
+              roomState: room.state,
+              callId: call?.id,
+            });
+            setStatusLabel(t('messenger.calls.connectTimeout'));
             onFatalError?.(t('messenger.calls.connectTimeout'));
           }
         }, 25_000);
 
         await room.connect(url, token);
-        if (cancelled) {
+        if (cancelled || connectGenRef.current !== gen) {
           await room.disconnect();
           return;
         }
 
+        console.log('CALL CONNECT promise resolved', {
+          roomState: room.state,
+          roomName: room.name,
+          localIdentity: room.localParticipant?.identity,
+        });
+
+        // Browser autoplay policies — unlock audio output after Accept/call gesture.
+        try {
+          await room.startAudio();
+        } catch (e) {
+          console.warn('CALL startAudio blocked', e);
+        }
+
         if (connectTimeout) {
           clearTimeout(connectTimeout);
           connectTimeout = null;
         }
 
-        for (const track of tracks) {
-          if (track.kind === Track.Kind.Audio) {
-            await room.localParticipant.publishTrack(track);
-            if (!micEnabled) {
-              await room.localParticipant.setMicrophoneEnabled(false);
-            }
-          }
-          if (track.kind === Track.Kind.Video) {
-            await room.localParticipant.publishTrack(track);
-            if (localVideoRef.current) track.attach(localVideoRef.current);
-            if (!cameraEnabled) {
-              await room.localParticipant.setCameraEnabled(false);
-            }
-          }
+        if (room.state === ConnectionState.Connected) {
+          markConnected();
         }
 
-        if (!wantVideo) onCameraChange?.(false);
+        // Publish via LiveKit helpers (creates LocalAudioTrack / LocalVideoTrack).
+        console.log('LOCAL TRACK CREATED (requesting mic/cam)', {
+          wantVideo,
+          micEnabled,
+          cameraEnabled,
+        });
+        await room.localParticipant.setMicrophoneEnabled(Boolean(micEnabled));
+        console.log('LOCAL TRACK PUBLISHED', {
+          source: 'microphone',
+          enabled: Boolean(micEnabled),
+          publication: Boolean(
+            room.localParticipant.getTrackPublication(Track.Source.Microphone),
+          ),
+        });
+
+        if (wantVideo) {
+          await room.localParticipant.setCameraEnabled(Boolean(cameraEnabled));
+          const camPub = room.localParticipant.getTrackPublication(
+            Track.Source.Camera,
+          );
+          console.log('LOCAL TRACK PUBLISHED', {
+            source: 'camera',
+            enabled: Boolean(cameraEnabled),
+            publication: Boolean(camPub),
+          });
+          if (camPub?.track && localVideoRef.current) {
+            camPub.track.attach(localVideoRef.current);
+          }
+        } else {
+          onCameraChange?.(false);
+        }
 
         attachRemote();
-        onConnectionStatus?.('connected');
-        setStatusLabel(t('messenger.calls.connected'));
       } catch (err) {
+        console.error('CALL CONNECT FAILED', {
+          message: err?.message || String(err),
+          name: err?.name,
+          roomState: room.state,
+        });
         if (connectTimeout) {
           clearTimeout(connectTimeout);
           connectTimeout = null;
         }
-        if (!cancelled) onFatalError?.(mapConnectError(err, t));
+        if (!cancelled && connectGenRef.current === gen) {
+          const msg = mapConnectError(err, t);
+          setStatusLabel(msg);
+          setIsConnected(false);
+          onFatalError?.(msg);
+        }
       }
     })();
 
     return () => {
       cancelled = true;
       if (connectTimeout) clearTimeout(connectTimeout);
-      connectingRef.current = false;
+      clearDurationTimer();
+      console.log('CALL CONNECT cleanup', { gen, callId: call?.id });
       try {
         room.disconnect();
       } catch {
         /* ignore */
       }
-      roomRef.current = null;
+      if (roomRef.current === room) {
+        roomRef.current = null;
+      }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps -- reconnect only when LiveKit token/url changes
   }, [media?.url, media?.token]);
@@ -270,7 +389,7 @@ export default function ActiveCallOverlay({
             autoPlay
             playsInline
           />
-          <audio ref={remoteAudioRef} autoPlay />
+          <audio ref={remoteAudioRef} autoPlay playsInline />
           {!showVideoUi ? (
             <div className="callActive__audioFallback">
               <div
@@ -296,7 +415,9 @@ export default function ActiveCallOverlay({
 
         <div className="callActive__meta">
           <h2 className="callOverlay__name">{name}</h2>
-          <p className="callOverlay__hint">{statusLabel}</p>
+          <p className="callOverlay__hint">
+            {isConnected ? formatDuration(durationSec) : statusLabel}
+          </p>
         </div>
 
         <div className="callActive__controls">
