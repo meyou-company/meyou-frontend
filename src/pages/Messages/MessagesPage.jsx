@@ -45,6 +45,10 @@ import {
   getConversationLastMessagePreview,
   patchConversationLastMessage,
 } from '../../utils/conversationPreview';
+import {
+  formatCallEventLabel,
+  getCallEventIcon,
+} from '../../utils/callEventMessage';
 import { useMessageActions } from '../../hooks/useMessageActions';
 import { useAuthStore } from '../../zustand/useAuthStore';
 import { useMessagesStore } from '../../zustand/useMessagesStore';
@@ -1125,6 +1129,18 @@ export default function MessagesPage() {
                           );
                         }
                         const msg = item.message;
+                        if (msg.type === 'CALL_EVENT') {
+                          return (
+                            <div key={msg.id} className="messagesPage__callEvent">
+                              <span className="messagesPage__callEventIcon" aria-hidden="true">
+                                {getCallEventIcon(msg)}
+                              </span>
+                              <span className="messagesPage__callEventText">
+                                {formatCallEventLabel(msg, t)}
+                              </span>
+                            </div>
+                          );
+                        }
                         const isMine = msg.senderId === currentUserId;
                         const peer = activeConversation?.participant;
                         const storyAuthorFallback = isMine

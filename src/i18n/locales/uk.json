@@ -565,7 +565,14 @@
       "connectFailed": "Не вдалося підключитися",
       "connectTimeout": "Час очікування підключення вичерпано",
       "unknown": "Користувач",
-      "enableSound": "Натисніть, щоб увімкнути звук дзвінків"
+      "enableSound": "Натисніть, щоб увімкнути звук дзвінків",
+      "chatMissedAudio": "Пропущений аудіодзвінок",
+      "chatMissedVideo": "Пропущений відеодзвінок",
+      "chatCancelledAudio": "Скасований аудіодзвінок",
+      "chatCancelledVideo": "Скасований відеодзвінок",
+      "chatEndedAudio": "Аудіодзвінок завершено",
+      "chatEndedVideo": "Відеодзвінок завершено",
+      "chatEndedDuration": "{{type}} · {{duration}}"
     }
   },
   "notifications": {

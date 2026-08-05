@@ -1,4 +1,5 @@
 import { getStoryMessageText, getStoryReplyPreview } from './storyMessagePreview';
+import { formatCallEventLabel } from './callEventMessage';
 
 export function getConversationLastMessagePreview(lastMessage, t) {
   if (!lastMessage?.id) {
@@ -7,6 +8,10 @@ export function getConversationLastMessagePreview(lastMessage, t) {
 
   if (lastMessage.deletedForEveryone) {
     return t('messenger.deletedMessage');
+  }
+
+  if (lastMessage.type === 'CALL_EVENT') {
+    return formatCallEventLabel(lastMessage, t);
   }
 
   const storyPreview = getStoryReplyPreview(lastMessage);

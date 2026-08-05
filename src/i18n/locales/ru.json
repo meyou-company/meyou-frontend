@@ -557,7 +557,14 @@
       "connectTimeout": "Connection timed out",
       "unknown": "User",
       "enableSound": "Tap to enable call sounds",
-      "inCall": "In call"
+      "inCall": "In call",
+      "chatMissedAudio": "Missed audio call",
+      "chatMissedVideo": "Missed video call",
+      "chatCancelledAudio": "Cancelled audio call",
+      "chatCancelledVideo": "Cancelled video call",
+      "chatEndedAudio": "Audio call ended",
+      "chatEndedVideo": "Video call ended",
+      "chatEndedDuration": "{{type}} · {{duration}}"
     }
   },
   "notifications": {
