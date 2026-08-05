@@ -12,12 +12,14 @@ import { getApiErrorMessage } from '../../../../utils/getApiErrorMessage';
 import MultiSelect from '../EditProfileForm/MultiSelect';
 import ProfileInfoSection from './ProfileInfoSection';
 import {
+  buildSocialProfileUrl,
   formatLanguages,
   getAboutText,
   getProfileVisibility,
   getUserInterests,
   parseLanguagesInput,
 } from './profileInfoHelpers';
+import { getFriendsCountNumber } from '../../../../utils/profileFriends';
 import './ProfileInfoPanel.scss';
 
 function VisibilityTable({ rows, visibility, onChange }) {
@@ -88,7 +90,17 @@ function VisibilityTable({ rows, visibility, onChange }) {
   );
 }
 
-export default function ProfileInfoPanel({ user, isOpen, editable = false, onUserUpdated, id }) {
+export default function ProfileInfoPanel({
+  user,
+  isOpen,
+  editable = false,
+  onUserUpdated,
+  id,
+  /** Optional override — same count as profile friends strip / friends page */
+  friendsCount: friendsCountProp,
+  /** Optional override — total from author posts API / feed */
+  postsCount: postsCountProp,
+}) {
   const { t } = useTranslation();
   const genderOptions = useGenderOptions();
   const maritalStatusOptions = useMaritalStatusOptions();
@@ -213,9 +225,24 @@ export default function ProfileInfoPanel({ user, isOpen, editable = false, onUse
     }
   };
 
-  const friendsCount = user?.friendsCount ?? user?.friends?.length ?? 0;
+  const apiFriendsCount = getFriendsCountNumber(
+    user?.friendsCount ?? user?.friends_count,
+  );
+  const friendsListLength = Array.isArray(user?.friends) ? user.friends.length : 0;
+  const friendsCount =
+    typeof friendsCountProp === 'number' && friendsCountProp >= 0
+      ? friendsCountProp
+      : typeof apiFriendsCount === 'number' && apiFriendsCount >= 0
+        ? apiFriendsCount
+        : friendsListLength;
   const giftsCount = user?.giftsCount ?? user?.stats?.giftsCount ?? 0;
-  const postsCount = user?.postsCount ?? user?.stats?.postsCount ?? 0;
+  const apiPostsCount = user?.postsCount ?? user?.stats?.postsCount;
+  const postsCount =
+    typeof postsCountProp === 'number' && postsCountProp >= 0
+      ? postsCountProp
+      : typeof apiPostsCount === 'number' && apiPostsCount >= 0
+        ? apiPostsCount
+        : 0;
 
   const sectionProps = (section) => ({
     editable,
@@ -580,6 +607,7 @@ export default function ProfileInfoPanel({ user, isOpen, editable = false, onUse
                 className="infoField__input"
                 value={draft.telegram || ''}
                 onChange={(e) => setDraft((d) => ({ ...d, telegram: e.target.value }))}
+                placeholder="@username або https://t.me/username"
                 maxLength={200}
               />
             </label>
@@ -589,6 +617,7 @@ export default function ProfileInfoPanel({ user, isOpen, editable = false, onUse
                 className="infoField__input"
                 value={draft.instagram || ''}
                 onChange={(e) => setDraft((d) => ({ ...d, instagram: e.target.value }))}
+                placeholder="@username або https://instagram.com/username"
                 maxLength={200}
               />
             </label>
@@ -598,7 +627,7 @@ export default function ProfileInfoPanel({ user, isOpen, editable = false, onUse
                 className="infoField__input"
                 value={draft.tiktok || ''}
                 onChange={(e) => setDraft((d) => ({ ...d, tiktok: e.target.value }))}
-                placeholder="@username"
+                placeholder="@username або https://tiktok.com/@username"
                 maxLength={200}
               />
             </label>
@@ -636,18 +665,67 @@ export default function ProfileInfoPanel({ user, isOpen, editable = false, onUse
         }
       >
         <div className="contacts">
-          <button type="button" className="contactsText" disabled={!user?.telegram}>
-            <img src={profileIcons.telegram} alt="" />
-            Telegram
-          </button>
-          <button type="button" className="contactsText" disabled={!user?.instagram}>
-            <img src={profileIcons.instagram} alt="" />
-            Instagram
-          </button>
-          <button type="button" className="contactsText contactsText--tiktok" disabled={!user?.tiktok}>
-            <img src={profileIcons.tiktok} alt="" />
-            TikTok
-          </button>
+          {[
+            {
+              key: 'telegram',
+              label: 'Telegram',
+              value: user?.telegram,
+              icon: profileIcons.telegram,
+              className: 'contactsText--telegram',
+              visible: visibility.telegram !== false,
+            },
+            {
+              key: 'instagram',
+              label: 'Instagram',
+              value: user?.instagram,
+              icon: profileIcons.instagram,
+              className: 'contactsText--instagram',
+              visible: visibility.instagram !== false,
+            },
+            {
+              key: 'tiktok',
+              label: 'TikTok',
+              value: user?.tiktok,
+              icon: profileIcons.tiktok,
+              className: 'contactsText--tiktok',
+              visible: visibility.tiktok !== false,
+            },
+          ]
+            .filter((item) => {
+              const hasValue = Boolean(String(item.value || '').trim());
+              if (editable) return true;
+              return hasValue && item.visible;
+            })
+            .map((item) => {
+              const url = buildSocialProfileUrl(item.key, item.value);
+              const className = `contactsText ${item.className || ''}`.trim();
+              if (!url) {
+                return (
+                  <button
+                    key={item.key}
+                    type="button"
+                    className={className}
+                    disabled
+                    aria-label={`${item.label}: ${t('profile.notSpecified')}`}
+                  >
+                    <img src={item.icon} alt="" />
+                    {item.label}
+                  </button>
+                );
+              }
+              return (
+                <a
+                  key={item.key}
+                  className={className}
+                  href={url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <img src={item.icon} alt="" />
+                  {item.label}
+                </a>
+              );
+            })}
         </div>
       </ProfileInfoSection>
     </div>

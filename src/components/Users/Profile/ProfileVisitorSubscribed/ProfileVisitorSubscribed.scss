@@ -535,12 +535,21 @@ html[data-theme="dark"] .pvs-tools__vip .pvs-tools__label {
 
 .profile-visitor-subscribed .onlineDot {
   position: absolute;
-  top: -2px;
-  right: -2px;
+  right: 14.64%;
+  bottom: 14.64%;
+  top: auto;
+  left: auto;
+  transform: none;
+  width: auto;
+  height: auto;
+  background: transparent;
+  border: none;
+  z-index: 2;
+}
+
+.profile-visitor-subscribed .onlineDot .onlineStatus__dot {
   width: 10px;
   height: 10px;
-  border-radius: 50%;
-  background: #22c55e;
   border: 2px solid #fff;
 }
 

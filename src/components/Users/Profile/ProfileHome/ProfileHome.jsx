@@ -11,7 +11,8 @@ import { postsApi } from "../../../../services/postsApi";
 import { storiesApi } from "../../../../services/storiesApi";
 import {
   isPostImageUploadEnabled,
-  uploadPostImage,
+  resolvePostMediaMime,
+  uploadPostMedia,
 } from "../../../../services/postImageUploadApi";
 
 import MessagesNavBadge from "../../../Messages/MessagesNavBadge";
@@ -94,6 +95,7 @@ export default function ProfileHome({
     feedLoading,
     feedError,
     feedActions,
+    postsCount: profilePostsCount,
   } = useProfileAuthorFeed(postsAuthorId, { enabled: loadSecondary });
 
   useEffect(() => {
@@ -246,21 +248,52 @@ export default function ProfileHome({
     e.target.value = "";
   };
 
-  const onPostMediaSelect = (e) => {
-    const files = Array.from(e.target.files ?? []);
-    if (!files.length) return;
+  const appendPostMediaFiles = (files, { preferKind } = {}) => {
+    const accepted = files.filter((file) => {
+      const mime = resolvePostMediaMime(file);
+      if (preferKind === "image") return mime.startsWith("image/");
+      if (preferKind === "video") return mime.startsWith("video/");
+      return mime.startsWith("image/") || mime.startsWith("video/");
+    });
+    if (!accepted.length) {
+      toast.error(
+        preferKind === "video"
+          ? t("posts.toast.videoRequired", {
+              defaultValue: "Оберіть відеофайл",
+            })
+          : t("posts.toast.imageRequired", {
+              defaultValue: "Оберіть файл зображення",
+            })
+      );
+      return;
+    }
 
     setPostMediaFiles((prev) => {
-      const next = files.map((file) => ({
-        id: `${file.name}-${file.size}-${file.lastModified}`,
-        file,
-        type: file.type.startsWith("video/") ? "video" : "image",
-        previewUrl: URL.createObjectURL(file),
-      }));
+      const next = accepted.map((file) => {
+        const mime = resolvePostMediaMime(file);
+        return {
+          id: `${file.name}-${file.size}-${file.lastModified}`,
+          file,
+          type: mime.startsWith("video/") ? "video" : "image",
+          previewUrl: URL.createObjectURL(file),
+        };
+      });
       return [...prev, ...next];
     });
+  };
 
+  const onPostPhotoSelect = (e) => {
+    const files = Array.from(e.target.files ?? []);
     e.target.value = "";
+    if (!files.length) return;
+    appendPostMediaFiles(files, { preferKind: "image" });
+  };
+
+  const onPostVideoSelect = (e) => {
+    const files = Array.from(e.target.files ?? []);
+    e.target.value = "";
+    if (!files.length) return;
+    appendPostMediaFiles(files, { preferKind: "video" });
   };
 
   const closeComposer = () => {
@@ -303,40 +336,37 @@ export default function ProfileHome({
 
     try {
       setIsPublishingPost(true);
-      const media = [];
+
+      // Upload all selected media first. If any file fails — do NOT create the post.
+      let media = [];
       if (postMediaFiles.length > 0) {
         if (!isPostImageUploadEnabled()) {
-          toast.info(t('posts.toast.mediaUploadDisabled'));
-        } else {
-          for (const [index, item] of postMediaFiles.entries()) {
-            if (!item?.file) continue;
-            try {
-              const url = await uploadPostImage(item.file);
-              media.push({
-                url,
-                type: item.file.type?.startsWith("video") ? "VIDEO" : "IMAGE",
-                order: index,
-              });
-            } catch (uploadErr) {
-              const status = uploadErr?.response?.status;
-              const isUnavailable =
-                status === 404 || status === 405 || status === 501;
-              const details = getApiErrorMessage(uploadErr);
-              console.error("[post-media-upload] failed", {
-                status,
-                details,
-                raw: uploadErr,
-              });
-              toast.warning(
-                isUnavailable
-                  ? t('posts.toast.mediaUploadPartial')
-                  : details
-                    ? `${t('posts.toast.editMediaUploadFileFailed')}: ${details}`
-                    : t('posts.toast.mediaUploadFileFailed')
-              );
-            }
-          }
+          toast.error(t('posts.toast.mediaUploadDisabled'));
+          return;
         }
+
+        const uploaded = [];
+        for (const [index, item] of postMediaFiles.entries()) {
+          if (!item?.file) {
+            throw new Error(t('posts.toast.mediaUploadFileFailed'));
+          }
+
+          const file = item.file;
+          console.info("[post-media-upload] selected", {
+            name: file.name,
+            type: file.type,
+            resolvedType: resolvePostMediaMime(file),
+            size: file.size,
+          });
+
+          const { url, mediaType } = await uploadPostMedia(file);
+          uploaded.push({
+            url,
+            type: mediaType,
+            order: index,
+          });
+        }
+        media = uploaded;
       }
 
       const locationName = postLocation.trim();
@@ -386,8 +416,24 @@ export default function ProfileHome({
       setPostMediaFiles([]);
       closeComposer();
     } catch (err) {
-      const msg = getApiErrorMessage(err) || t('posts.toast.publishFailed');
-      toast.error(String(msg));
+      const details = getApiErrorMessage(err);
+      console.error("[post-publish] failed", {
+        details,
+        raw: err,
+        selectedMedia: postMediaFiles.map((item) => ({
+          name: item?.file?.name,
+          type: item?.file?.type,
+          resolvedType: item?.file ? resolvePostMediaMime(item.file) : null,
+          size: item?.file?.size,
+        })),
+      });
+      const hadMedia = postMediaFiles.length > 0;
+      toast.error(
+        hadMedia && details
+          ? `${t('posts.toast.editMediaUploadFileFailed')}: ${details}`
+          : details || t('posts.toast.publishFailed')
+      );
+      // Keep modal open and preserve text / selected media.
     } finally {
       setIsPublishingPost(false);
     }
@@ -601,6 +647,8 @@ export default function ProfileHome({
           user={user}
           isOpen={isInfoOpen}
           editable
+          friendsCount={displayFriendsCount}
+          postsCount={profilePostsCount}
           onEditProfile={onEditProfile}
           onUserUpdated={refreshMe}
           id="profile-info-panel"
@@ -829,8 +877,8 @@ export default function ProfileHome({
           onRemoveMedia={removePostMedia}
           postMediaInputRef={postMediaInputRef}
           postVideoInputRef={postVideoMediaInputRef}
-          onPhotoSelect={onPostMediaSelect}
-          onVideoSelect={onPostMediaSelect}
+          onPhotoSelect={onPostPhotoSelect}
+          onVideoSelect={onPostVideoSelect}
           postLocation={postLocation}
           onPostLocationChange={setPostLocation}
           onClearLocation={() => setPostLocation("")}

@@ -179,9 +179,10 @@ export default function ProfileVisitorPublic({
         : 0;
 
   const authorId = postsAuthorId ?? user?.id ?? user?._id;
-  const { feedPosts, feedLoading, feedError, feedActions } = useProfileAuthorFeed(authorId, {
-    enabled: loadSecondary,
-  });
+  const { feedPosts, feedLoading, feedError, feedActions, postsCount: profilePostsCount } =
+    useProfileAuthorFeed(authorId, {
+      enabled: loadSecondary,
+    });
 
   return (
     <div className="profile-visitor-public profile-home">
@@ -448,7 +449,12 @@ export default function ProfileVisitorPublic({
           ))}
         </section>
 
-        <ProfileInfoPanel user={user} isOpen={visitorTab === 'info'} />
+        <ProfileInfoPanel
+          user={user}
+          isOpen={visitorTab === 'info'}
+          friendsCount={displayFriendsCount}
+          postsCount={profilePostsCount}
+        />
 
         {/* ================= FRIENDS ================= */}
         <section className="vipCard">

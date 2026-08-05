@@ -22,7 +22,11 @@ import {
 } from '../../../../utils/validationProfile';
 import { normalizeForValidation, toCompleteProfilePayload } from '../../../../utils/profilePayload';
 import { cropImageToFile } from '../../../../utils/cropImageToFile';
-import { getApiErrorMessage } from '../../../../utils/getApiErrorMessage';
+import {
+  getApiErrorCode,
+  getApiErrorMessage,
+  getApiErrorSuggestions,
+} from '../../../../utils/getApiErrorMessage';
 import { getBirthDateLimits, toYMDLocal } from '../../../../utils/profileFormUtils';
 
 import { interestOptions } from '../../../../constants/interests';
@@ -271,10 +275,23 @@ export default function CompleteProfileForm({ onBack, onSave }) {
     const nextErrors = translateValidationErrors(validateCompleteProfile(normalized), t);
     setErrors(nextErrors);
 
-    if (Object.keys(nextErrors).length > 0) return;
+    if (Object.keys(nextErrors).length > 0) {
+      const firstKey = Object.keys(nextErrors)[0];
+      toast.error(nextErrors[firstKey] || t('profile.completeForm.errors.saveError'));
+      // Scroll to first invalid field so the button doesn't feel “dead”.
+      window.setTimeout(() => {
+        const el =
+          document.querySelector(`.field--${firstKey}`) ||
+          document.querySelector(`[name="${firstKey}"]`) ||
+          document.querySelector('.field__hint');
+        el?.scrollIntoView?.({ behavior: 'smooth', block: 'center' });
+      }, 50);
+      return;
+    }
 
     if (usernameCheck.loading) {
       setSubmitError(t('common.loading'));
+      toast.error(t('common.loading'));
       return;
     }
 
@@ -289,17 +306,22 @@ export default function CompleteProfileForm({ onBack, onSave }) {
       return;
     }
 
-    const payload = toCompleteProfilePayload(submitValues);
-
     try {
       setIsSubmitting(true);
+      const payload = toCompleteProfilePayload(submitValues);
       await onSave?.(payload);
       setProfileCompleted(true);
     } catch (err) {
       console.log('[CompleteProfileForm] submit error', err?.response?.data || err);
 
       const rawCode = getApiErrorCode(err) || '';
-      const isPhoneConflict = rawCode === 'CONFLICT' && Boolean(payload.phone);
+      let payloadPhone = '';
+      try {
+        payloadPhone = normalizeForValidation(submitValues).phone || '';
+      } catch {
+        /* ignore */
+      }
+      const isPhoneConflict = rawCode === 'CONFLICT' && Boolean(payloadPhone);
       const code = isPhoneConflict ? 'PHONE_ALREADY_EXISTS' : rawCode;
       const msg = isPhoneConflict
         ? t('errors.PHONE_ALREADY_EXISTS')

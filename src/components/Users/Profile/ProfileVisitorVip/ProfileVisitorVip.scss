@@ -464,12 +464,16 @@ $desktop: 1440px;
 
 .profile-visitor-vip__onlineDot--friend {
   position: absolute;
-  top: 4px;
-  right: -1px;
+  right: 14.64%;
+  bottom: 14.64%;
+  top: auto;
+  left: auto;
+  transform: none;
   width: auto;
   height: auto;
   background: transparent;
   border-radius: 0;
+  z-index: 2;
 
   .onlineStatus__dot {
     width: 8px;
@@ -477,18 +481,10 @@ $desktop: 1440px;
   }
 
   @media (min-width: $tablet) {
-    top: 12px;
-    right: 5px;
-
     .onlineStatus__dot {
       width: 12px;
       height: 12px;
     }
-  }
-
-  @media (min-width: $desktop) {
-    top: 18px;
-    right: 12px;
   }
 }
 

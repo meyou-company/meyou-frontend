@@ -80,7 +80,7 @@ const normalizeProfile = (u) => {
     interests: Array.isArray(u.interests) ? u.interests : [],
     hobbies: Array.isArray(u.hobbies) ? u.hobbies : [],
     friends: friendsArray,
-    /** Загальна кількість друзів (підписники + підписки) з API */
+    /** Кількість друзів з API (`friendsCount.total` / following) */
     friendsCount,
     postsCount: u.postsCount ?? u.stats?.postsCount,
     giftsCount: u.giftsCount ?? u.stats?.giftsCount,
@@ -120,7 +120,7 @@ export default function Profile() {
     if (urlUsername || !user) return;
     let cancelled = false;
     subscriptionsApi
-      .getFollowing({ take: 50 })
+      .getFollowing({ take: 200 })
       .then((res) => {
         const data = res?.data ?? res;
         const items = data?.items ?? [];

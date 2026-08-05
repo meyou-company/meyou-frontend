@@ -178,7 +178,7 @@ export default function CreatePostModal({
           <input
             ref={postMediaInputRef}
             type="file"
-            accept="image/*"
+            accept="image/jpeg,image/png,image/webp,image/heic,image/heif,image/*"
             multiple
             className="createPostModal__fileInput"
             onChange={onPhotoSelect}
@@ -188,7 +188,7 @@ export default function CreatePostModal({
           <input
             ref={postVideoInputRef}
             type="file"
-            accept="video/*"
+            accept="video/mp4,video/quicktime,video/webm,video/*"
             multiple
             className="createPostModal__fileInput"
             onChange={onVideoSelect}

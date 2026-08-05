@@ -34,6 +34,27 @@ export const conversationsApi = {
     return data;
   },
 
+  async pinConversation(conversationId) {
+    const { data } = await api.patch(
+      apiPath(`/conversations/${encodeURIComponent(conversationId)}/pin`),
+    );
+    return data;
+  },
+
+  async markConversationUnread(conversationId) {
+    const { data } = await api.patch(
+      apiPath(`/conversations/${encodeURIComponent(conversationId)}/unread`),
+    );
+    return data;
+  },
+
+  async deleteConversationForMe(conversationId) {
+    const { data } = await api.delete(
+      apiPath(`/conversations/${encodeURIComponent(conversationId)}`),
+    );
+    return data;
+  },
+
   async create(participantId) {
     const { data } = await api.post(apiPath('/conversations'), { participantId });
     return data;
