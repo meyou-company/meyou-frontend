@@ -48,6 +48,8 @@ import {
 import { useMessageActions } from '../../hooks/useMessageActions';
 import { useAuthStore } from '../../zustand/useAuthStore';
 import { useMessagesStore } from '../../zustand/useMessagesStore';
+import { startConversationCall } from '../../providers/CallsProvider';
+import { useCallsStore } from '../../zustand/useCallsStore';
 import './MessagesPage.scss';
 
 function getDisplayName(user, fallback) {
@@ -687,6 +689,25 @@ export default function MessagesPage() {
     }
   };
 
+  const callPhase = useCallsStore((s) => s.phase);
+  const callBusy = callPhase !== 'idle';
+
+  const startCall = async (mediaType) => {
+    if (!activeConversationId || callBusy) {
+      if (callBusy) toast.error(t('messenger.calls.busyLocal'));
+      return;
+    }
+    try {
+      await startConversationCall(activeConversationId, mediaType);
+    } catch (err) {
+      if (err?.message === 'CALL_BUSY_LOCAL') {
+        toast.error(t('messenger.calls.busyLocal'));
+        return;
+      }
+      toast.error(getApiErrorMessage(err) || t('messenger.calls.startFailed'));
+    }
+  };
+
   const openChatMenu = useCallback((event, chat) => {
     event.preventDefault();
     event.stopPropagation();
@@ -1029,6 +1050,26 @@ export default function MessagesPage() {
                       </div>
                     </div>
                     <div className="messagesPage__chatActions">
+                      <button
+                        type="button"
+                        className="messagesPage__chatAction"
+                        onClick={() => void startCall('AUDIO')}
+                        disabled={callBusy}
+                        aria-label={t('messenger.calls.audioCall')}
+                        title={t('messenger.calls.audioCall')}
+                      >
+                        📞
+                      </button>
+                      <button
+                        type="button"
+                        className="messagesPage__chatAction"
+                        onClick={() => void startCall('VIDEO')}
+                        disabled={callBusy}
+                        aria-label={t('messenger.calls.videoCall')}
+                        title={t('messenger.calls.videoCall')}
+                      >
+                        🎥
+                      </button>
                       <button
                         type="button"
                         className={`messagesPage__chatAction${showChatSearch ? ' is-active' : ''}`}

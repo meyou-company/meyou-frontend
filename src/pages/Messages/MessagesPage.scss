@@ -562,6 +562,15 @@
   }
 
   .messagesPage__chatHead {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+    min-height: 56px;
+    padding: 10px 14px;
+  }
+
+  .messagesPage__backMobile {
     display: none;
   }
 }
@@ -582,6 +591,10 @@
 
   .messagesPage__chatActions {
     display: none;
+  }
+
+  .messagesPage--chatOpen .messagesPage__chatActions {
+    display: flex;
   }
 
   .messagesPage__body {
