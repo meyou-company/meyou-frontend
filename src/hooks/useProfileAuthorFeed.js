@@ -8,12 +8,86 @@ import { sortPostsByNewest } from "../utils/repostFeed";
 import { dedupeAsync } from "../utils/dedupeAsync";
 import { useAuthStore } from "../zustand/useAuthStore";
 import { usePostFeedActions } from "./usePostFeedActions";
+import { liveStreamsApi } from "../services/liveStreamsApi";
+
+function getPlaybackUrl(value) {
+  return (
+    value?.recordingUrl ||
+    value?.playbackUrl ||
+    value?.videoUrl ||
+    value?.url ||
+    value?.recording?.url ||
+    value?.playback?.url ||
+    null
+  );
+}
+
+async function loadSavedLiveReplays(username, authorId) {
+  if (!username) return [];
+
+  try {
+    const streams = await liveStreamsApi.listByUsername(username);
+    const savedStreams = (Array.isArray(streams) ? streams : []).filter((stream) =>
+      stream?.isSaved === true && String(stream?.status || "").toUpperCase() === "ENDED"
+    );
+
+    return Promise.all(savedStreams.map(async (stream) => {
+      const streamId = stream.id || stream._id || stream.liveStreamId;
+      let playbackUrl = getPlaybackUrl(stream);
+      if (!playbackUrl && streamId) {
+        try {
+          playbackUrl = getPlaybackUrl(await liveStreamsApi.getPlayback(streamId));
+        } catch {
+          // Recording can still be processing; keep the replay card visible.
+        }
+      }
+
+      return {
+        id: `live-${streamId}`,
+        liveStreamId: streamId,
+        kind: "liveReplay",
+        authorId: authorId != null ? String(authorId) : null,
+        text: stream.title || "Запись прямого эфира",
+        media: playbackUrl ? [{ url: playbackUrl, type: "VIDEO", order: 0 }] : [],
+        createdAt: stream.endedAt || stream.startedAt || stream.createdAt || null,
+        location: "",
+        permissions: { canEdit: false, canDelete: false, isOwner: false },
+        viewerState: { isLiked: false, isSaved: false, isReposted: false },
+        comments: [],
+        counts: {
+          likes: stream.reactionsCount ?? stream.likesCount ?? 0,
+          comments: stream.messagesCount ?? stream.commentsCount ?? 0,
+          reposts: 0,
+          saves: 0,
+          replies: 0,
+          views: stream.viewersCount ?? stream.viewerCount ?? 0,
+        },
+        isRecordingProcessing: !playbackUrl,
+      };
+    }));
+  } catch {
+    return [];
+  }
+}
+
+async function loadProfileItems(postsAuthorId, username) {
+  const [{ items, total }, liveReplays] = await Promise.all([
+    postsApi.listByAuthorWithMeta(postsAuthorId),
+    loadSavedLiveReplays(username, postsAuthorId),
+  ]);
+  const posts = (Array.isArray(items) ? items : []).map(mapApiPostToFeedItem).filter(Boolean);
+  const merged = sortPostsByNewest([...posts, ...liveReplays]);
+  return {
+    items: merged,
+    total: (typeof total === "number" ? total : posts.length) + liveReplays.length,
+  };
+}
 
 /**
  * Завантаження стрічки постів автора (GET /posts/users/:id/posts) + кеш у localStorage.
  * `enabled: false` — пропустити fetch (для відкладеного завантаження на профілі).
  */
-export function useProfileAuthorFeed(postsAuthorId, { enabled = true } = {}) {
+export function useProfileAuthorFeed(postsAuthorId, { enabled = true, username = "" } = {}) {
   const [feedPosts, setFeedPostsState] = useState([]);
   const [feedTotal, setFeedTotal] = useState(null);
   const [feedLoading, setFeedLoading] = useState(Boolean(enabled && postsAuthorId));
@@ -40,13 +114,10 @@ export function useProfileAuthorFeed(postsAuthorId, { enabled = true } = {}) {
 
   const reloadFeed = useCallback(async () => {
     if (!postsAuthorId) return;
-    const { items, total } = await postsApi.listByAuthorWithMeta(postsAuthorId);
-    const mapped = sortPostsByNewest(
-      (Array.isArray(items) ? items : []).map(mapApiPostToFeedItem).filter(Boolean)
-    );
-    setFeedPostsState(applyPersistedLikes(mapped));
-    setFeedTotal(typeof total === "number" ? total : mapped.length);
-  }, [postsAuthorId]);
+    const { items, total } = await loadProfileItems(postsAuthorId, username);
+    setFeedPostsState(applyPersistedLikes(items));
+    setFeedTotal(total);
+  }, [postsAuthorId, username]);
 
   const feedActions = usePostFeedActions(setFeedPosts, {
     currentUserId,
@@ -106,15 +177,12 @@ export function useProfileAuthorFeed(postsAuthorId, { enabled = true } = {}) {
         setFeedLoading(true);
         setFeedError("");
         const { items, total } = await dedupeAsync(
-          `posts:author:${postsAuthorId}`,
-          () => postsApi.listByAuthorWithMeta(postsAuthorId),
-        );
-        const mapped = sortPostsByNewest(
-          (Array.isArray(items) ? items : []).map(mapApiPostToFeedItem).filter(Boolean)
+          `profile-feed:${postsAuthorId}:${username}`,
+          () => loadProfileItems(postsAuthorId, username),
         );
         if (!cancelled) {
-          setFeedPostsState(applyPersistedLikes(mapped));
-          setFeedTotal(typeof total === "number" ? total : mapped.length);
+          setFeedPostsState(applyPersistedLikes(items));
+          setFeedTotal(total);
         }
       } catch (err) {
         if (!cancelled) {
@@ -138,7 +206,7 @@ export function useProfileAuthorFeed(postsAuthorId, { enabled = true } = {}) {
     return () => {
       cancelled = true;
     };
-  }, [postsAuthorId, enabled]);
+  }, [postsAuthorId, enabled, username]);
 
   const postsCount =
     typeof feedTotal === "number" && Number.isFinite(feedTotal) && feedTotal >= 0

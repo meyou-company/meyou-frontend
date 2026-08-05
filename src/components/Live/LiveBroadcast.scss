@@ -185,6 +185,12 @@
   display: flex;
   align-items: center;
   gap: 8px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
 }
 
 .liveStage__hostAvatar {
@@ -203,8 +209,17 @@
 }
 
 .liveStage__speaker {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
   font-size: 9px;
   white-space: nowrap;
+
+  img {
+    width: 16px;
+    height: 16px;
+    object-fit: contain;
+  }
 }
 
 .liveStage__host strong {
@@ -221,6 +236,18 @@
   gap: 10px;
   margin-top: 5px;
   font-size: 9px;
+
+  span {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+  }
+
+  img {
+    width: 14px;
+    height: 14px;
+    object-fit: contain;
+  }
 
   span:last-child {
     color: #e8214d;
@@ -252,10 +279,8 @@
   width: 30px;
   height: 30px;
   flex: 0 0 auto;
-  border: 7px solid #c40000;
-  border-radius: 50%;
-  background: #ed0d18;
-  box-shadow: 0 7px 14px rgba(0, 0, 0, 0.36);
+  border: 0;
+  object-fit: contain;
   animation: liveRecordPulse 1.6s ease-in-out infinite;
 }
 
@@ -277,6 +302,12 @@
   font-size: 21px;
   line-height: 1;
   cursor: pointer;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
 }
 
 .liveStage__settingsPanel {
@@ -478,8 +509,16 @@
   gap: 12px;
   font-size: 11px;
 
-  span:last-child {
-    color: #e8214d;
+  span {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  img {
+    width: 18px;
+    height: 18px;
+    object-fit: contain;
   }
 }
 
@@ -501,17 +540,14 @@
   padding: 0;
   border: 0;
   border-radius: 9px;
-  background: #c50000;
-  box-shadow: 0 8px 17px rgba(0, 0, 0, 0.42);
+  background: transparent;
   cursor: pointer;
 
-  span {
-    width: 25px;
-    height: 25px;
+  img {
+    width: 100%;
+    height: 100%;
     display: block;
-    margin: auto;
-    border-radius: 4px;
-    background: #f20d1e;
+    object-fit: contain;
   }
 }
 
@@ -546,6 +582,12 @@
     cursor: pointer;
     transition: transform 0.15s ease;
 
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
     &:hover {
       transform: translateY(-3px) scale(1.1);
     }
@@ -579,23 +621,10 @@
 }
 
 .liveChat__headerIcon {
-  position: relative;
   width: 39px;
   height: 28px;
   display: block;
-  border: 4px solid #a653f5;
-  border-radius: 50%;
-
-  &::after {
-    position: absolute;
-    bottom: -8px;
-    left: 1px;
-    width: 13px;
-    height: 11px;
-    border-left: 4px solid #a653f5;
-    content: "";
-    rotate: 38deg;
-  }
+  object-fit: contain;
 }
 
 .liveChat__messages {
@@ -630,7 +659,18 @@
   gap: 8px;
   margin-bottom: 16px;
 
-  > img {
+}
+
+.liveChat__avatarButton {
+  width: 38px;
+  height: 38px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  cursor: pointer;
+
+  img {
     width: 38px;
     height: 38px;
     border: 1px solid #ff4fb1;
@@ -654,7 +694,13 @@
 .liveChat__author {
   display: block;
   margin: 0 0 3px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
   font-size: 10px;
+  text-align: left;
+  cursor: pointer;
 }
 
 .liveChat__messageContent p {
@@ -754,8 +800,13 @@
     background: transparent;
     color: #9b7ae6;
     font-size: 27px;
-    rotate: -45deg;
     cursor: pointer;
+
+    img {
+      width: 20px;
+      height: 17px;
+      object-fit: contain;
+    }
 
     &:disabled {
       opacity: 0.4;
@@ -766,8 +817,9 @@
 
 .liveChat__quickReactions {
   display: flex;
-  justify-content: flex-end;
-  gap: 18px;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px 12px;
   padding: 8px 18px 0;
 
   button {
@@ -778,6 +830,12 @@
     background: transparent;
     font-size: 23px;
     cursor: pointer;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
   }
 }
 
@@ -1168,6 +1226,19 @@
 [data-theme="dark"] .liveStage__settingsButton,
 .dark .liveStage__settingsButton {
   color: #fff;
+
+  img {
+    filter: brightness(0) invert(1);
+  }
+}
+
+[data-theme="dark"] .liveStage__speaker img,
+[data-theme="dark"] .liveStage__hostStats span:first-child img,
+[data-theme="dark"] .liveStage__metrics span:first-child img,
+.dark .liveStage__speaker img,
+.dark .liveStage__hostStats span:first-child img,
+.dark .liveStage__metrics span:first-child img {
+  filter: brightness(0) invert(1);
 }
 
 [data-theme="dark"] .liveChat,

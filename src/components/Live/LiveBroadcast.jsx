@@ -21,6 +21,8 @@ const ENDED_STATUS = "ENDED";
 const LIVE_HOST_MEDIA_PREFIX = "meyou_live_host_media:";
 const LIVE_MESSAGES_CACHE_PREFIX = "meyou_live_messages:";
 const LIVE_PINNED_CACHE_PREFIX = "meyou_live_pinned_messages:";
+const LIVE_REACTIONS_CACHE_PREFIX = "meyou_live_reactions:";
+const COUNTER_SYNC_INTERVAL_MS = 2_000;
 const MAX_VISIBLE_MESSAGES = 100;
 
 function unwrap(value) {
@@ -74,6 +76,13 @@ function normalizeMessage(raw) {
     id: id || `${Date.now()}-${Math.random().toString(16).slice(2)}`,
     authorId: value.authorId || value.userId || value.senderId || getUserId(author),
     authorName: value.authorName || getDisplayName(author),
+    authorUsername:
+      value.authorUsername ||
+      value.username ||
+      author.username ||
+      author.nick ||
+      author.nickname ||
+      null,
     avatar:
       value.avatar || author.avatarUrl || author.avatar || author.photoUrl || DEFAULT_AVATAR,
     text: String(value.text || value.message || value.content || value.body || ""),
@@ -204,6 +213,29 @@ function writeLiveCache(prefix, streamId, value) {
   }
 }
 
+function readCachedReactionCount(streamId) {
+  if (!streamId) return 0;
+  try {
+    const value = Number(localStorage.getItem(`${LIVE_REACTIONS_CACHE_PREFIX}${streamId}`));
+    return Number.isFinite(value) && value > 0 ? value : 0;
+  } catch {
+    return 0;
+  }
+}
+
+function cacheReactionCount(streamId, value) {
+  if (!streamId) return;
+  try {
+    const previous = readCachedReactionCount(streamId);
+    localStorage.setItem(
+      `${LIVE_REACTIONS_CACHE_PREFIX}${streamId}`,
+      String(Math.max(previous, 0, Number(value) || 0)),
+    );
+  } catch {
+    // Realtime and backend values remain the source of truth without storage.
+  }
+}
+
 function formatCompactCount(value) {
   const number = Number(value) || 0;
   if (number >= 1000) {
@@ -287,10 +319,27 @@ export default function LiveBroadcast() {
     return {
       id: getUserId(source) || stream?.hostId || "live-host",
       name: getDisplayName(source),
+      username:
+        source.username ||
+        source.nick ||
+        source.nickname ||
+        stream?.hostUsername ||
+        null,
       avatar:
         source.avatarUrl || source.avatar || source.photoUrl || DEFAULT_AVATAR,
     };
   }, [currentUser, isOwner, location.state, stream]);
+
+  const openUserProfile = useCallback((profileUser) => {
+    const username = profileUser?.username || profileUser?.authorUsername;
+    const userId = profileUser?.id || profileUser?.authorId;
+
+    if (userId && String(userId) === String(currentUser.id)) {
+      navigate("/profile");
+      return;
+    }
+    if (username) navigate(`/profile/${encodeURIComponent(username)}`);
+  }, [currentUser.id, navigate]);
 
   const handleRoomData = useCallback((packet) => {
     switch (packet?.type) {
@@ -311,7 +360,12 @@ export default function LiveBroadcast() {
         break;
       }
       case "reaction":
-        setLikesCount((current) => current + 1);
+        setLikesCount((current) => {
+          const absoluteCount = Number(packet.reactionsCount ?? packet.likesCount);
+          return Number.isFinite(absoluteCount)
+            ? Math.max(current + 1, absoluteCount)
+            : current + 1;
+        });
         break;
       case "stream.ended":
         setIsEnded(true);
@@ -359,7 +413,10 @@ export default function LiveBroadcast() {
         setIsEnded(normalized.status === ENDED_STATUS);
         setIsMuted(!normalized.isSoundEnabled);
         setShouldSave(normalized.isSaved);
-        setLikesCount(normalized.reactionsCount);
+        setLikesCount(Math.max(
+          normalized.reactionsCount,
+          readCachedReactionCount(liveId),
+        ));
         const cachedMessages = readLiveCache(LIVE_MESSAGES_CACHE_PREFIX, liveId);
         const cachedPinnedIds = readLiveCache(LIVE_PINNED_CACHE_PREFIX, liveId);
         const backendPinnedIds = messagePayload.items
@@ -413,6 +470,42 @@ export default function LiveBroadcast() {
     );
     writeLiveCache(LIVE_PINNED_CACHE_PREFIX, activeId, pinnedMessageIds);
   }, [areMessagesHydrated, liveId, messages, pinnedMessageIds, stream?.id]);
+
+  useEffect(() => {
+    const activeId = stream?.id || liveId;
+    if (!activeId) return;
+    cacheReactionCount(activeId, likesCount);
+  }, [likesCount, liveId, stream?.id]);
+
+  useEffect(() => {
+    const activeId = stream?.id || liveId;
+    if (!activeId || stream?.status !== LIVE_STATUS || isEnded) return undefined;
+
+    let cancelled = false;
+    const syncCounters = () => {
+      liveStreamsApi.getById(activeId)
+        .then((freshPayload) => {
+          if (cancelled) return;
+          const fresh = normalizeStream(freshPayload);
+          setLikesCount((current) => Math.max(
+            current,
+            fresh.reactionsCount,
+            readCachedReactionCount(activeId),
+          ));
+          if (fresh.status === ENDED_STATUS) {
+            setIsEnded(true);
+            setIsPlaying(false);
+          }
+        })
+        .catch(() => {});
+    };
+
+    const intervalId = window.setInterval(syncCounters, COUNTER_SYNC_INTERVAL_MS);
+    return () => {
+      cancelled = true;
+      window.clearInterval(intervalId);
+    };
+  }, [isEnded, liveId, stream?.id, stream?.status]);
 
   useEffect(() => {
     const activeId = stream?.id || liveId;
@@ -641,6 +734,7 @@ export default function LiveBroadcast() {
       id: `pending-${crypto.randomUUID?.() || `${Date.now()}-${currentUser.id}`}`,
       authorId: currentUser.id,
       authorName: currentUser.name,
+      authorUsername: currentUser.username,
       avatar: currentUser.avatar,
       text: messageText,
       createdAt: new Date().toISOString(),
@@ -691,7 +785,7 @@ export default function LiveBroadcast() {
         reaction,
         userId: currentUser.id,
         createdAt: new Date().toISOString(),
-      }, { reliable: false });
+      }, { reliable: true });
       setLikesCount((current) => current + 1);
     } catch (error) {
       toast.error(getApiErrorMessage(error, "errors.generic"));
@@ -890,12 +984,12 @@ export default function LiveBroadcast() {
               onToggleMuted={handleToggleMuted}
               onToggleSave={handleToggleSave}
               onStartCamera={handleStartBroadcast}
-              onMention={() => stream?.id ? setPickerMode("tag") : toast.info("Сначала запустите эфир")}
               onShare={() => stream?.id ? setPickerMode("share") : toast.info("Сначала запустите эфир")}
               onReact={handleReact}
               isChatOpen={isChatOpen}
               onToggleChat={handleToggleChat}
               onEnd={handleEnd}
+              onOpenHostProfile={() => openUserProfile(host)}
             />
 
             {isChatOpen && (
@@ -912,6 +1006,7 @@ export default function LiveBroadcast() {
                 onDelete={handleDeleteMessage}
                 onReply={() => {}}
                 onModerate={handleModerate}
+                onOpenProfile={openUserProfile}
               />
             )}
           </div>

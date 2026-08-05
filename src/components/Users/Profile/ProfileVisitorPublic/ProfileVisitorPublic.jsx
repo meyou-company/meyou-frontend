@@ -184,6 +184,7 @@ export default function ProfileVisitorPublic({
   const { feedPosts, feedLoading, feedError, feedActions, postsCount: profilePostsCount } =
     useProfileAuthorFeed(authorId, {
       enabled: loadSecondary,
+      username: user?.username || user?.nick || user?.nickname || "",
     });
 
   return (

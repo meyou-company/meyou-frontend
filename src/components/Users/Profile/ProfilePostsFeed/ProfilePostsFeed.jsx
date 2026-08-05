@@ -107,6 +107,36 @@ export default function ProfilePostsFeed({
             (repost && post.author?.avatarUrl) || displayAvatar;
           const menuPerms = resolvePostMenuPermissions(post, currentUserId);
 
+          if (post.kind === 'liveReplay') {
+            return (
+              <article
+                id={`post-${post.id}`}
+                key={post.id}
+                className="postCard postCard--liveReplay"
+              >
+                <PostCardHeader
+                  avatarSrc={displayAvatar}
+                  onAvatarClick={() => onViewProfileAvatar?.()}
+                  avatarAriaLabel={t('profile.viewPhoto')}
+                  authorName={titleName}
+                  createdAt={post.createdAt}
+                  canShowMenu={false}
+                  variant="profile"
+                />
+
+                <p className="postText postCard__liveReplayLabel">Запись прямого эфира</p>
+                <PostFeedBody
+                  post={post}
+                  postId={post.id}
+                  onOpenLightbox={openPostImageViewer}
+                />
+                {post.isRecordingProcessing && (
+                  <p className="postCard__liveReplayProcessing">Запись обрабатывается</p>
+                )}
+              </article>
+            );
+          }
+
           return (
           <article
             id={`post-${post.id}`}

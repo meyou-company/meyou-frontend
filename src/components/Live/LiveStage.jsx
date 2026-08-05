@@ -1,6 +1,22 @@
 import { useEffect, useRef } from "react";
+import profileIcons from "../../constants/profileIcons";
 
-const REACTIONS = ["❤️", "😁", "😘", "😍", "👀", "👋", "🎁", "🌹"];
+const REACTIONS = [
+  { value: "❤️", icon: profileIcons.liveReactionHeart, label: "Сердце" },
+  { value: "😁", content: "😁", label: "Улыбка" },
+  { value: "😘", icon: profileIcons.liveReactionKiss, label: "Поцелуй" },
+  { value: "😍", content: "😍", label: "Влюблённость" },
+  { value: "👀", content: "👀", label: "Глаза" },
+  { value: "👏", icon: profileIcons.liveReactionClap, label: "Аплодисменты" },
+  { value: "🎁", content: "🎁", label: "Подарок" },
+  { value: "🌹", content: "🌹", label: "Роза" },
+];
+
+function ReactionContent({ reaction }) {
+  return reaction.icon
+    ? <img src={reaction.icon} alt="" />
+    : <span aria-hidden="true">{reaction.content}</span>;
+}
 
 function LiveStatus({ elapsed }) {
   const minutes = Math.floor(elapsed / 60);
@@ -8,7 +24,7 @@ function LiveStatus({ elapsed }) {
 
   return (
     <div className="liveStage__status" aria-label="Эфир идёт">
-      <span className="liveStage__recordDot" aria-hidden="true" />
+      <img className="liveStage__recordDot" src={profileIcons.liveRecord} alt="" />
       <strong>LIVE</strong>
       <span aria-hidden="true">•</span>
       <span>{minutes}:{String(seconds).padStart(2, "0")}</span>
@@ -21,7 +37,6 @@ function OwnerSettings({
   shouldSave,
   onToggleMuted,
   onToggleSave,
-  onMention,
   onShare,
 }) {
   return (
@@ -52,11 +67,6 @@ function OwnerSettings({
         </button>
       </div>
 
-      <button type="button" className="liveStage__settingAction" onClick={onMention}>
-        <span>Отметить людей</span>
-        <span aria-hidden="true">⌄</span>
-      </button>
-
       <button type="button" className="liveStage__settingAction" onClick={onShare}>
         <span>Где поделиться</span>
         <span aria-hidden="true">›</span>
@@ -86,12 +96,12 @@ export default function LiveStage({
   onToggleMuted,
   onToggleSave,
   onStartCamera,
-  onMention,
   onShare,
   onReact,
   isChatOpen,
   onToggleChat,
   onEnd,
+  onOpenHostProfile,
 }) {
   const videoRef = useRef(null);
   const audioRef = useRef(null);
@@ -125,19 +135,27 @@ export default function LiveStage({
   return (
     <section className={`liveStage ${isOwner ? "liveStage--owner" : "liveStage--viewer"}`}>
       <div className="liveStage__top">
-        <div className="liveStage__host">
+        <button
+          type="button"
+          className="liveStage__host"
+          onClick={onOpenHostProfile}
+          aria-label={`Открыть профиль ${host.name}`}
+        >
           <img className="liveStage__hostAvatar" src={host.avatar} alt="" />
           <div>
-            <span className="liveStage__speaker">●))&nbsp; спикер</span>
+            <span className="liveStage__speaker">
+              <img src={profileIcons.liveSpeaker} alt="" />
+              спикер
+            </span>
             <strong>{host.name}</strong>
             {!isOwner && (
               <span className="liveStage__hostStats">
-                <span>◉ {viewerCount}</span>
-                <span>♥ {likesCount}</span>
+                <span><img src={profileIcons.liveEye} alt="" /> {viewerCount}</span>
+                <span><img src={profileIcons.liveReactionHeart} alt="" /> {likesCount}</span>
               </span>
             )}
           </div>
-        </div>
+        </button>
 
         <div className="liveStage__topRight">
           {isLive && !isEnded && <LiveStatus elapsed={elapsed} />}
@@ -149,7 +167,7 @@ export default function LiveStage({
               aria-label="Настройки эфира"
               aria-expanded={isSettingsOpen}
             >
-              ⚙
+              <img src={profileIcons.liveSettings} alt="" />
             </button>
           )}
         </div>
@@ -161,7 +179,6 @@ export default function LiveStage({
           shouldSave={shouldSave}
           onToggleMuted={onToggleMuted}
           onToggleSave={onToggleSave}
-          onMention={onMention}
           onShare={onShare}
         />
       )}
@@ -211,8 +228,8 @@ export default function LiveStage({
         {isOwner ? (
           <>
             <div className="liveStage__metrics">
-              <span>◉ {viewerCount}</span>
-              <span>♥ {likesCount}</span>
+              <span><img src={profileIcons.liveEye} alt="" /> {viewerCount}</span>
+              <span><img src={profileIcons.liveReactionHeart} alt="" /> {likesCount}</span>
             </div>
 
             <div className="liveStage__ownerActions">
@@ -223,7 +240,7 @@ export default function LiveStage({
                   onClick={onEnd}
                   aria-label="Завершить трансляцию"
                 >
-                  <span />
+                  <img src={profileIcons.liveStop} alt="" />
                 </button>
               )}
               <div>
@@ -241,14 +258,14 @@ export default function LiveStage({
         ) : (
           <>
             <div className="liveStage__reactions" aria-label="Реакции">
-              {REACTIONS.map((reaction) => (
+              {REACTIONS.slice(0, 1).map((reaction) => (
                 <button
-                  key={reaction}
+                  key={reaction.value}
                   type="button"
-                  onClick={() => onReact(reaction)}
-                  aria-label={`Отправить реакцию ${reaction}`}
+                  onClick={() => onReact(reaction.value)}
+                  aria-label={`Отправить реакцию ${reaction.label}`}
                 >
-                  {reaction}
+                  <ReactionContent reaction={reaction} />
                 </button>
               ))}
             </div>

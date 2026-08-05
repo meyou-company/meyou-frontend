@@ -3404,3 +3404,18 @@ html[data-theme="dark"] .profile-home .postActionCount {
     white-space: nowrap;
   }
 }
+.postCard--liveReplay .postCard__liveReplayLabel {
+  margin-bottom: 10px;
+  font-weight: 600;
+}
+
+.postCard__liveReplayProcessing {
+  margin: 12px 0 4px;
+  color: #707070;
+  font-size: 14px;
+  text-align: center;
+}
+
+body.dark .postCard__liveReplayProcessing {
+  color: #c9c9c9;
+}

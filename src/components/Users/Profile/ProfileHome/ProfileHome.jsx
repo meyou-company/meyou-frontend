@@ -96,7 +96,10 @@ export default function ProfileHome({
     feedError,
     feedActions,
     postsCount: profilePostsCount,
-  } = useProfileAuthorFeed(postsAuthorId, { enabled: loadSecondary });
+  } = useProfileAuthorFeed(postsAuthorId, {
+    enabled: loadSecondary,
+    username: user?.username || user?.nick || user?.nickname || "",
+  });
 
   useEffect(() => {
     if (!viewImageUrl) return;

@@ -9,6 +9,7 @@ const GIFTS = '/gifts/icon';
 const PROFILE_INFO = '/ProfileInfo';
 const STORIES = '/stories';
 const SOCIAL_MEDIA = "/social_media";
+const LIVE = "/live";
 
 const profileIcons = {
   /* === HOME === */
@@ -143,6 +144,18 @@ const profileIcons = {
   storyViewerProfile: '/stories/viewer-profile.svg',
   storyChat: '/stories/chat.svg',
   storyBlock: '/stories/block.svg',
+
+  /* === LIVE === */
+  liveChat: `${LIVE}/chat.png`,
+  liveRecord: `${LIVE}/record.png`,
+  liveSettings: `${LIVE}/settings.png`,
+  liveSpeaker: `${LIVE}/speaker.png`,
+  liveStop: `${LIVE}/stop.png`,
+  liveEye: `${LIVE}/eye.png`,
+  liveReactionHeart: '/stories/story-heart.svg',
+  liveReactionClap: `${LIVE}/reaction-clap.png`,
+  liveReactionKiss: `${LIVE}/reaction-kiss.png`,
+  liveSend: '/stories/forward.svg',
 
   /* === SOCIAL MEDIA === */
   whatsapp: `${SOCIAL_MEDIA}/whatsapp-icon.svg`,
