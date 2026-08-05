@@ -5,7 +5,8 @@ import EmojiPickerButton from "../EmojiPicker/EmojiPickerButton";
 import profileIcons from "../../constants/profileIcons";
 import {
   isPostImageUploadEnabled,
-  uploadPostImage,
+  resolvePostMediaMime,
+  uploadPostMedia,
 } from "../../services/postImageUploadApi";
 import { getApiErrorMessage } from "../../utils/getApiErrorMessage";
 import "./EditPostModal.scss";
@@ -70,12 +71,27 @@ export default function EditPostModal({
     const files = Array.from(e.target.files ?? []);
     e.target.value = "";
     if (!files.length) return;
-    const next = files.map((file) => ({
-      id: mediaItemId(),
-      file,
-      previewUrl: URL.createObjectURL(file),
-      type: file.type?.startsWith("video") ? "video" : "image",
-    }));
+    const accepted = files.filter((file) => {
+      const mime = resolvePostMediaMime(file);
+      return mime.startsWith("image/") || mime.startsWith("video/");
+    });
+    if (!accepted.length) {
+      toast.error(
+        t("posts.toast.imageRequired", {
+          defaultValue: "Оберіть файл зображення або відео",
+        })
+      );
+      return;
+    }
+    const next = accepted.map((file) => {
+      const mime = resolvePostMediaMime(file);
+      return {
+        id: mediaItemId(),
+        file,
+        previewUrl: URL.createObjectURL(file),
+        type: mime.startsWith("video/") ? "video" : "image",
+      };
+    });
     setNewMediaFiles((prev) => [...prev, ...next]);
   };
 
@@ -99,41 +115,43 @@ export default function EditPostModal({
       return;
     }
 
-    const media = [...existingMedia]
-      .sort((a, b) => a.order - b.order)
-      .map((m, idx) => ({
-        url: m.url,
-        type: m.type,
-        order: idx,
-      }));
+    try {
+      const media = [...existingMedia]
+        .sort((a, b) => a.order - b.order)
+        .map((m, idx) => ({
+          url: m.url,
+          type: m.type,
+          order: idx,
+        }));
 
-    if (newMediaFiles.length > 0) {
-      if (!isPostImageUploadEnabled()) {
-        toast.info(t('posts.toast.editMediaUploadDisabled'));
-      } else {
-        for (const [index, item] of newMediaFiles.entries()) {
-          if (!item?.file) continue;
-          try {
-            const url = await uploadPostImage(item.file);
-            media.push({
-              url,
-              type: item.file.type?.startsWith("video") ? "VIDEO" : "IMAGE",
-              order: media.length + index,
-            });
-          } catch (err) {
-            toast.warning(
-              getApiErrorMessage(err) || t('posts.toast.editMediaUploadFileFailed')
-            );
+      if (newMediaFiles.length > 0) {
+        if (!isPostImageUploadEnabled()) {
+          toast.error(t('posts.toast.editMediaUploadDisabled'));
+          return;
+        }
+        for (const item of newMediaFiles) {
+          if (!item?.file) {
+            throw new Error(t('posts.toast.editMediaUploadFileFailed'));
           }
+          const { url, mediaType } = await uploadPostMedia(item.file);
+          media.push({
+            url,
+            type: mediaType,
+            order: media.length,
+          });
         }
       }
-    }
 
-    await onSave?.({
-      text: trimmed || "\u200B",
-      location: (location ?? "").trim(),
-      media,
-    });
+      await onSave?.({
+        text: trimmed || "\u200B",
+        location: (location ?? "").trim(),
+        media,
+      });
+    } catch (err) {
+      toast.error(
+        getApiErrorMessage(err) || t('posts.toast.editMediaUploadFileFailed')
+      );
+    }
   };
 
   return (
@@ -239,7 +257,7 @@ export default function EditPostModal({
         <input
           ref={fileInputRef}
           type="file"
-          accept="image/*,video/*"
+          accept="image/jpeg,image/png,image/webp,image/heic,image/heif,image/*,video/mp4,video/quicktime,video/webm,video/*"
           multiple
           className="editPostModal__fileInput"
           onChange={onPickMedia}

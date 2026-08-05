@@ -14,18 +14,38 @@ import { usePostFeedActions } from "./usePostFeedActions";
  * `enabled: false` — пропустити fetch (для відкладеного завантаження на профілі).
  */
 export function useProfileAuthorFeed(postsAuthorId, { enabled = true } = {}) {
-  const [feedPosts, setFeedPosts] = useState([]);
+  const [feedPosts, setFeedPostsState] = useState([]);
+  const [feedTotal, setFeedTotal] = useState(null);
   const [feedLoading, setFeedLoading] = useState(Boolean(enabled && postsAuthorId));
   const [feedError, setFeedError] = useState("");
   const currentUserId = useAuthStore((s) => s.user?.id);
 
+  const setFeedPosts = useCallback((updater) => {
+    setFeedPostsState((prev) => {
+      const next = typeof updater === "function" ? updater(prev) : updater;
+      const nextList = Array.isArray(next) ? next : [];
+      const prevLen = Array.isArray(prev) ? prev.length : 0;
+      const delta = nextList.length - prevLen;
+      if (delta !== 0) {
+        setFeedTotal((total) => {
+          if (typeof total !== "number" || !Number.isFinite(total)) {
+            return nextList.length;
+          }
+          return Math.max(0, total + delta);
+        });
+      }
+      return nextList;
+    });
+  }, []);
+
   const reloadFeed = useCallback(async () => {
     if (!postsAuthorId) return;
-    const list = await postsApi.listByAuthor(postsAuthorId);
+    const { items, total } = await postsApi.listByAuthorWithMeta(postsAuthorId);
     const mapped = sortPostsByNewest(
-      (Array.isArray(list) ? list : []).map(mapApiPostToFeedItem).filter(Boolean)
+      (Array.isArray(items) ? items : []).map(mapApiPostToFeedItem).filter(Boolean)
     );
-    setFeedPosts(applyPersistedLikes(mapped));
+    setFeedPostsState(applyPersistedLikes(mapped));
+    setFeedTotal(typeof total === "number" ? total : mapped.length);
   }, [postsAuthorId]);
 
   const feedActions = usePostFeedActions(setFeedPosts, {
@@ -44,7 +64,10 @@ export function useProfileAuthorFeed(postsAuthorId, { enabled = true } = {}) {
       if (!raw) return;
       const parsed = JSON.parse(raw);
       if (Array.isArray(parsed) && parsed.length > 0) {
-        setFeedPosts(parsed);
+        setFeedPostsState(parsed);
+        setFeedTotal((prev) =>
+          typeof prev === "number" && prev >= parsed.length ? prev : parsed.length
+        );
         setFeedError("");
         setFeedLoading(false);
       }
@@ -68,7 +91,8 @@ export function useProfileAuthorFeed(postsAuthorId, { enabled = true } = {}) {
 
     if (!enabled || !postsAuthorId) {
       if (!postsAuthorId) {
-        setFeedPosts([]);
+        setFeedPostsState([]);
+        setFeedTotal(null);
         setFeedError("");
       }
       setFeedLoading(false);
@@ -81,13 +105,17 @@ export function useProfileAuthorFeed(postsAuthorId, { enabled = true } = {}) {
       try {
         setFeedLoading(true);
         setFeedError("");
-        const list = await dedupeAsync(`posts:author:${postsAuthorId}`, () =>
-          postsApi.listByAuthor(postsAuthorId),
+        const { items, total } = await dedupeAsync(
+          `posts:author:${postsAuthorId}`,
+          () => postsApi.listByAuthorWithMeta(postsAuthorId),
         );
         const mapped = sortPostsByNewest(
-          (Array.isArray(list) ? list : []).map(mapApiPostToFeedItem).filter(Boolean)
+          (Array.isArray(items) ? items : []).map(mapApiPostToFeedItem).filter(Boolean)
         );
-        if (!cancelled) setFeedPosts(applyPersistedLikes(mapped));
+        if (!cancelled) {
+          setFeedPostsState(applyPersistedLikes(mapped));
+          setFeedTotal(typeof total === "number" ? total : mapped.length);
+        }
       } catch (err) {
         if (!cancelled) {
           const raw = getApiErrorMessage(err);
@@ -112,6 +140,11 @@ export function useProfileAuthorFeed(postsAuthorId, { enabled = true } = {}) {
     };
   }, [postsAuthorId, enabled]);
 
+  const postsCount =
+    typeof feedTotal === "number" && Number.isFinite(feedTotal) && feedTotal >= 0
+      ? feedTotal
+      : feedPosts.length;
+
   return {
     feedPosts,
     setFeedPosts,
@@ -119,5 +152,6 @@ export function useProfileAuthorFeed(postsAuthorId, { enabled = true } = {}) {
     feedError,
     feedActions,
     feedCacheKey,
+    postsCount,
   };
 }

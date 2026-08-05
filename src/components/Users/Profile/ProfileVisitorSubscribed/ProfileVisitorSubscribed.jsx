@@ -150,7 +150,7 @@ export default function ProfileVisitorSubscribed({
 
   const authorId = postsAuthorId ?? user?.id ?? user?._id;
   const feedTitleName = nickname || displayName;
-  const { feedPosts, feedLoading, feedError, feedActions } =
+  const { feedPosts, feedLoading, feedError, feedActions, postsCount: profilePostsCount } =
     useProfileAuthorFeed(authorId, { enabled: loadSecondary });
   const userProfileNav = useUserProfileNav();
 
@@ -321,6 +321,8 @@ export default function ProfileVisitorSubscribed({
       <ProfileInfoPanel
         user={user}
         isOpen={activeTab === "info"}
+        friendsCount={displayFriendsCount}
+        postsCount={profilePostsCount}
       />
 
       {/* ===== FRIENDS: такий самий блок як у моєму профілі (vipCard, friendsTitle, vipRow, showMoreBtn) — тільки з його друзями ===== */}

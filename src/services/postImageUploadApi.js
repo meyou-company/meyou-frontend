@@ -13,18 +13,59 @@ export function isPostImageUploadEnabled() {
 const UPLOAD_URL_PATH =
   import.meta.env.VITE_POST_IMAGE_UPLOAD_PATH ||
   "/uploads/post-media/presigned-url";
-const MAX_FILE_SIZE_BYTES = 5 * 1024 * 1024;
+const MAX_IMAGE_SIZE_BYTES = 5 * 1024 * 1024;
+const MAX_VIDEO_SIZE_BYTES = 80 * 1024 * 1024;
 
 /** Optional: direct unsigned upload (preset must allow unsigned in Cloudinary). */
 const UNSIGNED_CLOUD_NAME = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME?.trim();
 const UNSIGNED_UPLOAD_PRESET =
   import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET?.trim();
 
+const IMAGE_EXT_MIME = {
+  jpg: "image/jpeg",
+  jpeg: "image/jpeg",
+  png: "image/png",
+  webp: "image/webp",
+  gif: "image/gif",
+  heic: "image/heic",
+  heif: "image/heif",
+};
+
+const VIDEO_EXT_MIME = {
+  mp4: "video/mp4",
+  mov: "video/quicktime",
+  webm: "video/webm",
+  m4v: "video/mp4",
+};
+
 function firstString(...values) {
   for (const v of values) {
     if (typeof v === "string" && v.trim()) return v.trim();
   }
   return null;
+}
+
+/**
+ * Prefer browser MIME; if empty/octet-stream, infer from extension.
+ * Does not invent a type when neither is available.
+ */
+export function resolvePostMediaMime(file) {
+  const raw = (file?.type || "").split(";")[0].trim().toLowerCase();
+  if (raw.startsWith("image/") || raw.startsWith("video/")) return raw;
+
+  const ext = (file?.name?.split(".").pop() || "").trim().toLowerCase();
+  if (IMAGE_EXT_MIME[ext]) return IMAGE_EXT_MIME[ext];
+  if (VIDEO_EXT_MIME[ext]) return VIDEO_EXT_MIME[ext];
+
+  return raw;
+}
+
+function fileWithResolvedMime(file, mime) {
+  if (!file || !mime || file.type === mime) return file;
+  return new File([file], file.name || `post-${Date.now()}`, {
+    type: mime,
+    lastModified: file.lastModified,
+  });
 }
 
 function extractSignedUrl(payload) {
@@ -157,26 +198,20 @@ async function uploadUnsignedToCloudinary(file) {
 }
 
 /**
- * Upload media using presigned Cloudinary POST (multipart).
+ * Presigned Cloudinary POST for post media (image or video).
  * 1) GET `/uploads/post-media/presigned-url` (authenticated)
  * 2) POST `uploadUrl` as multipart/form-data: `upload_fields` + `file`
  * 3) return public CDN URL (`fileUrl` from API or Cloudinary JSON)
- * @returns {Promise<string>} public image URL
+ * @returns {Promise<string>} public media URL
  */
-export async function uploadPostImage(file) {
-  if (!file) throw new Error("No media file provided");
-  if (!file.type) throw new Error("File type is required for image upload");
-  if (!file.type.startsWith("image/")) {
-    throw new Error("Only image files are supported");
-  }
-  if (file.size > MAX_FILE_SIZE_BYTES) {
-    throw new Error("Image size must be 5MB or less");
-  }
-
+async function uploadViaPostMediaPresign(file) {
   const useUnsignedOnly =
     import.meta.env.VITE_CLOUDINARY_USE_UNSIGNED_UPLOAD === "true";
 
   if (useUnsignedOnly) {
+    if (!file.type.startsWith("image/")) {
+      throw new Error("Unsigned upload supports images only");
+    }
     return uploadUnsignedToCloudinary(file);
   }
 
@@ -184,6 +219,14 @@ export async function uploadPostImage(file) {
   const fileName = file.name && file.name.includes(".")
     ? file.name
     : `post-${Date.now()}.${ext}`;
+
+  console.info("[post-media-upload]", {
+    name: file.name,
+    type: file.type,
+    size: file.size,
+    endpoint: UPLOAD_URL_PATH,
+    formField: "file",
+  });
 
   const { data } = await api.get(UPLOAD_URL_PATH, {
     params: {
@@ -226,6 +269,13 @@ export async function uploadPostImage(file) {
     const msg =
       cloudBody?.error?.message ??
       `${uploadRes.status} ${uploadRes.statusText}`;
+    console.error("[post-media-upload] cloudinary error", {
+      status: uploadRes.status,
+      body: cloudBody,
+      name: file.name,
+      type: file.type,
+      size: file.size,
+    });
     throw new Error(`Media upload failed: ${msg}`);
   }
 
@@ -237,4 +287,75 @@ export async function uploadPostImage(file) {
   }
 
   return publicUrl;
+}
+
+/**
+ * Upload an image for a post (legacy name; prefers image MIME).
+ * @returns {Promise<string>} public image URL
+ */
+export async function uploadPostImage(file) {
+  if (!file) throw new Error("No media file provided");
+
+  const mime = resolvePostMediaMime(file);
+  const uploadFile = fileWithResolvedMime(file, mime);
+
+  if (!mime) {
+    throw new Error("File type is required for image upload");
+  }
+  if (!mime.startsWith("image/")) {
+    console.error("[post-media-upload] rejected non-image", {
+      name: file.name,
+      type: file.type,
+      resolvedType: mime,
+      size: file.size,
+    });
+    throw new Error("Only image files are supported");
+  }
+  if (uploadFile.size > MAX_IMAGE_SIZE_BYTES) {
+    throw new Error("Image size must be 5MB or less");
+  }
+
+  return uploadViaPostMediaPresign(uploadFile);
+}
+
+/**
+ * Upload image or video for a post via `/uploads/post-media/presigned-url`.
+ * Videos stay on the post-media endpoint (folder `meyou/posts`), not video-media.
+ * @returns {Promise<{ url: string, mediaType: 'IMAGE' | 'VIDEO' }>}
+ */
+export async function uploadPostMedia(file) {
+  if (!file) throw new Error("No media file provided");
+
+  const mime = resolvePostMediaMime(file);
+  const uploadFile = fileWithResolvedMime(file, mime);
+
+  if (!mime) {
+    throw new Error("File type is required for media upload");
+  }
+
+  if (mime.startsWith("image/")) {
+    if (uploadFile.size > MAX_IMAGE_SIZE_BYTES) {
+      throw new Error("Image size must be 5MB or less");
+    }
+    const url = await uploadViaPostMediaPresign(uploadFile);
+    return { url, mediaType: "IMAGE" };
+  }
+
+  if (mime.startsWith("video/")) {
+    if (uploadFile.size > MAX_VIDEO_SIZE_BYTES) {
+      throw new Error("Video size must be 80MB or less");
+    }
+    const url = await uploadViaPostMediaPresign(uploadFile);
+    return { url, mediaType: "VIDEO" };
+  }
+
+  console.error("[post-media-upload] unsupported type", {
+    name: file.name,
+    type: file.type,
+    resolvedType: mime,
+    size: file.size,
+  });
+  throw new Error(
+    `Unsupported media type: ${mime || "(empty)"}. Expected image/* or video/*.`
+  );
 }

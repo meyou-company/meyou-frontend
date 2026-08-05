@@ -1,16 +1,28 @@
 /**
- * Повертає загальну кількість друзів (підписники + підписки) з friendsCount з API.
- * Бекенд віддає: friendsCount: { followers: number, following: number } або число.
- * @param {number|{ followers?: number, following?: number }|undefined} raw
+ * Повертає кількість друзів з friendsCount API.
+ * Бекенд: { followers, following, total } або число.
+ * Пріоритет: total (унікальні ACTIVE-зв’язки) → following (як сторінка «Друзі») → сума.
+ * @param {number|{ followers?: number, following?: number, total?: number }|undefined} raw
  * @returns {number|undefined}
  */
 export function getFriendsCountNumber(raw) {
   if (raw == null) return undefined;
-  if (typeof raw === "number" && raw >= 0) return raw;
+  if (typeof raw === "number" && Number.isFinite(raw) && raw >= 0) return raw;
   if (typeof raw === "object") {
+    if (typeof raw.total === "number" && Number.isFinite(raw.total) && raw.total >= 0) {
+      return raw.total;
+    }
+    if (
+      typeof raw.following === "number" &&
+      Number.isFinite(raw.following) &&
+      raw.following >= 0
+    ) {
+      return raw.following;
+    }
     const followers = raw.followers ?? raw.followers_count ?? 0;
     const following = raw.following ?? raw.following_count ?? 0;
-    return Number(followers) + Number(following);
+    const sum = Number(followers) + Number(following);
+    return Number.isFinite(sum) && sum >= 0 ? sum : undefined;
   }
   return undefined;
 }

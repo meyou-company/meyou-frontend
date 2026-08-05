@@ -9,6 +9,22 @@ function extractPostsList(payload) {
   return [];
 }
 
+function extractPostsTotal(payload, list) {
+  if (payload && typeof payload === 'object' && !Array.isArray(payload)) {
+    if (typeof payload.total === 'number' && Number.isFinite(payload.total)) {
+      return payload.total;
+    }
+    if (
+      payload.meta &&
+      typeof payload.meta.total === 'number' &&
+      Number.isFinite(payload.meta.total)
+    ) {
+      return payload.meta.total;
+    }
+  }
+  return Array.isArray(list) ? list.length : 0;
+}
+
 function extractCommentsList(payload) {
   if (!payload) return [];
   if (Array.isArray(payload)) return payload;
@@ -71,6 +87,32 @@ export const postsApi = {
       );
     } catch {
       // keep original route error for diagnostics
+      throw lastError;
+    }
+  },
+
+  /**
+   * Пости автора + total з бекенду (`GET /posts/users/:id/posts` → { items, total }).
+   */
+  async listByAuthorWithMeta(authorId) {
+    if (!authorId) return { items: [], total: 0 };
+    const encodedId = encodeURIComponent(authorId);
+    let lastError;
+    try {
+      const { data } = await api.get(`/posts/users/${encodedId}/posts`);
+      const items = extractPostsList(data);
+      return { items, total: extractPostsTotal(data, items) };
+    } catch (e) {
+      lastError = e;
+    }
+
+    try {
+      const all = await this.list({ page: 1, limit: 100 });
+      const items = (Array.isArray(all) ? all : []).filter(
+        (p) => String(p?.author?.id ?? '') === String(authorId)
+      );
+      return { items, total: items.length };
+    } catch {
       throw lastError;
     }
   },
