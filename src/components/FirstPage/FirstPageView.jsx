@@ -3,6 +3,11 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import profileIcons from '../../constants/profileIcons';
 import { useStoriesFeed } from "../../hooks/useStoriesFeed";
+import {
+  findActiveLiveStreamForUser,
+  getLiveStreamUsername,
+  useActiveLiveStreams,
+} from "../../hooks/useActiveLiveStreams";
 import { postsApi } from '../../services/postsApi';
 import { storiesApi } from "../../services/storiesApi";
 import { useAuthStore } from "../../zustand/useAuthStore";
@@ -147,19 +152,89 @@ export default function FirstPageView({
     setStoriesGroups,
   } = useStoriesFeed();
 
+  const { activeStreams } = useActiveLiveStreams();
+
+  const isCurrentUserAuthor = useCallback((author) => {
+    const authorId = author?.id || author?._id;
+    if (authorId && currentUserId && String(authorId) === String(currentUserId)) return true;
+
+    const authorUsername = String(author?.username || author?.nick || author?.nickname || "").toLowerCase();
+    const currentUsername = String(currentUser?.username || currentUser?.nick || currentUser?.nickname || "").toLowerCase();
+    return Boolean(authorUsername && currentUsername && authorUsername === currentUsername);
+  }, [currentUser, currentUserId]);
+
   const orderedStoriesGroups = useMemo(() => {
-    const list = Array.isArray(storiesGroups) ? [...storiesGroups] : [];
+    const list = (Array.isArray(storiesGroups) ? storiesGroups : []).map((group, index) => ({
+      ...group,
+      activeLiveStream: findActiveLiveStreamForUser(activeStreams, group?.author),
+      originalIndex: index,
+    }));
 
     return list.sort((a, b) => {
-      const aIsMe = String(a?.author?.id ?? "") === String(currentUserId ?? "");
-      const bIsMe = String(b?.author?.id ?? "") === String(currentUserId ?? "");
+      const aIsMe = isCurrentUserAuthor(a?.author);
+      const bIsMe = isCurrentUserAuthor(b?.author);
 
       if (aIsMe && !bIsMe) return -1;
       if (!aIsMe && bIsMe) return 1;
 
-      return 0;
+      const aIsLive = Boolean(a?.activeLiveStream);
+      const bIsLive = Boolean(b?.activeLiveStream);
+      if (aIsLive && !bIsLive) return -1;
+      if (!aIsLive && bIsLive) return 1;
+
+      return a.originalIndex - b.originalIndex;
     });
-  }, [storiesGroups, currentUserId]);
+  }, [activeStreams, isCurrentUserAuthor, storiesGroups]);
+
+  const storyCircleItems = useMemo(() => {
+    const storyItems = orderedStoriesGroups.map((group, storyGroupIndex) => ({
+      kind: "story",
+      group,
+      storyGroupIndex,
+      activeLiveStream: group.activeLiveStream,
+      isOwn: isCurrentUserAuthor(group.author),
+    }));
+
+    const liveOnlyItems = activeStreams
+      .filter((stream) => {
+        if (isCurrentUserAuthor(stream.host)) return false;
+        return !storyItems.some((item) => item.activeLiveStream?.id === stream.id);
+      })
+      .map((stream) => {
+        const username = getLiveStreamUsername(stream);
+        const host = {
+          ...stream.host,
+          id: stream.hostId || stream.host?.id || stream.host?._id,
+          username,
+          avatarUrl:
+            stream.host?.avatarUrl ||
+            stream.host?.avatar ||
+            stream.host?.photoUrl ||
+            stream.hostAvatarUrl ||
+            stream.avatarUrl,
+        };
+
+        return {
+          kind: "live",
+          group: { author: host, stories: [] },
+          activeLiveStream: stream,
+          isOwn: false,
+        };
+      })
+      .filter((item) => item.group.author.id || item.group.author.username);
+
+    return [...storyItems, ...liveOnlyItems].sort((a, b) => {
+      const priority = (item) => (item.isOwn ? 0 : item.activeLiveStream ? 1 : 2);
+      return priority(a) - priority(b);
+    });
+  }, [activeStreams, isCurrentUserAuthor, orderedStoriesGroups]);
+
+  const openLiveStream = useCallback((liveStream) => {
+    if (!liveStream?.id) return;
+    navigate(`/live/${encodeURIComponent(liveStream.id)}`, {
+      state: { mode: "viewer", host: liveStream.host },
+    });
+  }, [navigate]);
 
   const openStoryViewer = (groupIndex) => {
     const stories = orderedStoriesGroups[groupIndex]?.stories || [];
@@ -396,23 +471,31 @@ export default function FirstPageView({
               />
 
               {!storiesLoading &&
-                orderedStoriesGroups.map((group, groupIndex) => {
+                storyCircleItems.map((item) => {
+                  const { group, activeLiveStream, isOwn, storyGroupIndex } = item;
                   const firstStory = group?.stories?.[0];
 
-                  if (!firstStory) return null;
+                  if (!firstStory && !activeLiveStream) return null;
 
                   return (
                     <StoryCircle
-                      key={group.author?.id || firstStory.id}
+                      key={activeLiveStream?.id || group.author?.id || firstStory?.id}
                       username={group.author?.username}
                       avatar={group.author?.avatarUrl}
+                      isLive={Boolean(activeLiveStream) && !isOwn}
                       viewed={
                         Array.isArray(group.stories) &&
                         group.stories.length > 0 &&
                         group.stories.every((story) => story.viewedByMe === true)
                       }
                       storiesCount={group.stories?.length || 0}
-                      onClick={() => openStoryViewer(groupIndex)}
+                      onClick={() => {
+                        if (activeLiveStream && !isOwn) {
+                          openLiveStream(activeLiveStream);
+                          return;
+                        }
+                        openStoryViewer(storyGroupIndex);
+                      }}
                     />
                   );
                 })}

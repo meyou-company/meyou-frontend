@@ -36,6 +36,8 @@ export default function ProfileVisitorSubscribed({
   onShowMoreFriends,
   onOpenUser,
   onViewPhoto: onViewPhotoExternal,
+  activeLiveStream,
+  onOpenLive,
 }) {
   const { t } = useTranslation();
   const tabs = useProfileTabs({ includeUnsubscribe: true, withLocks: true });
@@ -180,11 +182,14 @@ export default function ProfileVisitorSubscribed({
         <div className="profile-visitor-subscribed__left">
           <div className="profile-visitor-subscribed__avatarContainer">
             <div
-              className={`profile-visitor-subscribed__avatarWrap ${hasProfileStories ? "profile-visitor-subscribed__avatarWrap--hasStories" : ""
-                }`}
+              className={`profile-visitor-subscribed__avatarWrap ${hasProfileStories ? "profile-visitor-subscribed__avatarWrap--hasStories" : ""} ${activeLiveStream ? "liveAvatar--active" : ""}`}
               role="button"
               tabIndex={0}
               onClick={() => {
+                if (activeLiveStream) {
+                  onOpenLive?.(activeLiveStream);
+                  return;
+                }
                 if (profileStoriesLoading) return;
 
                 if (hasProfileStories) {
@@ -195,7 +200,12 @@ export default function ProfileVisitorSubscribed({
                 onViewPhoto?.(displayAvatar);
               }}
               onKeyDown={(e) => {
-                if (e.key !== "Enter") return;
+                if (e.key !== "Enter" && e.key !== " ") return;
+                if (activeLiveStream) {
+                  e.preventDefault();
+                  onOpenLive?.(activeLiveStream);
+                  return;
+                }
                 if (profileStoriesLoading) return;
 
                 if (hasProfileStories) {
@@ -205,9 +215,10 @@ export default function ProfileVisitorSubscribed({
 
                 onViewPhoto?.(displayAvatar);
               }}
-              aria-label={t('profile.viewPhoto')}
+              aria-label={activeLiveStream ? "Открыть прямой эфир" : t('profile.viewPhoto')}
             >
               <img src={displayAvatar} alt="" className="profile-visitor-subscribed__avatar" />
+              {activeLiveStream && <span className="liveAvatar__badge">LIVE</span>}
             </div>
             <OnlineStatus
               userId={user?.id}

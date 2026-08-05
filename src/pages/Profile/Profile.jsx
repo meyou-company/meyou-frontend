@@ -14,6 +14,11 @@ import { conversationsApi } from "../../services/conversationsApi";
 import { getApiErrorMessage } from "../../utils/getApiErrorMessage";
 import { getFriendsFromUser, getFriendsCountNumber, normalizeFriendsApiResponse } from "../../utils/profileFriends";
 import { usePresenceStore } from "../../zustand/usePresenceStore";
+import {
+  findActiveLiveStreamForUser,
+  useActiveLiveStreams,
+} from "../../hooks/useActiveLiveStreams";
+import "../../components/Live/LiveAvatarBadge.scss";
 import styles from "./Profile.module.scss";
 
 /** Нормалізація профілю з GET /users/:username (viewType, subscriptionStatus, friendsCount, interests) */
@@ -238,6 +243,18 @@ export default function Profile() {
     return null;
   }, [urlUsername, fetchedUser, user]);
 
+  const { activeStreams } = useActiveLiveStreams({ enabled: Boolean(urlUsernameNorm) });
+  const activeProfileLiveStream = useMemo(
+    () => (isOwnProfile ? null : findActiveLiveStreamForUser(activeStreams, profileUser)),
+    [activeStreams, isOwnProfile, profileUser],
+  );
+  const onOpenLive = useCallback((liveStream) => {
+    if (!liveStream?.id) return;
+    navigate(`/live/${encodeURIComponent(liveStream.id)}`, {
+      state: { mode: "viewer", host: liveStream.host || profileUser },
+    });
+  }, [navigate, profileUser]);
+
   useEffect(() => {
     if (!profileUser?.id) {
       setSecondaryReady(false);
@@ -412,6 +429,8 @@ export default function Profile() {
       return (
         <ProfileVisitorVip
           user={profileUser}
+          activeLiveStream={activeProfileLiveStream}
+          onOpenLive={onOpenLive}
           onUnsubscribe={handleSubscribe}
           onVipChat={onWriteMessage}
           onWriteMessage={onWriteMessage}
@@ -427,6 +446,8 @@ export default function Profile() {
       return (
         <ProfileVisitorSubscribed
           user={profileUser}
+          activeLiveStream={activeProfileLiveStream}
+          onOpenLive={onOpenLive}
           postsAuthorId={profileUser.id}
           loadSecondary={secondaryReady}
           friendsCount={profileUser?.friendsCount}
@@ -445,6 +466,8 @@ export default function Profile() {
     return (
       <ProfileVisitorPublic
         user={profileUser}
+        activeLiveStream={activeProfileLiveStream}
+        onOpenLive={onOpenLive}
         postsAuthorId={profileUser.id}
         loadSecondary={secondaryReady}
         onSubscribe={handleSubscribe}

@@ -1,0 +1,35 @@
+.liveAvatar--active {
+  position: relative;
+  border-radius: 50%;
+  overflow: visible;
+  background: #e61924 !important;
+  outline: 3px solid #e61924;
+  outline-offset: 3px;
+  cursor: pointer;
+}
+
+.liveAvatar__badge {
+  position: absolute;
+  left: 50%;
+  bottom: -10px;
+  z-index: 4;
+  transform: translateX(-50%);
+  padding: 2px 7px;
+  border-radius: 4px;
+  background: #e61924;
+  color: #fff;
+  font-family: Montserrat, sans-serif;
+  font-size: 9px;
+  font-weight: 800;
+  line-height: 1.25;
+  letter-spacing: 0;
+  pointer-events: none;
+}
+
+@media (min-width: 768px) {
+  .liveAvatar__badge {
+    bottom: -12px;
+    padding: 3px 9px;
+    font-size: 11px;
+  }
+}

@@ -130,6 +130,37 @@
   gap: 10px;
 }
 
+.livePage__state {
+  min-height: 420px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  color: #6f6380;
+  font-size: 18px;
+  text-align: center;
+
+  p {
+    margin: 0;
+  }
+
+  button {
+    min-height: 40px;
+    padding: 8px 20px;
+    border: 1px solid #9b7ae6;
+    border-radius: 8px;
+    background: #fff;
+    color: #61469e;
+    font: inherit;
+    cursor: pointer;
+  }
+}
+
+.livePage__state--error {
+  color: #a72848;
+}
+
 .liveStage {
   position: relative;
   min-width: 0;
@@ -391,6 +422,10 @@
   pointer-events: none;
 }
 
+.liveStage__remoteAudio {
+  display: none;
+}
+
 .liveStage__cameraStart {
   min-height: 38px;
   padding: 8px 16px;
@@ -568,6 +603,23 @@
   flex: 1;
   overflow-y: auto;
   padding: 12px 12px 24px;
+}
+
+.liveChat__pinnedMessages {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  max-height: min(42%, 240px);
+  margin: -12px -12px 18px;
+  padding: 20px 12px 2px;
+  overflow: visible;
+  border-bottom: 1px solid rgba(155, 122, 230, 0.35);
+  background: #f2e5ff;
+  box-shadow: 0 8px 14px rgba(59, 37, 82, 0.08);
+
+  .liveChat__message:last-child {
+    margin-bottom: 10px;
+  }
 }
 
 .liveChat__message {
@@ -919,6 +971,14 @@
     gap: 0;
   }
 
+  .livePage__broadcastLayout--chatClosed {
+    grid-template-columns: minmax(0, 1fr);
+
+    .liveStage {
+      border-radius: 16px;
+    }
+  }
+
   .liveStage {
     height: 100%;
     min-height: 0;
@@ -1070,7 +1130,7 @@
   }
 
   .liveChat__messages {
-    padding: 18px 12px 30px;
+    padding: 0 12px 30px;
   }
 
   .liveChat__footer {
@@ -1116,6 +1176,13 @@
   background: #241b31;
 }
 
+[data-theme="dark"] .liveChat__pinnedMessages,
+.dark .liveChat__pinnedMessages {
+  border-color: rgba(210, 183, 255, 0.25);
+  background: #241b31;
+  box-shadow: 0 8px 14px rgba(0, 0, 0, 0.2);
+}
+
 [data-theme="dark"] .liveChat__messageContent p,
 [data-theme="dark"] .liveChat__composer,
 .dark .liveChat__messageContent p,
@@ -1145,5 +1212,246 @@
     &:hover {
       background: #3b2b4f;
     }
+  }
+}
+
+.liveUserPicker {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background: rgba(16, 12, 22, 0.56);
+}
+
+.liveUserPicker__dialog {
+  width: min(460px, 100%);
+  max-height: min(680px, calc(100dvh - 32px));
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid rgba(155, 122, 230, 0.3);
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: 0 22px 70px rgba(32, 20, 55, 0.28);
+}
+
+.liveUserPicker__header {
+  min-height: 62px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 18px;
+  border-bottom: 1px solid #e8def4;
+
+  h2 {
+    margin: 0;
+    color: #25202c;
+    font-size: 20px;
+    letter-spacing: 0;
+  }
+
+  button {
+    width: 38px;
+    height: 38px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: #25202c;
+    font-size: 30px;
+    line-height: 1;
+    cursor: pointer;
+  }
+}
+
+.liveUserPicker__search {
+  height: 46px;
+  flex: 0 0 auto;
+  margin: 14px 16px 8px;
+  padding: 0 14px;
+  border: 1px solid #d8c7ef;
+  border-radius: 8px;
+  outline: none;
+  background: #f7f0ff;
+  color: #25202c;
+  font: inherit;
+
+  &:focus {
+    border-color: #9b7ae6;
+    box-shadow: 0 0 0 3px rgba(155, 122, 230, 0.16);
+  }
+}
+
+.liveUserPicker__list {
+  min-height: 180px;
+  flex: 1;
+  overflow-y: auto;
+  padding: 6px 12px 12px;
+}
+
+.liveUserPicker__empty {
+  margin: 46px 12px;
+  color: #82798d;
+  text-align: center;
+}
+
+.liveUserPicker__user {
+  width: 100%;
+  min-height: 58px;
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr) 28px;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 10px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: #25202c;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+
+  &:hover,
+  &--selected {
+    background: #f2e7ff;
+  }
+
+  img {
+    width: 42px;
+    height: 42px;
+    border: 2px solid #dc62ce;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+
+  span {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  b {
+    color: #835ee0;
+    font-size: 20px;
+    text-align: center;
+  }
+}
+
+.liveUserPicker__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 14px 16px;
+  border-top: 1px solid #e8def4;
+
+  button {
+    min-height: 42px;
+    padding: 9px 16px;
+    border-radius: 8px;
+    font: inherit;
+    cursor: pointer;
+  }
+}
+
+.liveUserPicker__copy {
+  border: 1px solid #a986ec;
+  background: #fff;
+  color: #6744aa;
+}
+
+.liveUserPicker__confirm {
+  border: 1px solid transparent;
+  background: linear-gradient(100deg, #7967f5, #f34fb2);
+  color: #fff;
+
+  &:disabled {
+    cursor: default;
+    opacity: 0.5;
+  }
+}
+
+[data-theme="dark"] .livePage__state,
+.dark .livePage__state {
+  color: #d5cbe2;
+
+  button {
+    background: #24242c;
+    color: #d9c6ff;
+  }
+}
+
+[data-theme="dark"] .livePage__state--error,
+.dark .livePage__state--error {
+  color: #ff9ab4;
+}
+
+[data-theme="dark"] .liveUserPicker__dialog,
+.dark .liveUserPicker__dialog {
+  border-color: rgba(210, 183, 255, 0.22);
+  background: #1d1b23;
+  color: #fff;
+}
+
+[data-theme="dark"] .liveUserPicker__header,
+[data-theme="dark"] .liveUserPicker__actions,
+.dark .liveUserPicker__header,
+.dark .liveUserPicker__actions {
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+[data-theme="dark"] .liveUserPicker__header h2,
+[data-theme="dark"] .liveUserPicker__header button,
+.dark .liveUserPicker__header h2,
+.dark .liveUserPicker__header button {
+  color: #fff;
+}
+
+[data-theme="dark"] .liveUserPicker__search,
+.dark .liveUserPicker__search {
+  border-color: rgba(210, 183, 255, 0.28);
+  background: #29252f;
+  color: #fff;
+}
+
+[data-theme="dark"] .liveUserPicker__user,
+.dark .liveUserPicker__user {
+  color: #fff;
+
+  &:hover,
+  &--selected {
+    background: #382c49;
+  }
+}
+
+[data-theme="dark"] .liveUserPicker__copy,
+.dark .liveUserPicker__copy {
+  background: #29252f;
+  color: #d9c6ff;
+}
+
+@media (max-width: 480px) {
+  .liveUserPicker {
+    align-items: flex-end;
+    padding: 0;
+  }
+
+  .liveUserPicker__dialog {
+    width: 100%;
+    max-height: min(72dvh, 620px);
+    border-radius: 8px 8px 0 0;
+  }
+
+  .liveUserPicker__actions {
+    padding-bottom: max(14px, env(safe-area-inset-bottom));
+  }
+
+  .liveUserPicker__actions button {
+    min-width: 0;
+    flex: 1;
+    padding-inline: 10px;
   }
 }

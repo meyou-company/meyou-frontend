@@ -20,6 +20,8 @@ export default function ProfileVisitorVip({
   onShowMoreFriends,
   onOpenUser,
   followingList,
+  activeLiveStream,
+  onOpenLive,
 }) {
   const { t } = useTranslation();
   const TABS = useVipProfileTabs();
@@ -127,17 +129,35 @@ export default function ProfileVisitorVip({
         <div className="profile-visitor-vip__avatarBlock">
 
           <div
-            className="profile-visitor-vip__avatarWrap"
+            className={`profile-visitor-vip__avatarWrap ${activeLiveStream ? "liveAvatar--active" : ""}`}
             onClick={() => {
-  setIsFriendImage(false);
-  setViewImageUrl(displayAvatar);
-}}
+              if (activeLiveStream) {
+                onOpenLive?.(activeLiveStream);
+                return;
+              }
+              setIsFriendImage(false);
+              setViewImageUrl(displayAvatar);
+            }}
+            role="button"
+            tabIndex={0}
+            aria-label={activeLiveStream ? "Открыть прямой эфир" : t('profile.viewPhoto')}
+            onKeyDown={(event) => {
+              if (event.key !== "Enter" && event.key !== " ") return;
+              event.preventDefault();
+              if (activeLiveStream) {
+                onOpenLive?.(activeLiveStream);
+                return;
+              }
+              setIsFriendImage(false);
+              setViewImageUrl(displayAvatar);
+            }}
           >
             <img
               src={displayAvatar}
               alt=""
               className="profile-visitor-vip__avatar"
             />
+            {activeLiveStream && <span className="liveAvatar__badge">LIVE</span>}
             <OnlineStatus
               userId={user?.id}
               user={user}

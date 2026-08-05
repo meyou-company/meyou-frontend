@@ -67,6 +67,7 @@ function OwnerSettings({
 
 export default function LiveStage({
   isOwner,
+  isLive,
   host,
   elapsed,
   isEnded,
@@ -74,7 +75,9 @@ export default function LiveStage({
   isSettingsOpen,
   isMuted,
   shouldSave,
-  localStream,
+  videoTrack,
+  audioTrack,
+  playbackUrl,
   isCameraStarting,
   viewerCount,
   likesCount,
@@ -86,15 +89,38 @@ export default function LiveStage({
   onMention,
   onShare,
   onReact,
-  onOpenChat,
+  isChatOpen,
+  onToggleChat,
   onEnd,
 }) {
   const videoRef = useRef(null);
+  const audioRef = useRef(null);
 
   useEffect(() => {
-    if (!videoRef.current) return;
-    videoRef.current.srcObject = localStream || null;
-  }, [localStream]);
+    const element = videoRef.current;
+    if (!element || !videoTrack) return undefined;
+    videoTrack.attach(element);
+    return () => videoTrack.detach(element);
+  }, [videoTrack]);
+
+  useEffect(() => {
+    const element = audioRef.current;
+    if (!element || !audioTrack || isOwner) return undefined;
+    audioTrack.attach(element);
+    return () => audioTrack.detach(element);
+  }, [audioTrack, isOwner]);
+
+  useEffect(() => {
+    const element = videoRef.current;
+    if (!element || isOwner || playbackUrl) return;
+    if (isPlaying) {
+      element.play().catch(() => {});
+    } else {
+      element.pause();
+    }
+  }, [isOwner, isPlaying, playbackUrl, videoTrack]);
+
+  const hasVideo = Boolean(videoTrack || playbackUrl);
 
   return (
     <section className={`liveStage ${isOwner ? "liveStage--owner" : "liveStage--viewer"}`}>
@@ -114,7 +140,7 @@ export default function LiveStage({
         </div>
 
         <div className="liveStage__topRight">
-          {!isEnded && <LiveStatus elapsed={elapsed} />}
+          {isLive && !isEnded && <LiveStatus elapsed={elapsed} />}
           {isOwner && !isEnded && (
             <button
               type="button"
@@ -141,13 +167,26 @@ export default function LiveStage({
       )}
 
       <div className="liveStage__center">
-        {isEnded ? (
+        {hasVideo && (
+          <video
+            ref={videoRef}
+            src={playbackUrl || undefined}
+            className="liveStage__cameraPreview"
+            autoPlay={!playbackUrl}
+            muted={isOwner}
+            controls={Boolean(playbackUrl)}
+            playsInline
+          />
+        )}
+        <audio ref={audioRef} autoPlay className="liveStage__remoteAudio" />
+
+        {isEnded && !playbackUrl ? (
           <div className="liveStage__ended">
             <strong>Эфир завершён</strong>
             <span>Сегодня · трансляция окончена</span>
             <span>⏱ {Math.max(1, Math.floor(elapsed / 60))} мин</span>
           </div>
-        ) : !isOwner ? (
+        ) : !isOwner && !playbackUrl && (!videoTrack || !isPlaying) ? (
           <button
             type="button"
             className={`liveStage__play ${isPlaying ? "liveStage__play--playing" : ""}`}
@@ -156,24 +195,16 @@ export default function LiveStage({
           >
             <span>{isPlaying ? "Ⅱ" : "▶"}</span>
           </button>
-        ) : localStream ? (
-          <video
-            ref={videoRef}
-            className="liveStage__cameraPreview"
-            autoPlay
-            muted
-            playsInline
-          />
-        ) : (
+        ) : isOwner && !isLive && !isEnded ? (
           <button
             type="button"
             className="liveStage__cameraStart"
             onClick={onStartCamera}
             disabled={isCameraStarting}
           >
-            {isCameraStarting ? "Подключение..." : "Включить камеру"}
+            {isCameraStarting ? "Запуск..." : "Начать эфир"}
           </button>
-        )}
+        ) : null}
       </div>
 
       <div className="liveStage__bottom">
@@ -185,7 +216,7 @@ export default function LiveStage({
             </div>
 
             <div className="liveStage__ownerActions">
-              {!isEnded && (
+              {isLive && !isEnded && (
                 <button
                   type="button"
                   className="liveStage__stopButton"
@@ -196,10 +227,10 @@ export default function LiveStage({
                 </button>
               )}
               <div>
-                <button type="button" className="liveStage__outlineButton" onClick={onOpenChat}>
-                  Перейти в чат
+                <button type="button" className="liveStage__outlineButton" onClick={onToggleChat}>
+                  {isChatOpen ? "Закрыть чат" : "Открыть чат"}
                 </button>
-                {!isEnded && (
+                {isLive && !isEnded && (
                   <button type="button" className="liveStage__outlineButton" onClick={onEnd}>
                     Завершить трансляцию
                   </button>
@@ -221,8 +252,8 @@ export default function LiveStage({
                 </button>
               ))}
             </div>
-            <button type="button" className="liveStage__outlineButton" onClick={onOpenChat}>
-              Написать сообщение
+            <button type="button" className="liveStage__outlineButton" onClick={onToggleChat}>
+              {isChatOpen ? "Закрыть чат" : "Открыть чат"}
             </button>
           </>
         )}
