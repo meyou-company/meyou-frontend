@@ -17,6 +17,7 @@ import {
 } from '../../constants/messageEvents';
 import profileIcons from '../../constants/profileIcons';
 import AppHeader from '../../components/Layout/AppHeader';
+import ChatContextMenu from '../../components/Messages/ChatContextMenu';
 import EditMessageModal from '../../components/Messages/EditMessageModal';
 import ForwardMessageModal from '../../components/Messages/ForwardMessageModal';
 import MessageBubble from '../../components/Messages/MessageBubble';
@@ -30,6 +31,7 @@ import TypingIndicator from '../../components/Messages/TypingIndicator';
 import OnlineStatus from '../../components/Presence/OnlineStatus';
 import StoryViewerModal from '../../components/Stories/StoryViewerModal';
 import { conversationsApi } from '../../services/conversationsApi';
+import { usersApi } from '../../services/usersApi';
 import { usePresenceStore } from '../../zustand/usePresenceStore';
 import { getApiErrorMessage } from '../../utils/getApiErrorMessage';
 import {
@@ -57,6 +59,14 @@ function getDisplayName(user, fallback) {
 
 function sortConversations(items) {
   return [...items].sort((a, b) => {
+    const aPinned = Boolean(a.isPinned || a.pinnedAt);
+    const bPinned = Boolean(b.isPinned || b.pinnedAt);
+    if (aPinned !== bPinned) return aPinned ? -1 : 1;
+    if (aPinned && bPinned && a.pinnedAt && b.pinnedAt) {
+      const pinDiff =
+        new Date(b.pinnedAt).getTime() - new Date(a.pinnedAt).getTime();
+      if (pinDiff !== 0) return pinDiff;
+    }
     const aTime = new Date(a.updatedAt || a.lastMessage?.createdAt || 0).getTime();
     const bTime = new Date(b.updatedAt || b.lastMessage?.createdAt || 0).getTime();
     return bTime - aTime;
@@ -225,8 +235,10 @@ export default function MessagesPage() {
   const [seenMessageIds, setSeenMessageIds] = useState(() => new Set());
   const [mutedOverrides, setMutedOverrides] = useState({});
   const [storyViewerGroup, setStoryViewerGroup] = useState(null);
+  const [chatMenu, setChatMenu] = useState(null);
 
   const messagesEndRef = useRef(null);
+  const longPressTimerRef = useRef(null);
   const activeConversationId = conversationId || null;
 
   const activeConversation = useMemo(
@@ -675,6 +687,154 @@ export default function MessagesPage() {
     }
   };
 
+  const openChatMenu = useCallback((event, chat) => {
+    event.preventDefault();
+    event.stopPropagation();
+    const rect = event.currentTarget.getBoundingClientRect();
+    setChatMenu({
+      chat,
+      anchorRect: {
+        top: rect.top,
+        left: rect.left,
+        right: rect.right,
+        bottom: rect.bottom,
+        width: rect.width,
+        height: rect.height,
+      },
+    });
+  }, []);
+
+  const clearLongPress = useCallback(() => {
+    if (longPressTimerRef.current) {
+      clearTimeout(longPressTimerRef.current);
+      longPressTimerRef.current = null;
+    }
+  }, []);
+
+  const handleChatMenuAction = useCallback(
+    async (actionId) => {
+      const chat = chatMenu?.chat;
+      setChatMenu(null);
+      if (!chat?.id) return;
+
+      const chatId = chat.id;
+      const peerUserId = chat.participant?.id;
+      const muted = isConversationMuted(chat);
+
+      try {
+        if (actionId === 'pin') {
+          const result = await conversationsApi.pinConversation(chatId);
+          setConversations((prev) =>
+            sortConversations(
+              prev.map((c) =>
+                String(c.id) === String(chatId)
+                  ? {
+                      ...c,
+                      pinnedAt: result.pinnedAt,
+                      isPinned: result.isPinned,
+                    }
+                  : c,
+              ),
+            ),
+          );
+          toast.success(
+            result.isPinned
+              ? t('messenger.chatMenu.pinSuccess')
+              : t('messenger.chatMenu.unpinSuccess'),
+          );
+          return;
+        }
+
+        if (actionId === 'mute') {
+          const mutedUntil = muted
+            ? null
+            : new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString();
+          const result = await conversationsApi.muteConversation(chatId, mutedUntil);
+          setConversations((prev) =>
+            prev.map((c) =>
+              String(c.id) === String(chatId)
+                ? { ...c, mutedUntil: result.mutedUntil }
+                : c,
+            ),
+          );
+          setMutedOverrides((prev) => ({
+            ...prev,
+            [chatId]: !muted,
+          }));
+          toast.success(
+            muted ? t('messenger.unmuteSuccess') : t('messenger.muteSuccess'),
+          );
+          return;
+        }
+
+        if (actionId === 'unread') {
+          const result = await conversationsApi.markConversationUnread(chatId);
+          setConversations((prev) =>
+            prev.map((c) =>
+              String(c.id) === String(chatId)
+                ? {
+                    ...c,
+                    unreadCount: Math.max(1, result.unreadCount ?? 1),
+                  }
+                : c,
+            ),
+          );
+          if (typeof result.totalUnreadCount === 'number') {
+            setTotalUnreadCount(result.totalUnreadCount);
+          } else {
+            void fetchTotalUnreadCount(true);
+          }
+          toast.success(t('messenger.chatMenu.markUnreadSuccess'));
+          return;
+        }
+
+        if (actionId === 'block') {
+          if (!peerUserId) return;
+          const ok = window.confirm(t('messenger.chatMenu.blockConfirm'));
+          if (!ok) return;
+          await usersApi.blockUser(peerUserId);
+          setConversations((prev) =>
+            prev.filter((c) => String(c.id) !== String(chatId)),
+          );
+          if (String(activeConversationId) === String(chatId)) {
+            navigate('/messages');
+          }
+          void fetchTotalUnreadCount(true);
+          toast.success(t('messenger.chatMenu.blockSuccess'));
+          return;
+        }
+
+        if (actionId === 'delete') {
+          const ok = window.confirm(t('messenger.chatMenu.deleteConfirm'));
+          if (!ok) return;
+          const result = await conversationsApi.deleteConversationForMe(chatId);
+          setConversations((prev) =>
+            prev.filter((c) => String(c.id) !== String(chatId)),
+          );
+          if (String(activeConversationId) === String(chatId)) {
+            navigate('/messages');
+          }
+          if (typeof result.totalUnreadCount === 'number') {
+            setTotalUnreadCount(result.totalUnreadCount);
+          } else {
+            void fetchTotalUnreadCount(true);
+          }
+          toast.success(t('messenger.chatMenu.deleteSuccess'));
+        }
+      } catch (err) {
+        toast.error(getApiErrorMessage(err, 'errors.generic'));
+      }
+    },
+    [
+      activeConversationId,
+      chatMenu,
+      fetchTotalUnreadCount,
+      navigate,
+      setTotalUnreadCount,
+      t,
+    ],
+  );
+
   if (isAuthLoading || !isAuthed) return null;
 
   const showChatOnMobile = Boolean(activeConversationId);
@@ -748,11 +908,35 @@ export default function MessagesPage() {
                   const isActive = chat.id === activeConversationId;
                   const name = getDisplayName(chat.participant, t('common.user'));
                   const preview = getConversationLastMessagePreview(chat.lastMessage, t);
+                  const chatMuted = isConversationMuted(chat);
+                  const chatPinned = Boolean(chat.isPinned || chat.pinnedAt);
                   return (
-                    <li key={chat.id}>
+                    <li key={chat.id} className="messagesPage__chatRow">
                       <Link
                         to={`/messages/${chat.id}`}
-                        className={`messagesPage__chatItem${isActive ? ' is-active' : ''}`}
+                        className={`messagesPage__chatItem${isActive ? ' is-active' : ''}${chatPinned ? ' is-pinned' : ''}`}
+                        onContextMenu={(e) => openChatMenu(e, chat)}
+                        onTouchStart={(e) => {
+                          clearLongPress();
+                          const target = e.currentTarget;
+                          longPressTimerRef.current = setTimeout(() => {
+                            const rect = target.getBoundingClientRect();
+                            setChatMenu({
+                              chat,
+                              anchorRect: {
+                                top: rect.top,
+                                left: rect.left,
+                                right: rect.right,
+                                bottom: rect.bottom,
+                                width: rect.width,
+                                height: rect.height,
+                              },
+                            });
+                          }, 480);
+                        }}
+                        onTouchEnd={clearLongPress}
+                        onTouchMove={clearLongPress}
+                        onTouchCancel={clearLongPress}
                       >
                         <div className="messagesPage__chatAvatar">
                           {chat.participant?.avatarUrl ? (
@@ -768,7 +952,19 @@ export default function MessagesPage() {
                         </div>
                         <div className="messagesPage__chatMeta">
                           <div className="messagesPage__chatTop">
-                            <span className="messagesPage__chatName">{name}</span>
+                            <span className="messagesPage__chatName">
+                              {chatPinned ? (
+                                <span className="messagesPage__pinMark" aria-hidden="true">
+                                  📌
+                                </span>
+                              ) : null}
+                              {name}
+                              {chatMuted ? (
+                                <span className="messagesPage__muteMark" aria-hidden="true">
+                                  🔕
+                                </span>
+                              ) : null}
+                            </span>
                             {chat.unreadCount > 0 ? (
                               <span className="messagesPage__unread">{chat.unreadCount}</span>
                             ) : null}
@@ -776,6 +972,14 @@ export default function MessagesPage() {
                           <p className="messagesPage__chatPreview">{preview}</p>
                         </div>
                       </Link>
+                      <button
+                        type="button"
+                        className="messagesPage__chatMenuBtn"
+                        aria-label={t('messenger.chatMenu.open')}
+                        onClick={(e) => openChatMenu(e, chat)}
+                      >
+                        ⋯
+                      </button>
                     </li>
                   );
                 })}
@@ -957,6 +1161,15 @@ export default function MessagesPage() {
         timeLabel={menuState?.timeLabel}
         onClose={() => setMenuState(null)}
         onAction={handleMenuAction}
+      />
+
+      <ChatContextMenu
+        isOpen={Boolean(chatMenu)}
+        anchorRect={chatMenu?.anchorRect}
+        isPinned={Boolean(chatMenu?.chat?.isPinned || chatMenu?.chat?.pinnedAt)}
+        isMuted={isConversationMuted(chatMenu?.chat)}
+        onClose={() => setChatMenu(null)}
+        onAction={handleChatMenuAction}
       />
 
       <ForwardMessageModal
