@@ -134,18 +134,28 @@ export function CallsProvider() {
     if (!socket) return undefined;
 
     const onIncoming = (envelope) => {
+      console.log('[CALL EVENT]', 'call.incoming', envelope);
       const next = envelopeToCall(envelope);
-      if (!next) return;
+      if (!next) {
+        console.warn('[CALL EVENT] call.incoming ignored: bad payload');
+        return;
+      }
       const state = useCallsStore.getState();
-      if (state.call?.id === next.id) return;
+      if (state.call?.id === next.id) {
+        console.log('[CALL EVENT] call.incoming deduped same callId');
+        return;
+      }
       if (state.phase !== 'idle' && state.call?.id !== next.id) {
+        console.warn('[CALL EVENT] call.incoming blocked busy phase=', state.phase);
         toast.error(t('messenger.calls.busyLocal'));
         return;
       }
       useCallsStore.getState().setIncoming({ call: next });
+      console.log('[CALL EVENT] setIncoming phase=incoming callId=', next.id);
     };
 
     const onAccepted = (envelope) => {
+      console.log('[CALL EVENT]', 'call.accepted', envelope);
       const next = envelopeToCall(envelope);
       if (!next) return;
       const state = useCallsStore.getState();
@@ -173,6 +183,7 @@ export function CallsProvider() {
     };
 
     const onTerminal = (envelope) => {
+      console.log('[CALL EVENT]', envelope?.event, envelope);
       const callId = envelope?.callId;
       if (!callId) return;
       const state = useCallsStore.getState();
