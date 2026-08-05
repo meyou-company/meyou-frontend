@@ -555,7 +555,8 @@
       "networkError": "Network problem",
       "connectFailed": "Could not connect",
       "connectTimeout": "Connection timed out",
-      "unknown": "User"
+      "unknown": "User",
+      "enableSound": "Tap to enable call sounds"
     }
   },
   "notifications": {

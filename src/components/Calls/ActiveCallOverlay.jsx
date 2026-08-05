@@ -123,6 +123,10 @@ export default function ActiveCallOverlay({
 
     const onConnection = (state) => {
       if (state === ConnectionState.Connected) {
+        if (connectTimeout) {
+          clearTimeout(connectTimeout);
+          connectTimeout = null;
+        }
         setStatusLabel(t('messenger.calls.connected'));
         onConnectionStatus?.('connected');
       } else if (state === ConnectionState.Reconnecting) {
@@ -141,15 +145,12 @@ export default function ActiveCallOverlay({
     room.on(RoomEvent.ParticipantConnected, attachRemote);
     room.on(RoomEvent.ConnectionStateChanged, onConnection);
 
-    const connectTimeout = setTimeout(() => {
-      if (room.state !== ConnectionState.Connected) {
-        onFatalError?.(t('messenger.calls.connectTimeout'));
-      }
-    }, 25_000);
+    let connectTimeout = null;
 
     (async () => {
       try {
         const wantVideo = (mediaType || call?.mediaType) === 'VIDEO';
+        // Permission prompts can take a long time — do not start connect timeout yet.
         const tracks = await createLocalTracks({
           audio: true,
           video: wantVideo ? { facingMode: 'user' } : false,
@@ -160,10 +161,21 @@ export default function ActiveCallOverlay({
           return;
         }
 
+        connectTimeout = setTimeout(() => {
+          if (room.state !== ConnectionState.Connected) {
+            onFatalError?.(t('messenger.calls.connectTimeout'));
+          }
+        }, 25_000);
+
         await room.connect(url, token);
         if (cancelled) {
           await room.disconnect();
           return;
+        }
+
+        if (connectTimeout) {
+          clearTimeout(connectTimeout);
+          connectTimeout = null;
         }
 
         for (const track of tracks) {
@@ -188,13 +200,17 @@ export default function ActiveCallOverlay({
         onConnectionStatus?.('connected');
         setStatusLabel(t('messenger.calls.connected'));
       } catch (err) {
+        if (connectTimeout) {
+          clearTimeout(connectTimeout);
+          connectTimeout = null;
+        }
         if (!cancelled) onFatalError?.(mapConnectError(err, t));
       }
     })();
 
     return () => {
       cancelled = true;
-      clearTimeout(connectTimeout);
+      if (connectTimeout) clearTimeout(connectTimeout);
       connectingRef.current = false;
       try {
         room.disconnect();

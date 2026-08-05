@@ -8,12 +8,14 @@ import IncomingCallModal from '../components/Calls/IncomingCallModal';
 import OutgoingCallScreen from '../components/Calls/OutgoingCallScreen';
 import { CALL_SOCKET_EVENTS } from '../constants/callEvents';
 import { isPublicPath } from '../constants/publicRoutes';
+import { useCallSounds } from '../hooks/useCallSounds';
 import { getSessionAccessToken } from '../services/api';
 import { callsApi } from '../services/callsApi';
 import { connectSocket } from '../services/socket';
 import { getApiErrorMessage } from '../utils/getApiErrorMessage';
 import { useAuthStore } from '../zustand/useAuthStore';
 import { useCallsStore } from '../zustand/useCallsStore';
+import '../components/Calls/Calls.scss';
 
 function envelopeToCall(envelope) {
   if (!envelope?.callId) return null;
@@ -54,6 +56,14 @@ export function CallsProvider() {
 
   const endingRef = useRef(false);
   const restoredRef = useRef(false);
+  const {
+    playIncoming,
+    playOutgoing,
+    playEnded,
+    stopRinging,
+    needsUnlock,
+    dismissUnlockHint,
+  } = useCallSounds();
 
   const canConnectSocket =
     !isAuthLoading &&
@@ -63,9 +73,24 @@ export function CallsProvider() {
     !isPublicPath(location.pathname);
 
   const clearCall = useCallback(() => {
+    stopRinging();
     useCallsStore.getState().reset();
     endingRef.current = false;
-  }, []);
+  }, [stopRinging]);
+
+  // Ring / ringback follows call phase (single instance, no stacked loops).
+  useEffect(() => {
+    if (phase === 'incoming') {
+      void playIncoming();
+      return undefined;
+    }
+    if (phase === 'outgoing') {
+      void playOutgoing();
+      return undefined;
+    }
+    stopRinging();
+    return undefined;
+  }, [phase, playIncoming, playOutgoing, stopRinging]);
 
   const hangupRemote = useCallback(async (callId, action = 'end') => {
     if (!callId || endingRef.current) return;
@@ -189,6 +214,12 @@ export function CallsProvider() {
       const state = useCallsStore.getState();
       if (state.call && state.call.id !== callId) return;
 
+      stopRinging();
+      // Local hangup already played end tone via handleEnd (endingRef set).
+      if (envelope.event === 'call.ended' && !endingRef.current) {
+        void playEnded();
+      }
+
       if (envelope.event === 'call.rejected') {
         toast(t('messenger.calls.rejected'));
       } else if (envelope.event === 'call.cancelled') {
@@ -222,7 +253,7 @@ export function CallsProvider() {
         socket.off(event, handlers[event]);
       }
     };
-  }, [canConnectSocket, token, clearCall, t]);
+  }, [canConnectSocket, token, clearCall, t, stopRinging, playEnded]);
 
   // Tab close / refresh: best-effort end
   useEffect(() => {
@@ -244,15 +275,17 @@ export function CallsProvider() {
 
   useEffect(() => {
     if (phase === 'error' && error) {
+      // Media/connect errors must NOT auto-hangup an ACTIVE session (Messenger-like).
+      // User ends explicitly, or pagehide / peer hangup / LiveKit room close.
       toast.error(error);
-      const id = useCallsStore.getState().call?.id;
-      if (id) void hangupRemote(id, 'end');
-      else clearCall();
+      useCallsStore.getState().setConnectionStatus('failed');
+      useCallsStore.setState({ phase: 'active', error: null });
     }
-  }, [phase, error, hangupRemote, clearCall]);
+  }, [phase, error]);
 
   const handleAccept = async () => {
     if (!call?.id) return;
+    stopRinging();
     try {
       const data = await callsApi.accept(call.id);
       useCallsStore.getState().setActive({
@@ -266,28 +299,58 @@ export function CallsProvider() {
     }
   };
 
-  const handleReject = () => void hangupRemote(call?.id, 'reject');
-  const handleCancel = () => void hangupRemote(call?.id, 'cancel');
-  const handleEnd = () => void hangupRemote(call?.id, 'end');
+  const handleReject = () => {
+    stopRinging();
+    void hangupRemote(call?.id, 'reject');
+  };
+  const handleCancel = () => {
+    stopRinging();
+    void hangupRemote(call?.id, 'cancel');
+  };
+  const handleEnd = () => {
+    stopRinging();
+    void playEnded();
+    void hangupRemote(call?.id, 'end');
+  };
+
+  const unlockHint = needsUnlock ? (
+    <button
+      type="button"
+      className="callSoundUnlock"
+      onClick={() => {
+        dismissUnlockHint();
+        if (phase === 'incoming') void playIncoming();
+        else if (phase === 'outgoing') void playOutgoing();
+      }}
+    >
+      {t('messenger.calls.enableSound')}
+    </button>
+  ) : null;
 
   if (phase === 'incoming' && call) {
     return (
-      <IncomingCallModal
-        call={call}
-        onAccept={() => void handleAccept()}
-        onReject={handleReject}
-      />
+      <>
+        {unlockHint}
+        <IncomingCallModal
+          call={call}
+          onAccept={() => void handleAccept()}
+          onReject={handleReject}
+        />
+      </>
     );
   }
 
   if (phase === 'outgoing' && call) {
     return (
-      <OutgoingCallScreen
-        call={call}
-        mediaType={mediaType}
-        connectionStatus={connectionStatus}
-        onCancel={handleCancel}
-      />
+      <>
+        {unlockHint}
+        <OutgoingCallScreen
+          call={call}
+          mediaType={mediaType}
+          connectionStatus={connectionStatus}
+          onCancel={handleCancel}
+        />
+      </>
     );
   }
 
@@ -297,36 +360,42 @@ export function CallsProvider() {
     media?.token
   ) {
     return (
-      <ActiveCallOverlay
-        call={call}
-        media={media}
-        mediaType={mediaType}
-        localUserId={user?.id}
-        micEnabled={micEnabled}
-        cameraEnabled={cameraEnabled}
-        onMicChange={(v) => useCallsStore.getState().setMicEnabled(v)}
-        onCameraChange={(v) => useCallsStore.getState().setCameraEnabled(v)}
-        onConnectionStatus={(s) =>
-          useCallsStore.getState().setConnectionStatus(s)
-        }
-        onEnd={handleEnd}
-        onFatalError={(msg) => useCallsStore.getState().setError(msg)}
-      />
+      <>
+        {unlockHint}
+        <ActiveCallOverlay
+          call={call}
+          media={media}
+          mediaType={mediaType}
+          localUserId={user?.id}
+          micEnabled={micEnabled}
+          cameraEnabled={cameraEnabled}
+          onMicChange={(v) => useCallsStore.getState().setMicEnabled(v)}
+          onCameraChange={(v) => useCallsStore.getState().setCameraEnabled(v)}
+          onConnectionStatus={(s) =>
+            useCallsStore.getState().setConnectionStatus(s)
+          }
+          onEnd={handleEnd}
+          onFatalError={(msg) => useCallsStore.getState().setError(msg)}
+        />
+      </>
     );
   }
 
   if (phase === 'connecting' && call) {
     return (
-      <OutgoingCallScreen
-        call={call}
-        mediaType={mediaType}
-        connectionStatus="connecting"
-        onCancel={handleCancel}
-      />
+      <>
+        {unlockHint}
+        <OutgoingCallScreen
+          call={call}
+          mediaType={mediaType}
+          connectionStatus="connecting"
+          onCancel={handleCancel}
+        />
+      </>
     );
   }
 
-  return null;
+  return unlockHint;
 }
 
 /** Start a call from chat UI. */
