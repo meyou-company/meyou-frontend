@@ -229,6 +229,31 @@ html[data-theme="light"] .first-page-post {
   background: #9ca3af;
 }
 
+.storyCircleBorder--live {
+  background: #e61924;
+}
+
+.storyCircle {
+  position: relative;
+}
+
+.storyCircle__liveBadge {
+  position: absolute;
+  top: 53px;
+  left: 50%;
+  z-index: 2;
+  transform: translateX(-50%);
+  padding: 1px 5px;
+  border-radius: 3px;
+  background: #e61924;
+  color: #fff;
+  font-family: Montserrat, sans-serif;
+  font-size: 7px;
+  font-weight: 800;
+  line-height: 1.25;
+  letter-spacing: 0;
+}
+
 .storyCircleBorder__inner {
   border-radius: 50%;
   padding: 2px;
@@ -399,5 +424,20 @@ body.dark {
 
   .storyCircleBorder__inner {
     background: #2a1a35;
+  }
+}
+
+@media (min-width: 768px) {
+  .storyCircle__liveBadge {
+    top: 74px;
+    padding: 2px 7px;
+    font-size: 9px;
+  }
+}
+
+@media (min-width: 1280px) {
+  .storyCircle__liveBadge {
+    top: 94px;
+    font-size: 10px;
   }
 }

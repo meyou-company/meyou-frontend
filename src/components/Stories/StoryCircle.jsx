@@ -7,6 +7,7 @@ export default function StoryCircle({
   username,
   viewed,
   storiesCount,
+  isLive = false,
   onClick,
 }) {
   const isAdd = type === "add";
@@ -35,9 +36,13 @@ export default function StoryCircle({
   }
 
   return (
-    <button className="flex flex-col items-center gap-1" onClick={onClick}>
+    <button className="storyCircle flex flex-col items-center gap-1" onClick={onClick}>
       <div
-        className={`storyCircleBorder ${viewed ? "storyCircleBorder--viewed" : "storyCircleBorder--active"
+        className={`storyCircleBorder ${isLive
+          ? "storyCircleBorder--live"
+          : viewed
+            ? "storyCircleBorder--viewed"
+            : "storyCircleBorder--active"
           }`}
       >
         <div className="storyCircleBorder__inner">
@@ -48,6 +53,8 @@ export default function StoryCircle({
           />
         </div>
       </div>
+
+      {isLive && <span className="storyCircle__liveBadge">LIVE</span>}
 
       <span className="storyCircle__text text-[8px] md:text-xs xl:text-xl font-[Montserrat] text-black underline max-w-[80px] truncate">
         {username || "user"}

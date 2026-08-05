@@ -37,6 +37,8 @@ export default function ProfileVisitorPublic({
   onAddToVip,
   onBlock,
   onWriteMessage,
+  activeLiveStream,
+  onOpenLive,
 }) {
   const { t } = useTranslation();
   const visitorTabs = useProfileTabs({ withLocks: true });
@@ -192,10 +194,14 @@ export default function ProfileVisitorPublic({
           <div className="profileLeft">
             <div className="ph-visitor-avatarBlock">
               <div
-                className={`ph-visitor-avatarWrap ${hasProfileStories ? 'ph-visitor-avatarWrap--hasStories' : ''}`}
+                className={`ph-visitor-avatarWrap ${hasProfileStories ? 'ph-visitor-avatarWrap--hasStories' : ''} ${activeLiveStream ? 'liveAvatar--active' : ''}`}
                 role="button"
                 tabIndex={0}
                 onClick={() => {
+                  if (activeLiveStream) {
+                    onOpenLive?.(activeLiveStream);
+                    return;
+                  }
                   if (profileStoriesLoading) return;
 
                   if (hasProfileStories) {
@@ -206,7 +212,12 @@ export default function ProfileVisitorPublic({
                   setViewImageUrl(displayAvatar);
                 }}
                 onKeyDown={(e) => {
-                  if (e.key !== 'Enter') return;
+                  if (e.key !== 'Enter' && e.key !== ' ') return;
+                  if (activeLiveStream) {
+                    e.preventDefault();
+                    onOpenLive?.(activeLiveStream);
+                    return;
+                  }
                   if (profileStoriesLoading) return;
 
                   if (hasProfileStories) {
@@ -216,9 +227,10 @@ export default function ProfileVisitorPublic({
 
                   setViewImageUrl(displayAvatar);
                 }}
-                aria-label={t('profile.viewPhoto')}
+                aria-label={activeLiveStream ? "Открыть прямой эфир" : t('profile.viewPhoto')}
               >
                 <img src={displayAvatar} alt={titleName} className="avatar" />
+                {activeLiveStream && <span className="liveAvatar__badge">LIVE</span>}
               </div>
 
               <OnlineStatus
