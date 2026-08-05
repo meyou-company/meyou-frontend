@@ -113,6 +113,16 @@ export function toCompleteProfilePayload(v) {
   const interests = mapSelectToStrings(v.interests, MAX_INTERESTS);
   const hobbies = mapSelectToStrings(v.hobbies, MAX_HOBBIES);
 
+  const city =
+    typeof v.city === 'string'
+      ? v.city.trim()
+      : v.city?.value || v.city?.label || undefined;
+
+  const gender =
+    typeof v.gender === 'string'
+      ? v.gender
+      : v.gender?.value || undefined;
+
   const payload = {
     firstName: v.firstName?.trim(),
     lastName: v.lastName?.trim(),
@@ -123,10 +133,10 @@ export function toCompleteProfilePayload(v) {
     nationality: v.nationality?.trim(),
 
     country: v.country?.value || undefined,
-    city: cityValue(v.city) || undefined,
+    city: city || undefined,
 
     maritalStatus: v.maritalStatus?.value || undefined,
-    gender: v.gender || undefined,
+    gender,
 
     bio: v.bio?.trim() || undefined,
 

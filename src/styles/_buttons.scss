@@ -68,11 +68,12 @@ input[type='button'],
   }
 }
 
-.btn-gradient:active {
-  transform: scale(0.985);
-  box-shadow:
-    0 0 14px rgba(176, 92, 255, 0.45),
-    0 10px 28px rgba(176, 92, 255, 0.35);
+.btn-gradient:disabled,
+.btn-gradient[disabled] {
+  opacity: 0.65;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: 0 8px 20px rgba(176, 92, 255, 0.15);
 }
 
 /* =========================
