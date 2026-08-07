@@ -152,7 +152,7 @@ export default function ProfileVisitorSubscribed({
 
   const authorId = postsAuthorId ?? user?.id ?? user?._id;
   const feedTitleName = nickname || displayName;
-  const { feedPosts, feedLoading, feedError, feedActions, postsCount: profilePostsCount } =
+  const { feedPosts, feedLoading, feedError, feedActions, deleteLiveReplay, postsCount: profilePostsCount } =
     useProfileAuthorFeed(authorId, {
       enabled: loadSecondary,
       username: user?.username || user?.nick || user?.nickname || "",
@@ -430,6 +430,7 @@ export default function ProfileVisitorSubscribed({
         feedLoading={feedLoading}
         feedError={feedError}
         feedActions={feedActions}
+        onDeleteLiveReplay={deleteLiveReplay}
         displayAvatar={displayAvatar}
         titleName={feedTitleName}
         onViewProfileAvatar={() => onViewPhoto?.(displayAvatar)}

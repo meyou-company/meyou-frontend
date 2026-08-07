@@ -44,7 +44,15 @@ export default function NotificationItem({ item, onRead }) {
   };
 
   const action = renderAction(item, isSubscribed, handleFollow, loadingFollow, t);
-  console.log(item.type);
+  const translatedMessage = t(`notifications.messages.${item.type}`, {
+    name: `${item.actor.username || item.actor.name} `,
+    defaultValue: item.type === 'liveStarted'
+      ? `${item.actor.username || item.actor.name} начал(-а) прямой эфир`
+      : undefined,
+  });
+  const message = item.type === 'system' && item.body
+    ? item.body
+    : translatedMessage;
   return (
     <div className={`notification ${!item.readAt ? 'unread' : ''}`}>
       <div className="notification__avatar" onClick={handleClick}>
@@ -57,9 +65,7 @@ export default function NotificationItem({ item, onRead }) {
           <div className="notification__texts">
             <p className="notification__text">
               {' '}
-              {t(`notifications.messages.${item.type}`, {
-                name: `${item.actor.username} `,
-              })}
+              {message}
             </p>
           </div>
 
@@ -110,6 +116,9 @@ function buildLink(item) {
 
     case 'conversation':
       return item.target.conversationId ? `/messages/${item.target.conversationId}` : '/messages';
+
+    case 'live':
+      return item.target.liveStreamId ? `/live/${item.target.liveStreamId}` : '/live';
 
     default:
       return '/notifications';

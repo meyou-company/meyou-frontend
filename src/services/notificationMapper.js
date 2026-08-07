@@ -10,11 +10,22 @@ const notificationTypeMap = {
   SHARE: 'postShare',
   SHARED_TO_USER: 'postSharedToUser',
   MESSAGE: 'message',
+  LIVE: 'liveStarted',
+  LIVE_STARTED: 'liveStarted',
+  LIVE_STREAM_STARTED: 'liveStarted',
   SYSTEM: 'system',
 };
 
-export function mapType(type) {
-  return notificationTypeMap[type] || 'system';
+export function mapType(type, metadata = {}) {
+  const rawType = String(type || '').toUpperCase();
+  const eventType = String(
+    metadata.eventType || metadata.type || metadata.notificationType || metadata.event || ''
+  ).toUpperCase();
+  const isLiveStarted = [rawType, eventType].some((value) =>
+    value.includes('LIVE') && (value.includes('START') || value === 'LIVE')
+  );
+
+  return isLiveStarted ? 'liveStarted' : notificationTypeMap[rawType] || 'system';
 }
 
 export function unwrapRealtimeNotificationEnvelope(envelope) {
@@ -44,7 +55,7 @@ export function mapNotification(n) {
   return {
     id: n.id,
 
-    type: mapType(n.type),
+    type: mapType(n.type, metadata),
 
     rawType: n.type,
 
@@ -75,12 +86,22 @@ export function mapNotification(n) {
     },
 
     target: buildTarget(n, post, metadata),
+    metadata,
     previewText: getPreviewText(n),
     previewImage: getPreviewImage(post),
   };
 }
 
 function buildTarget(n, post, metadata) {
+  const liveStreamId =
+    metadata.liveStreamId || metadata.streamId || metadata.liveId || n.liveStreamId;
+  if (liveStreamId) {
+    return {
+      type: 'live',
+      liveStreamId,
+    };
+  }
+
   switch (n.type) {
     case 'SHARED_TO_USER':
       return {

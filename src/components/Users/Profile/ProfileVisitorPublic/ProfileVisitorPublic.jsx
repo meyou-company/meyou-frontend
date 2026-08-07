@@ -181,7 +181,7 @@ export default function ProfileVisitorPublic({
         : 0;
 
   const authorId = postsAuthorId ?? user?.id ?? user?._id;
-  const { feedPosts, feedLoading, feedError, feedActions, postsCount: profilePostsCount } =
+  const { feedPosts, feedLoading, feedError, feedActions, deleteLiveReplay, postsCount: profilePostsCount } =
     useProfileAuthorFeed(authorId, {
       enabled: loadSecondary,
       username: user?.username || user?.nick || user?.nickname || "",
@@ -551,6 +551,7 @@ export default function ProfileVisitorPublic({
           feedLoading={feedLoading}
           feedError={feedError}
           feedActions={feedActions}
+          onDeleteLiveReplay={deleteLiveReplay}
           displayAvatar={displayAvatar}
           titleName={titleName}
           onViewProfileAvatar={() => setViewImageUrl(displayAvatar)}

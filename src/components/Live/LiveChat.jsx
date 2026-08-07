@@ -103,6 +103,33 @@ const LiveChat = forwardRef(function LiveChat(
 
           {menuMessageId === message.id && (
             <div className="liveChat__messageMenu">
+              {message.authorId && String(message.authorId) !== String(currentUser.id) && (
+                <>
+                  <button
+                    type="button"
+                    disabled={String(moderatingUserId || "") === String(message.authorId)}
+                    onClick={() => {
+                      const isBlocked = blockedUserIds?.has(String(message.authorId));
+                      onModerate(isBlocked ? "unblock" : "block", message);
+                      setMenuMessageId(null);
+                    }}
+                  >
+                    {blockedUserIds?.has(String(message.authorId))
+                      ? "Разблокировать"
+                      : "Заблокировать"}
+                  </button>
+                  <button
+                    type="button"
+                    disabled={String(moderatingUserId || "") === String(message.authorId)}
+                    onClick={() => {
+                      onModerate("report", message);
+                      setMenuMessageId(null);
+                    }}
+                  >
+                    Пожаловаться
+                  </button>
+                </>
+              )}
               <button type="button" onClick={() => {
                 onPin(message.id);
                 setMenuMessageId(null);
@@ -116,31 +143,6 @@ const LiveChat = forwardRef(function LiveChat(
               }}>
                 Удалить
               </button>
-              {String(message.authorId) !== String(currentUser.id) && (
-                <>
-                  <button
-                    type="button"
-                    disabled={String(moderatingUserId || "") === String(message.authorId || "")}
-                    onClick={() => {
-                    const isBlocked = blockedUserIds?.has(String(message.authorId || ""));
-                    onModerate(isBlocked ? "unblock" : "block", message);
-                    setMenuMessageId(null);
-                  }}>
-                    {blockedUserIds?.has(String(message.authorId || ""))
-                      ? "Разблокировать"
-                      : "Заблокировать"}
-                  </button>
-                  <button
-                    type="button"
-                    disabled={String(moderatingUserId || "") === String(message.authorId || "")}
-                    onClick={() => {
-                    onModerate("report", message);
-                    setMenuMessageId(null);
-                  }}>
-                    Пожаловаться
-                  </button>
-                </>
-              )}
             </div>
           )}
         </div>

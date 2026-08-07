@@ -10,16 +10,29 @@ import { useAuthStore } from "../zustand/useAuthStore";
 import { usePostFeedActions } from "./usePostFeedActions";
 import { liveStreamsApi } from "../services/liveStreamsApi";
 
-function getPlaybackUrl(value) {
-  return (
-    value?.recordingUrl ||
-    value?.playbackUrl ||
-    value?.videoUrl ||
-    value?.url ||
-    value?.recording?.url ||
-    value?.playback?.url ||
-    null
+function getPlaybackUrl(value, depth = 0) {
+  if (!value || depth > 4) return null;
+
+  const candidates = [
+    value.recordingUrl,
+    value.playbackUrl,
+    value.videoUrl,
+    value.hlsUrl,
+    value.mp4Url,
+    value.downloadUrl,
+    value.assetUrl,
+    value.url,
+  ];
+  const direct = candidates.find((url) =>
+    typeof url === "string" && /^https?:\/\//i.test(url)
   );
+  if (direct) return direct;
+
+  for (const nested of [value.data, value.result, value.recording, value.playback, value.media, value.asset]) {
+    const url = getPlaybackUrl(nested, depth + 1);
+    if (url) return url;
+  }
+  return null;
 }
 
 async function loadSavedLiveReplays(username, authorId) {
@@ -47,11 +60,15 @@ async function loadSavedLiveReplays(username, authorId) {
         liveStreamId: streamId,
         kind: "liveReplay",
         authorId: authorId != null ? String(authorId) : null,
-        text: stream.title || "Запись прямого эфира",
+        text: stream.title || "Прямой эфир",
         media: playbackUrl ? [{ url: playbackUrl, type: "VIDEO", order: 0 }] : [],
         createdAt: stream.endedAt || stream.startedAt || stream.createdAt || null,
         location: "",
-        permissions: { canEdit: false, canDelete: false, isOwner: false },
+        permissions: {
+          canEdit: false,
+          canDelete: false,
+          isOwner: false,
+        },
         viewerState: { isLiked: false, isSaved: false, isReposted: false },
         comments: [],
         counts: {
@@ -93,6 +110,9 @@ export function useProfileAuthorFeed(postsAuthorId, { enabled = true, username =
   const [feedLoading, setFeedLoading] = useState(Boolean(enabled && postsAuthorId));
   const [feedError, setFeedError] = useState("");
   const currentUserId = useAuthStore((s) => s.user?.id);
+  const isFeedOwner = Boolean(
+    currentUserId && postsAuthorId && String(currentUserId) === String(postsAuthorId)
+  );
 
   const setFeedPosts = useCallback((updater) => {
     setFeedPostsState((prev) => {
@@ -115,9 +135,24 @@ export function useProfileAuthorFeed(postsAuthorId, { enabled = true, username =
   const reloadFeed = useCallback(async () => {
     if (!postsAuthorId) return;
     const { items, total } = await loadProfileItems(postsAuthorId, username);
-    setFeedPostsState(applyPersistedLikes(items));
+    setFeedPostsState(applyPersistedLikes(items.map((item) =>
+      item.kind === "liveReplay"
+        ? { ...item, permissions: { ...item.permissions, canDelete: isFeedOwner, isOwner: isFeedOwner } }
+        : item
+    )));
     setFeedTotal(total);
-  }, [postsAuthorId, username]);
+  }, [isFeedOwner, postsAuthorId, username]);
+
+  const deleteLiveReplay = useCallback(async (liveReplay) => {
+    const liveStreamId = liveReplay?.liveStreamId;
+    if (!isFeedOwner || !liveStreamId) return;
+
+    await liveStreamsApi.updateSettings(liveStreamId, { isSaved: false });
+    setFeedPostsState((current) => current.filter((item) => item.id !== liveReplay.id));
+    setFeedTotal((current) =>
+      typeof current === "number" ? Math.max(0, current - 1) : current
+    );
+  }, [isFeedOwner]);
 
   const feedActions = usePostFeedActions(setFeedPosts, {
     currentUserId,
@@ -181,7 +216,11 @@ export function useProfileAuthorFeed(postsAuthorId, { enabled = true, username =
           () => loadProfileItems(postsAuthorId, username),
         );
         if (!cancelled) {
-          setFeedPostsState(applyPersistedLikes(items));
+          setFeedPostsState(applyPersistedLikes(items.map((item) =>
+            item.kind === "liveReplay"
+              ? { ...item, permissions: { ...item.permissions, canDelete: isFeedOwner, isOwner: isFeedOwner } }
+              : item
+          )));
           setFeedTotal(total);
         }
       } catch (err) {
@@ -206,7 +245,18 @@ export function useProfileAuthorFeed(postsAuthorId, { enabled = true, username =
     return () => {
       cancelled = true;
     };
-  }, [postsAuthorId, enabled, username]);
+  }, [postsAuthorId, enabled, isFeedOwner, username]);
+
+  useEffect(() => {
+    if (!enabled || !feedPosts.some((item) => item.kind === "liveReplay" && item.isRecordingProcessing)) {
+      return undefined;
+    }
+
+    const intervalId = window.setInterval(() => {
+      reloadFeed().catch(() => {});
+    }, 5_000);
+    return () => window.clearInterval(intervalId);
+  }, [enabled, feedPosts, reloadFeed]);
 
   const postsCount =
     typeof feedTotal === "number" && Number.isFinite(feedTotal) && feedTotal >= 0
@@ -221,5 +271,6 @@ export function useProfileAuthorFeed(postsAuthorId, { enabled = true, username =
     feedActions,
     feedCacheKey,
     postsCount,
+    deleteLiveReplay,
   };
 }

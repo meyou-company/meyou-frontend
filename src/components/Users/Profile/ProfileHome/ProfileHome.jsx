@@ -95,6 +95,7 @@ export default function ProfileHome({
     feedLoading,
     feedError,
     feedActions,
+    deleteLiveReplay,
     postsCount: profilePostsCount,
   } = useProfileAuthorFeed(postsAuthorId, {
     enabled: loadSecondary,
@@ -852,6 +853,7 @@ export default function ProfileHome({
           feedLoading={feedLoading}
           feedError={feedError}
           feedActions={feedActions}
+          onDeleteLiveReplay={deleteLiveReplay}
           displayAvatar={displayAvatar}
           titleName={titleName}
           onViewProfileAvatar={() => setViewImageUrl(displayAvatar)}

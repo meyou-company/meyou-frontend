@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { toast } from 'sonner';
 import profileIcons from '../../../../constants/profileIcons';
 import PostCommentsSection from '../../../PostFeed/PostCommentsSection';
 import PostFeedBody from '../../../PostFeed/PostFeedBody';
@@ -27,12 +28,15 @@ export default function ProfilePostsFeed({
   displayAvatar,
   titleName,
   onViewProfileAvatar,
+  onDeleteLiveReplay,
   sectionClassName = 'feed',
 }) {
   const { t } = useTranslation();
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const [lightboxImages, setLightboxImages] = useState([]);
   const [lightboxIndex, setLightboxIndex] = useState(0);
+  const [liveReplayToDelete, setLiveReplayToDelete] = useState(null);
+  const [isDeletingLiveReplay, setIsDeletingLiveReplay] = useState(false);
 
   const [searchParams] = useSearchParams();
   const currentUserId = useAuthStore((s) => s.user?.id);
@@ -120,11 +124,12 @@ export default function ProfilePostsFeed({
                   avatarAriaLabel={t('profile.viewPhoto')}
                   authorName={titleName}
                   createdAt={post.createdAt}
-                  canShowMenu={false}
+                  canShowMenu={post.permissions?.canDelete === true}
+                  canDelete={post.permissions?.canDelete === true}
+                  onDeleteRequest={() => setLiveReplayToDelete(post)}
                   variant="profile"
                 />
 
-                <p className="postText postCard__liveReplayLabel">Запись прямого эфира</p>
                 <PostFeedBody
                   post={post}
                   postId={post.id}
@@ -295,6 +300,28 @@ export default function ProfilePostsFeed({
         onCancel={feedActions.cancelDeletePost}
         onConfirm={feedActions.confirmDeletePost}
         confirming={feedActions.isDeletingPost}
+      />
+
+      <DeletePostConfirmDialog
+        isOpen={Boolean(liveReplayToDelete)}
+        variant="delete"
+        onCancel={() => {
+          if (!isDeletingLiveReplay) setLiveReplayToDelete(null);
+        }}
+        onConfirm={async () => {
+          if (!liveReplayToDelete || !onDeleteLiveReplay) return;
+          setIsDeletingLiveReplay(true);
+          try {
+            await onDeleteLiveReplay(liveReplayToDelete);
+            setLiveReplayToDelete(null);
+            toast.success('Запись эфира удалена из профиля');
+          } catch (error) {
+            toast.error(error?.response?.data?.message || 'Не удалось удалить запись эфира');
+          } finally {
+            setIsDeletingLiveReplay(false);
+          }
+        }}
+        confirming={isDeletingLiveReplay}
       />
     </>
   );

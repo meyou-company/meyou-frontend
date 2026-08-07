@@ -74,7 +74,7 @@ function normalizeMessage(raw) {
   const id = value.id || value._id || value.messageId;
   return {
     id: id || `${Date.now()}-${Math.random().toString(16).slice(2)}`,
-    authorId: value.authorId || value.userId || value.senderId || getUserId(author),
+    authorId: value.authorId || value.senderId || getUserId(author) || value.userId,
     authorName: value.authorName || getDisplayName(author),
     authorUsername:
       value.authorUsername ||
@@ -322,6 +322,19 @@ export default function LiveBroadcast() {
   const [blockedUserIds, setBlockedUserIds] = useState(() => new Set());
   const [moderatingUserId, setModeratingUserId] = useState(null);
 
+  useEffect(() => () => {
+    const activeStream = streamRef.current;
+    const activeHostId = activeStream?.hostId || getUserId(activeStream?.host);
+    const ownsActiveStream =
+      activeStream?.status === LIVE_STATUS &&
+      activeHostId &&
+      String(activeHostId) === String(currentUser.id);
+
+    if (!ownsActiveStream) return;
+    liveStreamsApi.end(activeStream.id, {}).catch(() => {});
+    removeHostMedia(activeStream.id);
+  }, [currentUser.id]);
+
   const setStream = useCallback((nextStream) => {
     const normalized = nextStream ? normalizeStream(nextStream) : null;
     streamRef.current = normalized;
@@ -432,6 +445,12 @@ export default function LiveBroadcast() {
 
   useEffect(() => {
     if (!liveId) {
+      setStream(null);
+      setIsEnded(false);
+      setIsPlaying(false);
+      setIsSettingsOpen(true);
+      setPlaybackUrl(null);
+      setElapsed(0);
       setIsLoading(false);
       return undefined;
     }
@@ -448,7 +467,24 @@ export default function LiveBroadcast() {
     ])
       .then(async ([streamPayload, messagePayload]) => {
         if (cancelled) return;
-        const normalized = setStream(streamPayload);
+        const normalized = normalizeStream(streamPayload);
+        const isOwnLoadedStream =
+          normalized.hostId && String(normalized.hostId) === String(currentUser.id);
+        const shouldResetOwnerStream =
+          isOwnLoadedStream &&
+          (normalized.status === ENDED_STATUS ||
+            (normalized.status === LIVE_STATUS && !readHostMedia(normalized.id)));
+
+        if (shouldResetOwnerStream) {
+          if (normalized.status === LIVE_STATUS) {
+            await liveStreamsApi.end(normalized.id, {}).catch(() => {});
+          }
+          removeHostMedia(normalized.id);
+          navigate("/live", { replace: true, state: { mode: "owner" } });
+          return;
+        }
+
+        setStream(normalized);
         setIsEnded(normalized.status === ENDED_STATUS);
         setIsMuted(!normalized.isSoundEnabled);
         setShouldSave(normalized.isSaved);
@@ -497,7 +533,7 @@ export default function LiveBroadcast() {
     return () => {
       cancelled = true;
     };
-  }, [liveId, setStream]);
+  }, [currentUser.id, liveId, navigate, setStream]);
 
   useEffect(() => {
     const activeId = stream?.id || liveId;
