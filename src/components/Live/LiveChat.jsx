@@ -16,6 +16,8 @@ const LiveChat = forwardRef(function LiveChat(
     onReply,
     onModerate,
     onOpenProfile,
+    blockedUserIds,
+    moderatingUserId,
   },
   ref,
 ) {
@@ -116,13 +118,22 @@ const LiveChat = forwardRef(function LiveChat(
               </button>
               {String(message.authorId) !== String(currentUser.id) && (
                 <>
-                  <button type="button" onClick={() => {
-                    onModerate("block", message);
+                  <button
+                    type="button"
+                    disabled={String(moderatingUserId || "") === String(message.authorId || "")}
+                    onClick={() => {
+                    const isBlocked = blockedUserIds?.has(String(message.authorId || ""));
+                    onModerate(isBlocked ? "unblock" : "block", message);
                     setMenuMessageId(null);
                   }}>
-                    Заблокировать
+                    {blockedUserIds?.has(String(message.authorId || ""))
+                      ? "Разблокировать"
+                      : "Заблокировать"}
                   </button>
-                  <button type="button" onClick={() => {
+                  <button
+                    type="button"
+                    disabled={String(moderatingUserId || "") === String(message.authorId || "")}
+                    onClick={() => {
                     onModerate("report", message);
                     setMenuMessageId(null);
                   }}>

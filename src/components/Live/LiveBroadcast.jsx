@@ -256,6 +256,26 @@ function getPlaybackUrl(payload) {
   );
 }
 
+function extractBlockedUserIds(payload) {
+  const value = payload?.data ?? payload;
+  const list = Array.isArray(value)
+    ? value
+    : value?.blockedUsers || value?.users || value?.items || value?.results || [];
+
+  return (Array.isArray(list) ? list : [])
+    .map((item) =>
+      item?.blockedUserId ||
+      item?.userId ||
+      item?.blockedUser?.id ||
+      item?.blocked?.id ||
+      item?.user?.id ||
+      item?.id ||
+      item?._id
+    )
+    .filter(Boolean)
+    .map(String);
+}
+
 export default function LiveBroadcast() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -299,6 +319,8 @@ export default function LiveBroadcast() {
   const [playbackUrl, setPlaybackUrl] = useState(null);
   const [pickerMode, setPickerMode] = useState(null);
   const [isRestoringHost, setIsRestoringHost] = useState(false);
+  const [blockedUserIds, setBlockedUserIds] = useState(() => new Set());
+  const [moderatingUserId, setModeratingUserId] = useState(null);
 
   const setStream = useCallback((nextStream) => {
     const normalized = nextStream ? normalizeStream(nextStream) : null;
@@ -312,6 +334,23 @@ export default function LiveBroadcast() {
     (!liveId && !stream) ||
     (stream?.hostId && String(stream.hostId) === String(currentUser.id)),
   );
+
+  useEffect(() => {
+    if (!isOwner) return undefined;
+
+    let cancelled = false;
+    usersApi.getBlockedUsers()
+      .then((response) => {
+        if (!cancelled) setBlockedUserIds(new Set(extractBlockedUserIds(response)));
+      })
+      .catch((error) => {
+        console.error("[live-blocked-users] failed", error?.response?.data || error);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [isOwner]);
 
   const host = useMemo(() => {
     if (isOwner) return currentUser;
@@ -874,16 +913,31 @@ export default function LiveBroadcast() {
   };
 
   const handleModerate = async (action, message) => {
+    const userId = message?.authorId;
+    if (!userId || String(userId) === String(currentUser.id) || moderatingUserId) return;
+
+    setModeratingUserId(String(userId));
     try {
       if (action === "block") {
-        await usersApi.blockUser(message.authorId);
+        await usersApi.blockUser(userId);
+        setBlockedUserIds((current) => new Set(current).add(String(userId)));
         toast.success(`${message.authorName} заблокирован`);
-      } else {
-        await usersApi.reportUser(message.authorId, "LIVE_STREAM_CHAT");
+      } else if (action === "unblock") {
+        await usersApi.unblockUser(userId);
+        setBlockedUserIds((current) => {
+          const next = new Set(current);
+          next.delete(String(userId));
+          return next;
+        });
+        toast.success(`${message.authorName} разблокирован`);
+      } else if (action === "report") {
+        await usersApi.reportUser(userId, "LIVE_STREAM_CHAT");
         toast.success("Жалоба отправлена");
       }
     } catch (error) {
       toast.error(getApiErrorMessage(error, "errors.generic"));
+    } finally {
+      setModeratingUserId(null);
     }
   };
 
@@ -1007,6 +1061,8 @@ export default function LiveBroadcast() {
                 onReply={() => {}}
                 onModerate={handleModerate}
                 onOpenProfile={openUserProfile}
+                blockedUserIds={blockedUserIds}
+                moderatingUserId={moderatingUserId}
               />
             )}
           </div>
