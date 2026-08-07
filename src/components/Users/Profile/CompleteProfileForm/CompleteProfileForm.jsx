@@ -27,7 +27,11 @@ import {
   getApiErrorMessage,
   getApiErrorSuggestions,
 } from '../../../../utils/getApiErrorMessage';
-import { getBirthDateLimits, toYMDLocal } from '../../../../utils/profileFormUtils';
+import {
+  applyBirthDateNormalization,
+  getBirthDateLimits,
+  toYMDLocal,
+} from '../../../../utils/profileFormUtils';
 
 import { interestOptions } from '../../../../constants/interests';
 import { profileHobbyOptions } from '../../../../constants/hobbies';
