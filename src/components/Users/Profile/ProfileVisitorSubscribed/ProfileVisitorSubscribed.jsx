@@ -152,8 +152,11 @@ export default function ProfileVisitorSubscribed({
 
   const authorId = postsAuthorId ?? user?.id ?? user?._id;
   const feedTitleName = nickname || displayName;
-  const { feedPosts, feedLoading, feedError, feedActions, postsCount: profilePostsCount } =
-    useProfileAuthorFeed(authorId, { enabled: loadSecondary });
+  const { feedPosts, feedLoading, feedError, feedActions, deleteLiveReplay, postsCount: profilePostsCount } =
+    useProfileAuthorFeed(authorId, {
+      enabled: loadSecondary,
+      username: user?.username || user?.nick || user?.nickname || "",
+    });
   const userProfileNav = useUserProfileNav();
 
   const onTabClick = (tabId) => {
@@ -427,6 +430,7 @@ export default function ProfileVisitorSubscribed({
         feedLoading={feedLoading}
         feedError={feedError}
         feedActions={feedActions}
+        onDeleteLiveReplay={deleteLiveReplay}
         displayAvatar={displayAvatar}
         titleName={feedTitleName}
         onViewProfileAvatar={() => onViewPhoto?.(displayAvatar)}

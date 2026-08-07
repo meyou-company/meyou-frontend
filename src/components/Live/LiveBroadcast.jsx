@@ -21,6 +21,8 @@ const ENDED_STATUS = "ENDED";
 const LIVE_HOST_MEDIA_PREFIX = "meyou_live_host_media:";
 const LIVE_MESSAGES_CACHE_PREFIX = "meyou_live_messages:";
 const LIVE_PINNED_CACHE_PREFIX = "meyou_live_pinned_messages:";
+const LIVE_REACTIONS_CACHE_PREFIX = "meyou_live_reactions:";
+const COUNTER_SYNC_INTERVAL_MS = 2_000;
 const MAX_VISIBLE_MESSAGES = 100;
 
 function unwrap(value) {
@@ -72,8 +74,15 @@ function normalizeMessage(raw) {
   const id = value.id || value._id || value.messageId;
   return {
     id: id || `${Date.now()}-${Math.random().toString(16).slice(2)}`,
-    authorId: value.authorId || value.userId || value.senderId || getUserId(author),
+    authorId: value.authorId || value.senderId || getUserId(author) || value.userId,
     authorName: value.authorName || getDisplayName(author),
+    authorUsername:
+      value.authorUsername ||
+      value.username ||
+      author.username ||
+      author.nick ||
+      author.nickname ||
+      null,
     avatar:
       value.avatar || author.avatarUrl || author.avatar || author.photoUrl || DEFAULT_AVATAR,
     text: String(value.text || value.message || value.content || value.body || ""),
@@ -204,6 +213,29 @@ function writeLiveCache(prefix, streamId, value) {
   }
 }
 
+function readCachedReactionCount(streamId) {
+  if (!streamId) return 0;
+  try {
+    const value = Number(localStorage.getItem(`${LIVE_REACTIONS_CACHE_PREFIX}${streamId}`));
+    return Number.isFinite(value) && value > 0 ? value : 0;
+  } catch {
+    return 0;
+  }
+}
+
+function cacheReactionCount(streamId, value) {
+  if (!streamId) return;
+  try {
+    const previous = readCachedReactionCount(streamId);
+    localStorage.setItem(
+      `${LIVE_REACTIONS_CACHE_PREFIX}${streamId}`,
+      String(Math.max(previous, 0, Number(value) || 0)),
+    );
+  } catch {
+    // Realtime and backend values remain the source of truth without storage.
+  }
+}
+
 function formatCompactCount(value) {
   const number = Number(value) || 0;
   if (number >= 1000) {
@@ -222,6 +254,26 @@ function getPlaybackUrl(payload) {
     value.media?.url ||
     null
   );
+}
+
+function extractBlockedUserIds(payload) {
+  const value = payload?.data ?? payload;
+  const list = Array.isArray(value)
+    ? value
+    : value?.blockedUsers || value?.users || value?.items || value?.results || [];
+
+  return (Array.isArray(list) ? list : [])
+    .map((item) =>
+      item?.blockedUserId ||
+      item?.userId ||
+      item?.blockedUser?.id ||
+      item?.blocked?.id ||
+      item?.user?.id ||
+      item?.id ||
+      item?._id
+    )
+    .filter(Boolean)
+    .map(String);
 }
 
 export default function LiveBroadcast() {
@@ -267,6 +319,21 @@ export default function LiveBroadcast() {
   const [playbackUrl, setPlaybackUrl] = useState(null);
   const [pickerMode, setPickerMode] = useState(null);
   const [isRestoringHost, setIsRestoringHost] = useState(false);
+  const [blockedUserIds, setBlockedUserIds] = useState(() => new Set());
+  const [moderatingUserId, setModeratingUserId] = useState(null);
+
+  useEffect(() => () => {
+    const activeStream = streamRef.current;
+    const activeHostId = activeStream?.hostId || getUserId(activeStream?.host);
+    const ownsActiveStream =
+      activeStream?.status === LIVE_STATUS &&
+      activeHostId &&
+      String(activeHostId) === String(currentUser.id);
+
+    if (!ownsActiveStream) return;
+    liveStreamsApi.end(activeStream.id, {}).catch(() => {});
+    removeHostMedia(activeStream.id);
+  }, [currentUser.id]);
 
   const setStream = useCallback((nextStream) => {
     const normalized = nextStream ? normalizeStream(nextStream) : null;
@@ -281,16 +348,50 @@ export default function LiveBroadcast() {
     (stream?.hostId && String(stream.hostId) === String(currentUser.id)),
   );
 
+  useEffect(() => {
+    if (!isOwner) return undefined;
+
+    let cancelled = false;
+    usersApi.getBlockedUsers()
+      .then((response) => {
+        if (!cancelled) setBlockedUserIds(new Set(extractBlockedUserIds(response)));
+      })
+      .catch((error) => {
+        console.error("[live-blocked-users] failed", error?.response?.data || error);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [isOwner]);
+
   const host = useMemo(() => {
     if (isOwner) return currentUser;
     const source = stream?.host || location.state?.host || {};
     return {
       id: getUserId(source) || stream?.hostId || "live-host",
       name: getDisplayName(source),
+      username:
+        source.username ||
+        source.nick ||
+        source.nickname ||
+        stream?.hostUsername ||
+        null,
       avatar:
         source.avatarUrl || source.avatar || source.photoUrl || DEFAULT_AVATAR,
     };
   }, [currentUser, isOwner, location.state, stream]);
+
+  const openUserProfile = useCallback((profileUser) => {
+    const username = profileUser?.username || profileUser?.authorUsername;
+    const userId = profileUser?.id || profileUser?.authorId;
+
+    if (userId && String(userId) === String(currentUser.id)) {
+      navigate("/profile");
+      return;
+    }
+    if (username) navigate(`/profile/${encodeURIComponent(username)}`);
+  }, [currentUser.id, navigate]);
 
   const handleRoomData = useCallback((packet) => {
     switch (packet?.type) {
@@ -311,7 +412,12 @@ export default function LiveBroadcast() {
         break;
       }
       case "reaction":
-        setLikesCount((current) => current + 1);
+        setLikesCount((current) => {
+          const absoluteCount = Number(packet.reactionsCount ?? packet.likesCount);
+          return Number.isFinite(absoluteCount)
+            ? Math.max(current + 1, absoluteCount)
+            : current + 1;
+        });
         break;
       case "stream.ended":
         setIsEnded(true);
@@ -339,6 +445,12 @@ export default function LiveBroadcast() {
 
   useEffect(() => {
     if (!liveId) {
+      setStream(null);
+      setIsEnded(false);
+      setIsPlaying(false);
+      setIsSettingsOpen(true);
+      setPlaybackUrl(null);
+      setElapsed(0);
       setIsLoading(false);
       return undefined;
     }
@@ -355,11 +467,31 @@ export default function LiveBroadcast() {
     ])
       .then(async ([streamPayload, messagePayload]) => {
         if (cancelled) return;
-        const normalized = setStream(streamPayload);
+        const normalized = normalizeStream(streamPayload);
+        const isOwnLoadedStream =
+          normalized.hostId && String(normalized.hostId) === String(currentUser.id);
+        const shouldResetOwnerStream =
+          isOwnLoadedStream &&
+          (normalized.status === ENDED_STATUS ||
+            (normalized.status === LIVE_STATUS && !readHostMedia(normalized.id)));
+
+        if (shouldResetOwnerStream) {
+          if (normalized.status === LIVE_STATUS) {
+            await liveStreamsApi.end(normalized.id, {}).catch(() => {});
+          }
+          removeHostMedia(normalized.id);
+          navigate("/live", { replace: true, state: { mode: "owner" } });
+          return;
+        }
+
+        setStream(normalized);
         setIsEnded(normalized.status === ENDED_STATUS);
         setIsMuted(!normalized.isSoundEnabled);
         setShouldSave(normalized.isSaved);
-        setLikesCount(normalized.reactionsCount);
+        setLikesCount(Math.max(
+          normalized.reactionsCount,
+          readCachedReactionCount(liveId),
+        ));
         const cachedMessages = readLiveCache(LIVE_MESSAGES_CACHE_PREFIX, liveId);
         const cachedPinnedIds = readLiveCache(LIVE_PINNED_CACHE_PREFIX, liveId);
         const backendPinnedIds = messagePayload.items
@@ -401,7 +533,7 @@ export default function LiveBroadcast() {
     return () => {
       cancelled = true;
     };
-  }, [liveId, setStream]);
+  }, [currentUser.id, liveId, navigate, setStream]);
 
   useEffect(() => {
     const activeId = stream?.id || liveId;
@@ -413,6 +545,42 @@ export default function LiveBroadcast() {
     );
     writeLiveCache(LIVE_PINNED_CACHE_PREFIX, activeId, pinnedMessageIds);
   }, [areMessagesHydrated, liveId, messages, pinnedMessageIds, stream?.id]);
+
+  useEffect(() => {
+    const activeId = stream?.id || liveId;
+    if (!activeId) return;
+    cacheReactionCount(activeId, likesCount);
+  }, [likesCount, liveId, stream?.id]);
+
+  useEffect(() => {
+    const activeId = stream?.id || liveId;
+    if (!activeId || stream?.status !== LIVE_STATUS || isEnded) return undefined;
+
+    let cancelled = false;
+    const syncCounters = () => {
+      liveStreamsApi.getById(activeId)
+        .then((freshPayload) => {
+          if (cancelled) return;
+          const fresh = normalizeStream(freshPayload);
+          setLikesCount((current) => Math.max(
+            current,
+            fresh.reactionsCount,
+            readCachedReactionCount(activeId),
+          ));
+          if (fresh.status === ENDED_STATUS) {
+            setIsEnded(true);
+            setIsPlaying(false);
+          }
+        })
+        .catch(() => {});
+    };
+
+    const intervalId = window.setInterval(syncCounters, COUNTER_SYNC_INTERVAL_MS);
+    return () => {
+      cancelled = true;
+      window.clearInterval(intervalId);
+    };
+  }, [isEnded, liveId, stream?.id, stream?.status]);
 
   useEffect(() => {
     const activeId = stream?.id || liveId;
@@ -641,6 +809,7 @@ export default function LiveBroadcast() {
       id: `pending-${crypto.randomUUID?.() || `${Date.now()}-${currentUser.id}`}`,
       authorId: currentUser.id,
       authorName: currentUser.name,
+      authorUsername: currentUser.username,
       avatar: currentUser.avatar,
       text: messageText,
       createdAt: new Date().toISOString(),
@@ -691,7 +860,7 @@ export default function LiveBroadcast() {
         reaction,
         userId: currentUser.id,
         createdAt: new Date().toISOString(),
-      }, { reliable: false });
+      }, { reliable: true });
       setLikesCount((current) => current + 1);
     } catch (error) {
       toast.error(getApiErrorMessage(error, "errors.generic"));
@@ -780,16 +949,31 @@ export default function LiveBroadcast() {
   };
 
   const handleModerate = async (action, message) => {
+    const userId = message?.authorId;
+    if (!userId || String(userId) === String(currentUser.id) || moderatingUserId) return;
+
+    setModeratingUserId(String(userId));
     try {
       if (action === "block") {
-        await usersApi.blockUser(message.authorId);
+        await usersApi.blockUser(userId);
+        setBlockedUserIds((current) => new Set(current).add(String(userId)));
         toast.success(`${message.authorName} заблокирован`);
-      } else {
-        await usersApi.reportUser(message.authorId, "LIVE_STREAM_CHAT");
+      } else if (action === "unblock") {
+        await usersApi.unblockUser(userId);
+        setBlockedUserIds((current) => {
+          const next = new Set(current);
+          next.delete(String(userId));
+          return next;
+        });
+        toast.success(`${message.authorName} разблокирован`);
+      } else if (action === "report") {
+        await usersApi.reportUser(userId, "LIVE_STREAM_CHAT");
         toast.success("Жалоба отправлена");
       }
     } catch (error) {
       toast.error(getApiErrorMessage(error, "errors.generic"));
+    } finally {
+      setModeratingUserId(null);
     }
   };
 
@@ -890,12 +1074,12 @@ export default function LiveBroadcast() {
               onToggleMuted={handleToggleMuted}
               onToggleSave={handleToggleSave}
               onStartCamera={handleStartBroadcast}
-              onMention={() => stream?.id ? setPickerMode("tag") : toast.info("Сначала запустите эфир")}
               onShare={() => stream?.id ? setPickerMode("share") : toast.info("Сначала запустите эфир")}
               onReact={handleReact}
               isChatOpen={isChatOpen}
               onToggleChat={handleToggleChat}
               onEnd={handleEnd}
+              onOpenHostProfile={() => openUserProfile(host)}
             />
 
             {isChatOpen && (
@@ -912,6 +1096,9 @@ export default function LiveBroadcast() {
                 onDelete={handleDeleteMessage}
                 onReply={() => {}}
                 onModerate={handleModerate}
+                onOpenProfile={openUserProfile}
+                blockedUserIds={blockedUserIds}
+                moderatingUserId={moderatingUserId}
               />
             )}
           </div>

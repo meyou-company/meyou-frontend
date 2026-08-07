@@ -1,5 +1,6 @@
 import { forwardRef, useEffect, useMemo, useRef, useState } from "react";
 import { REACTIONS } from "./LiveStage";
+import profileIcons from "../../constants/profileIcons";
 
 const LiveChat = forwardRef(function LiveChat(
   {
@@ -14,6 +15,9 @@ const LiveChat = forwardRef(function LiveChat(
     onDelete,
     onReply,
     onModerate,
+    onOpenProfile,
+    blockedUserIds,
+    moderatingUserId,
   },
   ref,
 ) {
@@ -64,9 +68,22 @@ const LiveChat = forwardRef(function LiveChat(
       {pinnedIds.has(message.id) && (
         <span className="liveChat__pin" aria-label="Закреплено">📌</span>
       )}
-      <img src={message.avatar} alt="" />
+      <button
+        type="button"
+        className="liveChat__avatarButton"
+        onClick={() => onOpenProfile?.(message)}
+        aria-label={`Открыть профиль ${message.authorName}`}
+      >
+        <img src={message.avatar} alt="" />
+      </button>
       <div className="liveChat__messageContent">
-        <span className="liveChat__author">{message.authorName}</span>
+        <button
+          type="button"
+          className="liveChat__author"
+          onClick={() => onOpenProfile?.(message)}
+        >
+          {message.authorName}
+        </button>
         <p>{message.text}</p>
       </div>
 
@@ -86,6 +103,33 @@ const LiveChat = forwardRef(function LiveChat(
 
           {menuMessageId === message.id && (
             <div className="liveChat__messageMenu">
+              {message.authorId && String(message.authorId) !== String(currentUser.id) && (
+                <>
+                  <button
+                    type="button"
+                    disabled={String(moderatingUserId || "") === String(message.authorId)}
+                    onClick={() => {
+                      const isBlocked = blockedUserIds?.has(String(message.authorId));
+                      onModerate(isBlocked ? "unblock" : "block", message);
+                      setMenuMessageId(null);
+                    }}
+                  >
+                    {blockedUserIds?.has(String(message.authorId))
+                      ? "Разблокировать"
+                      : "Заблокировать"}
+                  </button>
+                  <button
+                    type="button"
+                    disabled={String(moderatingUserId || "") === String(message.authorId)}
+                    onClick={() => {
+                      onModerate("report", message);
+                      setMenuMessageId(null);
+                    }}
+                  >
+                    Пожаловаться
+                  </button>
+                </>
+              )}
               <button type="button" onClick={() => {
                 onPin(message.id);
                 setMenuMessageId(null);
@@ -99,22 +143,6 @@ const LiveChat = forwardRef(function LiveChat(
               }}>
                 Удалить
               </button>
-              {String(message.authorId) !== String(currentUser.id) && (
-                <>
-                  <button type="button" onClick={() => {
-                    onModerate("block", message);
-                    setMenuMessageId(null);
-                  }}>
-                    Заблокировать
-                  </button>
-                  <button type="button" onClick={() => {
-                    onModerate("report", message);
-                    setMenuMessageId(null);
-                  }}>
-                    Пожаловаться
-                  </button>
-                </>
-              )}
             </div>
           )}
         </div>
@@ -125,7 +153,7 @@ const LiveChat = forwardRef(function LiveChat(
   return (
     <section className="liveChat" ref={ref}>
       <header className="liveChat__header">
-        <span className="liveChat__headerIcon" aria-hidden="true" />
+        <img className="liveChat__headerIcon" src={profileIcons.liveChat} alt="" />
         <h2>Чат</h2>
       </header>
 
@@ -156,20 +184,22 @@ const LiveChat = forwardRef(function LiveChat(
             disabled={!value.trim() || isEnded}
             aria-label="Отправить сообщение"
           >
-            ➤
+            <img src={profileIcons.liveSend} alt="" />
           </button>
         </form>
 
         {!isOwner && !isEnded && (
           <div className="liveChat__quickReactions">
-            {REACTIONS.slice(0, 3).map((reaction) => (
+            {REACTIONS.map((reaction) => (
               <button
-                key={reaction}
+                key={reaction.value}
                 type="button"
-                onClick={() => onReact(reaction)}
-                aria-label={`Отправить реакцию ${reaction}`}
+                onClick={() => onReact(reaction.value)}
+                aria-label={`Отправить реакцию ${reaction.label}`}
               >
-                {reaction}
+                {reaction.icon
+                  ? <img src={reaction.icon} alt="" />
+                  : <span aria-hidden="true">{reaction.content}</span>}
               </button>
             ))}
           </div>

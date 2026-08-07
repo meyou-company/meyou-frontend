@@ -95,8 +95,12 @@ export default function ProfileHome({
     feedLoading,
     feedError,
     feedActions,
+    deleteLiveReplay,
     postsCount: profilePostsCount,
-  } = useProfileAuthorFeed(postsAuthorId, { enabled: loadSecondary });
+  } = useProfileAuthorFeed(postsAuthorId, {
+    enabled: loadSecondary,
+    username: user?.username || user?.nick || user?.nickname || "",
+  });
 
   useEffect(() => {
     if (!viewImageUrl) return;
@@ -849,6 +853,7 @@ export default function ProfileHome({
           feedLoading={feedLoading}
           feedError={feedError}
           feedActions={feedActions}
+          onDeleteLiveReplay={deleteLiveReplay}
           displayAvatar={displayAvatar}
           titleName={titleName}
           onViewProfileAvatar={() => setViewImageUrl(displayAvatar)}
