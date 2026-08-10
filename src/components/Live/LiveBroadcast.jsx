@@ -509,52 +509,65 @@ export default function LiveBroadcast() {
     return session.stopPromise;
   }, []);
 
-  useEffect(() => {
-    const videoMediaTrack = liveKit.videoTrack?.mediaStreamTrack;
-    const audioMediaTrack = liveKit.audioTrack?.mediaStreamTrack;
-    const canRecord =
-      isOwner &&
-      shouldSave &&
-      stream?.status === LIVE_STATUS &&
-      !isEnded &&
-      !isEnding &&
-      window.MediaRecorder &&
-      videoMediaTrack;
+useEffect(() => {
+  const videoMediaTrack = liveKit.videoTrack?.mediaStreamTrack;
+  const audioMediaTrack = liveKit.audioTrack?.mediaStreamTrack;
 
-    if (!canRecord || recordingSessionRef.current) return undefined;
+  const canRecord =
+    isOwner &&
+    stream?.status === LIVE_STATUS &&
+    !isEnded &&
+    !isEnding &&
+    window.MediaRecorder &&
+    videoMediaTrack;
 
-    const tracks = [videoMediaTrack, audioMediaTrack].filter(Boolean);
-    const mediaStream = new MediaStream(tracks);
-    const mimeType = getRecordingMimeType();
-    const recorder = new MediaRecorder(
-      mediaStream,
-      mimeType
-        ? { mimeType, videoBitsPerSecond: 1_200_000, audioBitsPerSecond: 64_000 }
-        : { videoBitsPerSecond: 1_200_000, audioBitsPerSecond: 64_000 },
-    );
-    const session = { recorder, chunks: [], mimeType: mimeType || recorder.mimeType };
-    recordingSessionRef.current = session;
-    recorder.addEventListener("dataavailable", (event) => {
-      if (event.data?.size) session.chunks.push(event.data);
-    });
-    recorder.start(1_000);
+  if (!canRecord || recordingSessionRef.current) return undefined;
 
-    return undefined;
-  }, [
-    isEnded,
-    isEnding,
-    isOwner,
-    liveKit.audioTrack,
-    liveKit.videoTrack,
-    recordingRevision,
-    shouldSave,
-    stream?.status,
-  ]);
+  const tracks = [videoMediaTrack, audioMediaTrack].filter(Boolean);
+  const mediaStream = new MediaStream(tracks);
 
-  useEffect(() => {
-    if (shouldSave) return;
-    stopLocalRecording().catch(() => {});
-  }, [shouldSave, stopLocalRecording]);
+  const mimeType = getRecordingMimeType();
+
+  const recorder = new MediaRecorder(
+    mediaStream,
+    mimeType
+      ? {
+          mimeType,
+          videoBitsPerSecond: 1_200_000,
+          audioBitsPerSecond: 64_000,
+        }
+      : {
+          videoBitsPerSecond: 1_200_000,
+          audioBitsPerSecond: 64_000,
+        },
+  );
+
+  const session = {
+    recorder,
+    chunks: [],
+    mimeType: mimeType || recorder.mimeType,
+  };
+
+  recordingSessionRef.current = session;
+
+  recorder.addEventListener("dataavailable", (event) => {
+    if (event.data?.size) {
+      session.chunks.push(event.data);
+    }
+  });
+
+  recorder.start(1_000);
+
+  return undefined;
+}, [
+  isEnded,
+  isEnding,
+  isOwner,
+  liveKit.audioTrack,
+  liveKit.videoTrack,
+  recordingRevision,
+  stream?.status,
+]);
 
   useEffect(() => {
     if (!liveId) {
@@ -908,10 +921,10 @@ export default function LiveBroadcast() {
       setIsStarting(true);
       let target = stream;
       const createScheduledStream = async () => normalizeStream(
-        await liveStreamsApi.create({
-          title: `Прямой эфир ${currentUser.name}`,
-        }),
-      );
+  await liveStreamsApi.create({
+    title: "Прямой эфир",
+  }),
+);
 
       if (!target?.id) {
         try {

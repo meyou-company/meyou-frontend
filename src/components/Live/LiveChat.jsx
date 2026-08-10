@@ -24,7 +24,9 @@ const LiveChat = forwardRef(function LiveChat(
   const [menuMessageId, setMenuMessageId] = useState(null);
   const [menuPosition, setMenuPosition] = useState(null);
   const inputRef = useRef(null);
-  const messagesEndRef = useRef(null);
+  const messagesContainerRef = useRef(null);
+  const shouldStickToBottomRef = useRef(true);
+  const hasPositionedMessagesRef = useRef(false);
   const pinnedIds = useMemo(() => new Set(pinnedMessageIds), [pinnedMessageIds]);
   const groupedMessages = useMemo(() => {
     const pinned = [];
@@ -35,10 +37,26 @@ const LiveChat = forwardRef(function LiveChat(
     });
     return { pinned, regular };
   }, [messages, pinnedIds]);
+  const latestMessageId = messages.at(-1)?.id;
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ block: "nearest" });
-  }, [messages]);
+    const container = messagesContainerRef.current;
+    if (!container) return;
+
+    if (!hasPositionedMessagesRef.current || shouldStickToBottomRef.current) {
+      window.requestAnimationFrame(() => {
+        container.scrollTop = container.scrollHeight;
+        shouldStickToBottomRef.current = true;
+        hasPositionedMessagesRef.current = true;
+      });
+    }
+  }, [latestMessageId, messages.length]);
+
+  const handleMessagesScroll = (event) => {
+    const container = event.currentTarget;
+    const distanceFromBottom = container.scrollHeight - container.scrollTop - container.clientHeight;
+    shouldStickToBottomRef.current = distanceFromBottom <= 48;
+  };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -46,6 +64,7 @@ const LiveChat = forwardRef(function LiveChat(
     if (!normalized || isEnded) return;
 
     try {
+      shouldStickToBottomRef.current = true;
       await onSend(normalized);
       setValue("");
     } catch {
@@ -173,14 +192,18 @@ const LiveChat = forwardRef(function LiveChat(
         <h2>Чат</h2>
       </header>
 
-      <div className="liveChat__messages">
-        {groupedMessages.pinned.length > 0 && (
-          <div className="liveChat__pinnedMessages">
-            {groupedMessages.pinned.map(renderMessage)}
-          </div>
-        )}
+      {groupedMessages.pinned.length > 0 && (
+        <div className="liveChat__pinnedMessages">
+          {groupedMessages.pinned.map(renderMessage)}
+        </div>
+      )}
+
+      <div
+        ref={messagesContainerRef}
+        className="liveChat__messages"
+        onScroll={handleMessagesScroll}
+      >
         {groupedMessages.regular.map(renderMessage)}
-        <div ref={messagesEndRef} />
       </div>
 
       <footer className="liveChat__footer">

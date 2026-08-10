@@ -151,11 +151,14 @@ export default function LiveStage({
               event.currentTarget.src = profileIcons.userStory;
             }}
           />
-          <div>
-            <span className="liveStage__speaker">
-              <img src={profileIcons.liveSpeaker} alt="" />
-              спикер
-            </span>
+          <div className="liveStage__hostInfo">
+            <img
+              className="liveStage__speakerIcon"
+              src={profileIcons.liveSpeaker}
+              alt=""
+              aria-hidden="true"
+            />
+            <span className="liveStage__speakerLabel">спикер</span>
             <strong>{host.name}</strong>
             {!isOwner && (
               <span className="liveStage__hostStats">
