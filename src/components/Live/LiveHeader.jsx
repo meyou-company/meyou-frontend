@@ -15,10 +15,12 @@ export default function LiveHeader() {
           ...item,
           key: "live",
           label: "Прямой эфир",
-          icon: "live",
+          icon: "liveNav",
           path: "/live",
         }
-      : item,
+      : item.key === "messages"
+        ? { ...item, icon: "comments" }
+        : item,
   );
 
   return (

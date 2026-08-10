@@ -44,8 +44,10 @@ async function loadSavedLiveReplays(username, authorId) {
       stream?.isSaved === true && String(stream?.status || "").toUpperCase() === "ENDED"
     );
 
-    return Promise.all(savedStreams.map(async (stream) => {
+    const replayItems = await Promise.all(savedStreams.map(async (stream) => {
       const streamId = stream.id || stream._id || stream.liveStreamId;
+      const recordingStatus = String(stream.recordingStatus || "").toUpperCase();
+      if (recordingStatus === "FAILED") return null;
       let playbackUrl = getPlaybackUrl(stream);
       if (!playbackUrl && streamId) {
         try {
@@ -54,6 +56,14 @@ async function loadSavedLiveReplays(username, authorId) {
           // Recording can still be processing; keep the replay card visible.
         }
       }
+
+      if (!playbackUrl && recordingStatus === "NONE") return null;
+
+      const endedAtMs = Date.parse(stream.endedAt || stream.updatedAt || "");
+      const isWithinProcessingWindow =
+        Number.isFinite(endedAtMs) && Date.now() - endedAtMs < 15 * 60 * 1_000;
+      const isRecordingProcessing =
+        !playbackUrl && recordingStatus === "PROCESSING" && isWithinProcessingWindow;
 
       return {
         id: `live-${streamId}`,
@@ -79,9 +89,11 @@ async function loadSavedLiveReplays(username, authorId) {
           replies: 0,
           views: stream.viewersCount ?? stream.viewerCount ?? 0,
         },
-        isRecordingProcessing: !playbackUrl,
+        isRecordingProcessing,
+        isRecordingUnavailable: !playbackUrl && !isRecordingProcessing,
       };
     }));
+    return replayItems.filter(Boolean);
   } catch {
     return [];
   }

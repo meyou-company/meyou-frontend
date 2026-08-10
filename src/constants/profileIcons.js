@@ -147,6 +147,7 @@ const profileIcons = {
 
   /* === LIVE === */
   liveChat: `${LIVE}/chat.png`,
+  liveNav: `${LIVE}/nav-live.png`,
   liveRecord: `${LIVE}/record.png`,
   liveSettings: `${LIVE}/settings.png`,
   liveSpeaker: `${LIVE}/speaker.png`,

@@ -10,7 +10,6 @@ const LiveChat = forwardRef(function LiveChat(
     pinnedMessageIds,
     isEnded,
     onSend,
-    onReact,
     onPin,
     onDelete,
     onReply,
@@ -23,6 +22,7 @@ const LiveChat = forwardRef(function LiveChat(
 ) {
   const [value, setValue] = useState("");
   const [menuMessageId, setMenuMessageId] = useState(null);
+  const [menuPosition, setMenuPosition] = useState(null);
   const inputRef = useRef(null);
   const messagesEndRef = useRef(null);
   const pinnedIds = useMemo(() => new Set(pinnedMessageIds), [pinnedMessageIds]);
@@ -60,6 +60,11 @@ const LiveChat = forwardRef(function LiveChat(
     inputRef.current?.focus();
   };
 
+  const handleInsertReaction = (reaction) => {
+    setValue((current) => `${current}${reaction.value}`.slice(0, 300));
+    window.requestAnimationFrame(() => inputRef.current?.focus());
+  };
+
   const renderMessage = (message) => (
     <article
       key={message.id}
@@ -92,9 +97,20 @@ const LiveChat = forwardRef(function LiveChat(
           <button
             type="button"
             className="liveChat__messageMenuButton"
-            onClick={() => setMenuMessageId((current) =>
-              current === message.id ? null : message.id
-            )}
+            onClick={(event) => {
+              if (menuMessageId === message.id) {
+                setMenuMessageId(null);
+                setMenuPosition(null);
+                return;
+              }
+              const rect = event.currentTarget.getBoundingClientRect();
+              const menuWidth = 132;
+              setMenuPosition({
+                top: rect.bottom + 2,
+                left: Math.max(8, Math.min(window.innerWidth - menuWidth - 8, rect.right - menuWidth)),
+              });
+              setMenuMessageId(message.id);
+            }}
             aria-label="Действия с сообщением"
             aria-expanded={menuMessageId === message.id}
           >
@@ -102,7 +118,7 @@ const LiveChat = forwardRef(function LiveChat(
           </button>
 
           {menuMessageId === message.id && (
-            <div className="liveChat__messageMenu">
+            <div className="liveChat__messageMenu" style={menuPosition || undefined}>
               {message.authorId && String(message.authorId) !== String(currentUser.id) && (
                 <>
                   <button
@@ -194,8 +210,8 @@ const LiveChat = forwardRef(function LiveChat(
               <button
                 key={reaction.value}
                 type="button"
-                onClick={() => onReact(reaction.value)}
-                aria-label={`Отправить реакцию ${reaction.label}`}
+                onClick={() => handleInsertReaction(reaction)}
+                aria-label={`Добавить реакцию ${reaction.label} в сообщение`}
               >
                 {reaction.icon
                   ? <img src={reaction.icon} alt="" />
