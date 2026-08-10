@@ -138,6 +138,9 @@ export default function ProfilePostsFeed({
                 {post.isRecordingProcessing && (
                   <p className="postCard__liveReplayProcessing">Запись обрабатывается</p>
                 )}
+                {post.isRecordingUnavailable && (
+                  <p className="postCard__liveReplayProcessing">Запись эфира недоступна</p>
+                )}
               </article>
             );
           }

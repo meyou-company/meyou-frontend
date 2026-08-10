@@ -719,6 +719,15 @@
     "yourStory": "Your story",
     "closeFriends": "Close friends"
   },
+  "liveErrors": {
+    "ended": "Tento živý přenos již skončil.",
+    "notStarted": "Živý přenos ještě nezačal.",
+    "alreadyLive": "Tento živý přenos již běží.",
+    "noConnection": "K živému přenosu se nepodařilo připojit.",
+    "chatUnavailable": "K chatu živého přenosu se nepodařilo připojit.",
+    "sendMessage": "Komentář se nepodařilo odeslat.",
+    "generic": "Při živém přenosu došlo k chybě. Zkuste to znovu."
+  },
   "errors": {
     "generic": "Something went wrong. Please try again.",
     "VALIDATION_ERROR": "Please check the entered data.",

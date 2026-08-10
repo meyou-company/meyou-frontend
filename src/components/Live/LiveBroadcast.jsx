@@ -7,7 +7,9 @@ import { extractLiveMedia, liveStreamsApi } from "../../services/liveStreamsApi"
 import { getSessionAccessToken } from "../../services/api";
 import { connectSocket, getSocket } from "../../services/socket";
 import { usersApi } from "../../services/usersApi";
+import { uploadVideoMedia } from "../../services/videoMediaUploadApi";
 import { getApiErrorMessage } from "../../utils/getApiErrorMessage";
+import { getLiveErrorMessage } from "../../utils/getLiveErrorMessage";
 import profileIcons from "../../constants/profileIcons";
 import LiveHeader from "./LiveHeader";
 import LiveStage from "./LiveStage";
@@ -256,6 +258,15 @@ function getPlaybackUrl(payload) {
   );
 }
 
+function getRecordingMimeType() {
+  const candidates = [
+    "video/webm;codecs=vp8,opus",
+    "video/webm;codecs=vp9,opus",
+    "video/webm",
+  ];
+  return candidates.find((type) => window.MediaRecorder?.isTypeSupported?.(type)) || "";
+}
+
 function extractBlockedUserIds(payload) {
   const value = payload?.data ?? payload;
   const list = Array.isArray(value)
@@ -286,6 +297,8 @@ export default function LiveBroadcast() {
   const chatRef = useRef(null);
   const streamRef = useRef(null);
   const hostReconnectRef = useRef(null);
+  const viewerAutoConnectRef = useRef(null);
+  const recordingSessionRef = useRef(null);
 
   const currentUser = useMemo(
     () => ({
@@ -306,11 +319,13 @@ export default function LiveBroadcast() {
   const [loadError, setLoadError] = useState("");
   const [elapsed, setElapsed] = useState(0);
   const [isEnded, setIsEnded] = useState(false);
-  const [isPlaying, setIsPlaying] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(Boolean(liveId));
   const [isSettingsOpen, setIsSettingsOpen] = useState(!liveId);
   const [isMuted, setIsMuted] = useState(false);
   const [shouldSave, setShouldSave] = useState(false);
   const [isStarting, setIsStarting] = useState(false);
+  const [isEnding, setIsEnding] = useState(false);
+  const [recordingRevision, setRecordingRevision] = useState(0);
   const [likesCount, setLikesCount] = useState(0);
   const [pinnedMessageIds, setPinnedMessageIds] = useState([]);
   const [messages, setMessages] = useState([]);
@@ -367,10 +382,23 @@ export default function LiveBroadcast() {
 
   const host = useMemo(() => {
     if (isOwner) return currentUser;
-    const source = stream?.host || location.state?.host || {};
+    const stateHost = location.state?.host || {};
+    const streamHost = stream?.host || {};
+    const source = {
+      ...stateHost,
+      ...streamHost,
+      profile: {
+        ...(stateHost.profile || {}),
+        ...(streamHost.profile || {}),
+      },
+    };
     return {
       id: getUserId(source) || stream?.hostId || "live-host",
-      name: getDisplayName(source),
+      name:
+        getDisplayName(source) ||
+        stream?.hostName ||
+        stream?.authorName ||
+        "Пользователь",
       username:
         source.username ||
         source.nick ||
@@ -378,7 +406,20 @@ export default function LiveBroadcast() {
         stream?.hostUsername ||
         null,
       avatar:
-        source.avatarUrl || source.avatar || source.photoUrl || DEFAULT_AVATAR,
+        streamHost.avatarUrl ||
+        streamHost.avatar ||
+        streamHost.photoUrl ||
+        streamHost.profile?.avatarUrl ||
+        streamHost.profile?.avatar ||
+        stream?.hostAvatarUrl ||
+        stream?.authorAvatarUrl ||
+        stream?.avatarUrl ||
+        stateHost.avatarUrl ||
+        stateHost.avatar ||
+        stateHost.photoUrl ||
+        stateHost.profile?.avatarUrl ||
+        stateHost.profile?.avatar ||
+        DEFAULT_AVATAR,
     };
   }, [currentUser, isOwner, location.state, stream]);
 
@@ -442,6 +483,78 @@ export default function LiveBroadcast() {
       }
     },
   });
+  const connectLiveKit = liveKit.connect;
+  const startLiveAudio = liveKit.startAudio;
+
+  const stopLocalRecording = useCallback(() => {
+    const session = recordingSessionRef.current;
+    if (!session?.recorder) return Promise.resolve(null);
+    if (session.stopPromise) return session.stopPromise;
+
+    session.stopPromise = new Promise((resolve) => {
+      const finish = () => {
+        const blob = session.chunks.length
+          ? new Blob(session.chunks, { type: session.mimeType || "video/webm" })
+          : null;
+        if (recordingSessionRef.current === session) recordingSessionRef.current = null;
+        setRecordingRevision((current) => current + 1);
+        resolve(blob);
+      };
+
+      session.recorder.addEventListener("stop", finish, { once: true });
+      if (session.recorder.state === "inactive") finish();
+      else session.recorder.stop();
+    });
+
+    return session.stopPromise;
+  }, []);
+
+  useEffect(() => {
+    const videoMediaTrack = liveKit.videoTrack?.mediaStreamTrack;
+    const audioMediaTrack = liveKit.audioTrack?.mediaStreamTrack;
+    const canRecord =
+      isOwner &&
+      shouldSave &&
+      stream?.status === LIVE_STATUS &&
+      !isEnded &&
+      !isEnding &&
+      window.MediaRecorder &&
+      videoMediaTrack;
+
+    if (!canRecord || recordingSessionRef.current) return undefined;
+
+    const tracks = [videoMediaTrack, audioMediaTrack].filter(Boolean);
+    const mediaStream = new MediaStream(tracks);
+    const mimeType = getRecordingMimeType();
+    const recorder = new MediaRecorder(
+      mediaStream,
+      mimeType
+        ? { mimeType, videoBitsPerSecond: 1_200_000, audioBitsPerSecond: 64_000 }
+        : { videoBitsPerSecond: 1_200_000, audioBitsPerSecond: 64_000 },
+    );
+    const session = { recorder, chunks: [], mimeType: mimeType || recorder.mimeType };
+    recordingSessionRef.current = session;
+    recorder.addEventListener("dataavailable", (event) => {
+      if (event.data?.size) session.chunks.push(event.data);
+    });
+    recorder.start(1_000);
+
+    return undefined;
+  }, [
+    isEnded,
+    isEnding,
+    isOwner,
+    liveKit.audioTrack,
+    liveKit.videoTrack,
+    recordingRevision,
+    shouldSave,
+    stream?.status,
+  ]);
+
+  useEffect(() => {
+    if (shouldSave) return;
+    stopLocalRecording().catch(() => {});
+  }, [shouldSave, stopLocalRecording]);
 
   useEffect(() => {
     if (!liveId) {
@@ -522,7 +635,7 @@ export default function LiveBroadcast() {
           if (isRefreshingCurrent) {
             console.error("[live-stream-refresh] failed", error);
           } else {
-            setLoadError(getApiErrorMessage(error, "errors.generic"));
+            setLoadError(getLiveErrorMessage(error));
           }
         }
       })
@@ -545,6 +658,35 @@ export default function LiveBroadcast() {
     );
     writeLiveCache(LIVE_PINNED_CACHE_PREFIX, activeId, pinnedMessageIds);
   }, [areMessagesHydrated, liveId, messages, pinnedMessageIds, stream?.id]);
+
+  useEffect(() => {
+    const activeId = stream?.id || liveId;
+    if (
+      !activeId ||
+      !areMessagesHydrated ||
+      stream?.status !== LIVE_STATUS ||
+      isEnded
+    ) {
+      return undefined;
+    }
+
+    let cancelled = false;
+    const syncMessages = () => {
+      liveStreamsApi.getMessages(activeId)
+        .then((history) => {
+          if (!cancelled) {
+            setMessages((current) => mergeMessages(current, history.items));
+          }
+        })
+        .catch(() => {});
+    };
+
+    const intervalId = window.setInterval(syncMessages, 1_000);
+    return () => {
+      cancelled = true;
+      window.clearInterval(intervalId);
+    };
+  }, [areMessagesHydrated, isEnded, liveId, stream?.id, stream?.status]);
 
   useEffect(() => {
     const activeId = stream?.id || liveId;
@@ -608,8 +750,9 @@ export default function LiveBroadcast() {
     };
 
     const handleSocketException = (payload) => {
-      const message = payload?.message || payload?.error;
-      if (message) toast.error(String(message));
+      if (payload?.message || payload?.error) {
+        toast.error(getLiveErrorMessage({ response: { data: payload } }));
+      }
     };
 
     socket.on("connect", joinStream);
@@ -666,7 +809,7 @@ export default function LiveBroadcast() {
         setIsPlaying(true);
       } catch (error) {
         hostReconnectRef.current = null;
-        toast.error(getApiErrorMessage(error, "errors.generic"));
+        toast.error(getLiveErrorMessage(error));
       } finally {
         setIsRestoringHost(false);
       }
@@ -701,6 +844,61 @@ export default function LiveBroadcast() {
     const tokenPayload = await liveStreamsApi.getJoinToken(activeId);
     await liveKit.connect(extractLiveMedia(tokenPayload), { isHost: false });
   }, [liveId, liveKit, stream]);
+
+  useEffect(() => {
+    const activeId = stream?.id || liveId;
+    const shouldConnect =
+      !isOwner &&
+      !isEnded &&
+      activeId &&
+      stream?.status === LIVE_STATUS;
+
+    if (!shouldConnect) {
+      viewerAutoConnectRef.current = null;
+      return undefined;
+    }
+
+    setIsPlaying(true);
+    if (
+      liveKit.isConnected ||
+      liveKit.isConnecting ||
+      viewerAutoConnectRef.current === String(activeId)
+    ) {
+      return undefined;
+    }
+
+    let cancelled = false;
+    viewerAutoConnectRef.current = String(activeId);
+
+    (async () => {
+      try {
+        const tokenPayload = await liveStreamsApi.getJoinToken(activeId);
+        await connectLiveKit(extractLiveMedia(tokenPayload), { isHost: false });
+        if (!cancelled) {
+          setIsPlaying(true);
+          await startLiveAudio().catch(() => {});
+        }
+      } catch (error) {
+        if (!cancelled) {
+          viewerAutoConnectRef.current = null;
+          setIsPlaying(false);
+          console.error("[live-viewer-auto-connect] failed", error);
+        }
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [
+    connectLiveKit,
+    isEnded,
+    isOwner,
+    liveId,
+    startLiveAudio,
+    stream?.id,
+    stream?.status,
+  ]);
 
   const handleStartBroadcast = async () => {
     if (isStarting || liveKit.isConnecting) return;
@@ -779,7 +977,7 @@ export default function LiveBroadcast() {
           : failedStream);
         setIsEnded(true);
       }
-      toast.error(getApiErrorMessage(error, "errors.generic"));
+      toast.error(getLiveErrorMessage(error));
     } finally {
       setIsStarting(false);
     }
@@ -792,7 +990,7 @@ export default function LiveBroadcast() {
       if (!isPlaying) await liveKit.startAudio();
       setIsPlaying((current) => !current);
     } catch (error) {
-      toast.error(getApiErrorMessage(error, "errors.generic"));
+      toast.error(getLiveErrorMessage(error));
     }
   };
 
@@ -800,8 +998,8 @@ export default function LiveBroadcast() {
     const activeId = stream?.id || liveId;
     const socket = getSocket() || connectSocket(accessToken);
     if (!activeId || !socket) {
-      const error = new Error("Нет подключения к чату эфира");
-      toast.error(error.message);
+      const error = new Error("LIVE_CHAT_UNAVAILABLE");
+      toast.error(getLiveErrorMessage(error, "liveErrors.chatUnavailable"));
       throw error;
     }
 
@@ -832,7 +1030,10 @@ export default function LiveBroadcast() {
 
         if (hasError) {
           setMessages((current) => current.filter((item) => item.id !== pendingMessage.id));
-          toast.error(response?.message || response?.error || "Не удалось отправить комментарий");
+          toast.error(getLiveErrorMessage(
+            { response: { data: response } },
+            "liveErrors.sendMessage",
+          ));
           return;
         }
 
@@ -853,6 +1054,18 @@ export default function LiveBroadcast() {
   };
 
   const handleReact = async (reaction) => {
+    if (isEnded || stream?.status === ENDED_STATUS) {
+      toast.info(getLiveErrorMessage(
+        { response: { status: 410, data: { code: "LIVE_STREAM_ENDED" } } },
+      ));
+      return;
+    }
+    if (stream?.status !== LIVE_STATUS) {
+      toast.info(getLiveErrorMessage(
+        { response: { data: { code: "LIVE_STREAM_NOT_STARTED" } } },
+      ));
+      return;
+    }
     try {
       if (!liveKit.isConnected) await ensureViewerConnected();
       await liveKit.publishData({
@@ -863,7 +1076,7 @@ export default function LiveBroadcast() {
       }, { reliable: true });
       setLikesCount((current) => current + 1);
     } catch (error) {
-      toast.error(getApiErrorMessage(error, "errors.generic"));
+      toast.error(getLiveErrorMessage(error));
     }
   };
 
@@ -882,7 +1095,7 @@ export default function LiveBroadcast() {
       setIsMuted(nextMuted);
       setStream({ ...stream, isSoundEnabled: !nextMuted });
     } catch (error) {
-      toast.error(getApiErrorMessage(error, "errors.generic"));
+      toast.error(getLiveErrorMessage(error));
     }
   };
 
@@ -898,15 +1111,42 @@ export default function LiveBroadcast() {
       setShouldSave(nextValue);
       setStream({ ...stream, isSaved: nextValue });
     } catch (error) {
-      toast.error(getApiErrorMessage(error, "errors.generic"));
+      toast.error(getLiveErrorMessage(error));
     }
   };
 
   const handleEnd = async () => {
-    if (!isOwner || !stream?.id) return;
+    if (!isOwner || !stream?.id || isEnding) return;
+    setIsEnding(true);
     try {
+      let recordingUrl = null;
+      if (shouldSave) {
+        const recordingBlob = await stopLocalRecording();
+        if (!recordingBlob?.size) {
+          throw new Error("Не удалось создать файл записи эфира");
+        }
+        const extension = recordingBlob.type.includes("mp4") ? "mp4" : "webm";
+        const recordingFile = new File(
+          [recordingBlob],
+          `live-${stream.id}-${Date.now()}.${extension}`,
+          { type: recordingBlob.type || "video/webm" },
+        );
+        const uploaded = await uploadVideoMedia(recordingFile);
+        recordingUrl = uploaded.mediaUrl;
+        await liveStreamsApi.updateSettings(stream.id, {
+          isSaved: true,
+          recordingUrl,
+          recordingStatus: "READY",
+        });
+      } else {
+        await stopLocalRecording();
+      }
+
       await liveKit.publishData({ type: "stream.ended" }).catch(() => {});
-      const endedPayload = await liveStreamsApi.end(stream.id, {});
+      const endedPayload = await liveStreamsApi.end(
+        stream.id,
+        recordingUrl ? { recordingUrl } : {},
+      );
       await liveKit.disconnect();
       removeHostMedia(stream.id);
       hostReconnectRef.current = null;
@@ -916,7 +1156,9 @@ export default function LiveBroadcast() {
       setIsSettingsOpen(false);
       toast.success(shouldSave ? "Эфир завершён, запись обрабатывается" : "Эфир завершён");
     } catch (error) {
-      toast.error(getApiErrorMessage(error, "errors.generic"));
+      toast.error(getLiveErrorMessage(error));
+    } finally {
+      setIsEnding(false);
     }
   };
 
@@ -932,7 +1174,7 @@ export default function LiveBroadcast() {
       );
       await liveKit.publishData({ type: "chat.delete", messageId: message.id }).catch(() => {});
     } catch (error) {
-      toast.error(getApiErrorMessage(error, "errors.generic"));
+      toast.error(getLiveErrorMessage(error));
     }
   };
 
@@ -1037,11 +1279,13 @@ export default function LiveBroadcast() {
       <div className="livePage__background" aria-hidden="true" />
 
       <div className="livePage__content">
-        <button type="button" className="livePage__back" onClick={handleBack} aria-label="Назад">
-          <img src={profileIcons.storyBack} alt="" />
-        </button>
-
-        <h1>{stream?.title || "Прямой эфир"}</h1>
+        <div className="livePage__headingRow">
+          <button type="button" className="livePage__back" onClick={handleBack} aria-label="Назад">
+            <img src={profileIcons.storyBack} alt="" />
+          </button>
+          <h1>{stream?.title || "Прямой эфир"}</h1>
+          <span aria-hidden="true" />
+        </div>
 
         {isLoading ? <div className="livePage__state">Загрузка эфира...</div> : null}
         {!isLoading && loadError ? (
@@ -1067,6 +1311,7 @@ export default function LiveBroadcast() {
               audioTrack={liveKit.audioTrack}
               playbackUrl={playbackUrl}
               isCameraStarting={isStarting || isRestoringHost || liveKit.isConnecting}
+              isEnding={isEnding}
               viewerCount={formatCompactCount(viewerCount)}
               likesCount={formatCompactCount(likesCount)}
               onTogglePlaying={handleTogglePlaying}
@@ -1091,7 +1336,6 @@ export default function LiveBroadcast() {
                 pinnedMessageIds={pinnedMessageIds}
                 isEnded={isEnded}
                 onSend={handleSend}
-                onReact={handleReact}
                 onPin={handlePinMessage}
                 onDelete={handleDeleteMessage}
                 onReply={() => {}}

@@ -719,6 +719,15 @@
     "yourStory": "Your story",
     "closeFriends": "Close friends"
   },
+  "liveErrors": {
+    "ended": "Bu canlı yayın zaten sona erdi.",
+    "notStarted": "Canlı yayın henüz başlamadı.",
+    "alreadyLive": "Bu canlı yayın zaten devam ediyor.",
+    "noConnection": "Canlı yayına bağlanılamadı.",
+    "chatUnavailable": "Canlı yayın sohbetine bağlanılamadı.",
+    "sendMessage": "Yorum gönderilemedi.",
+    "generic": "Canlı yayında bir hata oluştu. Lütfen tekrar deneyin."
+  },
   "errors": {
     "generic": "Something went wrong. Please try again.",
     "VALIDATION_ERROR": "Please check the entered data.",

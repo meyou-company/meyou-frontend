@@ -719,6 +719,15 @@
     "yourStory": "Your story",
     "closeFriends": "Close friends"
   },
+  "liveErrors": {
+    "ended": "Esta transmisión en directo ya ha finalizado.",
+    "notStarted": "La transmisión en directo aún no ha comenzado.",
+    "alreadyLive": "Esta transmisión en directo ya está en curso.",
+    "noConnection": "No se pudo conectar a la transmisión en directo.",
+    "chatUnavailable": "No se pudo conectar al chat de la transmisión.",
+    "sendMessage": "No se pudo enviar el comentario.",
+    "generic": "Se produjo un error en la transmisión. Inténtalo de nuevo."
+  },
   "errors": {
     "generic": "Something went wrong. Please try again.",
     "VALIDATION_ERROR": "Please check the entered data.",

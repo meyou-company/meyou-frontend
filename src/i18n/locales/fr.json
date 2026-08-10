@@ -719,6 +719,15 @@
     "yourStory": "Your story",
     "closeFriends": "Close friends"
   },
+  "liveErrors": {
+    "ended": "Ce direct est déjà terminé.",
+    "notStarted": "Le direct n'a pas encore commencé.",
+    "alreadyLive": "Ce direct est déjà en cours.",
+    "noConnection": "Impossible de se connecter au direct.",
+    "chatUnavailable": "Impossible de se connecter au chat du direct.",
+    "sendMessage": "Impossible d'envoyer le commentaire.",
+    "generic": "Une erreur est survenue pendant le direct. Réessayez."
+  },
   "errors": {
     "generic": "Something went wrong. Please try again.",
     "VALIDATION_ERROR": "Please check the entered data.",

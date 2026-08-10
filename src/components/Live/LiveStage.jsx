@@ -89,6 +89,7 @@ export default function LiveStage({
   audioTrack,
   playbackUrl,
   isCameraStarting,
+  isEnding,
   viewerCount,
   likesCount,
   onTogglePlaying,
@@ -141,7 +142,15 @@ export default function LiveStage({
           onClick={onOpenHostProfile}
           aria-label={`Открыть профиль ${host.name}`}
         >
-          <img className="liveStage__hostAvatar" src={host.avatar} alt="" />
+          <img
+            className="liveStage__hostAvatar"
+            src={host.avatar || profileIcons.userStory}
+            alt=""
+            onError={(event) => {
+              if (event.currentTarget.src.endsWith(profileIcons.userStory)) return;
+              event.currentTarget.src = profileIcons.userStory;
+            }}
+          />
           <div>
             <span className="liveStage__speaker">
               <img src={profileIcons.liveSpeaker} alt="" />
@@ -233,24 +242,30 @@ export default function LiveStage({
             </div>
 
             <div className="liveStage__ownerActions">
-              {isLive && !isEnded && (
-                <button
-                  type="button"
-                  className="liveStage__stopButton"
-                  onClick={onEnd}
-                  aria-label="Завершить трансляцию"
-                >
-                  <img src={profileIcons.liveStop} alt="" />
-                </button>
-              )}
               <div>
                 <button type="button" className="liveStage__outlineButton" onClick={onToggleChat}>
                   {isChatOpen ? "Закрыть чат" : "Открыть чат"}
                 </button>
                 {isLive && !isEnded && (
-                  <button type="button" className="liveStage__outlineButton" onClick={onEnd}>
-                    Завершить трансляцию
-                  </button>
+                  <div className="liveStage__endControl">
+                    <button
+                      type="button"
+                      className="liveStage__stopButton"
+                      onClick={onEnd}
+                      disabled={isEnding}
+                      aria-label="Завершить трансляцию"
+                    >
+                      <img src={profileIcons.liveStop} alt="" />
+                    </button>
+                    <button
+                      type="button"
+                      className="liveStage__outlineButton"
+                      onClick={onEnd}
+                      disabled={isEnding}
+                    >
+                      {isEnding ? "Сохранение записи..." : "Завершить трансляцию"}
+                    </button>
+                  </div>
                 )}
               </div>
             </div>

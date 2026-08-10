@@ -765,6 +765,15 @@
     "yourStory": "Your story",
     "closeFriends": "Close friends"
   },
+  "liveErrors": {
+    "ended": "This live stream has already ended.",
+    "notStarted": "The live stream has not started yet.",
+    "alreadyLive": "This live stream is already running.",
+    "noConnection": "Could not connect to the live stream.",
+    "chatUnavailable": "Could not connect to the live chat.",
+    "sendMessage": "Could not send the comment.",
+    "generic": "Something went wrong with the live stream. Please try again."
+  },
   "errors": {
     "generic": "Something went wrong. Please try again.",
     "VALIDATION_ERROR": "Please check the entered data.",
