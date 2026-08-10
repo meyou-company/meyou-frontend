@@ -177,6 +177,8 @@
   position: relative;
   min-width: 0;
   min-height: 58dvh;
+  display: grid;
+  grid-template-rows: auto minmax(42dvh, 1fr) auto;
   overflow: hidden;
   border-radius: 8px;
   background: #d4d4d4;
@@ -413,11 +415,13 @@
 }
 
 .liveStage__center {
-  position: absolute;
-  inset: 75px 0 78px;
+  position: relative;
+  min-width: 0;
+  min-height: 0;
   display: flex;
   align-items: center;
   justify-content: center;
+  overflow: hidden;
   pointer-events: none;
 }
 
@@ -513,16 +517,14 @@
 }
 
 .liveStage__bottom {
-  position: absolute;
-  right: 12px;
-  bottom: 12px;
-  left: 12px;
+  position: relative;
   z-index: 5;
   min-width: 0;
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
   gap: 10px;
+  padding: 12px;
 }
 
 .liveStage__metrics {
@@ -559,37 +561,32 @@
 
 .liveStage__endControl {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: 0;
 }
 
-.liveStage__stopButton {
-  width: 48px;
-  height: 48px;
-  margin: -6px 0 -8px;
-  padding: 0;
-  border: 0;
-  border-radius: 9px;
-  background: transparent;
-  cursor: pointer;
+.liveStage__endButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding-block: 2px;
+
+  > img {
+    width: 40px;
+    height: 40px;
+    flex: 0 0 auto;
+    display: block;
+    object-fit: contain;
+  }
 
   &:disabled {
     opacity: 0.65;
     cursor: wait;
   }
-
-  img {
-    width: 100%;
-    height: 100%;
-    display: block;
-    object-fit: contain;
-  }
 }
 
 .liveStage__outlineButton {
   min-height: 30px;
-  padding: 5px 10px;
+  padding: 1px 10px;
   border: 1px solid #111;
   border-radius: 16px;
   background: #f4fdff;
@@ -673,7 +670,7 @@
   overscroll-behavior: contain;
   scrollbar-width: thin;
   scrollbar-color: rgba(155, 122, 230, 0.78) rgba(255, 255, 255, 0.34);
-  padding: 12px 12px 24px;
+  padding: 12px 12px 0px;
 }
 
 .liveChat__messages::-webkit-scrollbar,
@@ -967,12 +964,11 @@
   }
 
   .livePage__content {
-    padding: 38px 28px 40px;
+    padding: 28px 28px 30px;
   }
 
   .livePage__headingRow {
     grid-template-columns: 46px minmax(0, 1fr) 46px;
-    margin-bottom: 30px;
   }
 
   .livePage__headingRow>h1 {
@@ -981,7 +977,8 @@
 
   .liveStage {
     min-height: 0;
-    height: min(60dvh, 620px);
+    height: min(68dvh, 720px);
+    grid-template-rows: auto minmax(0, 1fr) auto;
   }
 
   .liveStage__top {
@@ -1042,9 +1039,7 @@
   }
 
   .liveStage__bottom {
-    right: 18px;
-    bottom: 18px;
-    left: 18px;
+    padding: 18px;
   }
 
   .liveStage__metrics,
@@ -1056,11 +1051,6 @@
     width: 38px;
     height: 38px;
     font-size: 27px;
-  }
-
-  .liveChat {
-    min-height: 0;
-    max-height: min(44dvh, 590px);
   }
 
   .liveChat__messageContent p {
@@ -1185,6 +1175,7 @@
   .liveStage {
     height: 100%;
     min-height: 0;
+    grid-template-rows: auto minmax(0, 1fr) auto;
     border-radius: 16px 0 0 16px;
   }
 
@@ -1218,7 +1209,7 @@
 
   .liveStage__host strong {
     max-width: 360px;
-    font-size: 30px;
+    font-size: 22px;
   }
 
   .liveStage__hostStats {
@@ -1263,10 +1254,6 @@
     font-size: 14px;
   }
 
-  .liveStage__center {
-    inset: 100px 0 100px;
-  }
-
   .liveStage__ended {
     gap: 8px;
     font-size: 20px;
@@ -1277,9 +1264,7 @@
   }
 
   .liveStage__bottom {
-    right: 24px;
-    bottom: 20px;
-    left: 24px;
+    padding: 20px 24px;
   }
 
   .liveStage__metrics {
@@ -1291,9 +1276,14 @@
     gap: 12px;
   }
 
-  .liveStage__stopButton {
-    width: 58px;
-    height: 58px;
+  .liveStage__endButton {
+    gap: 6px;
+    padding-block: 3px;
+
+    > img {
+      width: 48px;
+      height: 48px;
+    }
   }
 
   .liveStage__outlineButton {

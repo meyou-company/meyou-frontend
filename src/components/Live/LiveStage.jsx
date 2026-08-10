@@ -253,20 +253,12 @@ export default function LiveStage({
                   <div className="liveStage__endControl">
                     <button
                       type="button"
-                      className="liveStage__stopButton"
-                      onClick={onEnd}
-                      disabled={isEnding}
-                      aria-label="Завершить трансляцию"
-                    >
-                      <img src={profileIcons.liveStop} alt="" />
-                    </button>
-                    <button
-                      type="button"
-                      className="liveStage__outlineButton"
+                      className="liveStage__outlineButton liveStage__endButton"
                       onClick={onEnd}
                       disabled={isEnding}
                     >
-                      {isEnding ? "Сохранение записи..." : "Завершить трансляцию"}
+                      <img src={profileIcons.liveStop} alt="" aria-hidden="true" />
+                      <span>{isEnding ? "Сохранение записи..." : "Завершить трансляцию"}</span>
                     </button>
                   </div>
                 )}
