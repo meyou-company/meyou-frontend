@@ -70,7 +70,7 @@ async function loadSavedLiveReplays(username, authorId) {
         liveStreamId: streamId,
         kind: "liveReplay",
         authorId: authorId != null ? String(authorId) : null,
-        text: stream.title || "Прямой эфир",
+        text: "Запись прямого эфира",
         media: playbackUrl ? [{ url: playbackUrl, type: "VIDEO", order: 0 }] : [],
         createdAt: stream.endedAt || stream.startedAt || stream.createdAt || null,
         location: "",

@@ -44,12 +44,15 @@ export default function NotificationItem({ item, onRead }) {
   };
 
   const action = renderAction(item, isSubscribed, handleFollow, loadingFollow, t);
-  const translatedMessage = t(`notifications.messages.${item.type}`, {
-    name: `${item.actor.username || item.actor.name} `,
-    defaultValue: item.type === 'liveStarted'
-      ? `${item.actor.username || item.actor.name} начал(-а) прямой эфир`
-      : undefined,
-  });
+  const actorName = item.actor.username || item.actor.name;
+  const translatedMessage = item.type === 'liveStarted'
+    ? t('liveNotifications.started', {
+        name: actorName,
+        defaultValue: `${actorName} started a live stream`,
+      })
+    : t(`notifications.messages.${item.type}`, {
+        name: `${actorName} `,
+      });
   const message = item.type === 'system' && item.body
     ? item.body
     : translatedMessage;

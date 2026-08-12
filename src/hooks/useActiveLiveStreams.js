@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { liveStreamsApi } from "../services/liveStreamsApi";
 import { dedupeAsync } from "../utils/dedupeAsync";
 
-const REFRESH_INTERVAL_MS = 20_000;
+const REFRESH_INTERVAL_MS = 5_000;
 
 const getId = (value) => value?.id || value?._id || value?.userId || null;
 

@@ -80,6 +80,8 @@ export default function LiveStage({
   isLive,
   host,
   elapsed,
+  endedDateLabel,
+  endedDurationLabel,
   isEnded,
   isPlaying,
   isSettingsOpen,
@@ -109,10 +111,10 @@ export default function LiveStage({
 
   useEffect(() => {
     const element = videoRef.current;
-    if (!element || !videoTrack) return undefined;
+    if (!element || !videoTrack || playbackUrl) return undefined;
     videoTrack.attach(element);
     return () => videoTrack.detach(element);
-  }, [videoTrack]);
+  }, [playbackUrl, videoTrack]);
 
   useEffect(() => {
     const element = audioRef.current;
@@ -151,11 +153,14 @@ export default function LiveStage({
               event.currentTarget.src = profileIcons.userStory;
             }}
           />
-          <div>
-            <span className="liveStage__speaker">
-              <img src={profileIcons.liveSpeaker} alt="" />
-              спикер
-            </span>
+          <div className="liveStage__hostInfo">
+            <img
+              className="liveStage__speakerIcon"
+              src={profileIcons.liveSpeaker}
+              alt=""
+              aria-hidden="true"
+            />
+            <span className="liveStage__speakerLabel">спикер</span>
             <strong>{host.name}</strong>
             {!isOwner && (
               <span className="liveStage__hostStats">
@@ -201,6 +206,7 @@ export default function LiveStage({
             autoPlay={!playbackUrl}
             muted={isOwner}
             controls={Boolean(playbackUrl)}
+            preload={playbackUrl ? "metadata" : "auto"}
             playsInline
           />
         )}
@@ -209,8 +215,8 @@ export default function LiveStage({
         {isEnded && !playbackUrl ? (
           <div className="liveStage__ended">
             <strong>Эфир завершён</strong>
-            <span>Сегодня · трансляция окончена</span>
-            <span>⏱ {Math.max(1, Math.floor(elapsed / 60))} мин</span>
+            <span>{endedDateLabel ? `${endedDateLabel} · ` : ""}трансляция окончена</span>
+            <span>⏱ {endedDurationLabel}</span>
           </div>
         ) : !isOwner && !playbackUrl && (!videoTrack || !isPlaying) ? (
           <button
@@ -250,20 +256,12 @@ export default function LiveStage({
                   <div className="liveStage__endControl">
                     <button
                       type="button"
-                      className="liveStage__stopButton"
-                      onClick={onEnd}
-                      disabled={isEnding}
-                      aria-label="Завершить трансляцию"
-                    >
-                      <img src={profileIcons.liveStop} alt="" />
-                    </button>
-                    <button
-                      type="button"
-                      className="liveStage__outlineButton"
+                      className="liveStage__outlineButton liveStage__endButton"
                       onClick={onEnd}
                       disabled={isEnding}
                     >
-                      {isEnding ? "Сохранение записи..." : "Завершить трансляцию"}
+                      <img src={profileIcons.liveStop} alt="" aria-hidden="true" />
+                      <span>{isEnding ? "Сохранение записи..." : "Завершить трансляцию"}</span>
                     </button>
                   </div>
                 )}

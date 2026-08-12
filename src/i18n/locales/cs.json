@@ -719,6 +719,9 @@
     "yourStory": "Your story",
     "closeFriends": "Close friends"
   },
+  "liveNotifications": {
+    "started": "{{name}} zahájil(a) živé vysílání"
+  },
   "liveErrors": {
     "ended": "Tento živý přenos již skončil.",
     "notStarted": "Živý přenos ještě nezačal.",
@@ -726,6 +729,7 @@
     "noConnection": "K živému přenosu se nepodařilo připojit.",
     "chatUnavailable": "K chatu živého přenosu se nepodařilo připojit.",
     "sendMessage": "Komentář se nepodařilo odeslat.",
+    "chatHistory": "Předchozí komentáře se nepodařilo načíst.",
     "generic": "Při živém přenosu došlo k chybě. Zkuste to znovu."
   },
   "errors": {

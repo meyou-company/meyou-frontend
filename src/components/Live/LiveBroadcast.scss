@@ -122,7 +122,7 @@
   margin: 0 0 20px;
 }
 
-.livePage__headingRow > h1 {
+.livePage__headingRow>h1 {
   min-width: 0;
   margin: 0;
   color: #9b7ae6;
@@ -177,6 +177,8 @@
   position: relative;
   min-width: 0;
   min-height: 58dvh;
+  display: grid;
+  grid-template-rows: auto minmax(42dvh, 1fr) auto;
   overflow: hidden;
   border-radius: 8px;
   background: #d4d4d4;
@@ -214,36 +216,47 @@
   object-fit: cover;
 }
 
-.liveStage__host > div {
+.liveStage__hostInfo {
   min-width: 0;
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: 26px minmax(0, 1fr);
+  grid-template-rows: auto auto auto;
+  column-gap: 7px;
+  align-items: center;
 }
 
-.liveStage__speaker {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 11px;
-  white-space: nowrap;
+.liveStage__speakerIcon {
+  grid-column: 1;
+  grid-row: 1 / span 2;
+  width: 26px;
+  height: 26px;
+  object-fit: contain;
+}
 
-  img {
-    width: 22px;
-    height: 22px;
-    object-fit: contain;
-  }
+.liveStage__speakerLabel {
+  grid-column: 2;
+  grid-row: 1;
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1;
+  white-space: nowrap;
 }
 
 .liveStage__host strong {
-  max-width: 150px;
+  grid-column: 2;
+  grid-row: 2;
+  max-width: 170px;
   overflow: hidden;
-  font-size: 16px;
-  line-height: 1.2;
+  font-size: 18px;
+  line-height: 1.05;
   text-overflow: ellipsis;
   white-space: nowrap;
+  margin: 1px 0 0;
 }
 
 .liveStage__hostStats {
+  grid-column: 2;
+  grid-row: 3;
   display: flex;
   gap: 10px;
   margin-top: 5px;
@@ -304,8 +317,8 @@
 }
 
 .liveStage__settingsButton {
-  width: 32px;
-  height: 32px;
+  width: 23px;
+  height: 23px;
   padding: 0;
   border: 0;
   background: transparent;
@@ -402,11 +415,13 @@
 }
 
 .liveStage__center {
-  position: absolute;
-  inset: 75px 0 78px;
+  position: relative;
+  min-width: 0;
+  min-height: 0;
   display: flex;
   align-items: center;
   justify-content: center;
+  overflow: hidden;
   pointer-events: none;
 }
 
@@ -502,16 +517,14 @@
 }
 
 .liveStage__bottom {
-  position: absolute;
-  right: 12px;
-  bottom: 12px;
-  left: 12px;
+  position: relative;
   z-index: 5;
   min-width: 0;
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
   gap: 10px;
+  padding: 12px;
 }
 
 .liveStage__metrics {
@@ -540,7 +553,7 @@
   gap: 8px;
 }
 
-.liveStage__ownerActions > div {
+.liveStage__ownerActions>div {
   display: flex;
   align-items: flex-end;
   gap: 8px;
@@ -548,36 +561,32 @@
 
 .liveStage__endControl {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: 6px;
 }
 
-.liveStage__stopButton {
-  width: 48px;
-  height: 48px;
-  padding: 0;
-  border: 0;
-  border-radius: 9px;
-  background: transparent;
-  cursor: pointer;
+.liveStage__endButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding-block: 2px;
+
+  > img {
+    width: 40px;
+    height: 40px;
+    flex: 0 0 auto;
+    display: block;
+    object-fit: contain;
+  }
 
   &:disabled {
     opacity: 0.65;
     cursor: wait;
   }
-
-  img {
-    width: 100%;
-    height: 100%;
-    display: block;
-    object-fit: contain;
-  }
 }
 
 .liveStage__outlineButton {
   min-height: 30px;
-  padding: 5px 10px;
+  padding: 1px 10px;
   border: 1px solid #111;
   border-radius: 16px;
   background: #f4fdff;
@@ -621,16 +630,19 @@
 .liveChat {
   position: relative;
   min-width: 0;
-  min-height: 430px;
+  height: min(520px, calc(100dvh - 120px));
+  min-height: 340px;
+  max-height: min(450px, calc(100dvh - 120px));
   display: flex;
   flex-direction: column;
   overflow: visible;
   border: 1px solid rgba(0, 0, 0, 0.28);
   border-radius: 8px;
-  background: #f2e5ff;
+  background: linear-gradient(180deg, #fceaff 0%, #f1e7ff 55%, #e1cbff 100%);
 }
 
 .liveChat__header {
+  flex: 0 0 auto;
   height: 58px;
   display: flex;
   align-items: center;
@@ -655,24 +667,67 @@
   min-height: 0;
   flex: 1;
   overflow-y: auto;
-  padding: 12px 12px 24px;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(155, 122, 230, 0.78) rgba(255, 255, 255, 0.34);
+  padding: 12px 12px 0px;
+}
+
+.liveChat__loadOlder {
+  min-height: 30px;
+  display: block;
+  margin: 0 auto 14px;
+  padding: 5px 12px;
+  border: 1px solid rgba(97, 70, 158, 0.45);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.72);
+  color: #61469e;
+  font: inherit;
+  font-size: 11px;
+  cursor: pointer;
+
+  &:disabled {
+    opacity: 0.65;
+    cursor: wait;
+  }
+}
+
+.liveChat__messages::-webkit-scrollbar,
+.liveChat__pinnedMessages::-webkit-scrollbar {
+  width: 7px;
+}
+
+.liveChat__messages::-webkit-scrollbar-track,
+.liveChat__pinnedMessages::-webkit-scrollbar-track {
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.34);
+}
+
+.liveChat__messages::-webkit-scrollbar-thumb,
+.liveChat__pinnedMessages::-webkit-scrollbar-thumb {
+  border: 2px solid transparent;
+  border-radius: 8px;
+  background: rgba(155, 122, 230, 0.78);
+  background-clip: padding-box;
 }
 
 .liveChat__pinnedMessages {
-  position: sticky;
-  top: 0;
+  position: relative;
   z-index: 10;
-  max-height: min(55%, 320px);
-  margin: -12px -12px 18px;
-  padding: 20px 12px 2px;
+  min-height: 0;
+  max-height: min(45%, 260px);
+  flex: 0 1 auto;
+  padding: 20px 12px 4px;
   overflow-x: visible;
   overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(155, 122, 230, 0.78) rgba(255, 255, 255, 0.34);
   border-bottom: 1px solid rgba(155, 122, 230, 0.35);
-  background: #f2e5ff;
   box-shadow: 0 8px 14px rgba(59, 37, 82, 0.08);
 
   .liveChat__message:last-child {
-    margin-bottom: 10px;
+    margin-bottom: 8px;
   }
 }
 
@@ -784,6 +839,7 @@
 
 .liveChat__footer {
   position: relative;
+  flex: 0 0 auto;
   padding: 10px;
 }
 
@@ -798,7 +854,7 @@
   border-radius: 8px;
   background: #f4fdff;
 
-  > img {
+  >img {
     width: 38px;
     height: 38px;
     border-radius: 50%;
@@ -864,23 +920,26 @@
 
 @media (max-width: 767px) {
   .liveStage__host strong {
-    max-width: 112px;
-    overflow: visible;
-    font-size: 11px;
-    line-height: 1.15;
-    text-overflow: clip;
-    white-space: normal;
-    overflow-wrap: anywhere;
+    max-width: min(38vw, 150px);
+    overflow: hidden;
+    font-size: 16px;
+    line-height: 1.2;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
-  .liveStage__speaker {
-    gap: 2px;
-    font-size: 8px;
+  .liveStage__speakerLabel {
+    font-size: 11px;
+  }
 
-    img {
-      width: 12px;
-      height: 12px;
-    }
+  .liveStage__speakerIcon {
+    width: 24px;
+    height: 24px;
+  }
+
+  .liveStage__hostInfo {
+    grid-template-columns: 24px minmax(0, 1fr);
+    column-gap: 6px;
   }
 
   .liveStage__settingsPanel {
@@ -924,20 +983,21 @@
   }
 
   .livePage__content {
-    padding: 38px 28px 40px;
+    padding: 28px 28px 30px;
   }
 
   .livePage__headingRow {
     grid-template-columns: 46px minmax(0, 1fr) 46px;
-    margin-bottom: 30px;
   }
 
-  .livePage__headingRow > h1 {
+  .livePage__headingRow>h1 {
     font-size: 28px;
   }
 
   .liveStage {
-    min-height: 69dvh;
+    min-height: 0;
+    height: min(68dvh, 720px);
+    grid-template-rows: auto minmax(0, 1fr) auto;
   }
 
   .liveStage__top {
@@ -951,20 +1011,25 @@
 
   .liveStage__host strong {
     max-width: 260px;
-    font-size: 18px;
+    font-size: 22px;
+  }
+
+  .liveStage__speakerLabel {
+    font-size: 14px;
+  }
+
+  .liveStage__speakerIcon {
+    width: 28px;
+    height: 28px;
+  }
+
+  .liveStage__hostInfo {
+    grid-template-columns: 28px minmax(0, 1fr);
+    column-gap: 7px;
   }
 
   .liveStage__hostStats {
     font-size: 10px;
-  }
-
-  .liveStage__speaker {
-    font-size: 12px;
-  }
-
-  .liveStage__speaker img {
-    width: 24px;
-    height: 24px;
   }
 
   .liveStage__status {
@@ -993,9 +1058,7 @@
   }
 
   .liveStage__bottom {
-    right: 18px;
-    bottom: 18px;
-    left: 18px;
+    padding: 18px;
   }
 
   .liveStage__metrics,
@@ -1007,10 +1070,6 @@
     width: 38px;
     height: 38px;
     font-size: 27px;
-  }
-
-  .liveChat {
-    min-height: 470px;
   }
 
   .liveChat__messageContent p {
@@ -1073,7 +1132,7 @@
     align-items: center;
     justify-content: center;
 
-    > img {
+    >img {
       width: 30px;
       height: 30px;
       object-fit: contain;
@@ -1105,22 +1164,22 @@
     min-height: 0;
     display: flex;
     flex-direction: column;
-    padding: 24px 42px 22px;
+    padding: 14px 42px 12px;
   }
 
   .livePage__headingRow {
     flex: 0 0 auto;
-    margin-bottom: 22px;
+    margin-bottom: 14px;
   }
 
-  .livePage__headingRow > h1 {
-    font-size: 36px;
+  .livePage__headingRow>h1 {
+    font-size: 32px;
   }
 
   .livePage__broadcastLayout {
     min-height: 0;
     flex: 1;
-    grid-template-columns: minmax(0, 1fr) 340px;
+    grid-template-columns: minmax(0, 3fr) minmax(280px, 1fr);
     gap: 0;
   }
 
@@ -1135,16 +1194,17 @@
   .liveStage {
     height: 100%;
     min-height: 0;
+    grid-template-rows: auto minmax(0, 1fr) auto;
     border-radius: 16px 0 0 16px;
   }
 
   .liveStage__top {
-    padding: 20px;
+    padding: 14px 20px;
   }
 
   .liveStage__hostAvatar {
-    width: 72px;
-    height: 72px;
+    width: 66px;
+    height: 66px;
     border-width: 4px;
   }
 
@@ -1152,18 +1212,23 @@
     gap: 14px;
   }
 
-  .liveStage__speaker {
-    font-size: 15px;
+  .liveStage__speakerLabel {
+    font-size: 18px;
   }
 
-  .liveStage__speaker img {
-    width: 28px;
-    height: 28px;
+  .liveStage__speakerIcon {
+    width: 34px;
+    height: 34px;
+  }
+
+  .liveStage__hostInfo {
+    grid-template-columns: 34px minmax(0, 1fr);
+    column-gap: 9px;
   }
 
   .liveStage__host strong {
     max-width: 360px;
-    font-size: 25px;
+    font-size: 22px;
   }
 
   .liveStage__hostStats {
@@ -1172,7 +1237,7 @@
   }
 
   .liveStage__status {
-    height: 55px;
+    height: 48px;
     gap: 16px;
     font-size: 20px;
 
@@ -1183,47 +1248,29 @@
   }
 
   .liveStage__recordDot {
-    width: 54px;
-    height: 54px;
+    width: 48px;
+    height: 48px;
     border-width: 11px;
   }
 
   .liveStage__settingsButton {
-    width: 42px;
-    height: 42px;
+    width: 38px;
+    height: 38px;
     font-size: 30px;
   }
 
   .liveStage__settingsPanel {
-    top: 82px;
-    right: 14px;
-    width: 330px;
-    padding: 18px 24px;
-    border-radius: 38px;
+    top: 78px;
+    right: 18px;
+    width: 285px;
+    padding: 14px 18px;
+    border-radius: 26px;
   }
 
   .liveStage__settingRow,
   .liveStage__settingAction {
-    min-height: 58px;
-    font-size: 16px;
-  }
-
-  .liveStage__switch {
-    width: 68px;
-    height: 33px;
-
-    span {
-      width: 27px;
-      height: 27px;
-    }
-  }
-
-  .liveStage__switch--active span {
-    transform: translateX(33px);
-  }
-
-  .liveStage__center {
-    inset: 100px 0 100px;
+    min-height: 48px;
+    font-size: 14px;
   }
 
   .liveStage__ended {
@@ -1236,9 +1283,7 @@
   }
 
   .liveStage__bottom {
-    right: 24px;
-    bottom: 20px;
-    left: 24px;
+    padding: 12px 24px;
   }
 
   .liveStage__metrics {
@@ -1250,16 +1295,22 @@
     gap: 12px;
   }
 
-  .liveStage__stopButton {
-    width: 58px;
-    height: 58px;
+  .liveStage__endButton {
+    gap: 4px;
+    padding-block: 1px;
+
+    > img {
+      width: 38px;
+      height: 38px;
+    }
   }
 
   .liveStage__outlineButton {
-    min-height: 36px;
-    padding: 7px 14px;
-    border-radius: 19px;
+    min-height: 38px;
+    padding: 7px 16px;
+    border-radius: 21px;
     font-size: 14px;
+    font-weight: 500;
   }
 
   .liveStage__reactions {
@@ -1275,6 +1326,7 @@
   .liveChat {
     height: 100%;
     min-height: 0;
+    max-height: 100%;
     border-radius: 0;
   }
 
@@ -1332,10 +1384,10 @@
   }
 }
 
-[data-theme="dark"] .liveStage__speaker img,
+[data-theme="dark"] .liveStage__speakerIcon,
 [data-theme="dark"] .liveStage__hostStats span:first-child img,
 [data-theme="dark"] .liveStage__metrics span:first-child img,
-.dark .liveStage__speaker img,
+.dark .liveStage__speakerIcon,
 .dark .liveStage__hostStats span:first-child img,
 .dark .liveStage__metrics span:first-child img {
   filter: brightness(0) invert(1);
@@ -1354,6 +1406,28 @@
   box-shadow: 0 8px 14px rgba(0, 0, 0, 0.2);
 }
 
+[data-theme="dark"] .liveChat__messages,
+[data-theme="dark"] .liveChat__pinnedMessages,
+.dark .liveChat__messages,
+.dark .liveChat__pinnedMessages {
+  scrollbar-color: rgba(195, 155, 255, 0.86) rgba(255, 255, 255, 0.08);
+}
+
+[data-theme="dark"] .liveChat__messages::-webkit-scrollbar-track,
+[data-theme="dark"] .liveChat__pinnedMessages::-webkit-scrollbar-track,
+.dark .liveChat__messages::-webkit-scrollbar-track,
+.dark .liveChat__pinnedMessages::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+[data-theme="dark"] .liveChat__messages::-webkit-scrollbar-thumb,
+[data-theme="dark"] .liveChat__pinnedMessages::-webkit-scrollbar-thumb,
+.dark .liveChat__messages::-webkit-scrollbar-thumb,
+.dark .liveChat__pinnedMessages::-webkit-scrollbar-thumb {
+  background: rgba(195, 155, 255, 0.86);
+  background-clip: padding-box;
+}
+
 [data-theme="dark"] .liveChat__messageContent p,
 [data-theme="dark"] .liveChat__composer,
 .dark .liveChat__messageContent p,
@@ -1366,6 +1440,13 @@
 [data-theme="dark"] .liveChat__composer input,
 .dark .liveChat__composer input {
   color: #fff;
+}
+
+[data-theme="dark"] .liveChat__loadOlder,
+.dark .liveChat__loadOlder {
+  border-color: rgba(210, 183, 255, 0.45);
+  background: rgba(255, 255, 255, 0.08);
+  color: #d2b7ff;
 }
 
 [data-theme="dark"] .liveChat__messageMenuButton,

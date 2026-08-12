@@ -1,7 +1,9 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
+import fixWebmDuration from "fix-webm-duration";
 import { toast } from "sonner";
 import { useAuthStore } from "../../zustand/useAuthStore";
+import { useLocaleStore } from "../../zustand/useLocaleStore";
 import { useLiveKitBroadcast } from "../../hooks/useLiveKitBroadcast";
 import { extractLiveMedia, liveStreamsApi } from "../../services/liveStreamsApi";
 import { getSessionAccessToken } from "../../services/api";
@@ -25,7 +27,7 @@ const LIVE_MESSAGES_CACHE_PREFIX = "meyou_live_messages:";
 const LIVE_PINNED_CACHE_PREFIX = "meyou_live_pinned_messages:";
 const LIVE_REACTIONS_CACHE_PREFIX = "meyou_live_reactions:";
 const COUNTER_SYNC_INTERVAL_MS = 2_000;
-const MAX_VISIBLE_MESSAGES = 100;
+const MAX_CACHED_MESSAGES = 1_000;
 
 function unwrap(value) {
   return value?.data && !Array.isArray(value.data) ? value.data : value;
@@ -62,6 +64,12 @@ function normalizeStream(payload) {
       getUserId(host),
     startedAt: value.startedAt || value.started_at || null,
     endedAt: value.endedAt || value.ended_at || null,
+    durationSec:
+      value.durationSec ??
+      value.durationSeconds ??
+      value.duration_sec ??
+      value.analytics?.durationSec ??
+      null,
     isSoundEnabled: value.isSoundEnabled !== false,
     isSaved: Boolean(value.isSaved),
     viewersCount:
@@ -97,7 +105,7 @@ function normalizeMessage(raw) {
 
 function appendUniqueMessage(list, message) {
   if (!message?.id || list.some((item) => item.id === message.id)) return list;
-  return [...list, message].slice(-MAX_VISIBLE_MESSAGES);
+  return [...list, message];
 }
 
 function reconcileMessage(list, incoming) {
@@ -119,7 +127,7 @@ function reconcileMessage(list, incoming) {
 
   const next = [...list];
   next[pendingIndex] = incoming;
-  return next.slice(-MAX_VISIBLE_MESSAGES);
+  return next;
 }
 
 function mergeMessages(...collections) {
@@ -246,16 +254,77 @@ function formatCompactCount(value) {
   return String(number);
 }
 
-function getPlaybackUrl(payload) {
+function getPlaybackUrl(payload, depth = 0) {
+  if (!payload || depth > 5) return null;
   const value = unwrap(payload) || {};
-  return (
-    value.recordingUrl ||
-    value.playbackUrl ||
-    value.mediaUrl ||
-    value.url ||
-    value.media?.url ||
-    null
-  );
+  const direct = [
+    value.recordingUrl,
+    value.playbackUrl,
+    value.videoUrl,
+    value.hlsUrl,
+    value.mp4Url,
+    value.downloadUrl,
+    value.assetUrl,
+    value.mediaUrl,
+    value.url,
+  ].find((candidate) => typeof candidate === "string" && /^https?:\/\//i.test(candidate));
+  if (direct) return direct;
+
+  for (const nested of [
+    value.data,
+    value.result,
+    value.recording,
+    value.playback,
+    value.media,
+    value.asset,
+  ]) {
+    const nestedUrl = getPlaybackUrl(nested, depth + 1);
+    if (nestedUrl) return nestedUrl;
+  }
+  return null;
+}
+
+function getStreamDurationSec(stream) {
+  const explicitDuration = Number(stream?.durationSec);
+  if (Number.isFinite(explicitDuration) && explicitDuration >= 0) {
+    return Math.round(explicitDuration);
+  }
+
+  const startedAt = Date.parse(stream?.startedAt || "");
+  const endedAt = Date.parse(stream?.endedAt || stream?.updatedAt || "");
+  if (!Number.isFinite(startedAt) || !Number.isFinite(endedAt) || endedAt < startedAt) {
+    return 0;
+  }
+  return Math.round((endedAt - startedAt) / 1000);
+}
+
+function formatEndedDate(stream, locale) {
+  const endedAt = new Date(stream?.endedAt || stream?.updatedAt || stream?.startedAt || "");
+  if (Number.isNaN(endedAt.getTime())) return "";
+
+  const now = new Date();
+  const isToday =
+    endedAt.getFullYear() === now.getFullYear() &&
+    endedAt.getMonth() === now.getMonth() &&
+    endedAt.getDate() === now.getDate();
+  if (isToday) {
+    return new Intl.RelativeTimeFormat(locale, { numeric: "auto" }).format(0, "day");
+  }
+
+  return new Intl.DateTimeFormat(locale, {
+    day: "numeric",
+    month: "long",
+    year: endedAt.getFullYear() === now.getFullYear() ? undefined : "numeric",
+  }).format(endedAt);
+}
+
+function formatDuration(durationSec) {
+  const totalMinutes = Math.max(0, Math.round((Number(durationSec) || 0) / 60));
+  const hours = Math.floor(totalMinutes / 60);
+  const minutes = totalMinutes % 60;
+  if (hours > 0 && minutes > 0) return `${hours} ч ${minutes} мин`;
+  if (hours > 0) return `${hours} ч`;
+  return `${Math.max(1, minutes)} мин`;
 }
 
 function getRecordingMimeType() {
@@ -292,6 +361,7 @@ export default function LiveBroadcast() {
   const location = useLocation();
   const { liveId } = useParams();
   const authUser = useAuthStore((state) => state.user);
+  const locale = useLocaleStore((state) => state.locale);
   const storeToken = useAuthStore((state) => state.token);
   const accessToken = storeToken || getSessionAccessToken();
   const chatRef = useRef(null);
@@ -299,6 +369,8 @@ export default function LiveBroadcast() {
   const hostReconnectRef = useRef(null);
   const viewerAutoConnectRef = useRef(null);
   const recordingSessionRef = useRef(null);
+  const shouldSaveRef = useRef(false);
+  const unmountFinalizationRef = useRef(null);
 
   const currentUser = useMemo(
     () => ({
@@ -329,6 +401,8 @@ export default function LiveBroadcast() {
   const [likesCount, setLikesCount] = useState(0);
   const [pinnedMessageIds, setPinnedMessageIds] = useState([]);
   const [messages, setMessages] = useState([]);
+  const [nextMessagesCursor, setNextMessagesCursor] = useState(null);
+  const [isLoadingOlderMessages, setIsLoadingOlderMessages] = useState(false);
   const [areMessagesHydrated, setAreMessagesHydrated] = useState(false);
   const [isChatOpen, setIsChatOpen] = useState(true);
   const [playbackUrl, setPlaybackUrl] = useState(null);
@@ -337,18 +411,9 @@ export default function LiveBroadcast() {
   const [blockedUserIds, setBlockedUserIds] = useState(() => new Set());
   const [moderatingUserId, setModeratingUserId] = useState(null);
 
-  useEffect(() => () => {
-    const activeStream = streamRef.current;
-    const activeHostId = activeStream?.hostId || getUserId(activeStream?.host);
-    const ownsActiveStream =
-      activeStream?.status === LIVE_STATUS &&
-      activeHostId &&
-      String(activeHostId) === String(currentUser.id);
-
-    if (!ownsActiveStream) return;
-    liveStreamsApi.end(activeStream.id, {}).catch(() => {});
-    removeHostMedia(activeStream.id);
-  }, [currentUser.id]);
+  useEffect(() => {
+    shouldSaveRef.current = shouldSave;
+  }, [shouldSave]);
 
   const setStream = useCallback((nextStream) => {
     const normalized = nextStream ? normalizeStream(nextStream) : null;
@@ -492,10 +557,21 @@ export default function LiveBroadcast() {
     if (session.stopPromise) return session.stopPromise;
 
     session.stopPromise = new Promise((resolve) => {
-      const finish = () => {
-        const blob = session.chunks.length
+      const finish = async () => {
+        if (session.isFinished) return;
+        session.isFinished = true;
+
+        let blob = session.chunks.length
           ? new Blob(session.chunks, { type: session.mimeType || "video/webm" })
           : null;
+        const durationMs = Math.max(1, Date.now() - session.startedAt);
+        if (blob?.size && blob.type.includes("webm")) {
+          try {
+            blob = await fixWebmDuration(blob, durationMs, { logger: false });
+          } catch {
+            // Keep the original recording if metadata repair is unsupported.
+          }
+        }
         if (recordingSessionRef.current === session) recordingSessionRef.current = null;
         setRecordingRevision((current) => current + 1);
         resolve(blob);
@@ -509,52 +585,133 @@ export default function LiveBroadcast() {
     return session.stopPromise;
   }, []);
 
+  const finalizeStreamOnUnmount = useCallback(async (activeStream, saveRecording) => {
+    if (!activeStream?.id) return;
+    if (unmountFinalizationRef.current?.streamId === activeStream.id) {
+      return unmountFinalizationRef.current.promise;
+    }
+
+    const promise = (async () => {
+      let recordingUrl = null;
+      if (saveRecording) {
+        const recordingBlob = await stopLocalRecording();
+        if (recordingBlob?.size) {
+          const extension = recordingBlob.type.includes("mp4") ? "mp4" : "webm";
+          const recordingFile = new File(
+            [recordingBlob],
+            `live-${activeStream.id}-${Date.now()}.${extension}`,
+            { type: recordingBlob.type || "video/webm" },
+          );
+          const uploaded = await uploadVideoMedia(recordingFile);
+          recordingUrl = uploaded.mediaUrl;
+          await liveStreamsApi.updateSettings(activeStream.id, {
+            isSaved: true,
+            recordingUrl,
+            recordingStatus: "READY",
+          });
+        }
+      } else {
+        await stopLocalRecording();
+      }
+
+      await liveStreamsApi.end(
+        activeStream.id,
+        recordingUrl ? { recordingUrl } : {},
+      );
+      removeHostMedia(activeStream.id);
+    })();
+
+    unmountFinalizationRef.current = { streamId: activeStream.id, promise };
+    return promise;
+  }, [stopLocalRecording]);
+
+  useEffect(() => () => {
+    const activeStream = streamRef.current;
+    const activeHostId = activeStream?.hostId || getUserId(activeStream?.host);
+    const ownsActiveStream =
+      activeStream?.status === LIVE_STATUS &&
+      activeHostId &&
+      String(activeHostId) === String(currentUser.id);
+
+    if (!ownsActiveStream) return;
+    finalizeStreamOnUnmount(activeStream, shouldSaveRef.current)
+      .catch(() => liveStreamsApi.end(activeStream.id, {}).catch(() => {}));
+  }, [currentUser.id, finalizeStreamOnUnmount]);
+
   useEffect(() => {
-    const videoMediaTrack = liveKit.videoTrack?.mediaStreamTrack;
-    const audioMediaTrack = liveKit.audioTrack?.mediaStreamTrack;
-    const canRecord =
-      isOwner &&
-      shouldSave &&
-      stream?.status === LIVE_STATUS &&
-      !isEnded &&
-      !isEnding &&
-      window.MediaRecorder &&
-      videoMediaTrack;
+    if (!isOwner || stream?.status !== LIVE_STATUS || isEnded || !shouldSave) {
+      return undefined;
+    }
 
-    if (!canRecord || recordingSessionRef.current) return undefined;
+    const warnBeforeUnload = (event) => {
+      event.preventDefault();
+      event.returnValue = "";
+    };
+    window.addEventListener("beforeunload", warnBeforeUnload);
+    return () => window.removeEventListener("beforeunload", warnBeforeUnload);
+  }, [isEnded, isOwner, shouldSave, stream?.status]);
 
-    const tracks = [videoMediaTrack, audioMediaTrack].filter(Boolean);
-    const mediaStream = new MediaStream(tracks);
-    const mimeType = getRecordingMimeType();
-    const recorder = new MediaRecorder(
-      mediaStream,
-      mimeType
-        ? { mimeType, videoBitsPerSecond: 1_200_000, audioBitsPerSecond: 64_000 }
-        : { videoBitsPerSecond: 1_200_000, audioBitsPerSecond: 64_000 },
-    );
-    const session = { recorder, chunks: [], mimeType: mimeType || recorder.mimeType };
-    recordingSessionRef.current = session;
-    recorder.addEventListener("dataavailable", (event) => {
-      if (event.data?.size) session.chunks.push(event.data);
-    });
-    recorder.start(1_000);
+useEffect(() => {
+  const videoMediaTrack = liveKit.videoTrack?.mediaStreamTrack;
+  const audioMediaTrack = liveKit.audioTrack?.mediaStreamTrack;
 
-    return undefined;
-  }, [
-    isEnded,
-    isEnding,
-    isOwner,
-    liveKit.audioTrack,
-    liveKit.videoTrack,
-    recordingRevision,
-    shouldSave,
-    stream?.status,
-  ]);
+  const canRecord =
+    isOwner &&
+    stream?.status === LIVE_STATUS &&
+    !isEnded &&
+    !isEnding &&
+    window.MediaRecorder &&
+    videoMediaTrack;
 
-  useEffect(() => {
-    if (shouldSave) return;
-    stopLocalRecording().catch(() => {});
-  }, [shouldSave, stopLocalRecording]);
+  if (!canRecord || recordingSessionRef.current) return undefined;
+
+  const tracks = [videoMediaTrack, audioMediaTrack].filter(Boolean);
+  const mediaStream = new MediaStream(tracks);
+
+  const mimeType = getRecordingMimeType();
+
+  const recorder = new MediaRecorder(
+    mediaStream,
+    mimeType
+      ? {
+          mimeType,
+          videoBitsPerSecond: 1_200_000,
+          audioBitsPerSecond: 64_000,
+        }
+      : {
+          videoBitsPerSecond: 1_200_000,
+          audioBitsPerSecond: 64_000,
+        },
+  );
+
+  const session = {
+    recorder,
+    chunks: [],
+    mimeType: mimeType || recorder.mimeType,
+    startedAt: Date.now(),
+    isFinished: false,
+  };
+
+  recordingSessionRef.current = session;
+
+  recorder.addEventListener("dataavailable", (event) => {
+    if (event.data?.size) {
+      session.chunks.push(event.data);
+    }
+  });
+
+  recorder.start(1_000);
+
+  return undefined;
+}, [
+  isEnded,
+  isEnding,
+  isOwner,
+  liveKit.audioTrack,
+  liveKit.videoTrack,
+  recordingRevision,
+  stream?.status,
+]);
 
   useEffect(() => {
     if (!liveId) {
@@ -564,6 +721,7 @@ export default function LiveBroadcast() {
       setIsSettingsOpen(true);
       setPlaybackUrl(null);
       setElapsed(0);
+      setNextMessagesCursor(null);
       setIsLoading(false);
       return undefined;
     }
@@ -572,7 +730,10 @@ export default function LiveBroadcast() {
     const isRefreshingCurrent = String(streamRef.current?.id) === String(liveId);
     if (!isRefreshingCurrent) setIsLoading(true);
     setLoadError("");
-    if (!isRefreshingCurrent) setAreMessagesHydrated(false);
+    if (!isRefreshingCurrent) {
+      setAreMessagesHydrated(false);
+      setNextMessagesCursor(null);
+    }
 
     Promise.all([
       liveStreamsApi.getById(liveId),
@@ -614,19 +775,31 @@ export default function LiveBroadcast() {
         setMessages((current) =>
           mergeMessages(cachedMessages, current, messagePayload.items),
         );
+        setNextMessagesCursor(messagePayload.nextCursor || null);
         setPinnedMessageIds([...new Set([...cachedPinnedIds, ...backendPinnedIds])]);
         setAreMessagesHydrated(true);
 
         if (normalized.startedAt) {
-          setElapsed(Math.max(0, Math.floor((Date.now() - Date.parse(normalized.startedAt)) / 1000)));
+          const elapsedUntil = normalized.status === ENDED_STATUS
+            ? Date.parse(normalized.endedAt || "")
+            : Date.now();
+          const startedAt = Date.parse(normalized.startedAt);
+          const calculatedElapsed = Number.isFinite(elapsedUntil) && Number.isFinite(startedAt)
+            ? Math.max(0, Math.floor((elapsedUntil - startedAt) / 1000))
+            : 0;
+          setElapsed(normalized.status === ENDED_STATUS
+            ? getStreamDurationSec(normalized) || calculatedElapsed
+            : calculatedElapsed);
         }
 
         if (normalized.status === ENDED_STATUS) {
           try {
             const playback = await liveStreamsApi.getPlayback(normalized.id);
-            if (!cancelled) setPlaybackUrl(getPlaybackUrl(playback));
+            if (!cancelled) {
+              setPlaybackUrl(getPlaybackUrl(playback) || getPlaybackUrl(normalized));
+            }
           } catch {
-            if (!cancelled) setPlaybackUrl(null);
+            if (!cancelled) setPlaybackUrl(getPlaybackUrl(normalized));
           }
         }
       })
@@ -654,7 +827,7 @@ export default function LiveBroadcast() {
     writeLiveCache(
       LIVE_MESSAGES_CACHE_PREFIX,
       activeId,
-      messages.slice(-MAX_VISIBLE_MESSAGES),
+      messages.slice(-MAX_CACHED_MESSAGES),
     );
     writeLiveCache(LIVE_PINNED_CACHE_PREFIX, activeId, pinnedMessageIds);
   }, [areMessagesHydrated, liveId, messages, pinnedMessageIds, stream?.id]);
@@ -693,6 +866,27 @@ export default function LiveBroadcast() {
     if (!activeId) return;
     cacheReactionCount(activeId, likesCount);
   }, [likesCount, liveId, stream?.id]);
+
+  useEffect(() => {
+    const activeId = stream?.id || liveId;
+    if (!activeId || !isEnded || playbackUrl || !stream?.isSaved) return undefined;
+
+    let cancelled = false;
+    const refreshPlayback = () => {
+      liveStreamsApi.getPlayback(activeId)
+        .then((payload) => {
+          const nextUrl = getPlaybackUrl(payload) || getPlaybackUrl(stream);
+          if (!cancelled && nextUrl) setPlaybackUrl(nextUrl);
+        })
+        .catch(() => {});
+    };
+
+    const intervalId = window.setInterval(refreshPlayback, 5_000);
+    return () => {
+      cancelled = true;
+      window.clearInterval(intervalId);
+    };
+  }, [isEnded, liveId, playbackUrl, stream]);
 
   useEffect(() => {
     const activeId = stream?.id || liveId;
@@ -908,10 +1102,10 @@ export default function LiveBroadcast() {
       setIsStarting(true);
       let target = stream;
       const createScheduledStream = async () => normalizeStream(
-        await liveStreamsApi.create({
-          title: `Прямой эфир ${currentUser.name}`,
-        }),
-      );
+  await liveStreamsApi.create({
+    title: "Прямой эфир",
+  }),
+);
 
       if (!target?.id) {
         try {
@@ -1051,6 +1245,24 @@ export default function LiveBroadcast() {
         })
         .catch(() => {});
     }, 800);
+  };
+
+  const handleLoadOlderMessages = async () => {
+    const activeId = stream?.id || liveId;
+    if (!activeId || !nextMessagesCursor || isLoadingOlderMessages) return;
+
+    try {
+      setIsLoadingOlderMessages(true);
+      const history = await liveStreamsApi.getMessages(activeId, {
+        cursor: nextMessagesCursor,
+      });
+      setMessages((current) => mergeMessages(history.items, current));
+      setNextMessagesCursor(history.nextCursor || null);
+    } catch (error) {
+      toast.error(getLiveErrorMessage(error, "liveErrors.chatHistory"));
+    } finally {
+      setIsLoadingOlderMessages(false);
+    }
   };
 
   const handleReact = async (reaction) => {
@@ -1302,6 +1514,8 @@ export default function LiveBroadcast() {
               isLive={stream?.status === LIVE_STATUS}
               host={host}
               elapsed={elapsed}
+              endedDateLabel={formatEndedDate(stream, locale)}
+              endedDurationLabel={formatDuration(getStreamDurationSec(stream) || elapsed)}
               isEnded={isEnded}
               isPlaying={isPlaying}
               isSettingsOpen={isSettingsOpen}
@@ -1335,7 +1549,10 @@ export default function LiveBroadcast() {
                 messages={messages}
                 pinnedMessageIds={pinnedMessageIds}
                 isEnded={isEnded}
+                hasOlderMessages={Boolean(nextMessagesCursor)}
+                isLoadingOlderMessages={isLoadingOlderMessages}
                 onSend={handleSend}
+                onLoadOlder={handleLoadOlderMessages}
                 onPin={handlePinMessage}
                 onDelete={handleDeleteMessage}
                 onReply={() => {}}

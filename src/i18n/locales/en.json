@@ -765,6 +765,9 @@
     "yourStory": "Your story",
     "closeFriends": "Close friends"
   },
+  "liveNotifications": {
+    "started": "{{name}} started a live stream"
+  },
   "liveErrors": {
     "ended": "This live stream has already ended.",
     "notStarted": "The live stream has not started yet.",
@@ -772,6 +775,7 @@
     "noConnection": "Could not connect to the live stream.",
     "chatUnavailable": "Could not connect to the live chat.",
     "sendMessage": "Could not send the comment.",
+    "chatHistory": "Could not load previous comments.",
     "generic": "Something went wrong with the live stream. Please try again."
   },
   "errors": {

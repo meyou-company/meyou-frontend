@@ -943,6 +943,19 @@
       "showComments": "Show comments"
     }
   },
+  "liveNotifications": {
+    "started": "بدأ {{name}} بثًا مباشرًا"
+  },
+  "liveErrors": {
+    "ended": "انتهى هذا البث المباشر بالفعل.",
+    "notStarted": "لم يبدأ البث المباشر بعد.",
+    "alreadyLive": "هذا البث المباشر قيد التشغيل بالفعل.",
+    "noConnection": "تعذر الاتصال بالبث المباشر.",
+    "chatUnavailable": "تعذر الاتصال بدردشة البث المباشر.",
+    "sendMessage": "تعذر إرسال التعليق.",
+    "chatHistory": "تعذر تحميل التعليقات السابقة.",
+    "generic": "حدث خطأ في البث المباشر. يرجى المحاولة مرة أخرى."
+  },
   "comments": {
     "title": "Comments",
     "regionAria": "Post comments",
