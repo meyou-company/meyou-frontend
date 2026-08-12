@@ -1164,16 +1164,16 @@
     min-height: 0;
     display: flex;
     flex-direction: column;
-    padding: 24px 42px 22px;
+    padding: 14px 42px 12px;
   }
 
   .livePage__headingRow {
     flex: 0 0 auto;
-    margin-bottom: 22px;
+    margin-bottom: 14px;
   }
 
   .livePage__headingRow>h1 {
-    font-size: 36px;
+    font-size: 32px;
   }
 
   .livePage__broadcastLayout {
@@ -1199,12 +1199,12 @@
   }
 
   .liveStage__top {
-    padding: 20px;
+    padding: 14px 20px;
   }
 
   .liveStage__hostAvatar {
-    width: 72px;
-    height: 72px;
+    width: 66px;
+    height: 66px;
     border-width: 4px;
   }
 
@@ -1237,7 +1237,7 @@
   }
 
   .liveStage__status {
-    height: 55px;
+    height: 48px;
     gap: 16px;
     font-size: 20px;
 
@@ -1248,14 +1248,14 @@
   }
 
   .liveStage__recordDot {
-    width: 54px;
-    height: 54px;
+    width: 48px;
+    height: 48px;
     border-width: 11px;
   }
 
   .liveStage__settingsButton {
-    width: 42px;
-    height: 42px;
+    width: 38px;
+    height: 38px;
     font-size: 30px;
   }
 
@@ -1283,7 +1283,7 @@
   }
 
   .liveStage__bottom {
-    padding: 20px 24px;
+    padding: 12px 24px;
   }
 
   .liveStage__metrics {
@@ -1296,20 +1296,20 @@
   }
 
   .liveStage__endButton {
-    gap: 6px;
-    padding-block: 3px;
+    gap: 4px;
+    padding-block: 1px;
 
     > img {
-      width: 48px;
-      height: 48px;
+      width: 38px;
+      height: 38px;
     }
   }
 
   .liveStage__outlineButton {
-    min-height: 44px;
-    padding: 10px 20px;
-    border-radius: 24px;
-    font-size: 16px;
+    min-height: 38px;
+    padding: 7px 16px;
+    border-radius: 21px;
+    font-size: 14px;
     font-weight: 500;
   }
 

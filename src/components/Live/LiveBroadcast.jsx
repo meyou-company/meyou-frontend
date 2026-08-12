@@ -1,7 +1,9 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
+import fixWebmDuration from "fix-webm-duration";
 import { toast } from "sonner";
 import { useAuthStore } from "../../zustand/useAuthStore";
+import { useLocaleStore } from "../../zustand/useLocaleStore";
 import { useLiveKitBroadcast } from "../../hooks/useLiveKitBroadcast";
 import { extractLiveMedia, liveStreamsApi } from "../../services/liveStreamsApi";
 import { getSessionAccessToken } from "../../services/api";
@@ -62,6 +64,12 @@ function normalizeStream(payload) {
       getUserId(host),
     startedAt: value.startedAt || value.started_at || null,
     endedAt: value.endedAt || value.ended_at || null,
+    durationSec:
+      value.durationSec ??
+      value.durationSeconds ??
+      value.duration_sec ??
+      value.analytics?.durationSec ??
+      null,
     isSoundEnabled: value.isSoundEnabled !== false,
     isSaved: Boolean(value.isSaved),
     viewersCount:
@@ -246,16 +254,77 @@ function formatCompactCount(value) {
   return String(number);
 }
 
-function getPlaybackUrl(payload) {
+function getPlaybackUrl(payload, depth = 0) {
+  if (!payload || depth > 5) return null;
   const value = unwrap(payload) || {};
-  return (
-    value.recordingUrl ||
-    value.playbackUrl ||
-    value.mediaUrl ||
-    value.url ||
-    value.media?.url ||
-    null
-  );
+  const direct = [
+    value.recordingUrl,
+    value.playbackUrl,
+    value.videoUrl,
+    value.hlsUrl,
+    value.mp4Url,
+    value.downloadUrl,
+    value.assetUrl,
+    value.mediaUrl,
+    value.url,
+  ].find((candidate) => typeof candidate === "string" && /^https?:\/\//i.test(candidate));
+  if (direct) return direct;
+
+  for (const nested of [
+    value.data,
+    value.result,
+    value.recording,
+    value.playback,
+    value.media,
+    value.asset,
+  ]) {
+    const nestedUrl = getPlaybackUrl(nested, depth + 1);
+    if (nestedUrl) return nestedUrl;
+  }
+  return null;
+}
+
+function getStreamDurationSec(stream) {
+  const explicitDuration = Number(stream?.durationSec);
+  if (Number.isFinite(explicitDuration) && explicitDuration >= 0) {
+    return Math.round(explicitDuration);
+  }
+
+  const startedAt = Date.parse(stream?.startedAt || "");
+  const endedAt = Date.parse(stream?.endedAt || stream?.updatedAt || "");
+  if (!Number.isFinite(startedAt) || !Number.isFinite(endedAt) || endedAt < startedAt) {
+    return 0;
+  }
+  return Math.round((endedAt - startedAt) / 1000);
+}
+
+function formatEndedDate(stream, locale) {
+  const endedAt = new Date(stream?.endedAt || stream?.updatedAt || stream?.startedAt || "");
+  if (Number.isNaN(endedAt.getTime())) return "";
+
+  const now = new Date();
+  const isToday =
+    endedAt.getFullYear() === now.getFullYear() &&
+    endedAt.getMonth() === now.getMonth() &&
+    endedAt.getDate() === now.getDate();
+  if (isToday) {
+    return new Intl.RelativeTimeFormat(locale, { numeric: "auto" }).format(0, "day");
+  }
+
+  return new Intl.DateTimeFormat(locale, {
+    day: "numeric",
+    month: "long",
+    year: endedAt.getFullYear() === now.getFullYear() ? undefined : "numeric",
+  }).format(endedAt);
+}
+
+function formatDuration(durationSec) {
+  const totalMinutes = Math.max(0, Math.round((Number(durationSec) || 0) / 60));
+  const hours = Math.floor(totalMinutes / 60);
+  const minutes = totalMinutes % 60;
+  if (hours > 0 && minutes > 0) return `${hours} ч ${minutes} мин`;
+  if (hours > 0) return `${hours} ч`;
+  return `${Math.max(1, minutes)} мин`;
 }
 
 function getRecordingMimeType() {
@@ -292,6 +361,7 @@ export default function LiveBroadcast() {
   const location = useLocation();
   const { liveId } = useParams();
   const authUser = useAuthStore((state) => state.user);
+  const locale = useLocaleStore((state) => state.locale);
   const storeToken = useAuthStore((state) => state.token);
   const accessToken = storeToken || getSessionAccessToken();
   const chatRef = useRef(null);
@@ -487,10 +557,21 @@ export default function LiveBroadcast() {
     if (session.stopPromise) return session.stopPromise;
 
     session.stopPromise = new Promise((resolve) => {
-      const finish = () => {
-        const blob = session.chunks.length
+      const finish = async () => {
+        if (session.isFinished) return;
+        session.isFinished = true;
+
+        let blob = session.chunks.length
           ? new Blob(session.chunks, { type: session.mimeType || "video/webm" })
           : null;
+        const durationMs = Math.max(1, Date.now() - session.startedAt);
+        if (blob?.size && blob.type.includes("webm")) {
+          try {
+            blob = await fixWebmDuration(blob, durationMs, { logger: false });
+          } catch {
+            // Keep the original recording if metadata repair is unsupported.
+          }
+        }
         if (recordingSessionRef.current === session) recordingSessionRef.current = null;
         setRecordingRevision((current) => current + 1);
         resolve(blob);
@@ -607,6 +688,8 @@ useEffect(() => {
     recorder,
     chunks: [],
     mimeType: mimeType || recorder.mimeType,
+    startedAt: Date.now(),
+    isFinished: false,
   };
 
   recordingSessionRef.current = session;
@@ -697,15 +780,26 @@ useEffect(() => {
         setAreMessagesHydrated(true);
 
         if (normalized.startedAt) {
-          setElapsed(Math.max(0, Math.floor((Date.now() - Date.parse(normalized.startedAt)) / 1000)));
+          const elapsedUntil = normalized.status === ENDED_STATUS
+            ? Date.parse(normalized.endedAt || "")
+            : Date.now();
+          const startedAt = Date.parse(normalized.startedAt);
+          const calculatedElapsed = Number.isFinite(elapsedUntil) && Number.isFinite(startedAt)
+            ? Math.max(0, Math.floor((elapsedUntil - startedAt) / 1000))
+            : 0;
+          setElapsed(normalized.status === ENDED_STATUS
+            ? getStreamDurationSec(normalized) || calculatedElapsed
+            : calculatedElapsed);
         }
 
         if (normalized.status === ENDED_STATUS) {
           try {
             const playback = await liveStreamsApi.getPlayback(normalized.id);
-            if (!cancelled) setPlaybackUrl(getPlaybackUrl(playback));
+            if (!cancelled) {
+              setPlaybackUrl(getPlaybackUrl(playback) || getPlaybackUrl(normalized));
+            }
           } catch {
-            if (!cancelled) setPlaybackUrl(null);
+            if (!cancelled) setPlaybackUrl(getPlaybackUrl(normalized));
           }
         }
       })
@@ -772,6 +866,27 @@ useEffect(() => {
     if (!activeId) return;
     cacheReactionCount(activeId, likesCount);
   }, [likesCount, liveId, stream?.id]);
+
+  useEffect(() => {
+    const activeId = stream?.id || liveId;
+    if (!activeId || !isEnded || playbackUrl || !stream?.isSaved) return undefined;
+
+    let cancelled = false;
+    const refreshPlayback = () => {
+      liveStreamsApi.getPlayback(activeId)
+        .then((payload) => {
+          const nextUrl = getPlaybackUrl(payload) || getPlaybackUrl(stream);
+          if (!cancelled && nextUrl) setPlaybackUrl(nextUrl);
+        })
+        .catch(() => {});
+    };
+
+    const intervalId = window.setInterval(refreshPlayback, 5_000);
+    return () => {
+      cancelled = true;
+      window.clearInterval(intervalId);
+    };
+  }, [isEnded, liveId, playbackUrl, stream]);
 
   useEffect(() => {
     const activeId = stream?.id || liveId;
@@ -1399,6 +1514,8 @@ useEffect(() => {
               isLive={stream?.status === LIVE_STATUS}
               host={host}
               elapsed={elapsed}
+              endedDateLabel={formatEndedDate(stream, locale)}
+              endedDurationLabel={formatDuration(getStreamDurationSec(stream) || elapsed)}
               isEnded={isEnded}
               isPlaying={isPlaying}
               isSettingsOpen={isSettingsOpen}

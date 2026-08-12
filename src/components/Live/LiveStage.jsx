@@ -80,6 +80,8 @@ export default function LiveStage({
   isLive,
   host,
   elapsed,
+  endedDateLabel,
+  endedDurationLabel,
   isEnded,
   isPlaying,
   isSettingsOpen,
@@ -109,10 +111,10 @@ export default function LiveStage({
 
   useEffect(() => {
     const element = videoRef.current;
-    if (!element || !videoTrack) return undefined;
+    if (!element || !videoTrack || playbackUrl) return undefined;
     videoTrack.attach(element);
     return () => videoTrack.detach(element);
-  }, [videoTrack]);
+  }, [playbackUrl, videoTrack]);
 
   useEffect(() => {
     const element = audioRef.current;
@@ -204,6 +206,7 @@ export default function LiveStage({
             autoPlay={!playbackUrl}
             muted={isOwner}
             controls={Boolean(playbackUrl)}
+            preload={playbackUrl ? "metadata" : "auto"}
             playsInline
           />
         )}
@@ -212,8 +215,8 @@ export default function LiveStage({
         {isEnded && !playbackUrl ? (
           <div className="liveStage__ended">
             <strong>Эфир завершён</strong>
-            <span>Сегодня · трансляция окончена</span>
-            <span>⏱ {Math.max(1, Math.floor(elapsed / 60))} мин</span>
+            <span>{endedDateLabel ? `${endedDateLabel} · ` : ""}трансляция окончена</span>
+            <span>⏱ {endedDurationLabel}</span>
           </div>
         ) : !isOwner && !playbackUrl && (!videoTrack || !isPlaying) ? (
           <button
