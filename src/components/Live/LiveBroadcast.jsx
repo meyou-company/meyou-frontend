@@ -25,7 +25,7 @@ const LIVE_MESSAGES_CACHE_PREFIX = "meyou_live_messages:";
 const LIVE_PINNED_CACHE_PREFIX = "meyou_live_pinned_messages:";
 const LIVE_REACTIONS_CACHE_PREFIX = "meyou_live_reactions:";
 const COUNTER_SYNC_INTERVAL_MS = 2_000;
-const MAX_VISIBLE_MESSAGES = 100;
+const MAX_CACHED_MESSAGES = 1_000;
 
 function unwrap(value) {
   return value?.data && !Array.isArray(value.data) ? value.data : value;
@@ -97,7 +97,7 @@ function normalizeMessage(raw) {
 
 function appendUniqueMessage(list, message) {
   if (!message?.id || list.some((item) => item.id === message.id)) return list;
-  return [...list, message].slice(-MAX_VISIBLE_MESSAGES);
+  return [...list, message];
 }
 
 function reconcileMessage(list, incoming) {
@@ -119,7 +119,7 @@ function reconcileMessage(list, incoming) {
 
   const next = [...list];
   next[pendingIndex] = incoming;
-  return next.slice(-MAX_VISIBLE_MESSAGES);
+  return next;
 }
 
 function mergeMessages(...collections) {
@@ -299,6 +299,8 @@ export default function LiveBroadcast() {
   const hostReconnectRef = useRef(null);
   const viewerAutoConnectRef = useRef(null);
   const recordingSessionRef = useRef(null);
+  const shouldSaveRef = useRef(false);
+  const unmountFinalizationRef = useRef(null);
 
   const currentUser = useMemo(
     () => ({
@@ -329,6 +331,8 @@ export default function LiveBroadcast() {
   const [likesCount, setLikesCount] = useState(0);
   const [pinnedMessageIds, setPinnedMessageIds] = useState([]);
   const [messages, setMessages] = useState([]);
+  const [nextMessagesCursor, setNextMessagesCursor] = useState(null);
+  const [isLoadingOlderMessages, setIsLoadingOlderMessages] = useState(false);
   const [areMessagesHydrated, setAreMessagesHydrated] = useState(false);
   const [isChatOpen, setIsChatOpen] = useState(true);
   const [playbackUrl, setPlaybackUrl] = useState(null);
@@ -337,18 +341,9 @@ export default function LiveBroadcast() {
   const [blockedUserIds, setBlockedUserIds] = useState(() => new Set());
   const [moderatingUserId, setModeratingUserId] = useState(null);
 
-  useEffect(() => () => {
-    const activeStream = streamRef.current;
-    const activeHostId = activeStream?.hostId || getUserId(activeStream?.host);
-    const ownsActiveStream =
-      activeStream?.status === LIVE_STATUS &&
-      activeHostId &&
-      String(activeHostId) === String(currentUser.id);
-
-    if (!ownsActiveStream) return;
-    liveStreamsApi.end(activeStream.id, {}).catch(() => {});
-    removeHostMedia(activeStream.id);
-  }, [currentUser.id]);
+  useEffect(() => {
+    shouldSaveRef.current = shouldSave;
+  }, [shouldSave]);
 
   const setStream = useCallback((nextStream) => {
     const normalized = nextStream ? normalizeStream(nextStream) : null;
@@ -509,6 +504,72 @@ export default function LiveBroadcast() {
     return session.stopPromise;
   }, []);
 
+  const finalizeStreamOnUnmount = useCallback(async (activeStream, saveRecording) => {
+    if (!activeStream?.id) return;
+    if (unmountFinalizationRef.current?.streamId === activeStream.id) {
+      return unmountFinalizationRef.current.promise;
+    }
+
+    const promise = (async () => {
+      let recordingUrl = null;
+      if (saveRecording) {
+        const recordingBlob = await stopLocalRecording();
+        if (recordingBlob?.size) {
+          const extension = recordingBlob.type.includes("mp4") ? "mp4" : "webm";
+          const recordingFile = new File(
+            [recordingBlob],
+            `live-${activeStream.id}-${Date.now()}.${extension}`,
+            { type: recordingBlob.type || "video/webm" },
+          );
+          const uploaded = await uploadVideoMedia(recordingFile);
+          recordingUrl = uploaded.mediaUrl;
+          await liveStreamsApi.updateSettings(activeStream.id, {
+            isSaved: true,
+            recordingUrl,
+            recordingStatus: "READY",
+          });
+        }
+      } else {
+        await stopLocalRecording();
+      }
+
+      await liveStreamsApi.end(
+        activeStream.id,
+        recordingUrl ? { recordingUrl } : {},
+      );
+      removeHostMedia(activeStream.id);
+    })();
+
+    unmountFinalizationRef.current = { streamId: activeStream.id, promise };
+    return promise;
+  }, [stopLocalRecording]);
+
+  useEffect(() => () => {
+    const activeStream = streamRef.current;
+    const activeHostId = activeStream?.hostId || getUserId(activeStream?.host);
+    const ownsActiveStream =
+      activeStream?.status === LIVE_STATUS &&
+      activeHostId &&
+      String(activeHostId) === String(currentUser.id);
+
+    if (!ownsActiveStream) return;
+    finalizeStreamOnUnmount(activeStream, shouldSaveRef.current)
+      .catch(() => liveStreamsApi.end(activeStream.id, {}).catch(() => {}));
+  }, [currentUser.id, finalizeStreamOnUnmount]);
+
+  useEffect(() => {
+    if (!isOwner || stream?.status !== LIVE_STATUS || isEnded || !shouldSave) {
+      return undefined;
+    }
+
+    const warnBeforeUnload = (event) => {
+      event.preventDefault();
+      event.returnValue = "";
+    };
+    window.addEventListener("beforeunload", warnBeforeUnload);
+    return () => window.removeEventListener("beforeunload", warnBeforeUnload);
+  }, [isEnded, isOwner, shouldSave, stream?.status]);
+
 useEffect(() => {
   const videoMediaTrack = liveKit.videoTrack?.mediaStreamTrack;
   const audioMediaTrack = liveKit.audioTrack?.mediaStreamTrack;
@@ -577,6 +638,7 @@ useEffect(() => {
       setIsSettingsOpen(true);
       setPlaybackUrl(null);
       setElapsed(0);
+      setNextMessagesCursor(null);
       setIsLoading(false);
       return undefined;
     }
@@ -585,7 +647,10 @@ useEffect(() => {
     const isRefreshingCurrent = String(streamRef.current?.id) === String(liveId);
     if (!isRefreshingCurrent) setIsLoading(true);
     setLoadError("");
-    if (!isRefreshingCurrent) setAreMessagesHydrated(false);
+    if (!isRefreshingCurrent) {
+      setAreMessagesHydrated(false);
+      setNextMessagesCursor(null);
+    }
 
     Promise.all([
       liveStreamsApi.getById(liveId),
@@ -627,6 +692,7 @@ useEffect(() => {
         setMessages((current) =>
           mergeMessages(cachedMessages, current, messagePayload.items),
         );
+        setNextMessagesCursor(messagePayload.nextCursor || null);
         setPinnedMessageIds([...new Set([...cachedPinnedIds, ...backendPinnedIds])]);
         setAreMessagesHydrated(true);
 
@@ -667,7 +733,7 @@ useEffect(() => {
     writeLiveCache(
       LIVE_MESSAGES_CACHE_PREFIX,
       activeId,
-      messages.slice(-MAX_VISIBLE_MESSAGES),
+      messages.slice(-MAX_CACHED_MESSAGES),
     );
     writeLiveCache(LIVE_PINNED_CACHE_PREFIX, activeId, pinnedMessageIds);
   }, [areMessagesHydrated, liveId, messages, pinnedMessageIds, stream?.id]);
@@ -1066,6 +1132,24 @@ useEffect(() => {
     }, 800);
   };
 
+  const handleLoadOlderMessages = async () => {
+    const activeId = stream?.id || liveId;
+    if (!activeId || !nextMessagesCursor || isLoadingOlderMessages) return;
+
+    try {
+      setIsLoadingOlderMessages(true);
+      const history = await liveStreamsApi.getMessages(activeId, {
+        cursor: nextMessagesCursor,
+      });
+      setMessages((current) => mergeMessages(history.items, current));
+      setNextMessagesCursor(history.nextCursor || null);
+    } catch (error) {
+      toast.error(getLiveErrorMessage(error, "liveErrors.chatHistory"));
+    } finally {
+      setIsLoadingOlderMessages(false);
+    }
+  };
+
   const handleReact = async (reaction) => {
     if (isEnded || stream?.status === ENDED_STATUS) {
       toast.info(getLiveErrorMessage(
@@ -1348,7 +1432,10 @@ useEffect(() => {
                 messages={messages}
                 pinnedMessageIds={pinnedMessageIds}
                 isEnded={isEnded}
+                hasOlderMessages={Boolean(nextMessagesCursor)}
+                isLoadingOlderMessages={isLoadingOlderMessages}
                 onSend={handleSend}
+                onLoadOlder={handleLoadOlderMessages}
                 onPin={handlePinMessage}
                 onDelete={handleDeleteMessage}
                 onReply={() => {}}

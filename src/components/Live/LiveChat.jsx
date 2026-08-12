@@ -9,7 +9,10 @@ const LiveChat = forwardRef(function LiveChat(
     messages,
     pinnedMessageIds,
     isEnded,
+    hasOlderMessages,
+    isLoadingOlderMessages,
     onSend,
+    onLoadOlder,
     onPin,
     onDelete,
     onReply,
@@ -56,6 +59,19 @@ const LiveChat = forwardRef(function LiveChat(
     const container = event.currentTarget;
     const distanceFromBottom = container.scrollHeight - container.scrollTop - container.clientHeight;
     shouldStickToBottomRef.current = distanceFromBottom <= 48;
+  };
+
+  const handleLoadOlder = async () => {
+    const container = messagesContainerRef.current;
+    if (!container || !onLoadOlder || isLoadingOlderMessages) return;
+    const previousScrollHeight = container.scrollHeight;
+    const previousScrollTop = container.scrollTop;
+    shouldStickToBottomRef.current = false;
+    await onLoadOlder();
+    window.requestAnimationFrame(() => {
+      const addedHeight = container.scrollHeight - previousScrollHeight;
+      container.scrollTop = previousScrollTop + Math.max(0, addedHeight);
+    });
   };
 
   const handleSubmit = async (event) => {
@@ -203,6 +219,16 @@ const LiveChat = forwardRef(function LiveChat(
         className="liveChat__messages"
         onScroll={handleMessagesScroll}
       >
+        {hasOlderMessages && (
+          <button
+            type="button"
+            className="liveChat__loadOlder"
+            onClick={handleLoadOlder}
+            disabled={isLoadingOlderMessages}
+          >
+            {isLoadingOlderMessages ? "Загрузка..." : "Показать предыдущие комментарии"}
+          </button>
+        )}
         {groupedMessages.regular.map(renderMessage)}
       </div>
 

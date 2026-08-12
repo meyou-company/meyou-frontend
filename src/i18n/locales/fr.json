@@ -719,13 +719,17 @@
     "yourStory": "Your story",
     "closeFriends": "Close friends"
   },
+  "liveNotifications": {
+    "started": "{{name}} a démarré un direct"
+  },
   "liveErrors": {
     "ended": "Ce direct est déjà terminé.",
     "notStarted": "Le direct n'a pas encore commencé.",
     "alreadyLive": "Ce direct est déjà en cours.",
     "noConnection": "Impossible de se connecter au direct.",
     "chatUnavailable": "Impossible de se connecter au chat du direct.",
-    "sendMessage": "Impossible d'envoyer le commentaire.",
+    "sendMessage": "Impossible d’envoyer le commentaire.",
+    "chatHistory": "Impossible de charger les commentaires précédents.",
     "generic": "Une erreur est survenue pendant le direct. Réessayez."
   },
   "errors": {

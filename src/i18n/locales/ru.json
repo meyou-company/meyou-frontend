@@ -757,6 +757,9 @@
     "yourStory": "Your story",
     "closeFriends": "Close friends"
   },
+  "liveNotifications": {
+    "started": "{{name}} начал(-а) прямой эфир"
+  },
   "liveErrors": {
     "ended": "Этот прямой эфир уже завершён.",
     "notStarted": "Прямой эфир ещё не начался.",
@@ -764,6 +767,7 @@
     "noConnection": "Не удалось подключиться к прямому эфиру.",
     "chatUnavailable": "Не удалось подключиться к чату эфира.",
     "sendMessage": "Не удалось отправить комментарий.",
+    "chatHistory": "Не удалось загрузить предыдущие комментарии.",
     "generic": "Произошла ошибка прямого эфира. Попробуйте ещё раз."
   },
   "errors": {

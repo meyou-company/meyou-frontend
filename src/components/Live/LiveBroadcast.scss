@@ -673,6 +673,25 @@
   padding: 12px 12px 0px;
 }
 
+.liveChat__loadOlder {
+  min-height: 30px;
+  display: block;
+  margin: 0 auto 14px;
+  padding: 5px 12px;
+  border: 1px solid rgba(97, 70, 158, 0.45);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.72);
+  color: #61469e;
+  font: inherit;
+  font-size: 11px;
+  cursor: pointer;
+
+  &:disabled {
+    opacity: 0.65;
+    cursor: wait;
+  }
+}
+
 .liveChat__messages::-webkit-scrollbar,
 .liveChat__pinnedMessages::-webkit-scrollbar {
   width: 7px;
@@ -1421,6 +1440,13 @@
 [data-theme="dark"] .liveChat__composer input,
 .dark .liveChat__composer input {
   color: #fff;
+}
+
+[data-theme="dark"] .liveChat__loadOlder,
+.dark .liveChat__loadOlder {
+  border-color: rgba(210, 183, 255, 0.45);
+  background: rgba(255, 255, 255, 0.08);
+  color: #d2b7ff;
 }
 
 [data-theme="dark"] .liveChat__messageMenuButton,

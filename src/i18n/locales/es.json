@@ -719,6 +719,9 @@
     "yourStory": "Your story",
     "closeFriends": "Close friends"
   },
+  "liveNotifications": {
+    "started": "{{name}} inició una transmisión en directo"
+  },
   "liveErrors": {
     "ended": "Esta transmisión en directo ya ha finalizado.",
     "notStarted": "La transmisión en directo aún no ha comenzado.",
@@ -726,6 +729,7 @@
     "noConnection": "No se pudo conectar a la transmisión en directo.",
     "chatUnavailable": "No se pudo conectar al chat de la transmisión.",
     "sendMessage": "No se pudo enviar el comentario.",
+    "chatHistory": "No se pudieron cargar los comentarios anteriores.",
     "generic": "Se produjo un error en la transmisión. Inténtalo de nuevo."
   },
   "errors": {

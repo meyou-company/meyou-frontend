@@ -719,6 +719,9 @@
     "yourStory": "Your story",
     "closeFriends": "Close friends"
   },
+  "liveNotifications": {
+    "started": "{{name}} canlı yayın başlattı"
+  },
   "liveErrors": {
     "ended": "Bu canlı yayın zaten sona erdi.",
     "notStarted": "Canlı yayın henüz başlamadı.",
@@ -726,6 +729,7 @@
     "noConnection": "Canlı yayına bağlanılamadı.",
     "chatUnavailable": "Canlı yayın sohbetine bağlanılamadı.",
     "sendMessage": "Yorum gönderilemedi.",
+    "chatHistory": "Önceki yorumlar yüklenemedi.",
     "generic": "Canlı yayında bir hata oluştu. Lütfen tekrar deneyin."
   },
   "errors": {
