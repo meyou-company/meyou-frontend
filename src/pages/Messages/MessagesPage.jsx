@@ -42,9 +42,14 @@ import {
 } from '../../utils/messageReadReceipt';
 import {
   conversationMatchesSearch,
-  getConversationLastMessagePreview,
+  getConversationListPreview,
   patchConversationLastMessage,
 } from '../../utils/conversationPreview';
+import {
+  getConversationDraft,
+  persistConversationDraft,
+  readMessageDrafts,
+} from '../../utils/messageDrafts';
 import {
   canRedialCallEvent,
   formatCallEventLabel,
@@ -230,7 +235,8 @@ export default function MessagesPage() {
   const [loadingList, setLoadingList] = useState(true);
   const [loadingChat, setLoadingChat] = useState(false);
   const [sending, setSending] = useState(false);
-  const [draft, setDraft] = useState('');
+  const [drafts, setDrafts] = useState({});
+  const draftsRef = useRef({});
   const [listError, setListError] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [replyTo, setReplyTo] = useState(null);
@@ -253,7 +259,7 @@ export default function MessagesPage() {
   const activeConversationId = conversationId || null;
 
   useEffect(() => {
-    const mobile = window.matchMedia('(max-width: 900px)');
+    const mobile = window.matchMedia('(max-width: 768px)');
     const lock = () => {
       if (!activeConversationId || !mobile.matches) return undefined;
       const html = document.documentElement;
@@ -261,9 +267,11 @@ export default function MessagesPage() {
       const { overflow: prevBody } = document.body.style;
       html.style.overflow = 'hidden';
       document.body.style.overflow = 'hidden';
+      document.body.classList.add('messages-chat-open');
       return () => {
         html.style.overflow = prevHtml;
         document.body.style.overflow = prevBody;
+        document.body.classList.remove('messages-chat-open');
       };
     };
 
@@ -279,6 +287,17 @@ export default function MessagesPage() {
     };
   }, [activeConversationId]);
 
+  useEffect(() => {
+    if (!currentUserId) {
+      draftsRef.current = {};
+      setDrafts({});
+      return;
+    }
+    const stored = readMessageDrafts(currentUserId);
+    draftsRef.current = stored;
+    setDrafts(stored);
+  }, [currentUserId]);
+
   const activeConversation = useMemo(
     () => conversations.find((c) => c.id === activeConversationId) ?? null,
     [conversations, activeConversationId],
@@ -290,9 +309,9 @@ export default function MessagesPage() {
     const q = searchQuery.trim().toLowerCase();
     if (!q) return conversations;
     return conversations.filter((chat) =>
-      conversationMatchesSearch(chat, q, t, (user, fb) => getDisplayName(user, fb)),
+      conversationMatchesSearch(chat, q, t, (user, fb) => getDisplayName(user, fb), drafts),
     );
-  }, [conversations, searchQuery, t]);
+  }, [conversations, drafts, searchQuery, t]);
 
   const groupedMessages = useMemo(
     () => groupMessagesWithDates(messages, t),
@@ -636,6 +655,21 @@ export default function MessagesPage() {
     setTotalUnreadCount,
   ]);
 
+  const handleDraftChange = useCallback(
+    (text) => {
+      if (!activeConversationId) return;
+      const next = persistConversationDraft(
+        currentUserId,
+        draftsRef.current,
+        activeConversationId,
+        text,
+      );
+      draftsRef.current = next;
+      setDrafts(next);
+    },
+    [activeConversationId, currentUserId],
+  );
+
   const handleSendPayload = async (payload) => {
     if (!activeConversationId || sending) return;
 
@@ -651,7 +685,14 @@ export default function MessagesPage() {
         replyToMessageId: replyTo?.id,
       };
       const created = await conversationsApi.sendMessage(activeConversationId, body);
-      setDraft('');
+      const nextDrafts = persistConversationDraft(
+        currentUserId,
+        draftsRef.current,
+        activeConversationId,
+        '',
+      );
+      draftsRef.current = nextDrafts;
+      setDrafts(nextDrafts);
       setReplyTo(null);
       appendOrUpdateMessage(created);
       setConversations((prev) =>
@@ -974,10 +1015,11 @@ export default function MessagesPage() {
                 {filteredConversations.map((chat) => {
                   const isActive = chat.id === activeConversationId;
                   const name = getDisplayName(chat.participant, t('common.user'));
-                  const preview = getConversationLastMessagePreview(
-                    chat.lastMessage,
+                  const preview = getConversationListPreview(
+                    chat,
                     t,
                     currentUserId,
+                    drafts,
                   );
                   const chatMuted = isConversationMuted(chat);
                   const chatPinned = Boolean(chat.isPinned || chat.pinnedAt);
@@ -1040,7 +1082,20 @@ export default function MessagesPage() {
                               <span className="messagesPage__unread">{chat.unreadCount}</span>
                             ) : null}
                           </div>
-                          <p className="messagesPage__chatPreview">{preview}</p>
+                          <p
+                            className={`messagesPage__chatPreview${preview.isDraft ? ' is-draft' : ''}`}
+                          >
+                            {preview.isDraft ? (
+                              <>
+                                <span className="messagesPage__draftLabel">
+                                  {t('messenger.draftLabel')}
+                                </span>{' '}
+                                {preview.draftText}
+                              </>
+                            ) : (
+                              preview.text
+                            )}
+                          </p>
                         </div>
                       </Link>
                       <button
@@ -1258,8 +1313,8 @@ export default function MessagesPage() {
                   </div>
 
                   <MessageComposer
-                    value={draft}
-                    onChange={setDraft}
+                    value={getConversationDraft(drafts, activeConversationId)}
+                    onChange={handleDraftChange}
                     onSendPayload={handleSendPayload}
                     sending={sending}
                     replyTo={replyTo}

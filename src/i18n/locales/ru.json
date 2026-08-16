@@ -417,6 +417,8 @@
     "loadMessagesError": "Не удалось загрузить сообщения",
     "sendError": "Не удалось отправить сообщение",
     "noMessages": "Нет сообщений",
+    "draftLabel": "Черновик:",
+    "draftPreview": "Черновик: {{text}}",
     "placeholder": "Сообщение",
     "newMessageFrom": "Новое сообщение от {{name}}",
     "search": "Поиск",

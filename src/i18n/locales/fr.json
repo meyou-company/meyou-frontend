@@ -410,6 +410,8 @@
     "loadMessagesError": "Could not load messages",
     "sendError": "Could not send message",
     "noMessages": "No messages",
+    "draftLabel": "Brouillon :",
+    "draftPreview": "Brouillon : {{text}}",
     "placeholder": "Message",
     "newMessageFrom": "New message from {{name}}",
     "search": "Search",

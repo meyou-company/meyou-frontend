@@ -1,5 +1,6 @@
 import { getStoryMessageText, getStoryReplyPreview } from './storyMessagePreview';
 import { formatCallEventLabel } from './callEventMessage';
+import { formatDraftListPreview, getConversationDraft, isNonEmptyDraft } from './messageDrafts';
 
 export function getConversationLastMessagePreview(lastMessage, t, viewerId) {
   if (!lastMessage?.id) {
@@ -52,12 +53,29 @@ export function getConversationLastMessagePreview(lastMessage, t, viewerId) {
   return t('messenger.attachmentPreview');
 }
 
-export function conversationMatchesSearch(chat, query, t, getDisplayName) {
+export function getConversationListPreview(chat, t, viewerId, drafts) {
+  const draftText = getConversationDraft(drafts, chat?.id);
+  if (isNonEmptyDraft(draftText)) {
+    return {
+      isDraft: true,
+      text: formatDraftListPreview(draftText, t),
+      draftText: draftText.replace(/\s+/g, ' ').trim(),
+    };
+  }
+
+  return {
+    isDraft: false,
+    text: getConversationLastMessagePreview(chat?.lastMessage, t, viewerId),
+    draftText: '',
+  };
+}
+
+export function conversationMatchesSearch(chat, query, t, getDisplayName, drafts) {
   const q = query.trim().toLowerCase();
   if (!q) return true;
   const name = (getDisplayName?.(chat.participant, '') || '').toLowerCase();
-  const preview = getConversationLastMessagePreview(chat.lastMessage, t).toLowerCase();
-  return name.includes(q) || preview.includes(q);
+  const preview = getConversationListPreview(chat, t, undefined, drafts);
+  return name.includes(q) || preview.text.toLowerCase().includes(q);
 }
 
 export function patchConversationLastMessage(conversations, conversationId, message) {

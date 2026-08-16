@@ -425,6 +425,8 @@
     "loadMessagesError": "Не вдалося завантажити повідомлення",
     "sendError": "Не вдалося надіслати повідомлення",
     "noMessages": "Немає повідомлень",
+    "draftLabel": "Чернетка:",
+    "draftPreview": "Чернетка: {{text}}",
     "placeholder": "Повідомлення",
     "newMessageFrom": "Нове повідомлення від {{name}}",
     "search": "Пошук",

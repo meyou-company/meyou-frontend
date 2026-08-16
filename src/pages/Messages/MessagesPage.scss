@@ -341,6 +341,11 @@
   white-space: nowrap;
 }
 
+.messagesPage__draftLabel {
+  color: var(--msg-pink);
+  font-weight: 600;
+}
+
 .messagesPage__emptyChat {
   flex: 1;
   display: flex;
@@ -679,13 +684,9 @@
   }
 
   .messagesPage--chatOpen {
-    position: fixed;
-    inset: 0;
-    z-index: 40;
     height: 100svh;
     max-height: 100svh;
     overflow: hidden;
-    background: var(--msg-bg);
   }
 
   .messagesPage--chatOpen .messagesPage__shell {
@@ -730,22 +731,17 @@
   .messagesPage--chatOpen .messagesPage__chatHead {
     position: relative;
     top: auto;
-    z-index: 30;
+    z-index: 5;
     flex: 0 0 auto;
     flex-shrink: 0;
     min-height: 56px;
-    padding-top: max(10px, env(safe-area-inset-top, 0px));
-    padding-bottom: 10px;
+    padding-top: max(52px, env(safe-area-inset-top, 0px));
+    padding-bottom: 12px;
     padding-left: max(12px, env(safe-area-inset-left, 0px));
     padding-right: max(12px, env(safe-area-inset-right, 0px));
     background: #e1cbff;
     border-bottom: 1px solid rgba(0, 0, 0, 0.12);
     box-shadow: 0 2px 12px rgba(120, 80, 180, 0.12);
-  }
-
-  .messagesPage--chatOpen .messagesPage__chatAction--search,
-  .messagesPage--chatOpen .messagesPage__chatAction--mute {
-    display: none;
   }
 
   .messagesPage--chatOpen .messagesPage__chatTitle {
@@ -788,14 +784,62 @@
 }
 
 @media (max-width: 768px) {
-  .messagesPage--chatOpen .msgComposer {
-    padding-bottom: calc(48px + env(safe-area-inset-bottom, 0px));
+  body.messages-chat-open .app-bottom-nav,
+  body:has(.messagesPage--chatOpen) .app-bottom-nav {
+    display: none;
   }
-}
 
-@media (max-width: 420px) {
+  .messagesPage--chatOpen {
+    position: fixed;
+    inset: 0;
+    z-index: 10050;
+    width: 100%;
+    min-height: 0;
+    height: auto;
+    max-height: none;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    background: var(--msg-bg);
+  }
+
+  .messagesPage--chatOpen .messagesPage__shell {
+    flex: 1 1 auto;
+    min-height: 0;
+    height: 100%;
+    max-height: 100%;
+  }
+
+  .messagesPage--chatOpen .messagesPage__content,
+  .messagesPage--chatOpen .messagesPage__body,
+  .messagesPage--chatOpen .messagesPage__chat:not(.is-hidden-mobile) {
+    min-height: 0;
+    max-height: none;
+  }
+
+  .messagesPage--chatOpen .messagesPage__chatHead {
+    z-index: 30;
+    padding-top: max(10px, env(safe-area-inset-top, 0px));
+    padding-bottom: 10px;
+  }
+
+  .messagesPage--chatOpen .messagesPage__chatAction--search,
+  .messagesPage--chatOpen .messagesPage__chatAction--mute {
+    display: none;
+  }
+
   .messagesPage--chatOpen .msgComposer {
-    padding-bottom: calc(28px + env(safe-area-inset-bottom, 0px));
+    position: relative;
+    left: auto;
+    right: auto;
+    bottom: auto;
+    z-index: 6;
+    flex: 0 0 auto;
+    flex-shrink: 0;
+    margin: 0;
+    padding: 8px 10px max(12px, env(safe-area-inset-bottom, 0px));
+    background: #e1cbff;
+    box-shadow: 0 -6px 18px rgba(120, 80, 180, 0.16);
   }
 }
 

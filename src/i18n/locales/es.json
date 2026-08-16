@@ -410,6 +410,8 @@
     "loadMessagesError": "Could not load messages",
     "sendError": "Could not send message",
     "noMessages": "No messages",
+    "draftLabel": "Borrador:",
+    "draftPreview": "Borrador: {{text}}",
     "placeholder": "Message",
     "newMessageFrom": "New message from {{name}}",
     "search": "Search",
