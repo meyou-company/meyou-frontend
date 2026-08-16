@@ -1,33 +1,61 @@
-import {
-  cloneElement,
-  isValidElement,
-  useEffect,
-  useId,
-  useRef,
-  useState,
-} from 'react';
+import { useEffect, useId, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
+import { useTranslation } from 'react-i18next';
 import './WalletTooltip.scss';
 
-function isHoverDevice() {
-  if (typeof window === 'undefined') return true;
-  return window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+const HOVER_MQ = '(hover: hover) and (pointer: fine)';
+const COMPACT_MQ = '(max-width: 640px)';
+const LONG_TEXT = 72;
+
+function mqMatches(query, fallback = false) {
+  if (typeof window === 'undefined') return fallback;
+  return window.matchMedia(query).matches;
 }
 
-function isFocusableChild(child) {
-  if (!isValidElement(child)) return false;
-  if (child.type === 'button' || child.type === 'a') return true;
-  const tabIndex = child.props?.tabIndex;
-  return tabIndex != null && Number(tabIndex) >= 0;
+function useHintMode(text) {
+  const [hoverFine, setHoverFine] = useState(() => mqMatches(HOVER_MQ, true));
+  const [compact, setCompact] = useState(() => mqMatches(COMPACT_MQ));
+
+  useEffect(() => {
+    const hoverMq = window.matchMedia(HOVER_MQ);
+    const compactMq = window.matchMedia(COMPACT_MQ);
+    const sync = () => {
+      setHoverFine(hoverMq.matches);
+      setCompact(compactMq.matches);
+    };
+    sync();
+    hoverMq.addEventListener('change', sync);
+    compactMq.addEventListener('change', sync);
+    return () => {
+      hoverMq.removeEventListener('change', sync);
+      compactMq.removeEventListener('change', sync);
+    };
+  }, []);
+
+  const long = String(text || '').length > LONG_TEXT;
+  return {
+    hoverFine,
+    useSheet: !hoverFine && (compact || long),
+  };
 }
 
-export default function WalletTooltip({ text, placement = 'top', children }) {
+export default function WalletTooltip({
+  title,
+  text,
+  placement = 'top',
+  children,
+}) {
+  const { t } = useTranslation();
   const tooltipId = useId();
+  const titleId = `${tooltipId}-title`;
   const wrapRef = useRef(null);
   const bubbleRef = useRef(null);
+  const closeBtnRef = useRef(null);
+  const triggerRef = useRef(null);
   const closeTimer = useRef(null);
   const [open, setOpen] = useState(false);
   const [coords, setCoords] = useState({ top: 0, left: 0 });
+  const { hoverFine, useSheet } = useHintMode(text);
 
   const clearClose = () => {
     if (closeTimer.current) {
@@ -36,9 +64,10 @@ export default function WalletTooltip({ text, placement = 'top', children }) {
     }
   };
 
-  const hide = () => {
+  const hide = (restoreFocus = false) => {
     clearClose();
     setOpen(false);
+    if (restoreFocus) triggerRef.current?.focus?.();
   };
 
   const show = () => {
@@ -51,6 +80,11 @@ export default function WalletTooltip({ text, placement = 'top', children }) {
   const hideSoon = () => {
     clearClose();
     closeTimer.current = setTimeout(hide, 140);
+  };
+
+  const toggle = () => {
+    if (open) hide();
+    else show();
   };
 
   useEffect(() => {
@@ -67,10 +101,12 @@ export default function WalletTooltip({ text, placement = 'top', children }) {
     if (!open) return undefined;
 
     const onKey = (e) => {
-      if (e.key === 'Escape') hide();
+      if (e.key === 'Escape') {
+        e.stopPropagation();
+        hide(true);
+      }
     };
     const onPointer = (e) => {
-      if (isHoverDevice()) return;
       const target = e.target;
       if (wrapRef.current?.contains(target) || bubbleRef.current?.contains(target)) {
         return;
@@ -80,17 +116,28 @@ export default function WalletTooltip({ text, placement = 'top', children }) {
 
     document.addEventListener('keydown', onKey);
     document.addEventListener('pointerdown', onPointer);
+    if (useSheet) {
+      const prev = document.body.style.overflow;
+      document.body.style.overflow = 'hidden';
+      closeBtnRef.current?.focus?.();
+      return () => {
+        document.body.style.overflow = prev;
+        document.removeEventListener('keydown', onKey);
+        document.removeEventListener('pointerdown', onPointer);
+      };
+    }
+
     return () => {
       document.removeEventListener('keydown', onKey);
       document.removeEventListener('pointerdown', onPointer);
     };
-  }, [open]);
+  }, [open, useSheet]);
 
   useEffect(() => {
-    if (!open) return undefined;
+    if (!open || useSheet) return undefined;
 
     const place = () => {
-      const trigger = wrapRef.current;
+      const trigger = triggerRef.current || wrapRef.current;
       const bubble = bubbleRef.current;
       if (!trigger || !bubble) return;
 
@@ -141,64 +188,114 @@ export default function WalletTooltip({ text, placement = 'top', children }) {
       window.removeEventListener('resize', place);
       window.removeEventListener('scroll', place, true);
     };
-  }, [open, placement, text]);
+  }, [open, placement, text, useSheet, title]);
 
-  const onClickCapture = (e) => {
-    if (isHoverDevice()) return;
-    e.preventDefault();
-    e.stopPropagation();
-    if (open) hide();
-    else show();
-  };
+  const closeLabel = t('common.close');
+  const infoLabel = t('walletPage.hintAria', { label: title || '' });
 
-  let trigger = children;
-  if (isValidElement(children)) {
-    const describedBy = [children.props['aria-describedby'], open ? tooltipId : null]
-      .filter(Boolean)
-      .join(' ');
-    trigger = cloneElement(children, {
-      'aria-describedby': describedBy || undefined,
-    });
-  }
+  const closeBtn = (
+    <button
+      ref={closeBtnRef}
+      type="button"
+      className="wallet-hint__close"
+      onClick={() => hide(true)}
+      aria-label={closeLabel}
+    >
+      ×
+    </button>
+  );
+
+  const panel = open && text
+    ? createPortal(
+        useSheet ? (
+          <div className="wallet-hint__backdrop" onClick={hide}>
+            <div
+              ref={bubbleRef}
+              className="wallet-hint__sheet"
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby={title ? titleId : undefined}
+              aria-describedby={tooltipId}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="wallet-hint__sheetHead">
+                {title ? (
+                  <h3 id={titleId} className="wallet-hint__sheetTitle">
+                    {title}
+                  </h3>
+                ) : (
+                  <span />
+                )}
+                {closeBtn}
+              </div>
+              <p id={tooltipId} className="wallet-hint__sheetText">
+                {text}
+              </p>
+            </div>
+          </div>
+        ) : (
+          <div
+            ref={bubbleRef}
+            id={tooltipId}
+            role="tooltip"
+            className={`wallet-hint__bubble${hoverFine ? '' : ' wallet-hint__bubble--touch'}`}
+            style={{ top: coords.top, left: coords.left }}
+            onMouseEnter={() => {
+              if (hoverFine) clearClose();
+            }}
+            onMouseLeave={() => {
+              if (hoverFine) hideSoon();
+            }}
+          >
+            {!hoverFine ? closeBtn : null}
+            {title && !hoverFine ? (
+              <p className="wallet-hint__bubbleTitle">{title}</p>
+            ) : null}
+            <p className="wallet-hint__bubbleText">{text}</p>
+          </div>
+        ),
+        document.body,
+      )
+    : null;
 
   return (
     <span
-      className="wallet-tooltip"
+      className={`wallet-hint${children ? ' wallet-hint--withLabel' : ''}`}
       ref={wrapRef}
-      tabIndex={isFocusableChild(children) ? undefined : 0}
       onMouseEnter={() => {
-        if (isHoverDevice()) show();
+        if (hoverFine) show();
       }}
       onMouseLeave={() => {
-        if (isHoverDevice()) hideSoon();
+        if (hoverFine) hideSoon();
       }}
-      onFocus={() => {
-        if (isHoverDevice()) show();
-      }}
-      onBlur={(e) => {
-        if (!e.currentTarget.contains(e.relatedTarget)) hide();
-      }}
-      onClickCapture={onClickCapture}
     >
-      {trigger}
-      {open && text
-        ? createPortal(
-            <span
-              ref={bubbleRef}
-              id={tooltipId}
-              role="tooltip"
-              className="wallet-tooltip__bubble"
-              style={{ top: coords.top, left: coords.left }}
-              onMouseEnter={clearClose}
-              onMouseLeave={() => {
-                if (isHoverDevice()) hideSoon();
-              }}
-            >
-              {text}
-            </span>,
-            document.body,
-          )
-        : null}
+      {children}
+      <button
+        ref={triggerRef}
+        type="button"
+        className="wallet-hint__info"
+        aria-label={infoLabel}
+        aria-expanded={open}
+        aria-describedby={open && !useSheet ? tooltipId : undefined}
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          if (hoverFine) return;
+          toggle();
+        }}
+        onFocus={() => {
+          if (hoverFine) show();
+        }}
+        onBlur={(e) => {
+          if (!hoverFine) return;
+          if (!wrapRef.current?.contains(e.relatedTarget) && !bubbleRef.current?.contains(e.relatedTarget)) {
+            hide();
+          }
+        }}
+      >
+        i
+      </button>
+      {panel}
     </span>
   );
 }

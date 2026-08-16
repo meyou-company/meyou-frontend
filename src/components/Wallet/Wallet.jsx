@@ -33,8 +33,18 @@ export default function Wallet({ onGoBack, onGoNotifications }) {
             ⚠️
           </span>
           <div className="wallet-banner__copy">
-            <p className="wallet-banner__title">{t("walletPage.devBannerTitle")}</p>
-            <p className="wallet-banner__text">{t("walletPage.devBannerText")}</p>
+            <p className="wallet-banner__title wallet-banner__title--full">
+              {t("walletPage.devBannerTitle")}
+            </p>
+            <p className="wallet-banner__title wallet-banner__title--short">
+              {t("walletPage.devBannerTitleShort")}
+            </p>
+            <p className="wallet-banner__text wallet-banner__text--full">
+              {t("walletPage.devBannerText")}
+            </p>
+            <p className="wallet-banner__text wallet-banner__text--short">
+              {t("walletPage.devBannerTextShort")}
+            </p>
           </div>
         </div>
       </main>
@@ -72,16 +82,14 @@ const Header = ({ t, onGoBack, onGoNotifications }) => (
 
     <h1 className="wallet__title">{t("walletPage.title")}</h1>
 
-    <WalletTooltip text={t("walletPage.bellTooltip")} placement="bottom">
-      <button
-        type="button"
-        className="wallet__bell"
-        aria-label={t("walletPage.notifications")}
-        onClick={onGoNotifications}
-      >
-        <img src={profileIcons.bellBlack} alt="" />
-      </button>
-    </WalletTooltip>
+    <button
+      type="button"
+      className="wallet__bell"
+      aria-label={t("walletPage.notifications")}
+      onClick={onGoNotifications}
+    >
+      <img src={profileIcons.bellBlack} alt="" />
+    </button>
   </header>
 );
 
@@ -90,22 +98,20 @@ const Balances = ({ t }) => (
     <Card
       modifier="spend"
       label={t("walletPage.spendLabel")}
-      labelTooltip={t("walletPage.spendTooltip")}
+      labelTooltip={`${t("walletPage.spendTooltip")} ${t("walletPage.topUpTooltip")}`}
       value={t("walletPage.spendValue")}
       button={t("walletPage.topUp")}
       buttonType="primary"
-      buttonTooltip={t("walletPage.topUpTooltip")}
       hint={t("walletPage.spendHint")}
     />
 
     <Card
       modifier="earned"
       label={t("walletPage.earnedLabel")}
-      labelTooltip={t("walletPage.earnedTooltip")}
+      labelTooltip={`${t("walletPage.earnedTooltip")} ${t("walletPage.withdrawTooltip")}`}
       value={t("walletPage.earnedValue")}
       button={t("walletPage.withdraw")}
       buttonType="outline"
-      buttonTooltip={t("walletPage.withdrawTooltip")}
       hint={t("walletPage.earnedHint")}
     />
   </section>
@@ -118,12 +124,11 @@ const Card = ({
   value,
   button,
   buttonType,
-  buttonTooltip,
   hint,
 }) => (
   <div className={`wallet-card wallet-card--${modifier}`}>
     <div className="wallet-card__header">
-      <WalletTooltip text={labelTooltip}>
+      <WalletTooltip title={label} text={labelTooltip}>
         <span className="wallet-card__label">{label}</span>
       </WalletTooltip>
     </div>
@@ -131,14 +136,12 @@ const Card = ({
     <div className="wallet-card__body">
       <p className="wallet-card__value">{value}</p>
 
-      <WalletTooltip text={buttonTooltip} placement="bottom">
-        <button
-          type="button"
-          className={`wallet-card__action wallet-card__action--${buttonType}`}
-        >
-          {button}
-        </button>
-      </WalletTooltip>
+      <button
+        type="button"
+        className={`wallet-card__action wallet-card__action--${buttonType}`}
+      >
+        {button}
+      </button>
     </div>
 
     <p className="wallet-card__hint">{hint}</p>
@@ -148,7 +151,11 @@ const Card = ({
 const History = ({ t }) => (
   <section className="wallet-history">
     <div className="wallet-history__header">
-      <WalletTooltip text={t("walletPage.historyTooltip")} placement="bottom">
+      <WalletTooltip
+        title={t("walletPage.historyTitle")}
+        text={t("walletPage.historyTooltip")}
+        placement="bottom"
+      >
         <h2 className="wallet-history__title">{t("walletPage.historyTitle")}</h2>
       </WalletTooltip>
     </div>
@@ -158,9 +165,9 @@ const History = ({ t }) => (
       activeClass="wallet-tab--active"
       itemClass="wallet-tab"
       items={[
-        { label: t("walletPage.filterAll"), tooltip: t("walletPage.filterAllTooltip") },
-        { label: t("walletPage.filterIncome"), tooltip: t("walletPage.filterIncomeTooltip") },
-        { label: t("walletPage.filterExpense"), tooltip: t("walletPage.filterExpenseTooltip") },
+        t("walletPage.filterAll"),
+        t("walletPage.filterIncome"),
+        t("walletPage.filterExpense"),
       ]}
     />
 
@@ -169,9 +176,9 @@ const History = ({ t }) => (
       activeClass="wallet-chip--active"
       itemClass="wallet-chip"
       items={[
-        { label: t("walletPage.filterGifts"), tooltip: t("walletPage.filterGiftsTooltip") },
-        { label: t("walletPage.filterVip"), tooltip: t("walletPage.filterVipTooltip") },
-        { label: t("walletPage.filterTopUp"), tooltip: t("walletPage.filterTopUpTooltip") },
+        t("walletPage.filterGifts"),
+        t("walletPage.filterVip"),
+        t("walletPage.filterTopUp"),
       ]}
     />
 
@@ -201,14 +208,13 @@ const History = ({ t }) => (
 const Tabs = ({ className, items, itemClass, activeClass }) => (
   <div className={className}>
     {items.map((item, i) => (
-      <WalletTooltip key={item.label} text={item.tooltip} placement="bottom">
-        <button
-          type="button"
-          className={`${itemClass} ${i === 0 ? activeClass : ""}`}
-        >
-          {item.label}
-        </button>
-      </WalletTooltip>
+      <button
+        key={item}
+        type="button"
+        className={`${itemClass} ${i === 0 ? activeClass : ""}`}
+      >
+        {item}
+      </button>
     ))}
   </div>
 );

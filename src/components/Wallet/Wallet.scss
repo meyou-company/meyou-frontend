@@ -206,9 +206,13 @@ $grad-card-earned: linear-gradient(181deg, #fff8fc 0%, #ffe4f3 48%, #f3d0ff 100%
   display: flex;
   align-items: flex-start;
   gap: 10px;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
   margin-bottom: 14px;
   padding: 10px 12px;
   border-radius: 14px;
+  overflow: hidden;
   border: 1px solid rgba(155, 122, 230, 0.28);
   background: linear-gradient(
     181deg,
@@ -218,6 +222,43 @@ $grad-card-earned: linear-gradient(181deg, #fff8fc 0%, #ffe4f3 48%, #f3d0ff 100%
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   box-shadow: 0 6px 16px rgba(120, 60, 140, 0.08);
+}
+
+.wallet-banner--info {
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+  padding: 14px 16px;
+  border-radius: 16px;
+
+  .wallet-banner__icon {
+    width: 28px;
+    height: 28px;
+    font-size: 15px;
+  }
+
+  .wallet-banner__title {
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 1.25;
+
+    @media (min-width: $bp-tablet) {
+      font-size: 20px;
+    }
+
+    @media (min-width: $bp-desktop) {
+      font-size: 22px;
+    }
+  }
+
+  .wallet-banner__text {
+    margin-top: 6px;
+    font-size: 13px;
+
+    @media (min-width: $bp-tablet) {
+      font-size: 14px;
+    }
+  }
 }
 
 .wallet-banner--dev {
@@ -248,6 +289,7 @@ $grad-card-earned: linear-gradient(181deg, #fff8fc 0%, #ffe4f3 48%, #f3d0ff 100%
 
 .wallet-banner__copy {
   min-width: 0;
+  flex: 1;
 }
 
 .wallet-banner__title {
@@ -255,6 +297,8 @@ $grad-card-earned: linear-gradient(181deg, #fff8fc 0%, #ffe4f3 48%, #f3d0ff 100%
   font-size: 13px;
   font-weight: 700;
   line-height: 1.3;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .wallet-banner__text {
@@ -263,9 +307,70 @@ $grad-card-earned: linear-gradient(181deg, #fff8fc 0%, #ffe4f3 48%, #f3d0ff 100%
   font-weight: 500;
   line-height: 1.4;
   color: var(--wallet-muted);
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
-.wallet-tabs .wallet-tooltip {
+.wallet-banner__title--short,
+.wallet-banner__text--short {
+  display: none;
+}
+
+@media (max-width: 767px) {
+  .wallet-banner--info {
+    padding: 10px 12px;
+
+    .wallet-banner__title {
+      font-size: 15px;
+    }
+
+    .wallet-banner__text {
+      font-size: 12px;
+    }
+  }
+
+  .wallet-banner--dev {
+    .wallet-banner__title--full,
+    .wallet-banner__text--full {
+      display: none;
+    }
+
+    .wallet-banner__title--short,
+    .wallet-banner__text--short {
+      display: block;
+    }
+  }
+}
+
+.wallet-hint-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+  max-width: 100%;
+}
+
+.wallet__bellWrap {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.wallet-card__actionRow {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+
+  .wallet-card__action {
+    margin-top: 0;
+    align-self: auto;
+  }
+}
+
+.wallet-tabs .wallet-hint,
+.wallet-tabs .wallet-hint-row {
   flex-shrink: 0;
 }
 
