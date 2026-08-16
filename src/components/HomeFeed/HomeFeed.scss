@@ -64,15 +64,6 @@
   display: block;
 }
 
-.home__tagline {
-  max-width: min(680px, calc(100% - 32px));
-  margin: 14px 0 0;
-  color: rgba(255, 255, 255, 0.82);
-  font-size: clamp(13px, 2.3vw, 16px);
-  line-height: 1.45;
-  text-wrap: balance;
-}
-
 /* =========================
    FEATURES
    ========================= */
@@ -166,20 +157,28 @@
    ACTIONS
    ========================= */
 .home__actions {
-  max-width: 520px;
+  width: fit-content;
+  max-width: calc(100% - 32px);
+  box-sizing: border-box;
 
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: stretch;
+  justify-content: center;
   gap: clamp(14px, 4vw, 20px);
 
-  padding: 0 16px;
+  margin-inline: auto;
 }
 
 .home__btn {
-  width: 130%;
+  width: auto;
+  min-width: 0;
+  align-self: stretch;
+  margin-inline: 0;
   min-height: 46px;
   padding: 16px 22px;
+  text-align: center;
+  white-space: nowrap;
 
   font-size: 16px;
   line-height: 1;
@@ -200,15 +199,11 @@
     border-radius: 24px;
   }
 
-  .home__tagline {
-    margin-top: 12px;
-    font-size: 14px;
-    max-width: 600px;
-  }
-
   .home__btn {
+    min-width: 360px;
     min-height: 64px;
     font-size: 18px;
+    padding: 16px 40px;
   }
 }
 
@@ -219,14 +214,11 @@
     border-radius: 28px;
   }
 
-  .home__tagline {
-    font-size: 15px;
-    max-width: 640px;
-  }
-
   .home__btn {
+    min-width: 440px;
     min-height: 72px;
     font-size: 20px;
+    padding: 18px 48px;
   }
 }
 
@@ -237,13 +229,10 @@
     border-radius: 32px;
   }
 
-  .home__tagline {
-    font-size: 16px;
-    max-width: 700px;
-  }
-
   .home__btn {
+    min-width: 520px;
     min-height: 76px;
     font-size: 24px;
+    padding: 20px 56px;
   }
 }

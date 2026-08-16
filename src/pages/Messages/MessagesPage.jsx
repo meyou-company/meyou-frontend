@@ -46,8 +46,12 @@ import {
   patchConversationLastMessage,
 } from '../../utils/conversationPreview';
 import {
+  canRedialCallEvent,
   formatCallEventLabel,
+  getCallEventClock,
   getCallEventIcon,
+  getCallRedialMediaType,
+  getCallRedialPeerId,
 } from '../../utils/callEventMessage';
 import { useMessageActions } from '../../hooks/useMessageActions';
 import { useAuthStore } from '../../zustand/useAuthStore';
@@ -245,6 +249,7 @@ export default function MessagesPage() {
 
   const messagesEndRef = useRef(null);
   const longPressTimerRef = useRef(null);
+  const startCallInFlightRef = useRef(false);
   const activeConversationId = conversationId || null;
 
   const activeConversation = useMemo(
@@ -697,10 +702,11 @@ export default function MessagesPage() {
   const callBusy = callPhase !== 'idle';
 
   const startCall = async (mediaType) => {
-    if (!activeConversationId || callBusy) {
+    if (!activeConversationId || callBusy || startCallInFlightRef.current) {
       if (callBusy) toast.error(t('messenger.calls.busyLocal'));
       return;
     }
+    startCallInFlightRef.current = true;
     try {
       await startConversationCall(activeConversationId, mediaType);
     } catch (err) {
@@ -709,7 +715,16 @@ export default function MessagesPage() {
         return;
       }
       toast.error(getApiErrorMessage(err) || t('messenger.calls.startFailed'));
+    } finally {
+      startCallInFlightRef.current = false;
     }
+  };
+
+  const redialFromCallEvent = (message) => {
+    if (!canRedialCallEvent(message)) return;
+    const otherId = getCallRedialPeerId(message, currentUserId, peerId);
+    if (!otherId) return;
+    void startCall(getCallRedialMediaType(message));
   };
 
   const openChatMenu = useCallback((event, chat) => {
@@ -932,7 +947,11 @@ export default function MessagesPage() {
                 {filteredConversations.map((chat) => {
                   const isActive = chat.id === activeConversationId;
                   const name = getDisplayName(chat.participant, t('common.user'));
-                  const preview = getConversationLastMessagePreview(chat.lastMessage, t);
+                  const preview = getConversationLastMessagePreview(
+                    chat.lastMessage,
+                    t,
+                    currentUserId,
+                  );
                   const chatMuted = isConversationMuted(chat);
                   const chatPinned = Boolean(chat.isPinned || chat.pinnedAt);
                   return (
@@ -1130,14 +1149,33 @@ export default function MessagesPage() {
                         }
                         const msg = item.message;
                         if (msg.type === 'CALL_EVENT') {
+                          const canRedial = canRedialCallEvent(msg);
+                          const redialType = getCallRedialMediaType(msg);
+                          const redialLabel =
+                            redialType === 'VIDEO'
+                              ? t('messenger.calls.redialVideo')
+                              : t('messenger.calls.redialAudio');
+                          const clock = getCallEventClock(msg);
                           return (
-                            <div key={msg.id} className="messagesPage__callEvent">
-                              <span className="messagesPage__callEventIcon" aria-hidden="true">
-                                {getCallEventIcon(msg)}
-                              </span>
-                              <span className="messagesPage__callEventText">
-                                {formatCallEventLabel(msg, t)}
-                              </span>
+                            <div key={msg.id} className="messagesPage__callEventBlock">
+                              {clock ? (
+                                <div className="messagesPage__callEventTime">{clock}</div>
+                              ) : null}
+                              <button
+                                type="button"
+                                className="messagesPage__callEvent"
+                                onClick={() => redialFromCallEvent(msg)}
+                                disabled={!canRedial || callBusy}
+                                aria-label={redialLabel}
+                                title={redialLabel}
+                              >
+                                <span className="messagesPage__callEventIcon" aria-hidden="true">
+                                  {getCallEventIcon(msg)}
+                                </span>
+                                <span className="messagesPage__callEventText">
+                                  {formatCallEventLabel(msg, t, currentUserId)}
+                                </span>
+                              </button>
                             </div>
                           );
                         }

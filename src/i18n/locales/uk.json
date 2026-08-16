@@ -572,7 +572,13 @@
       "chatCancelledVideo": "Скасований відеодзвінок",
       "chatEndedAudio": "Аудіодзвінок завершено",
       "chatEndedVideo": "Відеодзвінок завершено",
-      "chatEndedDuration": "{{type}} · {{duration}}"
+      "chatEndedDuration": "{{type}} · {{duration}}",
+      "chatIncomingAudio": "Вхідний аудіодзвінок",
+      "chatIncomingVideo": "Вхідний відеодзвінок",
+      "chatOutgoingAudio": "Вихідний аудіодзвінок",
+      "chatOutgoingVideo": "Вихідний відеодзвінок",
+      "redialAudio": "Передзвонити аудіо",
+      "redialVideo": "Передзвонити відео"
     }
   },
   "notifications": {

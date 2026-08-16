@@ -1,7 +1,7 @@
 import { getStoryMessageText, getStoryReplyPreview } from './storyMessagePreview';
 import { formatCallEventLabel } from './callEventMessage';
 
-export function getConversationLastMessagePreview(lastMessage, t) {
+export function getConversationLastMessagePreview(lastMessage, t, viewerId) {
   if (!lastMessage?.id) {
     return t('messenger.noMessages');
   }
@@ -11,7 +11,7 @@ export function getConversationLastMessagePreview(lastMessage, t) {
   }
 
   if (lastMessage.type === 'CALL_EVENT') {
-    return formatCallEventLabel(lastMessage, t);
+    return formatCallEventLabel(lastMessage, t, viewerId);
   }
 
   const storyPreview = getStoryReplyPreview(lastMessage);

@@ -572,7 +572,13 @@
       "chatCancelledVideo": "Cancelled video call",
       "chatEndedAudio": "Audio call ended",
       "chatEndedVideo": "Video call ended",
-      "chatEndedDuration": "{{type}} · {{duration}}"
+      "chatEndedDuration": "{{type}} · {{duration}}",
+      "chatIncomingAudio": "Incoming audio call",
+      "chatIncomingVideo": "Incoming video call",
+      "chatOutgoingAudio": "Outgoing audio call",
+      "chatOutgoingVideo": "Outgoing video call",
+      "redialAudio": "Call back (audio)",
+      "redialVideo": "Call back (video)"
     }
   },
   "notifications": {

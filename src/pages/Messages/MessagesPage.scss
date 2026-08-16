@@ -502,21 +502,57 @@
   font-weight: 700;
 }
 
-.messagesPage__callEvent {
+.messagesPage__callEventBlock {
   align-self: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: min(92%, 420px);
+  margin: 8px 0 2px;
+}
+
+.messagesPage__callEventTime {
+  margin: 0 0 6px;
+  color: var(--msg-text-muted, #8a8496);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: 0.01em;
+}
+
+.messagesPage__callEvent {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  max-width: min(92%, 420px);
-  margin: 10px 0;
-  padding: 8px 14px;
+  max-width: 100%;
+  min-height: 44px;
+  margin: 0;
+  padding: 10px 16px;
+  border: 0;
   border-radius: 999px;
   background: rgba(120, 90, 180, 0.1);
   color: var(--msg-text-muted, #6b6280);
+  font: inherit;
   font-size: 13px;
   font-weight: 600;
   text-align: center;
   line-height: 1.3;
+  cursor: pointer;
+  appearance: none;
+  -webkit-tap-highlight-color: transparent;
+
+  &:hover:not(:disabled) {
+    background: rgba(120, 90, 180, 0.16);
+  }
+
+  &:active:not(:disabled) {
+    background: rgba(120, 90, 180, 0.22);
+  }
+
+  &:disabled {
+    cursor: default;
+    opacity: 0.7;
+  }
 }
 
 .messagesPage__callEventIcon {
@@ -857,9 +893,21 @@ html[data-theme='dark'] {
     border-bottom-color: rgba(255, 255, 255, 0.08);
   }
 
+  .messagesPage__callEventTime {
+    color: rgba(255, 255, 255, 0.45);
+  }
+
   .messagesPage__callEvent {
     background: rgba(255, 255, 255, 0.08);
     color: rgba(255, 255, 255, 0.65);
+
+    &:hover:not(:disabled) {
+      background: rgba(255, 255, 255, 0.14);
+    }
+
+    &:active:not(:disabled) {
+      background: rgba(255, 255, 255, 0.2);
+    }
   }
 
   .messagesPage__backMobile {
