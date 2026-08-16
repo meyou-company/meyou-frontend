@@ -252,6 +252,33 @@ export default function MessagesPage() {
   const startCallInFlightRef = useRef(false);
   const activeConversationId = conversationId || null;
 
+  useEffect(() => {
+    const mobile = window.matchMedia('(max-width: 900px)');
+    const lock = () => {
+      if (!activeConversationId || !mobile.matches) return undefined;
+      const html = document.documentElement;
+      const { overflow: prevHtml } = html.style;
+      const { overflow: prevBody } = document.body.style;
+      html.style.overflow = 'hidden';
+      document.body.style.overflow = 'hidden';
+      return () => {
+        html.style.overflow = prevHtml;
+        document.body.style.overflow = prevBody;
+      };
+    };
+
+    let unlock = lock();
+    const onChange = () => {
+      unlock?.();
+      unlock = lock();
+    };
+    mobile.addEventListener('change', onChange);
+    return () => {
+      mobile.removeEventListener('change', onChange);
+      unlock?.();
+    };
+  }, [activeConversationId]);
+
   const activeConversation = useMemo(
     () => conversations.find((c) => c.id === activeConversationId) ?? null,
     [conversations, activeConversationId],
