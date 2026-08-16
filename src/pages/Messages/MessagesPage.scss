@@ -724,19 +724,24 @@
   }
 
   .messagesPage--chatOpen .messagesPage__chatHead {
-    position: relative;
-    top: auto;
-    z-index: 5;
+    position: sticky;
+    top: 0;
+    z-index: 30;
     flex: 0 0 auto;
     flex-shrink: 0;
     min-height: 56px;
-    padding-top: max(52px, env(safe-area-inset-top, 0px));
-    padding-bottom: 12px;
+    padding-top: max(10px, env(safe-area-inset-top, 0px));
+    padding-bottom: 10px;
     padding-left: max(12px, env(safe-area-inset-left, 0px));
     padding-right: max(12px, env(safe-area-inset-right, 0px));
     background: #e1cbff;
     border-bottom: 1px solid rgba(0, 0, 0, 0.12);
     box-shadow: 0 2px 12px rgba(120, 80, 180, 0.12);
+  }
+
+  .messagesPage--chatOpen .messagesPage__chatAction--search,
+  .messagesPage--chatOpen .messagesPage__chatAction--mute {
+    display: none;
   }
 
   .messagesPage--chatOpen .messagesPage__chatTitle {

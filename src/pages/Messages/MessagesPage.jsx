@@ -1095,7 +1095,7 @@ export default function MessagesPage() {
                       </button>
                       <button
                         type="button"
-                        className={`messagesPage__chatAction${showChatSearch ? ' is-active' : ''}`}
+                        className={`messagesPage__chatAction messagesPage__chatAction--search${showChatSearch ? ' is-active' : ''}`}
                         onClick={() => setShowChatSearch((v) => !v)}
                         aria-label={t('messenger.searchInChat')}
                       >
@@ -1103,7 +1103,7 @@ export default function MessagesPage() {
                       </button>
                       <button
                         type="button"
-                        className={`messagesPage__chatAction${isMuted ? ' is-active' : ''}`}
+                        className={`messagesPage__chatAction messagesPage__chatAction--mute${isMuted ? ' is-active' : ''}`}
                         onClick={() => void toggleMute()}
                         aria-label={isMuted ? t('messenger.unmuteChat') : t('messenger.muteChat')}
                       >
