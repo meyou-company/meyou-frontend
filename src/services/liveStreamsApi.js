@@ -135,10 +135,4 @@ export const liveStreamsApi = {
     return unwrap(data);
   },
 
-  async getPlayback(id) {
-    const { data } = await api.get(
-      apiPath(`/live-streams/${encodeURIComponent(id)}/playback`),
-    );
-    return unwrap(data);
-  },
 };

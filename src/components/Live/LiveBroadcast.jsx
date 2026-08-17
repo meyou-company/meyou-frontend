@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
-import fixWebmDuration from "fix-webm-duration";
 import { toast } from "sonner";
 import { useAuthStore } from "../../zustand/useAuthStore";
 import { useLocaleStore } from "../../zustand/useLocaleStore";
@@ -9,7 +8,6 @@ import { extractLiveMedia, liveStreamsApi } from "../../services/liveStreamsApi"
 import { getSessionAccessToken } from "../../services/api";
 import { connectSocket, getSocket } from "../../services/socket";
 import { usersApi } from "../../services/usersApi";
-import { uploadVideoMedia } from "../../services/videoMediaUploadApi";
 import { getApiErrorMessage } from "../../utils/getApiErrorMessage";
 import { getLiveErrorMessage } from "../../utils/getLiveErrorMessage";
 import profileIcons from "../../constants/profileIcons";
@@ -71,7 +69,6 @@ function normalizeStream(payload) {
       value.analytics?.durationSec ??
       null,
     isSoundEnabled: value.isSoundEnabled !== false,
-    isSaved: Boolean(value.isSaved),
     viewersCount:
       value.viewersCount ?? value.viewerCount ?? value.participantsCount ?? 0,
     reactionsCount: value.reactionsCount ?? value.likesCount ?? 0,
@@ -254,36 +251,6 @@ function formatCompactCount(value) {
   return String(number);
 }
 
-function getPlaybackUrl(payload, depth = 0) {
-  if (!payload || depth > 5) return null;
-  const value = unwrap(payload) || {};
-  const direct = [
-    value.recordingUrl,
-    value.playbackUrl,
-    value.videoUrl,
-    value.hlsUrl,
-    value.mp4Url,
-    value.downloadUrl,
-    value.assetUrl,
-    value.mediaUrl,
-    value.url,
-  ].find((candidate) => typeof candidate === "string" && /^https?:\/\//i.test(candidate));
-  if (direct) return direct;
-
-  for (const nested of [
-    value.data,
-    value.result,
-    value.recording,
-    value.playback,
-    value.media,
-    value.asset,
-  ]) {
-    const nestedUrl = getPlaybackUrl(nested, depth + 1);
-    if (nestedUrl) return nestedUrl;
-  }
-  return null;
-}
-
 function getStreamDurationSec(stream) {
   const explicitDuration = Number(stream?.durationSec);
   if (Number.isFinite(explicitDuration) && explicitDuration >= 0) {
@@ -327,15 +294,6 @@ function formatDuration(durationSec) {
   return `${Math.max(1, minutes)} мин`;
 }
 
-function getRecordingMimeType() {
-  const candidates = [
-    "video/webm;codecs=vp8,opus",
-    "video/webm;codecs=vp9,opus",
-    "video/webm",
-  ];
-  return candidates.find((type) => window.MediaRecorder?.isTypeSupported?.(type)) || "";
-}
-
 function extractBlockedUserIds(payload) {
   const value = payload?.data ?? payload;
   const list = Array.isArray(value)
@@ -368,8 +326,6 @@ export default function LiveBroadcast() {
   const streamRef = useRef(null);
   const hostReconnectRef = useRef(null);
   const viewerAutoConnectRef = useRef(null);
-  const recordingSessionRef = useRef(null);
-  const shouldSaveRef = useRef(false);
   const unmountFinalizationRef = useRef(null);
 
   const currentUser = useMemo(
@@ -394,10 +350,8 @@ export default function LiveBroadcast() {
   const [isPlaying, setIsPlaying] = useState(Boolean(liveId));
   const [isSettingsOpen, setIsSettingsOpen] = useState(!liveId);
   const [isMuted, setIsMuted] = useState(false);
-  const [shouldSave, setShouldSave] = useState(false);
   const [isStarting, setIsStarting] = useState(false);
   const [isEnding, setIsEnding] = useState(false);
-  const [recordingRevision, setRecordingRevision] = useState(0);
   const [likesCount, setLikesCount] = useState(0);
   const [pinnedMessageIds, setPinnedMessageIds] = useState([]);
   const [messages, setMessages] = useState([]);
@@ -405,15 +359,10 @@ export default function LiveBroadcast() {
   const [isLoadingOlderMessages, setIsLoadingOlderMessages] = useState(false);
   const [areMessagesHydrated, setAreMessagesHydrated] = useState(false);
   const [isChatOpen, setIsChatOpen] = useState(true);
-  const [playbackUrl, setPlaybackUrl] = useState(null);
   const [pickerMode, setPickerMode] = useState(null);
   const [isRestoringHost, setIsRestoringHost] = useState(false);
   const [blockedUserIds, setBlockedUserIds] = useState(() => new Set());
   const [moderatingUserId, setModeratingUserId] = useState(null);
-
-  useEffect(() => {
-    shouldSaveRef.current = shouldSave;
-  }, [shouldSave]);
 
   const setStream = useCallback((nextStream) => {
     const normalized = nextStream ? normalizeStream(nextStream) : null;
@@ -551,79 +500,19 @@ export default function LiveBroadcast() {
   const connectLiveKit = liveKit.connect;
   const startLiveAudio = liveKit.startAudio;
 
-  const stopLocalRecording = useCallback(() => {
-    const session = recordingSessionRef.current;
-    if (!session?.recorder) return Promise.resolve(null);
-    if (session.stopPromise) return session.stopPromise;
-
-    session.stopPromise = new Promise((resolve) => {
-      const finish = async () => {
-        if (session.isFinished) return;
-        session.isFinished = true;
-
-        let blob = session.chunks.length
-          ? new Blob(session.chunks, { type: session.mimeType || "video/webm" })
-          : null;
-        const durationMs = Math.max(1, Date.now() - session.startedAt);
-        if (blob?.size && blob.type.includes("webm")) {
-          try {
-            blob = await fixWebmDuration(blob, durationMs, { logger: false });
-          } catch {
-            // Keep the original recording if metadata repair is unsupported.
-          }
-        }
-        if (recordingSessionRef.current === session) recordingSessionRef.current = null;
-        setRecordingRevision((current) => current + 1);
-        resolve(blob);
-      };
-
-      session.recorder.addEventListener("stop", finish, { once: true });
-      if (session.recorder.state === "inactive") finish();
-      else session.recorder.stop();
-    });
-
-    return session.stopPromise;
-  }, []);
-
-  const finalizeStreamOnUnmount = useCallback(async (activeStream, saveRecording) => {
+  const finalizeStreamOnUnmount = useCallback(async (activeStream) => {
     if (!activeStream?.id) return;
     if (unmountFinalizationRef.current?.streamId === activeStream.id) {
       return unmountFinalizationRef.current.promise;
     }
 
-    const promise = (async () => {
-      let recordingUrl = null;
-      if (saveRecording) {
-        const recordingBlob = await stopLocalRecording();
-        if (recordingBlob?.size) {
-          const extension = recordingBlob.type.includes("mp4") ? "mp4" : "webm";
-          const recordingFile = new File(
-            [recordingBlob],
-            `live-${activeStream.id}-${Date.now()}.${extension}`,
-            { type: recordingBlob.type || "video/webm" },
-          );
-          const uploaded = await uploadVideoMedia(recordingFile);
-          recordingUrl = uploaded.mediaUrl;
-          await liveStreamsApi.updateSettings(activeStream.id, {
-            isSaved: true,
-            recordingUrl,
-            recordingStatus: "READY",
-          });
-        }
-      } else {
-        await stopLocalRecording();
-      }
-
-      await liveStreamsApi.end(
-        activeStream.id,
-        recordingUrl ? { recordingUrl } : {},
-      );
+    const promise = liveStreamsApi.end(activeStream.id, {}).then(() => {
       removeHostMedia(activeStream.id);
-    })();
+    });
 
     unmountFinalizationRef.current = { streamId: activeStream.id, promise };
     return promise;
-  }, [stopLocalRecording]);
+  }, []);
 
   useEffect(() => () => {
     const activeStream = streamRef.current;
@@ -634,84 +523,9 @@ export default function LiveBroadcast() {
       String(activeHostId) === String(currentUser.id);
 
     if (!ownsActiveStream) return;
-    finalizeStreamOnUnmount(activeStream, shouldSaveRef.current)
+    finalizeStreamOnUnmount(activeStream)
       .catch(() => liveStreamsApi.end(activeStream.id, {}).catch(() => {}));
   }, [currentUser.id, finalizeStreamOnUnmount]);
-
-  useEffect(() => {
-    if (!isOwner || stream?.status !== LIVE_STATUS || isEnded || !shouldSave) {
-      return undefined;
-    }
-
-    const warnBeforeUnload = (event) => {
-      event.preventDefault();
-      event.returnValue = "";
-    };
-    window.addEventListener("beforeunload", warnBeforeUnload);
-    return () => window.removeEventListener("beforeunload", warnBeforeUnload);
-  }, [isEnded, isOwner, shouldSave, stream?.status]);
-
-useEffect(() => {
-  const videoMediaTrack = liveKit.videoTrack?.mediaStreamTrack;
-  const audioMediaTrack = liveKit.audioTrack?.mediaStreamTrack;
-
-  const canRecord =
-    isOwner &&
-    stream?.status === LIVE_STATUS &&
-    !isEnded &&
-    !isEnding &&
-    window.MediaRecorder &&
-    videoMediaTrack;
-
-  if (!canRecord || recordingSessionRef.current) return undefined;
-
-  const tracks = [videoMediaTrack, audioMediaTrack].filter(Boolean);
-  const mediaStream = new MediaStream(tracks);
-
-  const mimeType = getRecordingMimeType();
-
-  const recorder = new MediaRecorder(
-    mediaStream,
-    mimeType
-      ? {
-          mimeType,
-          videoBitsPerSecond: 1_200_000,
-          audioBitsPerSecond: 64_000,
-        }
-      : {
-          videoBitsPerSecond: 1_200_000,
-          audioBitsPerSecond: 64_000,
-        },
-  );
-
-  const session = {
-    recorder,
-    chunks: [],
-    mimeType: mimeType || recorder.mimeType,
-    startedAt: Date.now(),
-    isFinished: false,
-  };
-
-  recordingSessionRef.current = session;
-
-  recorder.addEventListener("dataavailable", (event) => {
-    if (event.data?.size) {
-      session.chunks.push(event.data);
-    }
-  });
-
-  recorder.start(1_000);
-
-  return undefined;
-}, [
-  isEnded,
-  isEnding,
-  isOwner,
-  liveKit.audioTrack,
-  liveKit.videoTrack,
-  recordingRevision,
-  stream?.status,
-]);
 
   useEffect(() => {
     if (!liveId) {
@@ -719,7 +533,6 @@ useEffect(() => {
       setIsEnded(false);
       setIsPlaying(false);
       setIsSettingsOpen(true);
-      setPlaybackUrl(null);
       setElapsed(0);
       setNextMessagesCursor(null);
       setIsLoading(false);
@@ -761,7 +574,6 @@ useEffect(() => {
         setStream(normalized);
         setIsEnded(normalized.status === ENDED_STATUS);
         setIsMuted(!normalized.isSoundEnabled);
-        setShouldSave(normalized.isSaved);
         setLikesCount(Math.max(
           normalized.reactionsCount,
           readCachedReactionCount(liveId),
@@ -790,17 +602,6 @@ useEffect(() => {
           setElapsed(normalized.status === ENDED_STATUS
             ? getStreamDurationSec(normalized) || calculatedElapsed
             : calculatedElapsed);
-        }
-
-        if (normalized.status === ENDED_STATUS) {
-          try {
-            const playback = await liveStreamsApi.getPlayback(normalized.id);
-            if (!cancelled) {
-              setPlaybackUrl(getPlaybackUrl(playback) || getPlaybackUrl(normalized));
-            }
-          } catch {
-            if (!cancelled) setPlaybackUrl(getPlaybackUrl(normalized));
-          }
         }
       })
       .catch((error) => {
@@ -866,27 +667,6 @@ useEffect(() => {
     if (!activeId) return;
     cacheReactionCount(activeId, likesCount);
   }, [likesCount, liveId, stream?.id]);
-
-  useEffect(() => {
-    const activeId = stream?.id || liveId;
-    if (!activeId || !isEnded || playbackUrl || !stream?.isSaved) return undefined;
-
-    let cancelled = false;
-    const refreshPlayback = () => {
-      liveStreamsApi.getPlayback(activeId)
-        .then((payload) => {
-          const nextUrl = getPlaybackUrl(payload) || getPlaybackUrl(stream);
-          if (!cancelled && nextUrl) setPlaybackUrl(nextUrl);
-        })
-        .catch(() => {});
-    };
-
-    const intervalId = window.setInterval(refreshPlayback, 5_000);
-    return () => {
-      cancelled = true;
-      window.clearInterval(intervalId);
-    };
-  }, [isEnded, liveId, playbackUrl, stream]);
 
   useEffect(() => {
     const activeId = stream?.id || liveId;
@@ -1144,10 +924,9 @@ useEffect(() => {
       cacheHostMedia(started.id, hostMedia);
       await liveKit.connect(hostMedia, { isHost: true });
       if (isMuted) await liveKit.setMicrophoneEnabled(false);
-      if (isMuted || shouldSave) {
+      if (isMuted) {
         await liveStreamsApi.updateSettings(started.id, {
           isSoundEnabled: !isMuted,
-          isSaved: shouldSave,
         });
       }
       setElapsed(0);
@@ -1178,7 +957,7 @@ useEffect(() => {
   };
 
   const handleTogglePlaying = async () => {
-    if (isEnded || playbackUrl) return;
+    if (isEnded) return;
     try {
       if (!liveKit.isConnected) await ensureViewerConnected();
       if (!isPlaying) await liveKit.startAudio();
@@ -1311,54 +1090,12 @@ useEffect(() => {
     }
   };
 
-  const handleToggleSave = async () => {
-    if (!isOwner) return;
-    const nextValue = !shouldSave;
-    if (!stream?.id) {
-      setShouldSave(nextValue);
-      return;
-    }
-    try {
-      await liveStreamsApi.updateSettings(stream.id, { isSaved: nextValue });
-      setShouldSave(nextValue);
-      setStream({ ...stream, isSaved: nextValue });
-    } catch (error) {
-      toast.error(getLiveErrorMessage(error));
-    }
-  };
-
   const handleEnd = async () => {
     if (!isOwner || !stream?.id || isEnding) return;
     setIsEnding(true);
     try {
-      let recordingUrl = null;
-      if (shouldSave) {
-        const recordingBlob = await stopLocalRecording();
-        if (!recordingBlob?.size) {
-          throw new Error("Не удалось создать файл записи эфира");
-        }
-        const extension = recordingBlob.type.includes("mp4") ? "mp4" : "webm";
-        const recordingFile = new File(
-          [recordingBlob],
-          `live-${stream.id}-${Date.now()}.${extension}`,
-          { type: recordingBlob.type || "video/webm" },
-        );
-        const uploaded = await uploadVideoMedia(recordingFile);
-        recordingUrl = uploaded.mediaUrl;
-        await liveStreamsApi.updateSettings(stream.id, {
-          isSaved: true,
-          recordingUrl,
-          recordingStatus: "READY",
-        });
-      } else {
-        await stopLocalRecording();
-      }
-
       await liveKit.publishData({ type: "stream.ended" }).catch(() => {});
-      const endedPayload = await liveStreamsApi.end(
-        stream.id,
-        recordingUrl ? { recordingUrl } : {},
-      );
+      const endedPayload = await liveStreamsApi.end(stream.id, {});
       await liveKit.disconnect();
       removeHostMedia(stream.id);
       hostReconnectRef.current = null;
@@ -1366,7 +1103,7 @@ useEffect(() => {
       setIsEnded(true);
       setIsPlaying(false);
       setIsSettingsOpen(false);
-      toast.success(shouldSave ? "Эфир завершён, запись обрабатывается" : "Эфир завершён");
+      toast.success("Эфир завершён");
     } catch (error) {
       toast.error(getLiveErrorMessage(error));
     } finally {
@@ -1520,10 +1257,8 @@ useEffect(() => {
               isPlaying={isPlaying}
               isSettingsOpen={isSettingsOpen}
               isMuted={isMuted}
-              shouldSave={shouldSave}
               videoTrack={liveKit.videoTrack}
               audioTrack={liveKit.audioTrack}
-              playbackUrl={playbackUrl}
               isCameraStarting={isStarting || isRestoringHost || liveKit.isConnecting}
               isEnding={isEnding}
               viewerCount={formatCompactCount(viewerCount)}
@@ -1531,7 +1266,6 @@ useEffect(() => {
               onTogglePlaying={handleTogglePlaying}
               onToggleSettings={() => setIsSettingsOpen((current) => !current)}
               onToggleMuted={handleToggleMuted}
-              onToggleSave={handleToggleSave}
               onStartCamera={handleStartBroadcast}
               onShare={() => stream?.id ? setPickerMode("share") : toast.info("Сначала запустите эфир")}
               onReact={handleReact}
