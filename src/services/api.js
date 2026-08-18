@@ -49,12 +49,23 @@ export function apiPath(path) {
 
 const SESSION_ACCESS_KEY = "meyou_session_access_token";
 const SESSION_REFRESH_KEY = "meyou_session_refresh_token";
+export const AUTH_ACCESS_TOKEN_UPDATED_EVENT = "meyou:access-token-updated";
 
 /** Bearer для cross-origin або dev (порт фронту ≠ API), доповнює httpOnly cookies після OAuth. */
 export function persistOAuthSessionTokens(accessToken, refreshToken) {
   try {
+    const previousAccessToken = sessionStorage.getItem(SESSION_ACCESS_KEY);
     if (accessToken) sessionStorage.setItem(SESSION_ACCESS_KEY, accessToken);
     if (refreshToken) sessionStorage.setItem(SESSION_REFRESH_KEY, refreshToken);
+    if (
+      accessToken &&
+      accessToken !== previousAccessToken &&
+      typeof window !== "undefined"
+    ) {
+      window.dispatchEvent(new CustomEvent(AUTH_ACCESS_TOKEN_UPDATED_EVENT, {
+        detail: { accessToken },
+      }));
+    }
   } catch (_) {
     /* ignore */
   }

@@ -1,5 +1,9 @@
 import { io } from "socket.io-client";
-import { resolvedApiBaseUrl } from "./api";
+import {
+  AUTH_ACCESS_TOKEN_UPDATED_EVENT,
+  getSessionAccessToken,
+  resolvedApiBaseUrl,
+} from "./api";
 
 let socket = null;
 let socketToken = null;
@@ -15,23 +19,26 @@ function resolveLiveSocketUrl() {
 }
 
 export function connectLiveSocket(token) {
-  if (!token) return null;
+  const currentToken = getSessionAccessToken() || token;
+  if (!currentToken) return null;
 
-  if (socket && socketToken !== token) {
+  if (socket && socketToken !== currentToken) {
+    socketToken = currentToken;
+    socket.auth = { token: currentToken };
     socket.disconnect();
-    socket.removeAllListeners();
-    socket = null;
+    socket.connect();
+    return socket;
   }
 
-  socketToken = token;
+  socketToken = currentToken;
   if (socket) {
-    socket.auth = { token };
+    socket.auth = { token: currentToken };
     if (!socket.connected) socket.connect();
     return socket;
   }
 
   socket = io(resolveLiveSocketUrl(), {
-    auth: { token },
+    auth: { token: currentToken },
     withCredentials: true,
     transports: ["websocket", "polling"],
   });
@@ -40,4 +47,12 @@ export function connectLiveSocket(token) {
 
 export function getLiveSocket() {
   return socket;
+}
+
+if (typeof window !== "undefined") {
+  window.addEventListener(AUTH_ACCESS_TOKEN_UPDATED_EVENT, (event) => {
+    const accessToken = event?.detail?.accessToken;
+    if (!accessToken || !socket || socketToken === accessToken) return;
+    connectLiveSocket(accessToken);
+  });
 }
