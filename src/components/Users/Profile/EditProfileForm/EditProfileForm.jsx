@@ -23,10 +23,7 @@ import {
   translateValidationErrors,
 } from '../../../../utils/validationProfile';
 import { getApiErrorCode, getApiErrorMessage } from '../../../../utils/getApiErrorMessage';
-import {
-  applyBirthDateNormalization,
-  getBirthDateLimits,
-} from '../../../../utils/profileFormUtils';
+import { applyBirthDateNormalization } from '../../../../utils/profileFormUtils';
 
 import { interestOptions } from '../../../../constants/interests';
 import { profileHobbyOptions } from '../../../../constants/hobbies';
@@ -39,7 +36,6 @@ import MultiSelect from './MultiSelect';
 import VisibilityToggle from './VisibilityToggle';
 
 import './EditProfileForm.scss';
-import DatePicker from 'react-datepicker';
 
 const INITIAL_VALUES = {
   firstName: '',
@@ -518,30 +514,15 @@ export default function EditProfileForm({ onBack, onSave }) {
           </div>
 
           <div className="field">
-            <div className="field__wrap field__wrap--birthDate">
-              <DatePicker
-                className={`text-input field__date-input ${showError('birthDate') ? 'is-error' : ''}`}
-                placeholderText={t('profile.editForm.fields.birthDatePlaceholder')}
-                aria-label={t('profile.editForm.fields.birthDate')}
-                dateFormat="yyyy-MM-dd"
-                selected={
-                  values?.birthDate && !isNaN(new Date(values.birthDate).getTime())
-                    ? new Date(values.birthDate)
-                    : null
-                }
-                minDate={getBirthDateLimits().minDate}
-                maxDate={getBirthDateLimits().maxDate}
-                onChange={(d) => setField('birthDate', d ? toYMDLocal(d) : '')}
-                onBlur={() => onBlur('birthDate')}
-                required
-                popperClassName="birthDate-picker"
-                showMonthDropdown
-                showYearDropdown
-                dropdownMode="select"
-                yearDropdownItemNumber={100}
-              />
-              <span className="field__date-indicator" aria-hidden="true" />
-            </div>
+            <BirthDateField
+              value={values.birthDate}
+              onChange={(val) => setField('birthDate', val)}
+              onBlur={() => onBlur('birthDate')}
+              hasError={showError('birthDate')}
+              placeholderText="DD.MM.YYYY"
+              ariaLabel={t('profile.editForm.fields.birthDate')}
+              required
+            />
             {showError('birthDate') && <div className="field__hint">{errors.birthDate}</div>}
           </div>
         </div>

@@ -834,7 +834,25 @@
   },
   "explore": {
     "searchPlaceholder": "Find new friends by name, username or city…",
-    "searchAria": "Search for new friends"
+    "searchAria": "Search for new friends",
+    "pageTitle": "Search",
+    "back": "Back",
+    "gridView": "Grid",
+    "listView": "List",
+    "clearSearch": "Clear search",
+    "openFilters": "Filter",
+    "loading": "Loading…",
+    "nothingFound": "Nothing found",
+    "user": "User",
+    "unsubscribe": "Unsubscribe",
+    "subscribe": "Subscribe",
+    "addToVip": "Add to VIP",
+    "tabs": {
+      "popular": "Recommended",
+      "nearby": "Recently Online",
+      "new": "New profiles",
+      "vip": "VIP"
+    }
   },
   "feed": {
     "loading": "Loading feed…",
@@ -1042,5 +1060,32 @@
       "edit": "Edit",
       "delete": "Delete"
     }
+  },
+  "interests": {
+    "fitness": "Fitness",
+    "sport": "Sports",
+    "travel": "Travel",
+    "music": "Music",
+    "fashion": "Fashion",
+    "food": "Food",
+    "coffee": "Coffee",
+    "movies": "Movies",
+    "art": "Art",
+    "photography": "Photography",
+    "tech": "Technology",
+    "gaming": "Gaming",
+    "business": "Business",
+    "self_development": "Self-development",
+    "psychology": "Psychology",
+    "books": "Books",
+    "nature": "Nature",
+    "pets": "Pets",
+    "dance": "Dance",
+    "yoga": "Yoga",
+    "party": "Parties",
+    "family": "Family",
+    "cars": "Cars",
+    "crypto": "Cryptocurrency",
+    "volunteer": "Volunteering"
   }
 }

@@ -1,0 +1,273 @@
+/* ======================================================
+   React Select
+   ====================================================== */
+
+.field__wrap.select-wrap {
+  .rs__control {
+    /*
+        Висота визначається .field__wrap у _field.scss.
+        React Select просто займає всю висоту wrapper.
+      */
+    height: 100%;
+    min-height: 0;
+
+    border: 0;
+    border-radius: 0;
+
+    background: transparent;
+    box-shadow: none;
+  }
+
+  .rs__control--is-focused {
+    border: 0;
+    box-shadow: none;
+  }
+
+  /* ====================================================
+       Value container
+       ==================================================== */
+
+  .rs__value-container {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: 4px;
+
+    min-width: 0;
+    overflow: hidden;
+
+    padding-left: 28px;
+  }
+
+  .rs__input-container {
+    flex: 1 1 auto;
+
+    min-width: 2px;
+
+    margin: 0;
+    padding: 0;
+  }
+
+  .rs__single-value {
+    min-width: 0;
+    max-width: 100%;
+    overflow: hidden;
+
+    color: var(--field-text);
+    font-size: 14px;
+
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  .rs__placeholder {
+    color: var(--select-placeholder);
+    font-size: 14px;
+  }
+
+  /* ====================================================
+       Indicators
+       ==================================================== */
+
+  .rs__indicators {
+    display: flex;
+    align-items: center;
+  }
+
+  .rs__indicator-separator {
+    margin: 8px 0;
+  }
+
+  .rs__dropdown-indicator,
+  .rs__clear-indicator {
+    color: rgba(0, 0, 0, 0.45);
+
+    transition: color 0.2s;
+
+    &:hover {
+      color: #b05cff;
+    }
+  }
+
+  /* ====================================================
+       Multi values
+       ==================================================== */
+
+  .rs__multi-value {
+    display: flex;
+    align-items: center;
+
+    margin: 2px;
+
+    border-radius: 10px;
+
+    background: rgba(255, 255, 255, 0.95);
+  }
+
+  .rs__multi-value__label {
+    overflow: hidden;
+
+    padding: 4px 8px;
+
+    font-size: 13px;
+
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  .rs__multi-value__remove {
+    cursor: pointer;
+
+    transition: background 0.2s;
+
+    &:hover {
+      background: rgba(255, 0, 0, 0.15);
+    }
+  }
+}
+
+/* ======================================================
+     Menu
+     ====================================================== */
+.rs__menu-portal {
+  z-index: 99999;
+}
+
+.rs__menu {
+  padding: 6px;
+
+  border-radius: 16px !important;
+
+  background: var(--select-menu-bg) !important;
+
+  box-shadow: 0 12px 30px rgba(123, 92, 255, 0.25) !important;
+}
+
+.rs__option {
+  padding: 12px 14px;
+
+  border-radius: 12px;
+
+  color: var(--select-text) !important;
+
+  font-size: 16px;
+
+  cursor: pointer;
+
+  transition:
+    background-color 0.18s ease,
+    color 0.18s ease;
+}
+
+.rs__option--is-focused {
+  color: var(--select-text) !important;
+  background: var(--select-option-hover-bg) !important;
+}
+
+.rs__option--is-selected {
+  color: #fff !important;
+  font-weight: 600;
+
+  background: var(--select-option-selected-bg) !important;
+}
+
+.rs__option--is-selected.rs__option--is-focused {
+  color: #fff !important;
+
+  background: var(--select-option-selected-bg) !important;
+}
+
+/* ======================================================
+     Dark theme
+     ====================================================== */
+
+body.dark {
+  .field__wrap.select-wrap {
+    .rs__control {
+      background: transparent;
+    }
+
+    .rs__placeholder {
+      color: rgba(255, 255, 255, 0.45);
+    }
+
+    .rs__indicator-separator {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    .rs__dropdown-indicator,
+    .rs__clear-indicator {
+      color: rgba(255, 255, 255, 0.75);
+
+      &:hover {
+        color: #fff;
+      }
+    }
+
+    .rs__single-value,
+    .rs__input-container {
+      color: #fff;
+    }
+
+    .rs__multi-value {
+      background: #fff;
+    }
+
+    .rs__multi-value__remove {
+      color: rgba(0, 0, 0, 0.75);
+
+      &:hover {
+        color: #000;
+        background: rgba(255, 255, 255, 0.12);
+      }
+    }
+  }
+
+  .rs__menu {
+    background: #2d2338 !important;
+  }
+
+  .rs__option {
+    color: #fff !important;
+  }
+
+  .rs__option--is-focused {
+    color: #fff !important;
+    background: rgba(176, 92, 255, 0.18) !important;
+  }
+
+  .rs__option--is-selected,
+  .rs__option--is-selected.rs__option--is-focused {
+    color: #fff !important;
+    background: var(--select-option-selected-bg) !important;
+  }
+}
+
+/* ======================================================
+     Responsive
+     ====================================================== */
+
+@media (max-width: 480px) {
+  .field__wrap.select-wrap {
+    .rs__value-container {
+      padding-left: 22px;
+    }
+
+    .rs__option {
+      padding: 10px 12px;
+      font-size: 13px;
+    }
+
+    .rs__multi-value__label {
+      font-size: 12px;
+    }
+  }
+}
+
+@media (max-width: 360px) {
+  .field__wrap.select-wrap {
+    .rs__value-container {
+      padding-left: 20px;
+    }
+  }
+}

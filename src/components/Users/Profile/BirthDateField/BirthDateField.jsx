@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
+
 import {
   BIRTH_DATE_MASK_MAX_LENGTH,
   applyBirthDateMaskChange,
@@ -10,7 +11,6 @@ import {
   toYMDLocal,
   ymdToDisplayMask,
 } from '../../../../utils/profileFormUtils';
-import './BirthDateField.scss';
 
 function displayFromValue(value) {
   if (!value) return '';
@@ -30,7 +30,8 @@ export default function BirthDateField({
   showStar = false,
 }) {
   const { minDate, maxDate } = getBirthDateLimits();
-  const wrapRef = useRef(null);
+  const fieldRef = useRef(null);
+
   const [calendarOpen, setCalendarOpen] = useState(false);
   const [displayValue, setDisplayValue] = useState(() => displayFromValue(value));
 
@@ -49,18 +50,24 @@ export default function BirthDateField({
   useEffect(() => {
     if (!calendarOpen) return undefined;
 
-    const handleOutside = (event) => {
-      if (wrapRef.current && !wrapRef.current.contains(event.target)) {
+    const handleDocumentMouseDown = (event) => {
+      const target = event.target;
+
+      const clickedField = fieldRef.current?.contains(target);
+
+      const calendar = document.querySelector('#birth-date-picker-portal .react-datepicker');
+
+      const clickedCalendar = calendar?.contains(target);
+
+      if (!clickedField && !clickedCalendar) {
         setCalendarOpen(false);
       }
     };
 
-    document.addEventListener('mousedown', handleOutside);
-    document.addEventListener('touchstart', handleOutside, { passive: true });
+    document.addEventListener('mousedown', handleDocumentMouseDown);
 
     return () => {
-      document.removeEventListener('mousedown', handleOutside);
-      document.removeEventListener('touchstart', handleOutside);
+      document.removeEventListener('mousedown', handleDocumentMouseDown);
     };
   }, [calendarOpen]);
 
@@ -95,9 +102,21 @@ export default function BirthDateField({
     setCalendarOpen(false);
   };
 
+  const handleInputClick = () => {
+    setCalendarOpen(true);
+  };
+
+  const handleIndicatorClick = () => {
+    setCalendarOpen((open) => !open);
+  };
+
   return (
-    <div className="field__wrap field__wrap--birthDate" ref={wrapRef}>
+    <div
+      ref={fieldRef}
+      className={`field__wrap field__wrap--birthDate ${hasError ? 'is-error' : ''}`}
+    >
       {showStar && <span className="field__star">*</span>}
+
       <input
         type="text"
         inputMode="numeric"
@@ -106,34 +125,38 @@ export default function BirthDateField({
         value={displayValue}
         onChange={handleInputChange}
         onBlur={handleInputBlur}
+        onClick={handleInputClick}
         placeholder={placeholderText}
         aria-label={ariaLabel}
         required={required}
         maxLength={BIRTH_DATE_MASK_MAX_LENGTH}
       />
+
       <button
         type="button"
         className="field__date-indicator"
         aria-label={placeholderText}
         aria-expanded={calendarOpen}
-        onClick={() => setCalendarOpen((open) => !open)}
+        onClick={handleIndicatorClick}
       />
-      {calendarOpen && (
-        <div className="birthDate-picker-anchor profile-form-dropdown">
-          <DatePicker
-            inline
-            selected={birthDateToLocalDate(value)}
-            minDate={minDate}
-            maxDate={maxDate}
-            onChange={handleCalendarChange}
-            calendarClassName="birthDate-picker"
-            showMonthDropdown
-            showYearDropdown
-            dropdownMode="select"
-            yearDropdownItemNumber={100}
-          />
-        </div>
-      )}
+
+      <DatePicker
+        selected={birthDateToLocalDate(value)}
+        onChange={handleCalendarChange}
+        minDate={minDate}
+        maxDate={maxDate}
+        open={calendarOpen}
+        onClickOutside={() => setCalendarOpen(false)}
+        popperClassName="birthDate-picker"
+        popperPlacement="bottom-start"
+        portalId="birth-date-picker-portal"
+        customInput={<span aria-hidden="true" />}
+        showMonthDropdown
+        showYearDropdown
+        dropdownMode="select"
+        scrollableYearDropdown
+        yearDropdownItemNumber={100}
+      />
     </div>
   );
 }

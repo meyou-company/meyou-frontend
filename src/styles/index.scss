@@ -1,4 +1,11 @@
-@use "./buttons";
-@use "./fields";
-@use "./navigation";
-@use "./appHeaderIcons";
+@use './forms/field';
+@use './forms/profile-fields';
+@use './forms/react-select';
+@use './forms/phone';
+@use './forms/date-picker';
+@use './forms/gender';
+
+@use './buttons';
+@use './fields';
+@use './navigation';
+@use './appHeaderIcons';

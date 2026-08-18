@@ -1,0 +1,150 @@
+/* ==========================
+   +N badge
+   ========================== */
+
+.more-badge {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.more-button {
+  height: 26px;
+  padding: 0 10px;
+  margin-left: 4px;
+
+  border: none;
+  border-radius: 999px;
+
+  cursor: pointer;
+
+  font-size: 13px;
+  font-weight: 600;
+
+  color: #fff;
+
+  background: linear-gradient(90deg, #4f6bff, #b05cff, #ff4fb1);
+
+  transition: opacity 0.2s;
+}
+
+.more-button:hover {
+  opacity: 0.9;
+}
+
+/* ==========================
+     Popover
+     ========================== */
+
+.more-popover {
+  width: 220px;
+  max-height: 220px;
+  overflow-y: auto;
+
+  padding: 8px;
+
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 12px;
+
+  background: #fff;
+
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+  animation: fadeIn 0.15s ease;
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(-4px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+}
+
+.popover-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  padding: 6px 8px;
+
+  border-radius: 8px;
+}
+
+.popover-item:hover {
+  background: rgba(0, 0, 0, 0.04);
+}
+
+.remove-btn {
+  flex-shrink: 0;
+
+  width: 22px;
+  height: 22px;
+
+  border: none;
+  border-radius: 50%;
+
+  background: transparent;
+
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.remove-btn:hover {
+  background: rgba(0, 0, 0, 0.08);
+}
+
+/* ==========================
+     Dark
+     ========================== */
+
+body.dark,
+html[data-theme='dark'] {
+  .more-popover {
+    background: #2d2338;
+    border-color: rgba(255, 255, 255, 0.12);
+  }
+
+  .popover-item:hover {
+    background: rgba(255, 255, 255, 0.08);
+  }
+
+  .remove-btn {
+    color: #fff;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.12);
+    }
+  }
+}
+
+/* ==========================
+     Responsive
+     ========================== */
+
+@media (max-width: 768px) {
+  .more-popover {
+    width: 200px;
+  }
+}
+
+@media (max-width: 480px) {
+  .more-button {
+    height: 24px;
+    font-size: 12px;
+  }
+
+  .more-popover {
+    width: 180px;
+  }
+}
+
+@media (max-width: 360px) {
+  .more-button {
+    padding: 0 8px;
+    font-size: 11px;
+  }
+}

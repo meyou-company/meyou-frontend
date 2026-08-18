@@ -437,7 +437,7 @@ export default function CompleteProfileForm({ onBack, onSave }) {
           <button
             key={suggestion}
             type="button"
-            className="cp-pill"
+            className="cp-username-suggestion"
             onClick={() => {
               setField('username', suggestion);
               onBlur('username');

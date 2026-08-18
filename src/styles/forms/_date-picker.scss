@@ -1,0 +1,652 @@
+/* ======================================================
+   Birth date field
+   ====================================================== */
+
+.field__wrap--birthDate {
+  position: relative;
+  min-width: 0;
+  box-sizing: border-box;
+  overflow: visible;
+}
+
+/* ======================================================
+     Input
+     ====================================================== */
+
+.field__wrap--birthDate .field__date-input {
+  width: 100%;
+  height: 100%;
+
+  box-sizing: border-box;
+
+  // padding: 0 36px 0 14px;
+
+  border: 0;
+  outline: none;
+
+  background: transparent;
+  color: var(--field-text);
+
+  font-size: 14px;
+}
+
+/* ======================================================
+     Date indicator
+     ====================================================== */
+
+.field__date-indicator {
+  position: absolute;
+  inset: 0 0 0 auto;
+
+  width: 36px;
+  height: 100%;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  box-sizing: border-box;
+
+  margin: 0;
+  padding: 0;
+
+  border: 0;
+  outline: none;
+
+  background: transparent;
+
+  cursor: pointer;
+  z-index: 3;
+
+  appearance: none;
+}
+
+/*
+   * Не дозволяємо browser/button styles
+   * змінювати поле при hover/focus/active.
+   */
+.field__date-indicator:hover,
+.field__date-indicator:focus,
+.field__date-indicator:active,
+.field__date-indicator:focus-visible {
+  margin: 0;
+  padding: 0;
+
+  border: 0;
+  outline: none;
+
+  background: transparent;
+}
+
+/* ======================================================
+     Date indicator separator
+     ====================================================== */
+
+.field__date-indicator::before {
+  content: '';
+
+  position: absolute;
+  left: 0;
+  top: 12px;
+  bottom: 12px;
+
+  width: 1px;
+
+  background: rgba(0, 0, 0, 0.28);
+}
+
+/* ======================================================
+     Date indicator chevron
+     ====================================================== */
+
+.field__date-indicator::after {
+  content: '';
+
+  position: absolute;
+  right: 12px;
+  top: 50%;
+
+  width: 0;
+  height: 0;
+
+  transform: translateY(-50%);
+
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 5px solid rgba(0, 0, 0, 0.45);
+}
+
+/* ======================================================
+     Error
+     ====================================================== */
+
+.field__wrap--birthDate:has(.is-error)::after {
+  content: '';
+
+  position: absolute;
+  inset: 0;
+
+  border-radius: var(--field-radius);
+
+  box-shadow: inset 0 0 0 2px #ff1b1b;
+
+  pointer-events: none;
+
+  z-index: 4;
+}
+
+/* ======================================================
+     Date picker portal
+     ====================================================== */
+
+#birth-date-picker-portal {
+  position: relative;
+  z-index: 9999;
+}
+
+#birth-date-picker-portal .react-datepicker-popper {
+  z-index: 9999;
+}
+
+/* ======================================================
+     Date picker
+     ====================================================== */
+
+.birthDate-picker .react-datepicker {
+  box-sizing: border-box;
+
+  width: max-content;
+  max-width: calc(100vw - 24px);
+
+  padding: 0;
+
+  font-size: 14px;
+
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 16px;
+
+  overflow: hidden;
+
+  background: var(--select-menu-bg);
+  color: var(--select-text);
+
+  box-shadow: 0 12px 40px rgba(123, 92, 255, 0.25);
+}
+
+/* ======================================================
+     Header
+     ====================================================== */
+
+.birthDate-picker .react-datepicker__header {
+  padding: 16px 16px 12px;
+
+  background: var(--field-inner);
+
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.birthDate-picker .react-datepicker__current-month {
+  margin-bottom: 8px;
+
+  color: var(--field-text);
+
+  font-size: 20px;
+  font-weight: 600;
+}
+
+/* ======================================================
+     Navigation
+     ====================================================== */
+
+.birthDate-picker .react-datepicker__navigation {
+  top: 16px;
+
+  width: 32px;
+  height: 32px;
+
+  margin: 0;
+  padding: 0;
+
+  border: 0;
+  outline: none;
+
+  background: transparent;
+}
+
+.birthDate-picker .react-datepicker__navigation:hover,
+.birthDate-picker .react-datepicker__navigation:focus,
+.birthDate-picker .react-datepicker__navigation:active {
+  margin: 0;
+  padding: 0;
+
+  border: 0;
+  outline: none;
+
+  background: transparent;
+}
+
+.birthDate-picker .react-datepicker__navigation-icon::before {
+  border-color: var(--field-text);
+}
+
+.birthDate-picker .react-datepicker__navigation:hover .react-datepicker__navigation-icon::before {
+  border-color: var(--field-text);
+}
+
+/* ======================================================
+     Calendar grid
+     ====================================================== */
+
+.birthDate-picker .react-datepicker__day-names,
+.birthDate-picker .react-datepicker__week {
+  display: flex;
+  justify-content: space-around;
+}
+
+/* ======================================================
+     Month container
+     ====================================================== */
+
+.birthDate-picker .react-datepicker__month-container {
+  padding: 12px 16px 20px;
+}
+
+/* ======================================================
+     Days
+     ====================================================== */
+
+.birthDate-picker .react-datepicker__day-name,
+.birthDate-picker .react-datepicker__day {
+  box-sizing: border-box;
+
+  width: 42px;
+  height: 42px;
+
+  margin: 4px;
+  padding: 0;
+
+  border: 0 !important;
+  border-radius: 12px;
+
+  line-height: 42px;
+  text-align: center;
+
+  color: var(--field-text);
+
+  font-size: 17px;
+
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease;
+}
+
+/*
+   * Hover:
+   * margin/padding/border exactly the same,
+   * so the calendar does not jump.
+   */
+
+.birthDate-picker .react-datepicker__day:hover {
+  box-sizing: border-box;
+
+  width: 42px;
+  height: 42px;
+
+  margin: 4px;
+  padding: 0;
+
+  border: 0 !important;
+  border-radius: 12px;
+
+  background: var(--select-option-hover-bg);
+}
+
+/* ======================================================
+     Selected day
+     ====================================================== */
+
+.birthDate-picker .react-datepicker__day--selected,
+.birthDate-picker .react-datepicker__day--keyboard-selected {
+  box-sizing: border-box;
+
+  width: 42px;
+  height: 42px;
+
+  margin: 4px;
+  padding: 0;
+
+  border: 0 !important;
+  border-radius: 12px;
+
+  background: linear-gradient(90deg, #4f6bff 0%, #b05cff 55%, #ff4fb1 100%) !important;
+
+  color: #fff !important;
+}
+
+/* Selected + hover */
+
+.birthDate-picker .react-datepicker__day--selected:hover,
+.birthDate-picker .react-datepicker__day--keyboard-selected:hover {
+  box-sizing: border-box;
+
+  width: 42px;
+  height: 42px;
+
+  margin: 4px;
+  padding: 0;
+
+  border: 0 !important;
+  border-radius: 12px;
+
+  background: linear-gradient(90deg, #4f6bff 0%, #b05cff 55%, #ff4fb1 100%) !important;
+
+  color: #fff !important;
+}
+
+/* ======================================================
+     Outside month
+     ====================================================== */
+
+.birthDate-picker .react-datepicker__day--outside-month {
+  color: rgba(0, 0, 0, 0.3);
+}
+
+/* ======================================================
+     Month / Year
+     ====================================================== */
+
+.birthDate-picker .react-datepicker__month-read-view,
+.birthDate-picker .react-datepicker__year-read-view {
+  padding: 6px 10px;
+
+  color: var(--field-text);
+
+  font-size: 17px;
+}
+
+.birthDate-picker .react-datepicker__month-select,
+.birthDate-picker .react-datepicker__year-select {
+  margin: 0 4px;
+  padding: 5px 8px;
+
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 8px;
+
+  background: var(--select-menu-bg);
+  color: var(--field-text);
+
+  font-size: 16px;
+  font-weight: 600;
+
+  outline: none;
+  cursor: pointer;
+}
+
+.birthDate-picker .react-datepicker__month-select:focus,
+.birthDate-picker .react-datepicker__year-select:focus {
+  border-color: rgba(123, 92, 255, 0.5);
+}
+
+/* ======================================================
+     Triangle
+     ====================================================== */
+
+.birthDate-picker .react-datepicker__triangle {
+  fill: var(--select-menu-bg) !important;
+  stroke: rgba(0, 0, 0, 0.08) !important;
+  color: var(--select-menu-bg) !important;
+}
+
+/* ======================================================
+     Tablet / mobile
+     ====================================================== */
+
+@media (max-width: 768px) {
+  /* ---------- Field ---------- */
+
+  .field__wrap--birthDate .field__date-input {
+    padding-right: 34px;
+    font-size: 13px;
+  }
+
+  .field__date-indicator {
+    width: 34px;
+  }
+
+  .field__date-indicator::after {
+    right: 11px;
+  }
+
+  /* ---------- Calendar ---------- */
+
+  .birthDate-picker .react-datepicker {
+    max-width: calc(100vw - 20px);
+
+    border-radius: 14px;
+
+    font-size: 14px;
+  }
+
+  .birthDate-picker .react-datepicker__header {
+    padding: 12px 10px 8px;
+  }
+
+  .birthDate-picker .react-datepicker__current-month {
+    margin-bottom: 4px;
+
+    font-size: 16px;
+  }
+
+  .birthDate-picker .react-datepicker__navigation {
+    top: 12px;
+  }
+
+  .birthDate-picker .react-datepicker__month-container {
+    padding: 6px 6px 10px;
+  }
+
+  .birthDate-picker .react-datepicker__day-name,
+  .birthDate-picker .react-datepicker__day {
+    width: 32px;
+    height: 32px;
+
+    margin: 2px;
+    padding: 0;
+
+    line-height: 32px;
+
+    font-size: 13px;
+  }
+
+  .birthDate-picker .react-datepicker__day:hover,
+  .birthDate-picker .react-datepicker__day--selected,
+  .birthDate-picker .react-datepicker__day--keyboard-selected,
+  .birthDate-picker .react-datepicker__day--selected:hover,
+  .birthDate-picker .react-datepicker__day--keyboard-selected:hover {
+    width: 32px;
+    height: 32px;
+
+    margin: 2px;
+    padding: 0;
+
+    border: 0 !important;
+  }
+
+  .birthDate-picker .react-datepicker__month-read-view,
+  .birthDate-picker .react-datepicker__year-read-view {
+    padding: 4px 8px;
+
+    font-size: 13px;
+  }
+
+  .birthDate-picker .react-datepicker__month-select,
+  .birthDate-picker .react-datepicker__year-select {
+    margin: 0 2px;
+    padding: 4px 5px;
+    font-size: 13px;
+  }
+}
+
+/* ======================================================
+     Very small screens
+     ====================================================== */
+
+@media (max-width: 360px) {
+  .field__wrap--birthDate .field__date-input {
+    padding-right: 32px;
+  }
+
+  .field__date-indicator {
+    width: 32px;
+  }
+
+  .field__date-indicator::after {
+    right: 10px;
+  }
+
+  .birthDate-picker .react-datepicker {
+    max-width: calc(100vw - 12px);
+  }
+
+  .birthDate-picker .react-datepicker__header {
+    padding: 10px 6px 6px;
+  }
+
+  .birthDate-picker .react-datepicker__month-container {
+    padding: 4px 3px 8px;
+  }
+
+  .birthDate-picker .react-datepicker__day-name,
+  .birthDate-picker .react-datepicker__day {
+    width: 28px;
+    height: 28px;
+
+    margin: 1px;
+    padding: 0;
+
+    line-height: 28px;
+
+    font-size: 12px;
+  }
+
+  .birthDate-picker .react-datepicker__day:hover,
+  .birthDate-picker .react-datepicker__day--selected,
+  .birthDate-picker .react-datepicker__day--keyboard-selected,
+  .birthDate-picker .react-datepicker__day--selected:hover,
+  .birthDate-picker .react-datepicker__day--keyboard-selected:hover {
+    width: 28px;
+    height: 28px;
+
+    margin: 1px;
+    padding: 0;
+
+    border: 0 !important;
+  }
+
+  .birthDate-picker .react-datepicker__month-select,
+  .birthDate-picker .react-datepicker__year-select {
+    padding: 3px 4px;
+    font-size: 12px;
+  }
+
+  .birthDate-picker .react-datepicker__navigation {
+    top: 10px;
+  }
+}
+
+/* ======================================================
+     Dark / Night theme
+     ====================================================== */
+
+body.dark,
+body.night,
+[data-theme='dark'],
+[data-theme='night'] {
+  /* ---------- Field ---------- */
+
+  .field__wrap--birthDate .field__date-input {
+    color: var(--field-text);
+  }
+
+  .field__date-indicator::before {
+    background: rgba(255, 255, 255, 0.35);
+  }
+
+  .field__date-indicator::after {
+    border-top-color: rgba(255, 255, 255, 0.6);
+  }
+
+  /* ---------- Calendar ---------- */
+
+  .birthDate-picker .react-datepicker {
+    background: var(--select-menu-bg) !important;
+
+    border-color: rgba(255, 255, 255, 0.12);
+
+    color: var(--select-text);
+
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+  }
+
+  .birthDate-picker .react-datepicker__header {
+    background: var(--field-inner) !important;
+
+    border-bottom-color: rgba(255, 255, 255, 0.12);
+  }
+
+  .birthDate-picker .react-datepicker__current-month,
+  .birthDate-picker .react-datepicker__day-name,
+  .birthDate-picker .react-datepicker__day {
+    color: var(--select-text);
+  }
+
+  .birthDate-picker .react-datepicker__day--outside-month {
+    color: rgba(255, 255, 255, 0.35);
+  }
+
+  .birthDate-picker .react-datepicker__day:hover {
+    background: var(--select-option-hover-bg);
+  }
+
+  .birthDate-picker .react-datepicker__day--selected,
+  .birthDate-picker .react-datepicker__day--keyboard-selected,
+  .birthDate-picker .react-datepicker__day--selected:hover,
+  .birthDate-picker .react-datepicker__day--keyboard-selected:hover {
+    background: linear-gradient(90deg, #4f6bff 0%, #b05cff 55%, #ff4fb1 100%) !important;
+
+    color: #fff !important;
+  }
+
+  .birthDate-picker .react-datepicker__month-read-view,
+  .birthDate-picker .react-datepicker__year-read-view {
+    color: var(--select-text);
+  }
+
+  .birthDate-picker .react-datepicker__month-select,
+  .birthDate-picker .react-datepicker__year-select {
+    border-color: rgba(255, 255, 255, 0.15);
+
+    background: var(--select-menu-bg);
+    color: var(--select-text);
+  }
+
+  /* ---------- Navigation ---------- */
+
+  .birthDate-picker .react-datepicker__navigation-icon::before {
+    border-color: rgba(255, 255, 255, 0.75);
+  }
+
+  .birthDate-picker .react-datepicker__navigation:hover .react-datepicker__navigation-icon::before {
+    border-color: #fff;
+  }
+
+  /* ---------- Triangle ---------- */
+
+  .birthDate-picker .react-datepicker__triangle {
+    fill: var(--select-menu-bg) !important;
+
+    stroke: rgba(255, 255, 255, 0.12) !important;
+
+    color: var(--select-menu-bg) !important;
+  }
+}

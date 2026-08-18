@@ -834,7 +834,25 @@
   },
   "explore": {
     "searchPlaceholder": "Знайдіть нових друзів за імʼям, нікнеймом або містом…",
-    "searchAria": "Пошук нових друзів"
+    "searchAria": "Пошук нових друзів",
+    "pageTitle": "Пошук",
+    "back": "Назад",
+    "gridView": "Сітка",
+    "listView": "Список",
+    "clearSearch": "Очистити",
+    "openFilters": "Фільтр",
+    "loading": "Завантаження…",
+    "nothingFound": "Нічого не знайдено",
+    "user": "Користувач",
+    "unsubscribe": "Відписатися",
+    "subscribe": "Підписатися",
+    "addToVip": "Додати в VIP",
+    "tabs": {
+      "popular": "Рекомендовані",
+      "nearby": "Нещодавно онлайн",
+      "new": "Нові профілі",
+      "vip": "VIP"
+    }
   },
   "feed": {
     "loading": "Завантаження стрічки…",
@@ -1043,5 +1061,64 @@
       "edit": "Редагувати",
       "delete": "Видалити"
     }
+  },
+  "search": {
+    "filters": {
+      "reset": "Скинути",
+      "apply": "Застосувати",
+      "resultCount_one": "Знайдено {{count}} користувача",
+      "resultCount_few": "Знайдено {{count}} користувачі",
+      "resultCount_many": "Знайдено {{count}} користувачів",
+      "resultCount_other": "Знайдено {{count}} користувачів",
+      "filterTitle": "Налаштування пошуку",
+      "location": "Локація",
+      "near": "Поряд",
+      "online": "Тільки онлайн",
+      "marital": "Сімейний стан",
+      "age": "Вік",
+      "vip": "Vip",
+      "new": "Нові",
+      "newDescription": "Зареєстровані за 72 години",
+      "gender": {
+        "male": "Чоловіча",
+        "female": "Жіноча",
+        "any": "Будь-яка"
+      },
+      "maritalStatus": {
+        "single": "Неодружений/Неодружена",
+        "married": "Одружений/Заміжня",
+        "divorced": "Розлучений/Розлучена",
+        "widowed": "Вдівець/Вдова",
+        "inRelationship": "У стосунках",
+        "any": "Будь-який"
+      }
+    }
+  },
+  "interests": {
+    "fitness": "Фітнес",
+    "sport": "Спорт",
+    "travel": "Подорожі",
+    "music": "Музика",
+    "fashion": "Мода",
+    "food": "Їжа",
+    "coffee": "Кава",
+    "movies": "Кіно",
+    "art": "Мистецтво",
+    "photography": "Фотографія",
+    "tech": "Технології",
+    "gaming": "Ігри",
+    "business": "Бізнес",
+    "self_development": "Саморозвиток",
+    "psychology": "Психологія",
+    "books": "Книги",
+    "nature": "Природа",
+    "pets": "Домашні тварини",
+    "dance": "Танці",
+    "yoga": "Йога",
+    "party": "Вечірки",
+    "family": "Сім'я",
+    "cars": "Автомобілі",
+    "crypto": "Криптовалюта",
+    "volunteer": "Волонтерство"
   }
 }
