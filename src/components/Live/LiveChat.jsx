@@ -35,7 +35,7 @@ const LiveChat = forwardRef(function LiveChat(
     const pinned = [];
     const regular = [];
     messages.forEach((message) => {
-      if (pinnedIds.has(message.id)) pinned.push(message);
+      if (pinnedIds.has(message.id) || message.isPinned) pinned.push(message);
       else regular.push(message);
     });
     return { pinned, regular };
@@ -121,9 +121,9 @@ const LiveChat = forwardRef(function LiveChat(
   const renderMessage = (message) => (
     <article
       key={message.id}
-      className={`liveChat__message ${pinnedIds.has(message.id) ? "liveChat__message--pinned" : ""}`}
+      className={`liveChat__message ${pinnedIds.has(message.id) || message.isPinned ? "liveChat__message--pinned" : ""}`}
     >
-      {pinnedIds.has(message.id) && (
+      {(pinnedIds.has(message.id) || message.isPinned) && (
         <span className="liveChat__pin" aria-label="Закреплено">📌</span>
       )}
       <button
@@ -203,7 +203,7 @@ const LiveChat = forwardRef(function LiveChat(
                 onPin(message);
                 setMenuMessageId(null);
               }}>
-                {pinnedIds.has(message.id) ? "Открепить" : "Закрепить"}
+                {pinnedIds.has(message.id) || message.isPinned ? "Открепить" : "Закрепить"}
               </button>
               <button type="button" onClick={() => handleReply(message)}>Ответить</button>
               <button type="button" onClick={() => {

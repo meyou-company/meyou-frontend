@@ -10,6 +10,7 @@ import { connectLiveSocket, getLiveSocket } from "../../services/liveSocket";
 import { usersApi } from "../../services/usersApi";
 import { getApiErrorMessage } from "../../utils/getApiErrorMessage";
 import { getLiveErrorMessage } from "../../utils/getLiveErrorMessage";
+import { emojiToReactionType } from "../../constants/messageReactions";
 import profileIcons from "../../constants/profileIcons";
 import LiveHeader from "./LiveHeader";
 import LiveStage from "./LiveStage";
@@ -127,7 +128,10 @@ function reconcileMessage(list, incoming) {
   if (pendingIndex === -1) return appendUniqueMessage(list, incoming);
 
   const next = [...list];
-  next[pendingIndex] = incoming;
+  next[pendingIndex] = {
+    ...incoming,
+    isPinned: incoming.isPinned || next[pendingIndex].isPinned,
+  };
   return next;
 }
 
@@ -331,6 +335,9 @@ export default function LiveBroadcast() {
   const hostReconnectRef = useRef(null);
   const viewerAutoConnectRef = useRef(null);
   const pinIntentRef = useRef(new Map());
+  const pinMutationRef = useRef(new Map());
+  const messageSyncInFlightRef = useRef(false);
+  const counterSyncInFlightRef = useRef(false);
 
   const currentUser = useMemo(
     () => ({
@@ -489,6 +496,7 @@ export default function LiveBroadcast() {
   useEffect(() => {
     if (!liveId) {
       pinIntentRef.current.clear();
+      pinMutationRef.current.clear();
       setStream(null);
       setIsEnded(false);
       setIsPlaying(false);
@@ -509,6 +517,7 @@ export default function LiveBroadcast() {
     setLoadError("");
     if (!isRefreshingCurrent) {
       pinIntentRef.current.clear();
+      pinMutationRef.current.clear();
       setAreMessagesHydrated(false);
       setNextMessagesCursor(null);
       setMessages([]);
@@ -615,11 +624,18 @@ export default function LiveBroadcast() {
 
     let cancelled = false;
     const syncMessages = () => {
+      if (messageSyncInFlightRef.current) return;
+      messageSyncInFlightRef.current = true;
       liveStreamsApi.getMessages(activeId)
         .then((history) => {
           if (!cancelled) {
-            setMessages((current) => mergeMessages(current, history.items));
-            const refreshed = history.items.map(normalizeMessage);
+            const refreshed = history.items.map(normalizeMessage).map((message) => {
+              const pendingState = pinMutationRef.current.get(String(message.id));
+              return typeof pendingState === "boolean"
+                ? { ...message, isPinned: pendingState }
+                : message;
+            });
+            setMessages((current) => mergeMessages(current, refreshed));
             const refreshedState = new Map(
               refreshed.map((message) => [String(message.id), message.isPinned]),
             );
@@ -634,12 +650,16 @@ export default function LiveBroadcast() {
             });
           }
         })
-        .catch(() => {});
+        .catch(() => {})
+        .finally(() => {
+          messageSyncInFlightRef.current = false;
+        });
     };
 
-    const intervalId = window.setInterval(syncMessages, 1_000);
+    const intervalId = window.setInterval(syncMessages, 500);
     return () => {
       cancelled = true;
+      messageSyncInFlightRef.current = false;
       window.clearInterval(intervalId);
     };
   }, [areMessagesHydrated, isEnded, liveId, stream?.id, stream?.status]);
@@ -650,6 +670,8 @@ export default function LiveBroadcast() {
 
     let cancelled = false;
     const syncCounters = () => {
+      if (counterSyncInFlightRef.current) return;
+      counterSyncInFlightRef.current = true;
       liveStreamsApi.getById(activeId)
         .then((freshPayload) => {
           if (cancelled) return;
@@ -660,12 +682,16 @@ export default function LiveBroadcast() {
             setIsPlaying(false);
           }
         })
-        .catch(() => {});
+        .catch(() => {})
+        .finally(() => {
+          counterSyncInFlightRef.current = false;
+        });
     };
 
     const intervalId = window.setInterval(syncCounters, COUNTER_SYNC_INTERVAL_MS);
     return () => {
       cancelled = true;
+      counterSyncInFlightRef.current = false;
       window.clearInterval(intervalId);
     };
   }, [isEnded, liveId, stream?.id, stream?.status]);
@@ -1039,13 +1065,6 @@ export default function LiveBroadcast() {
       },
     );
 
-    window.setTimeout(() => {
-      liveStreamsApi.getMessages(activeId)
-        .then((history) => {
-          setMessages((current) => mergeMessages(current, history.items));
-        })
-        .catch(() => {});
-    }, 800);
   };
 
   const handleLoadOlderMessages = async () => {
@@ -1088,10 +1107,13 @@ export default function LiveBroadcast() {
       return;
     }
 
+    const reactionType = emojiToReactionType(reaction);
+    if (!reactionType) return;
+
     setLikesCount((current) => Math.max(0, Number(current) || 0) + 1);
     socket.emit(
       "live:reaction:send",
-      { liveStreamId: activeId, reaction },
+      { liveStreamId: activeId, reactionType },
       (...acknowledgement) => {
         const response = acknowledgement.length > 1
           ? acknowledgement[1]
@@ -1151,6 +1173,7 @@ export default function LiveBroadcast() {
       removeHostMedia(stream.id);
       hostReconnectRef.current = null;
       pinIntentRef.current.clear();
+      pinMutationRef.current.clear();
       setStream({ ...stream, ...endedPayload, status: ENDED_STATUS });
       setIsEnded(true);
       setIsPlaying(false);
@@ -1184,11 +1207,10 @@ export default function LiveBroadcast() {
     if (!activeId || !message?.id) return;
 
     const requestedMessageId = message.id;
-    const isPinned = pinnedMessageIds.some(
+    const isPinned = Boolean(message.isPinned) || pinnedMessageIds.some(
       (id) => String(id) === String(requestedMessageId),
     );
     const nextPinned = !isPinned;
-    pinIntentRef.current.set(String(requestedMessageId), nextPinned);
 
     setPinnedMessageIds((current) => nextPinned
       ? [...current.filter((id) => String(id) !== String(requestedMessageId)), requestedMessageId]
@@ -1199,87 +1221,105 @@ export default function LiveBroadcast() {
         : item
     ));
 
-    let persistedMessage = message;
     if (!message.isPersisted || String(message.id).startsWith("pending-")) {
-      persistedMessage = null;
-      for (let attempt = 0; attempt < 20; attempt += 1) {
-        if (pinIntentRef.current.get(String(requestedMessageId)) !== nextPinned) return;
-        const history = await liveStreamsApi.getMessages(activeId).catch(() => null);
-        if (history) {
-          const normalizedHistory = history.items.map(normalizeMessage);
-          setMessages((current) => mergeMessages(current, normalizedHistory));
-          persistedMessage = normalizedHistory.find((item) => {
-            if (item.text !== message.text) return false;
-            if (
-              item.authorId &&
-              message.authorId &&
-              String(item.authorId) !== String(message.authorId)
-            ) {
-              return false;
-            }
-            const savedAt = Date.parse(item.createdAt);
-            const pendingAt = Date.parse(message.createdAt);
-            return !Number.isFinite(savedAt) ||
-              !Number.isFinite(pendingAt) ||
-              Math.abs(savedAt - pendingAt) < 30_000;
-          }) || null;
-          if (persistedMessage) break;
-        }
-        await new Promise((resolve) => window.setTimeout(resolve, 250));
-      }
-    }
-
-    if (!persistedMessage?.isPersisted || String(persistedMessage.id).startsWith("pending-")) {
-      if (pinIntentRef.current.get(String(requestedMessageId)) === nextPinned) {
-        pinIntentRef.current.delete(String(requestedMessageId));
-        setPinnedMessageIds((current) => current.filter(
-          (id) => String(id) !== String(requestedMessageId),
-        ));
-        setMessages((current) => current.map((item) =>
-          String(item.id) === String(requestedMessageId)
-            ? { ...item, isPinned }
-            : item
-        ));
-      }
+      pinIntentRef.current.set(String(requestedMessageId), {
+        activeId,
+        isPinned,
+        message,
+        nextPinned,
+      });
       return;
     }
 
-    const messageId = persistedMessage.id;
-    if (pinIntentRef.current.get(String(requestedMessageId)) !== nextPinned) return;
-    setPinnedMessageIds((current) => nextPinned
-      ? [
-        ...current.filter((id) =>
-          String(id) !== String(requestedMessageId) && String(id) !== String(messageId)
-        ),
-        messageId,
-      ]
-      : current.filter((id) =>
-        String(id) !== String(requestedMessageId) && String(id) !== String(messageId)
-      ));
-    setMessages((current) => current.map((item) =>
-      String(item.id) === String(messageId) ? { ...item, isPinned: nextPinned } : item
-    ));
-
+    pinMutationRef.current.set(String(requestedMessageId), nextPinned);
     try {
       if (nextPinned) {
-        await liveStreamsApi.pinMessage(activeId, messageId);
+        await liveStreamsApi.pinMessage(activeId, requestedMessageId);
       } else {
-        await liveStreamsApi.unpinMessage(activeId, messageId);
+        await liveStreamsApi.unpinMessage(activeId, requestedMessageId);
       }
     } catch (error) {
       setPinnedMessageIds((current) => isPinned
-        ? [...current.filter((id) => String(id) !== String(messageId)), messageId]
-        : current.filter((id) => String(id) !== String(messageId)));
+        ? [...current.filter((id) => String(id) !== String(requestedMessageId)), requestedMessageId]
+        : current.filter((id) => String(id) !== String(requestedMessageId)));
       setMessages((current) => current.map((item) =>
-        String(item.id) === String(messageId) ? { ...item, isPinned } : item
+        String(item.id) === String(requestedMessageId) ? { ...item, isPinned } : item
       ));
       toast.error(getLiveErrorMessage(error));
     } finally {
-      if (pinIntentRef.current.get(String(requestedMessageId)) === nextPinned) {
-        pinIntentRef.current.delete(String(requestedMessageId));
+      if (pinMutationRef.current.get(String(requestedMessageId)) === nextPinned) {
+        pinMutationRef.current.delete(String(requestedMessageId));
       }
     }
   };
+
+  useEffect(() => {
+    const activeId = stream?.id || liveId;
+    if (!activeId || pinIntentRef.current.size === 0) return;
+
+    for (const [pendingId, intent] of pinIntentRef.current.entries()) {
+      if (String(intent.activeId) !== String(activeId)) {
+        pinIntentRef.current.delete(pendingId);
+        continue;
+      }
+
+      const persistedMessage = messages.find((item) => {
+        if (!item.isPersisted || String(item.id).startsWith("pending-")) return false;
+        if (item.text !== intent.message.text) return false;
+        if (
+          item.authorId &&
+          intent.message.authorId &&
+          String(item.authorId) !== String(intent.message.authorId)
+        ) {
+          return false;
+        }
+        const savedAt = Date.parse(item.createdAt);
+        const pendingAt = Date.parse(intent.message.createdAt);
+        return !Number.isFinite(savedAt) ||
+          !Number.isFinite(pendingAt) ||
+          Math.abs(savedAt - pendingAt) < 30_000;
+      });
+      if (!persistedMessage) continue;
+
+      pinIntentRef.current.delete(pendingId);
+      const persistedId = persistedMessage.id;
+      setPinnedMessageIds((current) => intent.nextPinned
+        ? [
+          ...current.filter((id) =>
+            String(id) !== String(pendingId) && String(id) !== String(persistedId)
+          ),
+          persistedId,
+        ]
+        : current.filter((id) =>
+          String(id) !== String(pendingId) && String(id) !== String(persistedId)
+        ));
+      setMessages((current) => current.map((item) =>
+        String(item.id) === String(persistedId)
+          ? { ...item, isPinned: intent.nextPinned }
+          : item
+      ));
+
+      pinMutationRef.current.set(String(persistedId), intent.nextPinned);
+      const request = intent.nextPinned
+        ? liveStreamsApi.pinMessage(activeId, persistedId)
+        : liveStreamsApi.unpinMessage(activeId, persistedId);
+      request.catch((error) => {
+        setPinnedMessageIds((current) => intent.isPinned
+          ? [...current.filter((id) => String(id) !== String(persistedId)), persistedId]
+          : current.filter((id) => String(id) !== String(persistedId)));
+        setMessages((current) => current.map((item) =>
+          String(item.id) === String(persistedId)
+            ? { ...item, isPinned: intent.isPinned }
+            : item
+        ));
+        toast.error(getLiveErrorMessage(error));
+      }).finally(() => {
+        if (pinMutationRef.current.get(String(persistedId)) === intent.nextPinned) {
+          pinMutationRef.current.delete(String(persistedId));
+        }
+      });
+    }
+  }, [liveId, messages, stream?.id]);
 
   const handleModerate = async (action, message) => {
     const userId = message?.authorId;
