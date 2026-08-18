@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { LuPaperclip } from 'react-icons/lu';
 import { toast } from 'sonner';
@@ -13,6 +13,12 @@ import {
 import { resolveFileMime } from '../../utils/messageAttachmentMedia';
 import { getApiErrorMessage } from '../../utils/getApiErrorMessage';
 import MessageComposerAttachmentPreview from './MessageComposerAttachmentPreview';
+import {
+  fitComposerTextarea,
+  isScrollerNearBottom,
+  pinScrollerToBottom,
+  shouldSendOnEnter,
+} from '../../utils/composerTextarea';
 import './MessageComposer.scss';
 
 function createPendingAttachment(file) {
@@ -51,6 +57,25 @@ export default function MessageComposer({
   const hasText = Boolean((value ?? '').trim());
   const hasPending = pendingAttachments.length > 0;
   const canSend = (hasText || hasPending) && !busy;
+
+  const syncTextareaHeight = useCallback(() => {
+    const el = inputRef.current;
+    if (!el) return;
+    const scroller = el.closest('.messagesPage__chat')?.querySelector('.messagesPage__messages');
+    const pinBottom = isScrollerNearBottom(scroller);
+    fitComposerTextarea(el);
+    if (pinBottom) pinScrollerToBottom(scroller);
+  }, []);
+
+  useLayoutEffect(() => {
+    syncTextareaHeight();
+  }, [value, conversationId, syncTextareaHeight]);
+
+  useEffect(() => {
+    const onResize = () => syncTextareaHeight();
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, [syncTextareaHeight]);
 
   const clearPendingAttachments = useCallback((items) => {
     for (const item of items) {
@@ -123,6 +148,15 @@ export default function MessageComposer({
   const handleChange = (e) => {
     onChange?.(e.target.value);
     emitTyping();
+  };
+
+  const handleKeyDown = (e) => {
+    const coarsePointer =
+      typeof window !== 'undefined' && window.matchMedia('(pointer: coarse)').matches;
+    if (!shouldSendOnEnter(e, { coarsePointer })) return;
+    e.preventDefault();
+    if (!canSend) return;
+    void handleSubmit(e);
   };
 
   const handleEmojiChange = useCallback(
@@ -214,15 +248,18 @@ export default function MessageComposer({
 
       <div className="msgComposer__row">
         <div ref={inputWrapRef} className="msgComposer__inputWrap">
-          <input
+          <textarea
             ref={inputRef}
             className="msgComposer__input"
+            rows={1}
             value={value ?? ''}
             onChange={handleChange}
+            onKeyDown={handleKeyDown}
             onBlur={stopTyping}
             placeholder={t('messenger.placeholder')}
             maxLength={4000}
             disabled={busy}
+            enterKeyHint="enter"
             aria-label={t('messenger.placeholder')}
           />
           <div className="msgComposer__inputActions">

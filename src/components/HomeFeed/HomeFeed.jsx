@@ -34,7 +34,6 @@ export default function HomeFeed({ onRegister, onLogin }) {
             alt={t("auth.common.logoAlt")}
           />
         </div>
-        <p className="home__tagline">{t("landing.tagline")}</p>
       </div>
 
       <div className="home__featuresSection">

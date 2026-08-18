@@ -1,148 +1,204 @@
+import { useTranslation } from "react-i18next";
 import profileIcons from "../../constants/profileIcons";
+import WalletTooltip from "./WalletTooltip";
 import "./Wallet.scss";
 
-export default function WalletPage({ onGoBack, onGoNotifications }) {
+export default function Wallet({ onGoBack, onGoNotifications }) {
+  const { t } = useTranslation();
+
   return (
     <div className="wallet">
-      <Header onGoBack={onGoBack} onGoNotifications={onGoNotifications}/>
+      <Header
+        t={t}
+        onGoBack={onGoBack}
+        onGoNotifications={onGoNotifications}
+      />
 
       <main className="wallet__content">
-        <Balances />
-        <History />
+        <div className="wallet-banner wallet-banner--info" role="status">
+          <span className="wallet-banner__icon" aria-hidden="true">
+            i
+          </span>
+          <div className="wallet-banner__copy">
+            <p className="wallet-banner__title">{t("walletPage.infoTitle")}</p>
+            <p className="wallet-banner__text">{t("walletPage.infoText")}</p>
+          </div>
+        </div>
+
+        <Balances t={t} />
+        <History t={t} />
+
+        <div className="wallet-banner wallet-banner--dev" role="note">
+          <span className="wallet-banner__icon" aria-hidden="true">
+            ⚠️
+          </span>
+          <div className="wallet-banner__copy">
+            <p className="wallet-banner__title wallet-banner__title--full">
+              {t("walletPage.devBannerTitle")}
+            </p>
+            <p className="wallet-banner__title wallet-banner__title--short">
+              {t("walletPage.devBannerTitleShort")}
+            </p>
+            <p className="wallet-banner__text wallet-banner__text--full">
+              {t("walletPage.devBannerText")}
+            </p>
+            <p className="wallet-banner__text wallet-banner__text--short">
+              {t("walletPage.devBannerTextShort")}
+            </p>
+          </div>
+        </div>
       </main>
     </div>
   );
 }
 
-/* ================= Header ================= */
-
-const Header = ({ onGoBack, onGoNotifications }) => (
+const Header = ({ t, onGoBack, onGoNotifications }) => (
   <header className="wallet__topbar">
-      {/* Кнопка для мобилки */}
     <button
+      type="button"
       className="wallet__back wallet__back--mobile"
       onClick={onGoBack}
-    >
-      <img
-        className="wallet__back-icon"
-        src={profileIcons.arrowLeftFilledBlack}
-        alt="Назад"
-      />
-    </button>
-
-    {/* Кнопка для планшета и выше */}
-    <button
-      className="wallet__back wallet__back--tablet"
-      onClick={onGoBack}
+      aria-label={t("walletPage.back")}
     >
       <img
         className="wallet__back-icon"
         src={profileIcons.arrowLeftBlack}
-        alt="Назад"
+        alt=""
       />
     </button>
 
-    <h1 className="wallet__title">Мой кошелек</h1>
+    <button
+      type="button"
+      className="wallet__back wallet__back--tablet"
+      onClick={onGoBack}
+      aria-label={t("walletPage.back")}
+    >
+      <img
+        className="wallet__back-icon"
+        src={profileIcons.arrowLeftBlack}
+        alt=""
+      />
+    </button>
 
-    <button className="wallet__bell" aria-label="Уведомления" onClick={onGoNotifications}>
-      <img src={profileIcons.bellBlack} alt="Уведомления" />
+    <h1 className="wallet__title">{t("walletPage.title")}</h1>
+
+    <button
+      type="button"
+      className="wallet__bell"
+      aria-label={t("walletPage.notifications")}
+      onClick={onGoNotifications}
+    >
+      <img src={profileIcons.bellBlack} alt="" />
     </button>
   </header>
 );
 
-/* ================= Balances ================= */
-
-const Balances = () => (
+const Balances = ({ t }) => (
   <section className="wallet__balances">
     <Card
       modifier="spend"
-      label="Баланс для расходов"
-      value="50.00"
-      button="Пополнить"
+      label={t("walletPage.spendLabel")}
+      labelTooltip={`${t("walletPage.spendTooltip")} ${t("walletPage.topUpTooltip")}`}
+      value={t("walletPage.spendValue")}
+      button={t("walletPage.topUp")}
       buttonType="primary"
-      hint="*Используется для VIP-друзей и подарков"
+      hint={t("walletPage.spendHint")}
     />
 
     <Card
       modifier="earned"
-      label="Заработанный баланс"
-      value="5.00"
-      button="Вывести деньги"
+      label={t("walletPage.earnedLabel")}
+      labelTooltip={`${t("walletPage.earnedTooltip")} ${t("walletPage.withdrawTooltip")}`}
+      value={t("walletPage.earnedValue")}
+      button={t("walletPage.withdraw")}
       buttonType="outline"
-      hint="*Средства, заработанные от подарков и VIP-подписок"
-      underline 
+      hint={t("walletPage.earnedHint")}
     />
   </section>
 );
 
-const Card = ({ modifier, label, value, button, buttonType, hint, underline }) => (
+const Card = ({
+  modifier,
+  label,
+  labelTooltip,
+  value,
+  button,
+  buttonType,
+  hint,
+}) => (
   <div className={`wallet-card wallet-card--${modifier}`}>
     <div className="wallet-card__header">
-         <span
-        className={`wallet-card__label ${
-          underline ? "wallet-card__label--underline" : ""
-        }`}
-      >
-        {label}
-      </span>
+      <WalletTooltip title={label} text={labelTooltip}>
+        <span className="wallet-card__label">{label}</span>
+      </WalletTooltip>
     </div>
-    
-    <div className="wallet-card__body">
-         <p className="wallet-card__value">{value}</p>
 
-    <button
-      className={`wallet-card__action wallet-card__action--${buttonType}`}
-    >
-      {button}
-    </button>
+    <div className="wallet-card__body">
+      <p className="wallet-card__value">{value}</p>
+
+      <button
+        type="button"
+        className={`wallet-card__action wallet-card__action--${buttonType}`}
+      >
+        {button}
+      </button>
     </div>
-   
 
     <p className="wallet-card__hint">{hint}</p>
   </div>
 );
 
-/* ================= History ================= */
-
-const History = () => (
+const History = ({ t }) => (
   <section className="wallet-history">
     <div className="wallet-history__header">
-      <h2 className="wallet-history__title">История операций</h2>
+      <WalletTooltip
+        title={t("walletPage.historyTitle")}
+        text={t("walletPage.historyTooltip")}
+        placement="bottom"
+      >
+        <h2 className="wallet-history__title">{t("walletPage.historyTitle")}</h2>
+      </WalletTooltip>
     </div>
 
     <Tabs
       className="wallet-tabs wallet-tabs--main"
-      items={["Все", "Доходы", "Расходы"]}
       activeClass="wallet-tab--active"
       itemClass="wallet-tab"
+      items={[
+        t("walletPage.filterAll"),
+        t("walletPage.filterIncome"),
+        t("walletPage.filterExpense"),
+      ]}
     />
 
     <Tabs
       className="wallet-tabs wallet-tabs--filters"
-      items={["Подарки", "VIP-подписки", "Пополнения баланса"]}
       activeClass="wallet-chip--active"
       itemClass="wallet-chip"
+      items={[
+        t("walletPage.filterGifts"),
+        t("walletPage.filterVip"),
+        t("walletPage.filterTopUp"),
+      ]}
     />
 
     <div className="wallet-history__list">
       <Item
         type="gift"
-        title="Подарок от Инна В."
-        date="Вчера, 20:28"
+        title={t("walletPage.itemGiftTitle")}
+        date={t("walletPage.yesterdayAt", { time: "20:28" })}
         amount="+3.00"
       />
-
       <Item
         type="vip"
-        title="VIP-подписка"
-        date="Вчера, 13:08"
+        title={t("walletPage.itemVipTitle")}
+        date={t("walletPage.yesterdayAt", { time: "13:08" })}
         amount="+2.00"
       />
-
       <Item
         type="topup"
-        title="Пополнение баланса"
-        date="11.02.2026, 18:30"
+        title={t("walletPage.itemTopUpTitle")}
+        date={t("walletPage.itemTopUpDate")}
         amount="+30.00"
       />
     </div>
@@ -154,6 +210,7 @@ const Tabs = ({ className, items, itemClass, activeClass }) => (
     {items.map((item, i) => (
       <button
         key={item}
+        type="button"
         className={`${itemClass} ${i === 0 ? activeClass : ""}`}
       >
         {item}
@@ -172,7 +229,7 @@ const Item = ({ type, title, date, amount }) => {
   return (
     <article className="wallet-item">
       <div className={`wallet-item__icon-wrapper wallet-item__icon-wrapper--${type}`}>
-        <img src={iconMap[type]} alt={type} className="wallet-item__icon"/>
+        <img src={iconMap[type]} alt="" className="wallet-item__icon" />
       </div>
 
       <div className="wallet-item__body">

@@ -49,7 +49,7 @@
 
 .msgComposer__row {
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   gap: clamp(10px, 2.5vw, 16px);
 }
 
@@ -57,12 +57,13 @@
   position: relative;
   flex: 1;
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   gap: 4px;
   min-width: 0;
-  height: clamp(48px, 12vw, 52px);
+  min-height: clamp(48px, 12vw, 52px);
+  height: auto;
   padding: 4px 6px 4px clamp(16px, 4vw, 22px);
-  border-radius: 999px;
+  border-radius: 24px;
   background: #ffffff;
   border: 1px solid rgba(183, 140, 255, 0.12);
   box-shadow: 0 2px 12px rgba(120, 80, 180, 0.08);
@@ -97,13 +98,27 @@
 .msgComposer__input {
   flex: 1;
   min-width: 0;
+  width: 100%;
+  display: block;
   border: none;
   background: transparent;
   font: inherit;
   font-size: 15px;
+  font-weight: 400;
+  line-height: 1.4;
   padding: 8px 0;
+  margin: 0;
   outline: none;
   color: #000;
+  resize: none;
+  overflow-x: hidden;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  -webkit-overflow-scrolling: touch;
+  min-height: calc(1.4em + 16px);
+  max-height: calc(1.4em * 5 + 16px);
 
   &::placeholder {
     color: rgba(0, 0, 0, 0.4);
@@ -144,9 +159,10 @@
   position: relative;
   z-index: 2;
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   gap: 12px;
   flex-shrink: 0;
+  padding-bottom: 6px;
 }
 
 .msgComposer__actionBtn {
@@ -219,7 +235,7 @@
   }
 
   .msgComposer__row {
-    align-items: center;
+    align-items: flex-end;
     gap: 8px;
   }
 
@@ -234,7 +250,7 @@
     flex: 0 0 auto;
     display: flex;
     flex-wrap: nowrap;
-    align-items: center;
+    align-items: flex-end;
     gap: var(--msg-composer-action-gap);
     width: calc(
       var(--msg-composer-action-size) * 2.5 + var(--msg-composer-action-gap) * 2

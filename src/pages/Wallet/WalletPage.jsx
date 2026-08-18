@@ -5,15 +5,15 @@ export default function WalletPage() {
   const navigate = useNavigate();
 
   return (
-    <Wallet 
-    onGoBack={() => { 
-      if (window.history.length > 1) {
-    navigate(-1);
-  } else {
-    navigate("/profile");
-  }
-}}
-onGoNotifications={() => navigate("/notifications")}
+    <Wallet
+      onGoBack={() => {
+        if (window.history.length > 1) {
+          navigate(-1);
+        } else {
+          navigate("/profile");
+        }
+      }}
+      onGoNotifications={() => navigate("/notifications")}
     />
   );
 }
