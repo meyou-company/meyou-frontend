@@ -6,7 +6,7 @@ import { useLocaleStore } from "../../zustand/useLocaleStore";
 import { useLiveKitBroadcast } from "../../hooks/useLiveKitBroadcast";
 import { extractLiveMedia, liveStreamsApi } from "../../services/liveStreamsApi";
 import { getSessionAccessToken } from "../../services/api";
-import { connectLiveSocket, getLiveSocket } from "../../services/liveSocket";
+import { connectLiveSocket } from "../../services/liveSocket";
 import { usersApi } from "../../services/usersApi";
 import { getApiErrorMessage } from "../../utils/getApiErrorMessage";
 import { getLiveErrorMessage } from "../../utils/getLiveErrorMessage";
@@ -656,7 +656,7 @@ export default function LiveBroadcast() {
         });
     };
 
-    const intervalId = window.setInterval(syncMessages, 500);
+    const intervalId = window.setInterval(syncMessages, 3_000);
     return () => {
       cancelled = true;
       messageSyncInFlightRef.current = false;
@@ -1041,7 +1041,7 @@ export default function LiveBroadcast() {
 
   const handleSend = async (messageText) => {
     const activeId = stream?.id || liveId;
-    const socket = getLiveSocket() || connectLiveSocket(accessToken);
+    const socket = connectLiveSocket(getSessionAccessToken() || accessToken);
     if (!activeId || !socket) {
       const error = new Error("LIVE_CHAT_UNAVAILABLE");
       toast.error(getLiveErrorMessage(error, "liveErrors.chatUnavailable"));
@@ -1123,7 +1123,7 @@ export default function LiveBroadcast() {
       return;
     }
     const activeId = stream?.id || liveId;
-    const socket = getLiveSocket() || connectLiveSocket(accessToken);
+    const socket = connectLiveSocket(getSessionAccessToken() || accessToken);
     if (!activeId || !socket) {
       toast.error(getLiveErrorMessage(
         { response: { data: { code: "LIVE_CHAT_UNAVAILABLE" } } },
