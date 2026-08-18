@@ -676,7 +676,10 @@ export default function LiveBroadcast() {
         .then((freshPayload) => {
           if (cancelled) return;
           const fresh = normalizeStream(freshPayload);
-          setLikesCount(fresh.reactionsCount);
+          setLikesCount((current) => Math.max(
+            Math.max(0, Number(current) || 0),
+            Math.max(0, Number(fresh.reactionsCount) || 0),
+          ));
           if (fresh.status === ENDED_STATUS) {
             setIsEnded(true);
             setIsPlaying(false);
@@ -704,7 +707,7 @@ export default function LiveBroadcast() {
     if (!socket) return undefined;
 
     const joinStream = () => {
-      socket.emit("live:join", { liveStreamId: activeId });
+      socket.emit("live:join", { streamId: activeId });
     };
 
     const handleNewMessage = (payload) => {
@@ -741,22 +744,43 @@ export default function LiveBroadcast() {
       ));
     };
 
-    const handleReactionUpdate = (payload) => {
+    const handleReactionUpdate = (payload, incrementWhenMissing = false) => {
       const reactionStreamId = getLiveMessageStreamId(payload);
       if (reactionStreamId && String(reactionStreamId) !== String(activeId)) return;
 
       const value = unwrap(payload) || {};
       const summary = value.summary || value.reactionSummary || value.data?.summary || {};
-      const count = Number(
+      let count = Number(
         value.reactionsCount ??
+        value.reactionCount ??
+        value.totalReactions ??
         value.count ??
         value.total ??
         summary.reactionsCount ??
+        summary.reactionCount ??
+        summary.totalReactions ??
         summary.count ??
         summary.total,
       );
+      if (!Number.isFinite(count) && summary && typeof summary === "object") {
+        const summaryTotal = Object.values(summary).reduce((total, item) => {
+          const itemCount = Number(item?.count ?? item);
+          return Number.isFinite(itemCount) ? total + itemCount : total;
+        }, 0);
+        if (summaryTotal > 0) count = summaryTotal;
+      }
       if (Number.isFinite(count)) {
         setLikesCount(Math.max(0, count));
+        return;
+      }
+
+      const reactionUserId =
+        value.userId || value.authorId || value.senderId || value.user?.id || null;
+      if (
+        incrementWhenMissing &&
+        (!reactionUserId || String(reactionUserId) !== String(currentUser.id))
+      ) {
+        setLikesCount((current) => Math.max(0, Number(current) || 0) + 1);
       }
     };
 
@@ -776,7 +800,7 @@ export default function LiveBroadcast() {
     };
     const handleMessagePinned = (payload) => updatePinnedMessage(payload, true);
     const handleMessageUnpinned = (payload) => updatePinnedMessage(payload, false);
-    const handleNewReaction = (payload) => handleReactionUpdate(payload);
+    const handleNewReaction = (payload) => handleReactionUpdate(payload, true);
 
     const handleSocketException = (payload) => {
       if (payload?.message || payload?.error) {
@@ -803,9 +827,9 @@ export default function LiveBroadcast() {
       socket.off("live:reaction:summary", handleReactionUpdate);
       socket.off("live:ended", handleLiveEnded);
       socket.off("exception", handleSocketException);
-      if (socket.connected) socket.emit("live:leave", { liveStreamId: activeId });
+      if (socket.connected) socket.emit("live:leave", { streamId: activeId });
     };
-  }, [accessToken, liveId, setStream, stream?.id]);
+  }, [accessToken, currentUser.id, liveId, setStream, stream?.id]);
 
   useEffect(() => {
     const activeId = stream?.id;
@@ -1113,7 +1137,7 @@ export default function LiveBroadcast() {
     setLikesCount((current) => Math.max(0, Number(current) || 0) + 1);
     socket.emit(
       "live:reaction:send",
-      { liveStreamId: activeId, reactionType },
+      { streamId: activeId, reactionType },
       (...acknowledgement) => {
         const response = acknowledgement.length > 1
           ? acknowledgement[1]
