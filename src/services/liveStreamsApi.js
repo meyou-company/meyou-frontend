@@ -110,6 +110,24 @@ export const liveStreamsApi = {
     return unwrap(data);
   },
 
+  async pinMessage(id, messageId) {
+    const { data } = await api.post(
+      apiPath(
+        `/live-streams/${encodeURIComponent(id)}/messages/${encodeURIComponent(messageId)}/pin`,
+      ),
+    );
+    return unwrap(data);
+  },
+
+  async unpinMessage(id, messageId) {
+    const { data } = await api.delete(
+      apiPath(
+        `/live-streams/${encodeURIComponent(id)}/messages/${encodeURIComponent(messageId)}/pin`,
+      ),
+    );
+    return unwrap(data);
+  },
+
   async tagUsers(id, userIds) {
     const { data } = await api.post(
       apiPath(`/live-streams/${encodeURIComponent(id)}/tagged-users`),

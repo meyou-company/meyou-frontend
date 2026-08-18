@@ -4,7 +4,7 @@ import { getApiErrorCode } from "./getApiErrorMessage";
 const LIVE_ERROR_HINTS = [
   {
     key: "liveErrors.ended",
-    codes: ["LIVE_STREAM_ENDED", "STREAM_ENDED", "LIVE_ENDED"],
+    codes: ["LIVE_STREAM_NOT_ACTIVE", "LIVE_STREAM_ENDED", "STREAM_ENDED", "LIVE_ENDED"],
     pattern: /(stream|live|эфир|ефір).*(ended|finished|closed|заверш|законч|закінч)/i,
   },
   {

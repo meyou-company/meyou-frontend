@@ -22,8 +22,6 @@ const LIVE_STATUS = "LIVE";
 const ENDED_STATUS = "ENDED";
 const LIVE_HOST_MEDIA_PREFIX = "meyou_live_host_media:";
 const LIVE_MESSAGES_CACHE_PREFIX = "meyou_live_messages:";
-const LIVE_PINNED_CACHE_PREFIX = "meyou_live_pinned_messages:";
-const LIVE_REACTIONS_CACHE_PREFIX = "meyou_live_reactions:";
 const COUNTER_SYNC_INTERVAL_MS = 2_000;
 const MAX_CACHED_MESSAGES = 1_000;
 
@@ -97,6 +95,7 @@ function normalizeMessage(raw) {
       value.createdAt || value.created_at || value.sentAt || new Date().toISOString(),
     isPersisted: value.isPersisted ?? Boolean(id),
     isPinned: Boolean(value.isPinned ?? value.pinned),
+    pinnedAt: value.pinnedAt || value.pinned_at || null,
   };
 }
 
@@ -107,7 +106,12 @@ function appendUniqueMessage(list, message) {
 
 function reconcileMessage(list, incoming) {
   if (!incoming?.id) return list;
-  if (list.some((item) => item.id === incoming.id)) return list;
+  const existingIndex = list.findIndex((item) => String(item.id) === String(incoming.id));
+  if (existingIndex !== -1) {
+    const next = [...list];
+    next[existingIndex] = { ...next[existingIndex], ...incoming };
+    return next;
+  }
 
   const incomingTime = Date.parse(incoming.createdAt) || Date.now();
   const pendingIndex = list.findIndex((item) => {
@@ -168,6 +172,8 @@ function getLiveMessageStreamId(payload) {
   return (
     value.streamId ||
     value.liveStreamId ||
+    value.stream?.id ||
+    value.liveStream?.id ||
     message?.streamId ||
     message?.liveStreamId ||
     null
@@ -217,29 +223,6 @@ function writeLiveCache(prefix, streamId, value) {
     localStorage.setItem(`${prefix}${streamId}`, JSON.stringify(value));
   } catch {
     // The backend history remains available when browser storage is disabled.
-  }
-}
-
-function readCachedReactionCount(streamId) {
-  if (!streamId) return 0;
-  try {
-    const value = Number(localStorage.getItem(`${LIVE_REACTIONS_CACHE_PREFIX}${streamId}`));
-    return Number.isFinite(value) && value > 0 ? value : 0;
-  } catch {
-    return 0;
-  }
-}
-
-function cacheReactionCount(streamId, value) {
-  if (!streamId) return;
-  try {
-    const previous = readCachedReactionCount(streamId);
-    localStorage.setItem(
-      `${LIVE_REACTIONS_CACHE_PREFIX}${streamId}`,
-      String(Math.max(previous, 0, Number(value) || 0)),
-    );
-  } catch {
-    // Realtime and backend values remain the source of truth without storage.
   }
 }
 
@@ -326,7 +309,6 @@ export default function LiveBroadcast() {
   const streamRef = useRef(null);
   const hostReconnectRef = useRef(null);
   const viewerAutoConnectRef = useRef(null);
-  const unmountFinalizationRef = useRef(null);
 
   const currentUser = useMemo(
     () => ({
@@ -456,28 +438,6 @@ export default function LiveBroadcast() {
           current.filter((messageId) => messageId !== packet.messageId),
         );
         break;
-      case "chat.pin": {
-        if (!packet.messageId) break;
-        setPinnedMessageIds((current) => {
-          const withoutMessage = current.filter((messageId) => messageId !== packet.messageId);
-          return packet.isPinned === false
-            ? withoutMessage
-            : [...withoutMessage, packet.messageId];
-        });
-        break;
-      }
-      case "reaction":
-        setLikesCount((current) => {
-          const absoluteCount = Number(packet.reactionsCount ?? packet.likesCount);
-          return Number.isFinite(absoluteCount)
-            ? Math.max(current + 1, absoluteCount)
-            : current + 1;
-        });
-        break;
-      case "stream.ended":
-        setIsEnded(true);
-        setIsPlaying(false);
-        break;
       default:
         break;
     }
@@ -488,6 +448,10 @@ export default function LiveBroadcast() {
     onDisconnected: () => {
       const activeStream = streamRef.current;
       if (activeStream?.status === LIVE_STATUS) {
+        const activeHostId = activeStream.hostId || getUserId(activeStream.host);
+        if (activeHostId && String(activeHostId) === String(currentUser.id)) {
+          hostReconnectRef.current = null;
+        }
         liveStreamsApi.getById(activeStream.id)
           .then((fresh) => {
             const normalized = setStream(fresh);
@@ -499,33 +463,6 @@ export default function LiveBroadcast() {
   });
   const connectLiveKit = liveKit.connect;
   const startLiveAudio = liveKit.startAudio;
-
-  const finalizeStreamOnUnmount = useCallback(async (activeStream) => {
-    if (!activeStream?.id) return;
-    if (unmountFinalizationRef.current?.streamId === activeStream.id) {
-      return unmountFinalizationRef.current.promise;
-    }
-
-    const promise = liveStreamsApi.end(activeStream.id, {}).then(() => {
-      removeHostMedia(activeStream.id);
-    });
-
-    unmountFinalizationRef.current = { streamId: activeStream.id, promise };
-    return promise;
-  }, []);
-
-  useEffect(() => () => {
-    const activeStream = streamRef.current;
-    const activeHostId = activeStream?.hostId || getUserId(activeStream?.host);
-    const ownsActiveStream =
-      activeStream?.status === LIVE_STATUS &&
-      activeHostId &&
-      String(activeHostId) === String(currentUser.id);
-
-    if (!ownsActiveStream) return;
-    finalizeStreamOnUnmount(activeStream)
-      .catch(() => liveStreamsApi.end(activeStream.id, {}).catch(() => {}));
-  }, [currentUser.id, finalizeStreamOnUnmount]);
 
   useEffect(() => {
     if (!liveId) {
@@ -559,8 +496,7 @@ export default function LiveBroadcast() {
           normalized.hostId && String(normalized.hostId) === String(currentUser.id);
         const shouldResetOwnerStream =
           isOwnLoadedStream &&
-          (normalized.status === ENDED_STATUS ||
-            (normalized.status === LIVE_STATUS && !readHostMedia(normalized.id)));
+          normalized.status === ENDED_STATUS;
 
         if (shouldResetOwnerStream) {
           if (normalized.status === LIVE_STATUS) {
@@ -574,12 +510,8 @@ export default function LiveBroadcast() {
         setStream(normalized);
         setIsEnded(normalized.status === ENDED_STATUS);
         setIsMuted(!normalized.isSoundEnabled);
-        setLikesCount(Math.max(
-          normalized.reactionsCount,
-          readCachedReactionCount(liveId),
-        ));
+        setLikesCount(normalized.reactionsCount);
         const cachedMessages = readLiveCache(LIVE_MESSAGES_CACHE_PREFIX, liveId);
-        const cachedPinnedIds = readLiveCache(LIVE_PINNED_CACHE_PREFIX, liveId);
         const backendPinnedIds = messagePayload.items
           .map(normalizeMessage)
           .filter((message) => message.isPinned)
@@ -588,7 +520,7 @@ export default function LiveBroadcast() {
           mergeMessages(cachedMessages, current, messagePayload.items),
         );
         setNextMessagesCursor(messagePayload.nextCursor || null);
-        setPinnedMessageIds([...new Set([...cachedPinnedIds, ...backendPinnedIds])]);
+        setPinnedMessageIds([...new Set(backendPinnedIds)]);
         setAreMessagesHydrated(true);
 
         if (normalized.startedAt) {
@@ -630,8 +562,7 @@ export default function LiveBroadcast() {
       activeId,
       messages.slice(-MAX_CACHED_MESSAGES),
     );
-    writeLiveCache(LIVE_PINNED_CACHE_PREFIX, activeId, pinnedMessageIds);
-  }, [areMessagesHydrated, liveId, messages, pinnedMessageIds, stream?.id]);
+  }, [areMessagesHydrated, liveId, messages, stream?.id]);
 
   useEffect(() => {
     const activeId = stream?.id || liveId;
@@ -650,6 +581,19 @@ export default function LiveBroadcast() {
         .then((history) => {
           if (!cancelled) {
             setMessages((current) => mergeMessages(current, history.items));
+            const refreshed = history.items.map(normalizeMessage);
+            const refreshedState = new Map(
+              refreshed.map((message) => [String(message.id), message.isPinned]),
+            );
+            setPinnedMessageIds((current) => {
+              const next = current.filter((id) => refreshedState.get(String(id)) !== false);
+              refreshed.forEach((message) => {
+                if (message.isPinned && !next.some((id) => String(id) === String(message.id))) {
+                  next.push(message.id);
+                }
+              });
+              return next;
+            });
           }
         })
         .catch(() => {});
@@ -664,12 +608,6 @@ export default function LiveBroadcast() {
 
   useEffect(() => {
     const activeId = stream?.id || liveId;
-    if (!activeId) return;
-    cacheReactionCount(activeId, likesCount);
-  }, [likesCount, liveId, stream?.id]);
-
-  useEffect(() => {
-    const activeId = stream?.id || liveId;
     if (!activeId || stream?.status !== LIVE_STATUS || isEnded) return undefined;
 
     let cancelled = false;
@@ -678,11 +616,7 @@ export default function LiveBroadcast() {
         .then((freshPayload) => {
           if (cancelled) return;
           const fresh = normalizeStream(freshPayload);
-          setLikesCount((current) => Math.max(
-            current,
-            fresh.reactionsCount,
-            readCachedReactionCount(activeId),
-          ));
+          setLikesCount(fresh.reactionsCount);
           if (fresh.status === ENDED_STATUS) {
             setIsEnded(true);
             setIsPlaying(false);
@@ -723,6 +657,63 @@ export default function LiveBroadcast() {
       }
     };
 
+    const updatePinnedMessage = (payload, isPinned) => {
+      const messageStreamId = getLiveMessageStreamId(payload);
+      if (messageStreamId && String(messageStreamId) !== String(activeId)) return;
+
+      const value = unwrap(payload) || {};
+      const message = getLiveMessageEnvelope(value);
+      const messageId = value.messageId || message?.messageId || message?.id || message?._id;
+      if (!messageId) return;
+
+      setPinnedMessageIds((current) => {
+        const withoutMessage = current.filter((id) => String(id) !== String(messageId));
+        return isPinned ? [...withoutMessage, messageId] : withoutMessage;
+      });
+      setMessages((current) => current.map((item) =>
+        String(item.id) === String(messageId)
+          ? { ...item, isPinned, pinnedAt: isPinned ? value.pinnedAt || message?.pinnedAt : null }
+          : item
+      ));
+    };
+
+    const handleReactionUpdate = (payload) => {
+      const reactionStreamId = getLiveMessageStreamId(payload);
+      if (reactionStreamId && String(reactionStreamId) !== String(activeId)) return;
+
+      const value = unwrap(payload) || {};
+      const summary = value.summary || value.reactionSummary || value.data?.summary || {};
+      const count = Number(
+        value.reactionsCount ??
+        value.count ??
+        value.total ??
+        summary.reactionsCount ??
+        summary.count ??
+        summary.total,
+      );
+      if (Number.isFinite(count)) {
+        setLikesCount(Math.max(0, count));
+      }
+    };
+
+    const handleLiveEnded = (payload) => {
+      const endedStreamId = getLiveMessageStreamId(payload);
+      if (!endedStreamId || String(endedStreamId) !== String(activeId)) return;
+      const value = unwrap(payload) || {};
+      setStream({
+        ...streamRef.current,
+        ...value,
+        id: activeId,
+        status: ENDED_STATUS,
+        endedAt: value.endedAt || new Date().toISOString(),
+      });
+      setIsEnded(true);
+      setIsPlaying(false);
+    };
+    const handleMessagePinned = (payload) => updatePinnedMessage(payload, true);
+    const handleMessageUnpinned = (payload) => updatePinnedMessage(payload, false);
+    const handleNewReaction = (payload) => handleReactionUpdate(payload);
+
     const handleSocketException = (payload) => {
       if (payload?.message || payload?.error) {
         toast.error(getLiveErrorMessage({ response: { data: payload } }));
@@ -731,15 +722,26 @@ export default function LiveBroadcast() {
 
     socket.on("connect", joinStream);
     socket.on("live:message:new", handleNewMessage);
+    socket.on("live:message:pinned", handleMessagePinned);
+    socket.on("live:message:unpinned", handleMessageUnpinned);
+    socket.on("live:reaction:new", handleNewReaction);
+    socket.on("live:reaction:summary", handleReactionUpdate);
+    socket.on("live:ended", handleLiveEnded);
     socket.on("exception", handleSocketException);
     if (socket.connected) joinStream();
 
     return () => {
       socket.off("connect", joinStream);
       socket.off("live:message:new", handleNewMessage);
+      socket.off("live:message:pinned", handleMessagePinned);
+      socket.off("live:message:unpinned", handleMessageUnpinned);
+      socket.off("live:reaction:new", handleNewReaction);
+      socket.off("live:reaction:summary", handleReactionUpdate);
+      socket.off("live:ended", handleLiveEnded);
       socket.off("exception", handleSocketException);
+      if (socket.connected) socket.emit("live:leave", { streamId: activeId });
     };
-  }, [accessToken, liveId, stream?.id]);
+  }, [accessToken, liveId, setStream, stream?.id]);
 
   useEffect(() => {
     const activeId = stream?.id;
@@ -878,6 +880,7 @@ export default function LiveBroadcast() {
     if (isStarting || liveKit.isConnecting) return;
 
     let startedStreamId = null;
+    let isReconnectAttempt = false;
     try {
       setIsStarting(true);
       let target = stream;
@@ -903,14 +906,12 @@ export default function LiveBroadcast() {
 
       let startedPayload = null;
       if (target.status === LIVE_STATUS) {
+        isReconnectAttempt = true;
         const cachedMedia = readHostMedia(target.id);
         if (cachedMedia?.url && cachedMedia?.token) {
           startedPayload = { ...target, media: cachedMedia };
         } else {
-          await liveStreamsApi.end(target.id, {});
-          removeHostMedia(target.id);
-          target = await createScheduledStream();
-          toast.info("Предыдущий зависший эфир завершён, запускаем новый");
+          startedPayload = await liveStreamsApi.start(target.id);
         }
       }
 
@@ -940,15 +941,19 @@ export default function LiveBroadcast() {
     } catch (error) {
       console.error("[live-stream-start] failed", error);
       if (startedStreamId) {
-        await liveStreamsApi.end(startedStreamId, {}).catch(() => {});
+        if (!isReconnectAttempt) {
+          await liveStreamsApi.end(startedStreamId, {}).catch(() => {});
+        }
         await liveKit.disconnect().catch(() => {});
         removeHostMedia(startedStreamId);
         hostReconnectRef.current = null;
-        const failedStream = streamRef.current;
-        setStream(failedStream?.id === startedStreamId
-          ? { ...failedStream, status: ENDED_STATUS }
-          : failedStream);
-        setIsEnded(true);
+        if (!isReconnectAttempt) {
+          const failedStream = streamRef.current;
+          setStream(failedStream?.id === startedStreamId
+            ? { ...failedStream, status: ENDED_STATUS }
+            : failedStream);
+          setIsEnded(true);
+        }
       }
       toast.error(getLiveErrorMessage(error));
     } finally {
@@ -1047,7 +1052,7 @@ export default function LiveBroadcast() {
   const handleReact = async (reaction) => {
     if (isEnded || stream?.status === ENDED_STATUS) {
       toast.info(getLiveErrorMessage(
-        { response: { status: 410, data: { code: "LIVE_STREAM_ENDED" } } },
+        { response: { status: 410, data: { code: "LIVE_STREAM_NOT_ACTIVE" } } },
       ));
       return;
     }
@@ -1057,18 +1062,41 @@ export default function LiveBroadcast() {
       ));
       return;
     }
-    try {
-      if (!liveKit.isConnected) await ensureViewerConnected();
-      await liveKit.publishData({
-        type: "reaction",
-        reaction,
-        userId: currentUser.id,
-        createdAt: new Date().toISOString(),
-      }, { reliable: true });
-      setLikesCount((current) => current + 1);
-    } catch (error) {
-      toast.error(getLiveErrorMessage(error));
+    const activeId = stream?.id || liveId;
+    const socket = getSocket() || connectSocket(accessToken);
+    if (!activeId || !socket) {
+      toast.error(getLiveErrorMessage(
+        { response: { data: { code: "LIVE_CHAT_UNAVAILABLE" } } },
+      ));
+      return;
     }
+
+    socket.emit(
+      "live:reaction:send",
+      { streamId: activeId, reaction },
+      (...acknowledgement) => {
+        const response = acknowledgement.length > 1
+          ? acknowledgement[1]
+          : acknowledgement[0];
+        const hasError =
+          response?.success === false ||
+          response?.ok === false ||
+          Number(response?.statusCode) >= 400 ||
+          Boolean(response?.error);
+        if (hasError) {
+          toast.error(getLiveErrorMessage({ response: { data: response } }));
+          return;
+        }
+
+        const count = Number(
+          response?.reactionsCount ??
+          response?.count ??
+          response?.data?.reactionsCount ??
+          response?.data?.count,
+        );
+        if (Number.isFinite(count)) setLikesCount(Math.max(0, count));
+      },
+    );
   };
 
   const handleToggleMuted = async () => {
@@ -1094,7 +1122,6 @@ export default function LiveBroadcast() {
     if (!isOwner || !stream?.id || isEnding) return;
     setIsEnding(true);
     try {
-      await liveKit.publishData({ type: "stream.ended" }).catch(() => {});
       const endedPayload = await liveStreamsApi.end(stream.id, {});
       await liveKit.disconnect();
       removeHostMedia(stream.id);
@@ -1128,15 +1155,33 @@ export default function LiveBroadcast() {
   };
 
   const handlePinMessage = async (messageId) => {
+    const activeId = stream?.id || liveId;
+    if (!activeId || !messageId) return;
     const isPinned = pinnedMessageIds.includes(messageId);
-    setPinnedMessageIds((current) => isPinned
-      ? current.filter((id) => id !== messageId)
-      : [...current, messageId]);
-    await liveKit.publishData({
-      type: "chat.pin",
-      messageId,
-      isPinned: !isPinned,
-    }).catch(() => {});
+    const nextPinned = !isPinned;
+
+    setPinnedMessageIds((current) => nextPinned
+      ? [...current.filter((id) => String(id) !== String(messageId)), messageId]
+      : current.filter((id) => String(id) !== String(messageId)));
+    setMessages((current) => current.map((item) =>
+      String(item.id) === String(messageId) ? { ...item, isPinned: nextPinned } : item
+    ));
+
+    try {
+      if (nextPinned) {
+        await liveStreamsApi.pinMessage(activeId, messageId);
+      } else {
+        await liveStreamsApi.unpinMessage(activeId, messageId);
+      }
+    } catch (error) {
+      setPinnedMessageIds((current) => isPinned
+        ? [...current.filter((id) => String(id) !== String(messageId)), messageId]
+        : current.filter((id) => String(id) !== String(messageId)));
+      setMessages((current) => current.map((item) =>
+        String(item.id) === String(messageId) ? { ...item, isPinned } : item
+      ));
+      toast.error(getLiveErrorMessage(error));
+    }
   };
 
   const handleModerate = async (action, message) => {
