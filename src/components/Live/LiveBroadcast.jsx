@@ -6,10 +6,11 @@ import { useLocaleStore } from "../../zustand/useLocaleStore";
 import { useLiveKitBroadcast } from "../../hooks/useLiveKitBroadcast";
 import { extractLiveMedia, liveStreamsApi } from "../../services/liveStreamsApi";
 import { getSessionAccessToken } from "../../services/api";
-import { connectSocket, getSocket } from "../../services/socket";
+import { connectLiveSocket, getLiveSocket } from "../../services/liveSocket";
 import { usersApi } from "../../services/usersApi";
 import { getApiErrorMessage } from "../../utils/getApiErrorMessage";
 import { getLiveErrorMessage } from "../../utils/getLiveErrorMessage";
+import { emojiToReactionType } from "../../constants/messageReactions";
 import profileIcons from "../../constants/profileIcons";
 import LiveHeader from "./LiveHeader";
 import LiveStage from "./LiveStage";
@@ -268,6 +269,27 @@ function formatEndedDate(stream, locale) {
   }).format(endedAt);
 }
 
+function formatEndedPeriod(stream, locale) {
+  const dateLabel = formatEndedDate(stream, locale);
+  const capitalizedDate = dateLabel
+    ? `${dateLabel.charAt(0).toLocaleUpperCase(locale)}${dateLabel.slice(1)}`
+    : "";
+  const startedAt = new Date(stream?.startedAt || "");
+  const endedAt = new Date(stream?.endedAt || stream?.updatedAt || "");
+
+  if (Number.isNaN(startedAt.getTime()) || Number.isNaN(endedAt.getTime())) {
+    return capitalizedDate
+      ? `${capitalizedDate} · трансляция окончена`
+      : "Трансляция окончена";
+  }
+
+  const timeFormatter = new Intl.DateTimeFormat(locale, {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+  return `${capitalizedDate} · ${timeFormatter.format(startedAt)}–${timeFormatter.format(endedAt)}`;
+}
+
 function formatDuration(durationSec) {
   const totalMinutes = Math.max(0, Math.round((Number(durationSec) || 0) / 60));
   const hours = Math.floor(totalMinutes / 60);
@@ -485,11 +507,13 @@ export default function LiveBroadcast() {
       setNextMessagesCursor(null);
     }
 
-    Promise.all([
-      liveStreamsApi.getById(liveId),
-      liveStreamsApi.getMessages(liveId).catch(() => ({ items: [] })),
-    ])
-      .then(async ([streamPayload, messagePayload]) => {
+    const messageRequest = liveStreamsApi
+      .getMessages(liveId)
+      .catch(() => ({ items: [], nextCursor: null }));
+
+    const loadStream = async () => {
+      try {
+        const streamPayload = await liveStreamsApi.getById(liveId);
         if (cancelled) return;
         const normalized = normalizeStream(streamPayload);
         const isOwnLoadedStream =
@@ -512,16 +536,8 @@ export default function LiveBroadcast() {
         setIsMuted(!normalized.isSoundEnabled);
         setLikesCount(normalized.reactionsCount);
         const cachedMessages = readLiveCache(LIVE_MESSAGES_CACHE_PREFIX, liveId);
-        const backendPinnedIds = messagePayload.items
-          .map(normalizeMessage)
-          .filter((message) => message.isPinned)
-          .map((message) => message.id);
-        setMessages((current) =>
-          mergeMessages(cachedMessages, current, messagePayload.items),
-        );
-        setNextMessagesCursor(messagePayload.nextCursor || null);
-        setPinnedMessageIds([...new Set(backendPinnedIds)]);
-        setAreMessagesHydrated(true);
+        setMessages((current) => mergeMessages(cachedMessages, current));
+        setIsLoading(false);
 
         if (normalized.startedAt) {
           const elapsedUntil = normalized.status === ENDED_STATUS
@@ -535,8 +551,20 @@ export default function LiveBroadcast() {
             ? getStreamDurationSec(normalized) || calculatedElapsed
             : calculatedElapsed);
         }
-      })
-      .catch((error) => {
+
+        const messagePayload = await messageRequest;
+        if (cancelled) return;
+        const backendPinnedIds = messagePayload.items
+          .map(normalizeMessage)
+          .filter((message) => message.isPinned)
+          .map((message) => message.id);
+        setMessages((current) => mergeMessages(current, messagePayload.items));
+        setNextMessagesCursor(messagePayload.nextCursor || null);
+        setPinnedMessageIds((current) => [
+          ...new Set([...current, ...backendPinnedIds]),
+        ]);
+        setAreMessagesHydrated(true);
+      } catch (error) {
         if (!cancelled) {
           if (isRefreshingCurrent) {
             console.error("[live-stream-refresh] failed", error);
@@ -544,10 +572,12 @@ export default function LiveBroadcast() {
             setLoadError(getLiveErrorMessage(error));
           }
         }
-      })
-      .finally(() => {
+      } finally {
         if (!cancelled) setIsLoading(false);
-      });
+      }
+    };
+
+    loadStream();
 
     return () => {
       cancelled = true;
@@ -636,7 +666,7 @@ export default function LiveBroadcast() {
     const activeId = stream?.id || liveId;
     if (!activeId || !accessToken) return undefined;
 
-    const socket = connectSocket(accessToken);
+    const socket = connectLiveSocket(accessToken);
     if (!socket) return undefined;
 
     const joinStream = () => {
@@ -811,16 +841,6 @@ export default function LiveBroadcast() {
     return () => window.clearInterval(intervalId);
   }, [isEnded, stream?.status]);
 
-  const ensureViewerConnected = useCallback(async () => {
-    if (liveKit.isConnected) return;
-    const activeId = stream?.id || liveId;
-    if (!activeId || stream?.status !== LIVE_STATUS) {
-      throw new Error("Эфир ещё не начался");
-    }
-    const tokenPayload = await liveStreamsApi.getJoinToken(activeId);
-    await liveKit.connect(extractLiveMedia(tokenPayload), { isHost: false });
-  }, [liveId, liveKit, stream]);
-
   useEffect(() => {
     const activeId = stream?.id || liveId;
     const shouldConnect =
@@ -961,20 +981,9 @@ export default function LiveBroadcast() {
     }
   };
 
-  const handleTogglePlaying = async () => {
-    if (isEnded) return;
-    try {
-      if (!liveKit.isConnected) await ensureViewerConnected();
-      if (!isPlaying) await liveKit.startAudio();
-      setIsPlaying((current) => !current);
-    } catch (error) {
-      toast.error(getLiveErrorMessage(error));
-    }
-  };
-
   const handleSend = async (messageText) => {
     const activeId = stream?.id || liveId;
-    const socket = getSocket() || connectSocket(accessToken);
+    const socket = getLiveSocket() || connectLiveSocket(accessToken);
     if (!activeId || !socket) {
       const error = new Error("LIVE_CHAT_UNAVAILABLE");
       toast.error(getLiveErrorMessage(error, "liveErrors.chatUnavailable"));
@@ -1063,7 +1072,7 @@ export default function LiveBroadcast() {
       return;
     }
     const activeId = stream?.id || liveId;
-    const socket = getSocket() || connectSocket(accessToken);
+    const socket = getLiveSocket() || connectLiveSocket(accessToken);
     if (!activeId || !socket) {
       toast.error(getLiveErrorMessage(
         { response: { data: { code: "LIVE_CHAT_UNAVAILABLE" } } },
@@ -1071,9 +1080,13 @@ export default function LiveBroadcast() {
       return;
     }
 
+    const reactionType = emojiToReactionType(reaction);
+    if (!reactionType) return;
+
+    setLikesCount((current) => Math.max(0, Number(current) || 0) + 1);
     socket.emit(
       "live:reaction:send",
-      { streamId: activeId, reaction },
+      { streamId: activeId, reactionType },
       (...acknowledgement) => {
         const response = acknowledgement.length > 1
           ? acknowledgement[1]
@@ -1084,6 +1097,7 @@ export default function LiveBroadcast() {
           Number(response?.statusCode) >= 400 ||
           Boolean(response?.error);
         if (hasError) {
+          setLikesCount((current) => Math.max(0, (Number(current) || 0) - 1));
           toast.error(getLiveErrorMessage({ response: { data: response } }));
           return;
         }
@@ -1108,11 +1122,16 @@ export default function LiveBroadcast() {
     }
     try {
       await liveKit.setMicrophoneEnabled(!nextMuted);
-      await liveStreamsApi.updateSettings(stream.id, {
-        isSoundEnabled: !nextMuted,
-      });
       setIsMuted(nextMuted);
       setStream({ ...stream, isSoundEnabled: !nextMuted });
+
+      try {
+        await liveStreamsApi.updateSettings(stream.id, {
+          isSoundEnabled: !nextMuted,
+        });
+      } catch (error) {
+        toast.error(getLiveErrorMessage(error));
+      }
     } catch (error) {
       toast.error(getLiveErrorMessage(error));
     }
@@ -1296,7 +1315,7 @@ export default function LiveBroadcast() {
               isLive={stream?.status === LIVE_STATUS}
               host={host}
               elapsed={elapsed}
-              endedDateLabel={formatEndedDate(stream, locale)}
+              endedPeriodLabel={formatEndedPeriod(stream, locale)}
               endedDurationLabel={formatDuration(getStreamDurationSec(stream) || elapsed)}
               isEnded={isEnded}
               isPlaying={isPlaying}
@@ -1308,7 +1327,6 @@ export default function LiveBroadcast() {
               isEnding={isEnding}
               viewerCount={formatCompactCount(viewerCount)}
               likesCount={formatCompactCount(likesCount)}
-              onTogglePlaying={handleTogglePlaying}
               onToggleSettings={() => setIsSettingsOpen((current) => !current)}
               onToggleMuted={handleToggleMuted}
               onStartCamera={handleStartBroadcast}
