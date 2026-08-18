@@ -43,6 +43,24 @@ const LiveChat = forwardRef(function LiveChat(
   const latestMessageId = messages.at(-1)?.id;
 
   useEffect(() => {
+    if (!menuMessageId) return undefined;
+
+    const closeMenu = () => {
+      setMenuMessageId(null);
+      setMenuPosition(null);
+    };
+
+    window.addEventListener("scroll", closeMenu, true);
+    window.addEventListener("resize", closeMenu);
+    document.addEventListener("touchmove", closeMenu, { passive: true, capture: true });
+    return () => {
+      window.removeEventListener("scroll", closeMenu, true);
+      window.removeEventListener("resize", closeMenu);
+      document.removeEventListener("touchmove", closeMenu, true);
+    };
+  }, [menuMessageId]);
+
+  useEffect(() => {
     const container = messagesContainerRef.current;
     if (!container) return;
 

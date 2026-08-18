@@ -20,7 +20,20 @@ export default function NotificationItem({ item, onRead }) {
 
   const handleClick = () => {
     if (!item.readAt) onRead(item.id);
-    navigate(buildLink(item));
+    const navigationOptions = item.target.type === 'live'
+      ? {
+          state: {
+            mode: 'viewer',
+            host: {
+              id: item.actor.id,
+              username: item.actor.username,
+              name: item.actor.name,
+              avatarUrl: item.actor.avatar,
+            },
+          },
+        }
+      : undefined;
+    navigate(buildLink(item), navigationOptions);
   };
 
   const handleFollow = async (e) => {

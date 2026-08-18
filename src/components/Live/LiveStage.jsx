@@ -26,7 +26,9 @@ function LiveStatus({ elapsed }) {
     <div className="liveStage__status" aria-label="Эфир идёт">
       <img className="liveStage__recordDot" src={profileIcons.liveRecord} alt="" />
       <strong>LIVE</strong>
-      <span aria-hidden="true">•</span>
+      <span aria-hidden="true" className="liveStage__statusSeparator">
+        •
+      </span>
       <span>{minutes}:{String(seconds).padStart(2, "0")}</span>
     </div>
   );
@@ -34,9 +36,7 @@ function LiveStatus({ elapsed }) {
 
 function OwnerSettings({
   isMuted,
-  shouldSave,
   onToggleMuted,
-  onToggleSave,
   onShare,
 }) {
   return (
@@ -54,22 +54,11 @@ function OwnerSettings({
         </button>
       </div>
 
-      <div className="liveStage__settingRow">
-        <span>Сохранить эфир</span>
-        <button
-          type="button"
-          className={`liveStage__switch ${shouldSave ? "liveStage__switch--active" : ""}`}
-          onClick={onToggleSave}
-          aria-label="Сохранить эфир"
-          aria-pressed={shouldSave}
-        >
-          <span />
-        </button>
-      </div>
-
       <button type="button" className="liveStage__settingAction" onClick={onShare}>
         <span>Где поделиться</span>
-        <span aria-hidden="true">›</span>
+        <span className="liveStage__settingActionIcon" aria-hidden="true">
+          <img src={profileIcons.storyArrowFilled} alt="" />
+        </span>
       </button>
     </div>
   );
@@ -80,24 +69,20 @@ export default function LiveStage({
   isLive,
   host,
   elapsed,
-  endedDateLabel,
+  endedPeriodLabel,
   endedDurationLabel,
   isEnded,
   isPlaying,
   isSettingsOpen,
   isMuted,
-  shouldSave,
   videoTrack,
   audioTrack,
-  playbackUrl,
   isCameraStarting,
   isEnding,
   viewerCount,
   likesCount,
-  onTogglePlaying,
   onToggleSettings,
   onToggleMuted,
-  onToggleSave,
   onStartCamera,
   onShare,
   onReact,
@@ -111,10 +96,10 @@ export default function LiveStage({
 
   useEffect(() => {
     const element = videoRef.current;
-    if (!element || !videoTrack || playbackUrl) return undefined;
+    if (!element || !videoTrack) return undefined;
     videoTrack.attach(element);
     return () => videoTrack.detach(element);
-  }, [playbackUrl, videoTrack]);
+  }, [videoTrack]);
 
   useEffect(() => {
     const element = audioRef.current;
@@ -125,18 +110,20 @@ export default function LiveStage({
 
   useEffect(() => {
     const element = videoRef.current;
-    if (!element || isOwner || playbackUrl) return;
+    if (!element || isOwner) return;
     if (isPlaying) {
-      element.play().catch(() => {});
+      element.play().catch(() => { });
     } else {
       element.pause();
     }
-  }, [isOwner, isPlaying, playbackUrl, videoTrack]);
+  }, [isOwner, isPlaying, videoTrack]);
 
-  const hasVideo = Boolean(videoTrack || playbackUrl);
+  const hasVideo = Boolean(videoTrack);
 
   return (
-    <section className={`liveStage ${isOwner ? "liveStage--owner" : "liveStage--viewer"}`}>
+    <section
+      className={`liveStage ${isOwner ? "liveStage--owner" : "liveStage--viewer"} ${isLive && !isEnded ? "liveStage--active" : ""}`}
+    >
       <div className="liveStage__top">
         <button
           type="button"
@@ -190,9 +177,7 @@ export default function LiveStage({
       {isOwner && isSettingsOpen && !isEnded && (
         <OwnerSettings
           isMuted={isMuted}
-          shouldSave={shouldSave}
           onToggleMuted={onToggleMuted}
-          onToggleSave={onToggleSave}
           onShare={onShare}
         />
       )}
@@ -201,32 +186,20 @@ export default function LiveStage({
         {hasVideo && (
           <video
             ref={videoRef}
-            src={playbackUrl || undefined}
             className="liveStage__cameraPreview"
-            autoPlay={!playbackUrl}
+            autoPlay
             muted={isOwner}
-            controls={Boolean(playbackUrl)}
-            preload={playbackUrl ? "metadata" : "auto"}
             playsInline
           />
         )}
         <audio ref={audioRef} autoPlay className="liveStage__remoteAudio" />
 
-        {isEnded && !playbackUrl ? (
+        {isEnded ? (
           <div className="liveStage__ended">
             <strong>Эфир завершён</strong>
-            <span>{endedDateLabel ? `${endedDateLabel} · ` : ""}трансляция окончена</span>
+            <span>{endedPeriodLabel}</span>
             <span>⏱ {endedDurationLabel}</span>
           </div>
-        ) : !isOwner && !playbackUrl && (!videoTrack || !isPlaying) ? (
-          <button
-            type="button"
-            className={`liveStage__play ${isPlaying ? "liveStage__play--playing" : ""}`}
-            onClick={onTogglePlaying}
-            aria-label={isPlaying ? "Поставить на паузу" : "Смотреть эфир"}
-          >
-            <span>{isPlaying ? "Ⅱ" : "▶"}</span>
-          </button>
         ) : isOwner && !isLive && !isEnded ? (
           <button
             type="button"
@@ -256,12 +229,20 @@ export default function LiveStage({
                   <div className="liveStage__endControl">
                     <button
                       type="button"
+                      className="liveStage__endIconButton"
+                      onClick={onEnd}
+                      disabled={isEnding}
+                      aria-label="Завершить трансляцию"
+                    >
+                      <img src={profileIcons.liveStop} alt="" aria-hidden="true" />
+                    </button>
+                    <button
+                      type="button"
                       className="liveStage__outlineButton liveStage__endButton"
                       onClick={onEnd}
                       disabled={isEnding}
                     >
-                      <img src={profileIcons.liveStop} alt="" aria-hidden="true" />
-                      <span>{isEnding ? "Сохранение записи..." : "Завершить трансляцию"}</span>
+                      <span>{isEnding ? "Завершение..." : "Завершить трансляцию"}</span>
                     </button>
                   </div>
                 )}

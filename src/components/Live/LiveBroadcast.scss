@@ -181,7 +181,39 @@
   grid-template-rows: auto minmax(42dvh, 1fr) auto;
   overflow: hidden;
   border-radius: 8px;
-  background: #d4d4d4;
+  background: rgba(213, 213, 213, 0.8);
+}
+
+.liveStage--active {
+  background: transparent;
+
+  .liveStage__center {
+    position: static;
+  }
+
+  .liveStage__cameraPreview {
+    z-index: 0;
+  }
+
+  .liveStage__speakerIcon,
+  .liveStage__settingsButton img,
+  .liveStage__hostStats span:first-child img,
+  .liveStage__metrics span:first-child img {
+    filter: brightness(0) invert(1);
+  }
+
+  .liveStage__speakerLabel,
+  .liveStage__host strong {
+    color: #fff;
+  }
+
+  .liveStage__status,
+  .liveStage__metrics,
+  .liveStage__hostStats,
+  .liveStage__metrics span,
+  .liveStage__hostStats span {
+    color: #fff;
+  }
 }
 
 .liveStage__top {
@@ -190,7 +222,7 @@
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  gap: 12px;
+  gap: 8px;
   padding: 12px;
 }
 
@@ -198,7 +230,7 @@
   min-width: 0;
   display: flex;
   align-items: center;
-  gap: 11px;
+  gap: 8px;
   padding: 0;
   border: 0;
   background: transparent;
@@ -208,8 +240,8 @@
 }
 
 .liveStage__hostAvatar {
-  width: 52px;
-  height: 52px;
+  width: 42px;
+  height: 42px;
   flex: 0 0 auto;
   border: 3px solid #f20d1e;
   border-radius: 50%;
@@ -281,7 +313,7 @@
 
 .liveStage__topRight {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: 8px;
 }
 
@@ -289,7 +321,7 @@
   height: 34px;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 5px;
   font-size: 10px;
   letter-spacing: 0;
   white-space: nowrap;
@@ -300,9 +332,15 @@
   }
 }
 
+.liveStage__statusSeparator {
+  font-size: 11px;
+  line-height: 1;
+}
+
 .liveStage__recordDot {
   width: 30px;
   height: 30px;
+  margin-top: 5px;
   flex: 0 0 auto;
   border: 0;
   object-fit: contain;
@@ -317,8 +355,8 @@
 }
 
 .liveStage__settingsButton {
-  width: 23px;
-  height: 23px;
+  width: 18px;
+  height: 18px;
   padding: 0;
   border: 0;
   background: transparent;
@@ -400,17 +438,22 @@
   background: transparent;
   cursor: pointer;
 
-  span:last-child {
-    width: 30px;
-    height: 30px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
+  .liveStage__settingActionIcon {
+    width: 25px;
+    height: 25px;
+    display: inline-grid;
+    flex: 0 0 25px;
+    place-items: center;
     border-radius: 50%;
     background: #9b7ae6;
-    color: #fff;
-    font-size: 25px;
-    font-weight: 400;
+
+    img {
+      display: block;
+      width: 15px;
+      height: 8px;
+      object-fit: contain;
+      transform: rotate(-90deg);
+    }
   }
 }
 
@@ -561,19 +604,25 @@
 
 .liveStage__endControl {
   display: flex;
+  flex-direction: column;
   align-items: center;
 }
 
-.liveStage__endButton {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding-block: 2px;
+.liveStage__endIconButton {
+  position: relative;
+  z-index: 1;
+  width: 40px;
+  height: 40px;
+  display: block;
+  margin-bottom: -1px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
 
-  > img {
-    width: 40px;
-    height: 40px;
-    flex: 0 0 auto;
+  img {
+    width: 100%;
+    height: 100%;
     display: block;
     object-fit: contain;
   }
@@ -584,9 +633,20 @@
   }
 }
 
+.liveStage__endButton {
+  display: inline-flex;
+  align-items: center;
+  padding-block: 2px;
+
+  &:disabled {
+    opacity: 0.65;
+    cursor: wait;
+  }
+}
+
 .liveStage__outlineButton {
   min-height: 30px;
-  padding: 1px 10px;
+  padding: 1px 8px;
   border: 1px solid #111;
   border-radius: 16px;
   background: #f4fdff;
@@ -624,6 +684,10 @@
     &:hover {
       transform: translateY(-3px) scale(1.1);
     }
+
+    &:active {
+      transform: scale(0.88);
+    }
   }
 }
 
@@ -638,7 +702,7 @@
   overflow: visible;
   border: 1px solid rgba(0, 0, 0, 0.28);
   border-radius: 8px;
-  background: linear-gradient(180deg, #fceaff 0%, #f1e7ff 55%, #e1cbff 100%);
+  background: linear-gradient(180deg, #FCFAFF 0%, #F1E7FF 46%, #E1CBFF 100%);
 }
 
 .liveChat__header {
@@ -667,7 +731,8 @@
   min-height: 0;
   flex: 1;
   overflow-y: auto;
-  overscroll-behavior: contain;
+  overscroll-behavior-y: auto;
+  touch-action: pan-y;
   scrollbar-width: thin;
   scrollbar-color: rgba(155, 122, 230, 0.78) rgba(255, 255, 255, 0.34);
   padding: 12px 12px 0px;
@@ -720,7 +785,8 @@
   padding: 20px 12px 4px;
   overflow-x: visible;
   overflow-y: auto;
-  overscroll-behavior: contain;
+  overscroll-behavior-y: auto;
+  touch-action: pan-y;
   scrollbar-width: thin;
   scrollbar-color: rgba(155, 122, 230, 0.78) rgba(255, 255, 255, 0.34);
   border-bottom: 1px solid rgba(155, 122, 230, 0.35);
@@ -808,6 +874,7 @@
   font-size: 22px;
   line-height: 1;
   cursor: pointer;
+  touch-action: pan-y;
 }
 
 .liveChat__messageMenu {
@@ -818,6 +885,7 @@
   border-radius: 7px;
   background: #fff;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  touch-action: pan-y;
 
   button {
     width: 100%;
@@ -919,31 +987,45 @@
 }
 
 @media (max-width: 767px) {
+  .liveChat__quickReactions {
+    flex-wrap: nowrap;
+    justify-content: space-between;
+    gap: 2px;
+    padding: 7px 4px 0;
+
+    button {
+      width: 24px;
+      height: 24px;
+      flex: 0 0 24px;
+      font-size: 20px;
+    }
+  }
+
   .liveStage__host strong {
     max-width: min(38vw, 150px);
     overflow: hidden;
-    font-size: 16px;
+    font-size: 13px;
     line-height: 1.2;
     text-overflow: ellipsis;
     white-space: nowrap;
   }
 
   .liveStage__speakerLabel {
-    font-size: 11px;
+    font-size: 9px;
   }
 
   .liveStage__speakerIcon {
-    width: 24px;
-    height: 24px;
+    width: 20px;
+    height: 20px;
   }
 
   .liveStage__hostInfo {
-    grid-template-columns: 24px minmax(0, 1fr);
+    grid-template-columns: 20px minmax(0, 1fr);
     column-gap: 6px;
   }
 
   .liveStage__settingsPanel {
-    top: 50px;
+    top: 60px;
     right: 8px;
     width: min(195px, calc(100% - 16px));
     padding: 8px 10px;
@@ -1042,14 +1124,18 @@
     }
   }
 
+  .liveStage__statusSeparator {
+    font-size: 14px;
+  }
+
   .liveStage__recordDot {
-    width: 38px;
-    height: 38px;
+    width: 45px;
+    height: 45px;
   }
 
   .liveStage__settingsPanel {
     top: 72px;
-    width: 280px;
+    width: 230px;
   }
 
   .liveStage__settingRow,
@@ -1074,6 +1160,12 @@
 
   .liveChat__messageContent p {
     font-size: 13px;
+  }
+}
+
+@media screen and (min-width: 768px) and (max-width: 1279.98px) {
+  .liveChat__quickReactions {
+    gap: 6px 45px;
   }
 }
 
@@ -1247,9 +1339,23 @@
     }
   }
 
+  .liveStage__statusSeparator {
+    font-size: 40px;
+  }
+
+  .liveChat__header {
+    gap: 2px;
+  }
+
+  .liveChat__headerIcon {
+    width: 65px;
+    height: 54px;
+  }
+
   .liveStage__recordDot {
-    width: 48px;
-    height: 48px;
+    width: 78px;
+    height: 78px;
+    margin: 10px -20px 0 0;
     border-width: 11px;
   }
 
@@ -1296,13 +1402,12 @@
   }
 
   .liveStage__endButton {
-    gap: 4px;
     padding-block: 1px;
+  }
 
-    > img {
-      width: 38px;
-      height: 38px;
-    }
+  .liveStage__endIconButton {
+    width: 65px;
+    height: 65px;
   }
 
   .liveStage__outlineButton {
@@ -1373,6 +1478,11 @@
 [data-theme="dark"] .liveStage,
 .dark .liveStage {
   background: #303038;
+}
+
+[data-theme="dark"] .liveStage--active,
+.dark .liveStage--active {
+  background: transparent;
 }
 
 [data-theme="dark"] .liveStage__settingsButton,

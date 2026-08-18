@@ -1,13 +1,17 @@
 import { useCallback, useEffect, useState } from "react";
 import { liveStreamsApi } from "../services/liveStreamsApi";
+import { getSessionAccessToken } from "../services/api";
+import { connectSocket } from "../services/socket";
 import { dedupeAsync } from "../utils/dedupeAsync";
+import { useAuthStore } from "../zustand/useAuthStore";
 
 const REFRESH_INTERVAL_MS = 5_000;
 
 const getId = (value) => value?.id || value?._id || value?.userId || null;
 
 export function normalizeActiveLiveStream(raw) {
-  const value = raw?.data && !Array.isArray(raw.data) ? raw.data : raw || {};
+  const envelope = raw?.data && !Array.isArray(raw.data) ? raw.data : raw || {};
+  const value = envelope.stream || envelope.liveStream || envelope;
   const host = value.host || value.hostUser || value.author || value.user || value.owner || {};
 
   return {
@@ -52,6 +56,8 @@ export function findActiveLiveStreamForUser(streams, user) {
 
 export function useActiveLiveStreams({ enabled = true } = {}) {
   const [activeStreams, setActiveStreams] = useState([]);
+  const storeToken = useAuthStore((state) => state.token);
+  const accessToken = storeToken || getSessionAccessToken();
 
   const reload = useCallback(async () => {
     if (!enabled) return [];
@@ -89,6 +95,41 @@ export function useActiveLiveStreams({ enabled = true } = {}) {
       document.removeEventListener("visibilitychange", refreshWhenVisible);
     };
   }, [enabled, reload]);
+
+  useEffect(() => {
+    if (!enabled || !accessToken) return undefined;
+    const socket = connectSocket(accessToken);
+    if (!socket) return undefined;
+
+    const handleStarted = (payload) => {
+      const stream = normalizeActiveLiveStream(payload);
+      if (!stream.id || String(stream.status || "LIVE").toUpperCase() !== "LIVE") return;
+
+      setActiveStreams((current) => [
+        ...current.filter((item) =>
+          String(item.id) !== String(stream.id) &&
+          (!stream.hostId || String(item.hostId) !== String(stream.hostId))
+        ),
+        stream,
+      ]);
+    };
+
+    const handleEnded = (payload) => {
+      const stream = normalizeActiveLiveStream(payload);
+      if (!stream.id && !stream.hostId) return;
+      setActiveStreams((current) => current.filter((item) =>
+        (!stream.id || String(item.id) !== String(stream.id)) &&
+        (!stream.hostId || String(item.hostId) !== String(stream.hostId))
+      ));
+    };
+
+    socket.on("live:started", handleStarted);
+    socket.on("live:ended", handleEnded);
+    return () => {
+      socket.off("live:started", handleStarted);
+      socket.off("live:ended", handleEnded);
+    };
+  }, [accessToken, enabled]);
 
   return { activeStreams, reload };
 }

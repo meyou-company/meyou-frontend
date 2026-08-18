@@ -1,17 +1,16 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
-import fixWebmDuration from "fix-webm-duration";
 import { toast } from "sonner";
 import { useAuthStore } from "../../zustand/useAuthStore";
 import { useLocaleStore } from "../../zustand/useLocaleStore";
 import { useLiveKitBroadcast } from "../../hooks/useLiveKitBroadcast";
 import { extractLiveMedia, liveStreamsApi } from "../../services/liveStreamsApi";
 import { getSessionAccessToken } from "../../services/api";
-import { connectSocket, getSocket } from "../../services/socket";
+import { connectLiveSocket, getLiveSocket } from "../../services/liveSocket";
 import { usersApi } from "../../services/usersApi";
-import { uploadVideoMedia } from "../../services/videoMediaUploadApi";
 import { getApiErrorMessage } from "../../utils/getApiErrorMessage";
 import { getLiveErrorMessage } from "../../utils/getLiveErrorMessage";
+import { emojiToReactionType } from "../../constants/messageReactions";
 import profileIcons from "../../constants/profileIcons";
 import LiveHeader from "./LiveHeader";
 import LiveStage from "./LiveStage";
@@ -24,8 +23,6 @@ const LIVE_STATUS = "LIVE";
 const ENDED_STATUS = "ENDED";
 const LIVE_HOST_MEDIA_PREFIX = "meyou_live_host_media:";
 const LIVE_MESSAGES_CACHE_PREFIX = "meyou_live_messages:";
-const LIVE_PINNED_CACHE_PREFIX = "meyou_live_pinned_messages:";
-const LIVE_REACTIONS_CACHE_PREFIX = "meyou_live_reactions:";
 const COUNTER_SYNC_INTERVAL_MS = 2_000;
 const MAX_CACHED_MESSAGES = 1_000;
 
@@ -71,7 +68,6 @@ function normalizeStream(payload) {
       value.analytics?.durationSec ??
       null,
     isSoundEnabled: value.isSoundEnabled !== false,
-    isSaved: Boolean(value.isSaved),
     viewersCount:
       value.viewersCount ?? value.viewerCount ?? value.participantsCount ?? 0,
     reactionsCount: value.reactionsCount ?? value.likesCount ?? 0,
@@ -100,6 +96,7 @@ function normalizeMessage(raw) {
       value.createdAt || value.created_at || value.sentAt || new Date().toISOString(),
     isPersisted: value.isPersisted ?? Boolean(id),
     isPinned: Boolean(value.isPinned ?? value.pinned),
+    pinnedAt: value.pinnedAt || value.pinned_at || null,
   };
 }
 
@@ -110,7 +107,12 @@ function appendUniqueMessage(list, message) {
 
 function reconcileMessage(list, incoming) {
   if (!incoming?.id) return list;
-  if (list.some((item) => item.id === incoming.id)) return list;
+  const existingIndex = list.findIndex((item) => String(item.id) === String(incoming.id));
+  if (existingIndex !== -1) {
+    const next = [...list];
+    next[existingIndex] = { ...next[existingIndex], ...incoming };
+    return next;
+  }
 
   const incomingTime = Date.parse(incoming.createdAt) || Date.now();
   const pendingIndex = list.findIndex((item) => {
@@ -171,6 +173,8 @@ function getLiveMessageStreamId(payload) {
   return (
     value.streamId ||
     value.liveStreamId ||
+    value.stream?.id ||
+    value.liveStream?.id ||
     message?.streamId ||
     message?.liveStreamId ||
     null
@@ -223,65 +227,12 @@ function writeLiveCache(prefix, streamId, value) {
   }
 }
 
-function readCachedReactionCount(streamId) {
-  if (!streamId) return 0;
-  try {
-    const value = Number(localStorage.getItem(`${LIVE_REACTIONS_CACHE_PREFIX}${streamId}`));
-    return Number.isFinite(value) && value > 0 ? value : 0;
-  } catch {
-    return 0;
-  }
-}
-
-function cacheReactionCount(streamId, value) {
-  if (!streamId) return;
-  try {
-    const previous = readCachedReactionCount(streamId);
-    localStorage.setItem(
-      `${LIVE_REACTIONS_CACHE_PREFIX}${streamId}`,
-      String(Math.max(previous, 0, Number(value) || 0)),
-    );
-  } catch {
-    // Realtime and backend values remain the source of truth without storage.
-  }
-}
-
 function formatCompactCount(value) {
   const number = Number(value) || 0;
   if (number >= 1000) {
     return `${(number / 1000).toFixed(1).replace(".", ",")}K`;
   }
   return String(number);
-}
-
-function getPlaybackUrl(payload, depth = 0) {
-  if (!payload || depth > 5) return null;
-  const value = unwrap(payload) || {};
-  const direct = [
-    value.recordingUrl,
-    value.playbackUrl,
-    value.videoUrl,
-    value.hlsUrl,
-    value.mp4Url,
-    value.downloadUrl,
-    value.assetUrl,
-    value.mediaUrl,
-    value.url,
-  ].find((candidate) => typeof candidate === "string" && /^https?:\/\//i.test(candidate));
-  if (direct) return direct;
-
-  for (const nested of [
-    value.data,
-    value.result,
-    value.recording,
-    value.playback,
-    value.media,
-    value.asset,
-  ]) {
-    const nestedUrl = getPlaybackUrl(nested, depth + 1);
-    if (nestedUrl) return nestedUrl;
-  }
-  return null;
 }
 
 function getStreamDurationSec(stream) {
@@ -318,6 +269,27 @@ function formatEndedDate(stream, locale) {
   }).format(endedAt);
 }
 
+function formatEndedPeriod(stream, locale) {
+  const dateLabel = formatEndedDate(stream, locale);
+  const capitalizedDate = dateLabel
+    ? `${dateLabel.charAt(0).toLocaleUpperCase(locale)}${dateLabel.slice(1)}`
+    : "";
+  const startedAt = new Date(stream?.startedAt || "");
+  const endedAt = new Date(stream?.endedAt || stream?.updatedAt || "");
+
+  if (Number.isNaN(startedAt.getTime()) || Number.isNaN(endedAt.getTime())) {
+    return capitalizedDate
+      ? `${capitalizedDate} · трансляция окончена`
+      : "Трансляция окончена";
+  }
+
+  const timeFormatter = new Intl.DateTimeFormat(locale, {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+  return `${capitalizedDate} · ${timeFormatter.format(startedAt)}–${timeFormatter.format(endedAt)}`;
+}
+
 function formatDuration(durationSec) {
   const totalMinutes = Math.max(0, Math.round((Number(durationSec) || 0) / 60));
   const hours = Math.floor(totalMinutes / 60);
@@ -325,15 +297,6 @@ function formatDuration(durationSec) {
   if (hours > 0 && minutes > 0) return `${hours} ч ${minutes} мин`;
   if (hours > 0) return `${hours} ч`;
   return `${Math.max(1, minutes)} мин`;
-}
-
-function getRecordingMimeType() {
-  const candidates = [
-    "video/webm;codecs=vp8,opus",
-    "video/webm;codecs=vp9,opus",
-    "video/webm",
-  ];
-  return candidates.find((type) => window.MediaRecorder?.isTypeSupported?.(type)) || "";
 }
 
 function extractBlockedUserIds(payload) {
@@ -368,9 +331,6 @@ export default function LiveBroadcast() {
   const streamRef = useRef(null);
   const hostReconnectRef = useRef(null);
   const viewerAutoConnectRef = useRef(null);
-  const recordingSessionRef = useRef(null);
-  const shouldSaveRef = useRef(false);
-  const unmountFinalizationRef = useRef(null);
 
   const currentUser = useMemo(
     () => ({
@@ -394,10 +354,8 @@ export default function LiveBroadcast() {
   const [isPlaying, setIsPlaying] = useState(Boolean(liveId));
   const [isSettingsOpen, setIsSettingsOpen] = useState(!liveId);
   const [isMuted, setIsMuted] = useState(false);
-  const [shouldSave, setShouldSave] = useState(false);
   const [isStarting, setIsStarting] = useState(false);
   const [isEnding, setIsEnding] = useState(false);
-  const [recordingRevision, setRecordingRevision] = useState(0);
   const [likesCount, setLikesCount] = useState(0);
   const [pinnedMessageIds, setPinnedMessageIds] = useState([]);
   const [messages, setMessages] = useState([]);
@@ -405,15 +363,10 @@ export default function LiveBroadcast() {
   const [isLoadingOlderMessages, setIsLoadingOlderMessages] = useState(false);
   const [areMessagesHydrated, setAreMessagesHydrated] = useState(false);
   const [isChatOpen, setIsChatOpen] = useState(true);
-  const [playbackUrl, setPlaybackUrl] = useState(null);
   const [pickerMode, setPickerMode] = useState(null);
   const [isRestoringHost, setIsRestoringHost] = useState(false);
   const [blockedUserIds, setBlockedUserIds] = useState(() => new Set());
   const [moderatingUserId, setModeratingUserId] = useState(null);
-
-  useEffect(() => {
-    shouldSaveRef.current = shouldSave;
-  }, [shouldSave]);
 
   const setStream = useCallback((nextStream) => {
     const normalized = nextStream ? normalizeStream(nextStream) : null;
@@ -507,28 +460,6 @@ export default function LiveBroadcast() {
           current.filter((messageId) => messageId !== packet.messageId),
         );
         break;
-      case "chat.pin": {
-        if (!packet.messageId) break;
-        setPinnedMessageIds((current) => {
-          const withoutMessage = current.filter((messageId) => messageId !== packet.messageId);
-          return packet.isPinned === false
-            ? withoutMessage
-            : [...withoutMessage, packet.messageId];
-        });
-        break;
-      }
-      case "reaction":
-        setLikesCount((current) => {
-          const absoluteCount = Number(packet.reactionsCount ?? packet.likesCount);
-          return Number.isFinite(absoluteCount)
-            ? Math.max(current + 1, absoluteCount)
-            : current + 1;
-        });
-        break;
-      case "stream.ended":
-        setIsEnded(true);
-        setIsPlaying(false);
-        break;
       default:
         break;
     }
@@ -539,6 +470,10 @@ export default function LiveBroadcast() {
     onDisconnected: () => {
       const activeStream = streamRef.current;
       if (activeStream?.status === LIVE_STATUS) {
+        const activeHostId = activeStream.hostId || getUserId(activeStream.host);
+        if (activeHostId && String(activeHostId) === String(currentUser.id)) {
+          hostReconnectRef.current = null;
+        }
         liveStreamsApi.getById(activeStream.id)
           .then((fresh) => {
             const normalized = setStream(fresh);
@@ -551,175 +486,12 @@ export default function LiveBroadcast() {
   const connectLiveKit = liveKit.connect;
   const startLiveAudio = liveKit.startAudio;
 
-  const stopLocalRecording = useCallback(() => {
-    const session = recordingSessionRef.current;
-    if (!session?.recorder) return Promise.resolve(null);
-    if (session.stopPromise) return session.stopPromise;
-
-    session.stopPromise = new Promise((resolve) => {
-      const finish = async () => {
-        if (session.isFinished) return;
-        session.isFinished = true;
-
-        let blob = session.chunks.length
-          ? new Blob(session.chunks, { type: session.mimeType || "video/webm" })
-          : null;
-        const durationMs = Math.max(1, Date.now() - session.startedAt);
-        if (blob?.size && blob.type.includes("webm")) {
-          try {
-            blob = await fixWebmDuration(blob, durationMs, { logger: false });
-          } catch {
-            // Keep the original recording if metadata repair is unsupported.
-          }
-        }
-        if (recordingSessionRef.current === session) recordingSessionRef.current = null;
-        setRecordingRevision((current) => current + 1);
-        resolve(blob);
-      };
-
-      session.recorder.addEventListener("stop", finish, { once: true });
-      if (session.recorder.state === "inactive") finish();
-      else session.recorder.stop();
-    });
-
-    return session.stopPromise;
-  }, []);
-
-  const finalizeStreamOnUnmount = useCallback(async (activeStream, saveRecording) => {
-    if (!activeStream?.id) return;
-    if (unmountFinalizationRef.current?.streamId === activeStream.id) {
-      return unmountFinalizationRef.current.promise;
-    }
-
-    const promise = (async () => {
-      let recordingUrl = null;
-      if (saveRecording) {
-        const recordingBlob = await stopLocalRecording();
-        if (recordingBlob?.size) {
-          const extension = recordingBlob.type.includes("mp4") ? "mp4" : "webm";
-          const recordingFile = new File(
-            [recordingBlob],
-            `live-${activeStream.id}-${Date.now()}.${extension}`,
-            { type: recordingBlob.type || "video/webm" },
-          );
-          const uploaded = await uploadVideoMedia(recordingFile);
-          recordingUrl = uploaded.mediaUrl;
-          await liveStreamsApi.updateSettings(activeStream.id, {
-            isSaved: true,
-            recordingUrl,
-            recordingStatus: "READY",
-          });
-        }
-      } else {
-        await stopLocalRecording();
-      }
-
-      await liveStreamsApi.end(
-        activeStream.id,
-        recordingUrl ? { recordingUrl } : {},
-      );
-      removeHostMedia(activeStream.id);
-    })();
-
-    unmountFinalizationRef.current = { streamId: activeStream.id, promise };
-    return promise;
-  }, [stopLocalRecording]);
-
-  useEffect(() => () => {
-    const activeStream = streamRef.current;
-    const activeHostId = activeStream?.hostId || getUserId(activeStream?.host);
-    const ownsActiveStream =
-      activeStream?.status === LIVE_STATUS &&
-      activeHostId &&
-      String(activeHostId) === String(currentUser.id);
-
-    if (!ownsActiveStream) return;
-    finalizeStreamOnUnmount(activeStream, shouldSaveRef.current)
-      .catch(() => liveStreamsApi.end(activeStream.id, {}).catch(() => {}));
-  }, [currentUser.id, finalizeStreamOnUnmount]);
-
-  useEffect(() => {
-    if (!isOwner || stream?.status !== LIVE_STATUS || isEnded || !shouldSave) {
-      return undefined;
-    }
-
-    const warnBeforeUnload = (event) => {
-      event.preventDefault();
-      event.returnValue = "";
-    };
-    window.addEventListener("beforeunload", warnBeforeUnload);
-    return () => window.removeEventListener("beforeunload", warnBeforeUnload);
-  }, [isEnded, isOwner, shouldSave, stream?.status]);
-
-useEffect(() => {
-  const videoMediaTrack = liveKit.videoTrack?.mediaStreamTrack;
-  const audioMediaTrack = liveKit.audioTrack?.mediaStreamTrack;
-
-  const canRecord =
-    isOwner &&
-    stream?.status === LIVE_STATUS &&
-    !isEnded &&
-    !isEnding &&
-    window.MediaRecorder &&
-    videoMediaTrack;
-
-  if (!canRecord || recordingSessionRef.current) return undefined;
-
-  const tracks = [videoMediaTrack, audioMediaTrack].filter(Boolean);
-  const mediaStream = new MediaStream(tracks);
-
-  const mimeType = getRecordingMimeType();
-
-  const recorder = new MediaRecorder(
-    mediaStream,
-    mimeType
-      ? {
-          mimeType,
-          videoBitsPerSecond: 1_200_000,
-          audioBitsPerSecond: 64_000,
-        }
-      : {
-          videoBitsPerSecond: 1_200_000,
-          audioBitsPerSecond: 64_000,
-        },
-  );
-
-  const session = {
-    recorder,
-    chunks: [],
-    mimeType: mimeType || recorder.mimeType,
-    startedAt: Date.now(),
-    isFinished: false,
-  };
-
-  recordingSessionRef.current = session;
-
-  recorder.addEventListener("dataavailable", (event) => {
-    if (event.data?.size) {
-      session.chunks.push(event.data);
-    }
-  });
-
-  recorder.start(1_000);
-
-  return undefined;
-}, [
-  isEnded,
-  isEnding,
-  isOwner,
-  liveKit.audioTrack,
-  liveKit.videoTrack,
-  recordingRevision,
-  stream?.status,
-]);
-
   useEffect(() => {
     if (!liveId) {
       setStream(null);
       setIsEnded(false);
       setIsPlaying(false);
       setIsSettingsOpen(true);
-      setPlaybackUrl(null);
       setElapsed(0);
       setNextMessagesCursor(null);
       setIsLoading(false);
@@ -735,19 +507,20 @@ useEffect(() => {
       setNextMessagesCursor(null);
     }
 
-    Promise.all([
-      liveStreamsApi.getById(liveId),
-      liveStreamsApi.getMessages(liveId).catch(() => ({ items: [] })),
-    ])
-      .then(async ([streamPayload, messagePayload]) => {
+    const messageRequest = liveStreamsApi
+      .getMessages(liveId)
+      .catch(() => ({ items: [], nextCursor: null }));
+
+    const loadStream = async () => {
+      try {
+        const streamPayload = await liveStreamsApi.getById(liveId);
         if (cancelled) return;
         const normalized = normalizeStream(streamPayload);
         const isOwnLoadedStream =
           normalized.hostId && String(normalized.hostId) === String(currentUser.id);
         const shouldResetOwnerStream =
           isOwnLoadedStream &&
-          (normalized.status === ENDED_STATUS ||
-            (normalized.status === LIVE_STATUS && !readHostMedia(normalized.id)));
+          normalized.status === ENDED_STATUS;
 
         if (shouldResetOwnerStream) {
           if (normalized.status === LIVE_STATUS) {
@@ -761,23 +534,10 @@ useEffect(() => {
         setStream(normalized);
         setIsEnded(normalized.status === ENDED_STATUS);
         setIsMuted(!normalized.isSoundEnabled);
-        setShouldSave(normalized.isSaved);
-        setLikesCount(Math.max(
-          normalized.reactionsCount,
-          readCachedReactionCount(liveId),
-        ));
+        setLikesCount(normalized.reactionsCount);
         const cachedMessages = readLiveCache(LIVE_MESSAGES_CACHE_PREFIX, liveId);
-        const cachedPinnedIds = readLiveCache(LIVE_PINNED_CACHE_PREFIX, liveId);
-        const backendPinnedIds = messagePayload.items
-          .map(normalizeMessage)
-          .filter((message) => message.isPinned)
-          .map((message) => message.id);
-        setMessages((current) =>
-          mergeMessages(cachedMessages, current, messagePayload.items),
-        );
-        setNextMessagesCursor(messagePayload.nextCursor || null);
-        setPinnedMessageIds([...new Set([...cachedPinnedIds, ...backendPinnedIds])]);
-        setAreMessagesHydrated(true);
+        setMessages((current) => mergeMessages(cachedMessages, current));
+        setIsLoading(false);
 
         if (normalized.startedAt) {
           const elapsedUntil = normalized.status === ENDED_STATUS
@@ -792,18 +552,19 @@ useEffect(() => {
             : calculatedElapsed);
         }
 
-        if (normalized.status === ENDED_STATUS) {
-          try {
-            const playback = await liveStreamsApi.getPlayback(normalized.id);
-            if (!cancelled) {
-              setPlaybackUrl(getPlaybackUrl(playback) || getPlaybackUrl(normalized));
-            }
-          } catch {
-            if (!cancelled) setPlaybackUrl(getPlaybackUrl(normalized));
-          }
-        }
-      })
-      .catch((error) => {
+        const messagePayload = await messageRequest;
+        if (cancelled) return;
+        const backendPinnedIds = messagePayload.items
+          .map(normalizeMessage)
+          .filter((message) => message.isPinned)
+          .map((message) => message.id);
+        setMessages((current) => mergeMessages(current, messagePayload.items));
+        setNextMessagesCursor(messagePayload.nextCursor || null);
+        setPinnedMessageIds((current) => [
+          ...new Set([...current, ...backendPinnedIds]),
+        ]);
+        setAreMessagesHydrated(true);
+      } catch (error) {
         if (!cancelled) {
           if (isRefreshingCurrent) {
             console.error("[live-stream-refresh] failed", error);
@@ -811,10 +572,12 @@ useEffect(() => {
             setLoadError(getLiveErrorMessage(error));
           }
         }
-      })
-      .finally(() => {
+      } finally {
         if (!cancelled) setIsLoading(false);
-      });
+      }
+    };
+
+    loadStream();
 
     return () => {
       cancelled = true;
@@ -829,8 +592,7 @@ useEffect(() => {
       activeId,
       messages.slice(-MAX_CACHED_MESSAGES),
     );
-    writeLiveCache(LIVE_PINNED_CACHE_PREFIX, activeId, pinnedMessageIds);
-  }, [areMessagesHydrated, liveId, messages, pinnedMessageIds, stream?.id]);
+  }, [areMessagesHydrated, liveId, messages, stream?.id]);
 
   useEffect(() => {
     const activeId = stream?.id || liveId;
@@ -849,6 +611,19 @@ useEffect(() => {
         .then((history) => {
           if (!cancelled) {
             setMessages((current) => mergeMessages(current, history.items));
+            const refreshed = history.items.map(normalizeMessage);
+            const refreshedState = new Map(
+              refreshed.map((message) => [String(message.id), message.isPinned]),
+            );
+            setPinnedMessageIds((current) => {
+              const next = current.filter((id) => refreshedState.get(String(id)) !== false);
+              refreshed.forEach((message) => {
+                if (message.isPinned && !next.some((id) => String(id) === String(message.id))) {
+                  next.push(message.id);
+                }
+              });
+              return next;
+            });
           }
         })
         .catch(() => {});
@@ -863,33 +638,6 @@ useEffect(() => {
 
   useEffect(() => {
     const activeId = stream?.id || liveId;
-    if (!activeId) return;
-    cacheReactionCount(activeId, likesCount);
-  }, [likesCount, liveId, stream?.id]);
-
-  useEffect(() => {
-    const activeId = stream?.id || liveId;
-    if (!activeId || !isEnded || playbackUrl || !stream?.isSaved) return undefined;
-
-    let cancelled = false;
-    const refreshPlayback = () => {
-      liveStreamsApi.getPlayback(activeId)
-        .then((payload) => {
-          const nextUrl = getPlaybackUrl(payload) || getPlaybackUrl(stream);
-          if (!cancelled && nextUrl) setPlaybackUrl(nextUrl);
-        })
-        .catch(() => {});
-    };
-
-    const intervalId = window.setInterval(refreshPlayback, 5_000);
-    return () => {
-      cancelled = true;
-      window.clearInterval(intervalId);
-    };
-  }, [isEnded, liveId, playbackUrl, stream]);
-
-  useEffect(() => {
-    const activeId = stream?.id || liveId;
     if (!activeId || stream?.status !== LIVE_STATUS || isEnded) return undefined;
 
     let cancelled = false;
@@ -898,11 +646,7 @@ useEffect(() => {
         .then((freshPayload) => {
           if (cancelled) return;
           const fresh = normalizeStream(freshPayload);
-          setLikesCount((current) => Math.max(
-            current,
-            fresh.reactionsCount,
-            readCachedReactionCount(activeId),
-          ));
+          setLikesCount(fresh.reactionsCount);
           if (fresh.status === ENDED_STATUS) {
             setIsEnded(true);
             setIsPlaying(false);
@@ -922,7 +666,7 @@ useEffect(() => {
     const activeId = stream?.id || liveId;
     if (!activeId || !accessToken) return undefined;
 
-    const socket = connectSocket(accessToken);
+    const socket = connectLiveSocket(accessToken);
     if (!socket) return undefined;
 
     const joinStream = () => {
@@ -943,6 +687,63 @@ useEffect(() => {
       }
     };
 
+    const updatePinnedMessage = (payload, isPinned) => {
+      const messageStreamId = getLiveMessageStreamId(payload);
+      if (messageStreamId && String(messageStreamId) !== String(activeId)) return;
+
+      const value = unwrap(payload) || {};
+      const message = getLiveMessageEnvelope(value);
+      const messageId = value.messageId || message?.messageId || message?.id || message?._id;
+      if (!messageId) return;
+
+      setPinnedMessageIds((current) => {
+        const withoutMessage = current.filter((id) => String(id) !== String(messageId));
+        return isPinned ? [...withoutMessage, messageId] : withoutMessage;
+      });
+      setMessages((current) => current.map((item) =>
+        String(item.id) === String(messageId)
+          ? { ...item, isPinned, pinnedAt: isPinned ? value.pinnedAt || message?.pinnedAt : null }
+          : item
+      ));
+    };
+
+    const handleReactionUpdate = (payload) => {
+      const reactionStreamId = getLiveMessageStreamId(payload);
+      if (reactionStreamId && String(reactionStreamId) !== String(activeId)) return;
+
+      const value = unwrap(payload) || {};
+      const summary = value.summary || value.reactionSummary || value.data?.summary || {};
+      const count = Number(
+        value.reactionsCount ??
+        value.count ??
+        value.total ??
+        summary.reactionsCount ??
+        summary.count ??
+        summary.total,
+      );
+      if (Number.isFinite(count)) {
+        setLikesCount(Math.max(0, count));
+      }
+    };
+
+    const handleLiveEnded = (payload) => {
+      const endedStreamId = getLiveMessageStreamId(payload);
+      if (!endedStreamId || String(endedStreamId) !== String(activeId)) return;
+      const value = unwrap(payload) || {};
+      setStream({
+        ...streamRef.current,
+        ...value,
+        id: activeId,
+        status: ENDED_STATUS,
+        endedAt: value.endedAt || new Date().toISOString(),
+      });
+      setIsEnded(true);
+      setIsPlaying(false);
+    };
+    const handleMessagePinned = (payload) => updatePinnedMessage(payload, true);
+    const handleMessageUnpinned = (payload) => updatePinnedMessage(payload, false);
+    const handleNewReaction = (payload) => handleReactionUpdate(payload);
+
     const handleSocketException = (payload) => {
       if (payload?.message || payload?.error) {
         toast.error(getLiveErrorMessage({ response: { data: payload } }));
@@ -951,15 +752,26 @@ useEffect(() => {
 
     socket.on("connect", joinStream);
     socket.on("live:message:new", handleNewMessage);
+    socket.on("live:message:pinned", handleMessagePinned);
+    socket.on("live:message:unpinned", handleMessageUnpinned);
+    socket.on("live:reaction:new", handleNewReaction);
+    socket.on("live:reaction:summary", handleReactionUpdate);
+    socket.on("live:ended", handleLiveEnded);
     socket.on("exception", handleSocketException);
     if (socket.connected) joinStream();
 
     return () => {
       socket.off("connect", joinStream);
       socket.off("live:message:new", handleNewMessage);
+      socket.off("live:message:pinned", handleMessagePinned);
+      socket.off("live:message:unpinned", handleMessageUnpinned);
+      socket.off("live:reaction:new", handleNewReaction);
+      socket.off("live:reaction:summary", handleReactionUpdate);
+      socket.off("live:ended", handleLiveEnded);
       socket.off("exception", handleSocketException);
+      if (socket.connected) socket.emit("live:leave", { streamId: activeId });
     };
-  }, [accessToken, liveId, stream?.id]);
+  }, [accessToken, liveId, setStream, stream?.id]);
 
   useEffect(() => {
     const activeId = stream?.id;
@@ -1029,16 +841,6 @@ useEffect(() => {
     return () => window.clearInterval(intervalId);
   }, [isEnded, stream?.status]);
 
-  const ensureViewerConnected = useCallback(async () => {
-    if (liveKit.isConnected) return;
-    const activeId = stream?.id || liveId;
-    if (!activeId || stream?.status !== LIVE_STATUS) {
-      throw new Error("Эфир ещё не начался");
-    }
-    const tokenPayload = await liveStreamsApi.getJoinToken(activeId);
-    await liveKit.connect(extractLiveMedia(tokenPayload), { isHost: false });
-  }, [liveId, liveKit, stream]);
-
   useEffect(() => {
     const activeId = stream?.id || liveId;
     const shouldConnect =
@@ -1098,6 +900,7 @@ useEffect(() => {
     if (isStarting || liveKit.isConnecting) return;
 
     let startedStreamId = null;
+    let isReconnectAttempt = false;
     try {
       setIsStarting(true);
       let target = stream;
@@ -1123,14 +926,12 @@ useEffect(() => {
 
       let startedPayload = null;
       if (target.status === LIVE_STATUS) {
+        isReconnectAttempt = true;
         const cachedMedia = readHostMedia(target.id);
         if (cachedMedia?.url && cachedMedia?.token) {
           startedPayload = { ...target, media: cachedMedia };
         } else {
-          await liveStreamsApi.end(target.id, {});
-          removeHostMedia(target.id);
-          target = await createScheduledStream();
-          toast.info("Предыдущий зависший эфир завершён, запускаем новый");
+          startedPayload = await liveStreamsApi.start(target.id);
         }
       }
 
@@ -1144,10 +945,9 @@ useEffect(() => {
       cacheHostMedia(started.id, hostMedia);
       await liveKit.connect(hostMedia, { isHost: true });
       if (isMuted) await liveKit.setMicrophoneEnabled(false);
-      if (isMuted || shouldSave) {
+      if (isMuted) {
         await liveStreamsApi.updateSettings(started.id, {
           isSoundEnabled: !isMuted,
-          isSaved: shouldSave,
         });
       }
       setElapsed(0);
@@ -1161,15 +961,19 @@ useEffect(() => {
     } catch (error) {
       console.error("[live-stream-start] failed", error);
       if (startedStreamId) {
-        await liveStreamsApi.end(startedStreamId, {}).catch(() => {});
+        if (!isReconnectAttempt) {
+          await liveStreamsApi.end(startedStreamId, {}).catch(() => {});
+        }
         await liveKit.disconnect().catch(() => {});
         removeHostMedia(startedStreamId);
         hostReconnectRef.current = null;
-        const failedStream = streamRef.current;
-        setStream(failedStream?.id === startedStreamId
-          ? { ...failedStream, status: ENDED_STATUS }
-          : failedStream);
-        setIsEnded(true);
+        if (!isReconnectAttempt) {
+          const failedStream = streamRef.current;
+          setStream(failedStream?.id === startedStreamId
+            ? { ...failedStream, status: ENDED_STATUS }
+            : failedStream);
+          setIsEnded(true);
+        }
       }
       toast.error(getLiveErrorMessage(error));
     } finally {
@@ -1177,20 +981,9 @@ useEffect(() => {
     }
   };
 
-  const handleTogglePlaying = async () => {
-    if (isEnded || playbackUrl) return;
-    try {
-      if (!liveKit.isConnected) await ensureViewerConnected();
-      if (!isPlaying) await liveKit.startAudio();
-      setIsPlaying((current) => !current);
-    } catch (error) {
-      toast.error(getLiveErrorMessage(error));
-    }
-  };
-
   const handleSend = async (messageText) => {
     const activeId = stream?.id || liveId;
-    const socket = getSocket() || connectSocket(accessToken);
+    const socket = getLiveSocket() || connectLiveSocket(accessToken);
     if (!activeId || !socket) {
       const error = new Error("LIVE_CHAT_UNAVAILABLE");
       toast.error(getLiveErrorMessage(error, "liveErrors.chatUnavailable"));
@@ -1268,7 +1061,7 @@ useEffect(() => {
   const handleReact = async (reaction) => {
     if (isEnded || stream?.status === ENDED_STATUS) {
       toast.info(getLiveErrorMessage(
-        { response: { status: 410, data: { code: "LIVE_STREAM_ENDED" } } },
+        { response: { status: 410, data: { code: "LIVE_STREAM_NOT_ACTIVE" } } },
       ));
       return;
     }
@@ -1278,18 +1071,46 @@ useEffect(() => {
       ));
       return;
     }
-    try {
-      if (!liveKit.isConnected) await ensureViewerConnected();
-      await liveKit.publishData({
-        type: "reaction",
-        reaction,
-        userId: currentUser.id,
-        createdAt: new Date().toISOString(),
-      }, { reliable: true });
-      setLikesCount((current) => current + 1);
-    } catch (error) {
-      toast.error(getLiveErrorMessage(error));
+    const activeId = stream?.id || liveId;
+    const socket = getLiveSocket() || connectLiveSocket(accessToken);
+    if (!activeId || !socket) {
+      toast.error(getLiveErrorMessage(
+        { response: { data: { code: "LIVE_CHAT_UNAVAILABLE" } } },
+      ));
+      return;
     }
+
+    const reactionType = emojiToReactionType(reaction);
+    if (!reactionType) return;
+
+    setLikesCount((current) => Math.max(0, Number(current) || 0) + 1);
+    socket.emit(
+      "live:reaction:send",
+      { streamId: activeId, reactionType },
+      (...acknowledgement) => {
+        const response = acknowledgement.length > 1
+          ? acknowledgement[1]
+          : acknowledgement[0];
+        const hasError =
+          response?.success === false ||
+          response?.ok === false ||
+          Number(response?.statusCode) >= 400 ||
+          Boolean(response?.error);
+        if (hasError) {
+          setLikesCount((current) => Math.max(0, (Number(current) || 0) - 1));
+          toast.error(getLiveErrorMessage({ response: { data: response } }));
+          return;
+        }
+
+        const count = Number(
+          response?.reactionsCount ??
+          response?.count ??
+          response?.data?.reactionsCount ??
+          response?.data?.count,
+        );
+        if (Number.isFinite(count)) setLikesCount(Math.max(0, count));
+      },
+    );
   };
 
   const handleToggleMuted = async () => {
@@ -1301,27 +1122,16 @@ useEffect(() => {
     }
     try {
       await liveKit.setMicrophoneEnabled(!nextMuted);
-      await liveStreamsApi.updateSettings(stream.id, {
-        isSoundEnabled: !nextMuted,
-      });
       setIsMuted(nextMuted);
       setStream({ ...stream, isSoundEnabled: !nextMuted });
-    } catch (error) {
-      toast.error(getLiveErrorMessage(error));
-    }
-  };
 
-  const handleToggleSave = async () => {
-    if (!isOwner) return;
-    const nextValue = !shouldSave;
-    if (!stream?.id) {
-      setShouldSave(nextValue);
-      return;
-    }
-    try {
-      await liveStreamsApi.updateSettings(stream.id, { isSaved: nextValue });
-      setShouldSave(nextValue);
-      setStream({ ...stream, isSaved: nextValue });
+      try {
+        await liveStreamsApi.updateSettings(stream.id, {
+          isSoundEnabled: !nextMuted,
+        });
+      } catch (error) {
+        toast.error(getLiveErrorMessage(error));
+      }
     } catch (error) {
       toast.error(getLiveErrorMessage(error));
     }
@@ -1331,34 +1141,7 @@ useEffect(() => {
     if (!isOwner || !stream?.id || isEnding) return;
     setIsEnding(true);
     try {
-      let recordingUrl = null;
-      if (shouldSave) {
-        const recordingBlob = await stopLocalRecording();
-        if (!recordingBlob?.size) {
-          throw new Error("Не удалось создать файл записи эфира");
-        }
-        const extension = recordingBlob.type.includes("mp4") ? "mp4" : "webm";
-        const recordingFile = new File(
-          [recordingBlob],
-          `live-${stream.id}-${Date.now()}.${extension}`,
-          { type: recordingBlob.type || "video/webm" },
-        );
-        const uploaded = await uploadVideoMedia(recordingFile);
-        recordingUrl = uploaded.mediaUrl;
-        await liveStreamsApi.updateSettings(stream.id, {
-          isSaved: true,
-          recordingUrl,
-          recordingStatus: "READY",
-        });
-      } else {
-        await stopLocalRecording();
-      }
-
-      await liveKit.publishData({ type: "stream.ended" }).catch(() => {});
-      const endedPayload = await liveStreamsApi.end(
-        stream.id,
-        recordingUrl ? { recordingUrl } : {},
-      );
+      const endedPayload = await liveStreamsApi.end(stream.id, {});
       await liveKit.disconnect();
       removeHostMedia(stream.id);
       hostReconnectRef.current = null;
@@ -1366,7 +1149,7 @@ useEffect(() => {
       setIsEnded(true);
       setIsPlaying(false);
       setIsSettingsOpen(false);
-      toast.success(shouldSave ? "Эфир завершён, запись обрабатывается" : "Эфир завершён");
+      toast.success("Эфир завершён");
     } catch (error) {
       toast.error(getLiveErrorMessage(error));
     } finally {
@@ -1391,15 +1174,33 @@ useEffect(() => {
   };
 
   const handlePinMessage = async (messageId) => {
+    const activeId = stream?.id || liveId;
+    if (!activeId || !messageId) return;
     const isPinned = pinnedMessageIds.includes(messageId);
-    setPinnedMessageIds((current) => isPinned
-      ? current.filter((id) => id !== messageId)
-      : [...current, messageId]);
-    await liveKit.publishData({
-      type: "chat.pin",
-      messageId,
-      isPinned: !isPinned,
-    }).catch(() => {});
+    const nextPinned = !isPinned;
+
+    setPinnedMessageIds((current) => nextPinned
+      ? [...current.filter((id) => String(id) !== String(messageId)), messageId]
+      : current.filter((id) => String(id) !== String(messageId)));
+    setMessages((current) => current.map((item) =>
+      String(item.id) === String(messageId) ? { ...item, isPinned: nextPinned } : item
+    ));
+
+    try {
+      if (nextPinned) {
+        await liveStreamsApi.pinMessage(activeId, messageId);
+      } else {
+        await liveStreamsApi.unpinMessage(activeId, messageId);
+      }
+    } catch (error) {
+      setPinnedMessageIds((current) => isPinned
+        ? [...current.filter((id) => String(id) !== String(messageId)), messageId]
+        : current.filter((id) => String(id) !== String(messageId)));
+      setMessages((current) => current.map((item) =>
+        String(item.id) === String(messageId) ? { ...item, isPinned } : item
+      ));
+      toast.error(getLiveErrorMessage(error));
+    }
   };
 
   const handleModerate = async (action, message) => {
@@ -1514,24 +1315,20 @@ useEffect(() => {
               isLive={stream?.status === LIVE_STATUS}
               host={host}
               elapsed={elapsed}
-              endedDateLabel={formatEndedDate(stream, locale)}
+              endedPeriodLabel={formatEndedPeriod(stream, locale)}
               endedDurationLabel={formatDuration(getStreamDurationSec(stream) || elapsed)}
               isEnded={isEnded}
               isPlaying={isPlaying}
               isSettingsOpen={isSettingsOpen}
               isMuted={isMuted}
-              shouldSave={shouldSave}
               videoTrack={liveKit.videoTrack}
               audioTrack={liveKit.audioTrack}
-              playbackUrl={playbackUrl}
               isCameraStarting={isStarting || isRestoringHost || liveKit.isConnecting}
               isEnding={isEnding}
               viewerCount={formatCompactCount(viewerCount)}
               likesCount={formatCompactCount(likesCount)}
-              onTogglePlaying={handleTogglePlaying}
               onToggleSettings={() => setIsSettingsOpen((current) => !current)}
               onToggleMuted={handleToggleMuted}
-              onToggleSave={handleToggleSave}
               onStartCamera={handleStartBroadcast}
               onShare={() => stream?.id ? setPickerMode("share") : toast.info("Сначала запустите эфир")}
               onReact={handleReact}
