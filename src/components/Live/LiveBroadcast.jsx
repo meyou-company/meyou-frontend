@@ -707,7 +707,7 @@ export default function LiveBroadcast() {
     if (!socket) return undefined;
 
     const joinStream = () => {
-      socket.emit("live:join", { streamId: activeId });
+      socket.emit("live:join", { liveStreamId: activeId });
     };
 
     const handleNewMessage = (payload) => {
@@ -827,7 +827,7 @@ export default function LiveBroadcast() {
       socket.off("live:reaction:summary", handleReactionUpdate);
       socket.off("live:ended", handleLiveEnded);
       socket.off("exception", handleSocketException);
-      if (socket.connected) socket.emit("live:leave", { streamId: activeId });
+      if (socket.connected) socket.emit("live:leave", { liveStreamId: activeId });
     };
   }, [accessToken, currentUser.id, liveId, setStream, stream?.id]);
 
@@ -1137,7 +1137,7 @@ export default function LiveBroadcast() {
     setLikesCount((current) => Math.max(0, Number(current) || 0) + 1);
     socket.emit(
       "live:reaction:send",
-      { streamId: activeId, reactionType },
+      { liveStreamId: activeId, reactionType },
       (...acknowledgement) => {
         const response = acknowledgement.length > 1
           ? acknowledgement[1]
