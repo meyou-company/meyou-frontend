@@ -6,11 +6,10 @@ import { useLocaleStore } from "../../zustand/useLocaleStore";
 import { useLiveKitBroadcast } from "../../hooks/useLiveKitBroadcast";
 import { extractLiveMedia, liveStreamsApi } from "../../services/liveStreamsApi";
 import { getSessionAccessToken } from "../../services/api";
-import { connectLiveSocket, getLiveSocket } from "../../services/liveSocket";
+import { connectSocket, getSocket } from "../../services/socket";
 import { usersApi } from "../../services/usersApi";
 import { getApiErrorMessage } from "../../utils/getApiErrorMessage";
 import { getLiveErrorMessage } from "../../utils/getLiveErrorMessage";
-import { emojiToReactionType } from "../../constants/messageReactions";
 import profileIcons from "../../constants/profileIcons";
 import LiveHeader from "./LiveHeader";
 import LiveStage from "./LiveStage";
@@ -331,6 +330,7 @@ export default function LiveBroadcast() {
   const streamRef = useRef(null);
   const hostReconnectRef = useRef(null);
   const viewerAutoConnectRef = useRef(null);
+  const pinIntentRef = useRef(new Map());
 
   const currentUser = useMemo(
     () => ({
@@ -488,11 +488,16 @@ export default function LiveBroadcast() {
 
   useEffect(() => {
     if (!liveId) {
+      pinIntentRef.current.clear();
       setStream(null);
       setIsEnded(false);
       setIsPlaying(false);
       setIsSettingsOpen(true);
       setElapsed(0);
+      setLikesCount(0);
+      setMessages([]);
+      setPinnedMessageIds([]);
+      setAreMessagesHydrated(false);
       setNextMessagesCursor(null);
       setIsLoading(false);
       return undefined;
@@ -503,8 +508,11 @@ export default function LiveBroadcast() {
     if (!isRefreshingCurrent) setIsLoading(true);
     setLoadError("");
     if (!isRefreshingCurrent) {
+      pinIntentRef.current.clear();
       setAreMessagesHydrated(false);
       setNextMessagesCursor(null);
+      setMessages([]);
+      setPinnedMessageIds([]);
     }
 
     const messageRequest = liveStreamsApi
@@ -666,7 +674,7 @@ export default function LiveBroadcast() {
     const activeId = stream?.id || liveId;
     if (!activeId || !accessToken) return undefined;
 
-    const socket = connectLiveSocket(accessToken);
+    const socket = connectSocket(accessToken);
     if (!socket) return undefined;
 
     const joinStream = () => {
@@ -983,7 +991,7 @@ export default function LiveBroadcast() {
 
   const handleSend = async (messageText) => {
     const activeId = stream?.id || liveId;
-    const socket = getLiveSocket() || connectLiveSocket(accessToken);
+    const socket = getSocket() || connectSocket(accessToken);
     if (!activeId || !socket) {
       const error = new Error("LIVE_CHAT_UNAVAILABLE");
       toast.error(getLiveErrorMessage(error, "liveErrors.chatUnavailable"));
@@ -1072,7 +1080,7 @@ export default function LiveBroadcast() {
       return;
     }
     const activeId = stream?.id || liveId;
-    const socket = getLiveSocket() || connectLiveSocket(accessToken);
+    const socket = getSocket() || connectSocket(accessToken);
     if (!activeId || !socket) {
       toast.error(getLiveErrorMessage(
         { response: { data: { code: "LIVE_CHAT_UNAVAILABLE" } } },
@@ -1080,13 +1088,10 @@ export default function LiveBroadcast() {
       return;
     }
 
-    const reactionType = emojiToReactionType(reaction);
-    if (!reactionType) return;
-
     setLikesCount((current) => Math.max(0, Number(current) || 0) + 1);
     socket.emit(
       "live:reaction:send",
-      { streamId: activeId, reactionType },
+      { streamId: activeId, reaction },
       (...acknowledgement) => {
         const response = acknowledgement.length > 1
           ? acknowledgement[1]
@@ -1145,6 +1150,7 @@ export default function LiveBroadcast() {
       await liveKit.disconnect();
       removeHostMedia(stream.id);
       hostReconnectRef.current = null;
+      pinIntentRef.current.clear();
       setStream({ ...stream, ...endedPayload, status: ENDED_STATUS });
       setIsEnded(true);
       setIsPlaying(false);
@@ -1173,15 +1179,83 @@ export default function LiveBroadcast() {
     }
   };
 
-  const handlePinMessage = async (messageId) => {
+  const handlePinMessage = async (message) => {
     const activeId = stream?.id || liveId;
-    if (!activeId || !messageId) return;
-    const isPinned = pinnedMessageIds.includes(messageId);
+    if (!activeId || !message?.id) return;
+
+    const requestedMessageId = message.id;
+    const isPinned = pinnedMessageIds.some(
+      (id) => String(id) === String(requestedMessageId),
+    );
     const nextPinned = !isPinned;
+    pinIntentRef.current.set(String(requestedMessageId), nextPinned);
 
     setPinnedMessageIds((current) => nextPinned
-      ? [...current.filter((id) => String(id) !== String(messageId)), messageId]
-      : current.filter((id) => String(id) !== String(messageId)));
+      ? [...current.filter((id) => String(id) !== String(requestedMessageId)), requestedMessageId]
+      : current.filter((id) => String(id) !== String(requestedMessageId)));
+    setMessages((current) => current.map((item) =>
+      String(item.id) === String(requestedMessageId)
+        ? { ...item, isPinned: nextPinned }
+        : item
+    ));
+
+    let persistedMessage = message;
+    if (!message.isPersisted || String(message.id).startsWith("pending-")) {
+      persistedMessage = null;
+      for (let attempt = 0; attempt < 20; attempt += 1) {
+        if (pinIntentRef.current.get(String(requestedMessageId)) !== nextPinned) return;
+        const history = await liveStreamsApi.getMessages(activeId).catch(() => null);
+        if (history) {
+          const normalizedHistory = history.items.map(normalizeMessage);
+          setMessages((current) => mergeMessages(current, normalizedHistory));
+          persistedMessage = normalizedHistory.find((item) => {
+            if (item.text !== message.text) return false;
+            if (
+              item.authorId &&
+              message.authorId &&
+              String(item.authorId) !== String(message.authorId)
+            ) {
+              return false;
+            }
+            const savedAt = Date.parse(item.createdAt);
+            const pendingAt = Date.parse(message.createdAt);
+            return !Number.isFinite(savedAt) ||
+              !Number.isFinite(pendingAt) ||
+              Math.abs(savedAt - pendingAt) < 30_000;
+          }) || null;
+          if (persistedMessage) break;
+        }
+        await new Promise((resolve) => window.setTimeout(resolve, 250));
+      }
+    }
+
+    if (!persistedMessage?.isPersisted || String(persistedMessage.id).startsWith("pending-")) {
+      if (pinIntentRef.current.get(String(requestedMessageId)) === nextPinned) {
+        pinIntentRef.current.delete(String(requestedMessageId));
+        setPinnedMessageIds((current) => current.filter(
+          (id) => String(id) !== String(requestedMessageId),
+        ));
+        setMessages((current) => current.map((item) =>
+          String(item.id) === String(requestedMessageId)
+            ? { ...item, isPinned }
+            : item
+        ));
+      }
+      return;
+    }
+
+    const messageId = persistedMessage.id;
+    if (pinIntentRef.current.get(String(requestedMessageId)) !== nextPinned) return;
+    setPinnedMessageIds((current) => nextPinned
+      ? [
+        ...current.filter((id) =>
+          String(id) !== String(requestedMessageId) && String(id) !== String(messageId)
+        ),
+        messageId,
+      ]
+      : current.filter((id) =>
+        String(id) !== String(requestedMessageId) && String(id) !== String(messageId)
+      ));
     setMessages((current) => current.map((item) =>
       String(item.id) === String(messageId) ? { ...item, isPinned: nextPinned } : item
     ));
@@ -1200,6 +1274,10 @@ export default function LiveBroadcast() {
         String(item.id) === String(messageId) ? { ...item, isPinned } : item
       ));
       toast.error(getLiveErrorMessage(error));
+    } finally {
+      if (pinIntentRef.current.get(String(requestedMessageId)) === nextPinned) {
+        pinIntentRef.current.delete(String(requestedMessageId));
+      }
     }
   };
 

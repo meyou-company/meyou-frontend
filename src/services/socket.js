@@ -5,7 +5,7 @@ import { resolvedApiBaseUrl } from './api';
 let socket = null;
 let socketToken = null;
 
-export function resolveSocketUrl() {
+function resolveSocketUrl() {
   const explicit = String(import.meta.env.VITE_SOCKET_URL ?? '')
     .trim()
     .replace(/\/$/, '');

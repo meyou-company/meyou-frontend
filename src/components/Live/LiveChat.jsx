@@ -200,7 +200,7 @@ const LiveChat = forwardRef(function LiveChat(
                 </>
               )}
               <button type="button" onClick={() => {
-                onPin(message.id);
+                onPin(message);
                 setMenuMessageId(null);
               }}>
                 {pinnedIds.has(message.id) ? "Открепить" : "Закрепить"}
