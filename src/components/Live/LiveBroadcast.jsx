@@ -6,7 +6,7 @@ import { useLocaleStore } from "../../zustand/useLocaleStore";
 import { useLiveKitBroadcast } from "../../hooks/useLiveKitBroadcast";
 import { extractLiveMedia, liveStreamsApi } from "../../services/liveStreamsApi";
 import { getSessionAccessToken } from "../../services/api";
-import { connectSocket, getSocket } from "../../services/socket";
+import { connectLiveSocket, getLiveSocket } from "../../services/liveSocket";
 import { usersApi } from "../../services/usersApi";
 import { getApiErrorMessage } from "../../utils/getApiErrorMessage";
 import { getLiveErrorMessage } from "../../utils/getLiveErrorMessage";
@@ -674,11 +674,11 @@ export default function LiveBroadcast() {
     const activeId = stream?.id || liveId;
     if (!activeId || !accessToken) return undefined;
 
-    const socket = connectSocket(accessToken);
+    const socket = connectLiveSocket(accessToken);
     if (!socket) return undefined;
 
     const joinStream = () => {
-      socket.emit("live:join", { streamId: activeId });
+      socket.emit("live:join", { liveStreamId: activeId });
     };
 
     const handleNewMessage = (payload) => {
@@ -777,7 +777,7 @@ export default function LiveBroadcast() {
       socket.off("live:reaction:summary", handleReactionUpdate);
       socket.off("live:ended", handleLiveEnded);
       socket.off("exception", handleSocketException);
-      if (socket.connected) socket.emit("live:leave", { streamId: activeId });
+      if (socket.connected) socket.emit("live:leave", { liveStreamId: activeId });
     };
   }, [accessToken, liveId, setStream, stream?.id]);
 
@@ -991,7 +991,7 @@ export default function LiveBroadcast() {
 
   const handleSend = async (messageText) => {
     const activeId = stream?.id || liveId;
-    const socket = getSocket() || connectSocket(accessToken);
+    const socket = getLiveSocket() || connectLiveSocket(accessToken);
     if (!activeId || !socket) {
       const error = new Error("LIVE_CHAT_UNAVAILABLE");
       toast.error(getLiveErrorMessage(error, "liveErrors.chatUnavailable"));
@@ -1012,7 +1012,7 @@ export default function LiveBroadcast() {
 
     socket.emit(
       "live:message:send",
-      { streamId: activeId, text: messageText },
+      { liveStreamId: activeId, text: messageText },
       (...acknowledgement) => {
         const response = acknowledgement.length > 1
           ? acknowledgement[1]
@@ -1080,7 +1080,7 @@ export default function LiveBroadcast() {
       return;
     }
     const activeId = stream?.id || liveId;
-    const socket = getSocket() || connectSocket(accessToken);
+    const socket = getLiveSocket() || connectLiveSocket(accessToken);
     if (!activeId || !socket) {
       toast.error(getLiveErrorMessage(
         { response: { data: { code: "LIVE_CHAT_UNAVAILABLE" } } },
@@ -1091,7 +1091,7 @@ export default function LiveBroadcast() {
     setLikesCount((current) => Math.max(0, Number(current) || 0) + 1);
     socket.emit(
       "live:reaction:send",
-      { streamId: activeId, reaction },
+      { liveStreamId: activeId, reaction },
       (...acknowledgement) => {
         const response = acknowledgement.length > 1
           ? acknowledgement[1]
