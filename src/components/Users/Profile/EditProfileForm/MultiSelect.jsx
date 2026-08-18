@@ -30,6 +30,7 @@ export default function MultiSelect({
   value = [],
   onChange,
   options = [],
+  disabled = false,
   max = 10,
   placeholder = '',
   onBlur,
@@ -169,6 +170,7 @@ export default function MultiSelect({
         <Select
           classNamePrefix="rs"
           isMulti
+          isDisabled={disabled}
           placeholder={placeholder}
           value={value}
           options={options}

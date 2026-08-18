@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import profileIcons from '../../constants/profileIcons';
 
 import { usersApi } from '../../services/usersApi';
+import { authApi } from '../../services/auth';
 import { subscriptionsApi } from '../../services/subscriptionsApi';
 
 import { getProfileRouteHandle } from '../../utils/profileFriendNav';
@@ -37,6 +38,24 @@ export default function ExploreContent({ onBack, onOpenProfile }) {
   const [subscribeLoadingId, setSubscribeLoadingId] = useState(null);
   const [filterOpen, setFilterOpen] = useState(false);
   const [filterParams, setFilterParams] = useState({});
+  const [currentUser, setCurrentUser] = useState(null);
+  const [currentUserLoading, setCurrentUserLoading] = useState(true);
+  const [resultCount, setResultCount] = useState(null);
+
+  useEffect(() => {
+    const loadCurrentUser = async () => {
+      try {
+        const user = await authApi.me();
+        setCurrentUser(user);
+      } catch (error) {
+        console.error('GET CURRENT USER ERROR:', error);
+      } finally {
+        setCurrentUserLoading(false);
+      }
+    };
+
+    loadCurrentUser();
+  }, []);
 
   const lastReqId = useRef(0);
 
@@ -61,25 +80,44 @@ export default function ExploreContent({ onBack, onOpenProfile }) {
       sort: sortBy,
     };
 
-    if (query.trim()) params.q = query.trim();
-    if (filterParams.country) params.country = filterParams.country;
-    if (filterParams.city) params.city = filterParams.city;
+    if (query.trim()) {
+      params.q = query.trim();
+    }
+
+    if (filterParams.nearMe) {
+      // nearMe застосовуємо тільки якщо користувач
+      // не задав явну локацію вручну
+      if (currentUser?.city) {
+        params.city = currentUser.city;
+      }
+    } else {
+      if (filterParams.country) {
+        params.country = filterParams.country;
+      }
+
+      if (filterParams.city) {
+        params.city = filterParams.city;
+      }
+    }
     if (filterParams.gender) params.gender = filterParams.gender;
     if (filterParams.maritalStatus) params.maritalStatus = filterParams.maritalStatus;
     if (filterParams.ageMin != null) params.ageMin = filterParams.ageMin;
     if (filterParams.ageMax != null) params.ageMax = filterParams.ageMax;
 
-    if (Array.isArray(filterParams.interests) && filterParams.interests.length) {
-      params.interests = filterParams.interests.join(',');
+    const interests = filterParams.interestsEnabled
+      ? currentUser?.interests
+      : filterParams.interests;
+
+    if (Array.isArray(interests) && interests.length) {
+      params.interests = interests.join(',');
     }
 
     if (filterParams.online) params.onlyOnline = true;
     if (filterParams.vip) params.isVip = true;
     if (filterParams.new) params.isNew = true;
 
-    console.log(params);
     return params;
-  }, [query, filterParams, sortBy]);
+  }, [query, filterParams, sortBy, currentUser]);
 
   const updateSubscribedIds = useCallback((list) => {
     setSubscribedIds((prev) => {
@@ -121,6 +159,7 @@ export default function ExploreContent({ onBack, onOpenProfile }) {
 
         usePresenceStore.getState().hydrateMany(list);
         setUsers(list);
+        setResultCount(list.length);
         updateSubscribedIds(list);
       } catch (e) {
         if (reqId !== lastReqId.current) return;
@@ -191,11 +230,25 @@ export default function ExploreContent({ onBack, onOpenProfile }) {
     else navigate(-1);
   }, [onBack, navigate]);
 
+  const handleResetSearch = useCallback(() => {
+    setQuery('');
+    setSortBy(DEFAULT_SORT);
+    setFilterParams({});
+  }, []);
+
+  const handleResetFilters = useCallback(() => {
+    setFilterParams({});
+    setUsers([]);
+    setResultCount(null);
+  }, []);
+
   useEffect(() => {
     loadFollowing();
   }, [loadFollowing]);
 
   useEffect(() => {
+    if (currentUserLoading) return;
+
     const reqId = ++lastReqId.current;
 
     const timer = setTimeout(() => {
@@ -203,7 +256,7 @@ export default function ExploreContent({ onBack, onOpenProfile }) {
     }, SEARCH_DELAY);
 
     return () => clearTimeout(timer);
-  }, [query, filterParams, sortBy, searchUsers]);
+  }, [query, filterParams, sortBy, searchUsers, currentUserLoading]);
 
   const hasResults = users.length > 0;
   const showEmptyState = !loading && !hasResults;
@@ -232,7 +285,9 @@ export default function ExploreContent({ onBack, onOpenProfile }) {
             <path d="M19 12H5M12 19l-7-7 7-7" />
           </svg>
         </button>
-        <h1 className="explore-content__pageTitle">{t('explore.pageTitle')}</h1>
+        <button type="button" className="explore-content__pageTitle" onClick={handleResetSearch}>
+          {t('explore.pageTitle')}
+        </button>
         <div className="explore-content__viewToggle explore-content__viewToggleInHeader">
           <button
             type="button"
@@ -481,8 +536,9 @@ export default function ExploreContent({ onBack, onOpenProfile }) {
           setFilterParams(params);
           setFilterOpen(false);
         }}
+        onReset={handleResetSearch}
         initialParams={filterParams}
-        resultCount={users.length}
+        resultCount={loading ? null : resultCount}
       />
     </div>
   );

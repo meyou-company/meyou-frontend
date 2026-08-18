@@ -3,8 +3,11 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import Select from 'react-select';
 
-import { interestOptions } from '../../constants/interests';
-import { useGenderOptions, useMaritalStatusOptions } from '../../hooks/useProfileFormOptions';
+import {
+  useGenderOptions,
+  useInterestOptions,
+  useMaritalStatusOptions,
+} from '../../hooks/useProfileFormOptions';
 import { useLocationSystem } from '../../hooks/useLocationSystem';
 
 import MultiSelect from '../Users/Profile/EditProfileForm/MultiSelect';
@@ -16,6 +19,7 @@ export default function SearchFilterModal({
   isOpen,
   onClose,
   onApply,
+  onReset,
   initialParams = {},
   resultCount,
 }) {
@@ -24,6 +28,7 @@ export default function SearchFilterModal({
   // HOOKS
   const genderOptions = useGenderOptions();
   const maritalStatusOptions = useMaritalStatusOptions();
+  const interestOptions = useInterestOptions();
 
   const searchGenderOptions = useMemo(
     () => [{ value: 'ANY', label: t('search.filters.gender.any') }, ...genderOptions],
@@ -94,7 +99,7 @@ export default function SearchFilterModal({
 
       ageMin: initialParams.ageMin ?? 18,
       ageMax: initialParams.ageMax ?? 30,
-
+      interestsEnabled: initialParams.interestsEnabled ?? true,
       selectedInterests: Array.isArray(initialParams.interests)
         ? interestOptions.filter((option) => initialParams.interests.includes(option.value))
         : [],
@@ -120,7 +125,8 @@ export default function SearchFilterModal({
 
   const reset = useCallback(() => {
     setF(defaultFilter);
-  }, [defaultFilter]);
+    onReset?.();
+  }, [defaultFilter, onReset]);
 
   const handleApply = useCallback(() => {
     const payload = {
@@ -131,10 +137,10 @@ export default function SearchFilterModal({
       maritalStatus: f.maritalStatus?.value === 'ANY' ? undefined : f.maritalStatus?.value,
       ageMin: f.ageMin,
       ageMax: f.ageMax,
+      interestsEnabled: f.interestsEnabled,
       interests:
-        f.interestsEnabled && f.selectedInterests.length
-          ? f.selectedInterests.map((i) => i.value)
-          : undefined,
+        f.selectedInterests.length > 0 ? f.selectedInterests.map((i) => i.value) : undefined,
+
       online: f.online,
       vip: f.vip,
       new: f.new,
@@ -166,7 +172,7 @@ export default function SearchFilterModal({
               type="button"
               className="search-filter__close"
               onClick={onClose}
-              aria-label="Закрити"
+              aria-label={t('common.close')}
             >
               ×
             </button>
@@ -185,7 +191,7 @@ export default function SearchFilterModal({
                   }))
                 }
                 icon={<span aria-hidden="true">📍</span>}
-                label={t('search.filters.location')}
+                label={t('profile.info.location')}
                 description={t('search.filters.near')}
               />
               <div className="search-filter__row">
@@ -193,7 +199,7 @@ export default function SearchFilterModal({
                 <Select
                   className="select-wrap select-wrap--compact"
                   classNamePrefix="rs"
-                  placeholder={t('profile.editForm.fields.country')}
+                  placeholder={t('profile.info.country')}
                   isDisabled={f.nearMe}
                   value={f.country}
                   options={countries}
@@ -209,7 +215,7 @@ export default function SearchFilterModal({
                 <Select
                   className="select-wrap select-wrap--compact"
                   classNamePrefix="rs"
-                  placeholder={t('profile.editForm.fields.city')}
+                  placeholder={t('profile.info.city')}
                   value={f.city}
                   options={cities}
                   isDisabled={f.nearMe || !f.country}
@@ -227,7 +233,7 @@ export default function SearchFilterModal({
 
             {/* GENDER */}
             <section className="search-filter__block">
-              <span className="search-filter__blockTitle">Стать</span>
+              <span className="search-filter__blockTitle"> {t('profile.info.gender')}</span>
 
               <Select
                 className="select-wrap select-wrap--compact"
@@ -267,24 +273,42 @@ export default function SearchFilterModal({
             {/* AGE */}
             <section className="search-filter__block">
               <span className="search-filter__blockTitle">{t('search.filters.age')}</span>
-              <div className="search-filter__ageSliderRow">
-                <span className="search-filter__ageSliderValue" aria-live="polite">
-                  {f.ageMax}
-                </span>
-                <input
-                  type="range"
-                  className="search-filter__range search-filter__range--age"
-                  min={18}
-                  max={100}
-                  step={1}
-                  value={f.ageMax}
-                  onChange={(e) => {
-                    const v = Number(e.target.value);
-                    setF((p) => ({ ...p, ageMax: v }));
-                  }}
-                  aria-label={t('search.filters.ageTo')}
-                />
-                <span className="search-filter__ageSliderMax">100</span>
+
+              <div className="search-filter__ageSlider">
+                <div className="search-filter__ageSliderRow">
+                  <span className="search-filter__ageSliderMin">18</span>
+
+                  <div className="search-filter__rangeWrap">
+                    <input
+                      type="range"
+                      className="search-filter__range search-filter__range--age"
+                      min={18}
+                      max={100}
+                      step={1}
+                      value={f.ageMax}
+                      onChange={(e) => {
+                        const v = Number(e.target.value);
+
+                        setF((p) => ({
+                          ...p,
+                          ageMax: v,
+                        }));
+                      }}
+                      aria-label={t('search.filters.ageTo')}
+                    />
+
+                    <span
+                      className="search-filter__ageValue"
+                      style={{
+                        left: `${((f.ageMax - 18) / (100 - 18)) * 100}%`,
+                      }}
+                    >
+                      {f.ageMax}
+                    </span>
+                  </div>
+
+                  <span className="search-filter__ageSliderMax">100</span>
+                </div>
               </div>
             </section>
 
@@ -299,11 +323,11 @@ export default function SearchFilterModal({
                     interestsEnabled: checked,
                   }))
                 }
-                label={t('profile.editForm.fields.interests')}
+                label={t('search.filters.useMyInterests')}
               />
 
               <MultiSelect
-                className="select-wrap--compact"
+                className="select-wrap--compact search-filter__interestsSelect"
                 value={f.selectedInterests}
                 onChange={(selectedInterests) =>
                   setF((prev) => ({
@@ -312,8 +336,8 @@ export default function SearchFilterModal({
                   }))
                 }
                 options={interestOptions}
-                placeholder={t('profile.editForm.fields.interests')}
-                disabled={!f.interestsEnabled}
+                placeholder={t('search.filters.usersInterests')}
+                disabled={f.interestsEnabled}
                 maxItemsNote={t('profile.editForm.maxItemsNote', { max: 10 })}
                 selectProps={selectCommonProps}
               />

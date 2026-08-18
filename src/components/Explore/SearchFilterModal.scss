@@ -37,6 +37,12 @@
     0 6px 18px rgba(0, 0, 0, 0.08);
 }
 
+.search-filter-wrap--single {
+  .field__wrap::before {
+    display: none;
+  }
+}
+
 .search-filter {
   display: flex;
   flex: 1;
@@ -46,7 +52,7 @@
   min-height: 0;
 
   padding: 24px;
-  color: var(--field-text, #222);
+  color: var(--field-text);
 }
 
 /* ======================================================
@@ -430,26 +436,42 @@
    Age Slider
    ====================================================== */
 
+.search-filter__ageSlider {
+  width: 100%;
+}
+
 .search-filter__ageSliderRow {
   display: flex;
   align-items: center;
   gap: 14px;
 }
 
-.search-filter__ageSliderValue,
+.search-filter__ageSliderMin,
 .search-filter__ageSliderMax {
-  min-width: 34px;
+  min-width: 30px;
   flex-shrink: 0;
-
-  text-align: center;
 
   font-size: 15px;
   font-weight: 600;
 }
 
-.search-filter__range {
+.search-filter__ageSliderMin {
+  text-align: left;
+}
+
+.search-filter__ageSliderMax {
+  text-align: right;
+}
+
+.search-filter__rangeWrap {
+  position: relative;
   flex: 1;
 
+  padding-bottom: 24px;
+}
+
+.search-filter__range {
+  width: 100%;
   height: 6px;
 
   appearance: none;
@@ -490,6 +512,23 @@
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
 
   cursor: pointer;
+}
+
+.search-filter__ageValue {
+  position: absolute;
+
+  top: 32px;
+
+  transform: translateX(-50%);
+
+  min-width: 30px;
+
+  text-align: center;
+
+  font-size: 13px;
+  font-weight: 600;
+
+  pointer-events: none;
 }
 
 /* ======================================================
@@ -574,8 +613,6 @@ html[data-theme='dark'] {
   }
 
   .search-filter {
-    color: #fff;
-
     /* ---------- Select control ---------- */
 
     .select-wrap--compact .rs__control {

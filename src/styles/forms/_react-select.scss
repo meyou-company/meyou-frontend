@@ -4,10 +4,6 @@
 
 .field__wrap.select-wrap {
   .rs__control {
-    /*
-        Висота визначається .field__wrap у _field.scss.
-        React Select просто займає всю висоту wrapper.
-      */
     height: 100%;
     min-height: 0;
 
@@ -134,8 +130,12 @@
 }
 
 .rs__menu {
+  top: calc(100% + 16px) !important;
+  left: 0 !important;
+  right: 0 !important;
+  margin-bottom: 0 !important;
+  margin-top: 0 !important;
   padding: 6px;
-
   border-radius: 16px !important;
 
   background: var(--select-menu-bg) !important;

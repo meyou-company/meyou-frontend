@@ -13,20 +13,23 @@ import { locationApi } from '../../../../services/locationApi';
 import { usersApi } from '../../../../services/usersApi';
 
 import { usePrefillProfile } from '../../../../hooks/usePrefillProfile';
-import { useGenderOptions, useMaritalStatusOptions } from '../../../../hooks/useProfileFormOptions';
+import {
+  useGenderOptions,
+  useHobbyOptions,
+  useInterestOptions,
+  useMaritalStatusOptions,
+} from '../../../../hooks/useProfileFormOptions';
 import { useLocationSystem } from '../../../../hooks/useLocationSystem';
 
-import { normalizeForValidation, toEditProfilePayload } from '../../../../utils/profilePayload';
-import { cropImageToFile } from '../../../../utils/cropImageToFile';
 import {
   validateEditProfile,
   translateValidationErrors,
 } from '../../../../utils/validationProfile';
+import { normalizeForValidation, toEditProfilePayload } from '../../../../utils/profilePayload';
+import { cropImageToFile } from '../../../../utils/cropImageToFile';
 import { getApiErrorCode, getApiErrorMessage } from '../../../../utils/getApiErrorMessage';
 import { applyBirthDateNormalization } from '../../../../utils/profileFormUtils';
 
-import { interestOptions } from '../../../../constants/interests';
-import { profileHobbyOptions } from '../../../../constants/hobbies';
 import profileIcons from '../../../../constants/profileIcons';
 
 import ThemeToggleDark from '../../../../components/ThemeToggleDark/ThemeToggleDark';
@@ -84,6 +87,8 @@ export default function EditProfileForm({ onBack, onSave }) {
 
   const genderOptions = useGenderOptions();
   const maritalStatusOptions = useMaritalStatusOptions();
+  const interestOptions = useInterestOptions();
+  const hobbiesOptions = useHobbyOptions();
 
   // FORM STATE
   const [values, setValues] = useState(INITIAL_VALUES);
@@ -118,7 +123,7 @@ export default function EditProfileForm({ onBack, onSave }) {
     setProfileCompleted: () => {},
     setValues,
     interestOptions,
-    hobbyOptions: profileHobbyOptions,
+    hobbiesOptions,
     maritalStatusOptions,
     locationApi,
     profileApi,
@@ -677,7 +682,7 @@ export default function EditProfileForm({ onBack, onSave }) {
         <MultiSelect
           value={values.hobbies}
           onChange={(val) => setField('hobbies', val)}
-          options={profileHobbyOptions}
+          options={hobbiesOptions}
           placeholder={t('profile.editForm.fields.hobbies')}
           showVisibility
           visibilityValue={values.profileVisibility.hobbies}

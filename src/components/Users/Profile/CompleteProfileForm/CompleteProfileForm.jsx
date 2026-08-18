@@ -13,7 +13,12 @@ import { locationApi } from '../../../../services/locationApi';
 import { usersApi } from '../../../../services/usersApi';
 
 import { usePrefillProfile } from '../../../../hooks/usePrefillProfile';
-import { useGenderOptions, useMaritalStatusOptions } from '../../../../hooks/useProfileFormOptions';
+import {
+  useGenderOptions,
+  useHobbyOptions,
+  useInterestOptions,
+  useMaritalStatusOptions,
+} from '../../../../hooks/useProfileFormOptions';
 import { useLocationSystem } from '../../../../hooks/useLocationSystem';
 
 import {
@@ -27,22 +32,16 @@ import {
   getApiErrorMessage,
   getApiErrorSuggestions,
 } from '../../../../utils/getApiErrorMessage';
-import {
-  applyBirthDateNormalization,
-  getBirthDateLimits,
-  toYMDLocal,
-} from '../../../../utils/profileFormUtils';
+import { applyBirthDateNormalization } from '../../../../utils/profileFormUtils';
 
-import { interestOptions } from '../../../../constants/interests';
-import { profileHobbyOptions } from '../../../../constants/hobbies';
 import profileIcons from '../../../../constants/profileIcons';
 
 import ThemeToggleDark from '../../../../components/ThemeToggleDark/ThemeToggleDark';
 import AvatarCropModal from '../../../../components/AvatarCropModal/AvatarCropModal';
 import BirthDateField from '../BirthDateField/BirthDateField';
+import MultiSelect from '../EditProfileForm/MultiSelect';
 
 import './CompleteProfileForm.scss';
-import MultiSelect from '../EditProfileForm/MultiSelect';
 
 const EMPTY = {
   firstName: '',
@@ -69,6 +68,8 @@ export default function CompleteProfileForm({ onBack, onSave }) {
 
   const genderOptions = useGenderOptions();
   const maritalStatusOptions = useMaritalStatusOptions();
+  const interestOptions = useInterestOptions();
+  const hobbiesOptions = useHobbyOptions();
 
   // FORM STATE
   const [values, setValues] = useState(EMPTY);
@@ -112,7 +113,7 @@ export default function CompleteProfileForm({ onBack, onSave }) {
     setProfileCompleted,
     setValues,
     interestOptions,
-    hobbyOptions: profileHobbyOptions,
+    hobbiesOptions,
     maritalStatusOptions,
     locationApi,
     profileApi,
@@ -761,7 +762,7 @@ export default function CompleteProfileForm({ onBack, onSave }) {
         <MultiSelect
           value={values.hobbies}
           onChange={(val) => setField('hobbies', val)}
-          options={profileHobbyOptions}
+          options={hobbiesOptions}
           placeholder={t('profile.editForm.fields.hobbies')}
           showStar={showStar('hobbies')}
           onBlur={() => onBlur('hobbies')}
