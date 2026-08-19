@@ -68,9 +68,21 @@ export default function ActiveCallOverlay({
   const localVideoRef = useRef(null);
   const remoteVideoRef = useRef(null);
   const remoteAudioRef = useRef(null);
+  const stageRef = useRef(null);
   const connectGenRef = useRef(0);
   const connectedAtRef = useRef(null);
   const durationTimerRef = useRef(null);
+  const dragRef = useRef({
+    active: false,
+    pointerId: null,
+    startX: 0,
+    startY: 0,
+    originX: 0,
+    originY: 0,
+    width: 0,
+    height: 0,
+    moved: false,
+  });
 
   const [statusLabel, setStatusLabel] = useState(t('messenger.calls.connecting'));
   const [isConnected, setIsConnected] = useState(false);
@@ -78,6 +90,8 @@ export default function ActiveCallOverlay({
   const [remoteName, setRemoteName] = useState('');
   const [hasRemoteVideoTrack, setHasRemoteVideoTrack] = useState(false);
   const [isLocalVideoMain, setIsLocalVideoMain] = useState(false);
+  const [previewPosition, setPreviewPosition] = useState(null);
+  const [isDraggingPreview, setIsDraggingPreview] = useState(false);
   const isConnectedRef = useRef(false);
 
   const initialPeer =
@@ -502,44 +516,158 @@ export default function ActiveCallOverlay({
   const mainHasVideo = mainSource === 'local' ? hasLocalVideo : hasRemoteVideo;
   const previewHasVideo = previewSource === 'local' ? hasLocalVideo : hasRemoteVideo;
   const previewSwapLabel = 'Показати це відео великим';
+  const PREVIEW_DRAG_THRESHOLD = 8;
+  const PREVIEW_STAGE_PADDING = 16;
+  const PREVIEW_BOTTOM_RESERVED = 120;
 
   const handleSwapVideos = () => {
     setIsLocalVideoMain((prev) => !prev);
   };
 
+  const clampPreviewPosition = (x, y, width, height) => {
+    const stage = stageRef.current;
+    if (!stage) return { x, y };
+    const rect = stage.getBoundingClientRect();
+    const maxX = Math.max(
+      PREVIEW_STAGE_PADDING,
+      rect.width - width - PREVIEW_STAGE_PADDING,
+    );
+    const maxY = Math.max(
+      PREVIEW_STAGE_PADDING,
+      rect.height - height - PREVIEW_BOTTOM_RESERVED,
+    );
+    return {
+      x: Math.min(Math.max(PREVIEW_STAGE_PADDING, x), maxX),
+      y: Math.min(Math.max(PREVIEW_STAGE_PADDING, y), maxY),
+    };
+  };
+
+  const handlePreviewPointerDown = (event) => {
+    if (event.button !== undefined && event.button !== 0) return;
+    const stage = stageRef.current;
+    if (!stage) return;
+    const targetRect = event.currentTarget.getBoundingClientRect();
+    const stageRect = stage.getBoundingClientRect();
+    const originX = targetRect.left - stageRect.left;
+    const originY = targetRect.top - stageRect.top;
+
+    dragRef.current = {
+      active: true,
+      pointerId: event.pointerId,
+      startX: event.clientX,
+      startY: event.clientY,
+      originX,
+      originY,
+      width: targetRect.width,
+      height: targetRect.height,
+      moved: false,
+    };
+
+    event.currentTarget.setPointerCapture?.(event.pointerId);
+    setIsDraggingPreview(true);
+  };
+
+  const handlePreviewPointerMove = (event) => {
+    const drag = dragRef.current;
+    if (!drag.active || drag.pointerId !== event.pointerId) return;
+    const dx = event.clientX - drag.startX;
+    const dy = event.clientY - drag.startY;
+    if (!drag.moved && Math.hypot(dx, dy) >= PREVIEW_DRAG_THRESHOLD) {
+      drag.moved = true;
+    }
+    if (!drag.moved) return;
+
+    const nextX = drag.originX + dx;
+    const nextY = drag.originY + dy;
+    const clamped = clampPreviewPosition(nextX, nextY, drag.width, drag.height);
+    setPreviewPosition(clamped);
+    event.preventDefault();
+  };
+
+  const finishPreviewPointer = (event) => {
+    const drag = dragRef.current;
+    if (!drag.active || drag.pointerId !== event.pointerId) return;
+    event.currentTarget.releasePointerCapture?.(event.pointerId);
+    dragRef.current.active = false;
+    setIsDraggingPreview(false);
+
+    if (!drag.moved) {
+      handleSwapVideos();
+    }
+  };
+
+  useEffect(() => {
+    const stage = stageRef.current;
+    if (!stage || !previewPosition) return undefined;
+
+    const clampOnResize = () => {
+      const clamped = clampPreviewPosition(
+        previewPosition.x,
+        previewPosition.y,
+        dragRef.current.width || 112,
+        dragRef.current.height || 160,
+      );
+      if (clamped.x !== previewPosition.x || clamped.y !== previewPosition.y) {
+        setPreviewPosition(clamped);
+      }
+    };
+
+    const observer = new ResizeObserver(clampOnResize);
+    observer.observe(stage);
+    window.addEventListener('orientationchange', clampOnResize);
+    return () => {
+      observer.disconnect();
+      window.removeEventListener('orientationchange', clampOnResize);
+    };
+  }, [previewPosition]);
+
+  const previewDragProps = {
+    onPointerDown: handlePreviewPointerDown,
+    onPointerMove: handlePreviewPointerMove,
+    onPointerUp: finishPreviewPointer,
+    onPointerCancel: finishPreviewPointer,
+    style: previewPosition
+      ? {
+          left: `${previewPosition.x}px`,
+          top: `${previewPosition.y}px`,
+          right: 'auto',
+          bottom: 'auto',
+        }
+      : undefined,
+    role: 'button',
+    tabIndex: 0,
+    'aria-label': previewSwapLabel,
+    title: previewSwapLabel,
+    onKeyDown: (event) => {
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        handleSwapVideos();
+      }
+    },
+  };
+
   return createPortal(
     <div className="callOverlay callOverlay--active" role="dialog" aria-modal="true">
       <div className="callActive">
-        <div className="callActive__stage">
+        <div className="callActive__stage" ref={stageRef}>
           <video
             ref={remoteVideoRef}
             className={`callActive__remoteVideo${
               isLocalVideoMain ? ' is-preview' : ' is-main'
-            }${hasRemoteVideo ? '' : ' is-hidden'}`}
+            }${hasRemoteVideo ? '' : ' is-hidden'}${
+              isLocalVideoMain ? ' callActive__previewDraggable' : ''
+            }${isLocalVideoMain && isDraggingPreview ? ' is-dragging' : ''}`}
             autoPlay
             playsInline
-            onClick={isLocalVideoMain ? handleSwapVideos : undefined}
-            role={isLocalVideoMain ? 'button' : undefined}
-            tabIndex={isLocalVideoMain ? 0 : undefined}
-            aria-label={isLocalVideoMain ? previewSwapLabel : undefined}
-            onKeyDown={
-              isLocalVideoMain
-                ? (event) => {
-                    if (event.key === 'Enter' || event.key === ' ') {
-                      event.preventDefault();
-                      handleSwapVideos();
-                    }
-                  }
-                : undefined
-            }
+            {...(isLocalVideoMain ? previewDragProps : {})}
           />
           {showVideoUi && !hasRemoteVideo && isLocalVideoMain ? (
             <button
               type="button"
-              className="callActive__videoFallback callActive__videoFallback--preview"
-              onClick={handleSwapVideos}
-              aria-label={previewSwapLabel}
-              title={previewSwapLabel}
+              className={`callActive__videoFallback callActive__videoFallback--preview callActive__previewDraggable${
+                isDraggingPreview ? ' is-dragging' : ''
+              }`}
+              {...previewDragProps}
             >
               <div className="callOverlay__avatar" aria-hidden="true">
                 {peerUser?.avatarUrl ? (
@@ -573,32 +701,21 @@ export default function ActiveCallOverlay({
             ref={localVideoRef}
             className={`callActive__localVideo${
               isLocalVideoMain ? ' is-main' : ' is-preview'
-            }${hasLocalVideo ? '' : ' is-hidden'}`}
+            }${hasLocalVideo ? '' : ' is-hidden'}${
+              !isLocalVideoMain ? ' callActive__previewDraggable' : ''
+            }${!isLocalVideoMain && isDraggingPreview ? ' is-dragging' : ''}`}
             autoPlay
             playsInline
             muted
-            onClick={!isLocalVideoMain ? handleSwapVideos : undefined}
-            role={!isLocalVideoMain ? 'button' : undefined}
-            tabIndex={!isLocalVideoMain ? 0 : undefined}
-            aria-label={!isLocalVideoMain ? previewSwapLabel : undefined}
-            onKeyDown={
-              !isLocalVideoMain
-                ? (event) => {
-                    if (event.key === 'Enter' || event.key === ' ') {
-                      event.preventDefault();
-                      handleSwapVideos();
-                    }
-                  }
-                : undefined
-            }
+            {...(!isLocalVideoMain ? previewDragProps : {})}
           />
           {showVideoUi && !hasLocalVideo && !isLocalVideoMain ? (
             <button
               type="button"
-              className="callActive__videoFallback callActive__videoFallback--preview"
-              onClick={handleSwapVideos}
-              aria-label={previewSwapLabel}
-              title={previewSwapLabel}
+              className={`callActive__videoFallback callActive__videoFallback--preview callActive__previewDraggable${
+                isDraggingPreview ? ' is-dragging' : ''
+              }`}
+              {...previewDragProps}
             >
               <div className="callOverlay__avatar" aria-hidden="true">
                 <span>Y</span>
