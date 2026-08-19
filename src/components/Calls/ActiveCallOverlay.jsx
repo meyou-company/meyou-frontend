@@ -77,6 +77,7 @@ export default function ActiveCallOverlay({
   const [durationSec, setDurationSec] = useState(0);
   const [remoteName, setRemoteName] = useState('');
   const [hasRemoteVideoTrack, setHasRemoteVideoTrack] = useState(false);
+  const [isLocalVideoMain, setIsLocalVideoMain] = useState(false);
   const isConnectedRef = useRef(false);
 
   const initialPeer =
@@ -494,6 +495,17 @@ export default function ActiveCallOverlay({
     (mediaType || call?.mediaType) === 'VIDEO' ||
     Boolean(cameraEnabled) ||
     Boolean(hasRemoteVideoTrack);
+  const mainSource = isLocalVideoMain ? 'local' : 'remote';
+  const previewSource = isLocalVideoMain ? 'remote' : 'local';
+  const hasLocalVideo = Boolean(cameraEnabled);
+  const hasRemoteVideo = Boolean(hasRemoteVideoTrack);
+  const mainHasVideo = mainSource === 'local' ? hasLocalVideo : hasRemoteVideo;
+  const previewHasVideo = previewSource === 'local' ? hasLocalVideo : hasRemoteVideo;
+  const previewSwapLabel = 'Показати це відео великим';
+
+  const handleSwapVideos = () => {
+    setIsLocalVideoMain((prev) => !prev);
+  };
 
   return createPortal(
     <div className="callOverlay callOverlay--active" role="dialog" aria-modal="true">
@@ -501,32 +513,98 @@ export default function ActiveCallOverlay({
         <div className="callActive__stage">
           <video
             ref={remoteVideoRef}
-            className="callActive__remoteVideo"
+            className={`callActive__remoteVideo${
+              isLocalVideoMain ? ' is-preview' : ' is-main'
+            }${hasRemoteVideo ? '' : ' is-hidden'}`}
             autoPlay
             playsInline
+            onClick={isLocalVideoMain ? handleSwapVideos : undefined}
+            role={isLocalVideoMain ? 'button' : undefined}
+            tabIndex={isLocalVideoMain ? 0 : undefined}
+            aria-label={isLocalVideoMain ? previewSwapLabel : undefined}
+            onKeyDown={
+              isLocalVideoMain
+                ? (event) => {
+                    if (event.key === 'Enter' || event.key === ' ') {
+                      event.preventDefault();
+                      handleSwapVideos();
+                    }
+                  }
+                : undefined
+            }
           />
-          <audio ref={remoteAudioRef} autoPlay playsInline />
-          {!showVideoUi ? (
-            <div className="callActive__audioFallback">
-              <div
-                className="callOverlay__avatar callOverlay__avatar--lg"
-                aria-hidden="true"
-              >
+          {showVideoUi && !hasRemoteVideo && isLocalVideoMain ? (
+            <button
+              type="button"
+              className="callActive__videoFallback callActive__videoFallback--preview"
+              onClick={handleSwapVideos}
+              aria-label={previewSwapLabel}
+              title={previewSwapLabel}
+            >
+              <div className="callOverlay__avatar" aria-hidden="true">
                 {peerUser?.avatarUrl ? (
                   <img src={peerUser.avatarUrl} alt="" />
                 ) : (
                   <span>{name.charAt(0).toUpperCase() || '?'}</span>
                 )}
               </div>
+            </button>
+          ) : null}
+          <audio ref={remoteAudioRef} autoPlay playsInline />
+          {!showVideoUi || (showVideoUi && !mainHasVideo) ? (
+            <div className="callActive__audioFallback">
+              <div
+                className="callOverlay__avatar callOverlay__avatar--lg"
+                aria-hidden="true"
+              >
+                {mainSource === 'remote' && peerUser?.avatarUrl ? (
+                  <img src={peerUser.avatarUrl} alt="" />
+                ) : (
+                  <span>
+                    {mainSource === 'remote'
+                      ? name.charAt(0).toUpperCase() || '?'
+                      : 'Y'}
+                  </span>
+                )}
+              </div>
             </div>
           ) : null}
           <video
             ref={localVideoRef}
-            className={`callActive__localVideo${cameraEnabled ? '' : ' is-hidden'}`}
+            className={`callActive__localVideo${
+              isLocalVideoMain ? ' is-main' : ' is-preview'
+            }${hasLocalVideo ? '' : ' is-hidden'}`}
             autoPlay
             playsInline
             muted
+            onClick={!isLocalVideoMain ? handleSwapVideos : undefined}
+            role={!isLocalVideoMain ? 'button' : undefined}
+            tabIndex={!isLocalVideoMain ? 0 : undefined}
+            aria-label={!isLocalVideoMain ? previewSwapLabel : undefined}
+            onKeyDown={
+              !isLocalVideoMain
+                ? (event) => {
+                    if (event.key === 'Enter' || event.key === ' ') {
+                      event.preventDefault();
+                      handleSwapVideos();
+                    }
+                  }
+                : undefined
+            }
           />
+          {showVideoUi && !hasLocalVideo && !isLocalVideoMain ? (
+            <button
+              type="button"
+              className="callActive__videoFallback callActive__videoFallback--preview"
+              onClick={handleSwapVideos}
+              aria-label={previewSwapLabel}
+              title={previewSwapLabel}
+            >
+              <div className="callOverlay__avatar" aria-hidden="true">
+                <span>Y</span>
+              </div>
+            </button>
+          ) : null}
         </div>
 
         <div className="callActive__meta">
