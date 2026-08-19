@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
+import { LuMic, LuMicOff, LuVideo, LuVideoOff } from 'react-icons/lu';
 import {
   ConnectionState,
   Room,
@@ -426,25 +427,39 @@ export default function ActiveCallOverlay({
             type="button"
             className={`callOverlay__ctrl${micEnabled ? '' : ' is-off'}`}
             onClick={() => onMicChange?.(!micEnabled)}
+            title={
+              micEnabled
+                ? t('messenger.calls.muteMic')
+                : t('messenger.calls.unmuteMic')
+            }
             aria-label={
               micEnabled
                 ? t('messenger.calls.muteMic')
                 : t('messenger.calls.unmuteMic')
             }
           >
-            {micEnabled ? '🎤' : '🔇'}
+            {micEnabled ? <LuMic aria-hidden="true" /> : <LuMicOff aria-hidden="true" />}
           </button>
           <button
             type="button"
             className={`callOverlay__ctrl${cameraEnabled ? '' : ' is-off'}`}
             onClick={() => onCameraChange?.(!cameraEnabled)}
+            title={
+              cameraEnabled
+                ? t('messenger.calls.cameraOff')
+                : t('messenger.calls.cameraOn')
+            }
             aria-label={
               cameraEnabled
                 ? t('messenger.calls.cameraOff')
                 : t('messenger.calls.cameraOn')
             }
           >
-            {cameraEnabled ? '📷' : '🚫'}
+            {cameraEnabled ? (
+              <LuVideo aria-hidden="true" />
+            ) : (
+              <LuVideoOff aria-hidden="true" />
+            )}
           </button>
           <button
             type="button"
