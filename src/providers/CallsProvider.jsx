@@ -184,7 +184,11 @@ export function CallsProvider() {
       const next = envelopeToCall(envelope);
       if (!next) return;
       const state = useCallsStore.getState();
-      if (state.call && state.call.id !== next.id) return;
+      if (
+        state.call &&
+        String(state.call.id ?? '') !== String(next.id ?? '')
+      )
+        return;
 
       if (state.role === 'caller') {
         const apply = (mediaConn) => {
@@ -212,7 +216,11 @@ export function CallsProvider() {
       const callId = envelope?.callId;
       if (!callId) return;
       const state = useCallsStore.getState();
-      if (state.call && state.call.id !== callId) return;
+      if (
+        state.call &&
+        String(state.call.id ?? '') !== String(callId ?? '')
+      )
+        return;
 
       stopRinging();
       // Local hangup already played end tone via handleEnd (endingRef set).

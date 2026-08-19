@@ -442,7 +442,7 @@ export default function ActiveCallOverlay({
           </button>
           <button
             type="button"
-            className={`callOverlay__ctrl${cameraEnabled ? '' : ' is-off'}`}
+            className="callOverlay__ctrl"
             onClick={() => onCameraChange?.(!cameraEnabled)}
             title={
               cameraEnabled
