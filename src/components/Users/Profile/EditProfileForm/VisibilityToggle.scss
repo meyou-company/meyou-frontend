@@ -22,6 +22,25 @@
     pointer-events: none;
   }
 
+  &__description {
+    margin-top: 2px;
+    font-size: 13px;
+    color: rgba(0, 0, 0, 0.6);
+  }
+
+  &__labelRow {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  &__icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+  }
+
   &__switch {
     position: relative;
 
@@ -56,5 +75,37 @@
 
   &__control input:checked + .visibility-toggle__switch::after {
     transform: translateX(18px);
+  }
+
+  &__control:focus-within &__switch {
+    outline: 2px solid rgba(176, 92, 255, 0.35);
+    outline-offset: 2px;
+  }
+}
+
+/* ==========================
+   Dark theme
+   ========================== */
+
+body.dark,
+html[data-theme='dark'] {
+  .visibility-toggle {
+    color: #fff;
+
+    &__description {
+      color: rgba(255, 255, 255, 0.6);
+    }
+
+    &__switch {
+      background: rgba(255, 255, 255, 0.22);
+
+      &::after {
+        background: #fff;
+      }
+    }
+
+    &__control input:checked + .visibility-toggle__switch {
+      background: linear-gradient(135deg, #7c3aed 0%, #b05cff 100%);
+    }
   }
 }

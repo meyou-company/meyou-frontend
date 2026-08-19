@@ -1,0 +1,87 @@
+/* ======================================================
+   Shared profile form fields
+   ====================================================== */
+
+.text-input,
+.text-area {
+  position: relative;
+  z-index: 2;
+
+  width: 100%;
+  min-width: 0;
+  height: 100%;
+
+  box-sizing: border-box;
+
+  border: 0;
+  outline: none;
+  background: transparent;
+
+  color: var(--field-text);
+
+  padding: 14px 16px 14px 28px;
+  font-size: 14px;
+}
+
+.text-input::placeholder,
+.text-area::placeholder {
+  color: var(--field-placeholder);
+}
+
+.text-area {
+  height: auto;
+  padding-top: 12px;
+  resize: none;
+}
+
+.text-input.is-error,
+.text-area.is-error {
+  color: #ff1b1b;
+}
+
+.field__star {
+  position: absolute;
+  left: 10px;
+  top: 10px;
+
+  z-index: 5;
+
+  color: #fc0000;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1;
+
+  pointer-events: none;
+}
+
+/* ======================================================
+      Responsive
+      ====================================================== */
+
+@media (max-width: 480px) {
+  .text-input,
+  .text-area {
+    padding: 10px 12px 10px 22px;
+    font-size: 13px;
+  }
+
+  .field__star {
+    top: 8px;
+    left: 8px;
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 360px) {
+  .text-input,
+  .text-area {
+    padding: 9px 10px 9px 20px;
+    font-size: 13px;
+  }
+
+  .field__star {
+    top: 7px;
+    left: 7px;
+    font-size: 13px;
+  }
+}

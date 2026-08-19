@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import Select, { components } from 'react-select';
 import VisibilityToggle from './VisibilityToggle';
+import './MultiSelect.scss';
 
 const DESKTOP_VISIBLE = 5;
 const TABLET_VISIBLE = 3;
@@ -29,12 +30,14 @@ export default function MultiSelect({
   value = [],
   onChange,
   options = [],
+  disabled = false,
   max = 10,
   placeholder = '',
   onBlur,
   error,
   maxItemsNote,
   selectProps = {},
+  className = '',
 
   showStar,
   showVisibility = false,
@@ -162,11 +165,12 @@ export default function MultiSelect({
 
   return (
     <div className="field">
-      <div className="field__wrap select-wrap">
+      <div className={`field__wrap select-wrap ${className}`}>
         {showStar && <span className="field__star">*</span>}
         <Select
           classNamePrefix="rs"
           isMulti
+          isDisabled={disabled}
           placeholder={placeholder}
           value={value}
           options={options}

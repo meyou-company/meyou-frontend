@@ -1,46 +1,63 @@
 /* =========================
    ExploreContent — Search UI
-   iPad 768x1024 target, responsive
    ========================= */
 
 .explore-content {
-  width: 100%;
-  min-height: 100%;
   display: flex;
   flex-direction: column;
-  padding: 16px;
+  width: 100%;
+  min-height: 100%;
   max-width: 1024px;
   margin: 0 auto;
+  padding: 16px;
   box-sizing: border-box;
   overflow-x: hidden;
 }
 
 .explore-content__header {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
-  position: relative;
-  margin-bottom: 16px;
   min-height: 44px;
+  margin-bottom: 16px;
+}
+
+.explore-content__pageTitle {
+  margin: 0;
+  color: inherit;
+  text-align: center;
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.explore-content__backBtn,
+.explore-content__filterBtnInInput {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  color: inherit;
+
+  -webkit-tap-highlight-color: transparent;
 }
 
 .explore-content__backBtn {
   position: absolute;
   left: 0;
   top: 50%;
-  transform: translateY(-50%);
   width: 36px;
   height: 36px;
-  padding: 0;
-  border: 0;
-  background: transparent;
-  color: inherit;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  -webkit-tap-highlight-color: transparent;
+  transform: translateY(-50%);
   opacity: 0.9;
+}
+
+.explore-content__backBtn:hover {
+  opacity: 1;
 }
 
 .explore-content__backBtn svg {
@@ -48,186 +65,160 @@
   height: 24px;
 }
 
-@media (max-width: 360px) {
-  .explore-content__backBtn {
-    width: 32px;
-    height: 32px;
-  }
-
-  .explore-content__backBtn svg {
-    width: 20px;
-    height: 20px;
-  }
-}
-
-.explore-content__backBtn:hover {
-  opacity: 1;
-}
-
-.explore-content__pageTitle {
-  margin: 0;
-  font-size: 24px;
-  font-weight: 700;
-  color: inherit;
-  text-align: center;
-}
-
-/* Кнопки сітка/полоски навпроти заголовка (справа в шапці) */
 .explore-content__viewToggleInHeader {
   position: absolute;
-  right: 0;
   top: 50%;
-  transform: translateY(-50%);
+  right: 0;
   display: flex;
   align-items: center;
   gap: 6px;
+  transform: translateY(-50%);
 }
 
 /* -------------------------
-   Search row
-------------------------- */
+     Search
+  ------------------------- */
 .explore-content__searchRow {
   margin-bottom: 16px;
 }
 
 .explore-content__inputWrap {
-  width: 100%;
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 0 16px 0 16px;
+
   height: 52px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.5);
+  padding: 0 16px;
+
   border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 999px;
+
+  background: rgba(255, 255, 255, 0.5);
 }
 
 .explore-content__searchIcon {
+  flex-shrink: 0;
   width: 22px;
   height: 22px;
-  flex-shrink: 0;
   opacity: 0.7;
 }
 
 .explore-content__input {
   flex: 1;
   min-width: 0;
+
   height: 100%;
+
   border: 0;
+  outline: 0;
   background: transparent;
-  font-size: 16px;
-  font-family: inherit;
+
   color: inherit;
-  outline: none;
+  font: inherit;
+  font-size: 16px;
 
   &::placeholder {
     color: rgba(0, 0, 0, 0.55);
   }
 
-  /* приховати браузерний хрестик очищення (щоб був лише один — наш) */
   &::-webkit-search-cancel-button,
   &::-webkit-search-decoration {
-    -webkit-appearance: none;
     appearance: none;
+    -webkit-appearance: none;
   }
 }
 
 .explore-content__clearBtn {
-  flex-shrink: 0;
-  width: 28px;
-  height: 28px;
-  padding: 0;
-  border: 0;
-  background: rgba(0, 0, 0, 0.1);
-  border-radius: 50%;
-  cursor: pointer;
-  font-size: 18px;
-  line-height: 1;
-  color: rgba(0, 0, 0, 0.6);
   display: flex;
   align-items: center;
   justify-content: center;
+
+  flex-shrink: 0;
+
+  width: 28px;
+  height: 28px;
+
+  padding: 0;
+
+  border: 0;
+  border-radius: 50%;
+
+  background: rgba(0, 0, 0, 0.1);
+
+  cursor: pointer;
+
+  font-size: 18px;
+  line-height: 1;
+  color: #b05cff;
+
   -webkit-tap-highlight-color: transparent;
 }
 
 .explore-content__filterBtnInInput {
   flex-shrink: 0;
+
   width: 36px;
   height: 36px;
-  padding: 0;
-  border: 0;
-  background: transparent;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+
   color: rgba(0, 0, 0, 0.55);
-  -webkit-tap-highlight-color: transparent;
+
+  transition: color 0.2s;
 }
 
 .explore-content__filterBtnInInput:hover {
   color: #b05cff;
 }
 
-body.dark .explore-content__filterBtnInInput {
-  color: rgba(255, 255, 255, 0.6);
-}
-
-body.dark .explore-content__filterBtnInInput:hover {
-  color: #b05cff;
-}
-
 /* -------------------------
-   Tabs row (лише вкладки)
-------------------------- */
+     Tabs 
+  ------------------------- */
 .explore-content__tabsRow {
   margin-bottom: 14px;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
   min-height: 0;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
 }
 
 .explore-content__tabs {
   display: flex;
-  gap: 0;
   min-width: 0;
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
 }
 
 .explore-content__tab {
+  position: relative;
   flex-shrink: 0;
   padding: 12px 10px 10px;
   border: 0;
   background: transparent;
+  color: rgba(0, 0, 0, 0.6);
+  font-family: inherit;
   font-size: 14px;
   font-weight: 500;
-  color: rgba(0, 0, 0, 0.6);
-  cursor: pointer;
-  position: relative;
   white-space: nowrap;
-  font-family: inherit;
+  cursor: pointer;
   -webkit-tap-highlight-color: transparent;
+  transition: color 0.2s;
 }
 
 .explore-content__tabActive {
   color: #b05cff;
   font-weight: 600;
-}
 
-.explore-content__tabActive::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  height: 2px;
-  background: linear-gradient(90deg, #4f6bff 0%, #b05cff 52%, #ff4fb1 100%);
-  border-radius: 1px;
+  &::after {
+    content: '';
+    position: absolute;
+    inset: auto 0 0;
+    height: 2px;
+    border-radius: 1px;
+
+    background: linear-gradient(90deg, #4f6bff 0%, #b05cff 52%, #ff4fb1 100%);
+  }
 }
 
 /* -------------------------
-   Toolbar: сортування + фільтр + сітка/список
-------------------------- */
+     Toolbar
+  ------------------------- */
 .explore-content__toolbar {
   display: flex;
   align-items: center;
@@ -244,35 +235,63 @@ body.dark .explore-content__filterBtnInInput:hover {
   width: 100%;
   max-width: 200px;
   height: 40px;
+
   padding: 0 32px 0 12px;
+
   border: 1px solid rgba(0, 0, 0, 0.12);
   border-radius: 10px;
-  font-size: 14px;
-  font-family: inherit;
-  color: inherit;
-  background: rgba(255, 255, 255, 0.5);
-  cursor: pointer;
+
+  background: rgba(255, 255, 255, 0.5)
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23666' d='M6 8L1 3h10z'/%3E%3C/svg%3E")
+    no-repeat right 10px center;
   appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23666' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 10px center;
+  color: inherit;
+  font-family: inherit;
+  font-size: 14px;
+
+  cursor: pointer;
 }
 
-.explore-content__filterBtn {
-  flex-shrink: 0;
-  width: 40px;
-  height: 40px;
-  padding: 0;
-  border: 0;
-  background: rgba(255, 255, 255, 0.4);
-  border-radius: 10px;
-  border: 1px solid rgba(0, 0, 0, 0.1);
-  cursor: pointer;
+/* -------------------------
+   Toolbar buttons
+  ------------------------- */
+.explore-content__filterBtn,
+.explore-content__viewBtn {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: rgba(0, 0, 0, 0.6);
+
+  flex-shrink: 0;
+
+  width: 40px;
+  height: 40px;
+
+  padding: 0;
+  border-radius: 10px;
+
+  cursor: pointer;
+  transition: 0.2s;
   -webkit-tap-highlight-color: transparent;
+}
+
+.explore-content__filterBtn {
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  background: rgba(255, 255, 255, 0.4);
+  color: rgba(0, 0, 0, 0.6);
+}
+
+.explore-content__viewBtn {
+  border: 0;
+  background: transparent;
+  color: rgba(0, 0, 0, 0.45);
+
+  &:hover {
+    background: rgba(0, 0, 0, 0.05);
+  }
+}
+
+.explore-content__viewBtnActive {
+  color: #b05cff;
 }
 
 .explore-content__viewToggle {
@@ -282,28 +301,9 @@ body.dark .explore-content__filterBtnInInput:hover {
   flex-shrink: 0;
 }
 
-.explore-content__viewBtn {
-  width: 40px;
-  height: 40px;
-  padding: 0;
-  border: 0;
-  background: transparent;
-  border-radius: 10px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: rgba(0, 0, 0, 0.45);
-  -webkit-tap-highlight-color: transparent;
-}
-
-.explore-content__viewBtnActive {
-  color: #b05cff;
-}
-
 /* -------------------------
-   Content: results / empty
-------------------------- */
+     Content
+  ------------------------- */
 .explore-content__content {
   flex: 1;
   min-height: 0;
@@ -327,50 +327,37 @@ body.dark .explore-content__filterBtnInInput:hover {
 }
 
 /* -------------------------
-   Results list
-------------------------- */
+     Results list
+  ------------------------- */
 .explore-content__results {
-  list-style: none;
   margin: 0;
   padding: 0;
-}
-
-.explore-content__resultsList {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.explore-content__resultsGrid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
+  list-style: none;
 }
 
 .explore-content__resultItem {
-  margin: 0;
-  min-width: 0; /* щоб картки не роздували сітку на мобільних */
+  min-width: 0;
 }
 
-/* ----- Card: фото 70–80%, overlay, 2 кнопки 50/50, hover scale + тінь ----- */
 .explore-content__userCard {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  min-height: 0;
-  background: rgba(255, 255, 255, 0.6);
-  border-radius: 16px;
-  overflow: hidden;
-  border: 1px solid rgba(0, 0, 0, 0.08);
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
   position: relative;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  display: flex;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.6);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 16px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .explore-content__userCard:hover {
-  transform: scale(1.02);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12), 0 14px 34px rgba(176, 92, 255, 0.22);
+  transform: scale(1.01);
+  box-shadow:
+    0 8px 24px rgba(0, 0, 0, 0.12),
+    0 14px 34px rgba(176, 92, 255, 0.22);
 }
 
 .explore-content__vipBadge {
@@ -388,48 +375,6 @@ body.dark .explore-content__filterBtnInInput:hover {
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
 }
 
-.explore-content__cardPhotoBtn {
-  flex: 1 1 78%;
-  min-height: 0;
-  width: 100%;
-  padding: 0;
-  border: 0;
-  background: transparent;
-  cursor: pointer;
-  text-align: left;
-  font-family: inherit;
-  -webkit-tap-highlight-color: transparent;
-  display: block;
-}
-
-.explore-content__cardPhoto {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  min-height: 120px;
-  overflow: hidden;
-  background: linear-gradient(135deg, #e9d5ff 0%, #fbcfe8 50%, #bfdbfe 100%);
-  border-radius: 18px 18px 0 0;
-}
-
-.explore-content__cardPhotoImg {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center;
-  display: block;
-}
-
-/* Сильний темний градієнт знизу для читабельності тексту */
-.explore-content__cardPhotoOverlay {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(to top, rgba(0, 0, 0, 0.85) 0%, rgba(0, 0, 0, 0.5) 35%, rgba(0, 0, 0, 0.15) 60%, transparent 80%);
-  pointer-events: none;
-}
-
 .explore-content__cardOnlineDot {
   top: 8px;
   left: 8px;
@@ -440,21 +385,71 @@ body.dark .explore-content__filterBtnInInput:hover {
 .explore-content__cardOnlineDot .onlineStatus__dot {
   width: 10px;
   height: 10px;
-  border: 2px solid #fff;
+  border: 1px solid #fff;
+}
+
+.explore-content__cardPhotoBtn {
+  flex: 1;
+
+  padding: 0;
+  border: 0;
+
+  background: transparent;
+
+  cursor: pointer;
+}
+
+.explore-content__cardPhoto {
+  position: relative;
+
+  overflow: hidden;
+
+  width: 100%;
+  min-height: 120px;
+
+  background: linear-gradient(135deg, #e9d5ff, #fbcfe8, #bfdbfe);
+
+  border-radius: 18px 18px 0 0;
+}
+
+.explore-content__cardPhotoImg {
+  position: absolute;
+  inset: 0;
+
+  width: 100%;
+  height: 100%;
+
+  object-fit: cover;
+}
+
+/*  темний градієнт знизу для читабельності тексту */
+.explore-content__cardPhotoOverlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    to top,
+    rgba(0, 0, 0, 0.85) 0%,
+    rgba(0, 0, 0, 0.5) 35%,
+    rgba(0, 0, 0, 0.15) 60%,
+    transparent 80%
+  );
 }
 
 .explore-content__cardCaption {
   position: absolute;
+
   left: 12px;
   right: 12px;
-  bottom: 0;
+  bottom: 48px;
+  z-index: 2;
+
   display: flex;
   flex-direction: column;
-  z-index: 1;
-  padding-bottom: 8px;
+  gap: 2px;
 }
 
-.explore-content__cardCaption .explore-content__username {
+.explore-content__username {
   font-size: 16px;
   font-weight: 700;
   color: #fff;
@@ -462,117 +457,93 @@ body.dark .explore-content__filterBtnInInput:hover {
 }
 
 .explore-content__cardLocation {
-  font-size: 12px;
-  color: rgba(255, 255, 255, 0.95);
-  white-space: nowrap;
   overflow: hidden;
+  color: rgba(255, 255, 255, 0.95);
+  font-size: 12px;
   text-overflow: ellipsis;
-}
-
-.explore-content__username {
-  font-size: 15px;
-  font-weight: 600;
-  color: inherit;
-}
-
-/* Чипи на фото (над градієнтом, напівпрозорий фіолетовий фон) */
-// .explore-content__cardTags--onPhoto {
-//   position: absolute;
-//   left: 12px;
-//   right: 12px;
-//   bottom: 0;
-//   padding: 8px 0 12px;
-//   z-index: 1;
-//   flex-wrap: wrap;
-//   gap: 6px;
-// }
-
-// .explore-content__cardTags--onPhoto .explore-content__cardTag {
-//   background: linear-gradient(90deg, #4f6bff 0%, #b05cff 52%, #ff4fb1 100%);
-//   color: #fff;
-//   padding: 5px 12px;
-//   font-size: 12px;
-//   border: 1px solid rgba(255, 255, 255, 0.25);
-// }
-
-// .explore-content__cardTags--onPhoto .explore-content__cardTag--more {
-//   background: linear-gradient(90deg, #b05cff 0%, #ff4fb1 100%);
-//   opacity: 0.95;
-// }
-
-/* Якщо є чипи — caption вище чипів */
-// .explore-content__cardPhoto:has(.explore-content__cardTags--onPhoto) .explore-content__cardCaption {
-//   bottom: 52px;
-// }
-
-.explore-content__cardPhoto:has(.explore-content__cardTags--onPhoto) .explore-content__cardTags--onPhoto {
-  padding-bottom: 10px;
+  white-space: nowrap;
 }
 
 .explore-content__cardRight {
-  flex-shrink: 0;
   display: flex;
   flex-direction: column;
+
   padding: 0 12px 12px;
 }
 
-/* Дві кнопки поруч: flex-row, однакова висота, не розтягуються */
 .explore-content__cardActions {
   display: flex;
-  flex-direction: row;
   align-items: center;
-  gap: 10px;
-  margin-top: 10px;
-  flex-shrink: 0;
-}
-
-.explore-content__resultsGrid .explore-content__cardActions {
-  align-items: stretch;
-}
-
-.explore-content__resultsList .explore-content__btnPrimary,
-.explore-content__resultsList .explore-content__btnSecondary {
+  gap: 8px;
   width: 100%;
 }
 
-.explore-content__btnPrimary,
-.explore-content__btnSecondary {
-  font-size: clamp(10px, 2.5vw, 14px);
+/* Чипи на фото  */
+.explore-content__cardTag {
+  padding: 3px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+  background: linear-gradient(90deg, #4f6bff 0%, #b05cff 52%, #ff4fb1 100%);
+  color: #fff;
+  max-width: calc(50% - 3px);
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+  flex: 0 1 auto;
 }
 
-.explore-content__btnPrimary,
-.explore-content__btnSecondary {
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
+.explore-content__cardTag--more {
+  flex: 0 0 auto;
+  background: linear-gradient(90deg, #b05cff 0%, #ff4fb1 100%);
+  opacity: 0.95;
+}
+
+.explore-content__cardTags--onPhoto {
+  position: absolute;
+  left: 6px;
+  right: 6px;
+  bottom: 8px;
+
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 4px;
+
   overflow: hidden;
 }
 
+/* -------------------------
+     Btn
+  ------------------------- */
+
 .explore-content__btnPrimary,
 .explore-content__btnSecondary {
-  flex: 1;
+  flex: 1 1 0;
   min-width: 0;
-  padding: 0 12px;
-  border-radius: 10px;
-  font-size: 12px;
-  font-weight: 600;
-  cursor: pointer;
-  font-family: inherit;
-  -webkit-tap-highlight-color: transparent;
-  // white-space: nowrap;
-  display: inline-flex;
+  display: flex;
   align-items: center;
   justify-content: center;
-  transition: box-shadow 0.2s ease, background 0.2s ease;
-  
-  height: auto;
   min-height: 38px;
-  padding: 2px 10px;
-  display: flex;
-  text-align: center;
-  line-height: 1.2;
-  white-space: normal;
-  word-break: normal;
+  padding: 0 10px;
+  border-radius: 10px;
+
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  cursor: pointer;
+
+  font-weight: 600;
+  font-size: 13px;
+  font-family: inherit;
+  line-height: 1;
+
+  transition:
+    background 0.2s,
+    color 0.2s,
+    border-color 0.2s,
+    box-shadow 0.2s;
 }
 
 .explore-content__btnPrimary {
@@ -582,7 +553,9 @@ body.dark .explore-content__filterBtnInInput:hover {
 }
 
 .explore-content__btnPrimary:hover:not(:disabled) {
-  box-shadow: 0 0 20px rgba(255, 79, 177, 0.4), 0 0 40px rgba(176, 92, 255, 0.35);
+  box-shadow:
+    0 0 18px rgba(176, 92, 255, 0.35),
+    0 0 30px rgba(255, 79, 177, 0.25);
 }
 
 .explore-content__btnPrimary:disabled {
@@ -597,669 +570,398 @@ body.dark .explore-content__filterBtnInInput:hover {
 }
 
 .explore-content__btnSecondary:hover {
-  background: rgba(176, 92, 255, 0.1);
+  background: rgba(176, 92, 255, 0.08);
 }
 
-/* Chips (на фото) — градієнт як на інших сторінках */
-// .explore-content__cardTag {
-//   padding: 4px 10px;
-//   border-radius: 999px;
-//   font-size: 11px;
-//   font-weight: 600;
-//   background: linear-gradient(90deg, #4f6bff 0%, #b05cff 52%, #ff4fb1 100%);
-//   color: #fff;
-//   white-space: nowrap;
-// }
+.explore-content__resultsGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
 
-// .explore-content__cardTag--more {
-//   background: linear-gradient(90deg, #b05cff 0%, #ff4fb1 100%);
-//   opacity: 0.95;
-// }
+  .explore-content__btnPrimary,
+  .explore-content__btnSecondary {
+    height: 34px;
+    font-size: 11px;
+    padding: 0 6px;
+  }
 
-/* Grid: картка колонка, компактні кнопки */
-.explore-content__resultsGrid .explore-content__userCard {
-  align-items: stretch;
+  .explore-content__userCard {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .explore-content__cardPhoto {
+    aspect-ratio: 4 / 5;
+  }
+
+  .explore-content__cardRight {
+    padding: 0 10px 10px;
+  }
+
+  .explore-content__cardActions {
+    gap: 8px;
+    margin-top: 8px;
+    align-items: stretch;
+  }
 }
 
-.explore-content__resultsGrid .explore-content__cardPhoto {
-  aspect-ratio: 4 / 5;
-  min-height: 0;
-}
-
-.explore-content__resultsGrid .explore-content__cardRight {
-  padding: 0 10px 10px;
-}
-
-.explore-content__resultsGrid .explore-content__cardActions {
-  margin-top: 8px;
-  gap: 8px;
-}
-
-.explore-content__resultsGrid .explore-content__btnPrimary,
-.explore-content__resultsGrid .explore-content__btnSecondary {
-  height: 36px;
-  min-height: 36px;
-  max-height: 36px;
-  padding: 0 10px;
-  font-size: 11px;
-}
-
-/* List: фото зліва, контент справа, кнопки більші */
-.explore-content__resultsList .explore-content__userCard {
-  flex-direction: row;
-  align-items: stretch;
-}
-
-.explore-content__resultsList .explore-content__cardPhotoBtn {
-  flex: 0 0 38%;
-  max-width: 160px;
-  min-height: 0;
-}
-
-.explore-content__resultsList .explore-content__cardPhoto {
-  aspect-ratio: 1;
-  min-height: 160px;
-}
-
-.explore-content__resultsList .explore-content__cardRight {
-  flex: 1;
-  min-width: 0;
+.explore-content__resultsList {
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  padding: 0 14px 14px;
-}
+  gap: 12px;
 
-.explore-content__resultsList .explore-content__cardActions {
-  margin-top: 12px;
-  gap: 10px;
-  align-self: stretch;
-}
+  .explore-content__btnPrimary,
+  .explore-content__btnSecondary {
+    height: 40px;
+    font-size: 13px;
+    padding: 0 12px;
+  }
 
-.explore-content__resultsList .explore-content__btnPrimary,
-.explore-content__resultsList .explore-content__btnSecondary {
-  height: 40px;
-  min-height: 40px;
-  max-height: 40px;
-  padding: 0 14px;
-  font-size: 13px;
-}
+  .explore-content__userCard {
+    flex-direction: row;
+    align-items: stretch;
+  }
 
-/* -------------------------
-   DARK MODE
-------------------------- */
-body.dark .explore-content__inputWrap {
-  background: rgba(255, 255, 255, 0.08);
-  border-color: rgba(255, 255, 255, 0.15);
-}
+  .explore-content__cardPhotoBtn {
+    flex: 0 0 38%;
+    max-width: 160px;
+  }
 
-body.dark .explore-content__input::placeholder {
-  color: rgba(255, 255, 255, 0.58);
-}
+  .explore-content__cardPhoto {
+    aspect-ratio: 1;
+    min-height: 120px;
+  }
 
-body.dark .explore-content__tabsRow {
-  border-bottom-color: rgba(255, 255, 255, 0.15);
-}
+  .explore-content__cardRight {
+    flex: 1;
+    justify-content: center;
+    padding: 0 14px 14px;
+  }
 
-body.dark .explore-content__tab {
-  color: rgba(255, 255, 255, 0.6);
-}
-
-body.dark .explore-content__tabActive {
-  color: #b05cff;
-}
-
-body.dark .explore-content__tabActive::after {
-  background: linear-gradient(90deg, #4f6bff 0%, #b05cff 52%, #ff4fb1 100%);
-}
-
-body.dark .explore-content__sortSelect {
-  background-color: rgba(255, 255, 255, 0.08);
-  border-color: rgba(255, 255, 255, 0.15);
-  color: rgba(255, 255, 255, 0.9);
-}
-
-body.dark .explore-content__filterBtn {
-  background: rgba(255, 255, 255, 0.08);
-  border-color: rgba(255, 255, 255, 0.15);
-  color: rgba(255, 255, 255, 0.8);
-}
-
-body.dark .explore-content__emptyText {
-  color: rgba(255, 255, 255, 0.5);
-}
-
-body.dark .explore-content__userCard {
-  background: rgba(255, 255, 255, 0.06);
-  border-color: rgba(255, 255, 255, 0.12);
-}
-
-body.dark .explore-content__btnSecondary {
-  background: transparent;
-  color: #b05cff;
-  border-color: rgba(176, 92, 255, 0.5);
-}
-
-body.dark .explore-content__btnSecondary:hover {
-  background: rgba(176, 92, 255, 0.15);
-}
-
-// body.dark .explore-content__cardTag--more {
-//   background: linear-gradient(90deg, #b05cff 0%, #ff4fb1 100%);
-//   opacity: 0.9;
-// }
-
-body.dark .explore-content__subtitle {
-  color: rgba(255, 255, 255, 0.55);
-}
-
-body.dark .explore-content__viewBtn {
-  color: rgba(255, 255, 255, 0.5);
-}
-
-body.dark .explore-content__viewBtn:hover {
-  color: rgba(255, 255, 255, 0.8);
-  background: rgba(255, 255, 255, 0.08);
-}
-
-body.dark .explore-content__viewBtnActive {
-  color: #b05cff;
+  .explore-content__cardActions {
+    margin-top: 12px;
+    align-items: stretch;
+  }
 }
 
 /* -------------------------
-   RESPONSIVE
-   Мобілка: 320–420 | iPhone: 420–767 | Планшет: 768–1048 | Desktop: 1049+
-------------------------- */
+     Dark
+  ------------------------- */
 
-/* 1) Мобілка до 420px (включно 320–420, і менші) */
+body.dark {
+  .explore-content {
+    &__inputWrap {
+      background: rgba(255, 255, 255, 0.08);
+      border-color: rgba(255, 255, 255, 0.15);
+    }
+
+    &__input::placeholder {
+      color: rgba(255, 255, 255, 0.58);
+    }
+
+    &__clearBtn {
+      background: rgba(0, 0, 0, 0.6);
+      color: #fff;
+      border: 1px solid #e9d5ff;
+    }
+
+    &__filterBtnInInput {
+      color: rgba(255, 255, 255, 0.6);
+
+      &:hover {
+        color: #b05cff;
+      }
+    }
+
+    &__tabsRow {
+      border-color: rgba(255, 255, 255, 0.15);
+    }
+
+    &__tab {
+      color: rgba(255, 255, 255, 0.6);
+
+      &Active {
+        color: #b05cff;
+      }
+    }
+
+    &__sortSelect,
+    &__filterBtn {
+      background: rgba(255, 255, 255, 0.08);
+      border-color: rgba(255, 255, 255, 0.15);
+      color: rgba(255, 255, 255, 0.8);
+    }
+
+    &__userCard {
+      background: rgba(255, 255, 255, 0.06);
+      border-color: rgba(255, 255, 255, 0.12);
+    }
+
+    &__viewBtn {
+      color: rgba(255, 255, 255, 0.55);
+
+      &:hover {
+        color: rgba(255, 255, 255, 0.85);
+        background: rgba(255, 255, 255, 0.08);
+      }
+
+      &Active {
+        color: #b05cff;
+      }
+    }
+
+    &__btnSecondary {
+      border-color: rgba(176, 92, 255, 0.45);
+
+      &:hover {
+        background: rgba(176, 92, 255, 0.15);
+      }
+    }
+
+    &__emptyText,
+    &__subtitle {
+      color: rgba(255, 255, 255, 0.55);
+    }
+  }
+}
+/* ==========================================
+   Планшет 768–1048
+========================================== */
+
+@media (max-width: 1048px) {
+  .explore-content {
+    padding: 14px;
+  }
+
+  .explore-content__resultsGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+
+    .explore-content__btnPrimary,
+    .explore-content__btnSecondary {
+      height: 36px;
+      font-size: 11px;
+      padding: 0 6px;
+    }
+  }
+
+  .explore-content__toolbar {
+    gap: 10px;
+  }
+
+  .explore-content__sortSelect {
+    max-width: none;
+  }
+
+  .explore-content__cardCaption {
+    left: 10px;
+    right: 10px;
+    bottom: 44px;
+  }
+
+  .explore-content__username {
+    font-size: 15px;
+  }
+
+  .explore-content__cardLocation {
+    font-size: 11px;
+  }
+
+  .explore-content__cardTags--onPhoto {
+    left: 10px;
+    right: 10px;
+    bottom: 10px;
+    gap: 5px;
+  }
+
+  .explore-content__cardTag {
+    font-size: 10px;
+  }
+
+  .explore-content__resultsList {
+    .explore-content__btnPrimary,
+    .explore-content__btnSecondary {
+      height: 38px;
+      font-size: 12px;
+      padding: 0 10px;
+    }
+  }
+}
+/* ==========================================
+   iPhone 420–767
+========================================== */
+
+@media (max-width: 767px) {
+  .explore-content {
+    padding: 12px;
+  }
+
+  .explore-content__resultsGrid {
+    gap: 10px;
+
+    .explore-content__btnPrimary,
+    .explore-content__btnSecondary {
+      height: 34px;
+      font-size: 8px;
+      padding: 0 4px;
+    }
+  }
+
+  .explore-content__toolbar {
+    flex-wrap: wrap;
+  }
+
+  .explore-content__sortWrap {
+    width: 100%;
+  }
+
+  .explore-content__sortSelect {
+    max-width: none;
+  }
+
+  .explore-content__cardCaption {
+    left: 8px;
+    right: 8px;
+    bottom: 42px;
+  }
+
+  .explore-content__username {
+    font-size: 14px;
+  }
+
+  .explore-content__cardLocation {
+    font-size: 10px;
+  }
+
+  .explore-content__cardTags--onPhoto {
+    left: 8px;
+    right: 8px;
+    bottom: 8px;
+    gap: 4px;
+  }
+
+  .explore-content__cardTag {
+    font-size: 9px;
+    padding: 2px 6px;
+  }
+
+  .explore-content__resultsList {
+    .explore-content__btnPrimary,
+    .explore-content__btnSecondary {
+      height: 38px;
+      font-size: 11px;
+      padding: 0 8px;
+    }
+  }
+}
+
+/* ==========================================
+   Mobile 320–420
+========================================== */
+
 @media (max-width: 420px) {
   .explore-content {
-    padding: 8px 10px;
+    padding: 10px;
   }
 
   .explore-content__header {
-    min-height: 40px;
     margin-bottom: 12px;
   }
 
   .explore-content__pageTitle {
-    font-size: 20px;
-  }
-
-  .explore-content__backBtn {
-    width: 36px;
-    height: 36px;
-  }
-
-  .explore-content__searchRow {
-    margin-bottom: 10px;
+    font-size: 21px;
   }
 
   .explore-content__inputWrap {
-    height: 44px;
+    height: 46px;
     padding: 0 12px;
     gap: 8px;
   }
 
   .explore-content__input {
-    font-size: 14px;
-  }
-
-  .explore-content__searchIcon {
-    width: 20px;
-    height: 20px;
-  }
-
-  .explore-content__filterBtnInInput {
-    width: 36px;
-    height: 36px;
-  }
-
-  .explore-content__tabsRow {
-    margin-bottom: 10px;
+    font-size: 15px;
   }
 
   .explore-content__tab {
-    font-size: 12px;
-    padding: 8px 6px 6px;
+    padding: 10px 8px;
+    font-size: 13px;
   }
 
-  .explore-content__viewBtn {
-    width: 36px;
-    height: 36px;
-  }
-
-  .explore-content__resultsGrid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+  .explore-content__toolbar {
+    flex-wrap: wrap;
     gap: 8px;
   }
 
-  .explore-content__userCard {
-    min-width: 0;
-  }
-
-  .explore-content__resultsGrid .explore-content__cardPhoto {
-    aspect-ratio: 3 / 4;
-  }
-
-  .explore-content__resultsGrid .explore-content__cardRight {
-    padding: 0 6px 6px;
-  }
-
-  .explore-content__resultsGrid .explore-content__cardActions {
-    gap: 6px;
-    margin-top: 6px;
-  }
-
-  .explore-content__cardCaption .explore-content__username {
-    font-size: 13px;
-  }
-
-  .explore-content__cardLocation {
-    font-size: 11px;
-  }
-
-  .explore-content__cardRight {
-    padding: 0 8px 8px;
-  }
-
-  .explore-content__cardActions {
-    margin-top: 6px;
-    gap: 6px;
-  }
-
-  .explore-content__resultsList .explore-content__cardActions {
-  flex-direction: column;
-  align-items: stretch;
-}
-
-  .explore-content__resultsGrid .explore-content__btnPrimary,
-  .explore-content__resultsGrid .explore-content__btnSecondary {
-    height: 34px;
-    min-height: 34px;
-    max-height: 34px;
-    font-size: 9px;
-    padding: 0 6px;
-  }
-
-  .explore-content__resultsList .explore-content__cardPhotoBtn {
-    max-width: 140px;
-  }
-
-  .explore-content__resultsList .explore-content__userCard {
-    min-width: 0;
-  }
-
-  .explore-content__resultsList .explore-content__btnPrimary,
-  .explore-content__resultsList .explore-content__btnSecondary {
-    height: 36px;
-    min-height: 36px;
-    max-height: 36px;
-    font-size: 10px;
-    padding: 0 8px;
-  }
-
-  .explore-content__emptyText {
-    font-size: 14px;
-  }
-}
-
-/* Ще компактніше для вузьких екранів 320–360px */
-@media (max-width: 360px) {
-  .explore-content {
-    padding: 6px 0px;
-  }
-
-  .explore-content__tab {
-    font-size: 11px;
-    padding: 6px 4px 6px;
-  }
-
+  .explore-content__filterBtn,
   .explore-content__viewBtn {
-    width: 34px;
-    height: 34px;
-  }
-
-  .explore-content__resultsGrid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 6px;
-  }
-
-  .explore-content__userCard {
-    min-width: 0;
-  }
-
-  .explore-content__resultsGrid .explore-content__cardRight {
-    padding: 0 6px 6px;
-  }
-
-  .explore-content__resultsGrid .explore-content__btnPrimary,
-  .explore-content__resultsGrid .explore-content__btnSecondary {
-    font-size: 9px;
-  }
-
-  .explore-content__resultsList .explore-content__btnPrimary,
-  .explore-content__resultsList .explore-content__btnSecondary {
-    font-size: 9px;
-  }
-
-  .explore-content__cardActions {
-    margin-top: 6px;
-    gap: 3px !important;
-  }
-
-}
-
-/* 2) iPhone / великі телефони 420–767px */
-@media (min-width: 421px) and (max-width: 767px) {
-  .explore-content {
-    padding: 12px 14px;
-  }
-
-  .explore-content__header {
-    margin-bottom: 14px;
-  }
-
-  .explore-content__pageTitle {
-    font-size: 22px;
-  }
-
-  .explore-content__searchRow {
-    margin-bottom: 12px;
-  }
-
-  .explore-content__inputWrap {
-    height: 48px;
-    padding: 0 14px;
-  }
-
-  .explore-content__input {
-    font-size: 15px;
-  }
-
-  .explore-content__tabsRow {
-    margin-bottom: 12px;
-  }
-
-  .explore-content__tab {
-    font-size: 13px;
-    padding: 10px 8px 8px;
-  }
-
-  .explore-content__viewBtn {
-    width: 40px;
-    height: 40px;
-  }
-
-  .explore-content__resultsGrid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 12px;
-  }
-
-  .explore-content__userCard {
-    min-width: 0;
-  }
-
-  .explore-content__cardCaption .explore-content__username {
-    font-size: 15px;
-  }
-
-  .explore-content__cardLocation {
-    font-size: 12px;
-  }
-
-  .explore-content__cardRight {
-    padding: 0 10px 10px;
-  }
-
-  .explore-content__resultsGrid .explore-content__btnPrimary,
-  .explore-content__resultsGrid .explore-content__btnSecondary {
-    height: 36px;
-    min-height: 36px;
-    max-height: 36px;
-    font-size: 10px;
-    padding: 0 10px;
-  }
-
-  .explore-content__resultsList .explore-content__btnPrimary,
-  .explore-content__resultsList .explore-content__btnSecondary {
-    font-size: 11px;
-  }
-
-  .explore-content__emptyText {
-    font-size: 15px;
-  }
-}
-
-/* 3) Планшет 768–1048px */
-@media (min-width: 768px) and (max-width: 1048px) {
-  .explore-content {
-    padding: 20px 24px;
-    max-width: 768px;
-    margin-left: auto;
-    margin-right: auto;
-  }
-
-  .explore-content__header {
-    margin-bottom: 20px;
-  }
-
-  .explore-content__searchRow {
-    margin-bottom: 18px;
-  }
-
-  .explore-content__inputWrap {
-    height: 52px;
-    padding: 0 18px;
-  }
-
-  .explore-content__tabsRow {
-    margin-bottom: 16px;
-  }
-
-  .explore-content__tab {
-    font-size: 14px;
-    padding: 12px 12px 10px;
-  }
-
-  .explore-content__resultsGrid {
-    grid-template-columns: repeat(3, 1fr);
-    gap: 20px;
-  }
-
-  .explore-content__cardCaption .explore-content__username {
-    font-size: 16px;
-  }
-
-  .explore-content__cardLocation {
-    font-size: 12px;
-  }
-
-  .explore-content__resultsList .explore-content__cardPhotoBtn {
-    max-width: 180px;
-  }
-
-  .explore-content__resultsList .explore-content__btnPrimary,
-  .explore-content__resultsList .explore-content__btnSecondary {
-    height: 40px;
-    min-height: 40px;
-    max-height: 40px;
-    font-size: clamp(11px, 1.2vw, 14px);
-  }
-
-  .explore-content__btnPrimary,
-  .explore-content__btnSecondary {
-    white-space: nowrap;      // ← запрещаем перенос
-    overflow: hidden;
-  }
-}
-
-/* 4) Desktop 1049+ — більші розміри, картки крупніші */
-@media (min-width: 1049px) {
-  .explore-content {
-    padding: 40px 20px;
-    max-width: 1200px;
-  }
-
-  .explore-content__header {
-    margin-bottom: 24px;
-    min-height: 52px;
-  }
-
-  .explore-content__pageTitle {
-    font-size: 28px;
-  }
-
-  .explore-content__backBtn {
     width: 36px;
     height: 36px;
   }
 
-  .explore-content__searchRow {
-    margin-bottom: 28px;
-  }
-
-  .explore-content__inputWrap {
-    height: 56px;
-    padding: 0 20px;
-    border-radius: 999px;
-  }
-
-  .explore-content__input {
-    font-size: 17px;
-  }
-
-  .explore-content__searchIcon {
-    width: 24px;
-    height: 24px;
-  }
-
-  .explore-content__tabsRow {
-    margin-bottom: 20px;
-  }
-
-  .explore-content__tab {
-    font-size: 16px;
-    padding: 14px 14px 12px;
-  }
-
-  .explore-content__viewToggleInHeader .explore-content__viewBtn {
-    width: 44px;
-    height: 44px;
-  }
-
   .explore-content__resultsGrid {
-    gap: 20px;
+    gap: 8px;
+
+    .explore-content__btnPrimary,
+    .explore-content__btnSecondary {
+      font-size: 11px;
+      letter-spacing: -0.2px;
+    }
+
+    .explore-content__cardPhoto {
+      min-height: 135px;
+    }
+
+    .explore-content__cardCaption {
+      left: 6px;
+      right: 6px;
+      bottom: 48px;
+    }
+
+    .explore-content__username {
+      font-size: 13px;
+    }
+
+    .explore-content__cardLocation {
+      font-size: 9px;
+    }
+
+    .explore-content__cardTags--onPhoto {
+      left: 6px;
+      right: 6px;
+      bottom: 8px;
+      gap: 3px;
+      max-height: 34px;
+      overflow: hidden;
+    }
+
+    .explore-content__cardTag {
+      font-size: 8px;
+      padding: 2px 5px;
+    }
+
+    .explore-content__cardRight {
+      padding: 0 8px 8px;
+    }
+
+    .explore-content__cardActions {
+      flex-direction: column;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
   }
 
-  .explore-content__userCard {
-    border-radius: 20px;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
-  }
+  .explore-content__resultsList {
+    .explore-content__cardActions {
+      flex-wrap: wrap;
+      gap: 6px;
+    }
 
-  .explore-content__userCard:hover {
-    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.14), 0 18px 40px rgba(176, 92, 255, 0.24);
-  }
-
-  .explore-content__resultsGrid .explore-content__cardPhoto {
-    border-radius: 20px 20px 0 0;
-    aspect-ratio: 4 / 5;
-    min-height: 200px;
-  }
-
-  .explore-content__cardPhoto {
-    border-radius: 20px 20px 0 0;
-  }
-
-  .explore-content__cardCaption .explore-content__username {
-    font-size: 18px;
-  }
-
-  .explore-content__cardLocation {
-    font-size: 14px;
-  }
-
-  .explore-content__username {
-    font-size: 18px;
-  }
-
-  .explore-content__resultsGrid .explore-content__cardRight {
-    padding: 0 10px 10px;
-  }
-
-  .explore-content__resultsGrid .explore-content__cardActions {
-    margin-top: 14px;
-    gap: 12px;
-  }
-
-  .explore-content__resultsGrid .explore-content__btnPrimary,
-  .explore-content__resultsGrid .explore-content__btnSecondary {
-    height: 44px;
-    min-height: 44px;
-    max-height: 44px;
-    padding: 0 16px;
-    font-size: 14px;
-    border-radius: 12px;
-    white-space: nowrap;
-  }
-
-  .explore-content__resultsList .explore-content__userCard {
-    padding: 0;
-  }
-
-  .explore-content__resultsList .explore-content__cardPhotoBtn {
-    max-width: 260px;
-  }
-
-  .explore-content__resultsList .explore-content__cardPhoto {
-    min-height: 140px;
-  }
-
-  .explore-content__resultsList .explore-content__cardRight {
-    padding: 0 18px 18px;
-  }
-
-  .explore-content__resultsList .explore-content__cardActions {
-    margin-top: 14px;
-    gap: 12px;
-  }
-
-  .explore-content__resultsList .explore-content__btnPrimary,
-  .explore-content__resultsList .explore-content__btnSecondary {
-    height: 46px;
-    min-height: 46px;
-    max-height: 46px;
-    padding: 0 18px;
-    font-size: 15px;
-    border-radius: 12px;
-  }
-
-  // .explore-content__cardTag {
-  //   font-size: 12px;
-  //   padding: 5px 12px;
-  // }
-
-  .explore-content__vipBadge {
-    font-size: 11px;
-    padding: 4px 10px;
-  }
-
-  .explore-content__emptyText {
-    font-size: 18px;
-  }
-
-  .explore-content__resultsGrid {
-    padding: 10px 20px;
-}
-}
-
-
-@media only screen and (min-width: 1180px) {
-   .explore-content__resultsGrid {
-    grid-template-columns: repeat(4, 1fr);
-  }
-
-  .explore-content__resultsGrid .explore-content__cardActions {
-    gap: 12px;
+    .explore-content__btnPrimary,
+    .explore-content__btnSecondary {
+      flex: 1 1 100%;
+      min-height: 34px;
+      font-size: 11px;
+      padding: 0 8px;
+    }
   }
 }

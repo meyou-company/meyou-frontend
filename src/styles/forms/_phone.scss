@@ -1,0 +1,150 @@
+/* ======================================================
+   Phone field
+   ====================================================== */
+
+/* ==========================
+   Container
+   ========================== */
+
+.phone-wrap {
+  .react-international-phone-input-container {
+    position: relative;
+    z-index: 2;
+
+    display: flex;
+    align-items: center;
+
+    width: 100%;
+    height: 100%;
+  }
+
+  /* ==========================
+       Input
+       ========================== */
+
+  .react-international-phone-input {
+    width: 100%;
+    height: 100%;
+
+    padding-left: 4px;
+
+    border: 0 !important;
+    outline: none;
+
+    background: transparent !important;
+
+    color: var(--field-text) !important;
+    font-size: 14px;
+  }
+
+  /* ==========================
+       Country selector
+       ========================== */
+
+  .react-international-phone-country-selector-button {
+    position: relative;
+    z-index: 3;
+
+    height: 100%;
+
+    margin-left: 20px;
+
+    border: 0 !important;
+
+    background: transparent !important;
+  }
+
+  /* ==========================
+       Country dropdown
+       ========================== */
+
+  .react-international-phone-country-selector-dropdown {
+    position: absolute;
+    z-index: 200 !important;
+
+    width: 320px !important;
+    max-width: min(360px, calc(100vw - 40px)) !important;
+    max-height: 320px !important;
+
+    padding: 6px !important;
+
+    overflow: auto !important;
+
+    border: 0 !important;
+    border-radius: 16px !important;
+
+    background: var(--select-menu-bg) !important;
+
+    box-shadow: 0 12px 30px rgba(123, 92, 255, 0.25) !important;
+  }
+}
+
+/* ======================================================
+     Dark theme
+     ====================================================== */
+
+body.dark,
+html[data-theme='dark'] {
+  .phone-wrap {
+    .react-international-phone-country-selector-dropdown {
+      border: 1px solid rgba(255, 255, 255, 0.12) !important;
+
+      background: #0d0d0d !important;
+      color: rgba(255, 255, 255, 0.95) !important;
+
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.6) !important;
+    }
+
+    .react-international-phone-country-selector-dropdown
+      .react-international-phone-country-selector-dropdown__list-item,
+    .react-international-phone-country-selector-dropdown
+      .react-international-phone-country-selector-dropdown__list-item-name,
+    .react-international-phone-country-selector-dropdown
+      .react-international-phone-country-selector-dropdown__list-item-dial-code {
+      color: rgba(255, 255, 255, 0.92) !important;
+
+      background: transparent !important;
+    }
+
+    .react-international-phone-country-selector-dropdown
+      .react-international-phone-country-selector-dropdown__list-item:hover {
+      background: var(--select-option-hover-bg) !important;
+    }
+
+    .react-international-phone-country-selector-dropdown
+      .react-international-phone-country-selector-dropdown__list-item--selected {
+      background: var(--select-option-selected-bg) !important;
+
+      color: #fff !important;
+    }
+  }
+}
+
+/* ======================================================
+     Responsive
+     ====================================================== */
+
+@media (max-width: 480px) {
+  .phone-wrap {
+    .react-international-phone-input {
+      padding-left: 2px;
+
+      font-size: 13px;
+    }
+
+    .react-international-phone-country-selector-button {
+      transform: scale(0.92);
+      transform-origin: left center;
+    }
+  }
+}
+
+@media (max-width: 360px) {
+  .phone-wrap {
+    .react-international-phone-input {
+      padding-left: 6px;
+
+      font-size: 13px;
+    }
+  }
+}

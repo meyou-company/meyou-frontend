@@ -13,23 +13,23 @@ import { locationApi } from '../../../../services/locationApi';
 import { usersApi } from '../../../../services/usersApi';
 
 import { usePrefillProfile } from '../../../../hooks/usePrefillProfile';
-import { useGenderOptions, useMaritalStatusOptions } from '../../../../hooks/useProfileFormOptions';
+import {
+  useGenderOptions,
+  useHobbyOptions,
+  useInterestOptions,
+  useMaritalStatusOptions,
+} from '../../../../hooks/useProfileFormOptions';
 import { useLocationSystem } from '../../../../hooks/useLocationSystem';
 
-import { normalizeForValidation, toEditProfilePayload } from '../../../../utils/profilePayload';
-import { cropImageToFile } from '../../../../utils/cropImageToFile';
 import {
   validateEditProfile,
   translateValidationErrors,
 } from '../../../../utils/validationProfile';
+import { normalizeForValidation, toEditProfilePayload } from '../../../../utils/profilePayload';
+import { cropImageToFile } from '../../../../utils/cropImageToFile';
 import { getApiErrorCode, getApiErrorMessage } from '../../../../utils/getApiErrorMessage';
-import {
-  applyBirthDateNormalization,
-  getBirthDateLimits,
-} from '../../../../utils/profileFormUtils';
+import { applyBirthDateNormalization } from '../../../../utils/profileFormUtils';
 
-import { interestOptions } from '../../../../constants/interests';
-import { profileHobbyOptions } from '../../../../constants/hobbies';
 import profileIcons from '../../../../constants/profileIcons';
 
 import ThemeToggleDark from '../../../../components/ThemeToggleDark/ThemeToggleDark';
@@ -39,7 +39,6 @@ import MultiSelect from './MultiSelect';
 import VisibilityToggle from './VisibilityToggle';
 
 import './EditProfileForm.scss';
-import DatePicker from 'react-datepicker';
 
 const INITIAL_VALUES = {
   firstName: '',
@@ -88,6 +87,8 @@ export default function EditProfileForm({ onBack, onSave }) {
 
   const genderOptions = useGenderOptions();
   const maritalStatusOptions = useMaritalStatusOptions();
+  const interestOptions = useInterestOptions();
+  const hobbiesOptions = useHobbyOptions();
 
   // FORM STATE
   const [values, setValues] = useState(INITIAL_VALUES);
@@ -122,7 +123,7 @@ export default function EditProfileForm({ onBack, onSave }) {
     setProfileCompleted: () => {},
     setValues,
     interestOptions,
-    hobbyOptions: profileHobbyOptions,
+    hobbiesOptions,
     maritalStatusOptions,
     locationApi,
     profileApi,
@@ -518,30 +519,15 @@ export default function EditProfileForm({ onBack, onSave }) {
           </div>
 
           <div className="field">
-            <div className="field__wrap field__wrap--birthDate">
-              <DatePicker
-                className={`text-input field__date-input ${showError('birthDate') ? 'is-error' : ''}`}
-                placeholderText={t('profile.editForm.fields.birthDatePlaceholder')}
-                aria-label={t('profile.editForm.fields.birthDate')}
-                dateFormat="yyyy-MM-dd"
-                selected={
-                  values?.birthDate && !isNaN(new Date(values.birthDate).getTime())
-                    ? new Date(values.birthDate)
-                    : null
-                }
-                minDate={getBirthDateLimits().minDate}
-                maxDate={getBirthDateLimits().maxDate}
-                onChange={(d) => setField('birthDate', d ? toYMDLocal(d) : '')}
-                onBlur={() => onBlur('birthDate')}
-                required
-                popperClassName="birthDate-picker"
-                showMonthDropdown
-                showYearDropdown
-                dropdownMode="select"
-                yearDropdownItemNumber={100}
-              />
-              <span className="field__date-indicator" aria-hidden="true" />
-            </div>
+            <BirthDateField
+              value={values.birthDate}
+              onChange={(val) => setField('birthDate', val)}
+              onBlur={() => onBlur('birthDate')}
+              hasError={showError('birthDate')}
+              placeholderText="DD.MM.YYYY"
+              ariaLabel={t('profile.editForm.fields.birthDate')}
+              required
+            />
             {showError('birthDate') && <div className="field__hint">{errors.birthDate}</div>}
           </div>
         </div>
@@ -696,7 +682,7 @@ export default function EditProfileForm({ onBack, onSave }) {
         <MultiSelect
           value={values.hobbies}
           onChange={(val) => setField('hobbies', val)}
-          options={profileHobbyOptions}
+          options={hobbiesOptions}
           placeholder={t('profile.editForm.fields.hobbies')}
           showVisibility
           visibilityValue={values.profileVisibility.hobbies}

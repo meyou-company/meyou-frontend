@@ -4,7 +4,7 @@ export function usePrefillProfile({
   setProfileCompleted,
   setValues,
   interestOptions,
-  hobbyOptions,
+  hobbiesOptions,
   maritalStatusOptions,
   locationApi,
   profileApi,
@@ -26,7 +26,7 @@ export function usePrefillProfile({
           : [];
 
         const hobbiesSelected = Array.isArray(u.hobbies)
-          ? hobbyOptions.filter((o) => u.hobbies.includes(o.value))
+          ? hobbiesOptions.filter((o) => u.hobbies.includes(o.value))
           : [];
 
         const maritalSelected =
