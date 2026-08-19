@@ -10,7 +10,21 @@ import { connectLiveSocket } from "../../services/liveSocket";
 import { usersApi } from "../../services/usersApi";
 import { getApiErrorMessage } from "../../utils/getApiErrorMessage";
 import { getLiveErrorMessage } from "../../utils/getLiveErrorMessage";
-import { emojiToReactionType } from "../../constants/messageReactions";
+import { emojiToReactionType as msgEmojiToReactionType } from "../../constants/messageReactions";
+
+const LIVE_EMOJI_TO_REACTION_TYPE = {
+  '❤️': 'HEART',
+  '😁': 'SMILE',
+  '😘': 'KISS',
+  '😍': 'LOVE',
+  '👀': 'EYES',
+  '👏': 'WAVE',
+  '🎁': 'GIFT',
+  '🌹': 'ROSE',
+};
+function liveEmojiToReactionType(emoji) {
+  return LIVE_EMOJI_TO_REACTION_TYPE[emoji] ?? msgEmojiToReactionType(emoji) ?? null;
+}
 import profileIcons from "../../constants/profileIcons";
 import LiveHeader from "./LiveHeader";
 import LiveStage from "./LiveStage";
@@ -808,7 +822,12 @@ export default function LiveBroadcast() {
       }
     };
 
+    const handleConnectError = (err) => {
+      console.error('[LiveSocket] connect_error:', err?.message ?? err);
+    };
+
     socket.on("connect", joinStream);
+    socket.on("connect_error", handleConnectError);
     socket.on("live:message:new", handleNewMessage);
     socket.on("live:message:pinned", handleMessagePinned);
     socket.on("live:message:unpinned", handleMessageUnpinned);
@@ -820,6 +839,7 @@ export default function LiveBroadcast() {
 
     return () => {
       socket.off("connect", joinStream);
+      socket.off("connect_error", handleConnectError);
       socket.off("live:message:new", handleNewMessage);
       socket.off("live:message:pinned", handleMessagePinned);
       socket.off("live:message:unpinned", handleMessageUnpinned);
@@ -1131,34 +1151,33 @@ export default function LiveBroadcast() {
       return;
     }
 
-    const reactionType = emojiToReactionType(reaction);
-    if (!reactionType) return;
+    const type = liveEmojiToReactionType(reaction);
+    if (!type) return;
 
     setLikesCount((current) => Math.max(0, Number(current) || 0) + 1);
     socket.emit(
       "live:reaction:send",
-      { liveStreamId: activeId, reactionType },
-      (...acknowledgement) => {
-        const response = acknowledgement.length > 1
-          ? acknowledgement[1]
-          : acknowledgement[0];
-        const hasError =
-          response?.success === false ||
-          response?.ok === false ||
-          Number(response?.statusCode) >= 400 ||
-          Boolean(response?.error);
-        if (hasError) {
+      { liveStreamId: activeId, type },
+      (ack) => {
+        if (!ack?.ok) {
+          console.error('Live reaction error:', {
+            ack,
+            liveStreamId: activeId,
+            type,
+            connected: socket?.connected,
+          });
+
+          if (ack?.code === 'LIVE_REACTION_RATE_LIMIT') {
+            setLikesCount((current) => Math.max(0, (Number(current) || 0) - 1));
+            return;
+          }
+
           setLikesCount((current) => Math.max(0, (Number(current) || 0) - 1));
-          toast.error(getLiveErrorMessage({ response: { data: response } }));
+          toast.error(getLiveErrorMessage({ response: { data: ack } }));
           return;
         }
 
-        const count = Number(
-          response?.reactionsCount ??
-          response?.count ??
-          response?.data?.reactionsCount ??
-          response?.data?.count,
-        );
+        const count = Number(ack.reactionsCount ?? ack.total ?? ack.count);
         if (Number.isFinite(count)) setLikesCount(Math.max(0, count));
       },
     );
