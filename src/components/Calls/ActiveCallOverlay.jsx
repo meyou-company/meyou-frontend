@@ -76,6 +76,7 @@ export default function ActiveCallOverlay({
   const [isConnected, setIsConnected] = useState(false);
   const [durationSec, setDurationSec] = useState(0);
   const [remoteName, setRemoteName] = useState('');
+  const [hasRemoteVideoTrack, setHasRemoteVideoTrack] = useState(false);
   const isConnectedRef = useRef(false);
 
   const initialPeer =
@@ -129,6 +130,29 @@ export default function ActiveCallOverlay({
       }
     };
 
+    const detectRemoteVideoTrack = () => {
+      const remote = [...room.remoteParticipants.values()][0];
+      if (!remote) return false;
+      const publications = [...remote.trackPublications.values()];
+      return publications.some((pub) => {
+        if (pub.kind !== Track.Kind.Video) return false;
+        if (pub.source !== Track.Source.Camera) return false;
+        if (!pub.track) return false;
+        if (pub.isMuted) return false;
+        return true;
+      });
+    };
+
+    const syncRemoteVideoState = (reason) => {
+      const hasVideo = detectRemoteVideoTrack();
+      setHasRemoteVideoTrack(hasVideo);
+      console.log('REMOTE CAMERA STATE', {
+        reason,
+        hasVideo,
+        participants: room.remoteParticipants.size,
+      });
+    };
+
     const markConnected = () => {
       if (cancelled || connectGenRef.current !== gen) return;
       console.log('CALL CONNECTED', {
@@ -156,6 +180,7 @@ export default function ActiveCallOverlay({
       const remote = [...room.remoteParticipants.values()][0];
       if (!remote) {
         setRemoteName('');
+        setHasRemoteVideoTrack(false);
         return;
       }
       console.log('REMOTE PARTICIPANT JOINED', {
@@ -171,11 +196,16 @@ export default function ActiveCallOverlay({
         if (!pub.track) return;
         if (pub.kind === Track.Kind.Video && remoteVideoRef.current) {
           pub.track.attach(remoteVideoRef.current);
+          console.log('REMOTE TRACK ATTACHED', {
+            kind: pub.kind,
+            source: pub.source,
+          });
         }
         if (pub.kind === Track.Kind.Audio && remoteAudioRef.current) {
           pub.track.attach(remoteAudioRef.current);
         }
       });
+      syncRemoteVideoState('attachRemote');
     };
 
     const onTrackSubscribed = (track, publication, participant) => {
@@ -186,10 +216,50 @@ export default function ActiveCallOverlay({
       });
       if (track.kind === Track.Kind.Video && remoteVideoRef.current) {
         track.attach(remoteVideoRef.current);
+        console.log('REMOTE TRACK ATTACHED', {
+          kind: track.kind,
+          source: publication?.source,
+          participant: participant?.identity,
+        });
       }
       if (track.kind === Track.Kind.Audio && remoteAudioRef.current) {
         track.attach(remoteAudioRef.current);
       }
+      syncRemoteVideoState('TrackSubscribed');
+    };
+
+    const onTrackUnsubscribed = (track, publication, participant) => {
+      console.log('REMOTE TRACK UNSUBSCRIBED', {
+        kind: track?.kind,
+        source: publication?.source,
+        participant: participant?.identity,
+      });
+      if (track?.kind === Track.Kind.Video && remoteVideoRef.current) {
+        try {
+          track.detach(remoteVideoRef.current);
+        } catch {
+          /* ignore detach issues */
+        }
+      }
+      syncRemoteVideoState('TrackUnsubscribed');
+    };
+
+    const onTrackMuted = (publication, participant) => {
+      console.log('REMOTE TRACK MUTED', {
+        kind: publication?.kind,
+        source: publication?.source,
+        participant: participant?.identity,
+      });
+      syncRemoteVideoState('TrackMuted');
+    };
+
+    const onTrackUnmuted = (publication, participant) => {
+      console.log('REMOTE TRACK UNMUTED', {
+        kind: publication?.kind,
+        source: publication?.source,
+        participant: participant?.identity,
+      });
+      syncRemoteVideoState('TrackUnmuted');
     };
 
     const onConnection = (state) => {
@@ -210,6 +280,7 @@ export default function ActiveCallOverlay({
         setIsConnected(false);
         setStatusLabel(t('messenger.calls.disconnected'));
         onConnectionStatus?.('disconnected');
+        setHasRemoteVideoTrack(false);
       } else if (
         state === ConnectionState.Connecting ||
         state === ConnectionState.SignalReconnecting
@@ -224,7 +295,13 @@ export default function ActiveCallOverlay({
     room.on(RoomEvent.Connected, markConnected);
     room.on(RoomEvent.ConnectionStateChanged, onConnection);
     room.on(RoomEvent.TrackSubscribed, onTrackSubscribed);
+    room.on(RoomEvent.TrackUnsubscribed, onTrackUnsubscribed);
+    room.on(RoomEvent.TrackMuted, onTrackMuted);
+    room.on(RoomEvent.TrackUnmuted, onTrackUnmuted);
     room.on(RoomEvent.ParticipantConnected, attachRemote);
+    room.on(RoomEvent.ParticipantDisconnected, () => {
+      syncRemoteVideoState('ParticipantDisconnected');
+    });
     room.on(RoomEvent.Disconnected, () => {
       console.log('CALL DISCONNECTED', { callId: call?.id, via: 'RoomEvent' });
     });
@@ -302,6 +379,16 @@ export default function ActiveCallOverlay({
           if (camPub?.track && localVideoRef.current) {
             camPub.track.attach(localVideoRef.current);
           }
+          console.log('LOCAL CAMERA PUBLICATIONS', {
+            publications: [...room.localParticipant.trackPublications.values()]
+              .filter((pub) => pub.kind === Track.Kind.Video)
+              .map((pub) => ({
+                source: pub.source,
+                kind: pub.kind,
+                isMuted: pub.isMuted,
+                hasTrack: Boolean(pub.track),
+              })),
+          });
         } else {
           onCameraChange?.(false);
         }
@@ -352,12 +439,36 @@ export default function ActiveCallOverlay({
   useEffect(() => {
     const room = roomRef.current;
     if (!room || room.state !== ConnectionState.Connected) return;
-    void room.localParticipant.setCameraEnabled(Boolean(cameraEnabled)).then(() => {
-      const pub = room.localParticipant.getTrackPublication(Track.Source.Camera);
-      if (pub?.track && localVideoRef.current) {
-        pub.track.attach(localVideoRef.current);
-      }
-    });
+    void room.localParticipant
+      .setCameraEnabled(Boolean(cameraEnabled))
+      .then(() => {
+        const pub = room.localParticipant.getTrackPublication(Track.Source.Camera);
+        if (pub?.track && localVideoRef.current) {
+          pub.track.attach(localVideoRef.current);
+        }
+        console.log('LOCAL CAMERA ENABLE RESULT', {
+          requestedEnabled: Boolean(cameraEnabled),
+          hasPublication: Boolean(pub),
+          publicationSource: pub?.source,
+          publicationMuted: pub?.isMuted,
+          hasTrack: Boolean(pub?.track),
+          trackEnabled: pub?.track?.mediaStreamTrack?.enabled,
+        });
+        console.log('LOCAL CAMERA PUBLICATIONS', {
+          publications: [...room.localParticipant.trackPublications.values()]
+            .filter((p) => p.kind === Track.Kind.Video)
+            .map((p) => ({
+              source: p.source,
+              kind: p.kind,
+              isMuted: p.isMuted,
+              hasTrack: Boolean(p.track),
+              trackEnabled: p.track?.mediaStreamTrack?.enabled,
+            })),
+        });
+      })
+      .catch((error) => {
+        console.error('LOCAL CAMERA ENABLE FAILED', error);
+      });
   }, [cameraEnabled]);
 
   const switchCamera = async () => {
@@ -379,7 +490,10 @@ export default function ActiveCallOverlay({
   };
 
   const name = displayName(peerUser) || remoteName || t('messenger.calls.unknown');
-  const showVideoUi = (mediaType || call?.mediaType) === 'VIDEO';
+  const showVideoUi =
+    (mediaType || call?.mediaType) === 'VIDEO' ||
+    Boolean(cameraEnabled) ||
+    Boolean(hasRemoteVideoTrack);
 
   return createPortal(
     <div className="callOverlay callOverlay--active" role="dialog" aria-modal="true">
