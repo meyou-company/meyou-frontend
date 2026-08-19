@@ -9,7 +9,7 @@ export default function FirstPagePage() {
       onGoProfile={() => navigate("/profile")}
       onGoExplore={() => navigate("/search")}
       onGoWallet={() => navigate("/wallet")}
-      onGoVipChat={() => navigate("/vip-chat")}
+      onGoVipChat={() => navigate("/messages")}
       onGoFriends={() => navigate("/friends")}
       onGoNotifications={() => navigate("/notifications")}
       onGoHome={() => navigate("/")}
