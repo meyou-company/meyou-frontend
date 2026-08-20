@@ -41,11 +41,13 @@ export default function ExploreContent({ onBack, onOpenProfile }) {
   const [currentUser, setCurrentUser] = useState(null);
   const [currentUserLoading, setCurrentUserLoading] = useState(true);
   const [resultCount, setResultCount] = useState(null);
+  const [hasSearched, setHasSearched] = useState(false);
 
   useEffect(() => {
     const loadCurrentUser = async () => {
       try {
-        const user = await authApi.me();
+        const response = await authApi.me();
+        const user = response?.data ?? response;
         setCurrentUser(user);
       } catch (error) {
         console.error('GET CURRENT USER ERROR:', error);
@@ -58,6 +60,7 @@ export default function ExploreContent({ onBack, onOpenProfile }) {
   }, []);
 
   const lastReqId = useRef(0);
+  const skipNextSearch = useRef(false);
 
   const TABS = useMemo(
     () => [
@@ -83,10 +86,8 @@ export default function ExploreContent({ onBack, onOpenProfile }) {
     if (query.trim()) {
       params.q = query.trim();
     }
-
+    // додаткові фільтри Advanced Search
     if (filterParams.nearMe) {
-      // nearMe застосовуємо тільки якщо користувач
-      // не задав явну локацію вручну
       if (currentUser?.city) {
         params.city = currentUser.city;
       }
@@ -101,8 +102,10 @@ export default function ExploreContent({ onBack, onOpenProfile }) {
     }
     if (filterParams.gender) params.gender = filterParams.gender;
     if (filterParams.maritalStatus) params.maritalStatus = filterParams.maritalStatus;
-    if (filterParams.ageMin != null) params.ageMin = filterParams.ageMin;
-    if (filterParams.ageMax != null) params.ageMax = filterParams.ageMax;
+    if (filterParams.ageEnabled) {
+      if (filterParams.ageMin != null) params.ageMin = filterParams.ageMin;
+      if (filterParams.ageMax != null) params.ageMax = filterParams.ageMax;
+    }
 
     const interests = filterParams.interestsEnabled
       ? currentUser?.interests
@@ -160,6 +163,7 @@ export default function ExploreContent({ onBack, onOpenProfile }) {
         usePresenceStore.getState().hydrateMany(list);
         setUsers(list);
         setResultCount(list.length);
+        setHasSearched(true);
         updateSubscribedIds(list);
       } catch (e) {
         if (reqId !== lastReqId.current) return;
@@ -237,9 +241,12 @@ export default function ExploreContent({ onBack, onOpenProfile }) {
   }, []);
 
   const handleResetFilters = useCallback(() => {
+    skipNextSearch.current = true;
+
     setFilterParams({});
     setUsers([]);
     setResultCount(null);
+    setHasSearched(false);
   }, []);
 
   useEffect(() => {
@@ -248,6 +255,11 @@ export default function ExploreContent({ onBack, onOpenProfile }) {
 
   useEffect(() => {
     if (currentUserLoading) return;
+
+    if (skipNextSearch.current) {
+      skipNextSearch.current = false;
+      return;
+    }
 
     const reqId = ++lastReqId.current;
 
@@ -259,7 +271,7 @@ export default function ExploreContent({ onBack, onOpenProfile }) {
   }, [query, filterParams, sortBy, searchUsers, currentUserLoading]);
 
   const hasResults = users.length > 0;
-  const showEmptyState = !loading && !hasResults;
+  const showEmptyState = hasSearched && !loading && !hasResults;
   const showResults = !loading && hasResults;
 
   return (
@@ -536,7 +548,7 @@ export default function ExploreContent({ onBack, onOpenProfile }) {
           setFilterParams(params);
           setFilterOpen(false);
         }}
-        onReset={handleResetSearch}
+        onReset={handleResetFilters}
         initialParams={filterParams}
         resultCount={loading ? null : resultCount}
       />
