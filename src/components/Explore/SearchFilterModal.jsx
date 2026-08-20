@@ -47,8 +47,9 @@ export default function SearchFilterModal({
       city: null,
       gender: searchGenderOptions[0],
       maritalStatus: searchMaritalOptions[0],
+      ageEnabled: false,
       ageMin: 18,
-      ageMax: 30,
+      ageMax: 100,
       interestsEnabled: true,
       selectedInterests: [],
       online: false,
@@ -97,8 +98,9 @@ export default function SearchFilterModal({
         searchMaritalOptions.find((m) => m.value === initialParams.maritalStatus) ??
         searchMaritalOptions[0],
 
+      ageEnabled: initialParams.ageEnabled ?? false,
       ageMin: initialParams.ageMin ?? 18,
-      ageMax: initialParams.ageMax ?? 30,
+      ageMax: initialParams.ageMax ?? 100,
       interestsEnabled: initialParams.interestsEnabled ?? true,
       selectedInterests: Array.isArray(initialParams.interests)
         ? interestOptions.filter((option) => initialParams.interests.includes(option.value))
@@ -135,8 +137,9 @@ export default function SearchFilterModal({
       city: f.nearMe ? undefined : f.city?.value,
       gender: f.gender?.value === 'ANY' ? undefined : f.gender?.value,
       maritalStatus: f.maritalStatus?.value === 'ANY' ? undefined : f.maritalStatus?.value,
-      ageMin: f.ageMin,
-      ageMax: f.ageMax,
+      ageEnabled: f.ageEnabled,
+      ageMin: f.ageEnabled ? f.ageMin : undefined,
+      ageMax: f.ageEnabled ? f.ageMax : undefined,
       interestsEnabled: f.interestsEnabled,
       interests:
         f.selectedInterests.length > 0 ? f.selectedInterests.map((i) => i.value) : undefined,
@@ -272,7 +275,17 @@ export default function SearchFilterModal({
 
             {/* AGE */}
             <section className="search-filter__block">
-              <span className="search-filter__blockTitle">{t('search.filters.age')}</span>
+              <VisibilityToggle
+                className="search-filter__toggle"
+                checked={f.ageEnabled}
+                onChange={(checked) =>
+                  setF((prev) => ({
+                    ...prev,
+                    ageEnabled: checked,
+                  }))
+                }
+                label={t('search.filters.age')}
+              />
 
               <div className="search-filter__ageSlider">
                 <div className="search-filter__ageSliderRow">
@@ -286,6 +299,7 @@ export default function SearchFilterModal({
                       max={100}
                       step={1}
                       value={f.ageMax}
+                      disabled={!f.ageEnabled}
                       onChange={(e) => {
                         const v = Number(e.target.value);
 
