@@ -339,7 +339,6 @@
       },
       "visibility": {
         "title": "Show on profile",
-
         "location": "Show location on profile",
         "instagram": "Show Instagram on profile",
         "telegram": "Show Telegram on profile",
@@ -758,6 +757,20 @@
         "success": "Account deleted",
         "error": "Could not delete account"
       }
+    },
+    "blocked": {
+      "title": "Blocked users",
+      "subtitle": "People you have blocked",
+      "loading": "Loading…",
+      "empty": "No blocked users",
+      "emptyDescription": "Users you block will appear here.",
+      "unblock": "Unblock",
+      "unblocking": "Unblocking…",
+      "unblocked": "User unblocked",
+      "unblockError": "Could not unblock user",
+      "loadError": "Could not load blocked users",
+      "retry": "Try again",
+      "unknownUser": "User"
     }
   },
   "video": {

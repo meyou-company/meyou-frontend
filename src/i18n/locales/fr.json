@@ -712,6 +712,20 @@
         "success": "Account deleted",
         "error": "Could not delete account"
       }
+    },
+    "blocked": {
+      "title": "Utilisateurs bloqués",
+      "subtitle": "Personnes que vous avez bloquées",
+      "loading": "Chargement…",
+      "empty": "Aucun utilisateur bloqué",
+      "emptyDescription": "Les utilisateurs que vous bloquez apparaîtront ici.",
+      "unblock": "Débloquer",
+      "unblocking": "Déblocage…",
+      "unblocked": "Utilisateur débloqué",
+      "unblockError": "Impossible de débloquer l’utilisateur",
+      "loadError": "Impossible de charger les utilisateurs bloqués",
+      "retry": "Réessayer",
+      "unknownUser": "Utilisateur"
     }
   },
   "video": {

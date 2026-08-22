@@ -704,6 +704,20 @@
         "success": "Account deleted",
         "error": "Could not delete account"
       }
+    },
+    "blocked": {
+      "title": "المستخدمون المحظورون",
+      "subtitle": "الأشخاص الذين قمت بحظرهم",
+      "loading": "جارٍ التحميل…",
+      "empty": "لا يوجد مستخدمون محظورون",
+      "emptyDescription": "سيظهر هنا المستخدمون الذين تحظرهم.",
+      "unblock": "إلغاء الحظر",
+      "unblocking": "جارٍ إلغاء الحظر…",
+      "unblocked": "تم إلغاء حظر المستخدم",
+      "unblockError": "تعذر إلغاء حظر المستخدم",
+      "loadError": "تعذر تحميل المستخدمين المحظورين",
+      "retry": "حاول مرة أخرى",
+      "unknownUser": "مستخدم"
     }
   },
   "video": {

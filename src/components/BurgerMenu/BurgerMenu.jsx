@@ -87,11 +87,16 @@ export default function BurgerMenu({
       return;
     }
 
+    if (id === 'blocked') {
+      navigate('/settings/blocked');
+      onClose();
+      return;
+    }
+
     if (
       [
         'guest',
         'favorites',
-        'blocked',
         'support',
         'report',
         'about',

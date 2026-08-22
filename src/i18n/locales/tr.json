@@ -712,6 +712,20 @@
         "success": "Account deleted",
         "error": "Could not delete account"
       }
+    },
+    "blocked": {
+      "title": "Engellenen kullanıcılar",
+      "subtitle": "Engellediğiniz kişiler",
+      "loading": "Yükleniyor…",
+      "empty": "Engellenen kullanıcı yok",
+      "emptyDescription": "Engellediğiniz kullanıcılar burada görünür.",
+      "unblock": "Engeli kaldır",
+      "unblocking": "Engel kaldırılıyor…",
+      "unblocked": "Kullanıcının engeli kaldırıldı",
+      "unblockError": "Kullanıcının engeli kaldırılamadı",
+      "loadError": "Engellenen kullanıcılar yüklenemedi",
+      "retry": "Tekrar dene",
+      "unknownUser": "Kullanıcı"
     }
   },
   "video": {

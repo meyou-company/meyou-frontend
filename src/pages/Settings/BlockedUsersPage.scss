@@ -1,0 +1,144 @@
+.blocked-users-page__status {
+  margin: 0;
+  padding: 18px 4px;
+  color: rgba(0, 0, 0, 0.58);
+  font-size: 0.9375rem;
+}
+
+.blocked-users-page__state {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 28px 18px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  text-align: center;
+}
+
+.blocked-users-page__stateTitle {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #111;
+}
+
+.blocked-users-page__stateDesc {
+  margin: 0;
+  font-size: 0.875rem;
+  line-height: 1.4;
+  color: rgba(0, 0, 0, 0.58);
+}
+
+.blocked-users-page__retry {
+  align-self: center;
+  margin-top: 8px;
+  border: none;
+  border-radius: 12px;
+  padding: 10px 16px;
+  background: linear-gradient(90deg, #ff4fb1, #4f6bff);
+  color: #fff;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.blocked-users-page__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.blocked-users-page__item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 16px;
+}
+
+.blocked-users-page__item + .blocked-users-page__item {
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.blocked-users-page__user {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  flex: 1;
+}
+
+.blocked-users-page__avatar {
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: rgba(0, 0, 0, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  font-weight: 600;
+  color: rgba(0, 0, 0, 0.55);
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+.blocked-users-page__meta {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.blocked-users-page__name,
+.blocked-users-page__username {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.blocked-users-page__name {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: #111;
+}
+
+.blocked-users-page__username {
+  font-size: 0.8125rem;
+  color: rgba(0, 0, 0, 0.55);
+}
+
+.blocked-users-page__unblock {
+  flex-shrink: 0;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 999px;
+  padding: 8px 14px;
+  background: rgba(255, 255, 255, 0.9);
+  color: #111;
+  font: inherit;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.blocked-users-page__unblock:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+@media (max-width: 480px) {
+  .blocked-users-page__item {
+    align-items: flex-start;
+  }
+
+  .blocked-users-page__unblock {
+    margin-top: 2px;
+  }
+}

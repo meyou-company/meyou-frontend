@@ -712,6 +712,20 @@
         "success": "Account deleted",
         "error": "Could not delete account"
       }
+    },
+    "blocked": {
+      "title": "Blokovaní uživatelé",
+      "subtitle": "Lidé, které jste zablokovali",
+      "loading": "Načítání…",
+      "empty": "Žádní blokovaní uživatelé",
+      "emptyDescription": "Uživatelé, které zablokujete, se zobrazí zde.",
+      "unblock": "Odblokovat",
+      "unblocking": "Odblokování…",
+      "unblocked": "Uživatel byl odblokován",
+      "unblockError": "Uživatele se nepodařilo odblokovat",
+      "loadError": "Nepodařilo se načíst blokované uživatele",
+      "retry": "Zkusit znovu",
+      "unknownUser": "Uživatel"
     }
   },
   "video": {
