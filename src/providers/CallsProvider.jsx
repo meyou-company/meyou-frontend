@@ -282,14 +282,14 @@ export function CallsProvider() {
   }, []);
 
   useEffect(() => {
-    if (phase === 'error' && error) {
-      // Media/connect errors must NOT auto-hangup an ACTIVE session (Messenger-like).
-      // User ends explicitly, or pagehide / peer hangup / LiveKit room close.
-      toast.error(error);
-      useCallsStore.getState().setConnectionStatus('failed');
-      useCallsStore.setState({ phase: 'active', error: null });
-    }
-  }, [phase, error]);
+    if (!error) return undefined;
+    // Media/connect errors must NOT auto-hangup or remount ActiveCallOverlay.
+    // Remount would disconnect LiveKit and reconnect in a loop.
+    toast.error(error);
+    useCallsStore.getState().setConnectionStatus('failed');
+    useCallsStore.setState({ error: null });
+    return undefined;
+  }, [error]);
 
   const handleAccept = async () => {
     const callId = call?.id || useCallsStore.getState().call?.id;
@@ -379,7 +379,7 @@ export function CallsProvider() {
   }
 
   if (
-    (phase === 'connecting' || phase === 'active') &&
+    (phase === 'connecting' || phase === 'active' || phase === 'error') &&
     call &&
     media?.token
   ) {

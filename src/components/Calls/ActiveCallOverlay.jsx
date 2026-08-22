@@ -101,6 +101,31 @@ export default function ActiveCallOverlay({
 
   const [peerUser, setPeerUser] = useState(initialPeer);
 
+  // Stable refs so room lifecycle effect never re-runs on UI/callback changes.
+  const tRef = useRef(t);
+  const callRef = useRef(call);
+  const mediaTypeRef = useRef(mediaType);
+  const localUserIdRef = useRef(localUserId);
+  const micEnabledRef = useRef(micEnabled);
+  const cameraEnabledRef = useRef(cameraEnabled);
+  const onMicChangeRef = useRef(onMicChange);
+  const onCameraChangeRef = useRef(onCameraChange);
+  const onConnectionStatusRef = useRef(onConnectionStatus);
+  const onFatalErrorRef = useRef(onFatalError);
+
+  useEffect(() => {
+    tRef.current = t;
+    callRef.current = call;
+    mediaTypeRef.current = mediaType;
+    localUserIdRef.current = localUserId;
+    micEnabledRef.current = micEnabled;
+    cameraEnabledRef.current = cameraEnabled;
+    onMicChangeRef.current = onMicChange;
+    onCameraChangeRef.current = onCameraChange;
+    onConnectionStatusRef.current = onConnectionStatus;
+    onFatalErrorRef.current = onFatalError;
+  });
+
   useEffect(() => {
     if (!call) return;
     setPeerUser(
@@ -108,16 +133,27 @@ export default function ActiveCallOverlay({
     );
   }, [call, localUserId]);
 
+  // Effect A — Room lifecycle only (stable deps: url/token/callId).
   useEffect(() => {
     let cancelled = false;
     const url = media?.url;
     const token = media?.token;
+    const callId = call?.id;
+    const roomName = media?.roomName;
+
+    console.log('CALL ROOM EFFECT MOUNT', {
+      callId,
+      roomName,
+      hasUrl: Boolean(url),
+      hasToken: Boolean(token),
+    });
+
     if (!url || !token) {
       console.warn('CALL CONNECT START aborted: missing url/token', {
         hasUrl: Boolean(url),
         hasToken: Boolean(token),
       });
-      onFatalError?.(t('messenger.calls.connectFailed'));
+      onFatalErrorRef.current?.(tRef.current('messenger.calls.connectFailed'));
       return undefined;
     }
 
@@ -129,12 +165,13 @@ export default function ActiveCallOverlay({
     });
     roomRef.current = room;
 
-    console.log('CALL CONNECT START', {
-      callId: call?.id,
-      roomName: media?.roomName,
+    console.log('CALL ROOM CONNECT', {
+      callId,
+      roomName,
       url,
-      identity: localUserId,
-      mediaType: mediaType || call?.mediaType,
+      identity: localUserIdRef.current,
+      mediaType: mediaTypeRef.current || callRef.current?.mediaType,
+      roomState: room.state,
       gen,
     });
 
@@ -171,7 +208,7 @@ export default function ActiveCallOverlay({
     const markConnected = () => {
       if (cancelled || connectGenRef.current !== gen) return;
       console.log('CALL CONNECTED', {
-        callId: call?.id,
+        callId,
         roomState: room.state,
         localIdentity: room.localParticipant?.identity,
         remoteCount: room.remoteParticipants.size,
@@ -179,8 +216,8 @@ export default function ActiveCallOverlay({
       connectedAtRef.current = Date.now();
       isConnectedRef.current = true;
       setIsConnected(true);
-      setStatusLabel(t('messenger.calls.inCall'));
-      onConnectionStatus?.('connected');
+      setStatusLabel(tRef.current('messenger.calls.inCall'));
+      onConnectionStatusRef.current?.('connected');
       clearDurationTimer();
       setDurationSec(0);
       durationTimerRef.current = setInterval(() => {
@@ -204,8 +241,12 @@ export default function ActiveCallOverlay({
         publications: [...remote.trackPublications.keys()],
       });
       setRemoteName(remote.name || remote.identity);
-      if (call?.caller?.id === remote.identity) setPeerUser(call.caller);
-      else if (call?.callee?.id === remote.identity) setPeerUser(call.callee);
+      const currentCall = callRef.current;
+      if (currentCall?.caller?.id === remote.identity) {
+        setPeerUser(currentCall.caller);
+      } else if (currentCall?.callee?.id === remote.identity) {
+        setPeerUser(currentCall.callee);
+      }
 
       remote.trackPublications.forEach((pub) => {
         if (!pub.track) return;
@@ -286,23 +327,27 @@ export default function ActiveCallOverlay({
       if (state === ConnectionState.Connected) {
         markConnected();
       } else if (state === ConnectionState.Reconnecting) {
-        setStatusLabel(t('messenger.calls.reconnecting'));
-        onConnectionStatus?.('reconnecting');
+        setStatusLabel(tRef.current('messenger.calls.reconnecting'));
+        onConnectionStatusRef.current?.('reconnecting');
       } else if (state === ConnectionState.Disconnected) {
-        console.log('CALL DISCONNECTED', { callId: call?.id });
+        console.log('CALL ROOM DISCONNECT EVENT', {
+          callId,
+          reason: 'ConnectionState.Disconnected',
+          roomState: room.state,
+        });
         clearDurationTimer();
         isConnectedRef.current = false;
         setIsConnected(false);
-        setStatusLabel(t('messenger.calls.disconnected'));
-        onConnectionStatus?.('disconnected');
+        setStatusLabel(tRef.current('messenger.calls.disconnected'));
+        onConnectionStatusRef.current?.('disconnected');
         setHasRemoteVideoTrack(false);
       } else if (
         state === ConnectionState.Connecting ||
         state === ConnectionState.SignalReconnecting
       ) {
         if (!isConnectedRef.current) {
-          setStatusLabel(t('messenger.calls.connecting'));
-          onConnectionStatus?.('connecting');
+          setStatusLabel(tRef.current('messenger.calls.connecting'));
+          onConnectionStatusRef.current?.('connecting');
         }
       }
     };
@@ -317,29 +362,46 @@ export default function ActiveCallOverlay({
     room.on(RoomEvent.ParticipantDisconnected, () => {
       syncRemoteVideoState('ParticipantDisconnected');
     });
-    room.on(RoomEvent.Disconnected, () => {
-      console.log('CALL DISCONNECTED', { callId: call?.id, via: 'RoomEvent' });
+    room.on(RoomEvent.Disconnected, (reason) => {
+      console.log('CALL ROOM DISCONNECT EVENT', {
+        callId,
+        reason: reason ?? 'RoomEvent.Disconnected',
+        roomState: room.state,
+        via: 'RoomEvent',
+      });
     });
 
     let connectTimeout = null;
 
     (async () => {
       try {
-        const wantVideo = (mediaType || call?.mediaType) === 'VIDEO';
+        const wantVideo =
+          (mediaTypeRef.current || callRef.current?.mediaType) === 'VIDEO';
+        const micOn = Boolean(micEnabledRef.current);
+        const camOn = Boolean(cameraEnabledRef.current);
 
         connectTimeout = setTimeout(() => {
           if (room.state !== ConnectionState.Connected) {
             console.warn('CALL CONNECT TIMEOUT', {
               roomState: room.state,
-              callId: call?.id,
+              callId,
             });
-            setStatusLabel(t('messenger.calls.connectTimeout'));
-            onFatalError?.(t('messenger.calls.connectTimeout'));
+            setStatusLabel(tRef.current('messenger.calls.connectTimeout'));
+            onFatalErrorRef.current?.(
+              tRef.current('messenger.calls.connectTimeout'),
+            );
           }
         }, 25_000);
 
         await room.connect(url, token);
         if (cancelled || connectGenRef.current !== gen) {
+          console.log('CALL ROOM DISCONNECT EVENT', {
+            callId,
+            reason: 'stale connect generation',
+            roomState: room.state,
+            gen,
+            currentGen: connectGenRef.current,
+          });
           await room.disconnect();
           return;
         }
@@ -350,7 +412,6 @@ export default function ActiveCallOverlay({
           localIdentity: room.localParticipant?.identity,
         });
 
-        // Browser autoplay policies — unlock audio output after Accept/call gesture.
         try {
           await room.startAudio();
         } catch (e) {
@@ -366,46 +427,35 @@ export default function ActiveCallOverlay({
           markConnected();
         }
 
-        // Publish via LiveKit helpers (creates LocalAudioTrack / LocalVideoTrack).
         console.log('LOCAL TRACK CREATED (requesting mic/cam)', {
           wantVideo,
-          micEnabled,
-          cameraEnabled,
+          micEnabled: micOn,
+          cameraEnabled: camOn,
         });
-        await room.localParticipant.setMicrophoneEnabled(Boolean(micEnabled));
+        await room.localParticipant.setMicrophoneEnabled(micOn);
         console.log('LOCAL TRACK PUBLISHED', {
           source: 'microphone',
-          enabled: Boolean(micEnabled),
+          enabled: micOn,
           publication: Boolean(
             room.localParticipant.getTrackPublication(Track.Source.Microphone),
           ),
         });
 
-        if (wantVideo) {
-          await room.localParticipant.setCameraEnabled(Boolean(cameraEnabled));
+        // Publish camera only when this call wants video or user already enabled it.
+        // Do NOT call onCameraChange(false) here — that caused store churn during connect.
+        if (wantVideo || camOn) {
+          await room.localParticipant.setCameraEnabled(camOn);
           const camPub = room.localParticipant.getTrackPublication(
             Track.Source.Camera,
           );
           console.log('LOCAL TRACK PUBLISHED', {
             source: 'camera',
-            enabled: Boolean(cameraEnabled),
+            enabled: camOn,
             publication: Boolean(camPub),
           });
           if (camPub?.track && localVideoRef.current) {
             camPub.track.attach(localVideoRef.current);
           }
-          console.log('LOCAL CAMERA PUBLICATIONS', {
-            publications: [...room.localParticipant.trackPublications.values()]
-              .filter((pub) => pub.kind === Track.Kind.Video)
-              .map((pub) => ({
-                source: pub.source,
-                kind: pub.kind,
-                isMuted: pub.isMuted,
-                hasTrack: Boolean(pub.track),
-              })),
-          });
-        } else {
-          onCameraChange?.(false);
         }
 
         attachRemote();
@@ -420,10 +470,10 @@ export default function ActiveCallOverlay({
           connectTimeout = null;
         }
         if (!cancelled && connectGenRef.current === gen) {
-          const msg = mapConnectError(err, t);
+          const msg = mapConnectError(err, tRef.current);
           setStatusLabel(msg);
           setIsConnected(false);
-          onFatalError?.(msg);
+          onFatalErrorRef.current?.(msg);
         }
       }
     })();
@@ -432,7 +482,17 @@ export default function ActiveCallOverlay({
       cancelled = true;
       if (connectTimeout) clearTimeout(connectTimeout);
       clearDurationTimer();
-      console.log('CALL CONNECT cleanup', { gen, callId: call?.id });
+      console.log('CALL ROOM CLEANUP', {
+        callId,
+        reason: 'effect cleanup',
+        roomState: room.state,
+        gen,
+      });
+      console.log('CALL ROOM DISCONNECT EVENT', {
+        callId,
+        reason: 'effect cleanup → room.disconnect()',
+        roomState: room.state,
+      });
       try {
         room.disconnect();
       } catch {
@@ -442,15 +502,16 @@ export default function ActiveCallOverlay({
         roomRef.current = null;
       }
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- reconnect only when LiveKit token/url changes
-  }, [media?.url, media?.token]);
+  }, [media?.url, media?.token, call?.id]);
 
+  // Effect B — local mic toggle (no reconnect).
   useEffect(() => {
     const room = roomRef.current;
     if (!room || room.state !== ConnectionState.Connected) return;
     void room.localParticipant.setMicrophoneEnabled(Boolean(micEnabled));
   }, [micEnabled]);
 
+  // Effect B — local camera toggle (no reconnect).
   useEffect(() => {
     const room = roomRef.current;
     if (!room || room.state !== ConnectionState.Connected) return;
@@ -468,17 +529,6 @@ export default function ActiveCallOverlay({
           publicationMuted: pub?.isMuted,
           hasTrack: Boolean(pub?.track),
           trackEnabled: pub?.track?.mediaStreamTrack?.enabled,
-        });
-        console.log('LOCAL CAMERA PUBLICATIONS', {
-          publications: [...room.localParticipant.trackPublications.values()]
-            .filter((p) => p.kind === Track.Kind.Video)
-            .map((p) => ({
-              source: p.source,
-              kind: p.kind,
-              isMuted: p.isMuted,
-              hasTrack: Boolean(p.track),
-              trackEnabled: p.track?.mediaStreamTrack?.enabled,
-            })),
         });
       })
       .catch((error) => {

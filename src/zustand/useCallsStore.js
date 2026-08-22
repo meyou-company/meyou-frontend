@@ -90,10 +90,19 @@ export const useCallsStore = create((set, get) => ({
     }),
 
   setError: (error) =>
-    set({
-      phase: 'error',
-      error: error || 'Call failed',
-      connectionStatus: 'failed',
+    set((state) => {
+      // Keep ActiveCallOverlay mounted during an in-progress call.
+      // Switching phase to 'error' unmounts the overlay → room.disconnect()
+      // → phase restored to 'active' → remount → room.connect() loop.
+      const keepCallUi =
+        state.phase === 'active' ||
+        state.phase === 'connecting' ||
+        state.phase === 'error';
+      return {
+        phase: keepCallUi ? (state.phase === 'error' ? 'active' : state.phase) : 'error',
+        error: error || 'Call failed',
+        connectionStatus: 'failed',
+      };
     }),
 
   setConnectionStatus: (connectionStatus) => set({ connectionStatus }),
