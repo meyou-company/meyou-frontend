@@ -4,10 +4,16 @@ import { useTranslation } from 'react-i18next';
 import { LuMic, LuMicOff, LuVideo, LuVideoOff } from 'react-icons/lu';
 import {
   ConnectionState,
-  Room,
   RoomEvent,
   Track,
 } from 'livekit-client';
+import {
+  adoptSharedCallRoom,
+  createDefaultCallRoom,
+  getCallDisconnectReasonName,
+  releaseSharedCallRoom,
+} from '../../utils/callRoomSession';
+import { useCallsStore } from '../../zustand/useCallsStore';
 import './Calls.scss';
 
 function displayName(user) {
@@ -133,6 +139,30 @@ export default function ActiveCallOverlay({
     );
   }, [call, localUserId]);
 
+  useEffect(() => {
+    console.log('ACTIVE CALL OVERLAY MOUNT', {
+      callId: call?.id,
+      hasToken: Boolean(media?.token),
+      hasUrl: Boolean(media?.url),
+      mediaRoomName: media?.roomName,
+    });
+    return () => {
+      console.trace('ACTIVE CALL OVERLAY UNMOUNT/CLEANUP', {
+        callId: call?.id,
+      });
+    };
+  }, [call?.id, media?.token, media?.url, media?.roomName]);
+
+  useEffect(() => {
+    console.log('ACTIVE CALL OVERLAY MEDIA DEPS', {
+      callId: call?.id,
+      callIdType: typeof call?.id,
+      url: media?.url,
+      roomName: media?.roomName,
+      tokenTail: media?.token ? String(media.token).slice(-8) : null,
+    });
+  }, [call?.id, media?.url, media?.token, media?.roomName]);
+
   // Effect A — Room lifecycle only (stable deps: url/token/callId).
   useEffect(() => {
     let cancelled = false;
@@ -146,6 +176,7 @@ export default function ActiveCallOverlay({
       roomName,
       hasUrl: Boolean(url),
       hasToken: Boolean(token),
+      tokenTail: token ? String(token).slice(-8) : null,
     });
 
     if (!url || !token) {
@@ -158,14 +189,16 @@ export default function ActiveCallOverlay({
     }
 
     const gen = ++connectGenRef.current;
-    const room = new Room({
-      adaptiveStream: true,
-      dynacast: true,
-      audioCaptureDefaults: { autoGainControl: true, echoCancellation: true },
+    const { room, reused } = adoptSharedCallRoom({
+      callId,
+      url,
+      token,
+      roomName,
+      createRoom: createDefaultCallRoom,
     });
     roomRef.current = room;
 
-    console.log('CALL ROOM CONNECT', {
+    console.log(reused ? 'CALL ROOM REUSE' : 'CALL ROOM CONNECT', {
       callId,
       roomName,
       url,
@@ -173,6 +206,7 @@ export default function ActiveCallOverlay({
       mediaType: mediaTypeRef.current || callRef.current?.mediaType,
       roomState: room.state,
       gen,
+      reused,
     });
 
     const clearDurationTimer = () => {
@@ -218,14 +252,15 @@ export default function ActiveCallOverlay({
       setIsConnected(true);
       setStatusLabel(tRef.current('messenger.calls.inCall'));
       onConnectionStatusRef.current?.('connected');
-      clearDurationTimer();
-      setDurationSec(0);
-      durationTimerRef.current = setInterval(() => {
-        if (!connectedAtRef.current) return;
-        setDurationSec(
-          Math.floor((Date.now() - connectedAtRef.current) / 1000),
-        );
-      }, 1000);
+      if (!durationTimerRef.current) {
+        setDurationSec(0);
+        durationTimerRef.current = setInterval(() => {
+          if (!connectedAtRef.current) return;
+          setDurationSec(
+            Math.floor((Date.now() - connectedAtRef.current) / 1000),
+          );
+        }, 1000);
+      }
     };
 
     const attachRemote = () => {
@@ -327,6 +362,7 @@ export default function ActiveCallOverlay({
       if (state === ConnectionState.Connected) {
         markConnected();
       } else if (state === ConnectionState.Reconnecting) {
+        console.log('CALL ROOM RECONNECTING', { callId });
         setStatusLabel(tRef.current('messenger.calls.reconnecting'));
         onConnectionStatusRef.current?.('reconnecting');
       } else if (state === ConnectionState.Disconnected) {
@@ -352,6 +388,21 @@ export default function ActiveCallOverlay({
       }
     };
 
+    const onParticipantDisconnected = () => {
+      // Do NOT clearCall / hangup — LiveKit transport events are not Messenger call end.
+      syncRemoteVideoState('ParticipantDisconnected');
+    };
+
+    const onDisconnected = (reason) => {
+      console.log('CALL ROOM DISCONNECT EVENT', {
+        callId,
+        reason,
+        reasonName: getCallDisconnectReasonName(reason),
+        roomState: room.state,
+        via: 'RoomEvent',
+      });
+    };
+
     room.on(RoomEvent.Connected, markConnected);
     room.on(RoomEvent.ConnectionStateChanged, onConnection);
     room.on(RoomEvent.TrackSubscribed, onTrackSubscribed);
@@ -359,21 +410,43 @@ export default function ActiveCallOverlay({
     room.on(RoomEvent.TrackMuted, onTrackMuted);
     room.on(RoomEvent.TrackUnmuted, onTrackUnmuted);
     room.on(RoomEvent.ParticipantConnected, attachRemote);
-    room.on(RoomEvent.ParticipantDisconnected, () => {
-      syncRemoteVideoState('ParticipantDisconnected');
-    });
-    room.on(RoomEvent.Disconnected, (reason) => {
-      console.log('CALL ROOM DISCONNECT EVENT', {
-        callId,
-        reason: reason ?? 'RoomEvent.Disconnected',
-        roomState: room.state,
-        via: 'RoomEvent',
-      });
-    });
+    room.on(RoomEvent.ParticipantDisconnected, onParticipantDisconnected);
+    room.on(RoomEvent.Disconnected, onDisconnected);
+    const onReconnecting = () => {
+      console.log('CALL ROOM RECONNECTING event', { callId });
+    };
+    const onReconnected = () => {
+      console.log('CALL ROOM RECONNECTED event', { callId });
+      markConnected();
+      attachRemote();
+    };
+    room.on(RoomEvent.Reconnecting, onReconnecting);
+    room.on(RoomEvent.Reconnected, onReconnected);
 
     let connectTimeout = null;
 
     (async () => {
+      // Remount / StrictMode: never call connect() again while LiveKit is
+      // already connecting or connected — that unpublishes tracks and loops.
+      if (
+        reused &&
+        (room.state === ConnectionState.Connected ||
+          room.state === ConnectionState.Connecting ||
+          room.state === ConnectionState.Reconnecting ||
+          room.state === ConnectionState.SignalReconnecting)
+      ) {
+        console.log('CALL ROOM skip connect — session already in flight', {
+          callId,
+          roomState: room.state,
+          gen,
+        });
+        if (room.state === ConnectionState.Connected) {
+          markConnected();
+          attachRemote();
+        }
+        return;
+      }
+
       try {
         const wantVideo =
           (mediaTypeRef.current || callRef.current?.mediaType) === 'VIDEO';
@@ -395,14 +468,13 @@ export default function ActiveCallOverlay({
 
         await room.connect(url, token);
         if (cancelled || connectGenRef.current !== gen) {
-          console.log('CALL ROOM DISCONNECT EVENT', {
+          // Another effect generation owns the session; do not tear down shared room.
+          console.log('CALL ROOM stale connect generation ignored', {
             callId,
-            reason: 'stale connect generation',
-            roomState: room.state,
             gen,
             currentGen: connectGenRef.current,
+            cancelled,
           });
-          await room.disconnect();
           return;
         }
 
@@ -441,8 +513,6 @@ export default function ActiveCallOverlay({
           ),
         });
 
-        // Publish camera only when this call wants video or user already enabled it.
-        // Do NOT call onCameraChange(false) here — that caused store churn during connect.
         if (wantVideo || camOn) {
           await room.localParticipant.setCameraEnabled(camOn);
           const camPub = room.localParticipant.getTrackPublication(
@@ -481,23 +551,55 @@ export default function ActiveCallOverlay({
     return () => {
       cancelled = true;
       if (connectTimeout) clearTimeout(connectTimeout);
-      clearDurationTimer();
+
+      room.off(RoomEvent.Connected, markConnected);
+      room.off(RoomEvent.ConnectionStateChanged, onConnection);
+      room.off(RoomEvent.TrackSubscribed, onTrackSubscribed);
+      room.off(RoomEvent.TrackUnsubscribed, onTrackUnsubscribed);
+      room.off(RoomEvent.TrackMuted, onTrackMuted);
+      room.off(RoomEvent.TrackUnmuted, onTrackUnmuted);
+      room.off(RoomEvent.ParticipantConnected, attachRemote);
+      room.off(RoomEvent.ParticipantDisconnected, onParticipantDisconnected);
+      room.off(RoomEvent.Disconnected, onDisconnected);
+      room.off(RoomEvent.Reconnecting, onReconnecting);
+      room.off(RoomEvent.Reconnected, onReconnected);
+
+      const state = useCallsStore.getState();
+      const sameCallStillActive =
+        state.call &&
+        String(state.call.id ?? '') === String(callId ?? '') &&
+        state.media?.url === url &&
+        (state.media?.roomName == null ||
+          roomName == null ||
+          state.media.roomName === roomName) &&
+        (state.phase === 'active' ||
+          state.phase === 'connecting' ||
+          state.phase === 'error');
+
       console.log('CALL ROOM CLEANUP', {
         callId,
         reason: 'effect cleanup',
         roomState: room.state,
         gen,
+        sameCallStillActive,
       });
-      console.log('CALL ROOM DISCONNECT EVENT', {
+
+      if (sameCallStillActive) {
+        // Remount / StrictMode / transient parent rerender — keep LiveKit room.
+        releaseSharedCallRoom(room, {
+          force: false,
+          callId,
+          reason: 'effect cleanup (retain shared session)',
+        });
+        return;
+      }
+
+      clearDurationTimer();
+      releaseSharedCallRoom(room, {
+        force: true,
         callId,
         reason: 'effect cleanup → room.disconnect()',
-        roomState: room.state,
       });
-      try {
-        room.disconnect();
-      } catch {
-        /* ignore */
-      }
       if (roomRef.current === room) {
         roomRef.current = null;
       }

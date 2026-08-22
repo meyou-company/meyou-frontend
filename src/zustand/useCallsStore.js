@@ -60,24 +60,48 @@ export const useCallsStore = create((set, get) => ({
     }),
 
   setConnecting: ({ call, media, role } = {}) =>
-    set((state) => ({
-      phase: 'connecting',
-      call: call ?? state.call,
-      media: media ?? state.media,
-      role: role ?? state.role,
-      mediaType: (call ?? state.call)?.mediaType || state.mediaType,
-      error: null,
-      connectionStatus: 'connecting',
-    })),
+    set((state) => {
+      let nextMedia = media ?? state.media;
+      if (
+        nextMedia &&
+        state.media?.token &&
+        nextMedia.url === state.media.url &&
+        nextMedia.roomName === state.media.roomName
+      ) {
+        nextMedia = state.media;
+      }
+      return {
+        phase: 'connecting',
+        call: call ?? state.call,
+        media: nextMedia,
+        role: role ?? state.role,
+        mediaType: (call ?? state.call)?.mediaType || state.mediaType,
+        error: null,
+        connectionStatus: 'connecting',
+      };
+    }),
 
   setActive: ({ call, media, role } = {}) =>
     set((state) => {
       const nextCall = call ?? state.call;
       const nextType = nextCall?.mediaType || state.mediaType || 'AUDIO';
+      let nextMedia = media ?? state.media;
+
+      // getActive() mints a new JWT every time. Replacing token mid-call
+      // retriggers room effect cleanup → disconnect → ROOM_DELETED loops.
+      if (
+        nextMedia &&
+        state.media?.token &&
+        nextMedia.url === state.media.url &&
+        nextMedia.roomName === state.media.roomName
+      ) {
+        nextMedia = state.media;
+      }
+
       return {
         phase: 'active',
         call: nextCall,
-        media: media ?? state.media,
+        media: nextMedia,
         role: role ?? state.role,
         mediaType: nextType,
         error: null,

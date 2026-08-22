@@ -13,6 +13,7 @@ import { getSessionAccessToken } from '../services/api';
 import { callsApi } from '../services/callsApi';
 import { connectSocket } from '../services/socket';
 import { getApiErrorMessage } from '../utils/getApiErrorMessage';
+import { clearSharedCallRoom } from '../utils/callRoomSession';
 import { useAuthStore } from '../zustand/useAuthStore';
 import { useCallsStore } from '../zustand/useCallsStore';
 import '../components/Calls/Calls.scss';
@@ -74,6 +75,8 @@ export function CallsProvider() {
 
   const clearCall = useCallback(() => {
     stopRinging();
+    // Tear down shared LiveKit session only when Messenger call actually ends.
+    clearSharedCallRoom('clearCall/reset');
     useCallsStore.getState().reset();
     endingRef.current = false;
   }, [stopRinging]);
@@ -263,9 +266,22 @@ export function CallsProvider() {
     };
   }, [canConnectSocket, token, clearCall, t, stopRinging, playEnded]);
 
-  // Tab close / refresh: best-effort end
+  // Tab close: end ringing quickly. Do NOT end ACTIVE calls on pagehide —
+  // mobile camera permission / tab switches fire pagehide and were causing
+  // callsApi.end → deleteCallRoom → DisconnectReason.ROOM_DELETED (5) loops.
   useEffect(() => {
-    const onUnload = () => {
+    const endRingingOnly = () => {
+      const state = useCallsStore.getState();
+      const id = state.call?.id;
+      if (!id) return;
+      if (state.phase === 'outgoing') {
+        void callsApi.cancel(id);
+      } else if (state.phase === 'incoming') {
+        void callsApi.reject(id);
+      }
+    };
+
+    const onBeforeUnload = () => {
       const state = useCallsStore.getState();
       const id = state.call?.id;
       if (!id) return;
@@ -277,8 +293,13 @@ export function CallsProvider() {
         void callsApi.end(id);
       }
     };
-    window.addEventListener('pagehide', onUnload);
-    return () => window.removeEventListener('pagehide', onUnload);
+
+    window.addEventListener('pagehide', endRingingOnly);
+    window.addEventListener('beforeunload', onBeforeUnload);
+    return () => {
+      window.removeEventListener('pagehide', endRingingOnly);
+      window.removeEventListener('beforeunload', onBeforeUnload);
+    };
   }, []);
 
   useEffect(() => {
@@ -383,6 +404,15 @@ export function CallsProvider() {
     call &&
     media?.token
   ) {
+    console.log('CALL OVERLAY RENDER STATE', {
+      phase,
+      hasCall: Boolean(call),
+      callId: call?.id,
+      hasToken: Boolean(media?.token),
+      hasUrl: Boolean(media?.url),
+      roomName: media?.roomName,
+      tokenTail: media?.token ? String(media.token).slice(-8) : null,
+    });
     return (
       <>
         {unlockHint}
