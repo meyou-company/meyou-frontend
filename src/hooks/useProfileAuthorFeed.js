@@ -21,7 +21,7 @@ async function loadProfileItems(postsAuthorId) {
  * Завантаження стрічки постів автора (GET /posts/users/:id/posts) + кеш у localStorage.
  * `enabled: false` — пропустити fetch (для відкладеного завантаження на профілі).
  */
-export function useProfileAuthorFeed(postsAuthorId, { enabled = true } = {}) {
+export function useProfileAuthorFeed(postsAuthorId, { enabled = true, readOnly = false } = {}) {
   const [feedPosts, setFeedPostsState] = useState([]);
   const [feedTotal, setFeedTotal] = useState(null);
   const [feedLoading, setFeedLoading] = useState(Boolean(enabled && postsAuthorId));
@@ -57,6 +57,7 @@ export function useProfileAuthorFeed(postsAuthorId, { enabled = true } = {}) {
     currentUserId,
     feedOwnerId: postsAuthorId,
     refetchFeed: reloadFeed,
+    readOnly,
   });
   const feedCacheKey = postsAuthorId
     ? `profile-feed-cache:${String(postsAuthorId)}`

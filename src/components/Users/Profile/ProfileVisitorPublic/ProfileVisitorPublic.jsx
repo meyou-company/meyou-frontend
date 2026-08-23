@@ -39,6 +39,7 @@ export default function ProfileVisitorPublic({
   onWriteMessage,
   activeLiveStream,
   onOpenLive,
+  guestPreview = false,
 }) {
   const { t } = useTranslation();
   const visitorTabs = useProfileTabs({ withLocks: true });
@@ -185,10 +186,15 @@ export default function ProfileVisitorPublic({
     useProfileAuthorFeed(authorId, {
       enabled: loadSecondary,
       username: user?.username || user?.nick || user?.nickname || "",
+      readOnly: guestPreview,
     });
 
   return (
-    <div className="profile-visitor-public profile-home">
+    <div
+      className={`profile-visitor-public profile-home${
+        guestPreview ? ' profile-visitor-public--guestPreview' : ''
+      }`}
+    >
       <div className="profile-container">
         {/* ================= TOP: visitor avatar + name + actions ================= */}
         <section className="profileBlock profileBlock--visitorNotSub">
@@ -554,6 +560,7 @@ export default function ProfileVisitorPublic({
           displayAvatar={displayAvatar}
           titleName={titleName}
           onViewProfileAvatar={() => setViewImageUrl(displayAvatar)}
+          readOnly={guestPreview}
         />
       </div>
 
@@ -588,6 +595,8 @@ export default function ProfileVisitorPublic({
         groups={profileStoryGroups}
         initialGroupIndex={0}
         initialStoryIndex={storyViewerStoryIndex}
+        currentUserId={profileUserId}
+        readOnly={guestPreview}
         onClose={() => setIsStoryViewerOpen(false)}
         onViewed={() => {
           setProfileStories((prev) =>

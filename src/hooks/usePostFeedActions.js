@@ -128,7 +128,7 @@ function applyFeedAfterRepostRemoved(prev, repostPostId, originalPostId) {
  */
 export function usePostFeedActions(
   setFeedPosts,
-  { currentUserId, feedOwnerId, refetchFeed } = {}
+  { currentUserId, feedOwnerId, refetchFeed, readOnly = false } = {}
 ) {
   /** Який пост має відкриту секцію коментарів (toggle по іконці comments). */
   const [commentsOpenPostId, setCommentsOpenPostId] = useState(null);
@@ -185,6 +185,7 @@ export function usePostFeedActions(
 
   const onLike = useCallback(
     (post) => {
+      if (readOnly) return;
       run(`like-${post.id}`, async () => {
         try {
           const data = await postsApi.like(post.id);
@@ -203,11 +204,12 @@ export function usePostFeedActions(
         }
       });
     },
-    [patchPost, run, dropPostEverywhere]
+    [patchPost, run, dropPostEverywhere, readOnly]
   );
 
   const handleRepostToFeed = useCallback(
     async (post) => {
+      if (readOnly) return null;
       if (!post?.id) throw new Error("post required");
       if (post.viewerState?.isReposted) {
         return null;
@@ -248,10 +250,12 @@ export function usePostFeedActions(
       feedOwnerId,
       refetchFeed,
       dropPostEverywhere,
+      readOnly,
     ]
   );
 
   const toggleCommentsOpen = useCallback((postId) => {
+    if (readOnly) return;
     setCommentsOpenPostId((id) => {
       if (id != null && String(id) === String(postId)) {
         setCommentDraft("");
@@ -264,7 +268,7 @@ export function usePostFeedActions(
       setReplyDraft("");
       return postId;
     });
-  }, []);
+  }, [readOnly]);
 
   const isCommentsOpen = useCallback(
     (postId) =>
@@ -302,6 +306,7 @@ export function usePostFeedActions(
 
   const submitComment = useCallback(
     (post, text) => {
+      if (readOnly) return;
       const t = (text || "").trim();
       if (!t) return;
       run(`comment-${post.id}`, async () => {
@@ -320,7 +325,7 @@ export function usePostFeedActions(
         }
       });
     },
-    [patchPost, run, loadComments, dropPostEverywhere]
+    [patchPost, run, loadComments, dropPostEverywhere, readOnly]
   );
 
   const patchCommentOnPost = useCallback(
@@ -369,6 +374,7 @@ export function usePostFeedActions(
 
   const openReplyComposer = useCallback(
     (post, commentId) => {
+      if (readOnly) return;
       if (!commentId) return;
       setReplyOpenCommentId((prev) => {
         if (prev != null && String(prev) !== String(commentId)) {
@@ -390,7 +396,7 @@ export function usePostFeedActions(
         loadReplies(post.id, commentId, { limit: 50 });
       }
     },
-    [loadReplies]
+    [loadReplies, readOnly]
   );
 
   const setReplyDraftForOpen = useCallback((text) => {
@@ -411,6 +417,7 @@ export function usePostFeedActions(
 
   const submitReply = useCallback(
     (post, parentCommentId, text) => {
+      if (readOnly) return;
       const t = (text || "").trim();
       if (!t || !post?.id || !parentCommentId) return;
       run(`reply-${parentCommentId}`, async () => {
@@ -434,7 +441,7 @@ export function usePostFeedActions(
         }
       });
     },
-    [run, loadReplies, patchCommentOnPost, dropPostEverywhere]
+    [run, loadReplies, patchCommentOnPost, dropPostEverywhere, readOnly]
   );
 
   const showMoreReplies = useCallback(
@@ -457,6 +464,7 @@ export function usePostFeedActions(
 
   const onEditComment = useCallback(
     (post, commentId, text, { parentId, isReply } = {}) => {
+      if (readOnly) return;
       const t = (text || "").trim();
       if (!t || !post?.id || !commentId) return;
       patchPost(post.id, (p) => {
@@ -485,11 +493,12 @@ export function usePostFeedActions(
         };
       });
     },
-    [patchPost]
+    [patchPost, readOnly]
   );
 
   const onLikeComment = useCallback(
     (post, commentId) => {
+      if (readOnly) return;
       if (!post?.id || likingCommentId) return;
 
       const id =
@@ -541,11 +550,12 @@ export function usePostFeedActions(
         }
       });
     },
-    [likingCommentId, patchPost, run]
+    [likingCommentId, patchPost, run, readOnly]
   );
 
   const onDeleteComment = useCallback(
     (post, commentId, { parentId, isReply } = {}) => {
+      if (readOnly) return;
       if (!post?.id || !commentId) return;
       run(`comment-delete-${post.id}-${commentId}`, async () => {
         try {
@@ -592,11 +602,12 @@ export function usePostFeedActions(
         }
       });
     },
-    [run, patchPost, loadComments]
+    [run, patchPost, loadComments, readOnly]
   );
 
   const openComments = useCallback(
     (postId) => {
+      if (readOnly) return;
       setCommentsOpenPostId((id) => {
         const willOpen = !(id != null && String(id) === String(postId));
         if (!willOpen) {
@@ -612,11 +623,12 @@ export function usePostFeedActions(
         return postId;
       });
     },
-    [loadComments]
+    [loadComments, readOnly]
   );
 
   const performDeletePost = useCallback(
     (post) => {
+      if (readOnly) return;
       const perms = resolvePostMenuPermissions(post, currentUserId);
       if (!perms.canDelete && !perms.canRemoveFromFeed) return;
 
@@ -687,16 +699,17 @@ export function usePostFeedActions(
         }
       });
     },
-    [run, setFeedPosts, dropPostEverywhere, currentUserId]
+    [run, setFeedPosts, dropPostEverywhere, currentUserId, readOnly]
   );
 
   const requestDeletePost = useCallback(
     (post) => {
+      if (readOnly) return;
       const perms = resolvePostMenuPermissions(post, currentUserId);
       if (!perms.canDelete && !perms.canRemoveFromFeed) return;
       setDeleteConfirmPost(post);
     },
-    [currentUserId]
+    [currentUserId, readOnly]
   );
 
   const cancelDeletePost = useCallback(() => {
@@ -704,16 +717,18 @@ export function usePostFeedActions(
   }, [isDeletingPost]);
 
   const confirmDeletePost = useCallback(() => {
+    if (readOnly) return;
     if (deleteConfirmPost) performDeletePost(deleteConfirmPost);
-  }, [deleteConfirmPost, performDeletePost]);
+  }, [deleteConfirmPost, performDeletePost, readOnly]);
 
   const openEditPost = useCallback(
     (post) => {
+      if (readOnly) return;
       const { canEdit } = resolvePostMenuPermissions(post, currentUserId);
       if (!canEdit) return;
       setEditingPost(post);
     },
-    [currentUserId]
+    [currentUserId, readOnly]
   );
 
   const closeEditPost = useCallback(() => {
@@ -722,6 +737,7 @@ export function usePostFeedActions(
 
   const saveEditPost = useCallback(
     async ({ text, media, location }) => {
+      if (readOnly) return;
       const post = editingPost;
       const { canEdit } = resolvePostMenuPermissions(post, currentUserId);
       if (!post?.id || !canEdit) return;
@@ -759,11 +775,12 @@ export function usePostFeedActions(
         setIsSavingEditPost(false);
       }
     },
-    [editingPost, patchPost, dropPostEverywhere, currentUserId]
+    [editingPost, patchPost, dropPostEverywhere, currentUserId, readOnly]
   );
 
   const onSave = useCallback(
   (post) => {
+    if (readOnly) return;
     if (!post?.id) return;
 
     run(`save-${post.id}`, async () => {
@@ -800,12 +817,13 @@ export function usePostFeedActions(
       }
     });
   },
-  [patchPost, run]
+  [patchPost, run, readOnly]
 ); 
 
   const openSharePost = useCallback((post) => {
+    if (readOnly) return;
     if (post?.id) setSharePost(post);
-  }, []);
+  }, [readOnly]);
 
   const closeSharePost = useCallback(() => {
     setSharePost(null);
@@ -813,6 +831,7 @@ export function usePostFeedActions(
 
   const handleSendToUsers = useCallback(
     async ({ postId, recipientUserIds, message }) => {
+      if (readOnly) return null;
       if (!postId || !Array.isArray(recipientUserIds) || recipientUserIds.length === 0) {
         throw new Error(i18n.t('posts.validation.selectRecipients'));
       }
@@ -829,7 +848,7 @@ export function usePostFeedActions(
         throw new Error(msg);
       }
     },
-    [dropPostEverywhere]
+    [dropPostEverywhere, readOnly]
   );
 
   return {

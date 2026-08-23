@@ -931,6 +931,7 @@ export default function StoryViewerModal({
   initialGroupIndex = 0,
   initialStoryIndex = 0,
   currentUserId,
+  readOnly = false,
   onClose,
   onViewed,
   onDeleteStory,
@@ -1105,6 +1106,7 @@ export default function StoryViewerModal({
   };
 
   const handleToggleFollowAuthor = async () => {
+    if (readOnly) return;
     if (!authorId || followLoading) return;
 
     const key = String(authorId);
@@ -1300,6 +1302,7 @@ export default function StoryViewerModal({
 
   useEffect(() => {
     if (!isOpen || !storyId || viewedRef.current.has(storyId)) return;
+    if (readOnly) return;
 
     // Свои stories не отмечаем как просмотренные
     if (isOwnStory) return;
@@ -1313,7 +1316,7 @@ export default function StoryViewerModal({
       .catch((e) => {
         console.error("[story-view] failed", e);
       });
-  }, [isOpen, storyId, isOwnStory, scheduleAfterRender]);
+  }, [isOpen, storyId, isOwnStory, readOnly, scheduleAfterRender]);
 
   useEffect(() => {
     if (!isOpen || !storyId) return;
@@ -1507,6 +1510,7 @@ export default function StoryViewerModal({
   }, [isOpen, storyId, isOwnStory, analyticsOpen]);
 
   const handleOpenAnalytics = async () => {
+    if (readOnly) return;
     if (!storyId || !isOwnStory) return;
 
     setAnalyticsOpen(true);
@@ -1528,6 +1532,7 @@ export default function StoryViewerModal({
   };
 
   const handleOpenStoryUpload = () => {
+    if (readOnly) return;
     setSelectedStatsUser(null);
     setIsStoryUploadOpen(true);
   };
@@ -1651,6 +1656,7 @@ export default function StoryViewerModal({
   };
 
   const handleReactionClick = async (reactionType) => {
+    if (readOnly) return;
     if (!storyId || isOwnStory || isReactionSaving) return;
 
     const previousReaction = selectedReaction;
@@ -1685,6 +1691,7 @@ export default function StoryViewerModal({
   const handleSendStoryReply = async () => {
     const message = replyText.trim();
 
+    if (readOnly) return;
     if (!storyId || isOwnStory || !message || isReplySending) return;
 
     try {
@@ -1704,6 +1711,7 @@ export default function StoryViewerModal({
   };
 
   const handleConfirmBlockUser = async () => {
+    if (readOnly) return;
     const userId = blockConfirmUser?.id;
 
     if (!userId) return;
@@ -1740,6 +1748,7 @@ export default function StoryViewerModal({
   };
 
   const handleVisitorMenuAction = async (action) => {
+    if (readOnly) return;
     if (!storyId || isOwnStory) return;
 
     try {
@@ -1906,7 +1915,7 @@ export default function StoryViewerModal({
             </div>
           </button>
 
-          {!isOwnStory && (
+          {!readOnly && !isOwnStory && (
             <button
               type="button"
               className="storyViewer__followBtn"
@@ -1921,6 +1930,7 @@ export default function StoryViewerModal({
             </button>
           )}
 
+          {!readOnly ? (
           <button
             type="button"
             className="storyViewer__menu"
@@ -1929,8 +1939,9 @@ export default function StoryViewerModal({
           >
             ⋮
           </button>
+          ) : null}
 
-          {isMenuOpen && !isOwnStory && (
+          {isMenuOpen && !readOnly && !isOwnStory && (
             <>
               <div
                 className="storyViewer__menuOverlay"
@@ -1966,7 +1977,7 @@ export default function StoryViewerModal({
             </>
           )}
 
-          {isMenuOpen && isOwnStory && (
+          {isMenuOpen && !readOnly && isOwnStory && (
             <>
               <div
                 className="storyViewer__menuOverlay"
@@ -2066,7 +2077,7 @@ export default function StoryViewerModal({
           )}
         </div>
 
-        {isOwnStory ? (
+        {isOwnStory && !readOnly ? (
           <>
             <div className="storyViewer__actions">
               <button type="button" className="storyViewer__action" onClick={handleOpenAnalytics}>
@@ -2149,7 +2160,7 @@ export default function StoryViewerModal({
               isBlocked={isUserBlocked(selectedStatsUser?.id)}
             />
           </>
-        ) : (
+        ) : !readOnly ? (
           <div className="storyViewer__viewerReplyBar">
             <div className="storyViewer__messageWrap">
               <input
@@ -2190,9 +2201,11 @@ export default function StoryViewerModal({
               ))}
             </div>
           </div>
-        )}
+        ) : null}
       </div>
 
+      {!readOnly ? (
+      <>
       <StoryUploadModal
         isOpen={isStoryUploadOpen}
         onClose={() => setIsStoryUploadOpen(false)}
@@ -2203,8 +2216,10 @@ export default function StoryViewerModal({
         story={currentStory ? { ...currentStory, author } : currentStory}
         onClose={() => setIsStoryShareOpen(false)}
       />
+      </>
+      ) : null}
 
-      {blockConfirmUser && (
+      {!readOnly && blockConfirmUser && (
         <div className="storyBlockConfirm" role="dialog" aria-modal="true">
           <div
             className="storyBlockConfirm__backdrop"

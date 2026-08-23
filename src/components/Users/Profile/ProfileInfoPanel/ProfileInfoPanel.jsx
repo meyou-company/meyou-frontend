@@ -254,6 +254,7 @@ export default function ProfileInfoPanel({
 
   return (
     <div className={`infoPanel ${isOpen ? 'isOpen' : ''}`} id={id}>
+      {(editable || (visibility.about !== false && aboutText)) && (
       <ProfileInfoSection
         title={t('profile.info.title')}
         icon={profileIcons.profileInfoUser}
@@ -287,9 +288,13 @@ export default function ProfileInfoPanel({
           </>
         }
       >
-        {aboutText ? <p className="infoSection__body infoSection__text">{aboutText}</p> : null}
+        {aboutText ? (
+          <p className="infoSection__body infoSection__text">{aboutText}</p>
+        ) : null}
       </ProfileInfoSection>
+      )}
 
+      {(editable || visibility.interests !== false) && (
       <ProfileInfoSection
         title={t('profile.info.interests')}
         icon={profileIcons.profileInfoStar}
@@ -342,6 +347,7 @@ export default function ProfileInfoPanel({
           ) : null}
         </div>
       </ProfileInfoSection>
+      )}
 
       <ProfileInfoSection
         title={t('profile.info.personalInfo')}
@@ -468,25 +474,34 @@ export default function ProfileInfoPanel({
             <span>{t('profile.info.gender')}</span>
             <span>{genderLabel}</span>
           </div>
-          <div className="gridRow">
-            <span>{t('profile.info.maritalStatus')}</span>
-            <span>{maritalLabel}</span>
-          </div>
-          <div className="gridRow">
-            <span>{t('profile.info.nationality')}</span>
-            <span>{user?.nationality || t('profile.notSpecified')}</span>
-          </div>
-          <div className="gridRow">
-            <span>{t('profile.info.profession')}</span>
-            <span>{user?.profession || user?.job || t('profile.notSpecified')}</span>
-          </div>
-          <div className="gridRow">
-            <span>{t('profile.info.languages')}</span>
-            <span>{languagesText}</span>
-          </div>
+          {(editable || visibility.maritalStatus !== false) && (
+            <div className="gridRow">
+              <span>{t('profile.info.maritalStatus')}</span>
+              <span>{maritalLabel}</span>
+            </div>
+          )}
+          {(editable || visibility.nationality !== false) && (
+            <div className="gridRow">
+              <span>{t('profile.info.nationality')}</span>
+              <span>{user?.nationality || t('profile.notSpecified')}</span>
+            </div>
+          )}
+          {(editable || visibility.profession !== false) && (
+            <div className="gridRow">
+              <span>{t('profile.info.profession')}</span>
+              <span>{user?.profession || user?.job || t('profile.notSpecified')}</span>
+            </div>
+          )}
+          {(editable || visibility.languages !== false) && (
+            <div className="gridRow">
+              <span>{t('profile.info.languages')}</span>
+              <span>{languagesText}</span>
+            </div>
+          )}
         </div>
       </ProfileInfoSection>
 
+      {(editable || visibility.location !== false) && (
       <ProfileInfoSection
         title={t('profile.info.location')}
         icon={profileIcons.profileInfoLocation}
@@ -552,6 +567,7 @@ export default function ProfileInfoPanel({
           </div>
         </div>
       </ProfileInfoSection>
+      )}
 
       <ProfileInfoSection
         title={t('profile.info.socialActivity')}

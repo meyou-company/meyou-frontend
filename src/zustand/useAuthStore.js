@@ -16,6 +16,7 @@ import {
 import { passwordApi } from '../services/passwordApi';
 import { disconnectSocket } from '../services/socket';
 import { useMessagesStore } from './useMessagesStore';
+import { useGuestPreviewStore } from './useGuestPreviewStore';
 import { shouldRunAuthBootstrap } from '../constants/publicRoutes';
 import { clearAllPostFeedCaches, clearFirstPageFeedCache } from '../utils/feedCache';
 import { clearAllPostLikeOverrides } from '../utils/postLikePersistence';
@@ -55,6 +56,7 @@ function clearAuthSession(set) {
     /* ignore */
   }
   useMessagesStore.getState().reset();
+  useGuestPreviewStore.getState().setEnabled(false);
   resetInitState();
   set({ user: null, token: null, isAuthed: false });
 }
@@ -204,6 +206,7 @@ export const useAuthStore = create((set) => ({
       const user = await loadMeWithRetry(3, 250);
       const accessToken = pickAccessToken(res);
       persistOAuthSessionTokens(accessToken, res?.refreshToken ?? res?.refresh_token);
+      useGuestPreviewStore.getState().setEnabled(false);
       set({ user, token: accessToken, isAuthed: true });
       markInitDone();
       return { ok: true };

@@ -17,6 +17,51 @@ export function getProfileVisibility(user) {
 }
 
 /**
+ * Simulate a public (non-friend) visitor payload from owner data.
+ * Mirrors backend audience filtering in users.service (boolean flags only:
+ * true = public, false = hidden from non-owners). There is no friends-only tier.
+ */
+export function applyPublicAudienceFields(user) {
+  if (!user) return null;
+  const vis = getProfileVisibility(user);
+
+  return {
+    ...user,
+    // Owner-only — never expose in guest preview
+    email: undefined,
+    phone: undefined,
+    birthDate: undefined,
+    accountStatus: undefined,
+    profileCompleted: undefined,
+    lastLoginAt: undefined,
+    // Keep flags so ProfileInfoPanel can hide private segments like a visitor UI,
+    // without owner edit controls (editable=false).
+    viewType: 'VISITOR',
+    subscriptionStatus: {
+      isSubscribed: false,
+      isBlocked: false,
+    },
+    about: vis.about ? user.about : undefined,
+    maritalStatus: vis.maritalStatus ? user.maritalStatus : undefined,
+    relationshipStatus: vis.maritalStatus
+      ? user.relationshipStatus ?? user.maritalStatus
+      : undefined,
+    nationality: vis.nationality ? user.nationality : undefined,
+    hobbies: vis.hobbies ? user.hobbies : [],
+    interests: vis.interests ? user.interests : [],
+    profession: vis.profession ? user.profession ?? user.job : undefined,
+    job: vis.profession ? user.job ?? user.profession : undefined,
+    languages: vis.languages ? user.languages ?? [] : [],
+    instagram: vis.instagram ? user.instagram : undefined,
+    tiktok: vis.tiktok ? user.tiktok : undefined,
+    telegram: vis.telegram ? user.telegram : undefined,
+    city: vis.location ? user.city : undefined,
+    country: vis.location ? user.country : undefined,
+    region: vis.location ? user.region : undefined,
+  };
+}
+
+/**
  * Normalize Telegram / Instagram / TikTok username or URL to an https profile link.
  * Returns null when empty / invalid.
  */

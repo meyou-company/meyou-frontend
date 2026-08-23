@@ -1,6 +1,7 @@
 import { useAuthStore } from '../../zustand/useAuthStore';
+import { useGuestPreviewStore } from '../../zustand/useGuestPreviewStore';
 import { useNotificationsStore } from '../../zustand/useNotificationsStore';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import ThemeToggleDark from '../ThemeToggleDark/ThemeToggleDark';
 import profileIcons from '../../constants/profileIcons';
 import {
@@ -12,6 +13,15 @@ import { useLocaleStore } from '../../zustand/useLocaleStore';
 import './BurgerMenu.scss';
 import { useMemo, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
+import { toast } from 'sonner';
+
+const GUEST_PREVIEW_BLOCKED_MENU = new Set([
+  'edit',
+  'account',
+  'security',
+  'policy',
+  'blocked',
+]);
 
 export default function BurgerMenu({
   isOpen,
@@ -21,7 +31,10 @@ export default function BurgerMenu({
   onOpenLanguageSettings,
 }) {
   const { logout, user } = useAuthStore();
+  const guestPreviewEnabled = useGuestPreviewStore((s) => s.enabled);
+  const setGuestPreviewEnabled = useGuestPreviewStore((s) => s.setEnabled);
   const navigate = useNavigate();
+  const location = useLocation();
   const toggleRef = useRef(null);
   const resetNotifications = useNotificationsStore.getState().reset;
   const { t } = useTranslation();
@@ -39,6 +52,12 @@ export default function BurgerMenu({
   }, [user, t]);
 
   const handleItemClick = async (id) => {
+    if (guestPreviewEnabled && GUEST_PREVIEW_BLOCKED_MENU.has(id)) {
+      toast.message(t('profile.guestPreview.actionDisabled'));
+      onClose();
+      return;
+    }
+
     if (id === 'logout') {
       try {
         await logout();
@@ -93,9 +112,21 @@ export default function BurgerMenu({
       return;
     }
 
+    if (id === 'guest') {
+      const next = !guestPreviewEnabled;
+      setGuestPreviewEnabled(next);
+      const onOwnProfile =
+        location.pathname === '/profile' ||
+        location.pathname === '/profile/';
+      if (next && !onOwnProfile) {
+        navigate('/profile');
+      }
+      onClose();
+      return;
+    }
+
     if (
       [
-        'guest',
         'favorites',
         'support',
         'report',
@@ -198,12 +229,19 @@ export default function BurgerMenu({
               return (
                 <button
                   key={item.id}
+                  type="button"
                   className="profile-menu__item"
                   onClick={() => handleItemClick(item.id)}
+                  aria-pressed={guestPreviewEnabled}
                 >
                   <img src={item.icon} alt="" className="profile-menu__icon" />
                   <span className="profile-menu__label">{item.label}</span>
-                  <div className="profile-menu__guest-toggle">
+                  <div
+                    className={`profile-menu__guest-toggle${
+                      guestPreviewEnabled ? ' is-on' : ''
+                    }`}
+                    aria-hidden="true"
+                  >
                     <div className="profile-menu__toggle-track">
                       <div className="profile-menu__toggle-thumb" />
                     </div>

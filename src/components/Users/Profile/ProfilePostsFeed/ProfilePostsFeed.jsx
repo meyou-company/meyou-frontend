@@ -28,6 +28,7 @@ export default function ProfilePostsFeed({
   titleName,
   onViewProfileAvatar,
   sectionClassName = 'feed',
+  readOnly = false,
 }) {
   const { t } = useTranslation();
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
@@ -105,7 +106,14 @@ export default function ProfilePostsFeed({
             : titleName;
           const headerAvatar =
             (repost && post.author?.avatarUrl) || displayAvatar;
-          const menuPerms = resolvePostMenuPermissions(post, currentUserId);
+          const menuPerms = readOnly
+            ? {
+                canShowMenu: false,
+                canEdit: false,
+                canDelete: false,
+                canRemoveFromFeed: false,
+              }
+            : resolvePostMenuPermissions(post, currentUserId);
 
           return (
           <article
@@ -139,6 +147,7 @@ export default function ProfilePostsFeed({
               onOpenLightbox={openPostImageViewer}
             />
 
+            {!readOnly ? (
             <div className="postActions">
               <button
                 className={`postActionBtn ${post.viewerState?.isLiked ? 'postActionBtn--active postActionBtn--liked' : ''}`}
@@ -198,8 +207,9 @@ export default function ProfilePostsFeed({
                 <span className="postActionCount">{post.counts?.reposts ?? 0}</span>
               </button>
             </div>
+            ) : null}
 
-            {feedActions.isCommentsOpen(post.id) && (
+            {!readOnly && feedActions.isCommentsOpen(post.id) && (
               <PostCommentsSection
                 post={post}
                 comments={post.comments}
@@ -241,6 +251,8 @@ export default function ProfilePostsFeed({
         onNext={() => moveLightbox(1)}
       />
 
+      {!readOnly ? (
+      <>
       <SharePostModal
         post={feedActions.sharePost}
         isOpen={Boolean(feedActions.sharePost)}
@@ -266,6 +278,8 @@ export default function ProfilePostsFeed({
         onConfirm={feedActions.confirmDeletePost}
         confirming={feedActions.isDeletingPost}
       />
+      </>
+      ) : null}
 
     </>
   );

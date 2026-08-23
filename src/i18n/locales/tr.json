@@ -201,6 +201,11 @@
     "loadError": "Failed to load profile",
     "myBalance": "My balance",
     "editProfile": "Edit profile",
+    "guestPreview": {
+      "banner": "You are viewing your profile as a guest",
+      "exit": "Exit preview mode",
+      "actionDisabled": "This action is unavailable in guest preview mode"
+    },
     "viewPhoto": "View photo",
     "viewPhotoFull": "Full-size photo",
     "live": "Live",

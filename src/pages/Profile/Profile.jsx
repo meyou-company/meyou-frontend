@@ -7,7 +7,9 @@ import ProfileHome from "../../components/Users/Profile/ProfileHome/ProfileHome"
 import ProfileVisitorPublic from "../../components/Users/Profile/ProfileVisitorPublic/ProfileVisitorPublic";
 import ProfileVisitorSubscribed from "../../components/Users/Profile/ProfileVisitorSubscribed/ProfileVisitorSubscribed";
 import ProfileVisitorVip from "../../components/Users/Profile/ProfileVisitorVip/ProfileVisitorVip";
+import { applyPublicAudienceFields } from "../../components/Users/Profile/ProfileInfoPanel/profileInfoHelpers";
 import { useAuthStore } from "../../zustand/useAuthStore";
+import { useGuestPreviewStore } from "../../zustand/useGuestPreviewStore";
 import { usersApi } from "../../services/usersApi";
 import { subscriptionsApi } from "../../services/subscriptionsApi";
 import { conversationsApi } from "../../services/conversationsApi";
@@ -106,6 +108,8 @@ export default function Profile() {
   const user = useAuthStore((s) => s.user);
   const isAuthLoading = useAuthStore((s) => s.isAuthLoading);
   const refreshMe = useAuthStore((s) => s.refreshMe);
+  const guestPreviewEnabled = useGuestPreviewStore((s) => s.enabled);
+  const setGuestPreviewEnabled = useGuestPreviewStore((s) => s.setEnabled);
 
   const [fetchedUser, setFetchedUser] = useState(null);
   const [fetchError, setFetchError] = useState(null);
@@ -119,6 +123,13 @@ export default function Profile() {
   const isOwnProfile =
     !urlUsernameNorm ||
     (user && (user.username || user.nick || "").toLowerCase() === urlUsernameNorm.toLowerCase());
+
+  /** Guest preview applies only on own profile — disable when navigating away. */
+  useEffect(() => {
+    if (guestPreviewEnabled && !isOwnProfile) {
+      setGuestPreviewEnabled(false);
+    }
+  }, [guestPreviewEnabled, isOwnProfile, setGuestPreviewEnabled]);
 
   /** На своєму профілі завантажуємо список підписок (following) для блоку «Друзья» */
   useEffect(() => {
@@ -345,12 +356,36 @@ export default function Profile() {
   const onReport = useCallback(() => { }, []);
   const onBlock = useCallback(() => { }, []);
 
+  const isGuestPreview = Boolean(isOwnProfile && guestPreviewEnabled);
+
+  const guestPreviewUser = useMemo(() => {
+    if (!isGuestPreview || !profileUser) return null;
+    const friendsFromFollowing = Array.isArray(followingList)
+      ? followingList
+      : [];
+    return applyPublicAudienceFields({
+      ...profileUser,
+      friends:
+        friendsFromFollowing.length > 0
+          ? friendsFromFollowing
+          : profileUser.friends,
+    });
+  }, [isGuestPreview, profileUser, followingList]);
+
+  const exitGuestPreview = useCallback(() => {
+    setGuestPreviewEnabled(false);
+  }, [setGuestPreviewEnabled]);
+
+  const noopGuestAction = useCallback(() => {
+    toast.message(t('profile.guestPreview.actionDisabled'));
+  }, [t]);
+
   const loadingOwn = !urlUsername && !user;
   const loadingPublic = urlUsername && fetchedUser === null && !fetchError;
 
   if (!urlUsername && !isAuthLoading && !user) return null;
 
-  const headerVariant = isOwnProfile ? "owner" : "friend";
+  const headerVariant = isOwnProfile && !isGuestPreview ? "owner" : "friend";
   const currentUserAvatar = user?.avatarUrl || user?.avatar;
 
   if (loadingOwn || loadingPublic) {
@@ -400,12 +435,31 @@ export default function Profile() {
   if (!profileUser) return null;
 
   // 4 стани профілю: owner | public | subscribed/friend | vip
-  const isOwner = isOwnProfile;
-  const isVip = profileUser?.viewType === "VIP";
-  const isFriendOrSubscribed = !isOwner && isSubscribed;
-  const isPublic = !isOwner && !isSubscribed && !isVip;
+  // Guest preview forces the public (non-friend) visitor layout.
+  const isOwner = isOwnProfile && !isGuestPreview;
+  const isVip = !isGuestPreview && profileUser?.viewType === "VIP";
+  const isFriendOrSubscribed = !isOwner && !isGuestPreview && isSubscribed;
 
   const renderProfileContent = () => {
+    if (isGuestPreview && guestPreviewUser) {
+      return (
+        <ProfileVisitorPublic
+          user={guestPreviewUser}
+          postsAuthorId={guestPreviewUser.id}
+          loadSecondary={secondaryReady}
+          onSubscribe={noopGuestAction}
+          subscriptionLoading={false}
+          onOpenUser={onOpenUser}
+          onShowMore={onShowMore}
+          onFindFriends={onFindFriends}
+          onReport={noopGuestAction}
+          onAddToVip={noopGuestAction}
+          onBlock={noopGuestAction}
+          onWriteMessage={noopGuestAction}
+          guestPreview
+        />
+      );
+    }
     if (isOwner) {
       return (
         <ProfileHome
@@ -495,6 +549,20 @@ export default function Profile() {
         onWallet={onWallet}
         onNav={onNav}
       />
+      {isGuestPreview ? (
+        <div className={styles.guestPreviewBanner} role="status">
+          <span className={styles.guestPreviewBanner__text}>
+            {t('profile.guestPreview.banner')}
+          </span>
+          <button
+            type="button"
+            className={styles.guestPreviewBanner__exit}
+            onClick={exitGuestPreview}
+          >
+            {t('profile.guestPreview.exit')}
+          </button>
+        </div>
+      ) : null}
       <div className={styles.content}>{renderProfileContent()}</div>
     </div>
   );
