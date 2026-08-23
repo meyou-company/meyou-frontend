@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import profileIcons from '../../constants/profileIcons';
 import { useAuthStore } from '../../zustand/useAuthStore';
 import { useLocaleStore } from '../../zustand/useLocaleStore';
+import { getOwnerVipEnabled } from '../../utils/profileVipUi';
 import SettingsPageShell from '../../components/Settings/SettingsPageShell';
 import '../../components/Settings/SettingsPageShell.scss';
 
@@ -67,6 +68,16 @@ export default function AccountSettingsPage() {
           label={t('settings.account.items.privacy')}
           desc={t('settings.account.itemDesc.privacy')}
           onClick={() => navigate('/settings/privacy')}
+        />
+        <SettingsNavRow
+          label={t('settings.account.items.vipAccess')}
+          desc={t('settings.account.itemDesc.vipAccess')}
+          value={
+            getOwnerVipEnabled(user)
+              ? t('settings.vipAccess.on')
+              : t('settings.vipAccess.off')
+          }
+          onClick={() => navigate('/settings/vip-access')}
         />
         <SettingsNavRow
           label={t('settings.account.items.security')}

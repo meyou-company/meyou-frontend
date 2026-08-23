@@ -1,16 +1,8 @@
 /**
  * VIP UI helpers for profile visitor views.
  *
- * Backend today does NOT expose `vipEnabled` / `isVipMember` on public profiles.
- * Helpers read optional future fields when present; otherwise default to false so
- * we never invent VIP access silently.
- *
- * Needed API (for full product logic):
- * - owner: `vipEnabled: boolean` (or `vipSettings.enabled`)
- * - viewer↔owner: `subscriptionStatus.isVipMember: boolean`
- *   (or `viewType: 'VIP'` / `isVipMember: true`)
- *
- * Do NOT treat `user.isVip` as membership — that flag is the owner's Explore/VIP account badge.
+ * Owner setting: `user.vipEnabled` from GET /users/:username (and auth user).
+ * Viewer membership (`isVipMember`) is not yet exposed by the API.
  */
 
 export function getOwnerVipEnabled(user) {

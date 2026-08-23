@@ -641,12 +641,14 @@
         "language": "Interface language",
         "changePassword": "Change password",
         "privacy": "Privacy",
+        "vipAccess": "VIP access",
         "security": "Security"
       },
       "itemDesc": {
         "language": "App and notification language",
         "changePassword": "Update your sign-in password",
         "privacy": "Who can see your profile and activity",
+        "vipAccess": "Paid access for subscribers",
         "security": "Password, sessions and account protection"
       }
     },
@@ -689,6 +691,16 @@
           "desc": "Show profile in search results"
         }
       }
+    },
+    "vipAccess": {
+      "title": "VIP access",
+      "subtitle": "Manage VIP access to your profile",
+      "toggleTitle": "VIP access to my profile",
+      "toggleDesc": "When VIP access is enabled, your subscribers will be able to get additional paid access to private chat, VIP photos and videos. Payment and VIP access itself will be connected separately.",
+      "saved": "VIP access saved",
+      "saveError": "Could not save VIP access",
+      "on": "On",
+      "off": "Off"
     },
     "security": {
       "title": "Security",

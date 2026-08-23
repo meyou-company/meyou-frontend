@@ -45,6 +45,7 @@ import ChangePasswordPage from '../pages/Settings/ChangePasswordPage';
 import PrivacySettingsPage from '../pages/Settings/PrivacySettingsPage';
 import SecuritySettingsPage from '../pages/Settings/SecuritySettingsPage';
 import BlockedUsersPage from '../pages/Settings/BlockedUsersPage';
+import VipAccessSettingsPage from '../pages/Settings/VipAccessSettingsPage';
 import LegalPrivacyPage from '../app/legal/privacy/page';
 import LegalTermsPage from '../app/legal/terms/page';
 import LegalCommunityGuidelinesPage from '../app/legal/community-guidelines/page';
@@ -163,6 +164,7 @@ function AppLayout() {
               <Route path="/users/profile/edit" element={<EditProfilePage />} />
 
               <Route path="/settings/account" element={<AccountSettingsPage />} />
+              <Route path="/settings/vip-access" element={<VipAccessSettingsPage />} />
               <Route path="/settings/change-password" element={<ChangePasswordPage />} />
               <Route path="/settings/privacy" element={<PrivacySettingsPage />} />
               <Route path="/settings/security" element={<SecuritySettingsPage />} />
