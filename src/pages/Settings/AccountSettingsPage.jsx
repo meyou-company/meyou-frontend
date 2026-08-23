@@ -43,7 +43,7 @@ export default function AccountSettingsPage() {
     <SettingsPageShell
       title={t('settings.account.title')}
       subtitle={t('settings.account.subtitle')}
-      onBack={() => navigate(-1)}
+      onBack={() => navigate('/profile')}
     >
       {email ? (
         <div className="settings-card settings-page__email">
