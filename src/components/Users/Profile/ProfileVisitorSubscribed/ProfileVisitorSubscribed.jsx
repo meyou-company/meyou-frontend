@@ -9,7 +9,7 @@ import {
   getFriendRouteHandle,
   getFriendDisplayLabel,
 } from "../../../../utils/profileFriendNav";
-import { getVipButtonUi } from "../../../../utils/profileVipUi";
+import { getVipButtonUi, isProfileChatLocked } from "../../../../utils/profileVipUi";
 import { dedupeAsync } from "../../../../utils/dedupeAsync";
 import { useProfileAuthorFeed } from "../../../../hooks/useProfileAuthorFeed";
 import { useUserProfileNav } from "../../../../context/UserProfileNavContext";
@@ -167,6 +167,10 @@ export default function ProfileVisitorSubscribed({
     () => getVipButtonUi({ isSubscribed: true, user }),
     [user],
   );
+  const chatLocked = useMemo(
+    () => isProfileChatLocked({ user, isOwnProfile: false }),
+    [user],
+  );
 
   const handleVipClick = () => {
     if (typeof onAddToVip === "function") {
@@ -174,6 +178,10 @@ export default function ProfileVisitorSubscribed({
       return;
     }
     setVipPurchaseModalOpen(true);
+  };
+
+  const handleWriteMessageClick = () => {
+    (onWriteMessage || onVipChat)?.();
   };
 
   const onTabClick = (tabId) => {
@@ -266,13 +274,26 @@ export default function ProfileVisitorSubscribed({
             <div className="pvs-tools__row pvs-tools__row--top">
               <button
                 type="button"
-                className="pvs-tools__vip"
-                onClick={onWriteMessage || onVipChat}
-                aria-label={t('profile.visitor.writeMessage')}
+                className={`pvs-tools__vip${chatLocked ? " pvs-tools__vip--locked" : ""}`}
+                onClick={handleWriteMessageClick}
+                aria-label={
+                  chatLocked
+                    ? t('profile.visitor.writeMessageLocked')
+                    : t('profile.visitor.writeMessage')
+                }
               >
                 <div className="pvs-tools__vipIconWrap">
-                  <img src={profileIcons.chat} alt="" className="pvs-tools__vipIcon pvs-tools__vipIcon--full" aria-hidden="true" />
-                  <span className="pvs-tools__label">{t('profile.visitor.writeMessage')}</span>
+                  <img
+                    src={chatLocked ? profileIcons.vipChat : profileIcons.chat}
+                    alt=""
+                    className="pvs-tools__vipIcon pvs-tools__vipIcon--full"
+                    aria-hidden="true"
+                  />
+                  <span className="pvs-tools__label">
+                    {chatLocked
+                      ? t('profile.visitor.writeMessageLocked')
+                      : t('profile.visitor.writeMessage')}
+                  </span>
                 </div>
 
               </button>

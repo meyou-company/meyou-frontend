@@ -16,7 +16,7 @@ import { subscriptionsApi } from "../../services/subscriptionsApi";
 import { conversationsApi } from "../../services/conversationsApi";
 import { getApiErrorMessage } from "../../utils/getApiErrorMessage";
 import { getFriendsFromUser, getFriendsCountNumber, normalizeFriendsApiResponse } from "../../utils/profileFriends";
-import { getViewerIsVipMember } from "../../utils/profileVipUi";
+import { getViewerIsVipMember, isProfileChatLocked } from "../../utils/profileVipUi";
 import { usePresenceStore } from "../../zustand/usePresenceStore";
 import {
   findActiveLiveStreamForUser,
@@ -120,6 +120,7 @@ export default function Profile() {
   const [followingList, setFollowingList] = useState([]);
   const [secondaryReady, setSecondaryReady] = useState(false);
   const [vipPurchaseModalOpen, setVipPurchaseModalOpen] = useState(false);
+  const [chatLockedModalOpen, setChatLockedModalOpen] = useState(false);
   const friendsFetchKeyRef = useRef(null);
 
   const urlUsernameNorm = urlUsername?.trim().replace(/^@/, "") || "";
@@ -327,6 +328,18 @@ export default function Profile() {
       return;
     }
 
+    // VIP-protected profile: non-members cannot open/create chat (UX lock).
+    // Backend membership/access-control is still required for production.
+    if (
+      isProfileChatLocked({
+        user: profileUser,
+        isOwnProfile: false,
+      })
+    ) {
+      setChatLockedModalOpen(true);
+      return;
+    }
+
     try {
       const conversation = await conversationsApi.create(profileUser.id);
       if (!conversation?.id) {
@@ -337,7 +350,12 @@ export default function Profile() {
       console.error("[profile] open conversation failed", err);
       toast.error(getApiErrorMessage(err) || t('profile.toast.openChatError'));
     }
-  }, [navigate, profileUser?.id, profileUser?.username, t]);
+  }, [navigate, profileUser, t]);
+
+  const openVipPurchaseFromChatLock = useCallback(() => {
+    setChatLockedModalOpen(false);
+    setVipPurchaseModalOpen(true);
+  }, []);
 
   // ✅ handlers для Home
   const onEditProfile = useCallback(() => navigate("/users/profile/edit"), [navigate]);
@@ -571,6 +589,12 @@ export default function Profile() {
         </div>
       ) : null}
       <div className={styles.content}>{renderProfileContent()}</div>
+      <VipAccessInfoModal
+        isOpen={chatLockedModalOpen}
+        onClose={() => setChatLockedModalOpen(false)}
+        variant="chatLocked"
+        onGetVip={openVipPurchaseFromChatLock}
+      />
       <VipAccessInfoModal
         isOpen={vipPurchaseModalOpen}
         onClose={() => setVipPurchaseModalOpen(false)}

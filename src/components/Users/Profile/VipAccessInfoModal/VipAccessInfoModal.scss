@@ -25,6 +25,13 @@
   text-align: center;
 }
 
+.vipAccessModal__bodyStack {
+  margin: 0 0 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
 .vipAccessModal__body {
   margin: 0 0 18px;
   font-size: 14px;
@@ -32,6 +39,21 @@
   color: #65676b;
   text-align: center;
   white-space: pre-line;
+}
+
+.vipAccessModal__bodyStack .vipAccessModal__body {
+  margin: 0;
+}
+
+.vipAccessModal__body--secondary {
+  font-size: 13px;
+  color: #8a8d91;
+}
+
+.vipAccessModal__actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
 .vipAccessModal__btn {
@@ -46,6 +68,12 @@
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
+}
+
+.vipAccessModal__btn--secondary {
+  background: transparent;
+  color: #050505;
+  border: 1px solid rgba(0, 0, 0, 0.14);
 }
 
 .vipAccessModal__btn:hover {
@@ -68,8 +96,20 @@ html[data-theme='dark'] .vipAccessModal__body {
   color: rgba(255, 255, 255, 0.7);
 }
 
+body.dark .vipAccessModal__body--secondary,
+html[data-theme='dark'] .vipAccessModal__body--secondary {
+  color: rgba(255, 255, 255, 0.5);
+}
+
 body.dark .vipAccessModal__btn,
 html[data-theme='dark'] .vipAccessModal__btn {
   background: #f1e7ff;
   color: #1a1a1a;
+}
+
+body.dark .vipAccessModal__btn--secondary,
+html[data-theme='dark'] .vipAccessModal__btn--secondary {
+  background: transparent;
+  color: rgba(255, 255, 255, 0.9);
+  border-color: rgba(255, 255, 255, 0.2);
 }

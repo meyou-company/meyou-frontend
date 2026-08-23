@@ -2,7 +2,8 @@
  * VIP UI helpers for profile visitor views.
  *
  * Owner setting: `user.vipEnabled` from GET /users/:username (and auth user).
- * Viewer membership (`isVipMember`) is not yet exposed by the API.
+ * Viewer membership (`isVipMember`) is NOT yet exposed by the API — helpers
+ * default to false until backend ships membership. Frontend lock is UX-only.
  */
 
 export function getOwnerVipEnabled(user) {
@@ -25,6 +26,19 @@ export function getViewerIsVipMember(user) {
   if (user.subscriptionStatus?.isVip === true) return true;
   if (user.vipMembership?.active === true) return true;
   return false;
+}
+
+/**
+ * Direct messages locked when owner enabled VIP and viewer is not a VIP member.
+ * Regular subscription (`isSubscribed`) does NOT unlock chat.
+ *
+ * @param {{ user?: object|null, isOwnProfile?: boolean }} args
+ */
+export function isProfileChatLocked({ user, isOwnProfile = false } = {}) {
+  if (isOwnProfile) return false;
+  const vipEnabled = getOwnerVipEnabled(user);
+  if (!vipEnabled) return false;
+  return !getViewerIsVipMember(user);
 }
 
 /**

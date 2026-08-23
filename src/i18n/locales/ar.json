@@ -250,7 +250,8 @@
       "block": "Block",
       "moreActions": "More actions",
       "profileTabs": "Profile tabs",
-      "profileActions": "Profile actions"
+      "profileActions": "Profile actions",
+      "writeMessageLocked": "Send message 🔒"
     },
     "info": {
       "title": "Information",
@@ -284,7 +285,12 @@
       "purchaseTitle": "VIP access",
       "purchaseBody": "The profile owner has enabled VIP. After purchase you will get private chat and VIP content (photos, videos).\n\nPayment will be available soon.",
       "gotIt": "Got it",
-      "activeStatus": "VIP active"
+      "activeStatus": "VIP active",
+      "chatLockedTitle": "Messages are available via VIP",
+      "chatLockedBody": "The owner of this profile has restricted access to private messages. To message this user, you need VIP access to their profile.",
+      "chatLockedExtra": "VIP access may also unlock private photos and videos that the profile owner made available only to VIP members.",
+      "getVipAccess": "Get VIP access",
+      "close": "Close"
     },
     "friendsPage": {
       "title": "Friends {{name}}",
