@@ -9,6 +9,7 @@ import { storiesApi } from "../../services/storiesApi";
 import { conversationsApi } from "../../services/conversationsApi";
 import { usersApi } from "../../services/usersApi";
 import { subscriptionsApi } from "../../services/subscriptionsApi";
+import { getApiErrorMessage } from "../../utils/getApiErrorMessage";
 import { storyReactions } from "../../constants/storyReactions";
 import profileIcons from "../../constants/profileIcons";
 import {
@@ -821,7 +822,7 @@ function StoryShareModal({ isOpen, story, onClose }) {
       onClose?.();
     } catch (error) {
       console.error("[story-share] failed", error);
-      toast.error("Не удалось отправить story");
+      toast.error(getApiErrorMessage(error) || "Не удалось отправить story");
     } finally {
       setSending(false);
     }
@@ -1575,7 +1576,7 @@ export default function StoryViewerModal({
       }
     } catch (error) {
       console.error("[story-stats-message] failed", error);
-      toast.error("Не удалось открыть чат");
+      toast.error(getApiErrorMessage(error) || "Не удалось открыть чат");
     }
   };
 
@@ -1703,7 +1704,7 @@ export default function StoryViewerModal({
 
       toast.success("Ответ отправлен");
     } catch (error) {
-      toast.error("Не удалось отправить ответ");
+      toast.error(getApiErrorMessage(error) || "Не удалось отправить ответ");
       console.error("[story-reply] failed", error);
     } finally {
       setIsReplySending(false);

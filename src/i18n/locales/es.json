@@ -822,7 +822,9 @@
     "USER_BLOCKED": "La interacción con este usuario no está disponible.",
     "CANNOT_REPORT_SELF": "No puedes reportarte a ti mismo.",
     "ACCOUNT_SUSPENDED": "Tu cuenta ha sido suspendida.",
-    "ACCOUNT_DELETED": "Esta cuenta ha sido eliminada."
+    "ACCOUNT_DELETED": "Esta cuenta ha sido eliminada.",
+    "SUBSCRIPTION_REQUIRED": "Subscribe to this profile to send messages.",
+    "VIP_CHAT_ACCESS_REQUIRED": "Messages require VIP access to this profile."
   },
   "navigation": {
     "home": "Home",

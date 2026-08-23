@@ -822,7 +822,9 @@
     "USER_BLOCKED": "Bu kullanıcıyla etkileşim kullanılamıyor.",
     "CANNOT_REPORT_SELF": "Kendinizi şikayet edemezsiniz.",
     "ACCOUNT_SUSPENDED": "Hesabınız askıya alındı.",
-    "ACCOUNT_DELETED": "Bu hesap silindi."
+    "ACCOUNT_DELETED": "Bu hesap silindi.",
+    "SUBSCRIPTION_REQUIRED": "Subscribe to this profile to send messages.",
+    "VIP_CHAT_ACCESS_REQUIRED": "Messages require VIP access to this profile."
   },
   "navigation": {
     "home": "Home",

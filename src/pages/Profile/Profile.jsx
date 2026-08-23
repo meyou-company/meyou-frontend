@@ -16,7 +16,7 @@ import { subscriptionsApi } from "../../services/subscriptionsApi";
 import { conversationsApi } from "../../services/conversationsApi";
 import { getApiErrorMessage } from "../../utils/getApiErrorMessage";
 import { getFriendsFromUser, getFriendsCountNumber, normalizeFriendsApiResponse } from "../../utils/profileFriends";
-import { getViewerIsVipMember, isProfileChatLocked } from "../../utils/profileVipUi";
+import { getViewerIsVipMember, getMessengerWriteDenial } from "../../utils/profileVipUi";
 import { usePresenceStore } from "../../zustand/usePresenceStore";
 import {
   findActiveLiveStreamForUser,
@@ -328,15 +328,16 @@ export default function Profile() {
       return;
     }
 
-    // VIP-protected profile: non-members cannot open/create chat (UX lock).
-    // Backend membership/access-control is still required for production.
-    if (
-      isProfileChatLocked({
-        user: profileUser,
-        isOwnProfile: false,
-      })
-    ) {
+    const denial = getMessengerWriteDenial({
+      user: profileUser,
+      isOwnProfile: false,
+    });
+    if (denial === 'vip') {
       setChatLockedModalOpen(true);
+      return;
+    }
+    if (denial === 'subscription') {
+      toast.message(t('errors.SUBSCRIPTION_REQUIRED'));
       return;
     }
 

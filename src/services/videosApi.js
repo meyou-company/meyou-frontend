@@ -24,6 +24,20 @@ export const videosApi = {
     };
   },
 
+  async listByAuthor(authorId, { page = 1, limit = 20 } = {}) {
+    if (!authorId) return { items: [], page: 1, limit, total: 0 };
+    const { data } = await api.get(
+      apiPath(`/videos/users/${encodeURIComponent(authorId)}`),
+      { params: { page, limit } },
+    );
+    return {
+      items: extractList(data),
+      page: data?.page ?? page,
+      limit: data?.limit ?? limit,
+      total: data?.total ?? extractList(data).length,
+    };
+  },
+
   async getById(id) {
     const { data } = await api.get(apiPath(`/videos/${encodeURIComponent(id)}`));
     return data;

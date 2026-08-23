@@ -7,11 +7,12 @@ export function useProfileTabs(options = {}) {
   const { t } = useTranslation();
 
   return useMemo(() => {
+    // Photo/video tabs stay open; VIP lock is per-media tile (backend redacts URLs).
     const tabs = [
       { id: 'info', label: t('profile.tabs.info'), locked: false },
       { id: 'stories', label: t('profile.tabs.stories'), locked: false },
-      { id: 'video', label: t('profile.tabs.video'), locked: withLocks },
-      { id: 'photo', label: t('profile.tabs.photo'), locked: withLocks },
+      { id: 'video', label: t('profile.tabs.video'), locked: false },
+      { id: 'photo', label: t('profile.tabs.photo'), locked: false },
     ];
     if (includeUnsubscribe) {
       return [

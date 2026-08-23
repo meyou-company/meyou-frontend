@@ -822,7 +822,9 @@
     "USER_BLOCKED": "Interakce s tímto uživatelem není k dispozici.",
     "CANNOT_REPORT_SELF": "Nemůžete nahlásit sami sebe.",
     "ACCOUNT_SUSPENDED": "Váš účet byl pozastaven.",
-    "ACCOUNT_DELETED": "Tento účet byl smazán."
+    "ACCOUNT_DELETED": "Tento účet byl smazán.",
+    "SUBSCRIPTION_REQUIRED": "Subscribe to this profile to send messages.",
+    "VIP_CHAT_ACCESS_REQUIRED": "Messages require VIP access to this profile."
   },
   "navigation": {
     "home": "Home",

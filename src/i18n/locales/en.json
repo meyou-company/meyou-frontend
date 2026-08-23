@@ -311,6 +311,30 @@
       "getVipAccess": "Get VIP access",
       "close": "Close"
     },
+    "vipMedia": {
+      "emptyPhotos": "No photos yet",
+      "emptyVideos": "No videos yet",
+      "lockedAria": "VIP content",
+      "openAria": "Open"
+    },
+    "photos": {
+      "title": "My photos",
+      "empty": "No photos yet",
+      "edit": "Edit",
+      "delete": "Delete",
+      "save": "Save",
+      "makeProfile": "Make profile photo",
+      "updated": "Photo updated",
+      "updateError": "Could not update photo",
+      "deleted": "Photo deleted",
+      "deleteError": "Could not delete photo",
+      "visibilityLabel": "Who can see",
+      "visibilityPublic": "Public (preview)",
+      "visibilityVip": "VIP only",
+      "makePublic": "Make public",
+      "makeVipOnly": "VIP only",
+      "visibilityUpdated": "Visibility updated"
+    },
     "friendsPage": {
       "title": "Friends {{name}}",
       "searchPlaceholder": "Search by name or username…",
@@ -867,6 +891,8 @@
     "DUPLICATE_REPORT": "You have already submitted this report.",
     "USER_BLOCKED": "Interaction with this user is unavailable.",
     "CANNOT_REPORT_SELF": "You cannot report yourself.",
+    "SUBSCRIPTION_REQUIRED": "Subscribe to this profile to send messages.",
+    "VIP_CHAT_ACCESS_REQUIRED": "Messages require VIP access to this profile.",
     "ACCOUNT_SUSPENDED": "Your account has been suspended.",
     "ACCOUNT_DELETED": "This account has been deleted."
   },

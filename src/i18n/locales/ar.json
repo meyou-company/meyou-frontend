@@ -801,7 +801,9 @@
     "USER_BLOCKED": "التفاعل مع هذا المستخدم غير متاح.",
     "CANNOT_REPORT_SELF": "لا يمكنك الإبلاغ عن نفسك.",
     "ACCOUNT_SUSPENDED": "تم تعليق حسابك.",
-    "ACCOUNT_DELETED": "تم حذف هذا الحساب."
+    "ACCOUNT_DELETED": "تم حذف هذا الحساب.",
+    "SUBSCRIPTION_REQUIRED": "Subscribe to this profile to send messages.",
+    "VIP_CHAT_ACCESS_REQUIRED": "Messages require VIP access to this profile."
   },
   "navigation": {
     "home": "Home",

@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 import { videosApi } from "../../services/videosApi";
 import {
   generateVideoThumbnailFromFile,
@@ -9,10 +10,15 @@ import {
 } from "../../services/videoMediaUploadApi";
 import { getApiErrorMessage } from "../../utils/getApiErrorMessage";
 import { detectCurrentLocationLabel } from "../../utils/postGeolocation";
+import { getOwnerVipEnabled } from "../../utils/profileVipUi";
 import profileIcons from "../../constants/profileIcons";
+import { useAuthStore } from "../../zustand/useAuthStore";
 import "./VideoUploadModal.scss";
 
 export default function VideoUploadModal({ isOpen, onClose, onCreated }) {
+  const { t } = useTranslation();
+  const currentUser = useAuthStore((s) => s.user);
+  const ownerVipEnabled = getOwnerVipEnabled(currentUser);
   const videoInputRef = useRef(null);
   const thumbnailInputRef = useRef(null);
 
@@ -26,6 +32,7 @@ export default function VideoUploadModal({ isOpen, onClose, onCreated }) {
   const [videoPreviewUrl, setVideoPreviewUrl] = useState("");
   const [thumbnailPreviewUrl, setThumbnailPreviewUrl] = useState("");
   const [isPublishing, setIsPublishing] = useState(false);
+  const [visibility, setVisibility] = useState("PUBLIC");
 
   useEffect(() => {
     if (!isOpen) return undefined;
@@ -68,6 +75,7 @@ export default function VideoUploadModal({ isOpen, onClose, onCreated }) {
     setVideoPreviewUrl("");
     setThumbnailPreviewUrl("");
     setIsPublishing(false);
+    setVisibility("PUBLIC");
   };
 
   const handleClose = () => {
@@ -189,6 +197,12 @@ export default function VideoUploadModal({ isOpen, onClose, onCreated }) {
         if (trimmedLocation) payload.location = trimmedLocation;
       }
 
+      if (ownerVipEnabled && visibility === "VIP") {
+        payload.visibility = "VIP";
+      } else {
+        payload.visibility = "PUBLIC";
+      }
+
       const created = await videosApi.create(payload);
 
       toast.success("Видео добавлено");
@@ -282,6 +296,38 @@ export default function VideoUploadModal({ isOpen, onClose, onCreated }) {
               </div>
             )}
           </div>
+
+          {ownerVipEnabled ? (
+            <fieldset className="videoUploadModal__visibility" disabled={isPublishing}>
+              <legend className="videoUploadModal__visibilityLegend">
+                {t("profile.photos.visibilityLabel", { defaultValue: "Хто бачить" })}
+              </legend>
+              <label className="videoUploadModal__visibilityOption">
+                <input
+                  type="radio"
+                  name="video-visibility"
+                  value="PUBLIC"
+                  checked={visibility === "PUBLIC"}
+                  onChange={() => setVisibility("PUBLIC")}
+                />
+                <span>
+                  {t("profile.photos.visibilityPublic", { defaultValue: "Публічне (превʼю)" })}
+                </span>
+              </label>
+              <label className="videoUploadModal__visibilityOption">
+                <input
+                  type="radio"
+                  name="video-visibility"
+                  value="VIP"
+                  checked={visibility === "VIP"}
+                  onChange={() => setVisibility("VIP")}
+                />
+                <span>
+                  {t("profile.photos.visibilityVip", { defaultValue: "Лише VIP" })}
+                </span>
+              </label>
+            </fieldset>
+          ) : null}
 
           <div className="videoUploadModal__field">
             <span className="videoUploadModal__label">Видео *</span>

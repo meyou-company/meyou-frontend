@@ -14,6 +14,7 @@ import { dedupeAsync } from "../../../../utils/dedupeAsync";
 import { useProfileAuthorFeed } from "../../../../hooks/useProfileAuthorFeed";
 import ProfilePostsFeed from "../ProfilePostsFeed/ProfilePostsFeed";
 import ProfileInfoPanel from "../ProfileInfoPanel/ProfileInfoPanel";
+import ProfileVipMediaPanel from "../ProfileVipMediaPanel/ProfileVipMediaPanel";
 import VipAccessInfoModal from "../VipAccessInfoModal/VipAccessInfoModal";
 import { storiesApi } from "../../../../services/storiesApi";
 import StoryViewerModal from "../../../Stories/StoryViewerModal";
@@ -509,6 +510,19 @@ export default function ProfileVisitorPublic({
           isOpen={visitorTab === 'info'}
           friendsCount={displayFriendsCount}
           postsCount={profilePostsCount}
+        />
+
+        <ProfileVipMediaPanel
+          user={user}
+          kind="photo"
+          isOpen={visitorTab === 'photo'}
+          onGetVip={handleVipClick}
+        />
+        <ProfileVipMediaPanel
+          user={user}
+          kind="video"
+          isOpen={visitorTab === 'video'}
+          onGetVip={handleVipClick}
         />
 
         {/* ================= FRIENDS ================= */}

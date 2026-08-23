@@ -15,6 +15,7 @@ import { useProfileAuthorFeed } from "../../../../hooks/useProfileAuthorFeed";
 import { useUserProfileNav } from "../../../../context/UserProfileNavContext";
 import ProfilePostsFeed from "../ProfilePostsFeed/ProfilePostsFeed";
 import ProfileInfoPanel from "../ProfileInfoPanel/ProfileInfoPanel";
+import ProfileVipMediaPanel from "../ProfileVipMediaPanel/ProfileVipMediaPanel";
 import VipAccessInfoModal from "../VipAccessInfoModal/VipAccessInfoModal";
 import { storiesApi } from "../../../../services/storiesApi";
 import StoryViewerModal from "../../../Stories/StoryViewerModal";
@@ -389,6 +390,19 @@ export default function ProfileVisitorSubscribed({
         isOpen={activeTab === "info"}
         friendsCount={displayFriendsCount}
         postsCount={profilePostsCount}
+      />
+
+      <ProfileVipMediaPanel
+        user={user}
+        kind="photo"
+        isOpen={activeTab === "photo"}
+        onGetVip={handleVipClick}
+      />
+      <ProfileVipMediaPanel
+        user={user}
+        kind="video"
+        isOpen={activeTab === "video"}
+        onGetVip={handleVipClick}
       />
 
       {/* ===== FRIENDS: такий самий блок як у моєму профілі (vipCard, friendsTitle, vipRow, showMoreBtn) — тільки з його друзями ===== */}

@@ -11,6 +11,7 @@ import { cropImageToFile } from "../../../../utils/cropImageToFile";
 import { getApiErrorMessage } from "../../../../utils/getApiErrorMessage";
 import { mapApiPostToFeedItem } from "../../../../utils/mapApiPostToFeedItem";
 import profileIcons from '../../../../constants/profileIcons';
+import { getOwnerVipEnabled } from '../../../../utils/profileVipUi';
 import "./ProfilePhotosView.scss";
 
 const DEFAULT_AVATAR = "/Logo/photo.png";
@@ -38,6 +39,7 @@ function normalizePostImages(post) {
         url: item.url,
         postId: mapped?.id || post?.id,
         post,
+        visibility: String(post?.visibility || mapped?.visibility || "PUBLIC").toUpperCase(),
         mediaIndex: index,
         rawMediaItem: rawMedia[index],
         createdAt:
@@ -102,10 +104,12 @@ export default function ProfilePhotosView({
   const [isSavingPhoto, setIsSavingPhoto] = useState(false);
   const [photoActionLoading, setPhotoActionLoading] = useState(false);
   const [hiddenAvatarUrl, setHiddenAvatarUrl] = useState(null);
+  const [uploadVisibility, setUploadVisibility] = useState("PUBLIC");
 
   const avatarUrl = user?.avatarUrl || user?.avatar || "";
   const visibleAvatarUrl = avatarUrl && avatarUrl !== hiddenAvatarUrl ? avatarUrl : "";
   const displayAvatar = avatarUrl || DEFAULT_AVATAR;
+  const ownerVipEnabled = getOwnerVipEnabled(user);
   const authorName =
     [user?.firstName, user?.lastName].filter(Boolean).join(" ").trim() ||
     user?.username ||
@@ -220,10 +224,11 @@ export default function ProfilePhotosView({
       await postsApi.create({
         fullText: postText.trim() || "\u200B",
         media,
-        visibility: "PUBLIC",
+        visibility: ownerVipEnabled && uploadVisibility === "VIP" ? "VIP" : "PUBLIC",
       });
       toast.success(t("posts.toast.published"));
       closeComposer();
+      setUploadVisibility("PUBLIC");
       await loadPhotos();
     } catch (err) {
       toast.error(getApiErrorMessage(err) || t("posts.toast.publishFailed"));
@@ -338,6 +343,25 @@ export default function ProfilePhotosView({
     }
   };
 
+  const handleSetVisibility = async (photo, visibility) => {
+    if (!photo?.postId || photo.type === "avatar") return;
+    setOpenMenuId(null);
+    try {
+      setPhotoActionLoading(true);
+      await postsApi.update(photo.postId, { visibility });
+      toast.success(
+        t("profile.photos.visibilityUpdated", {
+          defaultValue: visibility === "VIP" ? "Фото лише для VIP" : "Фото публічне",
+        }),
+      );
+      await loadPhotos();
+    } catch (err) {
+      toast.error(getApiErrorMessage(err));
+    } finally {
+      setPhotoActionLoading(false);
+    }
+  };
+
   const handleMakeProfilePhoto = async (photo) => {
     setOpenMenuId(null);
     try {
@@ -406,6 +430,9 @@ export default function ProfilePhotosView({
                 aria-label={t("profile.viewPhotoFull")}
               >
                 <img src={photo.url} alt="" className="profilePhotos__image" loading="lazy" />
+                {ownerVipEnabled && photo.type !== "avatar" && photo.visibility === "VIP" ? (
+                  <span className="profilePhotos__vipBadge">VIP</span>
+                ) : null}
               </button>
               <button
                 type="button"
@@ -434,6 +461,25 @@ export default function ProfilePhotosView({
                   <button type="button" role="menuitem" onClick={() => handleMakeProfilePhoto(photo)}>
                     {t("profile.photos.makeProfile", { defaultValue: "Сделать фото профиля" })}
                   </button>
+                  {ownerVipEnabled && photo.type !== "avatar" ? (
+                    photo.visibility === "VIP" ? (
+                      <button
+                        type="button"
+                        role="menuitem"
+                        onClick={() => handleSetVisibility(photo, "PUBLIC")}
+                      >
+                        {t("profile.photos.makePublic", { defaultValue: "Зробити публічним" })}
+                      </button>
+                    ) : (
+                      <button
+                        type="button"
+                        role="menuitem"
+                        onClick={() => handleSetVisibility(photo, "VIP")}
+                      >
+                        {t("profile.photos.makeVipOnly", { defaultValue: "Лише для VIP" })}
+                      </button>
+                    )
+                  ) : null}
                 </div>
               ) : null}
             </article>
@@ -478,6 +524,9 @@ export default function ProfilePhotosView({
           onPublish={handlePublishPhotoPost}
           onClose={closeComposer}
           canPublish={postMediaFiles.length > 0}
+          showVisibilityPicker={ownerVipEnabled}
+          visibility={uploadVisibility}
+          onVisibilityChange={setUploadVisibility}
         />
       ) : null}
 
@@ -538,6 +587,22 @@ export default function ProfilePhotosView({
               <button type="button" onClick={() => handleMakeProfilePhoto(selectedPhoto)} disabled={photoActionLoading}>
                 {t("profile.photos.makeProfile", { defaultValue: "Сделать фото профиля" })}
               </button>
+              {ownerVipEnabled && selectedPhoto.type !== "avatar" ? (
+                <button
+                  type="button"
+                  onClick={() =>
+                    handleSetVisibility(
+                      selectedPhoto,
+                      selectedPhoto.visibility === "VIP" ? "PUBLIC" : "VIP",
+                    )
+                  }
+                  disabled={photoActionLoading}
+                >
+                  {selectedPhoto.visibility === "VIP"
+                    ? t("profile.photos.makePublic", { defaultValue: "Зробити публічним" })
+                    : t("profile.photos.makeVipOnly", { defaultValue: "Лише для VIP" })}
+                </button>
+              ) : null}
             </div>
           </div>
         </div>

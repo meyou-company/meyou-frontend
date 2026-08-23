@@ -228,13 +228,22 @@ export const postsApi = {
     return data;
   },
 
-  /** PUT /posts/:id — редагування допису */
-  async update(postId, { fullText, media = [], location } = {}) {
-    const { data } = await api.put(`/posts/${encodeURIComponent(postId)}`, {
-      fullText: fullText?.trim() ?? "",
-      media: Array.isArray(media) ? media : [],
-      location: location || undefined,
-    });
+  /** PUT /posts/:id — редагування допису (partial; omit fields you don't change) */
+  async update(postId, payload = {}) {
+    const body = {};
+    if (payload.fullText !== undefined) {
+      body.fullText = payload.fullText?.trim() ?? "";
+    }
+    if (payload.media !== undefined) {
+      body.media = Array.isArray(payload.media) ? payload.media : [];
+    }
+    if (payload.location !== undefined) {
+      body.location = payload.location || undefined;
+    }
+    if (payload.visibility !== undefined) {
+      body.visibility = payload.visibility;
+    }
+    const { data } = await api.put(`/posts/${encodeURIComponent(postId)}`, body);
     return data;
   },
 

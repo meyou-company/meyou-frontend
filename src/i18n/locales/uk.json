@@ -311,6 +311,30 @@
       "getVipAccess": "Отримати VIP-доступ",
       "close": "Закрити"
     },
+    "vipMedia": {
+      "emptyPhotos": "Немає фото",
+      "emptyVideos": "Немає відео",
+      "lockedAria": "VIP контент",
+      "openAria": "Відкрити"
+    },
+    "photos": {
+      "title": "Мої фото",
+      "empty": "Поки немає фото",
+      "edit": "Редагувати",
+      "delete": "Видалити",
+      "save": "Зберегти",
+      "makeProfile": "Зробити фото профілю",
+      "updated": "Фото оновлено",
+      "updateError": "Не вдалося оновити фото",
+      "deleted": "Фото видалено",
+      "deleteError": "Не вдалося видалити фото",
+      "visibilityLabel": "Хто бачить",
+      "visibilityPublic": "Публічне (превʼю)",
+      "visibilityVip": "Лише VIP",
+      "makePublic": "Зробити публічним",
+      "makeVipOnly": "Лише для VIP",
+      "visibilityUpdated": "Видимість оновлено"
+    },
     "friendsPage": {
       "title": "Друзі {{name}}",
       "searchPlaceholder": "Пошук за імʼям або нікнеймом…",
@@ -867,6 +891,8 @@
     "DUPLICATE_REPORT": "Ви вже надсилали таку скаргу.",
     "USER_BLOCKED": "Взаємодія з цим користувачем недоступна.",
     "CANNOT_REPORT_SELF": "Не можна надіслати скаргу на себе.",
+    "SUBSCRIPTION_REQUIRED": "Щоб писати повідомлення, потрібно підписатися на цей профіль.",
+    "VIP_CHAT_ACCESS_REQUIRED": "Повідомлення доступні лише з VIP-доступом до цього профілю.",
     "ACCOUNT_SUSPENDED": "Ваш акаунт заблоковано.",
     "ACCOUNT_DELETED": "Акаунт видалено."
   },

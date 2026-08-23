@@ -7,6 +7,7 @@ import {
 } from "../../../../utils/profileFriendNav";
 import { useVipProfileTabs } from "../../../../hooks/useProfileTabs";
 import OnlineStatus from "../../../Presence/OnlineStatus";
+import ProfileVipMediaPanel from "../ProfileVipMediaPanel/ProfileVipMediaPanel";
 import "./ProfileVisitorVip.scss";
 import { FeedCard } from "../../../FirstPage/FirstPageView";
 
@@ -236,6 +237,17 @@ export default function ProfileVisitorVip({
 
         </div>
       </section>
+
+      <ProfileVipMediaPanel
+        user={user}
+        kind="photo"
+        isOpen={activeTab === "photo"}
+      />
+      <ProfileVipMediaPanel
+        user={user}
+        kind="video"
+        isOpen={activeTab === "video"}
+      />
 
       {/* ===== FRIENDS ===== */}
       <section className="profile-visitor-vip__friends">

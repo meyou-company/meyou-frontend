@@ -75,6 +75,9 @@ export default function CreatePostModal({
   onPublish,
   onClose,
   canPublish = false,
+  showVisibilityPicker = false,
+  visibility = "PUBLIC",
+  onVisibilityChange,
 }) {
   const { t } = useTranslation();
   const resolvedPlaceholder = placeholder ?? t('posts.placeholder');
@@ -174,6 +177,34 @@ export default function CreatePostModal({
               ariaLabel={t('posts.create.addEmoji')}
             />
           </div>
+
+          {showVisibilityPicker ? (
+            <fieldset className="createPostModal__visibility" disabled={isPublishing}>
+              <legend className="createPostModal__visibilityLegend">
+                {t('profile.photos.visibilityLabel', { defaultValue: 'Хто бачить' })}
+              </legend>
+              <label className="createPostModal__visibilityOption">
+                <input
+                  type="radio"
+                  name="post-visibility"
+                  value="PUBLIC"
+                  checked={visibility === "PUBLIC"}
+                  onChange={() => onVisibilityChange?.("PUBLIC")}
+                />
+                <span>{t('profile.photos.visibilityPublic', { defaultValue: 'Публічне (превʼю)' })}</span>
+              </label>
+              <label className="createPostModal__visibilityOption">
+                <input
+                  type="radio"
+                  name="post-visibility"
+                  value="VIP"
+                  checked={visibility === "VIP"}
+                  onChange={() => onVisibilityChange?.("VIP")}
+                />
+                <span>{t('profile.photos.visibilityVip', { defaultValue: 'Лише VIP' })}</span>
+              </label>
+            </fieldset>
+          ) : null}
 
           <input
             ref={postMediaInputRef}

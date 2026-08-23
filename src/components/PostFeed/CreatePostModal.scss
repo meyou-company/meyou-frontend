@@ -844,3 +844,32 @@ html[data-theme="dark"] .createPostModal__actionCard--locationActive {
     0 0 0 2px rgba(167, 139, 250, 0.35),
     0 4px 14px rgba(124, 58, 237, 0.2);
 }
+
+.createPostModal__visibility {
+  margin: 12px 0 4px;
+  padding: 12px 14px;
+  border: 1px solid rgba(124, 58, 237, 0.18);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.55);
+}
+
+.createPostModal__visibilityLegend {
+  padding: 0 4px;
+  font-size: 13px;
+  font-weight: 600;
+  color: rgba(40, 20, 70, 0.78);
+}
+
+.createPostModal__visibilityOption {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+  font-size: 14px;
+  color: rgba(30, 20, 50, 0.88);
+  cursor: pointer;
+}
+
+.createPostModal__visibilityOption input {
+  accent-color: #7c3aed;
+}

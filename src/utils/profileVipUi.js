@@ -1,9 +1,9 @@
 /**
- * VIP UI helpers for profile visitor views.
+ * VIP / Messenger UI helpers for profile visitor views.
  *
- * Owner setting: `user.vipEnabled` from GET /users/:username (and auth user).
- * Viewer membership (`isVipMember`) is NOT yet exposed by the API — helpers
- * default to false until backend ships membership. Frontend lock is UX-only.
+ * - User.vipEnabled: owner toggle
+ * - subscriptionStatus.isVipMember: ACTIVE Follow.isVip (viewer → owner)
+ * - isSubscribed: ACTIVE Follow (any isVip)
  */
 
 export function getOwnerVipEnabled(user) {
@@ -28,17 +28,32 @@ export function getViewerIsVipMember(user) {
   return false;
 }
 
+export function getViewerIsSubscribed(user) {
+  if (!user || typeof user !== 'object') return false;
+  return user.subscriptionStatus?.isSubscribed === true;
+}
+
 /**
  * Direct messages locked when owner enabled VIP and viewer is not a VIP member.
- * Regular subscription (`isSubscribed`) does NOT unlock chat.
- *
- * @param {{ user?: object|null, isOwnProfile?: boolean }} args
+ * Regular subscription (`isSubscribed`) does NOT unlock chat when VIP is on.
  */
 export function isProfileChatLocked({ user, isOwnProfile = false } = {}) {
   if (isOwnProfile) return false;
   const vipEnabled = getOwnerVipEnabled(user);
   if (!vipEnabled) return false;
   return !getViewerIsVipMember(user);
+}
+
+/**
+ * Full Messenger write permission (mirrors backend assertCanMessagePeer).
+ * @returns {'ok' | 'subscription' | 'vip'}
+ */
+export function getMessengerWriteDenial({ user, isOwnProfile = false } = {}) {
+  if (isOwnProfile) return 'ok';
+  if (getOwnerVipEnabled(user)) {
+    return getViewerIsVipMember(user) ? 'ok' : 'vip';
+  }
+  return getViewerIsSubscribed(user) ? 'ok' : 'subscription';
 }
 
 /**
