@@ -1,0 +1,75 @@
+.vipAccessModalOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10050;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background: rgba(0, 0, 0, 0.45);
+}
+
+.vipAccessModal {
+  width: min(100%, 400px);
+  padding: 22px 18px 16px;
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.2);
+}
+
+.vipAccessModal__title {
+  margin: 0 0 10px;
+  font-size: 17px;
+  font-weight: 700;
+  color: #050505;
+  text-align: center;
+}
+
+.vipAccessModal__body {
+  margin: 0 0 18px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #65676b;
+  text-align: center;
+  white-space: pre-line;
+}
+
+.vipAccessModal__btn {
+  display: block;
+  width: 100%;
+  margin: 0;
+  padding: 11px 14px;
+  border: 0;
+  border-radius: 10px;
+  background: #2b2b2b;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.vipAccessModal__btn:hover {
+  opacity: 0.92;
+}
+
+body.dark .vipAccessModal,
+html[data-theme='dark'] .vipAccessModal {
+  background: #1c1c1e;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.55);
+}
+
+body.dark .vipAccessModal__title,
+html[data-theme='dark'] .vipAccessModal__title {
+  color: rgba(255, 255, 255, 0.95);
+}
+
+body.dark .vipAccessModal__body,
+html[data-theme='dark'] .vipAccessModal__body {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+body.dark .vipAccessModal__btn,
+html[data-theme='dark'] .vipAccessModal__btn {
+  background: #f1e7ff;
+  color: #1a1a1a;
+}

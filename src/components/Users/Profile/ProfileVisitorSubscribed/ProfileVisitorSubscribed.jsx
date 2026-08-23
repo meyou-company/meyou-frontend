@@ -9,11 +9,13 @@ import {
   getFriendRouteHandle,
   getFriendDisplayLabel,
 } from "../../../../utils/profileFriendNav";
+import { getVipButtonUi } from "../../../../utils/profileVipUi";
 import { dedupeAsync } from "../../../../utils/dedupeAsync";
 import { useProfileAuthorFeed } from "../../../../hooks/useProfileAuthorFeed";
 import { useUserProfileNav } from "../../../../context/UserProfileNavContext";
 import ProfilePostsFeed from "../ProfilePostsFeed/ProfilePostsFeed";
 import ProfileInfoPanel from "../ProfileInfoPanel/ProfileInfoPanel";
+import VipAccessInfoModal from "../VipAccessInfoModal/VipAccessInfoModal";
 import { storiesApi } from "../../../../services/storiesApi";
 import StoryViewerModal from "../../../Stories/StoryViewerModal";
 import OnlineStatus from "../../../Presence/OnlineStatus";
@@ -47,6 +49,7 @@ export default function ProfileVisitorSubscribed({
   const [profileStoriesLoading, setProfileStoriesLoading] = useState(false);
   const [isStoryViewerOpen, setIsStoryViewerOpen] = useState(false);
   const [storyViewerStoryIndex, setStoryViewerStoryIndex] = useState(0);
+  const [vipPurchaseModalOpen, setVipPurchaseModalOpen] = useState(false);
 
   const onViewPhoto = (url) => {
     if (onViewPhotoExternal) onViewPhotoExternal(url);
@@ -159,6 +162,20 @@ export default function ProfileVisitorSubscribed({
     });
   const userProfileNav = useUserProfileNav();
 
+  // Subscribed visitor: hide VIP until owner enables it; show purchase CTA when enabled.
+  const vipUi = useMemo(
+    () => getVipButtonUi({ isSubscribed: true, user }),
+    [user],
+  );
+
+  const handleVipClick = () => {
+    if (typeof onAddToVip === "function") {
+      onAddToVip();
+      return;
+    }
+    setVipPurchaseModalOpen(true);
+  };
+
   const onTabClick = (tabId) => {
     if (tabId === "delete") {
       onUnsubscribe?.();
@@ -268,10 +285,17 @@ export default function ProfileVisitorSubscribed({
                 <span className="pvs-tools__smallLabel">{t('profile.visitor.report')}</span>
               </button>
             </div>
-            <button type="button" className="pvs-actions__vipBtn" onClick={onAddToVip} aria-label={t('profile.visitor.addToVip')}>
+            {vipUi.showAddButton ? (
+            <button type="button" className="pvs-actions__vipBtn" onClick={handleVipClick} aria-label={t('profile.visitor.addToVip')}>
               <span className="pvs-actions__vipBtnText">{t('profile.visitor.addToVip')}</span>
               <img src="/icon-black/vip-button.svg" alt="" className="pvs-actions__vipBtnIcon" width={15} height={15} />
             </button>
+            ) : null}
+            {vipUi.showStatus ? (
+              <span className="pvs-actions__vipStatus" role="status">
+                {t('profile.vipAccess.activeStatus')}
+              </span>
+            ) : null}
           </div>
         </div>
       </section>
@@ -284,15 +308,22 @@ export default function ProfileVisitorSubscribed({
         >
           {t('profile.visitor.unsubscribe')}
         </button>
+        {vipUi.showAddButton ? (
         <button
           type="button"
           className="pvs-actions__vipBtn pvs-actions__vipBtn--mobile"
-          onClick={onAddToVip}
+          onClick={handleVipClick}
           aria-label={t('profile.visitor.addToVip')}
         >
           <span className="pvs-actions__vipBtnText">{t('profile.visitor.addToVip')}</span>
           <img src="/icon-black/vip-button.svg" alt="" className="pvs-actions__vipBtnIcon" width={15} height={15} />
         </button>
+        ) : null}
+        {vipUi.showStatus ? (
+          <span className="pvs-actions__vipStatus pvs-actions__vipStatus--mobile" role="status">
+            {t('profile.vipAccess.activeStatus')}
+          </span>
+        ) : null}
       </div>
 
       {/* Таби як у макеті: Удалить (з градієнтом), Информация, Истории, Видео 🔒, Фото 🔒 */}
@@ -476,6 +507,12 @@ export default function ProfileVisitorSubscribed({
             }))
           );
         }}
+      />
+
+      <VipAccessInfoModal
+        isOpen={vipPurchaseModalOpen}
+        onClose={() => setVipPurchaseModalOpen(false)}
+        variant="purchase"
       />
     </div>
   );

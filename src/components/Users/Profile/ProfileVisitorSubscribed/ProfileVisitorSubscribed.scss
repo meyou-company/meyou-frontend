@@ -378,6 +378,28 @@ html[data-theme="dark"] .pvs-tools__vip .pvs-tools__label {
   display: block;
 }
 
+.pvs-actions__vipStatus {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  align-self: flex-end;
+  min-height: 36px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(0, 0, 0, 0.18);
+  background: rgba(241, 231, 255, 0.75);
+  font-size: 13px;
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+body.dark .pvs-actions__vipStatus,
+html[data-theme="dark"] .pvs-actions__vipStatus {
+  border-color: rgba(255, 255, 255, 0.25);
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.92);
+}
+
 /* Таби під верхнім блоком — як у макеті: Удалить, Информация, Истории, Видео, Фото */
 .pvs-actions__tabs--standalone {
   width: 100%;

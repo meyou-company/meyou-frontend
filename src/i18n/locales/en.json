@@ -297,6 +297,14 @@
       "vipFriends": "VIP",
       "friendsTitle": "Friends {{count}}"
     },
+    "vipAccess": {
+      "infoTitle": "VIP access",
+      "infoBody": "VIP is an extra paid access that the profile owner can enable in their settings. Once enabled, VIP can unlock private messaging, special photos and videos.\n\nVIP is not enabled for this profile yet. You can simply follow the profile.",
+      "purchaseTitle": "VIP access",
+      "purchaseBody": "The profile owner has enabled VIP. After purchase you will get private chat and VIP content (photos, videos).\n\nPayment will be available soon.",
+      "gotIt": "Got it",
+      "activeStatus": "VIP active"
+    },
     "friendsPage": {
       "title": "Friends {{name}}",
       "searchPlaceholder": "Search by name or username…",

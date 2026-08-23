@@ -230,6 +230,28 @@ $phVisitorTabBeige: #fce9e9;
   display: none;
 }
 
+.profile-visitor-public .ph-visitor-tools__vipStatus {
+  grid-area: vip;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 36px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(0, 0, 0, 0.18);
+  background: rgba(241, 231, 255, 0.7);
+  font-size: 13px;
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+body.dark .profile-visitor-public .ph-visitor-tools__vipStatus,
+html[data-theme='dark'] .profile-visitor-public .ph-visitor-tools__vipStatus {
+  border-color: rgba(255, 255, 255, 0.25);
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.92);
+}
+
 .profile-visitor-public .ph-visitor-tools__vip {
   grid-area: vip;
   display: inline-flex;

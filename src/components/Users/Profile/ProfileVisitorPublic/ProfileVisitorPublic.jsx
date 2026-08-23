@@ -9,10 +9,12 @@ import {
   getFriendDisplayLabel,
 
 } from "../../../../utils/profileFriendNav";
+import { getVipButtonUi } from '../../../../utils/profileVipUi';
 import { dedupeAsync } from "../../../../utils/dedupeAsync";
 import { useProfileAuthorFeed } from "../../../../hooks/useProfileAuthorFeed";
 import ProfilePostsFeed from "../ProfilePostsFeed/ProfilePostsFeed";
 import ProfileInfoPanel from "../ProfileInfoPanel/ProfileInfoPanel";
+import VipAccessInfoModal from "../VipAccessInfoModal/VipAccessInfoModal";
 import { storiesApi } from "../../../../services/storiesApi";
 import StoryViewerModal from "../../../Stories/StoryViewerModal";
 import OnlineStatus from "../../../Presence/OnlineStatus";
@@ -50,6 +52,7 @@ export default function ProfileVisitorPublic({
   const [isStoryViewerOpen, setIsStoryViewerOpen] = useState(false);
   const [storyViewerStoryIndex, setStoryViewerStoryIndex] = useState(0);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [vipModalOpen, setVipModalOpen] = useState(false);
   const mobileMenuRef = useRef(null);
 
   useEffect(() => {
@@ -189,6 +192,25 @@ export default function ProfileVisitorPublic({
       readOnly: guestPreview,
     });
 
+  // Public (not subscribed): informational VIP button unless already a VIP member.
+  const vipUi = useMemo(
+    () => getVipButtonUi({ isSubscribed: false, user }),
+    [user],
+  );
+
+  const handleVipClick = () => {
+    if (vipUi.mode === 'purchase') {
+      onAddToVip?.();
+      return;
+    }
+    if (guestPreview) {
+      // Still informational for "view as guest" — no payment / no toast.
+      setVipModalOpen(true);
+      return;
+    }
+    setVipModalOpen(true);
+  };
+
   return (
     <div
       className={`profile-visitor-public profile-home${
@@ -317,15 +339,22 @@ export default function ProfileVisitorPublic({
                 ? t('profile.visitor.subscribing')
                 : t('profile.visitor.subscribe')}
             </button>
+            {vipUi.showAddButton ? (
             <button
               type="button"
               className="ph-visitor-tools__vip"
-              onClick={onAddToVip}
+              onClick={handleVipClick}
               aria-label={t('profile.visitor.addToVip')}
             >
               <span className="ph-visitor-tools__vipText">{t('profile.visitor.addToVip')}</span>
               <img src={profileIcons.vipButton} alt="" className="ph-visitor-tools__vipIcon" />
             </button>
+            ) : null}
+            {vipUi.showStatus ? (
+              <span className="ph-visitor-tools__vipStatus" role="status">
+                {t('profile.vipAccess.activeStatus')}
+              </span>
+            ) : null}
           </div>
           {/* <section
             className="ph-visitor-tabs ph-visitor-tabs--desktop"
@@ -372,15 +401,22 @@ export default function ProfileVisitorPublic({
               ? t('profile.visitor.subscribing')
               : t('profile.visitor.subscribe')}
           </button>
+          {vipUi.showAddButton ? (
           <button
             type="button"
             className="ph-visitor-tools__vip"
-            onClick={onAddToVip}
+            onClick={handleVipClick}
             aria-label={t('profile.visitor.addToVip')}
           >
             <span className="ph-visitor-tools__vipText">{t('profile.visitor.addToVip')}</span>
             <img src={profileIcons.vipButton} alt="" className="ph-visitor-tools__vipIcon" />
           </button>
+          ) : null}
+          {vipUi.showStatus ? (
+            <span className="ph-visitor-tools__vipStatus ph-visitor-tools__vipStatus--mobile" role="status">
+              {t('profile.vipAccess.activeStatus')}
+            </span>
+          ) : null}
           <div className="ph-visitor-tools__mobileMenuWrap" ref={mobileMenuRef}>
             <button
               type="button"
@@ -606,6 +642,12 @@ export default function ProfileVisitorPublic({
             }))
           );
         }}
+      />
+
+      <VipAccessInfoModal
+        isOpen={vipModalOpen}
+        onClose={() => setVipModalOpen(false)}
+        variant="info"
       />
     </div>
   );

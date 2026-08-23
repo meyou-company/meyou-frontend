@@ -8,6 +8,7 @@ import ProfileVisitorPublic from "../../components/Users/Profile/ProfileVisitorP
 import ProfileVisitorSubscribed from "../../components/Users/Profile/ProfileVisitorSubscribed/ProfileVisitorSubscribed";
 import ProfileVisitorVip from "../../components/Users/Profile/ProfileVisitorVip/ProfileVisitorVip";
 import { applyPublicAudienceFields } from "../../components/Users/Profile/ProfileInfoPanel/profileInfoHelpers";
+import VipAccessInfoModal from "../../components/Users/Profile/VipAccessInfoModal/VipAccessInfoModal";
 import { useAuthStore } from "../../zustand/useAuthStore";
 import { useGuestPreviewStore } from "../../zustand/useGuestPreviewStore";
 import { usersApi } from "../../services/usersApi";
@@ -15,6 +16,7 @@ import { subscriptionsApi } from "../../services/subscriptionsApi";
 import { conversationsApi } from "../../services/conversationsApi";
 import { getApiErrorMessage } from "../../utils/getApiErrorMessage";
 import { getFriendsFromUser, getFriendsCountNumber, normalizeFriendsApiResponse } from "../../utils/profileFriends";
+import { getViewerIsVipMember } from "../../utils/profileVipUi";
 import { usePresenceStore } from "../../zustand/usePresenceStore";
 import {
   findActiveLiveStreamForUser,
@@ -117,6 +119,7 @@ export default function Profile() {
   /** Список підписок (following) — для блоку «Друзья» на своєму профілі */
   const [followingList, setFollowingList] = useState([]);
   const [secondaryReady, setSecondaryReady] = useState(false);
+  const [vipPurchaseModalOpen, setVipPurchaseModalOpen] = useState(false);
   const friendsFetchKeyRef = useRef(null);
 
   const urlUsernameNorm = urlUsername?.trim().replace(/^@/, "") || "";
@@ -350,7 +353,10 @@ export default function Profile() {
   }, [profileUser?.username, navigate]);
   /** Якщо немає друзів — кнопка «Знайти друзів» веде на пошук */
   const onFindFriends = useCallback(() => navigate("/search"), [navigate]);
-  const onAddToVip = useCallback(() => navigate("/friends"), [navigate]);
+  const onAddToVip = useCallback(() => {
+    // Payment not wired yet — informational / pre-payment modal only.
+    setVipPurchaseModalOpen(true);
+  }, []);
   const onMyGifts = useCallback(() => navigate("/my-gifts"), [navigate]);
   const onGifts = useCallback(() => { }, []);
   const onReport = useCallback(() => { }, []);
@@ -434,11 +440,12 @@ export default function Profile() {
 
   if (!profileUser) return null;
 
-  // 4 стани профілю: owner | public | subscribed/friend | vip
+  // 4 стани профілю: owner | public | subscribed/friend | vip member
   // Guest preview forces the public (non-friend) visitor layout.
   const isOwner = isOwnProfile && !isGuestPreview;
-  const isVip = !isGuestPreview && profileUser?.viewType === "VIP";
-  const isFriendOrSubscribed = !isOwner && !isGuestPreview && isSubscribed;
+  const isVipMember = !isGuestPreview && getViewerIsVipMember(profileUser);
+  const isFriendOrSubscribed =
+    !isOwner && !isGuestPreview && isSubscribed && !isVipMember;
 
   const renderProfileContent = () => {
     if (isGuestPreview && guestPreviewUser) {
@@ -479,7 +486,7 @@ export default function Profile() {
         />
       );
     }
-    if (isVip) {
+    if (isVipMember) {
       return (
         <ProfileVisitorVip
           user={profileUser}
@@ -564,6 +571,11 @@ export default function Profile() {
         </div>
       ) : null}
       <div className={styles.content}>{renderProfileContent()}</div>
+      <VipAccessInfoModal
+        isOpen={vipPurchaseModalOpen}
+        onClose={() => setVipPurchaseModalOpen(false)}
+        variant="purchase"
+      />
     </div>
   );
 }
