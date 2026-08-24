@@ -81,13 +81,17 @@ function getInitialFollowingState(author, story, group) {
     author?.amIFollowing ??
     author?.isFollowing ??
     author?.isFollowedByMe ??
+    author?.isSubscribed ??
+    author?.subscriptionStatus?.isSubscribed ??
     story?.amIFollowingAuthor ??
     story?.amIFollowing ??
     story?.isFollowingAuthor ??
     story?.isAuthorFollowedByMe ??
+    story?.isSubscribedToAuthor ??
     group?.amIFollowingAuthor ??
     group?.isFollowingAuthor ??
-    group?.isAuthorFollowedByMe;
+    group?.isAuthorFollowedByMe ??
+    group?.isSubscribedToAuthor;
 
   return value === undefined || value === null ? false : Boolean(value);
 }
@@ -938,6 +942,7 @@ export default function StoryViewerModal({
   onDeleteStory,
   onOpenProfile,
   onReactionChange,
+  onFollowingChange,
   onBlockedAuthor,
 }) {
   const [groupIndex, setGroupIndex] = useState(initialGroupIndex);
@@ -1007,6 +1012,7 @@ export default function StoryViewerModal({
   const wasOpenRef = useRef(false);
   const pendingCloseRef = useRef(false);
   const locationPathRef = useRef(null);
+  const followingMutationVersionRef = useRef(new Map());
 
   onCloseRef.current = onClose;
   onViewedRef.current = onViewed;
@@ -1051,11 +1057,16 @@ export default function StoryViewerModal({
   const currentStory = stories[storyIndex];
 
   const storyId = getStoryId(currentStory);
-  const currentStoryReaction =
+  const currentStoryReactionValue =
     currentStory?.myReaction ??
     currentStory?.reactionByMe ??
     currentStory?.viewerReaction ??
     null;
+  const currentStoryReaction = currentStoryReactionValue
+    ? String(
+        getReactionType(currentStoryReactionValue, currentStoryReactionValue) || "",
+      ).toUpperCase() || null
+    : null;
   const mediaUrl = getStoryMediaUrl(currentStory);
   const mediaType = getStoryMediaType(currentStory);
   const author = currentGroup?.author || currentStory?.author;
@@ -1073,9 +1084,14 @@ export default function StoryViewerModal({
     if (!isOpen || isOwnStory || !authorId) return undefined;
 
     let cancelled = false;
+    const key = String(authorId);
+    const requestVersion = followingMutationVersionRef.current.get(key) || 0;
     subscriptionsApi.getFollowing({ take: 200 })
       .then((response) => {
-        if (cancelled) return;
+        if (
+          cancelled ||
+          (followingMutationVersionRef.current.get(key) || 0) !== requestVersion
+        ) return;
 
         const items = extractFollowingFromResponse(response);
         const isFollowing = items.some((item) =>
@@ -1084,7 +1100,7 @@ export default function StoryViewerModal({
 
         setFollowingByAuthorId((prev) => {
           const updated = new Map(prev);
-          updated.set(String(authorId), isFollowing);
+          updated.set(key, isFollowing);
           return updated;
         });
       })
@@ -1099,11 +1115,22 @@ export default function StoryViewerModal({
 
   const handleOpenAuthorProfile = () => {
     const username = author?.username || author?.nick || author?.nickname;
+    const profilePath = isOwnStory
+      ? "/profile"
+      : username
+        ? `/profile/${encodeURIComponent(String(username).replace(/^@/, ""))}`
+        : null;
 
-    if (!username) return;
+    if (!profilePath && !onOpenProfile) return;
 
     requestClose();
-    scheduleAfterRender(() => onOpenProfile?.(username));
+    scheduleAfterRender(() => {
+      if (!isOwnStory && username && onOpenProfile) {
+        onOpenProfile(username);
+        return;
+      }
+      if (profilePath) navigate(profilePath);
+    });
   };
 
   const handleToggleFollowAuthor = async () => {
@@ -1113,6 +1140,10 @@ export default function StoryViewerModal({
     const key = String(authorId);
     const previous = Boolean(isFollowingAuthor);
     const next = !previous;
+    followingMutationVersionRef.current.set(
+      key,
+      (followingMutationVersionRef.current.get(key) || 0) + 1,
+    );
 
     setFollowLoading(true);
     setFollowingByAuthorId((prev) => {
@@ -1120,6 +1151,7 @@ export default function StoryViewerModal({
       updated.set(key, next);
       return updated;
     });
+    onFollowingChange?.(authorId, next);
 
     try {
       if (next) await subscriptionsApi.subscribe(authorId);
@@ -1130,6 +1162,7 @@ export default function StoryViewerModal({
         updated.set(key, previous);
         return updated;
       });
+      onFollowingChange?.(authorId, previous);
       console.error("[story-follow] failed", error?.response?.data || error);
       toast.error("Не удалось обновить подписку");
     } finally {
@@ -1684,6 +1717,7 @@ export default function StoryViewerModal({
       scheduleAfterRender(() =>
         onReactionChangeRef.current?.(storyId, previousReaction),
       );
+      toast.error(getApiErrorMessage(error) || "Не удалось сохранить реакцию");
     } finally {
       setIsReactionSaving(false);
     }
@@ -1923,11 +1957,7 @@ export default function StoryViewerModal({
               onClick={handleToggleFollowAuthor}
               disabled={!authorId || followLoading}
             >
-              {followLoading
-                ? "..."
-                : isFollowingAuthor
-                  ? "Отписаться"
-                  : "Подписаться"}
+              {isFollowingAuthor ? "Отписаться" : "Подписаться"}
             </button>
           )}
 

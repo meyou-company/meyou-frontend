@@ -28,7 +28,7 @@ export default function StoryCircle({
           </span>
         </div>
 
-        <span className="story-text text-[8px] md:text-xs xl:text-xl font-[Montserrat] text-black underline">
+        <span className="story-text">
           add story
         </span>
       </button>
@@ -49,14 +49,14 @@ export default function StoryCircle({
           <img
             src={avatar || profileIcons.userStory}
             alt=""
-            className="w-14 h-14 md:w-[77px] md:h-[77px] xl:w-[97px] xl:h-[97px] rounded-full object-cover"
+            className="storyCircle__avatar"
           />
         </div>
       </div>
 
       {isLive && <span className="storyCircle__liveBadge">LIVE</span>}
 
-      <span className="storyCircle__text text-[8px] md:text-xs xl:text-xl font-[Montserrat] text-black underline max-w-[80px] truncate">
+      <span className="storyCircle__text">
         {username || "user"}
       </span>
     </button>

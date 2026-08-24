@@ -4,7 +4,7 @@ import { useBurgerMenu } from "../../hooks/useBurgerMenu";
 import profileIcons from "../../constants/profileIcons";
 import MessagesNavBadge from "../Messages/MessagesNavBadge";
 
-export default function LiveHeader() {
+export default function LiveHeader({ isOwner = false }) {
   const navigate = useNavigate();
   const navItems = useNavItems();
   const { open } = useBurgerMenu();
@@ -25,24 +25,26 @@ export default function LiveHeader() {
 
   return (
     <>
-      <header className="liveHeader liveHeader--desktop">
-        <nav className="liveHeader__nav" aria-label="Основная навигация">
-          {desktopItems.map((item) => (
-            <button
-              key={item.key}
-              type="button"
-              className={`liveHeader__navItem ${item.key === "live" ? "liveHeader__navItem--active" : ""}`}
-              onClick={() => navigate(item.path)}
-            >
-              <span className="liveHeader__navIcon">
-                <img src={profileIcons[item.icon]} alt="" />
-                {item.key === "messages" && <MessagesNavBadge />}
-              </span>
-              <span>{item.label}</span>
-            </button>
-          ))}
-        </nav>
-      </header>
+      {!isOwner && (
+        <header className="liveHeader liveHeader--desktop">
+          <nav className="liveHeader__nav" aria-label="Основная навигация">
+            {desktopItems.map((item) => (
+              <button
+                key={item.key}
+                type="button"
+                className={`liveHeader__navItem ${item.key === "live" ? "liveHeader__navItem--active" : ""}`}
+                onClick={() => navigate(item.path)}
+              >
+                <span className="liveHeader__navIcon">
+                  <img src={profileIcons[item.icon]} alt="" />
+                  {item.key === "messages" && <MessagesNavBadge />}
+                </span>
+                <span>{item.label}</span>
+              </button>
+            ))}
+          </nav>
+        </header>
+      )}
 
       <header className="liveHeader liveHeader--compact">
         <button

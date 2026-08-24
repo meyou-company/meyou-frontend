@@ -20,6 +20,7 @@ import { storiesApi } from "../../../../services/storiesApi";
 import StoryViewerModal from "../../../Stories/StoryViewerModal";
 import OnlineStatus from "../../../Presence/OnlineStatus";
 import { useProfileTabs } from "../../../../hooks/useProfileTabs";
+import { useAuthStore } from "../../../../zustand/useAuthStore";
 import "../ProfileHome/ProfileHome.scss";
 import "./ProfileVisitorPublic.scss";
 
@@ -45,6 +46,7 @@ export default function ProfileVisitorPublic({
   guestPreview = false,
 }) {
   const { t } = useTranslation();
+  const currentUserId = useAuthStore((state) => state.user?.id || state.user?._id || null);
   const visitorTabs = useProfileTabs({ withLocks: true });
   const [visitorTab, setVisitorTab] = useState('info');
   const [viewImageUrl, setViewImageUrl] = useState(null);
@@ -147,7 +149,9 @@ export default function ProfileVisitorPublic({
             lastName: user?.lastName,
             username,
             avatarUrl: displayAvatar,
+            amIFollowing: false,
           },
+          isFollowingAuthor: false,
           stories: profileStories,
         },
       ]
@@ -645,7 +649,7 @@ export default function ProfileVisitorPublic({
         groups={profileStoryGroups}
         initialGroupIndex={0}
         initialStoryIndex={storyViewerStoryIndex}
-        currentUserId={profileUserId}
+        currentUserId={currentUserId}
         readOnly={guestPreview}
         onClose={() => setIsStoryViewerOpen(false)}
         onViewed={() => {

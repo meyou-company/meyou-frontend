@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import { LuSwitchCamera } from "react-icons/lu";
 import profileIcons from "../../constants/profileIcons";
 
 const REACTIONS = [
@@ -78,12 +79,14 @@ export default function LiveStage({
   videoTrack,
   audioTrack,
   isCameraStarting,
+  isSwitchingCamera,
   isEnding,
   viewerCount,
   likesCount,
   onToggleSettings,
   onToggleMuted,
   onStartCamera,
+  onSwitchCamera,
   onShare,
   onReact,
   isChatOpen,
@@ -160,6 +163,18 @@ export default function LiveStage({
 
         <div className="liveStage__topRight">
           {isLive && !isEnded && <LiveStatus elapsed={elapsed} />}
+          {isOwner && isLive && !isEnded && hasVideo && (
+            <button
+              type="button"
+              className="liveStage__switchCameraButton"
+              onClick={onSwitchCamera}
+              disabled={isSwitchingCamera}
+              aria-label="Переключить камеру"
+              title="Переключить камеру"
+            >
+              <LuSwitchCamera aria-hidden="true" />
+            </button>
+          )}
           {isOwner && !isEnded && (
             <button
               type="button"
