@@ -373,7 +373,7 @@ export default function LiveBroadcast() {
   const [elapsed, setElapsed] = useState(0);
   const [isEnded, setIsEnded] = useState(false);
   const [isPlaying, setIsPlaying] = useState(Boolean(liveId));
-  const [isSettingsOpen, setIsSettingsOpen] = useState(!liveId);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
   const [isStarting, setIsStarting] = useState(false);
   const [isEnding, setIsEnding] = useState(false);
@@ -514,7 +514,7 @@ export default function LiveBroadcast() {
       setStream(null);
       setIsEnded(false);
       setIsPlaying(false);
-      setIsSettingsOpen(true);
+      setIsSettingsOpen(false);
       setElapsed(0);
       setLikesCount(0);
       setMessages([]);
@@ -1443,20 +1443,34 @@ export default function LiveBroadcast() {
     });
   };
 
+  const handleSwitchCamera = async () => {
+    try {
+      await liveKit.switchCamera();
+    } catch (error) {
+      console.error("[live-camera-switch] failed", error);
+      toast.error("Не удалось переключить камеру");
+    }
+  };
+
   const viewerCount = liveKit.participantCount > 0
     ? Math.max(0, liveKit.participantCount - 1)
     : stream?.viewersCount || 0;
+  const showBackButton = !isOwner || stream?.status !== LIVE_STATUS || isEnded;
 
   return (
-    <main className="livePage">
-      <LiveHeader />
+    <main className={`livePage ${isOwner ? "livePage--owner" : "livePage--viewer"}`}>
+      <LiveHeader isOwner={isOwner} />
       <div className="livePage__background" aria-hidden="true" />
 
       <div className="livePage__content">
         <div className="livePage__headingRow">
-          <button type="button" className="livePage__back" onClick={handleBack} aria-label="Назад">
-            <img src={profileIcons.storyBack} alt="" />
-          </button>
+          {showBackButton ? (
+            <button type="button" className="livePage__back" onClick={handleBack} aria-label="Назад">
+              <img src={profileIcons.storyBack} alt="" />
+            </button>
+          ) : (
+            <span aria-hidden="true" />
+          )}
           <h1>{stream?.title || "Прямой эфир"}</h1>
           <span aria-hidden="true" />
         </div>
@@ -1485,12 +1499,14 @@ export default function LiveBroadcast() {
               videoTrack={liveKit.videoTrack}
               audioTrack={liveKit.audioTrack}
               isCameraStarting={isStarting || isRestoringHost || liveKit.isConnecting}
+              isSwitchingCamera={liveKit.isSwitchingCamera}
               isEnding={isEnding}
               viewerCount={formatCompactCount(viewerCount)}
               likesCount={formatCompactCount(likesCount)}
               onToggleSettings={() => setIsSettingsOpen((current) => !current)}
               onToggleMuted={handleToggleMuted}
               onStartCamera={handleStartBroadcast}
+              onSwitchCamera={handleSwitchCamera}
               onShare={() => stream?.id ? setPickerMode("share") : toast.info("Сначала запустите эфир")}
               onReact={handleReact}
               isChatOpen={isChatOpen}

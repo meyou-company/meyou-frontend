@@ -7,6 +7,8 @@ import {
   STORY_VIEWED_EVENT,
 } from '../constants/storyEvents';
 import { storiesApi } from '../services/storiesApi';
+import { subscriptionsApi } from '../services/subscriptionsApi';
+import { extractFollowingFromResponse } from '../utils/shareRecipients';
 
 export function useStoriesFeed() {
   const [storiesGroups, setStoriesGroups] = useState([]);
@@ -18,7 +20,13 @@ export function useStoriesFeed() {
       setStoriesLoading(true);
       setStoriesError(null);
 
-      const response = await storiesApi.getFeed();
+      const [response, followingResponse] = await Promise.all([
+        storiesApi.getFeed(),
+        subscriptionsApi.getFollowing({ take: 200 }).catch((error) => {
+          console.error('[stories following state error]', error?.response?.data || error);
+          return null;
+        }),
+      ]);
 
       const normalized = Array.isArray(response)
         ? response
@@ -36,12 +44,36 @@ export function useStoriesFeed() {
                     ? response.data.groups
                     : [];
 
-      const normalizedWithSortedStories = normalized.map((group) => ({
-        ...group,
-        stories: [...(group?.stories || [])].sort(
-          (a, b) => new Date(a?.createdAt || 0).getTime() - new Date(b?.createdAt || 0).getTime()
-        ),
-      }));
+      const followingIds = followingResponse
+        ? new Set(
+            extractFollowingFromResponse(followingResponse)
+              .map((user) => user?.id)
+              .filter(Boolean)
+              .map(String),
+          )
+        : null;
+
+      const normalizedWithSortedStories = normalized.map((group) => {
+        const author = group?.author || {};
+        const authorId = author?.id || author?._id || group?.authorId;
+        const isFollowingAuthor = followingIds && authorId
+          ? followingIds.has(String(authorId))
+          : undefined;
+
+        return {
+          ...group,
+          ...(typeof isFollowingAuthor === 'boolean' ? { isFollowingAuthor } : {}),
+          author: {
+            ...author,
+            ...(typeof isFollowingAuthor === 'boolean'
+              ? { amIFollowing: isFollowingAuthor }
+              : {}),
+          },
+          stories: [...(group?.stories || [])].sort(
+            (a, b) => new Date(a?.createdAt || 0).getTime() - new Date(b?.createdAt || 0).getTime()
+          ),
+        };
+      });
       setStoriesGroups(normalizedWithSortedStories);
     } catch (e) {
       console.error('[stories feed error]', e?.response?.data || e);

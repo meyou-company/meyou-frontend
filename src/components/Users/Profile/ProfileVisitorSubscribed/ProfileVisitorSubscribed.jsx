@@ -21,6 +21,7 @@ import { storiesApi } from "../../../../services/storiesApi";
 import StoryViewerModal from "../../../Stories/StoryViewerModal";
 import OnlineStatus from "../../../Presence/OnlineStatus";
 import { useProfileTabs } from "../../../../hooks/useProfileTabs";
+import { useAuthStore } from "../../../../zustand/useAuthStore";
 import "../ProfileHome/ProfileHome.scss";
 import "./ProfileVisitorSubscribed.scss";
 
@@ -43,6 +44,7 @@ export default function ProfileVisitorSubscribed({
   onOpenLive,
 }) {
   const { t } = useTranslation();
+  const currentUserId = useAuthStore((state) => state.user?.id || state.user?._id || null);
   const tabs = useProfileTabs({ includeUnsubscribe: true, withLocks: true });
   const [activeTab, setActiveTab] = useState("delete");
   const [viewImageUrl, setViewImageUrl] = useState(null);
@@ -125,7 +127,9 @@ export default function ProfileVisitorSubscribed({
           lastName: user?.lastName,
           username: nickname,
           avatarUrl: displayAvatar,
+          amIFollowing: true,
         },
+        isFollowingAuthor: true,
         stories: profileStories,
       },
     ]
@@ -533,6 +537,7 @@ export default function ProfileVisitorSubscribed({
         groups={profileStoryGroups}
         initialGroupIndex={0}
         initialStoryIndex={storyViewerStoryIndex}
+        currentUserId={currentUserId}
         onClose={() => setIsStoryViewerOpen(false)}
         onViewed={() => {
           setProfileStories((prev) =>

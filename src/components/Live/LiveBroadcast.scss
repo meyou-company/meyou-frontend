@@ -372,6 +372,10 @@
   }
 }
 
+.liveStage__switchCameraButton {
+  display: none;
+}
+
 .liveStage__settingsPanel {
   position: absolute;
   top: 58px;
@@ -1169,6 +1173,40 @@
   }
 }
 
+@media (max-width: 1279.98px) {
+  .liveStage__switchCameraButton {
+    width: 24px;
+    height: 24px;
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.38);
+    color: #fff;
+    cursor: pointer;
+
+    svg {
+      width: 68%;
+      height: 68%;
+    }
+
+    &:disabled {
+      opacity: 0.55;
+      cursor: wait;
+    }
+  }
+}
+
+@media (min-width: 768px) and (max-width: 1279.98px) {
+  .liveStage__switchCameraButton {
+    width: 32px;
+    height: 32px;
+  }
+}
+
 @media (min-width: 1280px) {
   .livePage {
     height: 100dvh;
@@ -1257,6 +1295,14 @@
     display: flex;
     flex-direction: column;
     padding: 14px 42px 12px;
+  }
+
+  .livePage--owner .livePage__content {
+    height: 100dvh;
+  }
+
+  .livePage--owner .livePage__background {
+    inset-block-start: 0;
   }
 
   .livePage__headingRow {

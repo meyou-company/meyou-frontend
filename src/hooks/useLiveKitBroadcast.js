@@ -15,6 +15,8 @@ export function useLiveKitBroadcast({ onData, onDisconnected } = {}) {
   const [videoTrack, setVideoTrack] = useState(null);
   const [audioTrack, setAudioTrack] = useState(null);
   const [participantCount, setParticipantCount] = useState(0);
+  const [cameraFacingMode, setCameraFacingMode] = useState("user");
+  const [isSwitchingCamera, setIsSwitchingCamera] = useState(false);
 
   useEffect(() => {
     onDataRef.current = onData;
@@ -32,6 +34,8 @@ export function useLiveKitBroadcast({ onData, onDisconnected } = {}) {
     setVideoTrack(null);
     setAudioTrack(null);
     setParticipantCount(0);
+    setCameraFacingMode("user");
+    setIsSwitchingCamera(false);
   }, []);
 
   const connect = useCallback(async (media, { isHost = false } = {}) => {
@@ -95,10 +99,13 @@ export function useLiveKitBroadcast({ onData, onDisconnected } = {}) {
       updateCount();
 
       if (isHost) {
-        const cameraPublication = await room.localParticipant.setCameraEnabled(true);
+        const cameraPublication = await room.localParticipant.setCameraEnabled(true, {
+          facingMode: "user",
+        });
         const microphonePublication = await room.localParticipant.setMicrophoneEnabled(true);
         if (cameraPublication?.track) setVideoTrack(cameraPublication.track);
         if (microphonePublication?.track) setAudioTrack(microphonePublication.track);
+        setCameraFacingMode("user");
       } else {
         room.remoteParticipants.forEach((participant) => {
           participant.trackPublications.forEach((publication) => {
@@ -134,6 +141,30 @@ export function useLiveKitBroadcast({ onData, onDisconnected } = {}) {
     await room.localParticipant.setMicrophoneEnabled(enabled);
   }, []);
 
+  const switchCamera = useCallback(async () => {
+    const room = roomRef.current;
+    if (!room || isSwitchingCamera) return cameraFacingMode;
+
+    const publication = room.localParticipant.getTrackPublication(Track.Source.Camera);
+    const track = publication?.track;
+    if (!track || typeof track.restartTrack !== "function") {
+      throw new Error("Не удалось найти активную камеру");
+    }
+
+    const activeFacingMode =
+      track.mediaStreamTrack?.getSettings?.()?.facingMode || cameraFacingMode;
+    const nextFacingMode = activeFacingMode === "environment" ? "user" : "environment";
+
+    setIsSwitchingCamera(true);
+    try {
+      await track.restartTrack({ facingMode: nextFacingMode });
+      setCameraFacingMode(nextFacingMode);
+      return nextFacingMode;
+    } finally {
+      setIsSwitchingCamera(false);
+    }
+  }, [cameraFacingMode, isSwitchingCamera]);
+
   const startAudio = useCallback(async () => {
     await roomRef.current?.startAudio();
   }, []);
@@ -152,10 +183,13 @@ export function useLiveKitBroadcast({ onData, onDisconnected } = {}) {
     videoTrack,
     audioTrack,
     participantCount,
+    cameraFacingMode,
+    isSwitchingCamera,
     connect,
     disconnect,
     publishData,
     setMicrophoneEnabled,
+    switchCamera,
     startAudio,
   };
 }

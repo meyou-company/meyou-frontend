@@ -107,8 +107,8 @@
 }
 
 .storyUploadModal_closeIcon {
-  width: 16px;
-  height: 16px;
+  width: 14px;
+  height: 14px;
 }
 
 .storyUploadModal__settings {
@@ -119,8 +119,8 @@
 .storyUploadModal__title {
   margin: 0;
   text-align: center;
-  font-size: 28px;
-  font-weight: 700;
+  font-size: 22px;
+  font-weight: 300;
   line-height: 1.1;
 }
 
@@ -145,8 +145,8 @@
   justify-content: center;
   color: #111;
   font-family: Montserrat, sans-serif;
-  font-size: 18px;
-  font-weight: 500;
+  font-size: 14px;
+  font-weight: 400;
   cursor: pointer;
 }
 
@@ -172,8 +172,8 @@
   padding: 0;
   color: #000;
   font-family: Montserrat, sans-serif;
-  font-size: 26px;
-  font-weight: 700;
+  font-size: 20px;
+  font-weight: 300;
   cursor: pointer;
 
   span {
@@ -183,8 +183,8 @@
 }
 
 .storyUploadModal__galleryArrowIcon {
-  width: 30px;
-  height: 22px;
+  width: 24px;
+  height: 18px;
   rotate: 270deg;
   margin-left: -5px;
 }
@@ -196,8 +196,8 @@
   padding: 9px 12px;
   color: #111;
   font-family: Montserrat, sans-serif;
-  font-size: 20px;
-  font-weight: 500;
+  font-size: 14px;
+  font-weight: 400;
   display: inline-flex;
   align-items: center;
   gap: 8px;
@@ -205,7 +205,12 @@
 }
 
 .storyUploadModal__selectIcon {
-  font-size: 18px;
+  font-size: 14px;
+
+  img {
+    width: 16px;
+    height: 16px;
+  }
 }
 
 .storyUploadModal__file {
@@ -841,13 +846,13 @@
   }
 
   .storyUploadModal_closeIcon {
-    width: 20px;
-    height: 20px;
+    width: 17px;
+    height: 17px;
   }
 
   .storyUploadModal_settingsIcon {
-    width: 28px;
-    height: 28px;
+    width: 24px;
+    height: 24px;
   }
 
   .storyUploadModal__bottomActions {
@@ -900,7 +905,7 @@
   }
 
   .storyUploadModal__title {
-    font-size: 24px;
+    font-size: 20px;
   }
 
   .storyUploadModal__tools {
@@ -919,11 +924,11 @@
   }
 
   .storyUploadModal__galleryTitle {
-    font-size: 19px;
+    font-size: 17px;
   }
 
   .storyUploadModal__selectBtn {
-    font-size: 14px;
+    font-size: 13px;
     padding: 8px 11px;
   }
 }
@@ -978,8 +983,8 @@
   }
 
   .storyUploadModal_closeIcon {
-    width: 22px;
-    height: 22px;
+    width: 18px;
+    height: 18px;
   }
 
   .storyUploadModal__editorToolIcon--text {
@@ -988,35 +993,35 @@
   }
 
   .storyUploadModal_settingsIcon {
-    width: 32px;
-    height: 32px;
+    width: 26px;
+    height: 26px;
   }
 
   .storyUploadModal__tool {
-    min-height: 84px;
-    gap: 8px;
-    border-radius: 20px;
-    font-size: 17px;
+    min-height: 72px;
+    gap: 6px;
+    border-radius: 16px;
+    font-size: 14px;
   }
 
   .storyUploadModal__tool img {
-    width: 32px;
-    height: 32px;
+    width: 26px;
+    height: 26px;
   }
 
   .storyUploadModal__toolIcon--text {
-    font-size: 24px;
+    font-size: 20px;
   }
 
   .storyUploadModal__galleryArrowIcon {
-    width: 34px;
-    height: 26px;
+    width: 26px;
+    height: 20px;
     margin-left: 3px;
   }
 
   .storyUploadModal__selectBtn {
-    font-size: 17px;
-    padding: 10px 14px;
+    font-size: 14px;
+    padding: 8px 12px;
   }
 
   .storyUploadModal__bottomActions {
@@ -1054,7 +1059,7 @@
   }
 
   .storyUploadModal__title {
-    font-size: 19px;
+    font-size: 17px;
   }
 
   .storyUploadModal__tools {
@@ -1064,15 +1069,15 @@
 
   .storyUploadModal__tool {
     border-radius: 14px;
-    font-size: 14px;
+    font-size: 12px;
   }
 
   .storyUploadModal__galleryTitle {
-    font-size: 22px;
+    font-size: 16px;
   }
 
   .storyUploadModal__selectBtn {
-    font-size: 14px;
+    font-size: 12px;
     padding: 6px 10px;
   }
 

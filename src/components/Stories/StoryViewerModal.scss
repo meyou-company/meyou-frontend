@@ -1930,6 +1930,11 @@
     font-size: 32px;
   }
 
+  .storyViewer__card--visitor .storyViewer__popup {
+    right: auto;
+    left: calc(50% + 250px);
+  }
+
   .storyViewer__actions {
     width: min(560px, calc(100% - 96px));
     margin-top: 12px;

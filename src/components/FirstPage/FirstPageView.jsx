@@ -295,6 +295,15 @@ export default function FirstPageView({
               ? {
                 ...story,
                 myReaction: reactionType,
+                reactionsCount: Math.max(
+                  0,
+                  Number(story?.reactionsCount || 0) +
+                    (story?.myReaction && !reactionType
+                      ? -1
+                      : !story?.myReaction && reactionType
+                        ? 1
+                        : 0),
+                ),
               }
               : story
           )
@@ -451,14 +460,17 @@ export default function FirstPageView({
         {/* TABLET / DESKTOP NAV  */}
         <section className="hidden md:block min-w-0 max-w-full overflow-x-clip border-t-[0.1px] border-gray-900 bg-[#FCE9E9]">
           <div className="flex w-full min-w-0 justify-between items-center px-[10px] md:px-[41px] lg:px-9 min-[1440px]:px-[66px] py-3">
-            <TabletNav onGoNotifications={onGoNotifications} />
+            <TabletNav
+              onGoNotifications={onGoNotifications}
+              onAddStory={() => setIsStoryUploadOpen(true)}
+            />
           </div>
         </section>
 
         {/* STORIES — фон на ширину first-page (уже без px контейнера додатку) */}
         <section className="first-page-stories w-full border-b-[0.1px] border-t-[0.1px] border-gray-900">
           <div className="mx-auto w-full max-w-[1340px] pt-4 md:pt-[23px] md:pb-[19px] xl:pt-4 xl:pb-[13px]">
-            <h2 className="mb-1 md:mb-2 xl:mb-4 px-[10px] md:px-[41px] lg:px-9 min-[1440px]:px-[66px] text-black font-[Montserrat] text-base md:text-xl xl:text-[28px]">
+            <h2 className="first-page-stories__title mb-1 md:mb-2 xl:mb-4 px-[10px] md:px-[41px] lg:px-9 min-[1440px]:px-[66px]">
               Истории
             </h2>
 
@@ -579,6 +591,23 @@ export default function FirstPageView({
           onViewed={markStoryViewedLocally}
           onDeleteStory={handleDeleteStory}
           onReactionChange={markStoryReactionLocally}
+          onFollowingChange={(authorId, isFollowing) => {
+            setStoriesGroups((prev) =>
+              prev.map((group) => {
+                const groupAuthorId = group?.author?.id || group?.author?._id || group?.authorId;
+                if (String(groupAuthorId || "") !== String(authorId || "")) return group;
+
+                return {
+                  ...group,
+                  isFollowingAuthor: isFollowing,
+                  author: {
+                    ...(group.author || {}),
+                    amIFollowing: isFollowing,
+                  },
+                };
+              }),
+            );
+          }}
           onBlockedAuthor={(blockedUserId) => {
             setStoriesGroups((prev) =>
               prev.filter(
@@ -874,7 +903,7 @@ function ActionIcon({ icon, label, active, liked, onClick }) {
   );
 }
 
-const TabletNav = ({ onGoNotifications }) => {
+const TabletNav = ({ onGoNotifications, onAddStory }) => {
   const navigate = useNavigate();
 
   return (
@@ -883,7 +912,13 @@ const TabletNav = ({ onGoNotifications }) => {
         {/* 1 кнопка */}
         <button
           type="button"
-          onClick={() => navigate('/profile')}
+          onClick={() => {
+            if (window.matchMedia('(min-width: 1280px)').matches) {
+              onAddStory?.();
+              return;
+            }
+            navigate('/profile');
+          }}
           className="flex flex-col items-center gap-2 group"
         >
           <img
