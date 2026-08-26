@@ -42,7 +42,7 @@ export default function SearchFilterModal({
 
   const defaultFilter = useMemo(
     () => ({
-      nearMe: true,
+      nearMe: false,
       country: null,
       city: null,
       gender: searchGenderOptions[0],
@@ -50,7 +50,7 @@ export default function SearchFilterModal({
       ageEnabled: false,
       ageMin: 18,
       ageMax: 100,
-      interestsEnabled: true,
+      interestsEnabled: false,
       selectedInterests: [],
       online: false,
       vip: false,
@@ -85,7 +85,7 @@ export default function SearchFilterModal({
     setF({
       ...defaultFilter,
 
-      nearMe: initialParams.nearMe ?? true,
+      nearMe: initialParams.nearMe ?? false,
 
       country: countries.find((c) => c.value === initialParams.country) ?? null,
 
@@ -101,7 +101,7 @@ export default function SearchFilterModal({
       ageEnabled: initialParams.ageEnabled ?? false,
       ageMin: initialParams.ageMin ?? 18,
       ageMax: initialParams.ageMax ?? 100,
-      interestsEnabled: initialParams.interestsEnabled ?? true,
+      interestsEnabled: initialParams.interestsEnabled ?? false,
       selectedInterests: Array.isArray(initialParams.interests)
         ? interestOptions.filter((option) => initialParams.interests.includes(option.value))
         : [],
