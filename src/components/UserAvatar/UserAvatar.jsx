@@ -17,12 +17,14 @@ export default function UserAvatar({
   className = '',
   flip = false,
   introFlip = false,
+  /** Optional display override. Omit to use isUserVip(user) only. */
+  vipVisual,
   size,
   style,
   ...imgProps
 }) {
   const mergedStyle = sizeStyle(size, style);
-  const vip = isUserVip(user);
+  const vip = typeof vipVisual === 'boolean' ? vipVisual : isUserVip(user);
   const introPlayedRef = useRef(false);
   const [mobileIntro, setMobileIntro] = useState(false);
 

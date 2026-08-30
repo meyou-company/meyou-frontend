@@ -253,10 +253,16 @@ export default function Profile() {
   // }, [urlUsername, isAuthLoading, user, navigate]);
 
   const profileUser = useMemo(() => {
-    if (urlUsername && fetchedUser) return normalizeProfile(fetchedUser);
+    if (urlUsername && fetchedUser) {
+      const normalized = normalizeProfile(fetchedUser);
+      if (isOwnProfile && user && typeof user.vipEnabled === 'boolean') {
+        return { ...normalized, vipEnabled: user.vipEnabled };
+      }
+      return normalized;
+    }
     if (!urlUsername && user) return normalizeProfile(user);
     return null;
-  }, [urlUsername, fetchedUser, user]);
+  }, [urlUsername, fetchedUser, user, isOwnProfile]);
 
   const { activeStreams } = useActiveLiveStreams({ enabled: Boolean(urlUsernameNorm) });
   const activeProfileLiveStream = useMemo(

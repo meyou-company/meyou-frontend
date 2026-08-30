@@ -9,7 +9,13 @@ export const VIP_BADGE_SRC = '/vip/badge.png';
  * Mobile/touch VIP profile photo viewer: photo ⇄ badge via existing ImageLightbox swipe.
  * Renders nothing on desktop / non-VIP so the original overlay stays 1:1.
  */
-export default function MobileVipPhotoLightbox({ user, photoUrl, isOpen, onClose }) {
+export default function MobileVipPhotoLightbox({
+  user,
+  photoUrl,
+  isOpen,
+  onClose,
+  vipVisual,
+}) {
   const touchUx = useTouchAvatarUx();
   const [index, setIndex] = useState(0);
 
@@ -17,7 +23,9 @@ export default function MobileVipPhotoLightbox({ user, photoUrl, isOpen, onClose
     if (isOpen) setIndex(0);
   }, [isOpen, photoUrl]);
 
-  if (!isOpen || !photoUrl || !isUserVip(user) || !touchUx) {
+  const showVip = typeof vipVisual === 'boolean' ? vipVisual : isUserVip(user);
+
+  if (!isOpen || !photoUrl || !showVip || !touchUx) {
     return null;
   }
 
