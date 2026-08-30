@@ -77,7 +77,7 @@ export default function ResetNewPasswordForm({ onBack, onSuccess }) {
       </button>
 
       <div className="auth__logoCard" aria-hidden="true">
-        <img className="auth__logoImg" src="/Logo/photo.png" alt={t("auth.common.logoAlt")} />
+        <img className="auth__logoImg" src="/Logo/photo.png?v=2" alt={t("auth.common.logoAlt")} />
       </div>
 
       <h1 className="auth__title">{t("auth.resetPassword.title")}</h1>

@@ -30,7 +30,7 @@ export default function HomeFeed({ onRegister, onLogin }) {
         <div className="home__logoCard">
           <img
             className="home__logoImg"
-            src="/Logo/photo.png"
+            src="/Logo/photo.png?v=2"
             alt={t("auth.common.logoAlt")}
           />
         </div>

@@ -9,7 +9,7 @@ export default function AuthLoadingScreen({ messageKey = 'auth.google.loadingGen
   return (
     <section className="auth auth--loading" aria-live="polite" aria-busy="true">
       <div className="auth__logoCard" aria-hidden="true">
-        <img className="auth__logoImg" src="/Logo/photo.png" alt="" />
+        <img className="auth__logoImg" src="/Logo/photo.png?v=2" alt="" />
       </div>
       <p className="auth-loading__text">{t(messageKey)}</p>
     </section>

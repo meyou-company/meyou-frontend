@@ -92,7 +92,7 @@ export default function LoginForm({ onBack, onForgot, onSuccess }) {
       </button>
 
       <div className="auth__logoCard" aria-hidden="true">
-        <img className="auth__logoImg" src="/Logo/photo.png" alt={t("auth.common.logoAlt")} />
+        <img className="auth__logoImg" src="/Logo/photo.png?v=2" alt={t("auth.common.logoAlt")} />
       </div>
 
       <h1 className="auth__title auth__title--login">{t("auth.login.title")}</h1>

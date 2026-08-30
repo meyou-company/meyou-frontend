@@ -76,7 +76,7 @@ export default function ForgotPasswordForm({ onBack, onSuccess }) {
       </button>
 
       <div className="forgot__logoCard" aria-hidden="true">
-        <img className="forgot__logoImg" src="/Logo/photo.png" alt={t("auth.common.logoAlt")} />
+        <img className="forgot__logoImg" src="/Logo/photo.png?v=2" alt={t("auth.common.logoAlt")} />
       </div>
 
       <h1 className="forgot__title">{t("auth.forgotPassword.title")}</h1>

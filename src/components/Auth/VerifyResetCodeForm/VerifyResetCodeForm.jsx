@@ -153,7 +153,7 @@ export default function VerifyResetCodeForm({ onBack, onSuccess, email }) {
       </button>
 
       <div className="verify__logoCard" aria-hidden="true">
-        <img className="verify__logoImg" src="/Logo/photo.png" alt={t("auth.common.logoAlt")} />
+        <img className="verify__logoImg" src="/Logo/photo.png?v=2" alt={t("auth.common.logoAlt")} />
       </div>
 
       <h1 className="verify__title">{t("auth.verifyResetCode.title")}</h1>
