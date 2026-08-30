@@ -65,6 +65,27 @@
   font-weight: 600;
 }
 
+.ilb__dots {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  z-index: 1;
+  display: flex;
+  gap: 8px;
+  transform: translateX(-50%);
+}
+
+.ilb__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.38);
+}
+
+.ilb__dot--active {
+  background: #fff;
+}
+
 @media (max-width: 768px) {
   .ilb {
     padding: 16px;
@@ -74,5 +95,11 @@
   }
   .ilb__nav--next {
     right: 8px;
+  }
+}
+
+@media (hover: none), (pointer: coarse) {
+  .ilb--dots .ilb__nav {
+    display: none;
   }
 }

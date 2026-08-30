@@ -1,0 +1,224 @@
+.userAvatar {
+  --user-avatar-ring: 5px;
+  box-sizing: border-box;
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  vertical-align: top;
+}
+
+.userAvatar--vip {
+  position: relative;
+  box-shadow:
+    0 0 0 1px #6f4300,
+    0 1px 2px rgba(40, 22, 0, 0.35),
+    0 0 4px 1px rgba(199, 138, 0, 0.28),
+    0 0 8px 2px rgba(111, 67, 0, 0.16);
+}
+
+.userAvatar--flip {
+  --user-avatar-ring: 6px;
+  perspective: 720px;
+  transform-style: preserve-3d;
+  box-shadow:
+    0 0 0 1px #6f4300,
+    0 1px 2px rgba(40, 22, 0, 0.38),
+    0 0 5px 1px rgba(199, 138, 0, 0.3),
+    0 0 9px 2px rgba(111, 67, 0, 0.18);
+}
+
+.userAvatar__scene {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  transition: transform 600ms cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+.userAvatar__face {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  overflow: hidden;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+.userAvatar__face--front {
+  transform: rotateY(0deg);
+}
+
+.userAvatar__face--back {
+  transform: rotateY(180deg);
+}
+
+.userAvatar__ring {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  overflow: hidden;
+  box-sizing: border-box;
+  background: conic-gradient(
+    from 90deg,
+    #6f4300 0deg,
+    #a66a00 38deg,
+    #d9a514 62deg,
+    #f4c84a 78deg,
+    #c78a00 102deg,
+    #6f4300 138deg,
+    #4a2a5c 152deg,
+    #7a4a8a 168deg,
+    #4a2a5c 184deg,
+    #6f4300 198deg,
+    #a66a00 238deg,
+    #d9a514 268deg,
+    #c78a00 300deg,
+    #6f4300 338deg,
+    #a66a00 352deg,
+    #6f4300 360deg
+  );
+  box-shadow:
+    inset 0 0 0 1px #6f4300,
+    0 1px 2px rgba(40, 22, 0, 0.28);
+}
+
+.userAvatar__ring::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  border-radius: 50%;
+  pointer-events: none;
+  background: conic-gradient(
+    from 0deg,
+    transparent 0deg,
+    transparent 6deg,
+    #c78a00 11deg,
+    #ffe7a0 15deg,
+    #fff8dc 18deg,
+    #ffe7a0 21deg,
+    #c78a00 25deg,
+    transparent 30deg,
+    transparent 360deg
+  );
+  mix-blend-mode: screen;
+  -webkit-mask: radial-gradient(
+    farthest-side,
+    transparent calc(100% - var(--user-avatar-ring) - 0.5px),
+    #000 calc(100% - var(--user-avatar-ring) + 0.5px)
+  );
+  mask: radial-gradient(
+    farthest-side,
+    transparent calc(100% - var(--user-avatar-ring) - 0.5px),
+    #000 calc(100% - var(--user-avatar-ring) + 0.5px)
+  );
+  animation: user-avatar-spin 12s linear infinite;
+}
+
+.userAvatar__ring::after {
+  content: '';
+  position: absolute;
+  inset: var(--user-avatar-ring);
+  z-index: 3;
+  pointer-events: none;
+  border-radius: 50%;
+  box-shadow:
+    0 0 0 1px #6f4300,
+    0 0 0 2px rgba(255, 231, 160, 0.7),
+    inset 0 1px 2px rgba(40, 22, 0, 0.28);
+}
+
+.userAvatar.userAvatar--vip img.userAvatar__photo,
+.userAvatar.userAvatar--vip img.userAvatar__badge {
+  position: relative;
+  z-index: 1;
+  display: block;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  max-height: none;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.userAvatar.userAvatar--vip img.userAvatar__photo {
+  width: calc(100% - var(--user-avatar-ring) * 2);
+  height: calc(100% - var(--user-avatar-ring) * 2);
+  margin: var(--user-avatar-ring);
+  background: #1a1020;
+  border: 0;
+  box-sizing: border-box;
+  box-shadow: inset 0 1px 2px rgba(20, 10, 0, 0.28);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .userAvatar--flip:hover .userAvatar__scene,
+  :hover > .userAvatar--flip .userAvatar__scene {
+    transform: rotateY(180deg);
+  }
+}
+
+@media (hover: none), (pointer: coarse) {
+  .userAvatar--flip.userAvatar--mobileIntro .userAvatar__scene {
+    transform: rotateY(180deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .userAvatar__ring::before {
+    animation: none;
+  }
+
+  .userAvatar__scene {
+    transition: none;
+  }
+
+  .userAvatar--flip:hover .userAvatar__scene,
+  :hover > .userAvatar--flip .userAvatar__scene,
+  .userAvatar--flip.userAvatar--mobileIntro .userAvatar__scene {
+    transform: none;
+  }
+}
+
+/* Keep 3D flip inside existing circular shells without clipping mid-rotation. */
+.avatarInner:has(> .userAvatar--flip),
+.ph-visitor-avatarWrap:has(> .userAvatar--flip),
+.profile-visitor-subscribed__avatarWrap:has(> .userAvatar--flip),
+.profile-visitor-vip__avatarWrap:has(> .userAvatar--flip) {
+  overflow: visible;
+}
+
+/* VIP gold ring replaces the decorative pink/purple avatar border. Stories/LIVE click logic stays. */
+.avatarBorder:has(.userAvatar--vip),
+.avatarBorder--hasStories:has(.userAvatar--vip) {
+  padding: 0;
+  background: none;
+}
+
+.ph-visitor-avatarWrap:has(.userAvatar--vip),
+.ph-visitor-avatarWrap--hasStories:has(.userAvatar--vip) {
+  padding: 0;
+  background: none !important;
+}
+
+.profile-visitor-subscribed__avatarWrap:has(.userAvatar--vip),
+.profile-visitor-subscribed__avatarWrap--hasStories:has(.userAvatar--vip) {
+  border-width: 0;
+  padding: 0;
+  background: none !important;
+}
+
+.profile-visitor-vip__avatarWrap:has(.userAvatar--vip) {
+  border-width: 0;
+  background: none;
+}
+
+@keyframes user-avatar-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

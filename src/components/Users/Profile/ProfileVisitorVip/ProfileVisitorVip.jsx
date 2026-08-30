@@ -7,6 +7,10 @@ import {
 } from "../../../../utils/profileFriendNav";
 import { useVipProfileTabs } from "../../../../hooks/useProfileTabs";
 import OnlineStatus from "../../../Presence/OnlineStatus";
+import UserAvatar from "../../../UserAvatar/UserAvatar";
+import MobileVipPhotoLightbox from "../../../UserAvatar/MobileVipPhotoLightbox";
+import { isUserVip } from "../../../../utils/isUserVip";
+import { useTouchAvatarUx } from "../../../../utils/isTouchAvatarUx";
 import ProfileVipMediaPanel from "../ProfileVipMediaPanel/ProfileVipMediaPanel";
 import "./ProfileVisitorVip.scss";
 import { FeedCard } from "../../../FirstPage/FirstPageView";
@@ -28,6 +32,8 @@ export default function ProfileVisitorVip({
   const TABS = useVipProfileTabs();
   const [activeTab, setActiveTab] = useState("info");
   const [viewImageUrl, setViewImageUrl] = useState(null);
+  const touchAvatarUx = useTouchAvatarUx();
+  const mobileVipPhotoViewer = isUserVip(user) && touchAvatarUx;
   // eslint-disable-next-line no-unused-vars
   const [isFriendImage, setIsFriendImage] = useState(false);
 
@@ -153,10 +159,13 @@ export default function ProfileVisitorVip({
               setViewImageUrl(displayAvatar);
             }}
           >
-            <img
+            <UserAvatar
+              user={user}
               src={displayAvatar}
               alt=""
               className="profile-visitor-vip__avatar"
+              flip
+              introFlip
             />
             {activeLiveStream && <span className="liveAvatar__badge">LIVE</span>}
             <OnlineStatus
@@ -325,7 +334,7 @@ export default function ProfileVisitorVip({
       <FeedCard name={displayName} time="2 дня назад" location={user?.location || t('profile.notSpecified')} status="online" text="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam auctor, nisl eget ultricies ultricies, nunc nisl ultricies nunc, eget ultricies nunc nisl eget ultricies." />
       </section>
 
-      {viewImageUrl && (
+      {viewImageUrl && !mobileVipPhotoViewer && (
   <div
     className="profile-visitor-vip__imageViewer"
     onClick={() => setViewImageUrl(null)}
@@ -347,6 +356,12 @@ export default function ProfileVisitorVip({
     />
   </div>
 )}
+      <MobileVipPhotoLightbox
+        user={user}
+        photoUrl={viewImageUrl}
+        isOpen={Boolean(viewImageUrl) && mobileVipPhotoViewer}
+        onClose={() => setViewImageUrl(null)}
+      />
     </div>
   );
 }

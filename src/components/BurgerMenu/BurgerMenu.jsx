@@ -14,6 +14,7 @@ import './BurgerMenu.scss';
 import { useMemo, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
+import UserAvatar from '../UserAvatar/UserAvatar';
 
 const GUEST_PREVIEW_BLOCKED_MENU = new Set([
   'edit',
@@ -192,7 +193,8 @@ export default function BurgerMenu({
               aria-label={t('menu.myProfile')}
             >
               <div className="profile-menu__avatar-wrapper">
-                <img
+                <UserAvatar
+                  user={user}
                   className="profile-menu__avatar"
                   src={avatarUrl || profileIcons.user}
                   alt=""

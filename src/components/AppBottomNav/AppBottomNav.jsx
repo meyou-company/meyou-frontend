@@ -4,6 +4,7 @@ import { useAuthStore } from '../../zustand/useAuthStore';
 import NotificationBell from '../../components/Notifications/NotificationBell';
 import { useMobileProfileNav } from '../../hooks/useMobileProfileNav';
 import { useTranslation } from 'react-i18next';
+import UserAvatar from '../UserAvatar/UserAvatar';
 import './AppBottomNav.scss';
 
 const DEFAULT_AVATAR = '/Logo/photo.png';
@@ -91,7 +92,8 @@ export default function AppBottomNav() {
           >
             <div className="app-bottom-nav__iconWrapper">
               {isAvatar ? (
-                <img
+                <UserAvatar
+                  user={user}
                   src={currentUserAvatar}
                   alt=""
                   aria-hidden="true"

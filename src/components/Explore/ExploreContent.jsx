@@ -9,9 +9,11 @@ import { authApi } from '../../services/auth';
 import { subscriptionsApi } from '../../services/subscriptionsApi';
 
 import { getProfileRouteHandle } from '../../utils/profileFriendNav';
+import { isUserVip } from '../../utils/isUserVip';
 import { usePresenceStore } from '../../zustand/usePresenceStore';
 
 import OnlineStatus from '../Presence/OnlineStatus';
+import UserAvatar from '../UserAvatar/UserAvatar';
 
 import SearchFilterModal from './SearchFilterModal';
 import './ExploreContent.scss';
@@ -71,12 +73,6 @@ export default function ExploreContent({ onBack, onOpenProfile }) {
     ],
     [t]
   );
-
-  const isVip = useCallback((user) => {
-    return (
-      user?.isVip === true || user?.vipFlag === true || user?.accountStatus?.toLowerCase() === 'vip'
-    );
-  }, []);
 
   const buildSearchParams = useCallback(() => {
     const params = {
@@ -471,10 +467,12 @@ export default function ExploreContent({ onBack, onOpenProfile }) {
                       }}
                     >
                       <div className="explore-content__cardPhoto">
-                        <img
+                        <UserAvatar
+                          user={user}
                           src={user.avatar || user.avatarUrl || DEFAULT_AVATAR}
                           alt=""
                           className="explore-content__cardPhotoImg"
+                          flip
                         />
                         <div className="explore-content__cardPhotoOverlay" />
 
@@ -484,7 +482,7 @@ export default function ExploreContent({ onBack, onOpenProfile }) {
                           className="onlineStatus--onAvatar explore-content__cardOnlineDot"
                         />
 
-                        {isVip(user) && (
+                        {isUserVip(user) && (
                           <span className="explore-content__vipBadge" aria-hidden="true">
                             VIP
                           </span>

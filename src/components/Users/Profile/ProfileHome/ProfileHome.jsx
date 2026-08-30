@@ -34,6 +34,10 @@ import StoryViewerModal from "../../../Stories/StoryViewerModal";
 import StoryUploadModal from "../../../Stories/StoryUploadModal";
 import ProfileInfoPanel from "../ProfileInfoPanel/ProfileInfoPanel";
 import OnlineStatus from "../../../Presence/OnlineStatus";
+import UserAvatar from "../../../UserAvatar/UserAvatar";
+import MobileVipPhotoLightbox from "../../../UserAvatar/MobileVipPhotoLightbox";
+import { isUserVip } from "../../../../utils/isUserVip";
+import { useTouchAvatarUx } from "../../../../utils/isTouchAvatarUx";
 import "./ProfileHome.scss";
 
 /** Іконки тільки для actionsBlock (чорно-білі SVG) */
@@ -82,6 +86,8 @@ export default function ProfileHome({
   const [isSaving, setIsSaving] = useState(false);
   /** URL фото для перегляду в повному розмірі (null = закрито) */
   const [viewImageUrl, setViewImageUrl] = useState(null);
+  const touchAvatarUx = useTouchAvatarUx();
+  const mobileVipPhotoViewer = isUserVip(user) && touchAvatarUx;
   const [profileStories, setProfileStories] = useState([]);
   const [profileStoriesLoading, setProfileStoriesLoading] = useState(false);
   const [isStoryViewerOpen, setIsStoryViewerOpen] = useState(false);
@@ -509,7 +515,14 @@ export default function ProfileHome({
                     }}
                     aria-label={t('profile.viewPhotoFull')}
                   >
-                    <img src={displayAvatar} alt={titleName} className="avatar" />
+                    <UserAvatar
+                      user={user}
+                      src={displayAvatar}
+                      alt={titleName}
+                      className="avatar"
+                      flip
+                      introFlip
+                    />
                   </div>
                 </div>
 
@@ -899,7 +912,7 @@ export default function ProfileHome({
       )}
 
       {/* Перегляд фото в повному розмірі */}
-      {viewImageUrl && (
+      {viewImageUrl && !mobileVipPhotoViewer && (
         <div
           className="profile-home__imageViewer"
           role="dialog"
@@ -924,6 +937,12 @@ export default function ProfileHome({
           />
         </div>
       )}
+      <MobileVipPhotoLightbox
+        user={user}
+        photoUrl={viewImageUrl}
+        isOpen={Boolean(viewImageUrl) && mobileVipPhotoViewer}
+        onClose={() => setViewImageUrl(null)}
+      />
       <StoryViewerModal
         isOpen={isStoryViewerOpen}
         groups={profileStoryGroups}

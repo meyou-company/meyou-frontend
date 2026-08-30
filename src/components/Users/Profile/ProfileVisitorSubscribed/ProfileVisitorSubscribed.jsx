@@ -20,6 +20,10 @@ import VipAccessInfoModal from "../VipAccessInfoModal/VipAccessInfoModal";
 import { storiesApi } from "../../../../services/storiesApi";
 import StoryViewerModal from "../../../Stories/StoryViewerModal";
 import OnlineStatus from "../../../Presence/OnlineStatus";
+import UserAvatar from "../../../UserAvatar/UserAvatar";
+import MobileVipPhotoLightbox from "../../../UserAvatar/MobileVipPhotoLightbox";
+import { isUserVip } from "../../../../utils/isUserVip";
+import { useTouchAvatarUx } from "../../../../utils/isTouchAvatarUx";
 import { useProfileTabs } from "../../../../hooks/useProfileTabs";
 import { useAuthStore } from "../../../../zustand/useAuthStore";
 import "../ProfileHome/ProfileHome.scss";
@@ -48,6 +52,8 @@ export default function ProfileVisitorSubscribed({
   const tabs = useProfileTabs({ includeUnsubscribe: true, withLocks: true });
   const [activeTab, setActiveTab] = useState("delete");
   const [viewImageUrl, setViewImageUrl] = useState(null);
+  const touchAvatarUx = useTouchAvatarUx();
+  const mobileVipPhotoViewer = isUserVip(user) && touchAvatarUx;
   const [profileStories, setProfileStories] = useState([]);
   const [profileStoriesLoading, setProfileStoriesLoading] = useState(false);
   const [isStoryViewerOpen, setIsStoryViewerOpen] = useState(false);
@@ -250,7 +256,14 @@ export default function ProfileVisitorSubscribed({
               }}
               aria-label={activeLiveStream ? "Открыть прямой эфир" : t('profile.viewPhoto')}
             >
-              <img src={displayAvatar} alt="" className="profile-visitor-subscribed__avatar" />
+              <UserAvatar
+                user={user}
+                src={displayAvatar}
+                alt=""
+                className="profile-visitor-subscribed__avatar"
+                flip
+                introFlip
+              />
               {activeLiveStream && <span className="liveAvatar__badge">LIVE</span>}
             </div>
             <OnlineStatus
@@ -506,7 +519,7 @@ export default function ProfileVisitorSubscribed({
       />
 
       {/* ===== IMAGE VIEWER ===== */}
-      {viewImageUrl && (
+      {viewImageUrl && !mobileVipPhotoViewer && (
         <div
           className="profile-visitor-subscribed__imageViewer"
           role="dialog"
@@ -532,6 +545,12 @@ export default function ProfileVisitorSubscribed({
           />
         </div>
       )}
+      <MobileVipPhotoLightbox
+        user={user}
+        photoUrl={viewImageUrl}
+        isOpen={Boolean(viewImageUrl) && mobileVipPhotoViewer}
+        onClose={() => setViewImageUrl(null)}
+      />
       <StoryViewerModal
         isOpen={isStoryViewerOpen}
         groups={profileStoryGroups}

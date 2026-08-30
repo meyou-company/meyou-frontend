@@ -9,6 +9,7 @@ export default function ImageLightbox({
   onClose,
   onPrev,
   onNext,
+  indicator = 'counter',
 }) {
   const { t } = useTranslation();
   const touchStartX = useRef(null);
@@ -45,7 +46,7 @@ export default function ImageLightbox({
 
   return (
     <div
-      className="ilb"
+      className={['ilb', indicator === 'dots' ? 'ilb--dots' : ''].filter(Boolean).join(' ')}
       role="dialog"
       aria-modal="true"
       aria-label={t('posts.lightbox.title')}
@@ -94,7 +95,17 @@ export default function ImageLightbox({
           ›
         </button>
       )}
-      {images.length > 1 && (
+      {images.length > 1 && indicator === 'dots' && (
+        <div className="ilb__dots" onClick={(e) => e.stopPropagation()}>
+          {images.map((_, i) => (
+            <span
+              key={i}
+              className={['ilb__dot', i === index ? 'ilb__dot--active' : ''].filter(Boolean).join(' ')}
+            />
+          ))}
+        </div>
+      )}
+      {images.length > 1 && indicator !== 'dots' && (
         <div className="ilb__counter">
           {index + 1} / {images.length}
         </div>
