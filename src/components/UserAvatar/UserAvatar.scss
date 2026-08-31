@@ -184,6 +184,14 @@
   }
 }
 
+.avatarInner .userAvatar,
+.ph-visitor-avatarWrap .userAvatar,
+.profile-visitor-subscribed__avatarWrap .userAvatar,
+.profile-visitor-vip__avatarWrap .userAvatar {
+  width: 100%;
+  height: 100%;
+}
+
 /* Keep 3D flip inside existing circular shells without clipping mid-rotation. */
 .avatarInner:has(> .userAvatar--flip),
 .ph-visitor-avatarWrap:has(> .userAvatar--flip),

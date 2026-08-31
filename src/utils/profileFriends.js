@@ -63,6 +63,7 @@ export function normalizeFriendsApiResponse(response) {
       amIFollowing: Boolean(u.amIFollowing),
       isFriend: Boolean(u.isFriend),
       isVip: Boolean(u.isVip),
+      vipEnabled: u.vipEnabled === true || u.vip_enabled === true,
     };
   }).filter(Boolean);
 }

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import ImageLightbox from '../PostFeed/ImageLightbox';
-import { isUserVip } from '../../utils/isUserVip';
+import { shouldShowProfileVipVisual } from '../../utils/shouldShowOwnProfileVipVisual';
 import { useTouchAvatarUx } from '../../utils/isTouchAvatarUx';
 
 export const VIP_BADGE_SRC = '/vip/badge.png';
@@ -23,7 +23,7 @@ export default function MobileVipPhotoLightbox({
     if (isOpen) setIndex(0);
   }, [isOpen, photoUrl]);
 
-  const showVip = typeof vipVisual === 'boolean' ? vipVisual : isUserVip(user);
+  const showVip = typeof vipVisual === 'boolean' ? vipVisual : shouldShowProfileVipVisual(user);
 
   if (!isOpen || !photoUrl || !showVip || !touchUx) {
     return null;

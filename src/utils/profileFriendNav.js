@@ -26,6 +26,7 @@ export function normalizeFriendListItem(f) {
     amIFollowing: base.amIFollowing === true,
     isFriend: base.isFriend === true,
     isVip: base.isVip === true,
+    vipEnabled: base.vipEnabled === true || base.vip_enabled === true,
   };
 }
 

@@ -9,6 +9,7 @@
 export function getOwnerVipEnabled(user) {
   if (!user || typeof user !== 'object') return false;
   if (typeof user.vipEnabled === 'boolean') return user.vipEnabled;
+  if (user.vip_enabled === true) return true;
   if (typeof user.vipSettings?.enabled === 'boolean') {
     return user.vipSettings.enabled;
   }

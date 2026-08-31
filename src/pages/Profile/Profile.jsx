@@ -85,6 +85,8 @@ const normalizeProfile = (u) => {
       u.profile?.profileVisibility ??
       u.profile?.visibility,
     isVerified: u.isVerified,
+    isVip: u.isVip === true,
+    vipEnabled: u.vipEnabled === true || u.vip_enabled === true,
     /** Інтереси та хобі з бекенду (зберігаються в DTO update-profile) */
     interests: Array.isArray(u.interests) ? u.interests : [],
     hobbies: Array.isArray(u.hobbies) ? u.hobbies : [],

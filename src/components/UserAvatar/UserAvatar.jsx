@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { isUserVip } from '../../utils/isUserVip';
+import { shouldShowProfileVipVisual } from '../../utils/shouldShowOwnProfileVipVisual';
 import './UserAvatar.scss';
 
 export const VIP_BADGE_SRC = '/vip/badge.png';
@@ -24,7 +24,7 @@ export default function UserAvatar({
   ...imgProps
 }) {
   const mergedStyle = sizeStyle(size, style);
-  const vip = typeof vipVisual === 'boolean' ? vipVisual : isUserVip(user);
+  const vip = typeof vipVisual === 'boolean' ? vipVisual : shouldShowProfileVipVisual(user);
   const introPlayedRef = useRef(false);
   const [mobileIntro, setMobileIntro] = useState(false);
 
