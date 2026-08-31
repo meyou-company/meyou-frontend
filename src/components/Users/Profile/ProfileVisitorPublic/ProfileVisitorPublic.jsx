@@ -21,7 +21,7 @@ import StoryViewerModal from "../../../Stories/StoryViewerModal";
 import OnlineStatus from "../../../Presence/OnlineStatus";
 import UserAvatar from "../../../UserAvatar/UserAvatar";
 import MobileVipPhotoLightbox from "../../../UserAvatar/MobileVipPhotoLightbox";
-import { isUserVip } from "../../../../utils/isUserVip";
+import { shouldShowProfileVipVisual } from "../../../../utils/shouldShowOwnProfileVipVisual";
 import { useTouchAvatarUx } from "../../../../utils/isTouchAvatarUx";
 import { useProfileTabs } from "../../../../hooks/useProfileTabs";
 import { useAuthStore } from "../../../../zustand/useAuthStore";
@@ -55,7 +55,8 @@ export default function ProfileVisitorPublic({
   const [visitorTab, setVisitorTab] = useState('info');
   const [viewImageUrl, setViewImageUrl] = useState(null);
   const touchAvatarUx = useTouchAvatarUx();
-  const mobileVipPhotoViewer = isUserVip(user) && touchAvatarUx;
+  const profileVipVisual = shouldShowProfileVipVisual(user);
+  const mobileVipPhotoViewer = profileVipVisual && touchAvatarUx;
   const [profileStories, setProfileStories] = useState([]);
   const [profileStoriesLoading, setProfileStoriesLoading] = useState(false);
   const [isStoryViewerOpen, setIsStoryViewerOpen] = useState(false);
@@ -276,6 +277,7 @@ export default function ProfileVisitorPublic({
                   className="avatar"
                   flip
                   introFlip
+                  vipVisual={profileVipVisual}
                 />
                 {activeLiveStream && <span className="liveAvatar__badge">LIVE</span>}
               </div>
@@ -660,6 +662,7 @@ export default function ProfileVisitorPublic({
         user={user}
         photoUrl={viewImageUrl}
         isOpen={Boolean(viewImageUrl) && mobileVipPhotoViewer}
+        vipVisual={profileVipVisual}
         onClose={() => setViewImageUrl(null)}
       />
 

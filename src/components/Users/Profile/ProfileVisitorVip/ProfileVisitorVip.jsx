@@ -9,7 +9,7 @@ import { useVipProfileTabs } from "../../../../hooks/useProfileTabs";
 import OnlineStatus from "../../../Presence/OnlineStatus";
 import UserAvatar from "../../../UserAvatar/UserAvatar";
 import MobileVipPhotoLightbox from "../../../UserAvatar/MobileVipPhotoLightbox";
-import { isUserVip } from "../../../../utils/isUserVip";
+import { shouldShowProfileVipVisual } from "../../../../utils/shouldShowOwnProfileVipVisual";
 import { useTouchAvatarUx } from "../../../../utils/isTouchAvatarUx";
 import ProfileVipMediaPanel from "../ProfileVipMediaPanel/ProfileVipMediaPanel";
 import "./ProfileVisitorVip.scss";
@@ -33,7 +33,8 @@ export default function ProfileVisitorVip({
   const [activeTab, setActiveTab] = useState("info");
   const [viewImageUrl, setViewImageUrl] = useState(null);
   const touchAvatarUx = useTouchAvatarUx();
-  const mobileVipPhotoViewer = isUserVip(user) && touchAvatarUx;
+  const profileVipVisual = shouldShowProfileVipVisual(user);
+  const mobileVipPhotoViewer = profileVipVisual && touchAvatarUx;
   // eslint-disable-next-line no-unused-vars
   const [isFriendImage, setIsFriendImage] = useState(false);
 
@@ -166,6 +167,7 @@ export default function ProfileVisitorVip({
               className="profile-visitor-vip__avatar"
               flip
               introFlip
+              vipVisual={profileVipVisual}
             />
             {activeLiveStream && <span className="liveAvatar__badge">LIVE</span>}
             <OnlineStatus
@@ -360,6 +362,7 @@ export default function ProfileVisitorVip({
         user={user}
         photoUrl={viewImageUrl}
         isOpen={Boolean(viewImageUrl) && mobileVipPhotoViewer}
+        vipVisual={profileVipVisual}
         onClose={() => setViewImageUrl(null)}
       />
     </div>
