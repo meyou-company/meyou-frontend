@@ -696,6 +696,10 @@
       "toggleTitle": "VIP access to my profile",
       "toggleDesc": "When VIP access is enabled, your subscribers will be able to get additional paid access to private chat, VIP photos and videos. Payment and VIP access itself will be connected separately.",
       "saved": "VIP access saved",
+      "enabledTitle": "VIP status enabled",
+      "enabledBody": "Your profile now has VIP status. VIP features are activated.",
+      "disabledTitle": "VIP status disabled",
+      "disabledBody": "VIP status for your profile has been turned off.",
       "saveError": "Could not save VIP access",
       "on": "On",
       "off": "Off"

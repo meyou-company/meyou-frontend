@@ -56,7 +56,16 @@ export default function VipAccessSettingsPage() {
         typeof data?.user?.vipEnabled === 'boolean' ? data.user.vipEnabled : next;
       setVipEnabled(saved);
       setUserPatch({ vipEnabled: saved });
-      toast.success(t('settings.vipAccess.saved'));
+      toast.success(
+        t(saved
+          ? 'settings.vipAccess.enabledTitle'
+          : 'settings.vipAccess.disabledTitle'),
+        {
+          description: t(saved
+            ? 'settings.vipAccess.enabledBody'
+            : 'settings.vipAccess.disabledBody'),
+        },
+      );
     } catch (error) {
       setVipEnabled(previous);
       toast.error(getApiErrorMessage(error) || t('settings.vipAccess.saveError'));
