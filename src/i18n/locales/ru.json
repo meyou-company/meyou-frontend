@@ -591,7 +591,10 @@
       "chatOutgoingAudio": "Outgoing audio call",
       "chatOutgoingVideo": "Outgoing video call",
       "redialAudio": "Call back (audio)",
-      "redialVideo": "Call back (video)"
+      "redialVideo": "Call back (video)",
+      "cameraBusyTitle": "Не удалось включить камеру",
+      "cameraBusyBody": "Проверьте, не используется ли камера другой программой, и попробуйте ещё раз.",
+      "cameraRetry": "Попробовать ещё раз"
     }
   },
   "notifications": {
@@ -625,7 +628,8 @@
       "postShare": "{{name}} поделился(-ась) вашим постом",
       "postSharedToUser": "{{name}} поделился(-ась) с вами публикацией",
       "message": "{{name}} отправил(-а) вам сообщение",
-      "system": "Системное уведомление"
+      "system": "Системное уведомление",
+      "giftReceived": "{{name}} отправил(а) вам подарок"
     },
     "items": {
       "follow": {
@@ -867,7 +871,42 @@
     "ACCOUNT_SUSPENDED": "Ваш аккаунт заблокирован.",
     "ACCOUNT_DELETED": "Аккаунт удалён.",
     "SUBSCRIPTION_REQUIRED": "Чтобы писать сообщения, нужно подписаться на этот профиль.",
-    "VIP_CHAT_ACCESS_REQUIRED": "Сообщения доступны только с VIP-доступом к этому профилю."
+    "VIP_CHAT_ACCESS_REQUIRED": "Сообщения доступны только с VIP-доступом к этому профилю.",
+    "GIFTS_PAYMENT_NOT_AVAILABLE": "Оплата подарков пока не подключена.",
+    "GIFTS_INVALID_GIFT_ID": "Неизвестный подарок.",
+    "CANNOT_SEND_GIFT_TO_SELF": "Нельзя отправить подарок самому себе."
+  },
+  "gifts": {
+    "title": "Подарки",
+    "previous": "Предыдущие подарки",
+    "viewAll": "Посмотреть все подарки",
+    "send": "Послать подарок",
+    "choose": "Выбрать",
+    "reply": "Послать в ответ",
+    "empty": "Подарков пока нет",
+    "confirmTitle": "Отправить подарок?",
+    "confirmBody": "Отправить «{{gift}}» пользователю {{name}}?",
+    "confirmQuestion": "Вы хотите отправить этот подарок пользователю {{name}}?",
+    "confirmSend": "Отправить подарок",
+    "confirmPickFriend": "Выберите друга, которому хотите отправить этот подарок.",
+    "pickFriendTitle": "Кому отправить?",
+    "friendsSearch": "Поиск среди друзей",
+    "friendsEmpty": "У вас пока нет друзей",
+    "needRecipient": "Чтобы отправить подарок, откройте профиль пользователя.",
+    "sent": "Подарок отправлен",
+    "testSelectedTitle": "Подарок выбран",
+    "testSelectedBody": "{{gift}} будет отправлен пользователю {{name}}.",
+    "open": "Открыть",
+    "from": "от {{name}}",
+    "boxAria": "Новый подарок",
+    "paymentUnavailableTitle": "Функция пока недоступна",
+    "paymentUnavailableBody": "Оплата подарков ещё не подключена. Эта возможность появится позже.",
+    "catalog": {
+      "smile": "Улыбка",
+      "flowers": "Цветы",
+      "coins20": "+20$",
+      "coins20Subtitle": "20 монет"
+    }
   },
   "navigation": {
     "home": "Главная",

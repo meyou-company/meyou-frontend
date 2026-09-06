@@ -14,6 +14,7 @@ const notificationTypeMap = {
   LIVE_STARTED: 'liveStarted',
   LIVE_STREAM_STARTED: 'liveStarted',
   SYSTEM: 'system',
+  GIFT_RECEIVED: 'giftReceived',
 };
 
 export function mapType(type, metadata = {}) {
@@ -88,7 +89,7 @@ export function mapNotification(n) {
     target: buildTarget(n, post, metadata),
     metadata,
     previewText: getPreviewText(n),
-    previewImage: getPreviewImage(post),
+    previewImage: getPreviewImage(post, n),
   };
 }
 
@@ -149,6 +150,12 @@ function buildTarget(n, post, metadata) {
         conversationId: metadata.conversationId,
       };
 
+    case 'GIFT_RECEIVED':
+      return {
+        type: 'gifts',
+        giftSendId: metadata.giftSendId,
+      };
+
     default:
       return {
         type: 'notifications',
@@ -164,7 +171,11 @@ function getPreviewText(n) {
   return null; //  не показуємо текст поста для лайків
 }
 
-function getPreviewImage(post) {
+function getPreviewImage(post, n) {
+  if (n?.type === 'GIFT_RECEIVED') {
+    return n.metadata?.image || null;
+  }
+
   if (post?.imageUrl) return post.imageUrl;
 
   if (Array.isArray(post?.media) && post.media.length > 0) {

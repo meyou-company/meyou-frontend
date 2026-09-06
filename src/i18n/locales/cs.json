@@ -553,7 +553,10 @@
       "chatOutgoingAudio": "Outgoing audio call",
       "chatOutgoingVideo": "Outgoing video call",
       "redialAudio": "Call back (audio)",
-      "redialVideo": "Call back (video)"
+      "redialVideo": "Call back (video)",
+      "cameraBusyTitle": "Kameru se nepodařilo zapnout",
+      "cameraBusyBody": "Zkontrolujte, zda kameru nepoužívá jiná aplikace, a zkuste to znovu.",
+      "cameraRetry": "Zkusit znovu"
     }
   },
   "notifications": {
@@ -587,7 +590,8 @@
       "postShare": "{{name}} sdílel(a) váš příspěvek",
       "postSharedToUser": "{{name}} s vámi sdílel(a) příspěvek",
       "message": "{{name}} vám poslal(a) zprávu",
-      "system": "Systémové oznámení"
+      "system": "Systémové oznámení",
+      "giftReceived": "{{name}} vám poslal(a) dárek"
     },
     "items": {
       "follow": {
@@ -828,7 +832,42 @@
     "ACCOUNT_SUSPENDED": "Váš účet byl pozastaven.",
     "ACCOUNT_DELETED": "Tento účet byl smazán.",
     "SUBSCRIPTION_REQUIRED": "Subscribe to this profile to send messages.",
-    "VIP_CHAT_ACCESS_REQUIRED": "Messages require VIP access to this profile."
+    "VIP_CHAT_ACCESS_REQUIRED": "Messages require VIP access to this profile.",
+    "GIFTS_PAYMENT_NOT_AVAILABLE": "Platby za dárky zatím nejsou dostupné.",
+    "GIFTS_INVALID_GIFT_ID": "Neznámý dárek.",
+    "CANNOT_SEND_GIFT_TO_SELF": "Nemůžete poslat dárek sami sobě."
+  },
+  "gifts": {
+    "title": "Dárky",
+    "previous": "Předchozí dárky",
+    "viewAll": "Zobrazit všechny dárky",
+    "send": "Poslat dárek",
+    "choose": "Vybrat",
+    "reply": "Poslat na oplátku",
+    "empty": "Zatím žádné dárky",
+    "confirmTitle": "Odeslat dárek?",
+    "confirmBody": "Odeslat „{{gift}}“ uživateli {{name}}?",
+    "confirmQuestion": "Chcete tento dárek odeslat uživateli {{name}}?",
+    "confirmSend": "Odeslat dárek",
+    "confirmPickFriend": "Vyberte přítele, kterému chcete tento dárek odeslat.",
+    "pickFriendTitle": "Komu odeslat?",
+    "friendsSearch": "Hledat mezi přáteli",
+    "friendsEmpty": "Zatím nemáte žádné přátele",
+    "needRecipient": "Chcete-li odeslat dárek, otevřete profil uživatele.",
+    "sent": "Dárek odeslán",
+    "testSelectedTitle": "Dárek vybrán",
+    "testSelectedBody": "{{gift}} bude odeslán uživateli {{name}}.",
+    "open": "Otevřít",
+    "from": "od {{name}}",
+    "boxAria": "Nový dárek",
+    "paymentUnavailableTitle": "Funkce zatím není dostupná",
+    "paymentUnavailableBody": "Platby za dárky ještě nejsou připojené. Tato možnost se objeví později.",
+    "catalog": {
+      "smile": "Úsměv",
+      "flowers": "Květiny",
+      "coins20": "+20$",
+      "coins20Subtitle": "20 mincí"
+    }
   },
   "navigation": {
     "home": "Home",

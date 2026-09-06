@@ -553,7 +553,10 @@
       "chatOutgoingAudio": "Outgoing audio call",
       "chatOutgoingVideo": "Outgoing video call",
       "redialAudio": "Call back (audio)",
-      "redialVideo": "Call back (video)"
+      "redialVideo": "Call back (video)",
+      "cameraBusyTitle": "No se pudo activar la cámara",
+      "cameraBusyBody": "Comprueba que otra aplicación no esté usando la cámara e inténtalo de nuevo.",
+      "cameraRetry": "Intentar de nuevo"
     }
   },
   "notifications": {
@@ -587,7 +590,8 @@
       "postShare": "{{name}} compartió tu publicación",
       "postSharedToUser": "{{name}} compartió una publicación contigo",
       "message": "{{name}} te envió un mensaje",
-      "system": "Notificación del sistema"
+      "system": "Notificación del sistema",
+      "giftReceived": "{{name}} te envió un regalo"
     },
     "items": {
       "follow": {
@@ -828,7 +832,42 @@
     "ACCOUNT_SUSPENDED": "Tu cuenta ha sido suspendida.",
     "ACCOUNT_DELETED": "Esta cuenta ha sido eliminada.",
     "SUBSCRIPTION_REQUIRED": "Subscribe to this profile to send messages.",
-    "VIP_CHAT_ACCESS_REQUIRED": "Messages require VIP access to this profile."
+    "VIP_CHAT_ACCESS_REQUIRED": "Messages require VIP access to this profile.",
+    "GIFTS_PAYMENT_NOT_AVAILABLE": "Los pagos de regalos aún no están disponibles.",
+    "GIFTS_INVALID_GIFT_ID": "Regalo desconocido.",
+    "CANNOT_SEND_GIFT_TO_SELF": "No puedes enviarte un regalo a ti mismo."
+  },
+  "gifts": {
+    "title": "Regalos",
+    "previous": "Regalos anteriores",
+    "viewAll": "Ver todos los regalos",
+    "send": "Enviar un regalo",
+    "choose": "Elegir",
+    "reply": "Enviar de vuelta",
+    "empty": "Aún no hay regalos",
+    "confirmTitle": "¿Enviar este regalo?",
+    "confirmBody": "¿Enviar “{{gift}}” a {{name}}?",
+    "confirmQuestion": "¿Quieres enviar este regalo a {{name}}?",
+    "confirmSend": "Enviar regalo",
+    "confirmPickFriend": "Elige un amigo al que enviar este regalo.",
+    "pickFriendTitle": "¿A quién enviarlo?",
+    "friendsSearch": "Buscar amigos",
+    "friendsEmpty": "Aún no tienes amigos",
+    "needRecipient": "Abre el perfil de un usuario para enviar un regalo.",
+    "sent": "Regalo enviado",
+    "testSelectedTitle": "Regalo seleccionado",
+    "testSelectedBody": "{{gift}} se enviará a {{name}}.",
+    "open": "Abrir",
+    "from": "de {{name}}",
+    "boxAria": "Nuevo regalo",
+    "paymentUnavailableTitle": "Esta función aún no está disponible",
+    "paymentUnavailableBody": "Los pagos de regalos aún no están conectados. Esta opción aparecerá más adelante.",
+    "catalog": {
+      "smile": "Sonrisa",
+      "flowers": "Flores",
+      "coins20": "+20$",
+      "coins20Subtitle": "20 monedas"
+    }
   },
   "navigation": {
     "home": "Home",

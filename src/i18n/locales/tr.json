@@ -553,7 +553,10 @@
       "chatOutgoingAudio": "Outgoing audio call",
       "chatOutgoingVideo": "Outgoing video call",
       "redialAudio": "Call back (audio)",
-      "redialVideo": "Call back (video)"
+      "redialVideo": "Call back (video)",
+      "cameraBusyTitle": "Kamera açılamadı",
+      "cameraBusyBody": "Kameranın başka bir uygulama tarafından kullanılmadığından emin olun ve tekrar deneyin.",
+      "cameraRetry": "Tekrar dene"
     }
   },
   "notifications": {
@@ -587,7 +590,8 @@
       "postShare": "{{name}} gönderinizi paylaştı",
       "postSharedToUser": "{{name}} sizinle bir gönderi paylaştı",
       "message": "{{name}} size bir mesaj gönderdi",
-      "system": "Sistem bildirimi"
+      "system": "Sistem bildirimi",
+      "giftReceived": "{{name}} size bir hediye gönderdi"
     },
     "items": {
       "follow": {
@@ -828,7 +832,42 @@
     "ACCOUNT_SUSPENDED": "Hesabınız askıya alındı.",
     "ACCOUNT_DELETED": "Bu hesap silindi.",
     "SUBSCRIPTION_REQUIRED": "Subscribe to this profile to send messages.",
-    "VIP_CHAT_ACCESS_REQUIRED": "Messages require VIP access to this profile."
+    "VIP_CHAT_ACCESS_REQUIRED": "Messages require VIP access to this profile.",
+    "GIFTS_PAYMENT_NOT_AVAILABLE": "Hediye ödemeleri henüz kullanılamıyor.",
+    "GIFTS_INVALID_GIFT_ID": "Bilinmeyen hediye.",
+    "CANNOT_SEND_GIFT_TO_SELF": "Kendinize hediye gönderemezsiniz."
+  },
+  "gifts": {
+    "title": "Hediyeler",
+    "previous": "Önceki hediyeler",
+    "viewAll": "Tüm hediyeleri gör",
+    "send": "Hediye gönder",
+    "choose": "Seç",
+    "reply": "Karşılık gönder",
+    "empty": "Henüz hediye yok",
+    "confirmTitle": "Bu hediye gönderilsin mi?",
+    "confirmBody": "{{name}} adlı kullanıcıya “{{gift}}” gönderilsin mi?",
+    "confirmQuestion": "Bu hediyeyi {{name}} adlı kullanıcıya göndermek istiyor musunuz?",
+    "confirmSend": "Hediye gönder",
+    "confirmPickFriend": "Bu hediyeyi göndermek istediğiniz arkadaşı seçin.",
+    "pickFriendTitle": "Kime gönderilsin?",
+    "friendsSearch": "Arkadaşlarda ara",
+    "friendsEmpty": "Henüz arkadaşınız yok",
+    "needRecipient": "Hediye göndermek için bir kullanıcının profilini açın.",
+    "sent": "Hediye gönderildi",
+    "testSelectedTitle": "Hediye seçildi",
+    "testSelectedBody": "{{gift}}, {{name}} adlı kullanıcıya gönderilecek.",
+    "open": "Aç",
+    "from": "{{name}} adlı kişiden",
+    "boxAria": "Yeni hediye",
+    "paymentUnavailableTitle": "Bu özellik henüz kullanılamıyor",
+    "paymentUnavailableBody": "Hediye ödemeleri henüz bağlanmadı. Bu seçenek daha sonra görünecek.",
+    "catalog": {
+      "smile": "Gülümseme",
+      "flowers": "Çiçekler",
+      "coins20": "+20$",
+      "coins20Subtitle": "20 jeton"
+    }
   },
   "navigation": {
     "home": "Home",

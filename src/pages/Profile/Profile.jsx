@@ -385,7 +385,15 @@ export default function Profile() {
     setVipPurchaseModalOpen(true);
   }, []);
   const onMyGifts = useCallback(() => navigate("/my-gifts"), [navigate]);
-  const onGifts = useCallback(() => { }, []);
+  const onGifts = useCallback(() => {
+    if (!profileUser?.id) return;
+    const name = [profileUser.firstName, profileUser.lastName].filter(Boolean).join(" ")
+      || profileUser.username
+      || "";
+    navigate(`/my-gifts?to=${encodeURIComponent(profileUser.id)}`, {
+      state: { receiverName: name },
+    });
+  }, [navigate, profileUser]);
   const onReport = useCallback(() => { }, []);
   const onBlock = useCallback(() => { }, []);
 
@@ -490,6 +498,7 @@ export default function Profile() {
           onAddToVip={noopGuestAction}
           onBlock={noopGuestAction}
           onWriteMessage={noopGuestAction}
+          onGifts={noopGuestAction}
           guestPreview
         />
       );
@@ -567,6 +576,7 @@ export default function Profile() {
         onAddToVip={onAddToVip}
         onBlock={onBlock}
         onWriteMessage={onWriteMessage}
+        onGifts={onGifts}
       />
     );
   };

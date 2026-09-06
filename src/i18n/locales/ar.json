@@ -545,7 +545,10 @@
       "chatOutgoingAudio": "Outgoing audio call",
       "chatOutgoingVideo": "Outgoing video call",
       "redialAudio": "Call back (audio)",
-      "redialVideo": "Call back (video)"
+      "redialVideo": "Call back (video)",
+      "cameraBusyTitle": "تعذر تشغيل الكاميرا",
+      "cameraBusyBody": "تحقق من أن الكاميرا غير مستخدمة من تطبيق آخر ثم حاول مرة أخرى.",
+      "cameraRetry": "حاول مرة أخرى"
     }
   },
   "notifications": {
@@ -579,7 +582,8 @@
       "postShare": "شارك {{name}} منشورك",
       "postSharedToUser": "شارك {{name}} منشورًا معك",
       "message": "أرسل {{name}} إليك رسالة",
-      "system": "إشعار النظام"
+      "system": "إشعار النظام",
+      "giftReceived": "{{name}} أرسل لك هدية"
     },
     "items": {
       "follow": {
@@ -807,7 +811,42 @@
     "ACCOUNT_SUSPENDED": "تم تعليق حسابك.",
     "ACCOUNT_DELETED": "تم حذف هذا الحساب.",
     "SUBSCRIPTION_REQUIRED": "Subscribe to this profile to send messages.",
-    "VIP_CHAT_ACCESS_REQUIRED": "Messages require VIP access to this profile."
+    "VIP_CHAT_ACCESS_REQUIRED": "Messages require VIP access to this profile.",
+    "GIFTS_PAYMENT_NOT_AVAILABLE": "دفع الهدايا غير متاح بعد.",
+    "GIFTS_INVALID_GIFT_ID": "هدية غير معروفة.",
+    "CANNOT_SEND_GIFT_TO_SELF": "لا يمكنك إرسال هدية لنفسك."
+  },
+  "gifts": {
+    "title": "الهدايا",
+    "previous": "الهدايا السابقة",
+    "viewAll": "عرض كل الهدايا",
+    "send": "إرسال هدية",
+    "choose": "اختيار",
+    "reply": "إرسال ردًا",
+    "empty": "لا توجد هدايا بعد",
+    "confirmTitle": "إرسال هذه الهدية؟",
+    "confirmBody": "إرسال «{{gift}}» إلى {{name}}؟",
+    "confirmQuestion": "هل تريد إرسال هذه الهدية إلى {{name}}؟",
+    "confirmSend": "إرسال الهدية",
+    "confirmPickFriend": "اختر صديقًا لإرسال هذه الهدية إليه.",
+    "pickFriendTitle": "إلى من تُرسل؟",
+    "friendsSearch": "البحث بين الأصدقاء",
+    "friendsEmpty": "ليس لديك أصدقاء بعد",
+    "needRecipient": "افتح ملف المستخدم لإرسال هدية.",
+    "sent": "تم إرسال الهدية",
+    "testSelectedTitle": "تم اختيار الهدية",
+    "testSelectedBody": "سيتم إرسال {{gift}} إلى {{name}}.",
+    "open": "فتح",
+    "from": "من {{name}}",
+    "boxAria": "هدية جديدة",
+    "paymentUnavailableTitle": "هذه الميزة غير متاحة بعد",
+    "paymentUnavailableBody": "دفع الهدايا غير متصل بعد. ستظهر هذه الإمكانية لاحقًا.",
+    "catalog": {
+      "smile": "ابتسامة",
+      "flowers": "ورود",
+      "coins20": "+20$",
+      "coins20Subtitle": "20 عملة"
+    }
   },
   "navigation": {
     "home": "Home",

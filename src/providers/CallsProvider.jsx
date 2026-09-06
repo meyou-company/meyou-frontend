@@ -73,10 +73,9 @@ export function CallsProvider() {
     Boolean(token) &&
     !isPublicPath(location.pathname);
 
-  const clearCall = useCallback(() => {
+  const clearCall = useCallback(async () => {
     stopRinging();
-    // Tear down shared LiveKit session only when Messenger call actually ends.
-    clearSharedCallRoom('clearCall/reset');
+    await clearSharedCallRoom('clearCall/reset');
     useCallsStore.getState().reset();
     endingRef.current = false;
   }, [stopRinging]);
@@ -105,7 +104,7 @@ export function CallsProvider() {
     } catch (e) {
       console.warn('[calls] hangup failed', e);
     } finally {
-      clearCall();
+      await clearCall();
     }
   }, [clearCall]);
 
@@ -242,7 +241,7 @@ export function CallsProvider() {
       } else if (envelope.event === 'call.ended') {
         toast(t('messenger.calls.ended'));
       }
-      clearCall();
+      void clearCall();
     };
 
     const handlers = {
@@ -331,7 +330,7 @@ export function CallsProvider() {
     } catch (e) {
       console.error('[CALL UI] accept failed', e);
       toast.error(getApiErrorMessage(e) || t('messenger.calls.acceptFailed'));
-      clearCall();
+      await clearCall();
     }
   };
 

@@ -622,7 +622,10 @@
       "chatOutgoingAudio": "Outgoing audio call",
       "chatOutgoingVideo": "Outgoing video call",
       "redialAudio": "Call back (audio)",
-      "redialVideo": "Call back (video)"
+      "redialVideo": "Call back (video)",
+      "cameraBusyTitle": "Could not enable camera",
+      "cameraBusyBody": "Check that the camera is not in use by another app, then try again.",
+      "cameraRetry": "Try again"
     }
   },
   "notifications": {
@@ -656,7 +659,8 @@
       "postShare": "{{name}} shared your post",
       "postSharedToUser": "{{name}} shared a post with you",
       "message": "{{name}} sent you a message",
-      "system": "System notification"
+      "system": "System notification",
+      "giftReceived": "{{name}} sent you a gift"
     },
     "items": {
       "follow": {
@@ -898,7 +902,42 @@
     "SUBSCRIPTION_REQUIRED": "Subscribe to this profile to send messages.",
     "VIP_CHAT_ACCESS_REQUIRED": "Messages require VIP access to this profile.",
     "ACCOUNT_SUSPENDED": "Your account has been suspended.",
-    "ACCOUNT_DELETED": "This account has been deleted."
+    "ACCOUNT_DELETED": "This account has been deleted.",
+    "GIFTS_PAYMENT_NOT_AVAILABLE": "Gift payments are not available yet.",
+    "GIFTS_INVALID_GIFT_ID": "Unknown gift.",
+    "CANNOT_SEND_GIFT_TO_SELF": "You cannot send a gift to yourself."
+  },
+  "gifts": {
+    "title": "Gifts",
+    "previous": "Previous gifts",
+    "viewAll": "View all gifts",
+    "send": "Send a gift",
+    "choose": "Choose",
+    "reply": "Send in reply",
+    "empty": "No gifts yet",
+    "confirmTitle": "Send this gift?",
+    "confirmBody": "Send “{{gift}}” to {{name}}?",
+    "confirmQuestion": "Do you want to send this gift to {{name}}?",
+    "confirmSend": "Send gift",
+    "confirmPickFriend": "Choose a friend to send this gift to.",
+    "pickFriendTitle": "Who should receive this gift?",
+    "friendsSearch": "Search friends",
+    "friendsEmpty": "You have no friends yet",
+    "needRecipient": "Open a user’s profile to send a gift.",
+    "sent": "Gift sent",
+    "testSelectedTitle": "Gift selected",
+    "testSelectedBody": "{{gift}} will be sent to {{name}}.",
+    "open": "Open",
+    "from": "from {{name}}",
+    "boxAria": "New gift",
+    "paymentUnavailableTitle": "This feature is not available yet",
+    "paymentUnavailableBody": "Gift payments are not connected yet. This option will appear later.",
+    "catalog": {
+      "smile": "Smile",
+      "flowers": "Flowers",
+      "coins20": "+20$",
+      "coins20Subtitle": "20 coins"
+    }
   },
   "navigation": {
     "home": "Home",

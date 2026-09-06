@@ -10,6 +10,7 @@ import {
 import { connectSocket } from '../services/socket';
 import { getSessionAccessToken } from '../services/api';
 import { useAuthStore } from '../zustand/useAuthStore';
+import { useGiftInboxStore } from '../zustand/useGiftInboxStore';
 import { useNotificationsStore } from '../zustand/useNotificationsStore';
 
 export function NotificationsSocketProvider() {
@@ -28,6 +29,7 @@ export function NotificationsSocketProvider() {
     (s) => s.markNotificationReadLocal,
   );
   const markAllReadLocal = useNotificationsStore((s) => s.markAllReadLocal);
+  const enqueueGift = useGiftInboxStore((s) => s.enqueue);
 
   const handlersRef = useRef({});
   handlersRef.current = {
@@ -37,6 +39,7 @@ export function NotificationsSocketProvider() {
     updateNotification,
     markNotificationReadLocal,
     markAllReadLocal,
+    enqueueGift,
   };
 
   const canConnectSocket =
@@ -73,6 +76,34 @@ export function NotificationsSocketProvider() {
         handlersRef.current.setUnreadCount?.(unreadCountApprox);
       } else {
         refreshUnread(false);
+      }
+
+      if (notification.type === 'GIFT_RECEIVED') {
+        const meta = notification.metadata || {};
+        const giftSendId = meta.giftSendId || meta.gift_send_id;
+        if (giftSendId) {
+          const actor = notification.actor || {};
+          handlersRef.current.enqueueGift?.({
+            id: giftSendId,
+            giftId: meta.giftId,
+            nameKey: meta.nameKey,
+            image: meta.image,
+            status: 'PENDING',
+            sender: {
+              id: actor.id,
+              firstName: actor.firstName,
+              lastName: actor.lastName,
+              username: actor.username,
+              avatarUrl: actor.avatarUrl,
+            },
+            gift: {
+              id: meta.giftId,
+              nameKey: meta.nameKey,
+              image: meta.image,
+            },
+          });
+        }
+        return;
       }
 
       toast(notification.body ?? notification.title ?? 'Нова нотифікація');

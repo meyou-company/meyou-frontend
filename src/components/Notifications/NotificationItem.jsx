@@ -136,6 +136,9 @@ function buildLink(item) {
     case 'live':
       return item.target.liveStreamId ? `/live/${item.target.liveStreamId}` : '/live';
 
+    case 'gifts':
+      return '/my-gifts';
+
     default:
       return '/notifications';
   }

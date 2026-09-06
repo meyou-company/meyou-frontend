@@ -45,6 +45,7 @@ export default function ProfileVisitorPublic({
   onAddToVip,
   onBlock,
   onWriteMessage,
+  onGifts,
   activeLiveStream,
   onOpenLive,
   guestPreview = false,
@@ -456,6 +457,23 @@ export default function ProfileVisitorPublic({
                 role="menu"
                 aria-label={t('profile.visitor.profileActions')}
               >
+                <button
+                  type="button"
+                  className="ph-visitor-mobileMenu__item"
+                  role="menuitem"
+                  onClick={() => {
+                    setIsMobileMenuOpen(false);
+                    onGifts?.();
+                  }}
+                >
+                  <img
+                    src={profileIcons.giftIcon}
+                    alt=""
+                    className="ph-visitor-mobileMenu__icon"
+                    aria-hidden="true"
+                  />
+                  <span>{t('profile.gifts')}</span>
+                </button>
                 <button
                   type="button"
                   className="ph-visitor-mobileMenu__item"

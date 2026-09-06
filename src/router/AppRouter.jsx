@@ -70,6 +70,7 @@ import { NotificationsSocketProvider } from '../providers/NotificationsSocketPro
 import { PresenceSocketProvider } from '../providers/PresenceSocketProvider';
 import { StoriesSocketProvider } from '../providers/StoriesSocketProvider';
 import { CallsProvider } from '../providers/CallsProvider';
+import { GiftInboxProvider } from '../providers/GiftInboxProvider';
 
 /** Глобальне бургер-меню — рендериться один раз, відкривається з будь-якої сторінки */
 function GlobalBurgerMenu() {
@@ -215,6 +216,7 @@ export default function AppRouter() {
   return (
     <BrowserRouter>
       <NotificationsSocketProvider />
+      <GiftInboxProvider />
       <MessagesSocketProvider />
       <StoriesSocketProvider />
       <PresenceSocketProvider />

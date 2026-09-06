@@ -9,9 +9,15 @@ import {
 } from 'livekit-client';
 import {
   adoptSharedCallRoom,
+  cameraTrackSnapshot,
   createDefaultCallRoom,
   getCallDisconnectReasonName,
+  getSharedCallRoomSession,
+  isCameraNotReadableError,
+  isCameraStartInFlight,
+  isLocalCameraLive,
   releaseSharedCallRoom,
+  setLocalCameraEnabled,
 } from '../../utils/callRoomSession';
 import { useCallsStore } from '../../zustand/useCallsStore';
 import './Calls.scss';
@@ -45,6 +51,17 @@ function mapConnectError(err, t) {
   }
   return t('messenger.calls.connectFailed');
 }
+
+function attachLocalCameraTrack(room, videoEl) {
+  const pub = room?.localParticipant?.getTrackPublication(Track.Source.Camera);
+  if (pub?.track && videoEl) {
+    pub.track.attach(videoEl);
+  }
+  return pub;
+}
+
+/** Survives StrictMode remount so camera error UI is not lost. */
+let pendingCameraError = null;
 
 function formatDuration(totalSec) {
   const s = Math.max(0, Math.floor(totalSec));
@@ -98,6 +115,7 @@ export default function ActiveCallOverlay({
   const [isLocalVideoMain, setIsLocalVideoMain] = useState(false);
   const [previewPosition, setPreviewPosition] = useState(null);
   const [isDraggingPreview, setIsDraggingPreview] = useState(false);
+  const [cameraError, setCameraError] = useState(pendingCameraError);
   const isConnectedRef = useRef(false);
 
   const initialPeer =
@@ -150,6 +168,9 @@ export default function ActiveCallOverlay({
       console.trace('ACTIVE CALL OVERLAY UNMOUNT/CLEANUP', {
         callId: call?.id,
       });
+      if (useCallsStore.getState().phase === 'idle') {
+        pendingCameraError = null;
+      }
     };
   }, [call?.id, media?.token, media?.url, media?.roomName]);
 
@@ -403,6 +424,13 @@ export default function ActiveCallOverlay({
       });
     };
 
+    const onLocalTrackPublished = (publication) => {
+      if (publication?.source !== Track.Source.Camera) return;
+      if (publication.track && localVideoRef.current) {
+        publication.track.attach(localVideoRef.current);
+      }
+    };
+
     room.on(RoomEvent.Connected, markConnected);
     room.on(RoomEvent.ConnectionStateChanged, onConnection);
     room.on(RoomEvent.TrackSubscribed, onTrackSubscribed);
@@ -422,6 +450,7 @@ export default function ActiveCallOverlay({
     };
     room.on(RoomEvent.Reconnecting, onReconnecting);
     room.on(RoomEvent.Reconnected, onReconnected);
+    room.on(RoomEvent.LocalTrackPublished, onLocalTrackPublished);
 
     let connectTimeout = null;
 
@@ -443,15 +472,24 @@ export default function ActiveCallOverlay({
         if (room.state === ConnectionState.Connected) {
           markConnected();
           attachRemote();
+          attachLocalCameraTrack(room, localVideoRef.current);
+          if (pendingCameraError) {
+            setCameraError(pendingCameraError);
+          }
         }
         return;
       }
 
+      const session = getSharedCallRoomSession();
+      const wantVideo =
+        (mediaTypeRef.current || callRef.current?.mediaType) === 'VIDEO';
+      const micOn = Boolean(micEnabledRef.current);
+      const camOn = Boolean(cameraEnabledRef.current);
+      if (session?.room === room && (wantVideo || camOn)) {
+        session.initialCameraLock = true;
+      }
+
       try {
-        const wantVideo =
-          (mediaTypeRef.current || callRef.current?.mediaType) === 'VIDEO';
-        const micOn = Boolean(micEnabledRef.current);
-        const camOn = Boolean(cameraEnabledRef.current);
 
         connectTimeout = setTimeout(() => {
           if (room.state !== ConnectionState.Connected) {
@@ -467,13 +505,14 @@ export default function ActiveCallOverlay({
         }, 25_000);
 
         await room.connect(url, token);
-        if (cancelled || connectGenRef.current !== gen) {
-          // Another effect generation owns the session; do not tear down shared room.
+        if (getSharedCallRoomSession()?.room !== room) {
+          if (session?.room === room) session.initialCameraLock = false;
           console.log('CALL ROOM stale connect generation ignored', {
             callId,
             gen,
             currentGen: connectGenRef.current,
             cancelled,
+            reason: 'shared session no longer owns room',
           });
           return;
         }
@@ -495,8 +534,10 @@ export default function ActiveCallOverlay({
           connectTimeout = null;
         }
 
-        if (room.state === ConnectionState.Connected) {
-          markConnected();
+        if (!cancelled && connectGenRef.current === gen) {
+          if (room.state === ConnectionState.Connected) {
+            markConnected();
+          }
         }
 
         console.log('LOCAL TRACK CREATED (requesting mic/cam)', {
@@ -512,24 +553,9 @@ export default function ActiveCallOverlay({
             room.localParticipant.getTrackPublication(Track.Source.Microphone),
           ),
         });
-
-        if (wantVideo || camOn) {
-          await room.localParticipant.setCameraEnabled(camOn);
-          const camPub = room.localParticipant.getTrackPublication(
-            Track.Source.Camera,
-          );
-          console.log('LOCAL TRACK PUBLISHED', {
-            source: 'camera',
-            enabled: camOn,
-            publication: Boolean(camPub),
-          });
-          if (camPub?.track && localVideoRef.current) {
-            camPub.track.attach(localVideoRef.current);
-          }
-        }
-
-        attachRemote();
       } catch (err) {
+        const owned = getSharedCallRoomSession();
+        if (owned?.room === room) owned.initialCameraLock = false;
         console.error('CALL CONNECT FAILED', {
           message: err?.message || String(err),
           name: err?.name,
@@ -545,7 +571,34 @@ export default function ActiveCallOverlay({
           setIsConnected(false);
           onFatalErrorRef.current?.(msg);
         }
+        return;
       }
+
+      if (wantVideo || camOn) {
+        try {
+          const camPub = await setLocalCameraEnabled(room, true);
+          if (camPub?.track && localVideoRef.current) {
+            camPub.track.attach(localVideoRef.current);
+          } else {
+            attachLocalCameraTrack(room, localVideoRef.current);
+          }
+          pendingCameraError = null;
+          setCameraError(null);
+        } catch (err) {
+          const kind = isCameraNotReadableError(err)
+            ? 'not-readable'
+            : 'failed';
+          pendingCameraError = kind;
+          onCameraChangeRef.current?.(false);
+          setCameraError(kind);
+        }
+      }
+
+      if (session?.room === room) {
+        session.initialCameraLock = false;
+      }
+
+      attachRemote();
     })();
 
     return () => {
@@ -563,6 +616,7 @@ export default function ActiveCallOverlay({
       room.off(RoomEvent.Disconnected, onDisconnected);
       room.off(RoomEvent.Reconnecting, onReconnecting);
       room.off(RoomEvent.Reconnected, onReconnected);
+      room.off(RoomEvent.LocalTrackPublished, onLocalTrackPublished);
 
       const state = useCallsStore.getState();
       const sameCallStillActive =
@@ -586,7 +640,7 @@ export default function ActiveCallOverlay({
 
       if (sameCallStillActive) {
         // Remount / StrictMode / transient parent rerender — keep LiveKit room.
-        releaseSharedCallRoom(room, {
+        void releaseSharedCallRoom(room, {
           force: false,
           callId,
           reason: 'effect cleanup (retain shared session)',
@@ -595,7 +649,7 @@ export default function ActiveCallOverlay({
       }
 
       clearDurationTimer();
-      releaseSharedCallRoom(room, {
+      void releaseSharedCallRoom(room, {
         force: true,
         callId,
         reason: 'effect cleanup → room.disconnect()',
@@ -613,30 +667,75 @@ export default function ActiveCallOverlay({
     void room.localParticipant.setMicrophoneEnabled(Boolean(micEnabled));
   }, [micEnabled]);
 
-  // Effect B — local camera toggle (no reconnect).
+  // Effect B — local camera toggle (no reconnect). Skips if Effect A already
+  // started camera or a start is in-flight.
   useEffect(() => {
     const room = roomRef.current;
     if (!room || room.state !== ConnectionState.Connected) return;
-    void room.localParticipant
-      .setCameraEnabled(Boolean(cameraEnabled))
-      .then(() => {
-        const pub = room.localParticipant.getTrackPublication(Track.Source.Camera);
+
+    if (!cameraEnabled) {
+      void setLocalCameraEnabled(room, false);
+      if (!pendingCameraError) {
+        setCameraError(null);
+      }
+      return;
+    }
+
+    if (isCameraStartInFlight() || getSharedCallRoomSession()?.initialCameraLock) {
+      console.log(
+        'CAMERA START SKIPPED - ALREADY IN FLIGHT',
+        cameraTrackSnapshot(room),
+      );
+      return;
+    }
+
+    if (isLocalCameraLive(room)) {
+      attachLocalCameraTrack(room, localVideoRef.current);
+      pendingCameraError = null;
+      setCameraError(null);
+      return;
+    }
+
+    void setLocalCameraEnabled(room, true)
+      .then((pub) => {
         if (pub?.track && localVideoRef.current) {
           pub.track.attach(localVideoRef.current);
+        } else {
+          attachLocalCameraTrack(room, localVideoRef.current);
         }
-        console.log('LOCAL CAMERA ENABLE RESULT', {
-          requestedEnabled: Boolean(cameraEnabled),
-          hasPublication: Boolean(pub),
-          publicationSource: pub?.source,
-          publicationMuted: pub?.isMuted,
-          hasTrack: Boolean(pub?.track),
-          trackEnabled: pub?.track?.mediaStreamTrack?.enabled,
-        });
+        pendingCameraError = null;
+        setCameraError(null);
       })
       .catch((error) => {
-        console.error('LOCAL CAMERA ENABLE FAILED', error);
+        const kind = isCameraNotReadableError(error)
+          ? 'not-readable'
+          : 'failed';
+        pendingCameraError = kind;
+        setCameraError(kind);
+        onCameraChangeRef.current?.(false);
       });
   }, [cameraEnabled]);
+
+  const retryCamera = async () => {
+    const room = roomRef.current;
+    if (!room || room.state !== ConnectionState.Connected) return;
+    pendingCameraError = null;
+    setCameraError(null);
+    try {
+      const pub = await setLocalCameraEnabled(room, true);
+      if (pub?.track && localVideoRef.current) {
+        pub.track.attach(localVideoRef.current);
+      } else {
+        attachLocalCameraTrack(room, localVideoRef.current);
+      }
+      onCameraChangeRef.current?.(true);
+    } catch (error) {
+      const kind = isCameraNotReadableError(error) ? 'not-readable' : 'failed';
+      pendingCameraError = kind;
+      setCameraError(kind);
+      onCameraChangeRef.current?.(false);
+    }
+  };
 
   const switchCamera = async () => {
     const room = roomRef.current;
@@ -663,7 +762,7 @@ export default function ActiveCallOverlay({
     Boolean(hasRemoteVideoTrack);
   const mainSource = isLocalVideoMain ? 'local' : 'remote';
   const previewSource = isLocalVideoMain ? 'remote' : 'local';
-  const hasLocalVideo = Boolean(cameraEnabled);
+  const hasLocalVideo = Boolean(cameraEnabled) && !cameraError;
   const hasRemoteVideo = Boolean(hasRemoteVideoTrack);
   const mainHasVideo = mainSource === 'local' ? hasLocalVideo : hasRemoteVideo;
   const previewHasVideo = previewSource === 'local' ? hasLocalVideo : hasRemoteVideo;
@@ -883,6 +982,24 @@ export default function ActiveCallOverlay({
           </p>
         </div>
 
+        <div className="callActive__footer">
+          {cameraError === 'not-readable' ? (
+            <div className="callActive__cameraError" role="alert">
+              <p className="callActive__cameraErrorTitle">
+                {t('messenger.calls.cameraBusyTitle')}
+              </p>
+              <p className="callActive__cameraErrorBody">
+                {t('messenger.calls.cameraBusyBody')}
+              </p>
+              <button
+                type="button"
+                className="callActive__cameraRetry"
+                onClick={() => void retryCamera()}
+              >
+                {t('messenger.calls.cameraRetry')}
+              </button>
+            </div>
+          ) : null}
         <div className="callActive__controls">
           <button
             type="button"
@@ -938,6 +1055,7 @@ export default function ActiveCallOverlay({
           >
             ✕
           </button>
+        </div>
         </div>
       </div>
     </div>,
