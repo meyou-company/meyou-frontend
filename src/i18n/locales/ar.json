@@ -241,7 +241,7 @@
       "share": "Share"
     },
     "visitor": {
-      "writeMessage": "Send message",
+      "writeMessage": "Message",
       "subscribe": "Subscribe",
       "subscribing": "…",
       "unsubscribe": "Unsubscribe",
@@ -251,7 +251,7 @@
       "moreActions": "More actions",
       "profileTabs": "Profile tabs",
       "profileActions": "Profile actions",
-      "writeMessageLocked": "Send message 🔒"
+      "writeMessageLocked": "Message 🔒"
     },
     "info": {
       "title": "Information",

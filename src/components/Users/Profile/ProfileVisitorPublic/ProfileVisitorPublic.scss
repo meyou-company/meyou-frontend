@@ -10,6 +10,7 @@ $phVisitorTabBeige: #fce9e9;
 .profile-visitor-public .profile-container {
   max-width: 1200px;
   padding: 18px 24px 32px;
+  gap: 24px;
 }
 
 .profile-visitor-public .profileBlock--visitorNotSub {
@@ -498,6 +499,7 @@ html[data-theme='dark'] .profile-visitor-public .ph-visitor-avatarInfoBtn {
 @media (min-width: 768px) and (max-width: 1045px) {
   .profile-visitor-public .profile-container {
     padding: 16px 18px 28px;
+    gap: 18px;
   }
 
   .profile-visitor-public .profileBlock--visitorNotSub {
@@ -636,6 +638,7 @@ html[data-theme='dark'] .profile-visitor-public .ph-visitor-avatarInfoBtn {
 
   .profile-visitor-public .profile-container {
     padding: 12px 14px 90px;
+    gap: 14px;
   }
 
   .profile-visitor-public .profileBlock--visitorNotSub {
@@ -786,6 +789,7 @@ html[data-theme='dark'] .profile-visitor-public .ph-visitor-avatarInfoBtn {
 
   .profile-visitor-public .profile-container {
     padding: 10px 12px 90px;
+    gap: 12px;
   }
 
   .profile-visitor-public .profileBlock--visitorNotSub {
@@ -909,6 +913,7 @@ html[data-theme='dark'] .profile-visitor-public .ph-visitor-avatarInfoBtn {
 
   .profile-visitor-public .profile-container {
     padding: 8px 10px 90px;
+    gap: 10px;
   }
 
   .profile-visitor-public .profileBlock--visitorNotSub {

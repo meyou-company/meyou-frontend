@@ -249,8 +249,8 @@
       "share": "Поделиться"
     },
     "visitor": {
-      "writeMessage": "Написать сообщение",
-      "writeMessageLocked": "Написать сообщение 🔒",
+      "writeMessage": "Сообщение",
+      "writeMessageLocked": "Сообщение 🔒",
       "subscribe": "Подписаться",
       "subscribing": "…",
       "unsubscribe": "Отписаться",

@@ -1,33 +1,33 @@
 /** Друг / підписаний користувач */
-import { useEffect, useMemo, useState } from "react";
-import { useTranslation } from "react-i18next";
+import { useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
-import profileIcons from "../../../../constants/profileIcons";
-import { getFriendsCountNumber } from "../../../../utils/profileFriends";
+import profileIcons from '../../../../constants/profileIcons';
+import { getFriendsCountNumber } from '../../../../utils/profileFriends';
 import {
   normalizeFriendListItem,
   getFriendRouteHandle,
   getFriendDisplayLabel,
-} from "../../../../utils/profileFriendNav";
-import { getVipButtonUi, isProfileChatLocked } from "../../../../utils/profileVipUi";
-import { dedupeAsync } from "../../../../utils/dedupeAsync";
-import { useProfileAuthorFeed } from "../../../../hooks/useProfileAuthorFeed";
-import { useUserProfileNav } from "../../../../context/UserProfileNavContext";
-import ProfilePostsFeed from "../ProfilePostsFeed/ProfilePostsFeed";
-import ProfileInfoPanel from "../ProfileInfoPanel/ProfileInfoPanel";
-import ProfileVipMediaPanel from "../ProfileVipMediaPanel/ProfileVipMediaPanel";
-import VipAccessInfoModal from "../VipAccessInfoModal/VipAccessInfoModal";
-import { storiesApi } from "../../../../services/storiesApi";
-import StoryViewerModal from "../../../Stories/StoryViewerModal";
-import OnlineStatus from "../../../Presence/OnlineStatus";
-import UserAvatar from "../../../UserAvatar/UserAvatar";
-import MobileVipPhotoLightbox from "../../../UserAvatar/MobileVipPhotoLightbox";
-import { shouldShowProfileVipVisual } from "../../../../utils/shouldShowOwnProfileVipVisual";
-import { useTouchAvatarUx } from "../../../../utils/isTouchAvatarUx";
-import { useProfileTabs } from "../../../../hooks/useProfileTabs";
-import { useAuthStore } from "../../../../zustand/useAuthStore";
-import "../ProfileHome/ProfileHome.scss";
-import "./ProfileVisitorSubscribed.scss";
+} from '../../../../utils/profileFriendNav';
+import { getVipButtonUi, isProfileChatLocked } from '../../../../utils/profileVipUi';
+import { dedupeAsync } from '../../../../utils/dedupeAsync';
+import { useProfileAuthorFeed } from '../../../../hooks/useProfileAuthorFeed';
+import { useUserProfileNav } from '../../../../context/UserProfileNavContext';
+import ProfilePostsFeed from '../ProfilePostsFeed/ProfilePostsFeed';
+import ProfileInfoPanel from '../ProfileInfoPanel/ProfileInfoPanel';
+import ProfileVipMediaPanel from '../ProfileVipMediaPanel/ProfileVipMediaPanel';
+import VipAccessInfoModal from '../VipAccessInfoModal/VipAccessInfoModal';
+import { storiesApi } from '../../../../services/storiesApi';
+import StoryViewerModal from '../../../Stories/StoryViewerModal';
+import OnlineStatus from '../../../Presence/OnlineStatus';
+import UserAvatar from '../../../UserAvatar/UserAvatar';
+import MobileVipPhotoLightbox from '../../../UserAvatar/MobileVipPhotoLightbox';
+import { shouldShowProfileVipVisual } from '../../../../utils/shouldShowOwnProfileVipVisual';
+import { useTouchAvatarUx } from '../../../../utils/isTouchAvatarUx';
+import { useProfileTabs } from '../../../../hooks/useProfileTabs';
+import { useAuthStore } from '../../../../zustand/useAuthStore';
+import '../ProfileHome/ProfileHome.scss';
+import './ProfileVisitorSubscribed.scss';
 
 export default function ProfileVisitorSubscribed({
   user,
@@ -49,8 +49,8 @@ export default function ProfileVisitorSubscribed({
 }) {
   const { t } = useTranslation();
   const currentUserId = useAuthStore((state) => state.user?.id || state.user?._id || null);
-  const tabs = useProfileTabs({ includeUnsubscribe: true, withLocks: true });
-  const [activeTab, setActiveTab] = useState("delete");
+  const tabs = useProfileTabs({ includeUnsubscribe: true, withLocks: true, user });
+  const [activeTab, setActiveTab] = useState('delete');
   const [viewImageUrl, setViewImageUrl] = useState(null);
   const touchAvatarUx = useTouchAvatarUx();
   const profileVipVisual = shouldShowProfileVipVisual(user);
@@ -68,12 +68,12 @@ export default function ProfileVisitorSubscribed({
 
   useEffect(() => {
     if (!viewImageUrl) return;
-    const onEscape = (e) => e.key === "Escape" && setViewImageUrl(null);
-    window.addEventListener("keydown", onEscape);
-    return () => window.removeEventListener("keydown", onEscape);
+    const onEscape = (e) => e.key === 'Escape' && setViewImageUrl(null);
+    window.addEventListener('keydown', onEscape);
+    return () => window.removeEventListener('keydown', onEscape);
   }, [viewImageUrl]);
 
-  const nickname = user?.username || user?.nick || user?.nickname || "";
+  const nickname = user?.username || user?.nick || user?.nickname || '';
   const profileUserId = user?.id || user?._id || postsAuthorId;
   useEffect(() => {
     if (!loadSecondary) return;
@@ -90,7 +90,7 @@ export default function ProfileVisitorSubscribed({
         setProfileStoriesLoading(true);
 
         const list = await dedupeAsync(`stories:user:${profileUserId}`, () =>
-          storiesApi.getUserStories(profileUserId),
+          storiesApi.getUserStories(profileUserId)
         );
 
         if (cancelled) return;
@@ -104,7 +104,7 @@ export default function ProfileVisitorSubscribed({
         setProfileStories(normalized);
       } catch (e) {
         if (!cancelled) {
-          console.error("[profile stories] failed", e);
+          console.error('[profile stories] failed', e);
           setProfileStories([]);
         }
       } finally {
@@ -118,28 +118,28 @@ export default function ProfileVisitorSubscribed({
       cancelled = true;
     };
   }, [profileUserId, loadSecondary]);
-  const fullName = [user?.firstName, user?.lastName].filter(Boolean).join(" ").trim() || "";
-  const location = [user?.city, user?.country].filter(Boolean).join(", ").trim() || "";
+  const fullName = [user?.firstName, user?.lastName].filter(Boolean).join(' ').trim() || '';
+  const location = [user?.city, user?.country].filter(Boolean).join(', ').trim() || '';
   const displayName = fullName || nickname || t('common.user');
 
-  const displayAvatar = user?.avatarUrl || user?.avatar || "/Logo/photo.png";
+  const displayAvatar = user?.avatarUrl || user?.avatar || '/Logo/photo.png';
   const hasProfileStories = profileStories.length > 0;
 
   const profileStoryGroups = hasProfileStories
     ? [
-      {
-        author: {
-          id: profileUserId,
-          firstName: user?.firstName,
-          lastName: user?.lastName,
-          username: nickname,
-          avatarUrl: displayAvatar,
-          amIFollowing: true,
+        {
+          author: {
+            id: profileUserId,
+            firstName: user?.firstName,
+            lastName: user?.lastName,
+            username: nickname,
+            avatarUrl: displayAvatar,
+            amIFollowing: true,
+          },
+          isFollowingAuthor: true,
+          stories: profileStories,
         },
-        isFollowingAuthor: true,
-        stories: profileStories,
-      },
-    ]
+      ]
     : [];
 
   const findFirstUnviewedStoryIndex = (stories = []) => {
@@ -157,9 +157,11 @@ export default function ProfileVisitorSubscribed({
     return user.friends.map(normalizeFriendListItem).filter(Boolean);
   }, [user?.friends]);
   /** Загальна кількість друзів з бекенду (friendsCount: { followers, following } або число); інакше — довжина списку */
-  const apiCount = getFriendsCountNumber(friendsCountProp ?? user?.friendsCount ?? user?.friends_count);
+  const apiCount = getFriendsCountNumber(
+    friendsCountProp ?? user?.friendsCount ?? user?.friends_count
+  );
   const displayFriendsCount =
-    typeof apiCount === "number" && apiCount >= 0
+    typeof apiCount === 'number' && apiCount >= 0
       ? apiCount
       : Array.isArray(user?.friends)
         ? user.friends.length
@@ -167,25 +169,24 @@ export default function ProfileVisitorSubscribed({
 
   const authorId = postsAuthorId ?? user?.id ?? user?._id;
   const feedTitleName = nickname || displayName;
-  const { feedPosts, feedLoading, feedError, feedActions, postsCount: profilePostsCount } =
-    useProfileAuthorFeed(authorId, {
-      enabled: loadSecondary,
-      username: user?.username || user?.nick || user?.nickname || "",
-    });
+  const {
+    feedPosts,
+    feedLoading,
+    feedError,
+    feedActions,
+    postsCount: profilePostsCount,
+  } = useProfileAuthorFeed(authorId, {
+    enabled: loadSecondary,
+    username: user?.username || user?.nick || user?.nickname || '',
+  });
   const userProfileNav = useUserProfileNav();
 
   // Subscribed visitor: hide VIP until owner enables it; show purchase CTA when enabled.
-  const vipUi = useMemo(
-    () => getVipButtonUi({ isSubscribed: true, user }),
-    [user],
-  );
-  const chatLocked = useMemo(
-    () => isProfileChatLocked({ user, isOwnProfile: false }),
-    [user],
-  );
+  const vipUi = useMemo(() => getVipButtonUi({ isSubscribed: true, user }), [user]);
+  const chatLocked = useMemo(() => isProfileChatLocked({ user, isOwnProfile: false }), [user]);
 
   const handleVipClick = () => {
-    if (typeof onAddToVip === "function") {
+    if (typeof onAddToVip === 'function') {
       onAddToVip();
       return;
     }
@@ -197,9 +198,9 @@ export default function ProfileVisitorSubscribed({
   };
 
   const onTabClick = (tabId) => {
-    if (tabId === "delete") {
+    if (tabId === 'delete') {
       onUnsubscribe?.();
-      setActiveTab("info");
+      setActiveTab('info');
       return;
     }
     setActiveTab(tabId);
@@ -208,7 +209,7 @@ export default function ProfileVisitorSubscribed({
   const openFriendProfile = (f) => {
     const h = getFriendRouteHandle(f);
     if (!h) return;
-    if (typeof onOpenUser === "function") {
+    if (typeof onOpenUser === 'function') {
       onOpenUser(h);
       return;
     }
@@ -217,12 +218,12 @@ export default function ProfileVisitorSubscribed({
 
   return (
     <div className="profile-visitor-subscribed">
-      {/* ===== TOP як у макеті: зліва аватар + Online, по центру нік + ім'я + локація, справа VIP Chat + Подарки + Пожаловаться + Добавить в VIP ===== */}
+      {/* LEFT — AVATAR */}
       <section className="profile-visitor-subscribed__top">
         <div className="profile-visitor-subscribed__left">
           <div className="profile-visitor-subscribed__avatarContainer">
             <div
-              className={`profile-visitor-subscribed__avatarWrap ${hasProfileStories ? "profile-visitor-subscribed__avatarWrap--hasStories" : ""} ${activeLiveStream ? "liveAvatar--active" : ""}`}
+              className={`profile-visitor-subscribed__avatarWrap ${hasProfileStories ? 'profile-visitor-subscribed__avatarWrap--hasStories' : ''} ${activeLiveStream ? 'liveAvatar--active' : ''}`}
               role="button"
               tabIndex={0}
               onClick={() => {
@@ -240,7 +241,7 @@ export default function ProfileVisitorSubscribed({
                 onViewPhoto?.(displayAvatar);
               }}
               onKeyDown={(e) => {
-                if (e.key !== "Enter" && e.key !== " ") return;
+                if (e.key !== 'Enter' && e.key !== ' ') return;
                 if (activeLiveStream) {
                   e.preventDefault();
                   onOpenLive?.(activeLiveStream);
@@ -255,7 +256,7 @@ export default function ProfileVisitorSubscribed({
 
                 onViewPhoto?.(displayAvatar);
               }}
-              aria-label={activeLiveStream ? "Открыть прямой эфир" : t('profile.viewPhoto')}
+              aria-label={activeLiveStream ? 'Открыть прямой эфир' : t('profile.viewPhoto')}
             >
               <UserAvatar
                 user={user}
@@ -271,30 +272,36 @@ export default function ProfileVisitorSubscribed({
             <OnlineStatus
               userId={user?.id}
               user={user}
-              className="onlineStatus--onAvatar profile-visitor-subscribed__onlineDot"
+              variant="dot"
+              className="profile-visitor-subscribed__onlineStatus"
             />
           </div>
 
-          {/* На мобілці нік/ім'я/локація під аватаром */}
-          <div className="profile-visitor-subscribed__nameBlock profile-visitor-subscribed__nameBlock--mobile">
-            <h1 className="profile-visitor-subscribed__nickname">{nickname || displayName}</h1>
-            {fullName && nickname !== fullName && <p className="profile-visitor-subscribed__fullName">{fullName}.</p>}
-            {location && <p className="profile-visitor-subscribed__location">{location}.</p>}
-          </div>
+          <OnlineStatus
+            userId={user?.id}
+            user={user}
+            variant="label"
+            className="profile-visitor-subscribed__onlineLabel"
+          />
         </div>
-
+        {/* CENTER — NAME */}
         <div className="profile-visitor-subscribed__center">
-          <h1 className="profile-visitor-subscribed__nickname profile-visitor-subscribed__nickname--center">{nickname || displayName}</h1>
-          {fullName && nickname !== fullName && <p className="profile-visitor-subscribed__fullName">{fullName}.</p>}
+          <h1 className="profile-visitor-subscribed__nickname">{nickname || displayName}</h1>
+
+          {fullName && nickname !== fullName && (
+            <p className="profile-visitor-subscribed__fullName">{fullName}.</p>
+          )}
+
           {location && <p className="profile-visitor-subscribed__location">{location}.</p>}
         </div>
-
+        {/* RIGHT — CHAT / GIFTS / REPORT / VIP */}
         <div className="profile-visitor-subscribed__right">
           <div className="pvs-top-right">
-            <div className="pvs-tools__row pvs-tools__row--top">
+            <div className="pvs-tools__row">
+              {/* MESSAGE */}
               <button
                 type="button"
-                className={`pvs-tools__vip${chatLocked ? " pvs-tools__vip--locked" : ""}`}
+                className={`pvs-tools__vip${chatLocked ? ' pvs-tools__vip--locked' : ''}`}
                 onClick={handleWriteMessageClick}
                 aria-label={
                   chatLocked
@@ -306,69 +313,123 @@ export default function ProfileVisitorSubscribed({
                   <img
                     src={chatLocked ? profileIcons.vipChat : profileIcons.chat}
                     alt=""
-                    className="pvs-tools__vipIcon pvs-tools__vipIcon--full"
+                    className="pvs-tools__vipIcon"
                     aria-hidden="true"
                   />
-                  <span className="pvs-tools__label">
-                    {chatLocked
-                      ? t('profile.visitor.writeMessageLocked')
-                      : t('profile.visitor.writeMessage')}
-                  </span>
+                </div>
+                <span className="pvs-tools__label">
+                  {chatLocked
+                    ? t('profile.visitor.writeMessageLocked')
+                    : t('profile.visitor.writeMessage')}
+                </span>
+              </button>
+              {/* GIFTS */}
+              <button
+                type="button"
+                className="pvs-tools__small"
+                onClick={onGifts}
+                aria-label={t('profile.gifts')}
+              >
+                <div className="pvs-tools__smallIconWrap">
+                  <img
+                    src={profileIcons.giftIcon}
+                    alt=""
+                    className="pvs-tools__smallIcon"
+                    aria-hidden="true"
+                  />
                 </div>
 
-              </button>
-              <button type="button" className="pvs-tools__small" onClick={onGifts} aria-label={t('profile.gifts')}>
-                <img src={profileIcons.giftIcon} alt="" className="pvs-tools__smallIcon" aria-hidden="true" />
                 <span className="pvs-tools__smallLabel">{t('profile.gifts')}</span>
               </button>
-              <button type="button" className="pvs-tools__small" onClick={onReport} aria-label={t('profile.visitor.report')}>
-                <img src={profileIcons.complaints} alt="" className="pvs-tools__smallIcon" aria-hidden="true" />
+              {/* REPORT */}
+              <button
+                type="button"
+                className="pvs-tools__small"
+                onClick={onReport}
+                aria-label={t('profile.visitor.report')}
+              >
+                <div className="pvs-tools__smallIconWrap">
+                  <img
+                    src={profileIcons.complaints}
+                    alt=""
+                    className="pvs-tools__smallIcon"
+                    aria-hidden="true"
+                  />
+                </div>
+
                 <span className="pvs-tools__smallLabel">{t('profile.visitor.report')}</span>
               </button>
             </div>
-            {vipUi.showAddButton ? (
-            <button type="button" className="pvs-actions__vipBtn" onClick={handleVipClick} aria-label={t('profile.visitor.addToVip')}>
-              <span className="pvs-actions__vipBtnText">{t('profile.visitor.addToVip')}</span>
-              <img src="/icon-black/vip-button.svg" alt="" className="pvs-actions__vipBtnIcon" width={15} height={15} />
-            </button>
-            ) : null}
-            {vipUi.showStatus ? (
+
+            {/* VIP — DESKTOP ONLY */}
+
+            {vipUi.showAddButton && (
+              <button
+                type="button"
+                className="pvs-actions__vipBtn"
+                onClick={handleVipClick}
+                aria-label={t('profile.visitor.addToVip')}
+              >
+                <span className="pvs-actions__vipBtnText">{t('profile.visitor.addToVip')}</span>
+                <img
+                  src="/icon-black/vip-button.svg"
+                  alt=""
+                  className="pvs-actions__vipBtnIcon"
+                  width={15}
+                  height={15}
+                />
+              </button>
+            )}
+            {vipUi.showStatus && (
               <span className="pvs-actions__vipStatus" role="status">
                 {t('profile.vipAccess.activeStatus')}
               </span>
-            ) : null}
+            )}
+
+            {/* VIP + UNSUBSCRIBE — MOBILE ONLY */}
+            <div className="pvs-mobile-actions" aria-label={t('profile.visitor.profileActions')}>
+              <button
+                type="button"
+                className="profile-visitor-subscribed__btnDelete"
+                onClick={() => onTabClick('delete')}
+              >
+                {t('profile.visitor.unsubscribe')}
+              </button>
+
+              {vipUi.showAddButton && (
+                <button
+                  type="button"
+                  className="pvs-actions__vipBtn"
+                  onClick={handleVipClick}
+                  aria-label={t('profile.visitor.addToVip')}
+                >
+                  <span className="pvs-actions__vipBtnText">{t('profile.visitor.addToVip')}</span>
+                  <img
+                    src="/icon-black/vip-button.svg"
+                    alt=""
+                    className="pvs-actions__vipBtnIcon"
+                    width={15}
+                    height={15}
+                  />
+                </button>
+              )}
+
+              {vipUi.showStatus && (
+                <span className="pvs-actions__vipStatus" role="status">
+                  {t('profile.vipAccess.activeStatus')}
+                </span>
+              )}
+            </div>
           </div>
         </div>
       </section>
 
-      <div className="pvs-mobile-actions" aria-label={t('profile.visitor.profileActions')}>
-        <button
-          type="button"
-          className="profile-visitor-subscribed__btnDelete"
-          onClick={() => onTabClick("delete")}
-        >
-          {t('profile.visitor.unsubscribe')}
-        </button>
-        {vipUi.showAddButton ? (
-        <button
-          type="button"
-          className="pvs-actions__vipBtn pvs-actions__vipBtn--mobile"
-          onClick={handleVipClick}
-          aria-label={t('profile.visitor.addToVip')}
-        >
-          <span className="pvs-actions__vipBtnText">{t('profile.visitor.addToVip')}</span>
-          <img src="/icon-black/vip-button.svg" alt="" className="pvs-actions__vipBtnIcon" width={15} height={15} />
-        </button>
-        ) : null}
-        {vipUi.showStatus ? (
-          <span className="pvs-actions__vipStatus pvs-actions__vipStatus--mobile" role="status">
-            {t('profile.vipAccess.activeStatus')}
-          </span>
-        ) : null}
-      </div>
-
-      {/* Таби як у макеті: Удалить (з градієнтом), Информация, Истории, Видео 🔒, Фото 🔒 */}
-      <div className="pvs-actions__tabs pvs-actions__tabs--standalone" role="tablist" aria-label={t('profile.visitor.profileTabs')}>
+      {/* DESKTOP TABS */}
+      <div
+        className="pvs-actions__tabs pvs-actions__tabs--standalone"
+        role="tablist"
+        aria-label={t('profile.visitor.profileTabs')}
+      >
         {tabs.map((tab) => (
           <button
             key={tab.id}
@@ -376,37 +437,69 @@ export default function ProfileVisitorSubscribed({
             role="tab"
             aria-selected={activeTab === tab.id}
             aria-disabled={tab.locked}
-            className={["pvs-actions__tab", activeTab === tab.id ? "is-active" : "", tab.id === "delete" ? "pvs-actions__tab--delete" : "", tab.locked ? "is-locked" : ""].join(" ")}
-            onClick={() => (tab.id === "delete" ? onTabClick("delete") : !tab.locked && onTabClick(tab.id))}
+            className={[
+              'pvs-actions__tab',
+              activeTab === tab.id ? 'is-active' : '',
+              tab.id === 'delete' ? 'pvs-actions__tab--delete' : '',
+              tab.locked ? 'is-locked' : '',
+            ]
+              .filter(Boolean)
+              .join(' ')}
+            onClick={() =>
+              tab.id === 'delete' ? onTabClick('delete') : !tab.locked && onTabClick(tab.id)
+            }
           >
             <span className="pvs-actions__tabText">{tab.label}</span>
-            {tab.locked && <img src={profileIcons.lockBlack} alt="" className="pvs-actions__tabLock" aria-hidden="true" />}
+
+            {tab.locked && (
+              <img
+                src={profileIcons.lockBlack}
+                alt=""
+                className="pvs-actions__tabLock"
+                aria-hidden="true"
+              />
+            )}
           </button>
         ))}
       </div>
-
+      {/* MOBILE TABS */}
       <div className="pvs-tabs-mobile" role="tablist" aria-label={t('profile.visitor.profileTabs')}>
-        {tabs.filter((tab) => tab.id !== "delete").map((tab) => (
-          <button
-            key={tab.id}
-            type="button"
-            role="tab"
-            aria-selected={activeTab === tab.id}
-            aria-disabled={tab.locked}
-            className={["pvs-actions__tab", activeTab === tab.id ? "is-active" : "", tab.id === "delete" ? "pvs-actions__tab--delete" : "", tab.locked ? "is-locked" : ""].join(" ")}
-            onClick={() => (tab.id === "delete" ? onTabClick("delete") : !tab.locked && onTabClick(tab.id))}
-          >
-            <span className="pvs-actions__tabText">{tab.label}</span>
-            {tab.locked && <img src={profileIcons.lockBlack} alt="" className="pvs-actions__tabLock" aria-hidden="true" />}
-          </button>
-        ))}
+        {tabs
+          .filter((tab) => tab.id !== 'delete')
+          .map((tab) => (
+            <button
+              key={tab.id}
+              type="button"
+              role="tab"
+              aria-selected={activeTab === tab.id}
+              aria-disabled={tab.locked}
+              className={[
+                'pvs-actions__tab',
+                activeTab === tab.id ? 'is-active' : '',
+                tab.locked ? 'is-locked' : '',
+              ]
+                .filter(Boolean)
+                .join(' ')}
+              onClick={() => !tab.locked && onTabClick(tab.id)}
+            >
+              <span className="pvs-actions__tabText">{tab.label}</span>
+              {tab.locked && (
+                <img
+                  src={profileIcons.lockBlack}
+                  alt=""
+                  className="pvs-actions__tabLock"
+                  aria-hidden="true"
+                />
+              )}
+            </button>
+          ))}
       </div>
 
       {/* ===== TAB CONTENT: для табів «Удалить» / «Информация» нічого не показуємо ===== */}
-      {/* {(activeTab === "info" || activeTab === "delete") && null} */}
+      {(activeTab === 'info' || activeTab === 'delete') && null}
       <ProfileInfoPanel
         user={user}
-        isOpen={activeTab === "info"}
+        isOpen={activeTab === 'info'}
         friendsCount={displayFriendsCount}
         postsCount={profilePostsCount}
       />
@@ -414,33 +507,40 @@ export default function ProfileVisitorSubscribed({
       <ProfileVipMediaPanel
         user={user}
         kind="photo"
-        isOpen={activeTab === "photo"}
+        isOpen={activeTab === 'photo'}
         onGetVip={handleVipClick}
       />
       <ProfileVipMediaPanel
         user={user}
         kind="video"
-        isOpen={activeTab === "video"}
+        isOpen={activeTab === 'video'}
         onGetVip={handleVipClick}
       />
 
       {/* ===== FRIENDS: такий самий блок як у моєму профілі (vipCard, friendsTitle, vipRow, showMoreBtn) — тільки з його друзями ===== */}
-      <section className="vipCard profile-visitor-subscribed__friends" aria-label={t('profile.friends.titleWithCount', { count: displayFriendsCount })}>
+      <section
+        className="vipCard profile-visitor-subscribed__friends"
+        aria-label={t('profile.friends.titleWithCount', { count: displayFriendsCount })}
+      >
         <div className="friendsTitle">
-          <span className="friendsTitle__label">{t('profile.friends.title')}</span>{" "}
+          <span className="friendsTitle__label">{t('profile.friends.title')}</span>{' '}
           <span className="friendsTitle__count">{displayFriendsCount}</span>
         </div>
 
-        {(friends.length > 0 || displayFriendsCount > 0) ? (
+        {friends.length > 0 || displayFriendsCount > 0 ? (
           <>
             <div className="vipRow">
               {(friends.length > 0
                 ? friends.slice(0, 7)
-                : Array.from({ length: Math.min(displayFriendsCount, 7) }, (_, i) => ({ id: `placeholder-${i}`, avatar: null, username: null }))
+                : Array.from({ length: Math.min(displayFriendsCount, 7) }, (_, i) => ({
+                    id: `placeholder-${i}`,
+                    avatar: null,
+                    username: null,
+                  }))
               ).map((f) => {
                 const handle = getFriendRouteHandle(f);
                 const canOpen = Boolean(handle);
-                const label = friends.length > 0 ? getFriendDisplayLabel(f) : "";
+                const label = friends.length > 0 ? getFriendDisplayLabel(f) : '';
                 return (
                   <div key={f.id} className="vipItem">
                     <div className="vipFriendCell">
@@ -455,11 +555,7 @@ export default function ProfileVisitorSubscribed({
                             : t('profile.friends.profileUnavailable')
                         }
                       >
-                        <img
-                          src={f.avatar || "/icon1/image0.png"}
-                          className="vipAvatar"
-                          alt=""
-                        />
+                        <img src={f.avatar || '/icon1/image0.png'} className="vipAvatar" alt="" />
                         <OnlineStatus
                           userId={f.id}
                           user={f}
@@ -473,9 +569,7 @@ export default function ProfileVisitorSubscribed({
                           onClick={() => openFriendProfile(f)}
                           disabled={!canOpen}
                           aria-label={
-                            canOpen
-                              ? t('profile.friends.openProfile', { name: handle })
-                              : undefined
+                            canOpen ? t('profile.friends.openProfile', { name: handle }) : undefined
                           }
                         >
                           <img
@@ -484,9 +578,7 @@ export default function ProfileVisitorSubscribed({
                             className="vipFriendNameIcon"
                             aria-hidden="true"
                           />
-                          <span className="vipFriendNameText">
-                            {label || handle || "—"}
-                          </span>
+                          <span className="vipFriendNameText">{label || handle || '—'}</span>
                         </button>
                       )}
                     </div>
@@ -494,18 +586,12 @@ export default function ProfileVisitorSubscribed({
                 );
               })}
             </div>
-            <button
-              type="button"
-              className="showMoreBtn"
-              onClick={onShowMoreFriends}
-            >
+            <button type="button" className="showMoreBtn" onClick={onShowMoreFriends}>
               {t('profile.friends.showMore')}
             </button>
           </>
         ) : (
-          <p className="profile-visitor-subscribed__friendsEmpty">
-            {t('profile.friends.empty')}
-          </p>
+          <p className="profile-visitor-subscribed__friendsEmpty">{t('profile.friends.empty')}</p>
         )}
       </section>
 

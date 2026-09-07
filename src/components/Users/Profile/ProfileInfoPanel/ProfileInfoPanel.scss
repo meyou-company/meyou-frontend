@@ -9,7 +9,7 @@
     max-height: 4000px;
     opacity: 1;
     transform: translateY(0);
-    margin-top: 16px;
+    // margin-top: 16px;
   }
 }
 
@@ -252,9 +252,10 @@
 /* === ОБЩАЯ КАРТОЧКА === */
 .infoSection {
   padding: 12px 14px;
+  margin-top: 16px;
   margin-bottom: 16px;
   border: 2px solid rgba(244, 253, 255, 1);
-  background: linear-gradient(181deg,#E1CBFF 0%, #F1E7FF 46%, #FCFAFF 100%);
+  background: linear-gradient(181deg, #e1cbff 0%, #f1e7ff 46%, #fcfaff 100%);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.25);
   backdrop-filter: blur(12px);
   border-radius: 14px;
@@ -268,7 +269,7 @@
 .infoSection h3 {
   font-size: 14px;
   font-weight: 700;
-  color: #9B7AE6;
+  color: #9b7ae6;
   margin-bottom: 7px;
   display: flex;
   align-items: center;
@@ -308,7 +309,7 @@
   font-weight: 600;
   background: linear-gradient(180deg, #f3ecff 0%, #e6dbff 100%);
   border: 1px solid rgba(164, 140, 255, 0.35);
-  color: #9B7AE6;
+  color: #9b7ae6;
 }
 
 /* === GRID (личная инфа + локация) === */
@@ -351,9 +352,9 @@
   padding: 16px 12px;
   text-align: center;
   font-size: 13px;
-  border: 1.5px solid #E1D1EA;
+  border: 1.5px solid #e1d1ea;
   border-radius: 20px;
-  background: linear-gradient(181deg,#E1CBFF 0%, #F1E7FF 46%, #FCFAFF 100%);
+  background: linear-gradient(181deg, #e1cbff 0%, #f1e7ff 46%, #fcfaff 100%);
   box-shadow: 0 4px 12px rgba(123, 97, 255, 0.08);
   color: #333;
 }
@@ -367,7 +368,6 @@
   width: 20px;
   height: 20px;
   margin-top: 3px;
-
 }
 
 /* === CONTACTS === */
@@ -384,7 +384,7 @@
   gap: 8px;
   border-radius: 14px;
   border: 1px solid rgba(164, 140, 255, 0.3);
-  background: linear-gradient(181deg,#E1CBFF 0%, #F1E7FF 46%, #FCFAFF 100%);
+  background: linear-gradient(181deg, #e1cbff 0%, #f1e7ff 46%, #fcfaff 100%);
   font-size: 14px;
   font-weight: 700;
   color: #6f55ff;
@@ -398,11 +398,11 @@
 
 /* === CONTACTS COLORS === */
 .contactsText--telegram {
-  color: #29AAEC;
+  color: #29aaec;
 }
 
 .contactsText--instagram {
-  color: #F44E55;
+  color: #f44e55;
 }
 
 .contactsText--tiktok {
@@ -462,13 +462,13 @@
   }
 
   .contacts {
-  width: 100%;
-}
+    width: 100%;
+  }
 
   .contacts .contactsText {
-  padding: 2px 6px;
-  font-size: 10px;
- }
+    padding: 2px 6px;
+    font-size: 10px;
+  }
 
   .contacts .contactsText img {
     width: 10px;
@@ -480,25 +480,25 @@
   }
 }
 
- @media only screen and (min-width: 768px) {
-   .infoSection {
-  border-radius: 20px; 
+@media only screen and (min-width: 768px) {
+  .infoSection {
+    border-radius: 20px;
   }
 
   .infoSection p {
-  font-size: 12px;
-}
+    font-size: 12px;
+  }
 
-.infoSection h3 {
-  font-size: 16px;
-}  
-  
+  .infoSection h3 {
+    font-size: 16px;
+  }
+
   .infoSection img {
-  width: 32px;
-  height: 32px;
-}
+    width: 32px;
+    height: 32px;
+  }
 
-   .chip {
+  .chip {
     font-size: 14px;
   }
 
@@ -511,15 +511,10 @@
     padding: 5px 10px 12px;
     gap: 4px;
     border-radius: 16px;
-    background: linear-gradient(
-    180deg,
-    #fcfaff 0%,
-    #f1e7ff 45%,
-    #e1cbff 100%
-  );
+    background: linear-gradient(180deg, #fcfaff 0%, #f1e7ff 45%, #e1cbff 100%);
   }
 
-   .statCard img {
+  .statCard img {
     width: 24px;
     height: 24px;
   }
@@ -529,10 +524,10 @@
     font-size: 12px;
   }
 
-   .contacts {
+  .contacts {
     margin: 0 30px;
     gap: 40px;
-   }
+  }
 
   .contacts .contactsText {
     padding: 5px 10px;
@@ -544,55 +539,53 @@
     width: 26px;
     height: 26px;
   }
- }
- 
- @media only screen and (min-width: 1440px) {
-    .infoSection {
-      padding: 16px 20px;
-    }
+}
 
-    .infoSection h3 {
-      font-size: 20px;
-    }
-
-    .infoSection p {
-      font-size: 16px;
-    }
-
-     .infoSection img {
-       width: 36px;
-       height: 36px;
-    }
-
-    .chip {
-      padding: 5px 10px;
-      font-size: 16px;
-      border-radius: 12px;
-    }
-
-    .gridRow {
-      font-size: 16px;
-    }
-
-    .infoSection .statText {
-      font-size: 16px;
-      font-weight: 700;
-    }
-
-    .contacts {
-      margin: 0 45px;
-      gap: 80px;
-    }
-
-    .contacts .contactsText {
-      font-size: 16px;
-    }
+@media only screen and (min-width: 1440px) {
+  .infoSection {
+    padding: 16px 20px;
   }
 
+  .infoSection h3 {
+    font-size: 20px;
+  }
 
-  /* === DARK MODE === */
+  .infoSection p {
+    font-size: 16px;
+  }
+
+  .infoSection img {
+    width: 36px;
+    height: 36px;
+  }
+
+  .chip {
+    padding: 5px 10px;
+    font-size: 16px;
+    border-radius: 12px;
+  }
+
+  .gridRow {
+    font-size: 16px;
+  }
+
+  .infoSection .statText {
+    font-size: 16px;
+    font-weight: 700;
+  }
+
+  .contacts {
+    margin: 0 45px;
+    gap: 80px;
+  }
+
+  .contacts .contactsText {
+    font-size: 16px;
+  }
+}
+
+/* === DARK MODE === */
 .dark {
-
   .infoSection {
     border: 1px solid rgba(255, 255, 255, 0.08);
     background: linear-gradient(180deg, #1f1f2b 0%, #181824 100%);
