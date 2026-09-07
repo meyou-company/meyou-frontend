@@ -863,6 +863,10 @@
     "open": "Ouvrir",
     "from": "de {{name}}",
     "boxAria": "Nouveau cadeau",
+    "youHaveAGift": "Vous avez un cadeau 💕",
+    "tapToOpen": "Appuyez pour ouvrir",
+    "fromSender": "Cadeau de {{name}}",
+    "thankYou": "Merci 💕",
     "paymentUnavailableTitle": "Cette fonction n’est pas encore disponible",
     "paymentUnavailableBody": "Les paiements de cadeaux ne sont pas encore connectés. Cette option apparaîtra plus tard.",
     "catalog": {

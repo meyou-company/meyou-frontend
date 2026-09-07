@@ -902,6 +902,10 @@
     "open": "Открыть",
     "from": "от {{name}}",
     "boxAria": "Новый подарок",
+    "youHaveAGift": "Вам подарок 💕",
+    "tapToOpen": "Нажмите, чтобы открыть",
+    "fromSender": "Подарок от {{name}}",
+    "thankYou": "Спасибо 💕",
     "paymentUnavailableTitle": "Функция пока недоступна",
     "paymentUnavailableBody": "Оплата подарков ещё не подключена. Эта возможность появится позже.",
     "catalog": {

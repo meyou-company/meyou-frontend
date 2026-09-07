@@ -863,6 +863,10 @@
     "open": "Aç",
     "from": "{{name}} adlı kişiden",
     "boxAria": "Yeni hediye",
+    "youHaveAGift": "Bir hediyeniz var 💕",
+    "tapToOpen": "Açmak için dokunun",
+    "fromSender": "{{name}} adlı kişiden hediye",
+    "thankYou": "Teşekkürler 💕",
     "paymentUnavailableTitle": "Bu özellik henüz kullanılamıyor",
     "paymentUnavailableBody": "Hediye ödemeleri henüz bağlanmadı. Bu seçenek daha sonra görünecek.",
     "catalog": {

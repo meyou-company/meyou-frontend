@@ -3,7 +3,7 @@ export const LOCAL_GIFT_CATALOG = [
   {
     id: 'smile',
     nameKey: 'gifts.catalog.smile',
-    image: '/gifts/smile.jpg',
+    image: '/gifts/smile.webp',
     type: 'FREE',
     price: 0,
     currency: null,

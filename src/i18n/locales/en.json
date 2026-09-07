@@ -933,6 +933,10 @@
     "open": "Open",
     "from": "from {{name}}",
     "boxAria": "New gift",
+    "youHaveAGift": "You have a gift 💕",
+    "tapToOpen": "Tap to open",
+    "fromSender": "Gift from {{name}}",
+    "thankYou": "Thank you 💕",
     "paymentUnavailableTitle": "This feature is not available yet",
     "paymentUnavailableBody": "Gift payments are not connected yet. This option will appear later.",
     "catalog": {

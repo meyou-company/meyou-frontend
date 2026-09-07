@@ -933,6 +933,10 @@
     "open": "Відкрити",
     "from": "від {{name}}",
     "boxAria": "Новий подарунок",
+    "youHaveAGift": "Вам подарунок 💕",
+    "tapToOpen": "Натисніть, щоб відкрити",
+    "fromSender": "Подарунок від {{name}}",
+    "thankYou": "Дякую 💕",
     "paymentUnavailableTitle": "Функція поки недоступна",
     "paymentUnavailableBody": "Оплата подарунків ще не підключена. Ця можливість з'явиться пізніше.",
     "catalog": {

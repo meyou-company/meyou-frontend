@@ -863,6 +863,10 @@
     "open": "Otevřít",
     "from": "od {{name}}",
     "boxAria": "Nový dárek",
+    "youHaveAGift": "Máte dárek 💕",
+    "tapToOpen": "Klepněte, abyste otevřeli",
+    "fromSender": "Dárek od {{name}}",
+    "thankYou": "Děkuji 💕",
     "paymentUnavailableTitle": "Funkce zatím není dostupná",
     "paymentUnavailableBody": "Platby za dárky ještě nejsou připojené. Tato možnost se objeví později.",
     "catalog": {

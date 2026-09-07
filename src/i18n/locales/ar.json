@@ -842,6 +842,10 @@
     "open": "فتح",
     "from": "من {{name}}",
     "boxAria": "هدية جديدة",
+    "youHaveAGift": "لديك هدية 💕",
+    "tapToOpen": "اضغط للفتح",
+    "fromSender": "هدية من {{name}}",
+    "thankYou": "شكرًا 💕",
     "paymentUnavailableTitle": "هذه الميزة غير متاحة بعد",
     "paymentUnavailableBody": "دفع الهدايا غير متصل بعد. ستظهر هذه الإمكانية لاحقًا.",
     "catalog": {
