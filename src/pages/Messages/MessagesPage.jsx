@@ -33,7 +33,7 @@ import StoryViewerModal from '../../components/Stories/StoryViewerModal';
 import { conversationsApi } from '../../services/conversationsApi';
 import { usersApi } from '../../services/usersApi';
 import { usePresenceStore } from '../../zustand/usePresenceStore';
-import { getApiErrorMessage } from '../../utils/getApiErrorMessage';
+import { getApiErrorCode, getApiErrorMessage } from '../../utils/getApiErrorMessage';
 import {
   collectSeenOutgoingIds,
   extractSeenTargetIds,
@@ -780,6 +780,19 @@ export default function MessagesPage() {
     } catch (err) {
       if (err?.message === 'CALL_BUSY_LOCAL') {
         toast.error(t('messenger.calls.busyLocal'));
+        return;
+      }
+      const code = getApiErrorCode(err);
+      if (code === 'VIP_CHAT_ACCESS_REQUIRED') {
+        toast.error(t('messenger.calls.unavailableTitle'), {
+          description: t('messenger.calls.vipRequired'),
+        });
+        return;
+      }
+      if (code === 'SUBSCRIPTION_REQUIRED') {
+        toast.error(t('messenger.calls.unavailableTitle'), {
+          description: t('messenger.calls.subscriptionRequired'),
+        });
         return;
       }
       toast.error(getApiErrorMessage(err) || t('messenger.calls.startFailed'));

@@ -556,7 +556,10 @@
       "redialVideo": "Call back (video)",
       "cameraBusyTitle": "Kameru se nepodařilo zapnout",
       "cameraBusyBody": "Zkontrolujte, zda kameru nepoužívá jiná aplikace, a zkuste to znovu.",
-      "cameraRetry": "Zkusit znovu"
+      "cameraRetry": "Zkusit znovu",
+      "unavailableTitle": "Hovor není dostupný",
+      "vipRequired": "Tento uživatel povoluje zprávy a hovory pouze VIP uživatelům.",
+      "subscriptionRequired": "Pro volání se musíte na tento profil přihlásit k odběru."
     }
   },
   "notifications": {

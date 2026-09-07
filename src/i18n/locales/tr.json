@@ -556,7 +556,10 @@
       "redialVideo": "Call back (video)",
       "cameraBusyTitle": "Kamera açılamadı",
       "cameraBusyBody": "Kameranın başka bir uygulama tarafından kullanılmadığından emin olun ve tekrar deneyin.",
-      "cameraRetry": "Tekrar dene"
+      "cameraRetry": "Tekrar dene",
+      "unavailableTitle": "Arama kullanılamıyor",
+      "vipRequired": "Bu kullanıcı mesajlara ve aramalara yalnızca VIP üyeler için izin veriyor.",
+      "subscriptionRequired": "Arama yapmak için bu profile abone olmanız gerekir."
     }
   },
   "notifications": {

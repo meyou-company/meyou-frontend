@@ -548,7 +548,10 @@
       "redialVideo": "Call back (video)",
       "cameraBusyTitle": "تعذر تشغيل الكاميرا",
       "cameraBusyBody": "تحقق من أن الكاميرا غير مستخدمة من تطبيق آخر ثم حاول مرة أخرى.",
-      "cameraRetry": "حاول مرة أخرى"
+      "cameraRetry": "حاول مرة أخرى",
+      "unavailableTitle": "المكالمة غير متاحة",
+      "vipRequired": "يسمح هذا المستخدم بالرسائل والمكالمات لأعضاء VIP فقط.",
+      "subscriptionRequired": "اشترك في هذا الملف الشخصي لإجراء مكالمة."
     }
   },
   "notifications": {

@@ -625,7 +625,10 @@
       "redialVideo": "Call back (video)",
       "cameraBusyTitle": "Could not enable camera",
       "cameraBusyBody": "Check that the camera is not in use by another app, then try again.",
-      "cameraRetry": "Try again"
+      "cameraRetry": "Try again",
+      "unavailableTitle": "Call unavailable",
+      "vipRequired": "This user allows messages and calls only for VIP members.",
+      "subscriptionRequired": "Subscribe to this profile to place a call."
     }
   },
   "notifications": {
