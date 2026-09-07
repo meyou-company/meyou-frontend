@@ -1,227 +1,416 @@
 /* =========================
-   ProfileVisitorSubscribed — desktop/tablet layout як у Figma
+   ProfileVisitorSubscribed
    ========================= */
 
 $gradient: linear-gradient(90deg, #4f6bff 0%, #b05cff 52%, #ff4fb1 100%);
 $gradientHover: linear-gradient(90deg, #ff4fb1 0%, #b05cff 48%, #4f6bff 100%);
 $purple: #6b66ff;
-
-$pinkBeige: #FCE9E9; // таби (Figma)
-$goldGrad: linear-gradient(90deg, #E7C577 0%, #FFE9B1 38%, #F4D695 70%, #D8B66D 100%);
-
+$goldGrad: linear-gradient(90deg, #e7c577 0%, #ffe9b1 38%, #f4d695 70%, #d8b66d 100%);
 $pvsText: rgba(0, 0, 0, 0.6);
 $pvsTextStrong: rgba(0, 0, 0, 0.7);
 
-$cardBg: rgba(247, 242, 255, 0.9);
-$stroke: rgba(107, 102, 255, 0.18);
-
-$tabBgMobile: #f5f0e8; // світло-бежеві таби
-
-/* ===== container (як profile-container на головному профілі) ===== */
+/* ===== CONTAINER ===== */
 .profile-visitor-subscribed {
   width: 100%;
   max-width: 1200px;
   margin: 0 auto;
   padding: 18px 24px 32px;
-  background: transparent;
-}
+  box-sizing: border-box;
 
-/* Нікнейм (великий з градієнтом) + повне ім'я та локація */
-.profile-visitor-subscribed__nameBlock {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
+  &__top {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 170px minmax(0, 1fr) minmax(330px, 430px);
+    align-items: start;
+    gap: 18px;
 
-.profile-visitor-subscribed__nickname {
-  margin: 0;
-  font-size: 48px;
-  font-weight: 800;
-  line-height: 1.1;
-  background: $gradient;
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  text-decoration: underline;
-  text-underline-offset: 3px;
-  text-decoration-color: #ff4fb1;
-  white-space: nowrap;
-}
+    padding: 20px;
+    box-sizing: border-box;
 
-.profile-visitor-subscribed__fullName,
-.profile-visitor-subscribed__location {
-  font-size: 18px;
-  color: rgba(0, 0, 0, 0.85);
-  text-decoration: underline;
-  text-underline-offset: 3px;
-  line-height: 1.5;
+    border: 1px solid rgba(255, 255, 255, 0.46);
+    border-radius: 26px;
 
-  &:not(:last-child) {
-    margin-bottom: 4px;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0.05));
+    box-shadow: 0 6px 18px rgba(126, 92, 176, 0.1);
+    backdrop-filter: blur(4px);
+  }
+
+  &__left {
+    min-width: 0;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+
+  &__center {
+    min-width: 0;
+
+    display: flex;
+    flex-direction: column;
+
+    padding-top: 4px;
+  }
+
+  &__right {
+    width: 100%;
+    min-width: 0;
+  }
+
+  &__avatarContainer {
+    position: relative;
+
+    width: 170px;
+
+    display: flex;
+    justify-content: center;
+  }
+
+  &__avatarWrap {
+    position: relative;
+
+    width: 170px;
+    height: 170px;
+
+    flex-shrink: 0;
+
+    border: 3px solid transparent;
+    border-radius: 50%;
+
+    background:
+      linear-gradient(#fff, #fff) padding-box,
+      $gradient border-box;
+
+    cursor: pointer;
+
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  &__avatar {
+    display: block;
+
+    width: 100%;
+    height: 100%;
+
+    object-fit: cover;
+  }
+
+  &__avatarWrap--hasStories {
+    padding: 1px;
+    overflow: visible;
+    border-radius: 50%;
+    background: linear-gradient(45deg, #ff4fb1, #ff2d55, #ffcc00);
+  }
+
+  &__avatarWrap--hasStories .profile-visitor-subscribed__avatar {
+    border: 1px solid #fff;
+    border-radius: 50%;
+
+    background: transparent;
+  }
+
+  &__onlineStatus {
+    position: absolute;
+    top: 12px;
+    right: 14px;
+    z-index: 10;
+
+    width: auto;
+    height: auto;
+
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+  }
+
+  &__onlineStatus .onlineStatus__dot {
+    width: 16px;
+    height: 16px;
+
+    border: 2px solid #fff;
+    box-shadow: none;
+  }
+
+  &__onlineLabel {
+    display: block;
+
+    margin: 0;
+
+    text-align: center;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    text-decoration-color: #ff4fb1;
+  }
+
+  &__onlineLabel.is-online .onlineStatus__label {
+    color: transparent;
+    background: $gradient;
+    background-clip: text;
+    -webkit-background-clip: text;
+
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1;
+  }
+  /* ===== Profile information ===== */
+  &__nickname {
+    margin: 0 0 7px;
+
+    overflow-wrap: anywhere;
+
+    color: transparent;
+    background: $gradient;
+    -webkit-background-clip: text;
+    background-clip: text;
+
+    font-size: 36px;
+    font-weight: 800;
+    line-height: 1.15;
+  }
+
+  &__fullName,
+  &__location {
+    margin: 0;
+
+    overflow-wrap: anywhere;
+    color: rgba(0, 0, 0, 0.82);
+    font-size: 18px;
+    line-height: 1.45;
+  }
+
+  &__fullName:not(:last-child),
+  &__location:not(:last-child) {
+    margin-bottom: 3px;
   }
 }
 
-/* ===== TOP: 3 колонки як у макеті — зліва аватар+Online, центр нік+ім'я+локація, справа VIP Chat+Подарки+Пожаловаться+Добавить в VIP ===== */
-.profile-visitor-subscribed__top {
-  display: grid;
-  grid-template-columns: 170px minmax(260px, 1fr) auto;
-  gap: 28px 48px;
-  align-items: start;
-}
-
-.profile-visitor-subscribed__left {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
-
-.profile-visitor-subscribed__nameBlock--mobile {
-  display: none;
-}
-
-.profile-visitor-subscribed__center {
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-  padding-top: 18px;
-}
-
-.profile-visitor-subscribed__nickname--center {
-  margin: 0;
-  margin-bottom: 8px;
-  font-size: 36px;
-  font-weight: 800;
-  line-height: 1.15;
-  background: $gradient;
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  text-decoration: underline;
-  text-underline-offset: 3px;
-  text-decoration-color: #ff4fb1;
-}
-
-.profile-visitor-subscribed__center .profile-visitor-subscribed__fullName,
-.profile-visitor-subscribed__center .profile-visitor-subscribed__location {
-  font-size: 18px;
-  color: rgba(0, 0, 0, 0.8);
-  text-decoration: underline;
-  text-underline-offset: 3px;
-}
-
-.profile-visitor-subscribed__right {
-  min-width: 0;
-  width: min(100%, 430px);
-}
+/* ====== RIGHT ACTIONS ===== */
 
 .pvs-top-right {
+  width: 100%;
+  min-width: 0;
+
   display: flex;
   flex-direction: column;
-  align-items: stretch;
-  gap: 28px;
+  gap: 18px;
 }
 
 .pvs-tools__row {
-  display: flex;
-  align-items: center;
-  gap: 32px;
-}
-
-.pvs-tools__row--top {
-  justify-content: flex-start;
-}
-
-
-/* avatar */
-.profile-visitor-subscribed__avatarWrap {
-  position: relative;
-  width: 170px;
-  height: 170px;
-  border-radius: 50%;
-  overflow: hidden;
-  border: 3px solid transparent;
-  background: linear-gradient(#ffffff, #ffffff) padding-box, $gradient border-box;
-  cursor: pointer;
-  -webkit-tap-highlight-color: transparent;
-}
-
-.profile-visitor-subscribed__avatar {
   width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
+  min-width: 0;
+
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: start;
+  gap: 10px;
 }
 
-.profile-visitor-subscribed__avatarContainer {
-  position: relative;
-}
+.pvs-tools__vip,
+.pvs-tools__small {
+  width: 100%;
+  min-width: 0;
 
-/* online dot */
-.profile-visitor-subscribed__onlineDot {
-  position: absolute;
-  top: 12px;
-  right: 8px;
-  width: auto;
-  height: auto;
-  background: transparent;
-  border: none;
-  box-shadow: none;
-  z-index: 2;
-}
-
-.profile-visitor-subscribed__onlineDot .onlineStatus__dot {
-  width: 13px;
-  height: 13px;
-  border: 2px solid #fff;
-}
-
-/* Online під аватаром — як у макеті (фіолетовий) */
-.profile-visitor-subscribed__onlineLabel {
-  margin: 0;
-  font-size: 28px;
-  font-weight: 700;
-  background: $gradient;
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  text-decoration: underline;
-  text-underline-offset: 3px;
-}
-
-/* Загальна кількість друзів у людини (ліва колонка + секція Друзья) */
-.profile-visitor-subscribed__followersCount,
-.profile-visitor-subscribed__friendsCountLabel {
-  margin: 6px 0 8px;
-  font-size: 14px;
-  font-weight: 600;
-  color: rgba(0, 0, 0, 0.75);
-}
-
-.profile-visitor-subscribed__friendsCountValue {
-  font-weight: 700;
-}
-
-body.dark .profile-visitor-subscribed__followersCount,
-body.dark .profile-visitor-subscribed__friendsCountLabel,
-html[data-theme="dark"] .profile-visitor-subscribed__followersCount,
-html[data-theme="dark"] .profile-visitor-subscribed__friendsCountLabel {
-  color: rgba(255, 255, 255, 0.7);
-}
-
-/* Delete як у макеті (градієнтна маленька кнопка під Online) */
-.profile-visitor-subscribed__btnDelete {
-  width: 120px;
-  padding: 10px 16px;
-  border-radius: 10px;
-  margin-left: 16px;
+  padding: 0;
   border: 0;
-  background: $gradient;
-  color: #fff;
-  font-size: 14px;
-  font-weight: 800;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 6px;
+
+  background: transparent;
+
   cursor: pointer;
+  font-family: inherit;
+
   -webkit-tap-highlight-color: transparent;
-  transition: transform 0.15s, box-shadow 0.2s, background 0.2s;
+}
+
+.pvs-tools__vipIconWrap,
+.pvs-tools__smallIconWrap {
+  width: 72px;
+  height: 72px;
+  flex-shrink: 0;
+
+  display: grid;
+  place-items: center;
+}
+
+.pvs-tools__vipIcon {
+  width: 44px;
+  height: 44px;
+
+  object-fit: contain;
+}
+
+.pvs-tools__smallIcon {
+  width: 38px;
+  height: 38px;
+
+  object-fit: contain;
+}
+
+.pvs-tools__label,
+.pvs-tools__smallLabel {
+  width: 100%;
+  max-width: 100%;
+  min-height: 20px;
+
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+
+  text-align: center;
+
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.2;
+
+  overflow-wrap: anywhere;
+}
+
+.pvs-tools__label {
+  color: $pvsText;
+}
+
+.pvs-tools__smallLabel {
+  color: $pvsTextStrong;
+}
+
+.pvs-tools__vip--locked {
+  cursor: not-allowed;
+  opacity: 0.75;
+}
+
+/* ===== VIP BUTTON ===== */
+
+.pvs-desktop-vip {
+  width: 100%;
+
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 10px;
+}
+
+.pvs-mobile-actions {
+  display: none;
+}
+
+.pvs-actions__vipBtn {
+  width: 100%;
+  max-width: 288px;
+  min-height: 58px;
+
+  margin: 0 auto;
+  padding: 10px 18px;
+
+  box-sizing: border-box;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 16px;
+
+  background: $goldGrad;
+
+  font-family: Montserrat, sans-serif;
+  font-size: 18px;
+  font-weight: 500;
+
+  cursor: pointer;
+
+  -webkit-tap-highlight-color: transparent;
+
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.2s ease;
+}
+
+.pvs-actions__vipBtn:hover {
+  box-shadow: 0 6px 18px rgba(176, 92, 255, 0.25);
+}
+
+.pvs-actions__vipBtn:active {
+  transform: scale(0.98);
+}
+
+.pvs-actions__vipBtnText {
+  flex: 0 0 auto;
+  min-width: max-content;
+
+  color: rgba(0, 0, 0, 0.78);
+
+  white-space: nowrap;
+}
+
+.pvs-actions__vipBtnIcon {
+  display: block;
+
+  width: 15px;
+  height: 15px;
+  min-width: 15px;
+  min-height: 15px;
+
+  flex: 0 0 15px;
+}
+/* ===== VIP status ===== */
+
+.pvs-actions__vipStatus {
+  min-height: 36px;
+  align-self: center;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 8px 14px;
+
+  border: 1px solid rgba(0, 0, 0, 0.18);
+  border-radius: 999px;
+
+  background: rgba(241, 231, 255, 0.75);
+
+  color: #1a1a1a;
+
+  font-size: 13px;
+  font-weight: 600;
+  text-align: center;
+}
+
+/* ===== DELETE BUTTON ===== */
+
+.profile-visitor-subscribed__btnDelete {
+  width: 100%;
+  min-width: 0;
+  min-height: 40px;
+
+  margin: 0;
+  padding: 9px 12px;
+
+  border: 0;
+  border-radius: 10px;
+
+  background: $gradient;
+
+  color: #fff;
+
+  font-family: Montserrat, sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  -webkit-tap-highlight-color: transparent;
+
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.2s ease;
 }
 
 .profile-visitor-subscribed__btnDelete:hover {
@@ -233,288 +422,784 @@ html[data-theme="dark"] .profile-visitor-subscribed__friendsCountLabel {
   transform: scale(0.98);
 }
 
-/* Права колонка вже задана вище (.profile-visitor-subscribed__right) */
+/* ===== TABS — DESKTOP ===== */
 
-.pvs-tools__vip {
-  width: 98px;
-  height: auto;
-  border: 0;
-  padding: 0;
-  background: transparent;
-  cursor: pointer;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-start;
-  gap: 10px;
-  -webkit-tap-highlight-color: transparent;
-  flex-shrink: 0;
-}
-
-.pvs-tools__vip--locked {
-  opacity: 0.78;
-}
-
-.pvs-tools__vip--locked .pvs-tools__label {
-  font-size: 11px;
-  line-height: 1.25;
-  text-align: center;
-}
-
-.pvs-tools__vip--locked {
-  opacity: 0.78;
-}
-
-.pvs-tools__vip--locked .pvs-tools__label {
-  white-space: nowrap;
-}
-
-/* Іконка VIP Chat: бабл всередині + квадратна градієнтна обводка через ::before */
-.pvs-tools__vipIconWrap {
-  position: relative;
-  width: 92px;
-  height: 92px;
-  display: grid;
-  place-items: center;
-  padding: 10px;
-  border-radius: 0;
-  background: transparent;
-  box-sizing: border-box;
-}
-
-.pvs-tools__vipIconWrap::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  padding: 0.5px; /* товщина рамки */
-  border-radius: 0;
- 
-  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-  -webkit-mask-composite: xor;
-  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-  mask-composite: exclude;
-  pointer-events: none;
-}
-
-.pvs-tools__vipIcon {
-  width: 64px;
-  height: 64px;
-  object-fit: contain;
-}
-
-body.dark .pvs-tools__vipIconWrap,
-html[data-theme="dark"] .pvs-tools__vipIconWrap {
-  background: transparent;
-}
-
-/* VIP Chat — у темній темі: біла іконка, фіолетовий підпис */
-body.dark .pvs-tools__vip .pvs-tools__vipIcon,
-html[data-theme="dark"] .pvs-tools__vip .pvs-tools__vipIcon {
-  filter: brightness(0) invert(1);
-}
-
-body.dark .pvs-tools__vip .pvs-tools__label,
-html[data-theme="dark"] .pvs-tools__vip .pvs-tools__label {
-  color: #c9b8ff;
-}
-
-.pvs-tools__label {
-  font-size: 13px;
-  font-weight: 500;
-  color: $pvsText;
-  white-space: nowrap;
-}
-
-/* Подарки + Пожаловаться в один ряд (pvs-tools__row) */
-
-.pvs-tools__small {
-  width: 90px;
-  height: 20px;
-  border: 0;
-  padding: 0;
-  background: transparent;
-  cursor: pointer;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  -webkit-tap-highlight-color: transparent;
-  flex-shrink: 0;
-}
-
-.pvs-tools__smallIcon {
-  width: 38px;
-  height: 38px;
-  object-fit: contain;
-}
-
-.pvs-tools__warn {
-  width: 34px;
-  height: 34px;
-  border-radius: 50%;
-  border: 2px solid rgba(255, 79, 177, 0.55);
-  color: rgba(255, 79, 177, 0.85);
-  display: grid;
-  place-items: center;
-  font-size: 18px;
-  font-weight: 800;
-}
-
-.pvs-tools__smallLabel {
-  font-size: 13px;
-  font-weight: 500;
-  color: $pvsTextStrong;
-  text-align: center;
-  line-height: 1.1;
-  white-space: nowrap;
-}
-
-/* Кнопка «Добавить в VIP» (у правій колонці) */
-.pvs-actions__vipBtn {
-  width: 100%;
-  max-width: 288px;
-  height: 58px;
-  margin-left: auto;
-  border-radius: 16px;
-  border: 1px solid rgba(0, 0, 0, 0.08);
-  background: $goldGrad;
-  color: rgba(0, 0, 0, 0.75);
-  font-size: 18px;
-  font-weight: 500;
-  font-family: Montserrat, sans-serif;
-  cursor: pointer;
-  -webkit-tap-highlight-color: transparent;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-}
-
-.pvs-actions__vipBtnIcon {
-  flex-shrink: 0;
-  display: block;
-}
-
-.pvs-actions__vipStatus {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  align-self: flex-end;
-  min-height: 36px;
-  padding: 8px 14px;
-  border-radius: 999px;
-  border: 1px solid rgba(0, 0, 0, 0.18);
-  background: rgba(241, 231, 255, 0.75);
-  font-size: 13px;
-  font-weight: 600;
-  color: #1a1a1a;
-}
-
-body.dark .pvs-actions__vipStatus,
-html[data-theme="dark"] .pvs-actions__vipStatus {
-  border-color: rgba(255, 255, 255, 0.25);
-  background: rgba(255, 255, 255, 0.1);
-  color: rgba(255, 255, 255, 0.92);
-}
-
-/* Таби під верхнім блоком — як у макеті: Удалить, Информация, Истории, Видео, Фото */
 .pvs-actions__tabs--standalone {
   width: 100%;
-  margin-top: 28px;
-  display: flex;
-  justify-content: space-between;
-  gap: 20px;
-  flex-wrap: wrap;
+
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 8px;
+
+  margin-top: 18px;
+}
+
+.pvs-tabs-mobile {
+  display: none;
 }
 
 .pvs-actions__tab {
   min-width: 0;
-  width: 180px;
-  max-width: 100%;
-  height: 58px;
-  padding: 0 18px;
-  border-radius: 14px;
-  border: 1px solid rgba(0, 0, 0, 0.1);
-  background: $pinkBeige;
-  color: rgba(0, 0, 0, 0.65);
-  font-size: 18px;
-  font-weight: 400;
-  font-family: Montserrat, sans-serif;
-  cursor: pointer;
+  min-height: 40px;
+
+  padding: 9px 12px;
+
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  -webkit-tap-highlight-color: transparent;
+  gap: 7px;
+
+  border: 1px solid rgba(0, 0, 0, 0.16);
+  border-radius: 10px;
+
+  background: rgba(255, 255, 255, 0.65);
+  color: $pvsTextStrong;
+
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.2;
+  text-align: center;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.15s ease;
+}
+
+.pvs-actions__tab:hover {
+  background: rgba(255, 255, 255, 0.9);
 }
 
 .pvs-actions__tab.is-active {
-  border-color: rgba(107, 102, 255, 0.35);
-  color: rgba(0, 0, 0, 0.75);
-  box-shadow: 0 6px 18px rgba(107, 102, 255, 0.14);
-}
-
-/* Таб «Удалить» коли активний — градієнт як у макеті */
-.pvs-actions__tab--delete.is-active {
+  border-color: transparent;
   background: $gradient;
   color: #fff;
+}
+
+.pvs-actions__tab--delete {
   border-color: transparent;
-  box-shadow: 0 4px 14px rgba(107, 102, 255, 0.3);
+  background: $gradient;
+  color: #fff;
+}
+
+.pvs-actions__tab--delete:hover {
+  background: $gradientHover;
+  color: #fff;
 }
 
 .pvs-actions__tab.is-locked {
-  opacity: 0.95;
-  cursor: default;
+  opacity: 0.75;
+  cursor: not-allowed;
+}
+.pvs-actions__tabText {
+  min-width: 0;
+
+  overflow-wrap: anywhere;
 }
 
 .pvs-actions__tabLock {
-  width: 18px;
-  height: 18px;
-  opacity: 0.85;
-  display: block;
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+
+  object-fit: contain;
+}
+/* =========================
+   <= 1024px
+   ========================= */
+@media (max-width: 1024px) {
+  .profile-visitor-subscribed {
+    padding-left: 16px;
+    padding-right: 16px;
+
+    &__top {
+      grid-template-columns:
+        140px
+        minmax(0, 1fr)
+        minmax(270px, 340px);
+
+      gap: 12px;
+      padding: 16px;
+    }
+
+    &__avatarContainer {
+      width: 140px;
+    }
+
+    &__avatarWrap {
+      width: 140px;
+      height: 140px;
+    }
+
+    &__nickname {
+      font-size: 30px;
+    }
+
+    &__fullName,
+    &__location {
+      font-size: 15px;
+    }
+  }
+
+  .pvs-tools__row {
+    gap: 6px;
+  }
+
+  .pvs-tools__vipIconWrap,
+  .pvs-tools__smallIconWrap {
+    width: 64px;
+    height: 64px;
+  }
+
+  .pvs-tools__vipIcon {
+    width: 36px;
+    height: 36px;
+  }
+
+  .pvs-tools__smallIcon {
+    width: 30px;
+    height: 30px;
+  }
+
+  .pvs-tools__label,
+  .pvs-tools__smallLabel {
+    font-size: 11px;
+  }
+
+  .pvs-actions__vipBtn {
+    max-width: 260px;
+    min-height: 50px;
+    padding: 8px 14px;
+    font-size: 15px;
+  }
+}
+/* =========================
+   <= 767px
+   ========================= */
+@media (max-width: 768px) {
+  .profile-visitor-subscribed {
+    padding: 10px 12px 24px;
+
+    &__top {
+      grid-template-columns:
+        110px
+        minmax(0, 1fr)
+        minmax(190px, 1.5fr);
+
+      align-items: start;
+      gap: 8px;
+
+      padding: 12px;
+
+      border-radius: 18px;
+    }
+
+    &__left {
+      min-width: 0;
+      align-items: center;
+    }
+
+    &__avatarContainer {
+      width: 100px;
+    }
+
+    &__avatarWrap {
+      width: 100px;
+      height: 100px;
+    }
+
+    &__center {
+      min-width: 0;
+      padding-top: 2px;
+    }
+
+    &__nickname {
+      font-size: 22px;
+      line-height: 1.1;
+    }
+
+    &__fullName,
+    &__location {
+      font-size: 12px;
+      line-height: 1.3;
+    }
+
+    &__right {
+      width: 100%;
+      min-width: 0;
+    }
+
+    &__onlineStatus {
+      top: 4px;
+      right: 15px;
+    }
+
+    &__onlineStatus .onlineStatus__dot {
+      width: 12px;
+      height: 12px;
+    }
+
+    &__onlineLabel .onlineStatus__label {
+      font-size: 10px;
+    }
+  }
+
+  .pvs-top-right {
+    width: 100%;
+    min-width: 0;
+    gap: 10px;
+  }
+
+  .pvs-top-right > .pvs-actions__vipBtn,
+  .pvs-top-right > .pvs-actions__vipStatus {
+    display: none;
+  }
+  /* ===== Tools ===== */
+  .pvs-tools__row {
+    width: 100%;
+    min-width: 0;
+
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 3px;
+  }
+
+  .pvs-tools__vip,
+  .pvs-tools__small {
+    width: 100%;
+    min-width: 0;
+
+    overflow: hidden;
+  }
+
+  .pvs-tools__vipIconWrap,
+  .pvs-tools__smallIconWrap {
+    width: 50px;
+    height: 50px;
+  }
+
+  .pvs-tools__label,
+  .pvs-tools__smallLabel {
+    width: 100%;
+    font-size: 9px;
+    line-height: 1.05;
+    overflow-wrap: anywhere;
+  }
+  /* ===== Mobile actions ===== */
+  .pvs-mobile-actions {
+    width: 100%;
+    min-width: 0;
+
+    display: grid;
+
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+
+    gap: 6px;
+
+    margin-top: 4px;
+  }
+
+  .pvs-mobile-actions .pvs-actions__vipBtn,
+  .profile-visitor-subscribed__btnDelete {
+    width: 100%;
+    min-width: 0;
+    min-height: 38px;
+
+    margin: 0;
+    padding: 7px 6px;
+
+    box-sizing: border-box;
+
+    border-radius: 10px;
+
+    font-size: 10px;
+
+    white-space: nowrap;
+  }
+
+  .pvs-mobile-actions .pvs-actions__vipBtn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+  }
+
+  .pvs-mobile-actions .pvs-actions__vipBtnText {
+    flex: 0 0 auto;
+    min-width: max-content;
+
+    overflow: visible;
+    text-overflow: clip;
+    white-space: nowrap;
+  }
+
+  .pvs-mobile-actions .pvs-actions__vipBtnIcon {
+    width: 13px;
+    height: 13px;
+    min-width: 13px;
+    min-height: 13px;
+
+    flex: 0 0 13px;
+  }
+
+  .pvs-mobile-actions .pvs-actions__vipStatus {
+    width: 100%;
+    min-width: 0;
+    min-height: 38px;
+
+    padding: 7px 6px;
+
+    box-sizing: border-box;
+
+    border-radius: 10px;
+
+    font-size: 9px;
+    text-align: center;
+
+    white-space: nowrap;
+  }
+
+  /* ===== Mobile tabs ===== */
+
+  .pvs-actions__tabs--standalone {
+    display: none;
+  }
+
+  .pvs-tabs-mobile {
+    width: 100%;
+    min-width: 0;
+
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 5px;
+
+    margin-top: 10px;
+  }
+
+  .pvs-tabs-mobile .pvs-actions__tab {
+    min-width: 0;
+    min-height: 38px;
+
+    padding: 6px 4px;
+
+    border-radius: 8px;
+
+    font-size: 10px;
+
+    gap: 3px;
+  }
+
+  .pvs-tabs-mobile .pvs-actions__tabText {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .pvs-tabs-mobile .pvs-actions__tabLock {
+    width: 11px;
+    height: 11px;
+  }
+}
+/* =========================
+   421px - 480px
+   ========================= */
+@media (min-width: 421px) and (max-width: 480px) {
+  .profile-visitor-subscribed {
+    padding-left: 8px;
+    padding-right: 8px;
+
+    &__top {
+      grid-template-columns:
+        100px
+        minmax(0, 1fr)
+        minmax(175px, 1.45fr);
+
+      gap: 6px;
+      padding: 10px;
+    }
+
+    &__avatarContainer {
+      width: 90px;
+    }
+
+    &__avatarWrap {
+      width: 90px;
+      height: 90px;
+    }
+
+    &__onlineStatus {
+      top: 4px;
+      right: 14px;
+    }
+
+    &__onlineStatus .onlineStatus__dot {
+      width: 12px;
+      height: 12px;
+    }
+    &__onlineLabel .onlineStatus__label {
+      font-size: 8px;
+    }
+
+    &__onlineLabel.is-online .onlineStatus__label {
+      font-size: 11px;
+    }
+
+    &__nickname {
+      font-size: 20px;
+    }
+
+    &__fullName,
+    &__location {
+      font-size: 12px;
+    }
+  }
+
+  .pvs-tools__row {
+    gap: 2px;
+  }
+
+  .pvs-tools__vipIconWrap,
+  .pvs-tools__smallIconWrap {
+    width: 44px;
+    height: 44px;
+  }
+
+  .pvs-tools__vipIcon {
+    width: 32px;
+    height: 32px;
+  }
+
+  .pvs-tools__smallIcon {
+    width: 24px;
+    height: 24px;
+  }
+
+  .pvs-tools__label,
+  .pvs-tools__smallLabel {
+    font-size: 8px;
+    line-height: 1;
+  }
+
+  .pvs-mobile-actions {
+    gap: 4px;
+  }
+
+  .pvs-mobile-actions .pvs-actions__vipBtn,
+  .profile-visitor-subscribed__btnDelete {
+    min-height: 34px;
+
+    padding: 6px 4px;
+
+    font-size: 9px;
+  }
+
+  .pvs-mobile-actions .pvs-actions__vipBtn {
+    gap: 4px;
+  }
+
+  .pvs-mobile-actions .pvs-actions__vipBtnText {
+    flex: 0 0 auto;
+    min-width: max-content;
+
+    overflow: visible;
+    text-overflow: clip;
+    white-space: nowrap;
+  }
+
+  .pvs-mobile-actions .pvs-actions__vipBtnIcon {
+    flex: 0 0 15px;
+
+    width: 15px;
+    height: 15px;
+    min-width: 15px;
+    min-height: 15px;
+  }
+}
+/* =========================
+   <= 420px
+   ========================= */
+@media (max-width: 420px) {
+  .profile-visitor-subscribed {
+    padding-left: 6px;
+    padding-right: 6px;
+
+    &__top {
+      grid-template-columns: minmax(76px, auto) minmax(0, auto) 1fr;
+      justify-content: center;
+      align-items: center;
+      column-gap: 10px;
+      row-gap: 8px;
+
+      padding: 10px;
+    }
+
+    &__left {
+      grid-column: 1;
+
+      width: 76px;
+      min-width: 76px;
+
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 6px;
+    }
+
+    &__avatarContainer {
+      width: 76px;
+      flex: 0 0 76px;
+    }
+
+    &__avatarWrap {
+      width: 76px;
+      height: 76px;
+    }
+
+    &__onlineStatus {
+      top: 3px;
+      right: 10px;
+    }
+
+    &__onlineLabel .onlineStatus__label {
+      font-size: 8px;
+    }
+
+    &__onlineLabel.is-online .onlineStatus__label {
+      font-size: 8px;
+    }
+
+    &__center {
+      grid-column: 2;
+
+      width: auto;
+      min-width: 0;
+      max-width: 180px;
+
+      padding-top: 0;
+
+      align-self: center;
+
+      text-align: left;
+      align-items: flex-start;
+    }
+
+    &__nickname {
+      font-size: 18px;
+      line-height: 1.1;
+
+      text-align: left;
+    }
+
+    &__fullName,
+    &__location {
+      font-size: 11px;
+      line-height: 1.3;
+
+      text-align: left;
+    }
+
+    &__right {
+      grid-column: 1 / -1;
+
+      width: 100%;
+    }
+  }
+
+  .pvs-tools__row {
+    gap: 4px;
+  }
+
+  .pvs-mobile-actions .pvs-actions__vipBtn {
+    gap: 3px;
+    padding-left: 6px;
+    padding-right: 6px;
+  }
+
+  .pvs-mobile-actions .pvs-actions__vipBtnText {
+    flex: 0 0 auto;
+    min-width: max-content;
+    white-space: nowrap;
+  }
+
+  .pvs-mobile-actions .pvs-actions__vipBtnIcon {
+    flex: 0 0 13px;
+    width: 13px;
+    height: 13px;
+    min-width: 13px;
+    min-height: 13px;
+  }
+}
+/* =========================
+   <= 360px
+   ========================= */
+@media (max-width: 360px) {
+  .profile-visitor-subscribed {
+    padding-left: 6px;
+    padding-right: 6px;
+
+    &__top {
+      padding: 10px;
+    }
+
+    &__nickname {
+      font-size: 20px;
+    }
+  }
+
+  .pvs-tools__vipIconWrap,
+  .pvs-tools__smallIconWrap {
+    width: 48px;
+    height: 48px;
+
+    flex-basis: 48px;
+  }
+
+  .pvs-tools__vipIcon {
+    width: 34px;
+    height: 34px;
+  }
+
+  .pvs-tools__smallIcon {
+    width: 27px;
+    height: 27px;
+  }
+
+  .pvs-tools__label,
+  .pvs-tools__smallLabel {
+    font-size: 9px;
+  }
+
+  .profile-visitor-subscribed__btnDelete,
+  .pvs-mobile-actions .pvs-actions__vipBtn {
+    padding-left: 5px;
+    padding-right: 5px;
+
+    font-size: 10px;
+  }
+
+  .pvs-tabs-mobile .pvs-actions__tab {
+    font-size: 8px;
+  }
+}
+/* =========================
+   DARK THEME
+   ========================= */
+body.dark,
+html[data-theme='dark'] {
+  .profile-visitor-subscribed__top {
+    border-color: rgba(255, 255, 255, 0.12);
+
+    background: linear-gradient(135deg, rgba(45, 34, 58, 0.78), rgba(25, 20, 34, 0.72));
+
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28);
+  }
+
+  .profile-visitor-subscribed__avatarWrap {
+    background:
+      linear-gradient(#1e1b28, #1e1b28) padding-box,
+      $gradient border-box;
+  }
+
+  .profile-visitor-subscribed__avatarWrap--hasStories .profile-visitor-subscribed__avatar {
+    border-color: rgba(255, 255, 255, 0.9);
+  }
+
+  .profile-visitor-subscribed__fullName,
+  .profile-visitor-subscribed__location {
+    color: rgba(255, 255, 255, 0.85);
+  }
+
+  .pvs-tools__label,
+  .pvs-tools__smallLabel {
+    color: rgba(255, 255, 255, 0.9);
+  }
+
+  .pvs-actions__tab {
+    border-color: rgba(255, 255, 255, 0.14);
+
+    background: rgba(40, 34, 50, 0.72);
+
+    color: rgba(255, 255, 255, 0.86);
+  }
+
+  .pvs-actions__tab:hover {
+    background: rgba(55, 45, 68, 0.9);
+  }
+
+  .pvs-actions__tab.is-active,
+  .pvs-actions__tab--delete {
+    color: #fff;
+  }
+
+  .pvs-actions__tabLock {
+    filter: invert(1);
+  }
+
+  .pvs-actions__vipStatus {
+    border-color: rgba(255, 255, 255, 0.16);
+
+    background: rgba(70, 55, 90, 0.72);
+
+    color: rgba(255, 255, 255, 0.92);
+  }
 }
 
-/* ===== TAB CONTENT ===== */
-.profile-visitor-subscribed__tabContent {
-  margin-top: 12px;
-}
+.profile-visitor-subscribed__followersCount,
+.profile-visitor-subscribed__friendsCountLabel {
+  margin: 6px 0 8px;
 
-.profile-visitor-subscribed__infoText {
-  margin: 0;
+  color: rgba(0, 0, 0, 0.75);
+
   font-size: 14px;
   font-weight: 600;
-  color: rgba(0, 0, 0, 0.6);
 }
 
-/* ===== FRIENDS: такий самий вигляд як у моєму профілі (vipCard, vipRow, showMoreBtn) ===== */
+.profile-visitor-subscribed__friendsCountValue {
+  font-weight: 700;
+}
+
+body.dark .profile-visitor-subscribed__followersCount,
+body.dark .profile-visitor-subscribed__friendsCountLabel,
+html[data-theme='dark'] .profile-visitor-subscribed__followersCount,
+html[data-theme='dark'] .profile-visitor-subscribed__friendsCountLabel {
+  color: rgba(255, 255, 255, 0.7);
+}
+
 .profile-visitor-subscribed__feed {
-  margin-top: 16px;
   width: 100%;
+  margin-top: 16px;
 }
 
 .profile-visitor-subscribed__friends {
   margin-top: 18px;
 }
 
-/* Блок «Друзі» — фірмовий вигляд сторінки підписника (не спрощений стиль картки «мій профіль») */
 .profile-visitor-subscribed .vipCard {
   width: 100%;
+
   padding: 22px 24px 28px;
-  border-radius: 18px;
+
   border: 1px solid rgba(0, 0, 0, 0.18);
+  border-radius: 18px;
+
   background: rgba(239, 232, 248, 0.9);
 }
 
 .profile-visitor-subscribed .friendsTitle {
+  margin: 0 0 28px;
+
+  color: rgba(0, 0, 0, 0.82);
+
   font-size: 20px;
   font-weight: 400;
-  color: rgba(0, 0, 0, 0.82);
-  margin: 0 0 28px;
 }
 
 .profile-visitor-subscribed .friendsTitle__label {
   display: inline-block;
+
   text-decoration: underline;
   text-decoration-thickness: 1px;
   text-underline-offset: 3px;
@@ -524,102 +1209,55 @@ html[data-theme="dark"] .pvs-actions__vipStatus {
   display: inline-block;
 }
 
-.profile-visitor-subscribed .vipRow {
-  display: flex;
-  align-items: flex-start;
-  flex-wrap: wrap;
-  gap: 28px 34px;
-  overflow: visible;
-  padding-bottom: 0;
-}
-
-.profile-visitor-subscribed .vipItem {
-  flex: 0 0 calc((100% - 136px) / 5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-width: 0;
-}
-
-.profile-visitor-subscribed .vipAvatarWrap {
-  position: relative;
-  width: 126px;
-  height: 126px;
-  max-width: 126px;
-  min-width: 126px;
-  min-height: 126px;
-  flex: 0 0 126px;
-  border-radius: 50%;
-  padding: 2px;
-  background: linear-gradient(135deg, #b05cff, #ff4fb1, #4f6bff);
-}
-
 .profile-visitor-subscribed .vipAvatarWrap--clickable {
-  border: none;
-  cursor: pointer;
   display: block;
+
+  border: none;
+
   appearance: none;
+  cursor: pointer;
 }
+
 .profile-visitor-subscribed .vipAvatarWrap--clickable:hover {
   opacity: 0.9;
 }
 
-.profile-visitor-subscribed .vipAvatar {
-  width: 100%;
-  height: 100%;
-  border-radius: 50%;
-  object-fit: cover;
-  display: block;
-  background: #eee;
-}
-
-.profile-visitor-subscribed .onlineDot {
-  position: absolute;
-  right: 14.64%;
-  bottom: 14.64%;
-  top: auto;
-  left: auto;
-  transform: none;
-  width: auto;
-  height: auto;
-  background: transparent;
-  border: none;
-  z-index: 2;
-}
-
-.profile-visitor-subscribed .onlineDot .onlineStatus__dot {
-  width: 10px;
-  height: 10px;
-  border: 2px solid #fff;
-}
-
 .profile-visitor-subscribed .showMoreBtn {
-  margin: 32px auto 0;
   display: block;
+
   width: 294px;
   max-width: 100%;
   height: 56px;
+
+  margin: 32px auto 0;
   padding: 0 22px;
-  border-radius: 999px;
+
   border: 0;
+  border-radius: 999px;
+
   background: linear-gradient(90deg, #4f6bff 0%, #b05cff 50%, #ff4fb1 100%);
+
   color: #fff;
+
   font-size: 18px;
   font-weight: 500;
+
   cursor: pointer;
+
   -webkit-tap-highlight-color: transparent;
 }
 
 .profile-visitor-subscribed__friendsEmpty {
   margin: 0 0 16px;
+
+  color: rgba(0, 0, 0, 0.6);
+
   font-family: Montserrat, sans-serif;
   font-size: 16px;
   font-weight: 500;
-  color: rgba(0, 0, 0, 0.6);
   line-height: 1.4;
 }
 
-/* На мобільних ProfileHome ховає vipFriendNameBtn; для сторінки підписника залишаємо повний вигляд (ім’я + іконка під фото). */
 @media (max-width: 768px) {
   .profile-visitor-subscribed .vipFriendNameBtn {
     display: inline-flex !important;
@@ -630,16 +1268,19 @@ html[data-theme="dark"] .pvs-actions__vipStatus {
   }
 }
 
-/* ===== IMAGE VIEWER ===== */
 .profile-visitor-subscribed__imageViewer {
   position: fixed;
   inset: 0;
   z-index: 9999;
+
   display: flex;
   align-items: center;
   justify-content: center;
+
   padding: 40px;
+
   background: rgba(0, 0, 0, 0.82);
+
   cursor: pointer;
 }
 
@@ -647,767 +1288,30 @@ html[data-theme="dark"] .pvs-actions__vipStatus {
   position: absolute;
   top: 16px;
   right: 16px;
+
   width: 46px;
   height: 46px;
-  border: 0;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.18);
-  color: #fff;
-  font-size: 28px;
-  cursor: pointer;
+
   display: grid;
   place-items: center;
+
+  border: 0;
+  border-radius: 50%;
+
+  background: rgba(255, 255, 255, 0.18);
+
+  color: #fff;
+
+  font-size: 28px;
+
+  cursor: pointer;
 }
 
 .profile-visitor-subscribed__imageViewerImg {
   max-width: 100%;
   max-height: calc(100vh - 80px);
+
   border-radius: 10px;
+
   box-shadow: 0 10px 45px rgba(0, 0, 0, 0.55);
-}
-
-/* ===== responsive ===== */
-@media (max-width: 900px) {
-  .profile-visitor-subscribed__top {
-    gap: 18px;
-  }
-
-  .profile-visitor-subscribed__right {
-    width: 100%;
-    grid-column: 1 / -1;
-  }
-
-  .pvs-top-right {
-    gap: 18px;
-  }
-
-  .pvs-tools__row--top {
-    flex-wrap: wrap;
-  }
-
-  .pvs-actions__tabs--standalone {
-    justify-content: flex-start;
-  }
-
-  .profile-visitor-subscribed .vipRow {
-    gap: 20px;
-  }
-
-  .profile-visitor-subscribed .vipItem {
-    flex: 0 0 calc((100% - 60px) / 4);
-  }
-}
-
-/* Мобільний блок нік+біо (як profileInfo) — тільки на мобілці */
-.pvs-info-mobile {
-  display: none;
-}
-
-/* Таби під Удалить на мобілці — приховані на desktop */
-.pvs-tabs-mobile {
-  display: none;
-}
-
-.pvs-mobile-actions {
-  display: none;
-}
-
-/* ===== мобільна версія 360px–768px: розташування як на головному профілі (profileBlock + profileInfo) ===== */
-@media (max-width: 768px) {
-  .profile-visitor-subscribed {
-    padding: 12px 14px 90px;
-    gap: 14px;
-  }
-
-  .profile-visitor-subscribed__top {
-    display: grid;
-    grid-template-columns: 120px minmax(0, 1fr) auto;
-    grid-template-areas: "left center right";
-    align-items: start;
-    gap: 10px 12px;
-  }
-
-  .profile-visitor-subscribed__left {
-    grid-area: left;
-    min-width: 0;
-    gap: 8px;
-  }
-
-  .profile-visitor-subscribed__avatarWrap {
-    width: 120px;
-    height: 120px;
-  }
-
-  .profile-visitor-subscribed__center {
-    grid-area: center;
-    display: flex;
-    flex-direction: column;
-    min-width: 0;
-    padding-top: 0;
-  }
-
-  .profile-visitor-subscribed__nickname--center {
-    font-size: 28px;
-    line-height: 1;
-  }
-
-  .profile-visitor-subscribed__center .profile-visitor-subscribed__fullName,
-  .profile-visitor-subscribed__center .profile-visitor-subscribed__location {
-    font-size: 14px;
-    line-height: 1.08;
-  }
-
-  .profile-visitor-subscribed__nameBlock--mobile {
-    display: none;
-  }
-
-  .profile-visitor-subscribed__right {
-    grid-area: right;
-    min-width: 0;
-    width: auto;
-    align-self: start;
-  }
-
-  .pvs-top-right {
-    align-items: flex-start;
-    gap: 0;
-  }
-
-  .pvs-tools__row {
-    display: grid;
-    grid-template-columns: repeat(2, auto);
-    justify-content: start;
-    align-items: start;
-    column-gap: 8px;
-    row-gap: 2px;
-  }
-
-  .pvs-tools__vip {
-    width: auto;
-    min-width: 58px;
-    padding: 0;
-    grid-column: 1 / span 2;
-    justify-self: center;
-  }
-
-  .pvs-tools__vipIconWrap {
-    width: 54px;
-    height: 54px;
-    padding: 6px;
-    border-radius: 10px;
-  }
-
-  .pvs-tools__vipIcon {
-    width: 36px;
-    height: 36px;
-    object-fit: contain;
-  }
-.pvs-tools__label {
-  display: block;
-  font-size: 8px;
-  line-height: 1.1;
-  text-align: center;
-  white-space: nowrap;
-}
- 
-
-  .pvs-tools__small {
-    width: 42px;
-    min-width: 42px;
-    gap: 5px;
-    padding: 0;
-  }
-
-  .profile-visitor-subscribed .pvs-tools__small {
-    display: flex;
-  }
-
-  .pvs-tools__smallIcon,
-  .pvs-tools__warn {
-    width: 26px;
-    height: 26px;
-    font-size: 11px;
-  }
-
-  .pvs-tools__smallLabel {
-    font-size: 8px;
-    line-height: 1.1;
-    white-space: normal;
-  }
-
-  .pvs-actions__vipBtn {
-    width: min(100%, 280px);
-    max-width: none;
-    min-width: 0;
-    height: 42px;
-    padding: 0 14px;
-    font-size: 13px;
-    border-radius: 14px;
-    gap: 6px;
-    margin-left: 0;
-  }
-
-  .profile-visitor-subscribed__right .pvs-actions__vipBtn {
-    display: none;
-  }
-
-  .pvs-mobile-actions {
-    display: grid;
-    grid-template-columns: 138px minmax(0, 1fr);
-    gap: 12px;
-    align-items: stretch;
-    margin-top: 14px;
-  }
-
-  .pvs-mobile-actions .profile-visitor-subscribed__btnDelete,
-  .pvs-mobile-actions .pvs-actions__vipBtn--mobile {
-    width: 100%;
-    min-width: 0;
-    height: 42px;
-    margin: 0;
-  }
-
-  .pvs-mobile-actions .profile-visitor-subscribed__btnDelete {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0 14px;
-    font-size: 13px;
-    border-radius: 14px;
-  }
-
-  .pvs-actions__vipBtnIcon {
-    width: 12px;
-    height: 12px;
-  }
-
-  .pvs-actions__tabs--standalone {
-    display: none !important;
-  }
-
-  .pvs-tabs-mobile {
-    display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 12px;
-    margin-top: 18px;
-    width: 100%;
-    align-items: start;
-  }
-
-  .pvs-tabs-mobile .pvs-actions__tab {
-    min-width: 0;
-    width: 100%;
-    justify-content: center;
-  }
-
-  .profile-visitor-subscribed__onlineLabel {
-    font-size: 16px;
-    font-weight: 800;
-    background: $gradient;
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-  }
-
-  .pvs-actions__tab {
-    width: 100%;
-    min-width: 0;
-    height: 40px;
-    padding: 0 8px;
-    font-size: 11px;
-    border-radius: 12px;
-    border: 1px solid rgba(0, 0, 0, 0.1);
-    color: rgba(0, 0, 0, 0.85);
-    white-space: nowrap;
-  }
-
-  .profile-visitor-subscribed .vipAvatarWrap {
-    width: 100%;
-    height: auto;
-    max-width: none;
-    min-width: 0;
-    min-height: 0;
-    aspect-ratio: 1 / 1;
-    flex: 0 0 auto;
-  }
-
-  .profile-visitor-subscribed .friendsTitle {
-    font-size: 17px;
-    margin-bottom: 20px;
-  }
-
-  .profile-visitor-subscribed .showMoreBtn {
-    width: 240px;
-    height: 42px;
-    font-size: 14px;
-    margin-top: 24px;
-  }
-
-  .profile-visitor-subscribed__friendsEmpty {
-    font-size: 14px;
-  }
-
-  .profile-visitor-subscribed .vipRow {
-    flex-wrap: nowrap;
-    overflow-x: auto;
-    gap: 8px;
-    padding-bottom: 6px;
-    scrollbar-width: none;
-    -ms-overflow-style: none;
-  }
-
-  .profile-visitor-subscribed .vipRow::-webkit-scrollbar {
-    display: none;
-  }
-
-  .profile-visitor-subscribed .vipItem {
-    flex: 0 0 calc((100% - 24px) / 4);
-  }
-
-  .profile-visitor-subscribed__friends {
-    margin-top: 34px;
-  }
-}
-
-@media (max-width: 480px) {
-  .profile-visitor-subscribed {
-    padding: 10px 12px 90px;
-  }
-
-  .profile-visitor-subscribed__top {
-    grid-template-columns: 100px minmax(0, 1fr) auto;
-    gap: 8px 10px;
-  }
-
-  .profile-visitor-subscribed__left {
-    gap: 6px;
-  }
-
-  .profile-visitor-subscribed__avatarWrap {
-    width: 100px;
-    height: 100px;
-  }
-
-  .profile-visitor-subscribed__nickname--center {
-    font-size: 23px;
-  }
-
-  .profile-visitor-subscribed__center .profile-visitor-subscribed__fullName,
-  .profile-visitor-subscribed__center .profile-visitor-subscribed__location {
-    font-size: 13px;
-  }
-
-  .profile-visitor-subscribed__onlineLabel {
-    font-size: 14px;
-  }
-
-  .pvs-tools__row {
-    gap: 20px;
-  }
-
-  .pvs-tools__vipIconWrap {
-    width: 48px;
-    height: 48px;
-    padding: 5px;
-  }
-
-  .pvs-tools__vipIcon {
-    width: 32px;
-    height: 32px;
-  }
-
-  .pvs-tools__small {
-    width: 36px;
-    min-width: 36px;
-  }
-
-  .pvs-tools__smallIcon,
-  .pvs-tools__warn {
-    width: 26px;
-    height: 26px;
-    font-size: 10px;
-  }
-
-  .pvs-tools__smallLabel {
-    font-size: 8px;
-  }
-
-  .pvs-actions__vipBtn {
-    height: 38px;
-    padding: 0 10px;
-    font-size: 11px;
-    gap: 5px;
-  }
-
-  .pvs-mobile-actions {
-    grid-template-columns: 110px minmax(0, 1fr);
-    gap: 10px;
-    margin-top: 12px;
-  }
-
-  .pvs-mobile-actions .profile-visitor-subscribed__btnDelete,
-  .pvs-mobile-actions .pvs-actions__vipBtn--mobile {
-    height: 38px;
-  }
-
-  .pvs-mobile-actions .profile-visitor-subscribed__btnDelete {
-    font-size: 11px;
-    padding: 0 10px;
-  }
-
-  .pvs-actions__vipBtnIcon {
-    width: 10px;
-    height: 10px;
-  }
-
-  .pvs-tabs-mobile {
-    gap: 8px;
-    margin-top: 16px;
-  }
-
-  .pvs-actions__tab {
-    height: 36px;
-    font-size: 10px;
-    border-radius: 8px;
-  }
-
-  .profile-visitor-subscribed .vipAvatarWrap {
-    width: 100%;
-    height: auto;
-  }
-
-  .profile-visitor-subscribed .friendsTitle {
-    font-size: 15px;
-    margin-bottom: 16px;
-  }
-
-  .profile-visitor-subscribed .showMoreBtn {
-    width: 210px;
-    height: 34px;
-    font-size: 13px;
-  }
-
-  .profile-visitor-subscribed__friendsEmpty {
-    font-size: 13px;
-  }
-
-  .profile-visitor-subscribed__friends {
-    margin-top: 30px;
-  }
-}
-
-@media (max-width: 360px) {
-  .profile-visitor-subscribed__top {
-    grid-template-columns: 90px minmax(0, 1fr) auto;
-    gap: 8px;
-  }
-
-  .profile-visitor-subscribed__avatarWrap {
-    width: 90px;
-    height: 90px;
-  }
-
-  .profile-visitor-subscribed__nickname--center {
-    font-size: 20px;
-  }
-
-  .profile-visitor-subscribed__center .profile-visitor-subscribed__fullName,
-  .profile-visitor-subscribed__center .profile-visitor-subscribed__location {
-    font-size: 12px;
-  }
-
-  .profile-visitor-subscribed__onlineLabel {
-    font-size: 13px;
-  }
-
-  .pvs-tools__vipIconWrap {
-    width: 42px;
-    height: 42px;
-    padding: 5px;
-  }
-
-  .pvs-tools__vipIcon {
-    width: 28px;
-    height: 28px;
-  }
-
-  .pvs-tools__small {
-    width: 32px;
-    min-width: 32px;
-  }
-
-  .pvs-tools__smallIcon,
-  .pvs-tools__warn {
-    width: 16px;
-    height: 16px;
-  }
-
-  .pvs-tools__smallLabel {
-    font-size: 6px;
-  }
-
-  .pvs-actions__vipBtn {
-    height: 34px;
-    padding: 0 8px;
-    font-size: 10px;
-  }
-
-  .pvs-tabs-mobile {
-    gap: 6px;
-  }
-
-  .pvs-actions__tab {
-    height: 34px;
-    padding: 0 6px;
-    font-size: 9px;
-  }
-
-  .pvs-mobile-actions {
-    grid-template-columns: 92px minmax(0, 1fr);
-    gap: 8px;
-  }
-
-  .pvs-mobile-actions .profile-visitor-subscribed__btnDelete,
-  .pvs-mobile-actions .pvs-actions__vipBtn--mobile {
-    height: 34px;
-  }
-
-  .pvs-mobile-actions .profile-visitor-subscribed__btnDelete {
-    font-size: 10px;
-    padding: 0 8px;
-  }
-
-  .profile-visitor-subscribed .vipAvatarWrap {
-    width: 100%;
-    height: auto;
-  }
-
-  .profile-visitor-subscribed .friendsTitle {
-    font-size: 14px;
-    margin-bottom: 14px;
-  }
-
-  .profile-visitor-subscribed .showMoreBtn {
-    width: 190px;
-    height: 32px;
-    font-size: 12px;
-  }
-
-  .profile-visitor-subscribed__friendsEmpty {
-    font-size: 12px;
-  }
-}
-
-@media only screen and (min-width: 768px) {
-  .profile-visitor-subscribed__onlineDot {
-    top: 22px;
-    right: 10px;
-    width: 16px;
-    height: 16px;
-  }
-}
-
-@media only screen and (min-width: 1024px) {
- .profile-visitor-subscribed__nickname--center {
-  font-size: 48px;
- }
-
- .profile-visitor-subscribed__avatarWrap {
-  width: 210px;
-  height: 210px;
- }
-
-  .profile-visitor-subscribed__top {
-    grid-template-columns: 200px minmax(260px, 1fr) auto;
-  }
-}
-
-
-/* ===== ТЕМНА ТЕМА — профіль друга (body.dark і data-theme) ===== */
-$dark-bg-card: rgba(25, 18, 35, 0.6);
-$dark-border: rgba(255, 255, 255, 0.12);
-$dark-text: rgba(255, 255, 255, 0.9);
-$dark-text-muted: rgba(255, 255, 255, 0.7);
-
-body.dark .profile-visitor-subscribed__fullName,
-body.dark .profile-visitor-subscribed__location,
-html[data-theme="dark"] .profile-visitor-subscribed__fullName,
-html[data-theme="dark"] .profile-visitor-subscribed__location {
-  color: $dark-text-muted;
-}
-
-/* Кнопка Удалить */
-body.dark .profile-visitor-subscribed__btnDelete,
-html[data-theme="dark"] .profile-visitor-subscribed__btnDelete {
-  color: rgba(255, 255, 255, 0.9);
-  border-color: rgba(255, 255, 255, 0.2);
-  background: rgba(255, 255, 255, 0.08);
-}
-
-/* Подарки / Пожаловаться — підписи та іконки */
-body.dark .pvs-tools__label,
-body.dark .pvs-tools__smallLabel,
-html[data-theme="dark"] .pvs-tools__label,
-html[data-theme="dark"] .pvs-tools__smallLabel {
-  color: $dark-text-muted;
-}
-
-body.dark .pvs-tools__smallIcon,
-html[data-theme="dark"] .pvs-tools__smallIcon {
-  filter: brightness(0) invert(1);
-  opacity: 0.85;
-}
-
-/* Кнопка Добавить в VIP */
-body.dark .pvs-actions__vipBtn,
-html[data-theme="dark"] .pvs-actions__vipBtn {
-  border-color: rgba(255, 255, 255, 0.2);
-  background: linear-gradient(90deg, rgba(231, 197, 119, 0.4) 0%, rgba(255, 233, 177, 0.35) 38%, rgba(244, 214, 149, 0.4) 70%, rgba(216, 182, 109, 0.4) 100%);
-  color: rgba(255, 255, 255, 0.95);
-}
-
-body.dark .pvs-actions__vipBtnIcon,
-html[data-theme="dark"] .pvs-actions__vipBtnIcon {
-  filter: brightness(0) invert(1);
-}
-
-/* Таби (десктоп і мобілка) */
-body.dark .pvs-actions__tab,
-html[data-theme="dark"] .pvs-actions__tab {
-  background: rgba(255, 255, 255, 0.08);
-  border-color: rgba(255, 255, 255, 0.15);
-  color: $dark-text;
-}
-
-body.dark .pvs-actions__tab.is-active,
-html[data-theme="dark"] .pvs-actions__tab.is-active {
-  border-color: rgba(107, 102, 255, 0.5);
-  color: #c9b8ff;
-  box-shadow: 0 4px 14px rgba(107, 102, 255, 0.2);
-}
-
-body.dark .pvs-actions__tab--delete.is-active,
-html[data-theme="dark"] .pvs-actions__tab--delete.is-active {
-  background: $gradient;
-  color: #fff;
-  border-color: transparent;
-}
-
-body.dark .pvs-actions__tabLock,
-html[data-theme="dark"] .pvs-actions__tabLock {
-  filter: brightness(0) invert(1);
-  opacity: 0.7;
-}
-
-/* Блок Друзья (vipCard) — темна тема */
-body.dark .profile-visitor-subscribed .vipCard,
-html[data-theme="dark"] .profile-visitor-subscribed .vipCard {
-  background: $dark-bg-card;
-  border-color: $dark-border;
-}
-
-body.dark .profile-visitor-subscribed .friendsTitle,
-html[data-theme="dark"] .profile-visitor-subscribed .friendsTitle {
-  color: $dark-text;
-}
-
-body.dark .profile-visitor-subscribed__friendsEmpty,
-html[data-theme="dark"] .profile-visitor-subscribed__friendsEmpty {
-  color: $dark-text-muted;
-}
-
-body.dark .profile-visitor-subscribed .vipFriendNameBtn,
-html[data-theme="dark"] .profile-visitor-subscribed .vipFriendNameBtn {
-  color: rgba(255, 255, 255, 0.88);
-}
-
-body.dark .profile-visitor-subscribed .vipFriendNameBtn:hover:not(:disabled),
-html[data-theme="dark"] .profile-visitor-subscribed .vipFriendNameBtn:hover:not(:disabled) {
-  background: rgba(255, 255, 255, 0.08);
-}
-
-body.dark .profile-visitor-subscribed .showMoreBtn,
-html[data-theme="dark"] .profile-visitor-subscribed .showMoreBtn {
-  color: #fff;
-}
-
-/* Переглядач фото */
-body.dark .profile-visitor-subscribed__imageViewer,
-html[data-theme="dark"] .profile-visitor-subscribed__imageViewer {
-  background: rgba(0, 0, 0, 0.92);
-}
-
-body.dark .profile-visitor-subscribed__imageViewerClose,
-html[data-theme="dark"] .profile-visitor-subscribed__imageViewerClose {
-  background: rgba(255, 255, 255, 0.15);
-  color: #fff;
-}
-
-@media (max-width: 768px) {
-  body.dark .pvs-actions__tab,
-  html[data-theme="dark"] .pvs-actions__tab {
-    background: rgba(255, 255, 255, 0.08);
-    border-color: rgba(255, 255, 255, 0.15);
-    color: $dark-text;
-  }
-}
-
-/* Пости на сторінці друга — темна тема */
-body.dark .profile-visitor-subscribed .postCard,
-html[data-theme="dark"] .profile-visitor-subscribed .postCard {
-  border-color: $dark-border;
-  background: $dark-bg-card;
-}
-
-body.dark .profile-visitor-subscribed .postActions,
-html[data-theme="dark"] .profile-visitor-subscribed .postActions {
-  background: rgba(255, 255, 255, 0.08);
-}
-
-body.dark .profile-visitor-subscribed .postText,
-body.dark .profile-visitor-subscribed .postActionCount,
-html[data-theme="dark"] .profile-visitor-subscribed .postText,
-html[data-theme="dark"] .profile-visitor-subscribed .postActionCount {
-  color: $dark-text-muted;
-}
-
-body.dark .profile-visitor-subscribed .postAuthor,
-html[data-theme="dark"] .profile-visitor-subscribed .postAuthor {
-  color: #c9b8ff;
-}
-
-body.dark .profile-visitor-subscribed .postLabel,
-html[data-theme="dark"] .profile-visitor-subscribed .postLabel {
-  color: rgba(255, 255, 255, 0.55);
-}
-
-body.dark .profile-visitor-subscribed .postMoreBtn,
-html[data-theme="dark"] .profile-visitor-subscribed .postMoreBtn {
-  color: rgba(255, 255, 255, 0.55);
-}
-
-body.dark .profile-visitor-subscribed .postLocationText,
-html[data-theme="dark"] .profile-visitor-subscribed .postLocationText {
-  color: #f0a0d0;
-}
-
-body.dark .profile-visitor-subscribed .postLocationIcon,
-html[data-theme="dark"] .profile-visitor-subscribed .postLocationIcon {
-  filter: brightness(0) invert(1);
-  opacity: 0.9;
-}
-
-.ph-visitor-avatarWrap--hasStories,
-.profile-visitor-subscribed__avatarWrap--hasStories {
-  padding: 1px;
-  border-radius: 50%;
-  background: linear-gradient(45deg, #ff4fb1, #ff2d55, #ffcc00);
-  overflow: visible;
-}
-
-.ph-visitor-avatarWrap--hasStories .avatar,
-.profile-visitor-subscribed__avatarWrap--hasStories .profile-visitor-subscribed__avatar {
-  border: 1px solid #fff;
-  border-radius: 50%;
-  background: #fff;
 }

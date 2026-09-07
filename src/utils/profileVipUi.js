@@ -38,11 +38,25 @@ export function getViewerIsSubscribed(user) {
  * Direct messages locked when owner enabled VIP and viewer is not a VIP member.
  * Regular subscription (`isSubscribed`) does NOT unlock chat when VIP is on.
  */
-export function isProfileChatLocked({ user, isOwnProfile = false } = {}) {
+// export function isProfileChatLocked({ user, isOwnProfile = false } = {}) {
+//   if (isOwnProfile) return false;
+//   const vipEnabled = getOwnerVipEnabled(user);
+//   if (!vipEnabled) return false;
+//   return !getViewerIsVipMember(user);
+// }
+
+export function isProfileVipLocked({ user, isOwnProfile = false } = {}) {
   if (isOwnProfile) return false;
+
   const vipEnabled = getOwnerVipEnabled(user);
+
   if (!vipEnabled) return false;
+
   return !getViewerIsVipMember(user);
+}
+
+export function isProfileChatLocked({ user, isOwnProfile = false } = {}) {
+  return isProfileVipLocked({ user, isOwnProfile });
 }
 
 /**

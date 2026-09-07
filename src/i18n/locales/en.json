@@ -253,8 +253,8 @@
       "share": "Share"
     },
     "visitor": {
-      "writeMessage": "Send message",
-      "writeMessageLocked": "Send message 🔒",
+      "writeMessage": "Message",
+      "writeMessageLocked": "Message 🔒",
       "subscribe": "Subscribe",
       "subscribing": "…",
       "unsubscribe": "Unsubscribe",

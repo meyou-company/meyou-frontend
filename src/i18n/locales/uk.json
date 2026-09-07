@@ -253,8 +253,8 @@
       "share": "Поділитися"
     },
     "visitor": {
-      "writeMessage": "Написати повідомлення",
-      "writeMessageLocked": "Написати повідомлення 🔒",
+      "writeMessage": "Повідомлення",
+      "writeMessageLocked": "Повідомлення 🔒",
       "subscribe": "Підписатися",
       "subscribing": "…",
       "unsubscribe": "Відписатися",
