@@ -1,6 +1,7 @@
 /** Чужий профіль без підписки */
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 import profileIcons from '../../../../constants/profileIcons';
 import { getFriendsCountNumber } from '../../../../utils/profileFriends';
 import {
@@ -51,6 +52,7 @@ export default function ProfileVisitorPublic({
   guestPreview = false,
 }) {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const currentUserId = useAuthStore((state) => state.user?.id || state.user?._id || null);
   const visitorTabs = useProfileTabs({ withLocks: true });
   const [visitorTab, setVisitorTab] = useState('info');
@@ -99,6 +101,13 @@ export default function ProfileVisitorPublic({
 
   const username = user?.username || user?.nick || user?.nickname || user?.login || '';
   const profileUserId = user?.id || user?._id || postsAuthorId;
+  const openVisitorTab = (tabId) => {
+    if (tabId === 'video' && profileUserId) {
+      navigate(`/video?authorId=${encodeURIComponent(profileUserId)}`);
+      return;
+    }
+    setVisitorTab(tabId);
+  };
 
   useEffect(() => {
     if (!loadSecondary) return;
@@ -392,7 +401,7 @@ export default function ProfileVisitorPublic({
                   aria-selected={visitorTab === tab.id}
                   aria-disabled={tab.locked}
                   className={`ph-visitor-tabs__tab${visitorTab === tab.id ? ' is-active' : ''}${tab.locked ? ' is-locked' : ''}`}
-                  onClick={() => !tab.locked && setVisitorTab(tab.id)}
+                  onClick={() => !tab.locked && openVisitorTab(tab.id)}
                 >
                   <span>{tab.label}</span>
                   {tab.locked && (
@@ -527,7 +536,7 @@ export default function ProfileVisitorPublic({
               aria-selected={visitorTab === tab.id}
               aria-disabled={tab.locked}
               className={`ph-visitor-tabs__tab${visitorTab === tab.id ? ' is-active' : ''}${tab.locked ? ' is-locked' : ''}`}
-              onClick={() => !tab.locked && setVisitorTab(tab.id)}
+              onClick={() => !tab.locked && openVisitorTab(tab.id)}
             >
               <span>{tab.label}</span>
               {tab.locked && (

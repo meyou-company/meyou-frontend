@@ -37,6 +37,23 @@ function extractCommentsList(payload) {
 }
 
 export const postsApi = {
+  /** GET /posts/saved — збережені публікації поточного користувача. */
+  async listSaved({ page = 1, limit = 100 } = {}) {
+    try {
+      const { data } = await api.get('/posts/saved', {
+        params: { page, limit },
+      });
+      return extractPostsList(data);
+    } catch (error) {
+      // Older API deployments expose saved state only on the regular feed.
+      if (![400, 404, 405].includes(error?.response?.status)) throw error;
+      const posts = await this.list({ page, limit });
+      return posts.filter(
+        (post) => post?.viewerState?.isSaved === true || post?.isSavedByMe === true,
+      );
+    }
+  },
+
   /**
    * Глобальна стрічка: усі пости, доступні поточному користувачу (visibility на бекенді).
    * Використовувати на first-page / home feed. НЕ для сторінки профілю.
