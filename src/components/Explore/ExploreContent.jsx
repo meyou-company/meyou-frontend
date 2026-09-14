@@ -112,7 +112,7 @@ export default function ExploreContent({ onBack, onOpenProfile }) {
     }
 
     if (filterParams.online) params.onlyOnline = true;
-    if (filterParams.vip) params.isVip = true;
+    if (filterParams.vip || sortBy === 'vip') params.isVip = true;
     if (filterParams.new) params.isNew = true;
 
     return params;

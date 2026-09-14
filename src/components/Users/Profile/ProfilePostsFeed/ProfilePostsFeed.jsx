@@ -1,7 +1,11 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { toast } from 'sonner';
 import profileIcons from '../../../../constants/profileIcons';
+import { authApi } from '../../../../services/auth';
+import { getApiErrorMessage } from '../../../../utils/getApiErrorMessage';
+import { downloadPhoto, photoUrlToFile } from '../../../../utils/photoViewerActions';
 import PostCommentsSection from '../../../PostFeed/PostCommentsSection';
 import PostFeedBody from '../../../PostFeed/PostFeedBody';
 import '../../../PostFeed/PostFeedBody.scss';
@@ -34,9 +38,12 @@ export default function ProfilePostsFeed({
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const [lightboxImages, setLightboxImages] = useState([]);
   const [lightboxIndex, setLightboxIndex] = useState(0);
+  const [lightboxPost, setLightboxPost] = useState(null);
+  const [lightboxCanManage, setLightboxCanManage] = useState(false);
 
   const [searchParams] = useSearchParams();
   const currentUserId = useAuthStore((s) => s.user?.id);
+  const refreshMe = useAuthStore((s) => s.refreshMe);
 
   const targetPostId = searchParams.get('post');
 
@@ -63,12 +70,14 @@ export default function ProfilePostsFeed({
     return () => clearTimeout(timeout);
   }, [targetPostId, feedPosts]);
 
-  const openPostImageViewer = (images, startIndex = 0) => {
+  const openPostImageViewer = (images, startIndex = 0, post = null, canManage = false) => {
     const list = Array.isArray(images) ? images.filter(Boolean) : [];
     if (!list.length) return;
     const safeIndex = Math.min(Math.max(Number(startIndex) || 0, 0), list.length - 1);
     setLightboxImages(list);
     setLightboxIndex(safeIndex);
+    setLightboxPost(post);
+    setLightboxCanManage(canManage);
     setIsLightboxOpen(true);
   };
 
@@ -76,11 +85,37 @@ export default function ProfilePostsFeed({
     setIsLightboxOpen(false);
     setLightboxImages([]);
     setLightboxIndex(0);
+    setLightboxPost(null);
+    setLightboxCanManage(false);
   };
 
   const moveLightbox = (delta) => {
     if (!lightboxImages.length) return;
     setLightboxIndex((prev) => (prev + delta + lightboxImages.length) % lightboxImages.length);
+  };
+
+  const currentLightboxUrl = lightboxImages[lightboxIndex] || '';
+
+  const saveLightboxPhoto = async () => {
+    if (!currentLightboxUrl) return;
+    try {
+      await downloadPhoto(currentLightboxUrl);
+    } catch (error) {
+      console.error('[photo viewer save] failed', error);
+      window.open(currentLightboxUrl, '_blank', 'noopener,noreferrer');
+    }
+  };
+
+  const makeLightboxPhotoProfile = async () => {
+    if (!currentLightboxUrl || !lightboxCanManage) return;
+    try {
+      const file = await photoUrlToFile(currentLightboxUrl, 'avatar.jpg');
+      await authApi.uploadAvatar(file);
+      await refreshMe?.();
+      toast.success(t('profile.photos.profileUpdated', { defaultValue: 'Фото профиля обновлено' }));
+    } catch (error) {
+      toast.error(getApiErrorMessage(error) || t('profile.photos.profileUpdateError', { defaultValue: 'Не удалось обновить фото профиля' }));
+    }
   };
 
   return (
@@ -144,7 +179,9 @@ export default function ProfilePostsFeed({
             <PostFeedBody
               post={post}
               postId={post.id}
-              onOpenLightbox={openPostImageViewer}
+              onOpenLightbox={(images, index) =>
+                openPostImageViewer(images, index, post, !repost && menuPerms.canEdit)
+              }
             />
 
             {!readOnly ? (
@@ -249,6 +286,18 @@ export default function ProfilePostsFeed({
         onClose={closeLightbox}
         onPrev={() => moveLightbox(-1)}
         onNext={() => moveLightbox(1)}
+        onEdit={lightboxCanManage && lightboxPost ? () => {
+          const post = lightboxPost;
+          closeLightbox();
+          feedActions.openEditPost(post);
+        } : undefined}
+        onDelete={lightboxCanManage && lightboxPost ? () => {
+          const post = lightboxPost;
+          closeLightbox();
+          feedActions.requestDeletePost(post);
+        } : undefined}
+        onSave={currentLightboxUrl ? saveLightboxPhoto : undefined}
+        onMakeProfile={lightboxCanManage ? makeLightboxPhotoProfile : undefined}
       />
 
       {!readOnly ? (

@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { toast } from 'sonner';
 import profileIcons from '../../constants/profileIcons';
 import { useStoriesFeed } from "../../hooks/useStoriesFeed";
 import {
@@ -9,6 +10,7 @@ import {
   useActiveLiveStreams,
 } from "../../hooks/useActiveLiveStreams";
 import { postsApi } from '../../services/postsApi';
+import { authApi } from '../../services/auth';
 import { storiesApi } from "../../services/storiesApi";
 import { useAuthStore } from "../../zustand/useAuthStore";
 import { usePostFeedActions } from '../../hooks/usePostFeedActions';
@@ -24,6 +26,7 @@ import {
 } from '../../utils/feedCache';
 import { getProfileRouteHandle } from '../../utils/profileFriendNav';
 import { resolvePostMenuPermissions } from '../../utils/postMenuPermissions';
+import { downloadPhoto, photoUrlToFile } from '../../utils/photoViewerActions';
 import AppHeader from "../../components/Layout/AppHeader";
 import StoryCircle from "../../components/Stories/StoryCircle";
 import NotificationBell from '../../components/Notifications/NotificationBell';
@@ -88,6 +91,8 @@ export default function FirstPageView({
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const [lightboxImages, setLightboxImages] = useState([]);
   const [lightboxIndex, setLightboxIndex] = useState(0);
+  const [lightboxPost, setLightboxPost] = useState(null);
+  const [lightboxCanManage, setLightboxCanManage] = useState(false);
   const [isStoryUploadOpen, setIsStoryUploadOpen] = useState(false);
   const [isStoryViewerOpen, setIsStoryViewerOpen] = useState(false);
   const [storyViewerGroupIndex, setStoryViewerGroupIndex] = useState(0);
@@ -103,6 +108,7 @@ export default function FirstPageView({
   };
 
   const currentUser = useAuthStore((s) => s.user);
+  const refreshMe = useAuthStore((s) => s.refreshMe);
   const currentUserId = currentUser?.id;
   const cachedUserAvatar =
     typeof window !== "undefined"
@@ -120,10 +126,12 @@ export default function FirstPageView({
     }
   }, [currentUser]);
 
-  const openLightbox = (images, startIndex = 0) => {
+  const openLightbox = (images, startIndex = 0, post = null, canManage = false) => {
     if (!images?.length) return;
     setLightboxImages(images);
     setLightboxIndex(startIndex);
+    setLightboxPost(post);
+    setLightboxCanManage(canManage);
     setIsLightboxOpen(true);
   };
 
@@ -131,10 +139,36 @@ export default function FirstPageView({
     setIsLightboxOpen(false);
     setLightboxImages([]);
     setLightboxIndex(0);
+    setLightboxPost(null);
+    setLightboxCanManage(false);
   };
 
   const moveLightbox = (delta) => {
     setLightboxIndex((prev) => (prev + delta + lightboxImages.length) % lightboxImages.length);
+  };
+
+  const currentLightboxUrl = lightboxImages[lightboxIndex] || '';
+
+  const saveLightboxPhoto = async () => {
+    if (!currentLightboxUrl) return;
+    try {
+      await downloadPhoto(currentLightboxUrl);
+    } catch (error) {
+      console.error('[photo viewer save] failed', error);
+      window.open(currentLightboxUrl, '_blank', 'noopener,noreferrer');
+    }
+  };
+
+  const makeLightboxPhotoProfile = async () => {
+    if (!currentLightboxUrl || !lightboxCanManage) return;
+    try {
+      const file = await photoUrlToFile(currentLightboxUrl, 'avatar.jpg');
+      await authApi.uploadAvatar(file);
+      await refreshMe?.();
+      toast.success(t('profile.photos.profileUpdated', { defaultValue: 'Фото профиля обновлено' }));
+    } catch (error) {
+      toast.error(getApiErrorMessage(error) || t('profile.photos.profileUpdateError', { defaultValue: 'Не удалось обновить фото профиля' }));
+    }
   };
 
   const navigate = useNavigate();
@@ -572,6 +606,18 @@ export default function FirstPageView({
           onClose={closeLightbox}
           onPrev={() => moveLightbox(-1)}
           onNext={() => moveLightbox(1)}
+          onEdit={lightboxCanManage && lightboxPost ? () => {
+            const post = lightboxPost;
+            closeLightbox();
+            feedActions.openEditPost(post);
+          } : undefined}
+          onDelete={lightboxCanManage && lightboxPost ? () => {
+            const post = lightboxPost;
+            closeLightbox();
+            feedActions.requestDeletePost(post);
+          } : undefined}
+          onSave={currentLightboxUrl ? saveLightboxPhoto : undefined}
+          onMakeProfile={lightboxCanManage ? makeLightboxPhotoProfile : undefined}
         />
 
         <StoryUploadModal
@@ -751,7 +797,9 @@ function GlobalFeedPostCard({
       <PostFeedBody
         post={post}
         postId={post.id}
-        onOpenLightbox={onOpenLightbox}
+        onOpenLightbox={(images, index) =>
+          onOpenLightbox(images, index, post, !repost && menuPerms.canEdit)
+        }
       />
 
       <div className="flex justify-center mt-3 xl:!mt-[32px] xl:!mb-[18px]">

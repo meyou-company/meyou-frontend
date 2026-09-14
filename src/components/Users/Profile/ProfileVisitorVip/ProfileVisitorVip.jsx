@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router-dom";
 import profileIcons from "../../../../constants/profileIcons";
 import {
   normalizeFriendListItem,
@@ -29,6 +30,7 @@ export default function ProfileVisitorVip({
   onOpenLive,
 }) {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const TABS = useVipProfileTabs();
   const [activeTab, setActiveTab] = useState("info");
   const [viewImageUrl, setViewImageUrl] = useState(null);
@@ -76,6 +78,15 @@ export default function ProfileVisitorVip({
 
   const displayAvatar =
     user?.avatarUrl || user?.avatar || "/Logo/photo.png";
+  const profileUserId = user?.id || user?._id;
+
+  const openTab = (tabId) => {
+    if (tabId === "video" && profileUserId) {
+      navigate(`/video?authorId=${encodeURIComponent(profileUserId)}`);
+      return;
+    }
+    setActiveTab(tabId);
+  };
 
   const locationParts = [user.city, user.country].filter(Boolean);
   const locationStr = locationParts.length > 0 ? locationParts.join(", ") : (user.location || user.subtitle || "");
@@ -239,7 +250,7 @@ export default function ProfileVisitorVip({
                     ? "profile-visitor-vip__tab--active"
                     : ""
                 }`}
-                onClick={() => setActiveTab(tab.id)}
+                onClick={() => openTab(tab.id)}
               >
                 {tab.label}
               </button>

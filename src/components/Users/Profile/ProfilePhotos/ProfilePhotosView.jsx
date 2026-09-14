@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
@@ -91,6 +92,7 @@ export default function ProfilePhotosView({
   const textareaRef = useRef(null);
   const postMediaInputRef = useRef(null);
   const postVideoInputRef = useRef(null);
+  const viewerTouchStartRef = useRef(null);
 
   const [photos, setPhotos] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -390,6 +392,41 @@ export default function ProfilePhotosView({
     ));
   };
 
+  const handleViewerTouchStart = (event) => {
+    const touch = event.touches?.[0];
+    viewerTouchStartRef.current = touch
+      ? { x: touch.clientX, y: touch.clientY }
+      : null;
+
+  useEffect(() => {
+    if (!selectedPhoto) return undefined;
+
+    const previousBodyOverflow = document.body.style.overflow;
+    const previousHtmlOverflow = document.documentElement.style.overflow;
+    document.body.style.overflow = "hidden";
+    document.documentElement.style.overflow = "hidden";
+
+    return () => {
+      document.body.style.overflow = previousBodyOverflow;
+      document.documentElement.style.overflow = previousHtmlOverflow;
+    };
+  }, [selectedPhoto]);
+  };
+
+  const handleViewerTouchEnd = (event) => {
+    const start = viewerTouchStartRef.current;
+    const touch = event.changedTouches?.[0];
+    viewerTouchStartRef.current = null;
+    if (!start || !touch) return;
+
+    const deltaX = touch.clientX - start.x;
+    const deltaY = touch.clientY - start.y;
+    if (Math.abs(deltaY) < 48 || Math.abs(deltaY) <= Math.abs(deltaX)) return;
+
+    if (deltaY < 0) showNextPhoto();
+    else showPreviousPhoto();
+  };
+
   return (
     <main className="profilePhotos">
       <input
@@ -530,7 +567,7 @@ export default function ProfilePhotosView({
         />
       ) : null}
 
-      {selectedPhoto ? (
+      {selectedPhoto ? createPortal(
         <div
           className="profilePhotosViewer"
           role="dialog"
@@ -560,7 +597,18 @@ export default function ProfilePhotosView({
               </button>
             ) : null}
 
-            <img src={selectedPhoto.url} alt="" className="profilePhotosViewer__image" />
+            <div
+              className="profilePhotosViewer__media"
+              onTouchStart={handleViewerTouchStart}
+              onTouchEnd={handleViewerTouchEnd}
+            >
+              <img
+                src={selectedPhoto.url}
+                alt=""
+                className="profilePhotosViewer__image"
+                draggable={false}
+              />
+            </div>
 
             {photos.length > 1 ? (
               <button
@@ -576,20 +624,25 @@ export default function ProfilePhotosView({
 
             <div className="profilePhotosViewer__actions">
               <button type="button" onClick={() => openCrop(selectedPhoto)} disabled={photoActionLoading}>
-                {t("profile.photos.edit", { defaultValue: "Редактировать" })}
+                <img src={profileIcons.pencilBlack} alt="" className="profilePhotosViewer__actionIcon" aria-hidden="true" />
+                <span>{t("profile.photos.edit", { defaultValue: "Редактировать" })}</span>
               </button>
               <button type="button" onClick={() => handleDelete(selectedPhoto)} disabled={photoActionLoading}>
-                {t("profile.photos.delete", { defaultValue: "Удалить" })}
+                <img src={profileIcons.storyDelete} alt="" className="profilePhotosViewer__actionIcon" aria-hidden="true" />
+                <span>{t("profile.photos.delete", { defaultValue: "Удалить" })}</span>
               </button>
               <button type="button" onClick={() => handleSavePhoto(selectedPhoto)} disabled={photoActionLoading}>
-                {t("profile.photos.save", { defaultValue: "Сохранить" })}
+                <img src={profileIcons.saved} alt="" className="profilePhotosViewer__actionIcon" aria-hidden="true" />
+                <span>{t("profile.photos.save", { defaultValue: "Сохранить" })}</span>
               </button>
               <button type="button" onClick={() => handleMakeProfilePhoto(selectedPhoto)} disabled={photoActionLoading}>
-                {t("profile.photos.makeProfile", { defaultValue: "Сделать фото профиля" })}
+                <img src={profileIcons.profileBlack} alt="" className="profilePhotosViewer__actionIcon" aria-hidden="true" />
+                <span>{t("profile.photos.makeProfile", { defaultValue: "Сделать фото профиля" })}</span>
               </button>
               {ownerVipEnabled && selectedPhoto.type !== "avatar" ? (
                 <button
                   type="button"
+                  className="profilePhotosViewer__visibilityAction"
                   onClick={() =>
                     handleSetVisibility(
                       selectedPhoto,
@@ -605,7 +658,8 @@ export default function ProfilePhotosView({
               ) : null}
             </div>
           </div>
-        </div>
+        </div>,
+        document.body,
       ) : null}
     </main>
   );

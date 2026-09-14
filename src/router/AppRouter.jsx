@@ -29,6 +29,7 @@ import EditProfilePage from '../pages/Users/Profile/EditProfilePage';
 import VideoPage from '../pages/Video/VideoPage';
 import OopsPage from '../pages/Oops/OopsPage';
 import LivePage from '../pages/Live/LivePage';
+import SavedPage from '../pages/Saved/SavedPage';
 
 import FirstPage from '../pages/FirstPage/FirstPage';
 import WalletPage from '../pages/Wallet/WalletPage';
@@ -160,6 +161,7 @@ function AppLayout() {
 
               <Route path="/video" element={<VideoPage />} />
               <Route path="/live/:liveId?" element={<LivePage />} />
+              <Route path="/saved" element={<SavedPage />} />
               <Route path="/oops" element={<OopsPage />} />
               <Route path="/users/profile/complete" element={<CompleteProfilePage />} />
               <Route path="/users/profile/edit" element={<EditProfilePage />} />

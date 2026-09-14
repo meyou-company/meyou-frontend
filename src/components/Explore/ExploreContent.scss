@@ -389,7 +389,9 @@
 }
 
 .explore-content__cardPhotoBtn {
+  display: block;
   flex: 1;
+  min-width: 0;
 
   padding: 0;
   border: 0;
@@ -591,7 +593,8 @@
   }
 
   .explore-content__cardPhoto {
-    aspect-ratio: 4 / 5;
+    aspect-ratio: 1;
+    min-height: 0;
   }
 
   .explore-content__cardRight {
@@ -908,7 +911,7 @@ body.dark {
     }
 
     .explore-content__cardPhoto {
-      min-height: 135px;
+      min-height: 0;
     }
 
     .explore-content__cardCaption {
