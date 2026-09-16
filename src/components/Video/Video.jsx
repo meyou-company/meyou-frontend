@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
 import { useNavItems } from "../../hooks/useNavItems";
 import profileIcons from "../../constants/profileIcons";
@@ -52,6 +52,7 @@ function Header({ currentPage, alwaysVisible = false }) {
 
 const Video = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { t } = useTranslation();
   const isAuthed = useAuthStore((s) => s.isAuthed);
   const currentUser = useAuthStore((s) => s.user);
@@ -82,6 +83,7 @@ const Video = () => {
   const [isDesktop, setIsDesktop] = useState(window.innerWidth >= 1440);
 
   const lastReqId = useRef(0);
+  const authorId = searchParams.get("authorId")?.trim() || "";
 
   const activeTabLabel = useMemo(
     () => videoTabs.find((tab) => tab.id === activeTab)?.label ?? t("video.tabs.recommended"),
@@ -116,16 +118,31 @@ const Video = () => {
         setLoading(true);
         setError("");
 
-        const result = await videosApi.list({
-          tab: activeTab,
-          search: searchQuery,
-          limit: showAll ? 50 : 12,
-          page: 1,
-        });
+        const result = authorId
+          ? await videosApi.listByAuthor(authorId, {
+              limit: showAll ? 50 : 12,
+              page: 1,
+            })
+          : await videosApi.list({
+              tab: activeTab,
+              search: searchQuery,
+              limit: showAll ? 50 : 12,
+              page: 1,
+            });
 
         if (reqId !== lastReqId.current) return;
 
-        setVideos(mapApiVideosToCards(result.items));
+        const cards = mapApiVideosToCards(result.items);
+        const normalizedQuery = searchQuery.trim().toLowerCase();
+        setVideos(
+          authorId && normalizedQuery
+            ? cards.filter((video) =>
+                [video.title, video.name, video.location]
+                  .filter(Boolean)
+                  .some((value) => String(value).toLowerCase().includes(normalizedQuery)),
+              )
+            : cards,
+        );
       } catch (err) {
         if (reqId !== lastReqId.current) return;
 
@@ -138,7 +155,7 @@ const Video = () => {
     }, 300);
 
     return () => clearTimeout(timer);
-  }, [activeTab, searchQuery, showAll, isAuthed, refreshKey]);
+  }, [activeTab, authorId, searchQuery, showAll, isAuthed, refreshKey]);
 
   const displayedVideos = useMemo(
     () => (showAll ? videos : videos.slice(0, 5)),

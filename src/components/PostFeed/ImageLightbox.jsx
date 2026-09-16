@@ -1,5 +1,7 @@
 import { useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
+import profileIcons from '../../constants/profileIcons';
 import './ImageLightbox.scss';
 
 export default function ImageLightbox({
@@ -10,9 +12,13 @@ export default function ImageLightbox({
   onPrev,
   onNext,
   indicator = 'counter',
+  onEdit,
+  onDelete,
+  onSave,
+  onMakeProfile,
 }) {
   const { t } = useTranslation();
-  const touchStartX = useRef(null);
+  const touchStart = useRef(null);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -25,28 +31,70 @@ export default function ImageLightbox({
     return () => window.removeEventListener('keydown', onKey);
   }, [isOpen, onClose, onPrev, onNext]);
 
+  useEffect(() => {
+    if (!isOpen) return undefined;
+
+    const previousBodyOverflow = document.body.style.overflow;
+    const previousHtmlOverflow = document.documentElement.style.overflow;
+    document.body.style.overflow = 'hidden';
+    document.documentElement.style.overflow = 'hidden';
+
+    return () => {
+      document.body.style.overflow = previousBodyOverflow;
+      document.documentElement.style.overflow = previousHtmlOverflow;
+    };
+  }, [isOpen]);
+
   if (!isOpen || !images.length) return null;
   const src = images[Math.min(Math.max(index, 0), images.length - 1)];
 
   const onTouchStart = (e) => {
-    touchStartX.current = e.touches?.[0]?.clientX ?? null;
+    const touch = e.touches?.[0];
+    touchStart.current = touch
+      ? { x: touch.clientX, y: touch.clientY }
+      : null;
   };
 
   const onTouchEnd = (e) => {
-    if (touchStartX.current == null) return;
-    const endX = e.changedTouches?.[0]?.clientX ?? null;
-    if (endX == null) return;
-    const diff = endX - touchStartX.current;
-    if (Math.abs(diff) > 50) {
-      if (diff > 0) onPrev?.();
+    const start = touchStart.current;
+    const touch = e.changedTouches?.[0];
+    touchStart.current = null;
+    if (!start || !touch) return;
+
+    const deltaX = touch.clientX - start.x;
+    const deltaY = touch.clientY - start.y;
+    const isMobile = window.matchMedia('(max-width: 768px)').matches;
+
+    if (isMobile) {
+      if (Math.abs(deltaY) > 48 && Math.abs(deltaY) > Math.abs(deltaX)) {
+        if (deltaY < 0) onNext?.();
+        else onPrev?.();
+      }
+      return;
+    }
+
+    if (Math.abs(deltaX) > 50 && Math.abs(deltaX) > Math.abs(deltaY)) {
+      if (deltaX > 0) onPrev?.();
       else onNext?.();
     }
-    touchStartX.current = null;
   };
 
-  return (
+  const actionItems = [
+    onEdit && { id: 'edit', icon: profileIcons.pencilBlack, label: t('profile.photos.edit', { defaultValue: 'Редактировать' }), onClick: onEdit },
+    onDelete && { id: 'delete', icon: profileIcons.storyDelete, label: t('profile.photos.delete', { defaultValue: 'Удалить' }), onClick: onDelete },
+    onSave && { id: 'save', icon: profileIcons.saved, label: t('profile.photos.save', { defaultValue: 'Сохранить' }), onClick: onSave },
+    onMakeProfile && { id: 'profile', icon: profileIcons.profileBlack, label: t('profile.photos.makeProfile', { defaultValue: 'Сделать фото профиля' }), onClick: onMakeProfile },
+  ].filter(Boolean);
+
+  if (typeof document === 'undefined') return null;
+
+  return createPortal(
     <div
-      className={['ilb', indicator === 'dots' ? 'ilb--dots' : ''].filter(Boolean).join(' ')}
+      className={[
+        'ilb',
+        indicator === 'dots' ? 'ilb--dots' : '',
+        actionItems.length ? 'ilb--withActions' : '',
+      ].filter(Boolean).join(' ')}
       role="dialog"
       aria-modal="true"
       aria-label={t('posts.lightbox.title')}
@@ -110,6 +158,17 @@ export default function ImageLightbox({
           {index + 1} / {images.length}
         </div>
       )}
-    </div>
+      {actionItems.length ? (
+        <div className="ilb__actions" onClick={(event) => event.stopPropagation()}>
+          {actionItems.map((action) => (
+            <button key={action.id} type="button" onClick={action.onClick}>
+              <img src={action.icon} alt="" aria-hidden="true" />
+              <span>{action.label}</span>
+            </button>
+          ))}
+        </div>
+      ) : null}
+    </div>,
+    document.body,
   );
 }

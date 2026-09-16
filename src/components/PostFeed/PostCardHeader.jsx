@@ -132,7 +132,7 @@ export default function PostCardHeader({
 }) {
   const { t } = useTranslation();
   const timeLabel = formatRelativeTime(createdAt, t);
-  const locationText = (location ?? '').trim() || '—';
+  const locationText = typeof location === 'string' ? location.trim() : '';
   const rootClass = [
     'postCardHeader',
     variant === 'firstPage' ? 'postCardHeader--firstPage' : '',
@@ -181,14 +181,16 @@ export default function PostCardHeader({
           onDelete={onDeleteRequest}
           onRemoveFromFeed={onRemoveFromFeedRequest ?? onDeleteRequest}
         />
-        <div className="postCardHeader__location">
-          <img
-            className="postCardHeader__locationIcon"
-            src={profileIcons.location || '/home/location.svg'}
-            alt=""
-          />
-          <span className="postCardHeader__locationText">{locationText}</span>
-        </div>
+        {locationText ? (
+          <div className="postCardHeader__location">
+            <img
+              className="postCardHeader__locationIcon"
+              src={profileIcons.location || '/home/location.svg'}
+              alt=""
+            />
+            <span className="postCardHeader__locationText">{locationText}</span>
+          </div>
+        ) : null}
       </div>
     </header>
   );

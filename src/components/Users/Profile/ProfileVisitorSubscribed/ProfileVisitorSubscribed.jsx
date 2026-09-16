@@ -1,6 +1,7 @@
 /** Друг / підписаний користувач */
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 
 import profileIcons from '../../../../constants/profileIcons';
 import { getFriendsCountNumber } from '../../../../utils/profileFriends';
@@ -48,6 +49,7 @@ export default function ProfileVisitorSubscribed({
   onOpenLive,
 }) {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const currentUserId = useAuthStore((state) => state.user?.id || state.user?._id || null);
   const tabs = useProfileTabs({ includeUnsubscribe: true, withLocks: true, user });
   const [activeTab, setActiveTab] = useState('delete');
@@ -201,6 +203,10 @@ export default function ProfileVisitorSubscribed({
     if (tabId === 'delete') {
       onUnsubscribe?.();
       setActiveTab('info');
+      return;
+    }
+    if (tabId === 'video' && profileUserId) {
+      navigate(`/video?authorId=${encodeURIComponent(profileUserId)}`);
       return;
     }
     setActiveTab(tabId);
