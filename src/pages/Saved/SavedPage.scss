@@ -1,5 +1,5 @@
 .savedPage {
-  min-height: 100vh;
+  min-height: 100%;
   color: #151515;
 }
 
@@ -44,10 +44,12 @@
 }
 
 .savedPage__back img { width: 32px; height: 32px; }
+.savedPage__back svg { width: 34px; height: 34px; stroke: #956ee4; stroke-width: 2.8; }
 
 .savedPage__tabs {
-  display: grid;
-  grid-template-columns: repeat(5, minmax(max-content, 1fr));
+  display: flex;
+  justify-content: space-between;
+  gap: 4px;
   margin-top: 20px;
   overflow-x: auto;
   border-bottom: 1px solid #cfcfcf;
@@ -58,6 +60,7 @@
 
 .savedPage__tabs button {
   position: relative;
+  flex: 0 0 auto;
   min-width: max-content;
   padding: 12px 10px 14px;
   border: 0;
@@ -93,6 +96,7 @@
   position: relative;
   min-width: 0;
 }
+.savedCard--menuOpen { z-index: 35; }
 
 .savedCard__media {
   position: relative;
@@ -150,18 +154,16 @@
   left: 8px;
   right: 6px;
   bottom: 7px;
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 4px;
+  display: grid;
+  gap: 3px;
   color: #fff;
   text-align: left;
   pointer-events: none;
 }
 
-.savedCard__identity { min-width: 0; }
-.savedCard__identity > button {
+.savedCard__author {
   display: block;
+  width: fit-content;
   max-width: 100%;
   padding: 0;
   overflow: hidden;
@@ -176,16 +178,26 @@
   cursor: pointer;
 }
 
-.savedCard__identity > span,
+.savedCard__meta,
+.savedCard__location,
 .savedCard__stats,
 .savedCard__stats > span {
   display: flex;
   align-items: center;
 }
 
-.savedCard__identity > span { max-width: 74px; font-size: 8px; opacity: .9; }
-.savedCard__identity > span img { width: 10px; margin-right: 2px; }
-.savedCard__stats { flex: 0 0 auto; gap: 4px; font-size: 8px; }
+.savedCard__meta { min-width: 0; justify-content: space-between; gap: 2px; }
+.savedCard__location {
+  min-width: 0;
+  max-width: 42%;
+  overflow: hidden;
+  font-size: 8px;
+  opacity: .9;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.savedCard__location img { flex: 0 0 10px; width: 10px; height: 10px; margin-right: 2px; }
+.savedCard__stats { flex: 0 0 auto; gap: 4px; margin-left: auto; font-size: 8px; }
 .savedCard__stats > span { gap: 1px; }
 .savedCard__stats img { width: 11px; height: 11px; object-fit: contain; }
 
@@ -235,6 +247,8 @@
   box-shadow: 0 12px 28px rgba(48, 32, 75, .2);
 }
 
+.savedPage__cards:not(.savedPage__cards--list) .savedCard:nth-child(3n + 1) .savedCard__menu { left: 0; right: auto; }
+
 .savedCard__menu button {
   display: flex;
   align-items: center;
@@ -266,6 +280,7 @@
   text-decoration: underline;
   cursor: pointer;
 }
+.savedPage__showAllRow--mobileOnly { display: flex; }
 
 .savedPage__sectionHead {
   display: flex;
@@ -280,16 +295,29 @@
   align-items: center;
   justify-content: space-between;
   min-width: 220px;
-  padding: 10px 18px;
+  padding: 0 12px 0 16px;
   border: 0;
   border-radius: 5px;
   background: linear-gradient(180deg, #faf6ff, #e4c9ff);
   color: #151515;
-  font-size: 16px;
-  font-weight: 700;
+  cursor: pointer;
 }
 
-.savedPage__sort span { font-size: 24px; line-height: .5; }
+.savedPage__sort select {
+  width: 100%;
+  min-width: 0;
+  height: 42px;
+  border: 0;
+  outline-offset: 3px;
+  appearance: none;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.savedPage__sort svg { flex: 0 0 auto; width: 20px; height: 20px; pointer-events: none; }
 
 .savedPage__viewToggle { display: flex; align-items: center; gap: 4px; }
 .savedPage__viewToggle button {
@@ -306,7 +334,7 @@
 .savedPage__viewToggle button.active { background: #eddcff; }
 .savedPage__viewToggle img { width: 100%; height: 100%; object-fit: contain; }
 
-.savedPage__cards--list { grid-template-columns: 1fr; }
+.savedPage__cards.savedPage__cards--list { grid-template-columns: 1fr; }
 .savedPage__cards--list .savedCard { display: grid; grid-template-columns: 120px minmax(0, 1fr); gap: 12px; }
 .savedPage__cards--list .savedCard__media { aspect-ratio: 1; grid-row: 1 / span 2; }
 .savedPage__cards--list .savedCard__footer { align-self: center; }
@@ -349,20 +377,45 @@ body.dark .savedPage__tabs button.active::after { background: #fff; }
 body.dark .savedCard__menu { background: linear-gradient(145deg, #27232f, #3b2b50); border-color: #956ae4; }
 body.dark .savedCard__menu button { color: #fff; }
 body.dark .savedCard__menu img,
-body.dark .savedPage__viewToggle img,
-body.dark .savedPage__back img { filter: invert(1); }
+body.dark .savedPage__viewToggle img { filter: invert(1); }
+body.dark .savedPage__back svg { stroke: #bb9bff; }
 body.dark .savedPage__sort { background: linear-gradient(180deg, #312a3b, #46305c); color: #fff; }
+body.dark .savedPage__sort option { color: #16121d; }
 
 @media (max-width: 767px) {
-  .savedPage__content { padding-inline: 12px; padding-top: 10px; }
-  .savedPage__titleRow h1 { font-size: 28px; }
-  .savedPage__tabs { margin-top: 12px; }
-  .savedPage__tabs button { padding-inline: 10px; font-size: 14px; }
+  .savedPage__content { padding: 10px 12px 78px; }
+  .savedPage__titleRow h1 { font-size: 27px; }
+  .savedPage__tabs { margin-top: 8px; }
+  .savedPage__tabs button { padding: 10px 4px 12px; font-size: 13px; }
+  .savedPage__tabs button.active::after { left: 2px; right: 2px; height: 3px; }
+  .savedPage__cards { column-gap: 5px; row-gap: 18px; }
+  .savedCard__media { aspect-ratio: 1 / 1.03; }
+  .savedCard__overlay { left: 5px; right: 5px; bottom: 5px; gap: 1px; }
+  .savedCard__author { font-size: 10px; }
+  .savedCard__location { font-size: 7px; }
+  .savedCard__stats { gap: 2px; font-size: 7px; }
+  .savedCard__stats img { width: 9px; height: 9px; }
+  .savedCard__footer { grid-template-columns: minmax(0, 1fr) 24px; }
+  .savedCard__footer p { font-size: 10px; line-height: 1.2; }
+  .savedCard__more { width: 24px; height: 30px; }
   .savedPage__featured:not(.savedPage__featured--expanded) .savedCard:nth-child(n + 4) { display: none; }
-  .savedPage__showAllRow { padding-top: 12px; }
-  .savedPage__sectionHead { margin-top: 0; }
-  .savedPage__sort { min-width: 0; width: min(58vw, 260px); padding: 9px 14px; font-size: 15px; }
+  .savedPage__showAllRow { padding-top: 10px; }
+  .savedPage__sectionHead { margin-top: 16px; }
+  .savedPage__sort { min-width: 0; width: min(64vw, 260px); padding-inline: 12px; }
+  .savedPage__sort select { height: 36px; font-size: 12px; }
   .savedPage__viewToggle button { width: 34px; height: 34px; }
+  .savedPage__cards--list .savedCard { grid-template-columns: 100px minmax(0, 1fr); }
+  .savedPage__cards--list .savedCard__footer p { font-size: 13px; }
+}
+
+@media (max-width: 359px) {
+  .savedPage__tabs button { padding-inline: 2px; font-size: 12px; }
+  .savedCard__location { max-width: 32%; }
+  .savedCard__stats { font-size: 6px; }
+}
+
+@media (min-width: 390px) and (max-width: 767px) {
+  .savedPage__tabs button { font-size: 14px; }
 }
 
 @media (min-width: 768px) {
@@ -373,14 +426,23 @@ body.dark .savedPage__sort { background: linear-gradient(180deg, #312a3b, #46305
   .savedPage__titleRow h1 { font-size: 34px; }
   .savedPage__tabs { margin-top: 28px; }
   .savedPage__tabs button { font-size: 18px; }
-  .savedCard__identity > button { font-size: 13px; }
-  .savedCard__identity > span, .savedCard__stats { font-size: 10px; }
+  .savedCard__author { font-size: 13px; }
+  .savedCard__location, .savedCard__stats { font-size: 10px; }
   .savedCard__footer p { font-size: 13px; }
   .savedPage__sectionHead { margin-top: 28px; }
-  .savedPage__sort { min-width: 320px; font-size: 18px; }
+  .savedPage__sort { min-width: 320px; }
+  .savedPage__sort select { font-size: 18px; }
+  .savedPage__showAllRow--mobileOnly { display: none; }
+  .savedPage__cards:not(.savedPage__cards--list) .savedCard:nth-child(3n + 1) .savedCard__menu { left: auto; right: 3px; }
+  .savedPage__cards:not(.savedPage__cards--list) .savedCard:nth-child(4n + 1) .savedCard__menu { left: 0; right: auto; }
 }
 
 @media (min-width: 1200px) {
+  .savedPage {
+    margin-top: -32px;
+    margin-bottom: -64px;
+  }
+
   .savedPage__appHeader { display: none; }
   .savedPage__desktopNav {
     display: flex;
@@ -412,8 +474,8 @@ body.dark .savedPage__sort { background: linear-gradient(180deg, #312a3b, #46305
   .savedPage__tabs { margin-top: 120px; }
   .savedPage__cards { gap: 42px 38px; }
   .savedCard__footer p { font-size: 15px; }
-  .savedCard__identity > button { font-size: 14px; }
-  .savedCard__identity > span, .savedCard__stats { font-size: 11px; }
+  .savedCard__author { font-size: 14px; }
+  .savedCard__location, .savedCard__stats { font-size: 11px; }
   .savedPage__showAllRow { padding-top: 24px; }
   body.dark .savedPage__desktopNav { background: #14141e; }
   body.dark .savedPage__desktopNavItem { color: rgba(255,255,255,.7); }

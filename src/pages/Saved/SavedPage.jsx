@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
+import { LuArrowLeft, LuChevronDown } from 'react-icons/lu';
 import AppHeader from '../../components/Layout/AppHeader';
 import MessagesNavBadge from '../../components/Messages/MessagesNavBadge';
 import VideoCardThumbnail from '../../components/Video/VideoCardThumbnail';
@@ -49,7 +50,7 @@ function DesktopNavigation() {
 }
 
 function SavedCard({ item, view, menuOpen, onMenu, onOpen, onRemove, onShare, onProfile }) {
-  const isVideo = item.kind === 'video';
+  const isVideo = item.kind !== 'post';
   const media = item.media?.[0];
   const isPostVideo = !isVideo && media?.type === 'VIDEO';
   const title = isVideo ? item.title : item.text;
@@ -59,7 +60,7 @@ function SavedCard({ item, view, menuOpen, onMenu, onOpen, onRemove, onShare, on
   const comments = isVideo ? item.comments : formatVideoCount(item.counts?.comments);
 
   return (
-    <article className={`savedCard savedCard--${view}`}>
+    <article className={`savedCard savedCard--${view} ${menuOpen ? 'savedCard--menuOpen' : ''}`}>
       <div
         className="savedCard__media"
         role="button"
@@ -95,13 +96,13 @@ function SavedCard({ item, view, menuOpen, onMenu, onOpen, onRemove, onShare, on
         )}
 
         <span className="savedCard__overlay">
-          <span className="savedCard__identity">
-            <button type="button" onClick={onProfile}>{authorName}</button>
-            {location && <span><img src={profileIcons.locationVideo} alt="" />{location}</span>}
-          </span>
-          <span className="savedCard__stats">
-            <span><img src={profileIcons.heartVideo} alt="" />{likes}</span>
-            <span><img src={profileIcons.commentsVideo} alt="" />{comments}</span>
+          <button type="button" className="savedCard__author" onClick={onProfile}>{authorName}</button>
+          <span className="savedCard__meta">
+            {location && <span className="savedCard__location"><img src={profileIcons.locationVideo} alt="" />{location}</span>}
+            <span className="savedCard__stats">
+              <span><img src={profileIcons.heartVideo} alt="" />{likes}</span>
+              <span><img src={profileIcons.commentsVideo} alt="" />{comments}</span>
+            </span>
           </span>
         </span>
       </div>
@@ -135,6 +136,7 @@ export default function SavedPage() {
   const [videos, setVideos] = useState([]);
   const [activeTab, setActiveTab] = useState('all');
   const [view, setView] = useState('grid');
+  const [sortOrder, setSortOrder] = useState('recent');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [showAllTop, setShowAllTop] = useState(false);
@@ -151,7 +153,10 @@ export default function SavedPage() {
     ]);
 
     const nextPosts = postsResult.status === 'fulfilled'
-      ? postsResult.value.map(mapApiPostToFeedItem).filter(Boolean).map((post) => ({ ...post, kind: 'post' }))
+      ? postsResult.value.map((raw) => {
+        const post = mapApiPostToFeedItem(raw);
+        return post && { ...post, savedAt: raw.savedAt, kind: 'post' };
+      }).filter(Boolean)
       : [];
     const nextVideos = videosResult.status === 'fulfilled'
       ? mapApiVideosToCards(videosResult.value.items).map((video) => ({ ...video, kind: video.raw?.type === 'REEL' ? 'reel' : 'video' }))
@@ -178,16 +183,16 @@ export default function SavedPage() {
   const allItems = useMemo(() => [...posts, ...videos].sort((a, b) => {
     const aDate = Date.parse(a.kind === 'post' ? getPostDate(a) : a.raw?.savedAt || a.raw?.createdAt || 0) || 0;
     const bDate = Date.parse(b.kind === 'post' ? getPostDate(b) : b.raw?.savedAt || b.raw?.createdAt || 0) || 0;
-    return bDate - aDate;
-  }), [posts, videos]);
+    return sortOrder === 'recent' ? bDate - aDate : aDate - bDate;
+  }), [posts, videos, sortOrder]);
 
   const filteredItems = useMemo(() => {
     if (activeTab === 'all') return allItems;
-    if (activeTab === 'posts') return posts;
-    if (activeTab === 'videos') return videos.filter((item) => item.kind === 'video');
-    if (activeTab === 'reels') return videos.filter((item) => item.kind === 'reel');
-    return posts.filter((post) => post.media?.some((media) => media.type === 'IMAGE'));
-  }, [activeTab, allItems, posts, videos]);
+    if (activeTab === 'posts') return allItems.filter((item) => item.kind === 'post');
+    if (activeTab === 'videos') return allItems.filter((item) => item.kind === 'video');
+    if (activeTab === 'reels') return allItems.filter((item) => item.kind === 'reel');
+    return allItems.filter((item) => item.kind === 'post' && item.media?.some((media) => media.type === 'IMAGE'));
+  }, [activeTab, allItems]);
 
   const featured = showAllTop ? filteredItems : filteredItems.slice(0, 4);
 
@@ -231,13 +236,13 @@ export default function SavedPage() {
     if (username) navigate(`/profile/${encodeURIComponent(username)}`);
   };
 
-  const renderCards = (items, keyPrefix) => items.map((item) => {
+  const renderCards = (items, keyPrefix, cardView = view) => items.map((item) => {
     const itemKey = `${item.kind}-${item.id}`;
     return (
       <SavedCard
         key={`${keyPrefix}-${itemKey}`}
         item={item}
-        view={view}
+        view={cardView}
         menuOpen={menuId === `${keyPrefix}-${itemKey}`}
         onMenu={(event) => {
           event.stopPropagation();
@@ -267,7 +272,7 @@ export default function SavedPage() {
       <main className="savedPage__content">
         <header className="savedPage__titleRow">
           <button type="button" className="savedPage__back" onClick={() => navigate(-1)} aria-label="Назад">
-            <img src={profileIcons.arrowLeftFilledBlack} alt="" />
+            <LuArrowLeft aria-hidden="true" />
           </button>
           <h1>Сохраненное</h1>
         </header>
@@ -296,17 +301,23 @@ export default function SavedPage() {
 
         {!loading && !error && filteredItems.length > 0 && (
           <>
-            <section className={`savedPage__featured ${showAllTop ? 'savedPage__featured--expanded' : ''} savedPage__cards savedPage__cards--${view}`}>
-              {renderCards(featured, 'featured')}
+            <section className={`savedPage__featured ${showAllTop ? 'savedPage__featured--expanded' : ''} savedPage__cards`}>
+              {renderCards(featured, 'featured', 'grid')}
             </section>
-            {filteredItems.length > 4 && (
-              <div className="savedPage__showAllRow">
+            {filteredItems.length > 3 && (
+              <div className={`savedPage__showAllRow ${filteredItems.length === 4 ? 'savedPage__showAllRow--mobileOnly' : ''}`}>
                 <button type="button" onClick={() => setShowAllTop((value) => !value)}>{showAllTop ? 'Свернуть' : 'Смотреть все'}</button>
               </div>
             )}
 
             <div className="savedPage__sectionHead">
-              <button type="button" className="savedPage__sort">Недавно сохраненное <span aria-hidden="true">⌄</span></button>
+              <label className="savedPage__sort">
+                <select value={sortOrder} onChange={(event) => setSortOrder(event.target.value)} aria-label="Порядок сохранённых материалов">
+                  <option value="recent">Недавно сохраненное</option>
+                  <option value="oldest">Сначала старые</option>
+                </select>
+                <LuChevronDown aria-hidden="true" />
+              </label>
               <div className="savedPage__viewToggle" aria-label="Вид материалов">
                 <button type="button" className={view === 'grid' ? 'active' : ''} onClick={() => setView('grid')} aria-label="Сетка" aria-pressed={view === 'grid'}>
                   <img src={profileIcons.layoutBlack} alt="" />
