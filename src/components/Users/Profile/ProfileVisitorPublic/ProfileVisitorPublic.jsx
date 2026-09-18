@@ -406,15 +406,25 @@ export default function ProfileVisitorPublic({
                   ? t('profile.visitor.subscribing')
                   : t('profile.visitor.subscribe')}
               </button>
+              {vipUi.showAddButton ? (
+                <button
+                  type="button"
+                  className="ph-visitor-action__addToVip"
+                  onClick={handleVipClick}
+                  aria-label={t('profile.visitor.addToVip')}
+                >
+                  <span className="ph-visitor-action__vipText">
+                    {t('profile.visitor.addToVip')}
+                  </span>
+                  <img src={profileIcons.vipButton} alt="" className="ph-visitor-action__vipIcon" />
+                </button>
+              ) : null}
 
-              <button
-                type="button"
-                className="ph-visitor-action__block"
-                onClick={onBlock}
-                aria-label={t('profile.visitor.block')}
-              >
-                {t('profile.visitor.block')}
-              </button>
+              {vipUi.showStatus ? (
+                <span className="ph-visitor-tool__vipStatus" role="status">
+                  {t('profile.vipAccess.activeStatus')}
+                </span>
+              ) : null}
 
               <div className="ph-visitor-tools__mobileMenuWrap" ref={mobileMenuRef}>
                 <button
@@ -451,32 +461,27 @@ export default function ProfileVisitorPublic({
                         className="ph-visitor-mobileMenu__icon"
                         aria-hidden="true"
                       />
-                      <span className="ph-visitor-tools__text">{t('profile.visitor.report')}</span>
-                    </button>
-                    {vipUi.showAddButton ? (
-                      <button
-                        type="button"
-                        className="ph-visitor-mobileMenu__item"
-                        role="menuitem"
-                        onClick={handleVipClick}
-                        aria-label={t('profile.visitor.addToVip')}
-                      >
-                        <img
-                          src={profileIcons.vipChat}
-                          alt=""
-                          className="ph-visitor-mobileMenu__icon"
-                          aria-hidden="true"
-                        />
-                        <span className="ph-visitor-tools__text">
-                          {t('profile.visitor.addToVip')}
-                        </span>
-                      </button>
-                    ) : null}
-                    {vipUi.showStatus ? (
-                      <span className="ph-visitor-tools__vipStatus" role="status">
-                        {t('profile.vipAccess.activeStatus')}
+                      <span className="ph-visitor-mobileMenu__text">
+                        {t('profile.visitor.report')}
                       </span>
-                    ) : null}
+                    </button>
+                    <button
+                      type="button"
+                      className="ph-visitor-mobileMenu__item"
+                      role="menuitem"
+                      onClick={onBlock}
+                      aria-label={t('profile.visitor.block')}
+                    >
+                      <img
+                        src={profileIcons.complaints}
+                        alt=""
+                        className="ph-visitor-mobileMenu__icon"
+                        aria-hidden="true"
+                      />
+                      <span className="ph-visitor-mobileMenu__text">
+                        {t('profile.visitor.block')}
+                      </span>
+                    </button>
                   </div>
                 )}
               </div>
