@@ -388,6 +388,22 @@
   }
 }
 
+.profileMobileBadges__iconWrap,
+.profileMobileGifts__iconWrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  .messages-nav-badge {
+    top: -8px;
+    right: -10px;
+    font-size: 11px;
+    padding: 0 5px;
+    line-height: 16px;
+  }
+}
+
 .btnMessages {
   position: relative;
   transform: translateX(-38px);

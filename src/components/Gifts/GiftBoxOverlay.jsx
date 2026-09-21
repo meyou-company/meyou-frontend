@@ -1,7 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { giftsApi } from '../../services/giftsApi';
-import { useGiftInboxStore } from '../../zustand/useGiftInboxStore';
+import {
+  selectPendingGiftCount,
+  useGiftInboxStore,
+} from '../../zustand/useGiftInboxStore';
 import './GiftBoxOverlay.scss';
 
 const BOX_CLOSED = '/gifts/box/gift-box-closed.webp';
@@ -110,14 +113,18 @@ function resolveGiftImage(current, giftKind) {
 export default function GiftBoxOverlay() {
   const { t, i18n } = useTranslation();
   const queued = useGiftInboxStore((s) => s.queue[0] || null);
+  const pendingCount = useGiftInboxStore(selectPendingGiftCount);
   const current = queued || previewGiftFromQuery();
   const dismissCurrent = useGiftInboxStore((s) => s.dismissCurrent);
+  const markOpened = useGiftInboxStore((s) => s.markOpened);
   const [phase, setPhase] = useState('enter');
   const [busy, setBusy] = useState(false);
   const [previewClosed, setPreviewClosed] = useState(false);
+  const [suppressed, setSuppressed] = useState(false);
   const timersRef = useRef([]);
   const thanksRef = useRef(null);
   const giftIdRef = useRef(null);
+  const pendingCountRef = useRef(pendingCount);
 
   const clearTimers = () => {
     timersRef.current.forEach((id) => clearTimeout(id));
@@ -128,6 +135,11 @@ export default function GiftBoxOverlay() {
     const id = setTimeout(fn, ms);
     timersRef.current.push(id);
   };
+
+  useEffect(() => {
+    if (pendingCount > pendingCountRef.current) setSuppressed(false);
+    pendingCountRef.current = pendingCount;
+  }, [pendingCount]);
 
   useEffect(() => {
     clearTimers();
@@ -148,7 +160,7 @@ export default function GiftBoxOverlay() {
     }
   }, [phase]);
 
-  if (previewClosed || !current) return null;
+  if (previewClosed || !current || (suppressed && queued)) return null;
 
   const gift = current.gift || {};
   const giftKind = resolveGiftKind(current);
@@ -178,6 +190,7 @@ export default function GiftBoxOverlay() {
         .open(openedId)
         .then(() => {
           if (giftIdRef.current !== openedId) return;
+          markOpened(openedId);
           window.dispatchEvent(new CustomEvent('meyou:gift-opened'));
         })
         .catch(() => {
@@ -196,12 +209,20 @@ export default function GiftBoxOverlay() {
 
   const handleDismiss = () => {
     if (!canDismiss) return;
+    const openedThisGift = phase === 'revealed';
     setBusy(true);
     setPhase('dismiss');
     later(() => {
       setBusy(false);
-      if (current.id === 'preview') setPreviewClosed(true);
-      else dismissCurrent();
+      if (current.id === 'preview') {
+        setPreviewClosed(true);
+        return;
+      }
+      if (openedThisGift) {
+        dismissCurrent();
+        return;
+      }
+      setSuppressed(true);
     }, prefersReducedMotion() ? REDUCED_DISMISS_MS : DISMISS_MS);
   };
 
