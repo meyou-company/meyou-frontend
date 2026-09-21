@@ -3,7 +3,7 @@ import { createPortal } from "react-dom";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { LOCAL_GIFT_CATALOG } from "../../constants/giftCatalog";
-import { mergeCatalogSections } from "../../constants/giftDisplayCatalog";
+import { getGiftDisplayById, mergeCatalogSections } from "../../constants/giftDisplayCatalog";
 import profileIcons from "../../constants/profileIcons";
 import { giftsApi } from "../../services/giftsApi";
 import { subscriptionsApi } from "../../services/subscriptionsApi";
@@ -881,9 +881,16 @@ export default function MyGifts({ goBack, receiverId, receiverName, onReply }) {
                 const sender = item.sender || {};
                 const senderLabel = displayName(sender) || t("common.user");
                 const handle = sender.username ? `@${sender.username}` : "";
+                const displayGift = getGiftDisplayById(giftIdOf(item));
+                const giftImage = displayGift?.image || item.gift?.image || "";
+                const giftNameKey = displayGift?.nameKey || item.gift?.nameKey;
                 return (
                   <article key={item.id} className="my-gifts-page__previousCard">
-                    <img src={item.gift?.image || ""} alt="" className="my-gifts-page__previousImg" />
+                    <img
+                      src={giftImage}
+                      alt={giftNameKey ? t(giftNameKey) : ""}
+                      className="my-gifts-page__previousImg"
+                    />
                     <div className="my-gifts-page__previousSender">
                       <img
                         className="my-gifts-page__previousAvatar"

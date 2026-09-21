@@ -13,11 +13,11 @@ export const GIFT_DISPLAY_SECTIONS = [
     hintKey: "gifts.sections.freeHint",
     items: [
       { key: "smile", backendId: "smile", nameKey: "gifts.catalog.smile", image: "/gifts/catalog/smile.png" },
-      { key: "love", backendId: null, nameKey: "gifts.catalog.love", image: "/gifts/catalog/love.png" },
-      { key: "kiss", backendId: null, nameKey: "gifts.catalog.kiss", image: "/gifts/catalog/kiss.png" },
-      { key: "coffee", backendId: null, nameKey: "gifts.catalog.coffee", image: "/gifts/catalog/coffee.png" },
-      { key: "good_day", backendId: null, nameKey: "gifts.catalog.goodDay", image: "/gifts/catalog/good_day.png" },
-      { key: "hugs", backendId: null, nameKey: "gifts.catalog.hugs", image: "/gifts/catalog/hugs.png" },
+      { key: "love", backendId: "love", nameKey: "gifts.catalog.love", image: "/gifts/catalog/love.png" },
+      { key: "kiss", backendId: "kiss", nameKey: "gifts.catalog.kiss", image: "/gifts/catalog/kiss.png" },
+      { key: "coffee", backendId: "coffee", nameKey: "gifts.catalog.coffee", image: "/gifts/catalog/coffee.png" },
+      { key: "good_day", backendId: "good_day", nameKey: "gifts.catalog.goodDay", image: "/gifts/catalog/good_day.png" },
+      { key: "hugs", backendId: "hugs", nameKey: "gifts.catalog.hugs", image: "/gifts/catalog/hugs.png" },
     ],
   },
   {
@@ -47,6 +47,18 @@ export const GIFT_DISPLAY_SECTIONS = [
     ],
   },
 ];
+
+export function getGiftDisplayById(giftId) {
+  if (!giftId) return null;
+  const id = String(giftId);
+  for (const section of GIFT_DISPLAY_SECTIONS) {
+    const item = section.items.find(
+      (entry) => entry.backendId === id || entry.key === id,
+    );
+    if (item) return item;
+  }
+  return null;
+}
 
 function toCatalogGift(item, backend, sectionId) {
   const type = backend?.type || (sectionId === GIFT_SECTION_ID.FREE ? "FREE" : "PAID");

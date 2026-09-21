@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { getGiftDisplayById } from '../../constants/giftDisplayCatalog';
 import { giftsApi } from '../../services/giftsApi';
 import {
   selectPendingGiftCount,
@@ -107,7 +108,8 @@ function resolveGiftKind(current) {
 
 function resolveGiftImage(current, giftKind) {
   if (giftKind === 'smile') return SMILE_ASSET;
-  return current?.gift?.image || current?.image;
+  const id = current?.gift?.id || current?.giftId;
+  return getGiftDisplayById(id)?.image || current?.gift?.image || current?.image;
 }
 
 export default function GiftBoxOverlay() {
@@ -165,7 +167,10 @@ export default function GiftBoxOverlay() {
   const gift = current.gift || {};
   const giftKind = resolveGiftKind(current);
   const image = resolveGiftImage(current, giftKind);
-  const nameKey = gift.nameKey || current.nameKey;
+  const nameKey =
+    gift.nameKey ||
+    current.nameKey ||
+    getGiftDisplayById(gift.id || current.giftId)?.nameKey;
   const sparkles = giftKind === 'smile' ? SPARKLES_SMILE : SPARKLES;
   const hearts = giftKind === 'smile' ? HEARTS_SMILE : HEARTS;
   const giftName = nameKey ? t(nameKey) : '';
