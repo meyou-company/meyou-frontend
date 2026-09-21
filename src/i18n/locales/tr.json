@@ -35,7 +35,7 @@
     "profile": "Profil"
   },
   "landing": {
-    "tagline": "MeYou, tanisma, iletisim ve guvenli sosyal baglantilar icin modern bir platformdur.",
+    "tagline": "LunMeYo, tanisma, iletisim ve guvenli sosyal baglantilar icin modern bir platformdur.",
     "features": {
       "earn": "Arkadaş bonusları",
       "chat": "Modern sohbet",
@@ -112,7 +112,7 @@
     "noAccount": "Don't have an account?",
     "hasAccount": "Already have an account?",
     "common": {
-      "logoAlt": "Me You logo",
+      "logoAlt": "LunMeYo logo",
       "googleAlt": "Google",
       "showPassword": "Show password",
       "hidePassword": "Hide password",
@@ -976,7 +976,7 @@
     "spendHint": "*VIP arkadaşlar ve hediyeler için kullanılır",
     "spendTooltip": "Hediyeler, VIP arkadaşlar ve platformun diğer ücretli özellikleri için kullanabileceğin bakiyedir.",
     "topUp": "Yükle",
-    "topUpTooltip": "MeYou’nun ücretli özelliklerini kullanmak için bakiye yükleme.",
+    "topUpTooltip": "LunMeYo’nun ücretli özelliklerini kullanmak için bakiye yükleme.",
     "earnedLabel": "Kazanılan bakiye",
     "earnedValue": "5.00",
     "earnedHint": "*Hediye ve VIP aboneliklerinden kazanılan bakiyedir",

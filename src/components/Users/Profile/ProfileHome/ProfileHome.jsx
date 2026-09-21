@@ -18,6 +18,7 @@ import {
 import MessagesNavBadge from "../../../Messages/MessagesNavBadge";
 import GiftInboxBadge from "../../../Gifts/GiftInboxBadge";
 import profileIcons from "../../../../constants/profileIcons";
+import { DEFAULT_AVATAR } from "../../../../constants/brand";
 import { getFriendsCountNumber } from "../../../../utils/profileFriends";
 import {
   normalizeFriendListItem,
@@ -137,7 +138,7 @@ export default function ProfileHome({
     [user?.firstName, user?.lastName].filter(Boolean).join(" ") || "";
 
   const titleName = username || fullNameReal || t('common.user');
-  const displayAvatar = user?.avatarUrl || user?.avatar || "/Logo/photo.png";
+  const displayAvatar = user?.avatarUrl || user?.avatar || DEFAULT_AVATAR;
   const profileUserId = user?.id || user?._id || postsAuthorId;
   useEffect(() => {
     if (!loadSecondary) return;

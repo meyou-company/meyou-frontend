@@ -4,6 +4,7 @@ import { toast } from "sonner";
 import { useAuthStore } from "../../../zustand/useAuthStore";
 import { useForceDarkTheme } from "../../../hooks/useForceDarkTheme";
 import { getApiErrorMessage } from "../../../utils/getApiErrorMessage";
+import BrandLogo from "../../BrandLogo/BrandLogo";
 import "../VerifyRegisterEmailForm/VerifyRegisterEmailForm.scss";
 
 const CODE_LEN = 4;
@@ -143,7 +144,7 @@ export default function VerifyRegisterEmailForm({ onBack, onSuccess }) {
       </button>
 
       <div className="verify__logoCard" aria-hidden="true">
-        <img className="verify__logoImg" src="/Logo/photo.png?v=2" alt={t("auth.common.logoAlt")} />
+        <BrandLogo className="verify__logoImg" decorative />
       </div>
 
       <h1 className="verify__title">{t("auth.verifyEmail.title")}</h1>

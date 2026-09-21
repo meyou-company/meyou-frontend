@@ -63,7 +63,7 @@ export default function LegalAcceptTermsPage() {
               <Link to="/legal/terms">{ui.acceptTermsTermsLink}</Link>
               {' та '}
               <Link to="/legal/privacy">{ui.acceptTermsPrivacyLink}</Link>
-              {' MeYou.'}
+              {' LunMeYo.'}
             </label>
           </div>
           <button

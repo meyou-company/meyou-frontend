@@ -35,7 +35,7 @@
     "profile": "Профиль"
   },
   "landing": {
-    "tagline": "MeYou — современная платформа для знакомств, общения и безопасных социальных связей.",
+    "tagline": "LunMeYo — современная платформа для знакомств, общения и безопасных социальных связей.",
     "features": {
       "earn": "Бонусы за друзей",
       "chat": "Современный чат",
@@ -112,7 +112,7 @@
     "noAccount": "Don't have an account?",
     "hasAccount": "Already have an account?",
     "common": {
-      "logoAlt": "Me You logo",
+      "logoAlt": "LunMeYo logo",
       "googleAlt": "Google",
       "showPassword": "Показать пароль",
       "hidePassword": "Скрыть пароль",
@@ -1019,7 +1019,7 @@
     "spendHint": "*Используется для VIP-друзей и подарков",
     "spendTooltip": "Средства, которые можно использовать для подарков, VIP-друзей и других платных функций платформы.",
     "topUp": "Пополнить",
-    "topUpTooltip": "Пополнение баланса для платных функций MeYou.",
+    "topUpTooltip": "Пополнение баланса для платных функций LunMeYo.",
     "earnedLabel": "Заработанный баланс",
     "earnedValue": "5.00",
     "earnedHint": "*Средства, заработанные от подарков и VIP-подписок",

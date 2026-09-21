@@ -1,5 +1,6 @@
 import ThemeToggleDark from "../ThemeToggleDark/ThemeToggleDark";
 import profileIcons from "../../constants/profileIcons";
+import { BRAND_NAME } from "../../constants/brand";
 import { useBurgerMenu } from "../../hooks/useBurgerMenu";
 
 export default function AppHeader({
@@ -44,9 +45,9 @@ export default function AppHeader({
           type="button"
           onClick={onGoHome}
           className="logoText app-brand-wordmark max-w-full min-w-0 justify-self-center text-center"
-          aria-label="Головна"
+          aria-label={BRAND_NAME}
         >
-          ME YOU
+          {BRAND_NAME}
         </button>
 
         <div className="flex min-w-0 items-center justify-end gap-2 md:gap-3 xl:gap-4">

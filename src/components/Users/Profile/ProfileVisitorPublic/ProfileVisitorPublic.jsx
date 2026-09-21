@@ -3,6 +3,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import profileIcons from '../../../../constants/profileIcons';
+import { DEFAULT_AVATAR } from '../../../../constants/brand';
 import { getFriendsCountNumber } from '../../../../utils/profileFriends';
 import {
   normalizeFriendListItem,
@@ -153,7 +154,7 @@ export default function ProfileVisitorPublic({
   }, [profileUserId, loadSecondary]);
   const fullNameReal = [user?.firstName, user?.lastName].filter(Boolean).join(' ') || '';
   const titleName = username || fullNameReal || t('common.user');
-  const displayAvatar = user?.avatarUrl || user?.avatar || '/Logo/photo.png';
+  const displayAvatar = user?.avatarUrl || user?.avatar || DEFAULT_AVATAR;
   const hasProfileStories = profileStories.length > 0;
 
   const profileStoryGroups = hasProfileStories

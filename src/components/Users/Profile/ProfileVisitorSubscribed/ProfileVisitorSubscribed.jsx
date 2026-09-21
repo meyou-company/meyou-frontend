@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 
 import profileIcons from '../../../../constants/profileIcons';
+import { DEFAULT_AVATAR } from '../../../../constants/brand';
 import { getFriendsCountNumber } from '../../../../utils/profileFriends';
 import {
   normalizeFriendListItem,
@@ -124,7 +125,7 @@ export default function ProfileVisitorSubscribed({
   const location = [user?.city, user?.country].filter(Boolean).join(', ').trim() || '';
   const displayName = fullName || nickname || t('common.user');
 
-  const displayAvatar = user?.avatarUrl || user?.avatar || '/Logo/photo.png';
+  const displayAvatar = user?.avatarUrl || user?.avatar || DEFAULT_AVATAR;
   const hasProfileStories = profileStories.length > 0;
 
   const profileStoryGroups = hasProfileStories

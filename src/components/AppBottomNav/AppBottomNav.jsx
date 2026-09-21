@@ -5,9 +5,8 @@ import NotificationBell from '../../components/Notifications/NotificationBell';
 import { useMobileProfileNav } from '../../hooks/useMobileProfileNav';
 import { useTranslation } from 'react-i18next';
 import UserAvatar from '../UserAvatar/UserAvatar';
+import { DEFAULT_AVATAR } from '../../constants/brand';
 import './AppBottomNav.scss';
-
-const DEFAULT_AVATAR = '/Logo/photo.png';
 
 const makeIsActive =
   (location) =>

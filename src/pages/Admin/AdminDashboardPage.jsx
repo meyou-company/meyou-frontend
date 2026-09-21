@@ -37,7 +37,7 @@ export default function AdminDashboardPage() {
     <section className="adminPage">
       <header className="adminPage__header">
         <h1>Dashboard</h1>
-        <p>Огляд черги модерації MeYou.</p>
+        <p>Огляд черги модерації LunMeYo.</p>
       </header>
 
       {loading ? (

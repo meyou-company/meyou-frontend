@@ -35,7 +35,7 @@
     "profile": "Profile"
   },
   "landing": {
-    "tagline": "MeYou is a modern platform for dating, communication, and safe social connections.",
+    "tagline": "LunMeYo is a modern platform for dating, communication, and safe social connections.",
     "features": {
       "earn": "Friend bonuses",
       "chat": "Modern chat",
@@ -116,7 +116,7 @@
     "noAccount": "Don't have an account?",
     "hasAccount": "Already have an account?",
     "common": {
-      "logoAlt": "Me You logo",
+      "logoAlt": "LunMeYo logo",
       "googleAlt": "Google",
       "showPassword": "Show password",
       "hidePassword": "Hide password",
@@ -1046,7 +1046,7 @@
     "spendHint": "*Used for VIP friends and gifts",
     "spendTooltip": "Funds you can use for gifts, VIP friends and other paid platform features.",
     "topUp": "Top up",
-    "topUpTooltip": "Top up your balance to use paid MeYou features.",
+    "topUpTooltip": "Top up your balance to use paid LunMeYo features.",
     "earnedLabel": "Earned balance",
     "earnedValue": "5.00",
     "earnedHint": "*Funds earned from gifts and VIP subscriptions",

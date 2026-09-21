@@ -5,6 +5,7 @@ import { useAuthStore } from "../../../zustand/useAuthStore";
 import { resolvedApiBaseUrl } from "../../../services/api";
 import { useForceDarkTheme } from "../../../hooks/useForceDarkTheme";
 import { getApiErrorCode, getApiErrorMessage } from "../../../utils/getApiErrorMessage";
+import BrandLogo from "../../BrandLogo/BrandLogo";
 import "./LoginForm.scss";
 
 function getLoginErrorMessage(error, t) {
@@ -92,7 +93,7 @@ export default function LoginForm({ onBack, onForgot, onSuccess }) {
       </button>
 
       <div className="auth__logoCard" aria-hidden="true">
-        <img className="auth__logoImg" src="/Logo/photo.png?v=2" alt={t("auth.common.logoAlt")} />
+        <BrandLogo className="auth__logoImg" decorative />
       </div>
 
       <h1 className="auth__title auth__title--login">{t("auth.login.title")}</h1>

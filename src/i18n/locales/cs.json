@@ -35,7 +35,7 @@
     "profile": "Profil"
   },
   "landing": {
-    "tagline": "MeYou je moderní platforma pro seznamování, komunikaci a bezpečné sociální vazby.",
+    "tagline": "LunMeYo je moderní platforma pro seznamování, komunikaci a bezpečné sociální vazby.",
     "features": {
       "earn": "Bonusy za přátele",
       "chat": "Moderní chat",
@@ -112,7 +112,7 @@
     "noAccount": "Don't have an account?",
     "hasAccount": "Already have an account?",
     "common": {
-      "logoAlt": "Me You logo",
+      "logoAlt": "LunMeYo logo",
       "googleAlt": "Google",
       "showPassword": "Show password",
       "hidePassword": "Hide password",
@@ -978,7 +978,7 @@
     "spendHint": "*Používá se pro VIP přátele a dárky",
     "spendTooltip": "Prostředky, které můžeš použít na dárky, VIP přátele a další placené funkce platformy.",
     "topUp": "Dobít",
-    "topUpTooltip": "Dobití zůstatku pro placené funkce MeYou.",
+    "topUpTooltip": "Dobití zůstatku pro placené funkce LunMeYo.",
     "earnedLabel": "Vydělaný zůstatek",
     "earnedValue": "5.00",
     "earnedHint": "*Prostředky z dárků a VIP předplatného",

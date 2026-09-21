@@ -42,13 +42,21 @@
   left: auto;
 }
 
-.cp-topbar__brand.app-brand-wordmark {
+.cp-topbar__brand {
   position: absolute;
   left: 50%;
-
   transform: translateX(-50%);
-
   pointer-events: none;
+}
+
+.cp-topbar__brand.app-brand-wordmark {
+  font-size: 28px;
+}
+
+@media (min-width: 1024px) {
+  .cp-topbar__brand.app-brand-wordmark {
+    font-size: 34px;
+  }
 }
 
 .cp-topbar__right {

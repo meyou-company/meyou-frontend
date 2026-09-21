@@ -4,34 +4,71 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ME YOU — один розмір як у шапці профілю (ProfileHeader .logoText) */
+/* LunMeYo text wordmark for in-app headers */
 .app-brand-wordmark {
   font-family: "Montserrat", sans-serif;
-  font-size: 46px;
+  font-size: 36px;
   font-weight: 800;
-  color: #ff4fb1;
   line-height: 1;
+  letter-spacing: 0.01em;
+  display: inline-block;
+  white-space: nowrap;
+  background: linear-gradient(90deg, #4f6bff 0%, #b05cff 52%, #ff4fb1 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+}
+
+.app-brand-logo {
+  display: block;
+  width: auto;
+  height: 44px;
+  max-width: min(220px, 58vw);
+  object-fit: contain;
+  object-position: center;
+}
+
+.home__logoImg.app-brand-logo,
+.auth__logoImg.app-brand-logo,
+.forgot__logoImg.app-brand-logo,
+.verify__logoImg.app-brand-logo {
+  height: 100%;
+  width: 100%;
+  max-width: none;
 }
 
 @media (max-width: 480px) {
   .app-brand-wordmark {
-    font-size: 28px;
+    font-size: 24px;
+  }
+
+  .app-brand-logo {
+    height: 36px;
+    max-width: min(168px, 52vw);
   }
 }
 
 @media (max-width: 360px) {
   .app-brand-wordmark {
-    font-size: 30px;
+    font-size: 22px;
     line-height: 1;
-    padding-bottom: 6px;
+    padding-bottom: 2px;
+  }
+
+  .app-brand-logo {
+    height: 32px;
   }
 }
 
 @media (min-width: 1024px) {
   .app-brand-wordmark {
-    font-size: 40px;
-    white-space: nowrap;
-    color: #f064bd;
+    font-size: 42px;
+  }
+
+  .app-brand-logo {
+    height: 48px;
+    max-width: 240px;
   }
 }
 

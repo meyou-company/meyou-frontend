@@ -13,9 +13,8 @@ import { getApiErrorMessage } from "../../../../utils/getApiErrorMessage";
 import { mapApiPostToFeedItem } from "../../../../utils/mapApiPostToFeedItem";
 import profileIcons from '../../../../constants/profileIcons';
 import { getOwnerVipEnabled } from '../../../../utils/profileVipUi';
+import { DEFAULT_AVATAR } from "../../../../constants/brand";
 import "./ProfilePhotosView.scss";
-
-const DEFAULT_AVATAR = "/Logo/photo.png";
 
 function getTimestamp(value) {
   const time = value ? new Date(value).getTime() : 0;
@@ -332,7 +331,7 @@ export default function ProfilePhotosView({
       const objectUrl = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = objectUrl;
-      link.download = photo.type === "avatar" ? "meyou-profile-photo.jpg" : "meyou-photo.jpg";
+      link.download = photo.type === "avatar" ? "lunmeyo-profile-photo.jpg" : "lunmeyo-photo.jpg";
       document.body.appendChild(link);
       link.click();
       link.remove();

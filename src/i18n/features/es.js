@@ -12,7 +12,7 @@ export const FEATURE_PAGES = {
     title: 'Bonos por amigos',
     subtitle: 'Programa de recompensas — en desarrollo',
     intro:
-      'MeYou prepara un programa de bonos por amigos y actividad en la comunidad. Todas las funciones de esta página son futuras; anunciaremos el lanzamiento en la app.',
+      'LunMeYo prepara un programa de bonos por amigos y actividad en la comunidad. Todas las funciones de esta página son futuras; anunciaremos el lanzamiento en la app.',
     cards: [
       {
         emoji: '👥',
@@ -52,7 +52,7 @@ export const FEATURE_PAGES = {
       },
     ],
     comingSoonSection: {
-      title: 'Próximamente en MeYou',
+      title: 'Próximamente en LunMeYo',
       items: [
         {
           emoji: '👛',
@@ -105,7 +105,7 @@ export const FEATURE_PAGES = {
     title: 'Chat moderno',
     subtitle: 'Comunicación rápida con medios, reacciones y protección de privacidad',
     intro:
-      'Diálogos privados en tiempo real. Texto, fotos, video, mensajes de voz y reacciones emoji — en una interfaz MeYou cómoda con notificaciones y control de acceso.',
+      'Diálogos privados en tiempo real. Texto, fotos, video, mensajes de voz y reacciones emoji — en una interfaz LunMeYo cómoda con notificaciones y control de acceso.',
     cards: [
       {
         emoji: '💬',
@@ -137,12 +137,12 @@ export const FEATURE_PAGES = {
       {
         emoji: '🎙️',
         title: 'Mensajes de voz',
-        text: 'Graba y envía notas de voz directamente en el diálogo — ya disponible en los chats MeYou.',
+        text: 'Graba y envía notas de voz directamente en el diálogo — ya disponible en los chats LunMeYo.',
       },
       {
         emoji: '📹',
         title: 'Videollamadas',
-        text: 'Videollamada uno a uno dentro de la plataforma MeYou.',
+        text: 'Videollamada uno a uno dentro de la plataforma LunMeYo.',
         comingSoon: true,
       },
       {
@@ -161,9 +161,9 @@ export const FEATURE_PAGES = {
     emoji: '🔒',
     icon: '/icon1/3.png',
     title: 'Seguridad total',
-    subtitle: 'Protección de cuenta, verificación y privacidad en MeYou',
+    subtitle: 'Protección de cuenta, verificación y privacidad en LunMeYo',
     intro:
-      'MeYou combina medidas técnicas de seguridad con reglas transparentes: desde Google Login hasta moderación, bloqueo y control de visibilidad del contenido.',
+      'LunMeYo combina medidas técnicas de seguridad con reglas transparentes: desde Google Login hasta moderación, bloqueo y control de visibilidad del contenido.',
     cards: [
       {
         emoji: '🔑',
@@ -222,14 +222,14 @@ export const FEATURE_PAGES = {
 };
 
 export const FEATURE_UI = {
-  brand: 'MeYou',
+  brand: 'LunMeYo',
   backHome: 'Volver al inicio',
   highlightsTitle: 'Funciones clave',
   blocksTitle: 'Más información',
   faqTitle: 'Preguntas frecuentes',
   futureTitle: 'Próximamente',
   comingSoonLabel: 'Próximamente',
-  comingSoonSectionTitle: 'Próximamente en MeYou',
-  exploreMore: 'Funciones de MeYou',
+  comingSoonSectionTitle: 'Próximamente en LunMeYo',
+  exploreMore: 'Funciones de LunMeYo',
   cardsSwipeHint: 'Desliza a la derecha para ver más →',
 };

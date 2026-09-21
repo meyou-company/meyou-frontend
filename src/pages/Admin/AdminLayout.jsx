@@ -48,9 +48,9 @@ export default function AdminLayout() {
     <div className="adminShell">
       <aside className="adminShell__sidebar" aria-label="Admin navigation">
         <div className="adminShell__brand">
-          <span className="adminShell__brandMark">M</span>
+          <span className="adminShell__brandMark">L</span>
           <div>
-            <strong>MeYou Admin</strong>
+            <strong>LunMeYo Admin</strong>
             <small>Moderation panel</small>
           </div>
         </div>

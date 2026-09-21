@@ -651,10 +651,8 @@
 }
 
 .storyStatsModal__brand {
-  color: #ff4fb1;
-  font-size: 28px;
-  font-weight: 900;
-  letter-spacing: 0;
+  display: inline-flex;
+  align-items: center;
 }
 
 .storyStatsModal__close {
@@ -1261,8 +1259,8 @@
     min-height: 58px;
   }
 
-  .storyStatsModal__brand {
-    font-size: 30px;
+  .storyStatsModal__brand.app-brand-wordmark {
+    font-size: 32px;
   }
 
   .storyStatsModal__close {
@@ -1360,8 +1358,8 @@
     width: 100%;
   }
 
-  .storyStatsModal__brand {
-    font-size: 34px;
+  .storyStatsModal__brand.app-brand-wordmark {
+    font-size: 36px;
   }
 
   .storyStatsModal__close {

@@ -35,6 +35,7 @@ import {
 import { applyBirthDateNormalization } from '../../../../utils/profileFormUtils';
 
 import profileIcons from '../../../../constants/profileIcons';
+import BrandWordmark from '../../../BrandLogo/BrandWordmark';
 
 import ThemeToggleDark from '../../../../components/ThemeToggleDark/ThemeToggleDark';
 import AvatarCropModal from '../../../../components/AvatarCropModal/AvatarCropModal';
@@ -468,7 +469,7 @@ export default function CompleteProfileForm({ onBack, onSave }) {
             />
           </button>
 
-          <div className="cp-topbar__brand app-brand-wordmark">ME YOU</div>
+          <BrandWordmark className="cp-topbar__brand" as="div" />
 
           <div className="cp-topbar__right">
             <ThemeToggleDark />
