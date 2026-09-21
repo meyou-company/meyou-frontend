@@ -12,6 +12,7 @@ export default function MyGiftsPage() {
   const location = useLocation();
   const [searchParams] = useSearchParams();
   const receiverId = searchParams.get("to") || "";
+  const thankMode = searchParams.get("thank") === "1";
   const receiverName = location.state?.receiverName || "";
 
   const goBack = () => {
@@ -30,12 +31,18 @@ export default function MyGiftsPage() {
     });
   }, [navigate]);
 
+  const onThankSent = useCallback(() => {
+    navigate("/my-gifts", { replace: true });
+  }, [navigate]);
+
   return (
     <MyGifts
       goBack={goBack}
       receiverId={receiverId}
       receiverName={receiverName}
+      thankMode={thankMode && Boolean(receiverId)}
       onReply={onReply}
+      onThankSent={onThankSent}
     />
   );
 }

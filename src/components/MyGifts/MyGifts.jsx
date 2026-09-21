@@ -47,7 +47,7 @@ function monthKeyOf(value) {
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
 }
 
-export default function MyGifts({ goBack, receiverId, receiverName, onReply }) {
+export default function MyGifts({ goBack, receiverId, receiverName, thankMode = false, onReply, onThankSent }) {
   const { t, i18n } = useTranslation();
   const [catalogSections, setCatalogSections] = useState(() =>
     mergeCatalogSections(LOCAL_GIFT_CATALOG),
@@ -328,6 +328,7 @@ export default function MyGifts({ goBack, receiverId, receiverName, onReply }) {
 
   const removeRecipient = (user) => {
     if (sending || !user?.id) return;
+    if (thankMode && String(user.id) === String(receiverId)) return;
     setSelectedRecipientsById((prev) => {
       if (!prev.has(user.id)) return prev;
       const next = new Map(prev);
@@ -357,6 +358,11 @@ export default function MyGifts({ goBack, receiverId, receiverName, onReply }) {
       const failures = results.filter((result) => result.status === "rejected");
       if (failures.length === 0) {
         toast.success(t("gifts.sent"));
+        if (thankMode) {
+          setSelectedGiftsById(new Map());
+          onThankSent?.();
+          return;
+        }
         resetSelection();
         return;
       }
@@ -375,11 +381,12 @@ export default function MyGifts({ goBack, receiverId, receiverName, onReply }) {
     onReply?.(sender);
   };
 
-  const renderRecipientChips = () =>
+  const renderRecipientChips = ({ locked = false } = {}) =>
     selectedRecipients.length > 0 ? (
       <div className="my-gifts-page__chips" aria-label={t("gifts.recipientsAria")}>
         {selectedRecipients.map((user) => {
           const name = recipientDisplayName(user) || t("common.user");
+          const isLocked = locked && String(user.id) === String(receiverId);
           return (
             <span key={user.id} className="my-gifts-page__chip">
               <img
@@ -388,15 +395,17 @@ export default function MyGifts({ goBack, receiverId, receiverName, onReply }) {
                 alt=""
               />
               <span className="my-gifts-page__chipName">{name}</span>
-              <button
-                type="button"
-                className="my-gifts-page__chipRemove"
-                onClick={() => removeRecipient(user)}
-                disabled={sending}
-                aria-label={t("gifts.removeRecipient", { name })}
-              >
-                ×
-              </button>
+              {isLocked ? null : (
+                <button
+                  type="button"
+                  className="my-gifts-page__chipRemove"
+                  onClick={() => removeRecipient(user)}
+                  disabled={sending}
+                  aria-label={t("gifts.removeRecipient", { name })}
+                >
+                  ×
+                </button>
+              )}
             </span>
           );
         })}
@@ -406,11 +415,11 @@ export default function MyGifts({ goBack, receiverId, receiverName, onReply }) {
   const renderSendButton = () => (
     <button
       type="button"
-      className="my-gifts-page__action action--yellow my-gifts-page__sendBtn"
+      className={`my-gifts-page__action my-gifts-page__sendBtn${thankMode ? " action--thank" : " action--yellow"}`}
       onClick={handleFinalSend}
       disabled={!canSend}
     >
-      {t("gifts.sendAction")}
+      {thankMode ? t("gifts.thankSend") : t("gifts.sendAction")}
     </button>
   );
 
@@ -603,7 +612,7 @@ export default function MyGifts({ goBack, receiverId, receiverName, onReply }) {
   };
 
   return (
-    <div className="my-gifts-page">
+    <div className={`my-gifts-page${thankMode ? " is-thank" : ""}`}>
       <div className="my-gifts-page__bg">
         <img src="/gifts/bg.jpg" alt="" className="my-gifts-page__bgImg my-gifts-page__bgImg--mobile" />
         <img src="/gifts/bg-desktop.jpg" alt="" className="my-gifts-page__bgImg--desktop" />
@@ -619,7 +628,9 @@ export default function MyGifts({ goBack, receiverId, receiverName, onReply }) {
           <img src={profileIcons.arrowLeftBlack} alt="" className="my-gifts-page__backIcon"/>
         </button>
 
-        <h1 className="my-gifts-page__title">{t("gifts.title")}</h1>
+        <h1 className="my-gifts-page__title">
+          {thankMode ? t("gifts.thankTitle") : t("gifts.title")}
+        </h1>
 
         <span className="my-gifts-page__headerSpacer" aria-hidden="true" />
       </header>
@@ -630,6 +641,7 @@ export default function MyGifts({ goBack, receiverId, receiverName, onReply }) {
         </section>
 
         <section className="my-gifts-page__panel">
+          {!thankMode ? (
           <div className="my-gifts-page__pageTabs" role="tablist" aria-label={t("gifts.title")}>
             <button
               type="button"
@@ -650,15 +662,28 @@ export default function MyGifts({ goBack, receiverId, receiverName, onReply }) {
               {t("gifts.previous")}
             </button>
           </div>
+          ) : null}
 
           {pageView === "send" ? (
             <div className="my-gifts-page__shop">
-              <p className="my-gifts-page__tagline">{t("gifts.tagline")}</p>
+              <p className="my-gifts-page__tagline">
+                {thankMode
+                  ? t("gifts.thankHint", {
+                      name:
+                        receiverName
+                        || recipientDisplayName(selectedRecipients[0])
+                        || t("common.user"),
+                    })
+                  : t("gifts.tagline")}
+              </p>
 
-              <section className="my-gifts-page__toBar" aria-label={t("gifts.toWhom")}>
-                <h2 className="my-gifts-page__toTitle">{t("gifts.toWhom")}</h2>
+              <section className="my-gifts-page__toBar" aria-label={thankMode ? t("gifts.thankTitle") : t("gifts.toWhom")}>
+                {thankMode ? null : (
+                  <h2 className="my-gifts-page__toTitle">{t("gifts.toWhom")}</h2>
+                )}
                 <div className="my-gifts-page__toRow">
-                  {renderRecipientChips()}
+                  {renderRecipientChips({ locked: thankMode })}
+                  {thankMode ? null : (
                   <button
                     type="button"
                     className="my-gifts-page__recipientsAdd"
@@ -673,6 +698,7 @@ export default function MyGifts({ goBack, receiverId, receiverName, onReply }) {
                       ? t("gifts.addMore")
                       : t("gifts.pickRecipients")}
                   </button>
+                  )}
                 </div>
               </section>
 

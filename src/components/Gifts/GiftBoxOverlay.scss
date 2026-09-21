@@ -1,4 +1,10 @@
 .gift-box-overlay {
+  --lid-x: 62%;
+  --lid-x-mid: 10%;
+  --lid-rot: -38deg;
+  --lid-rot-mid: -16deg;
+  --lid-rot-peak: -42deg;
+  --lid-rest: translateX(-50%) translate(var(--lid-x), -88%) rotate(var(--lid-rot)) scale(0.94);
   position: fixed;
   inset: 0;
   z-index: 12000;
@@ -10,6 +16,14 @@
     max(20px, env(safe-area-inset-bottom))
     max(16px, env(safe-area-inset-left));
   overflow: auto;
+}
+
+.gift-box-overlay[dir="rtl"] {
+  --lid-x: -62%;
+  --lid-x-mid: -10%;
+  --lid-rot: 38deg;
+  --lid-rot-mid: 16deg;
+  --lid-rot-peak: 42deg;
 }
 
 .gift-box-overlay__backdrop {
@@ -43,6 +57,7 @@
   position: relative;
   width: clamp(280px, 42vw, 440px);
   height: clamp(340px, 54vw, 560px);
+  overflow: visible;
 }
 
 .gift-box-overlay__aura {
@@ -102,7 +117,7 @@
 .gift-box-overlay__giftWell {
   position: absolute;
   inset: 0;
-  z-index: 6;
+  z-index: 8;
   overflow: visible;
   pointer-events: none;
 }
@@ -119,12 +134,13 @@
 }
 
 .gift-box-overlay__lid {
-  z-index: 4;
+  z-index: 3;
   width: 74%;
   bottom: 29%;
   opacity: 0;
   transform: translateX(-50%) translate(1%, 6%);
-  transform-origin: 28% 92%;
+  transform-origin: 32% 90%;
+  filter: drop-shadow(0 10px 16px rgba(40, 12, 28, 0.28));
 }
 
 .gift-box-overlay__closed {
@@ -137,10 +153,10 @@
 
 .gift-box-overlay__gift {
   position: absolute;
-  z-index: 6;
+  z-index: 8;
   left: 50%;
-  bottom: 36%;
-  width: min(38%, 168px);
+  bottom: 40%;
+  width: min(42%, 176px);
   height: auto;
   max-width: none;
   background: none;
@@ -148,8 +164,8 @@
   border-radius: 0;
   object-fit: contain;
   opacity: 0;
-  transform: translateX(-50%) translateY(24px) scale(0.55);
-  filter: drop-shadow(0 10px 18px rgba(80, 24, 48, 0.28));
+  transform: translateX(-50%) translateY(28px) scale(0.5);
+  filter: drop-shadow(0 12px 22px rgba(80, 24, 48, 0.34));
   pointer-events: none;
 }
 
@@ -163,15 +179,17 @@
 .gift-box-overlay__burst {
   position: absolute;
   inset: 0;
-  z-index: 7;
+  z-index: 4;
   pointer-events: none;
+  overflow: visible;
 }
 
 .gift-box-overlay__spark,
-.gift-box-overlay__heart {
+.gift-box-overlay__heart,
+.gift-box-overlay__confetti {
   position: absolute;
   left: 50%;
-  top: 44%;
+  top: 46%;
   opacity: 0;
 }
 
@@ -189,6 +207,15 @@
   color: #ff8fb8;
   text-shadow: 0 0 10px rgba(255, 180, 210, 0.7);
   transform: translate(-50%, -50%);
+}
+
+.gift-box-overlay__confetti {
+  width: var(--w);
+  height: var(--h);
+  margin: calc(var(--h) / -2) 0 0 calc(var(--w) / -2);
+  border-radius: 2px;
+  background: var(--color);
+  box-shadow: 0 0 8px rgba(255, 210, 160, 0.45);
 }
 
 .gift-box-overlay__boxHit {
@@ -228,6 +255,8 @@
 }
 
 .gift-box-overlay__card {
+  position: relative;
+  z-index: 2;
   width: min(100%, 360px);
   margin-top: 4px;
   display: grid;
@@ -300,35 +329,39 @@
 
 .gift-box-overlay--opening {
   .gift-box-scene {
-    animation: gift-open-shake 0.28s ease-in-out;
+    animation: gift-open-shake 0.24s ease-in-out;
   }
 
   .gift-box-overlay__closed {
-    animation: gift-closed-swap 0.14s ease 0.16s forwards;
+    animation: gift-closed-swap 0.12s ease 0.12s forwards;
   }
 
   .gift-box-overlay__base {
-    animation: gift-fade-in 0.14s ease 0.14s forwards;
+    animation: gift-fade-in 0.12s ease 0.1s forwards;
   }
 
   .gift-box-overlay__lid {
-    animation: gift-lid-lift 0.62s cubic-bezier(0.2, 0.8, 0.2, 1) 0.22s forwards;
+    animation: gift-lid-fly 0.72s cubic-bezier(0.18, 0.84, 0.22, 1) 0.14s forwards;
   }
 
   .gift-box-overlay__innerGlow {
-    animation: gift-inner-glow 0.7s ease 0.45s forwards;
+    animation: gift-inner-glow 0.64s ease 0.22s forwards;
   }
 
   .gift-box-overlay__gift:not(.gift-box-overlay__gift--smile) {
-    animation: gift-rise 0.7s cubic-bezier(0.18, 0.9, 0.24, 1.12) 0.7s forwards;
+    animation: gift-rise 0.64s cubic-bezier(0.16, 0.9, 0.24, 1.08) 0.32s forwards;
   }
 
   .gift-box-overlay__spark {
-    animation: gift-spark-burst 0.95s ease-out var(--delay) forwards;
+    animation: gift-spark-burst 0.92s ease-out var(--delay) forwards;
   }
 
   .gift-box-overlay__heart {
-    animation: gift-heart-burst 1.05s ease-out var(--delay) forwards;
+    animation: gift-heart-burst 0.98s ease-out var(--delay) forwards;
+  }
+
+  .gift-box-overlay__confetti {
+    animation: gift-confetti-burst 0.98s ease-out var(--delay) forwards;
   }
 }
 
@@ -356,12 +389,12 @@
 
   .gift-box-overlay__gift {
     opacity: 1;
-    transform: translateX(-50%) translateY(-38%) scale(1);
-    width: min(42%, 176px);
+    transform: translateX(-50%) translateY(-52%) scale(1.04);
+    width: min(46%, 188px);
   }
 
   .gift-box-overlay__giftWell--smile {
-    z-index: 6;
+    z-index: 8;
     overflow: visible;
     height: 78%;
     bottom: 28%;
@@ -382,16 +415,22 @@
   }
 
   .gift-box-overlay__lid {
-    transform: translateX(-50%) translate(-8%, -34%) rotate(-16deg) scale(1.04);
+    transform: var(--lid-rest);
   }
 
   .gift-box-overlay__innerGlow {
-    opacity: 0.55;
+    opacity: 0.42;
     left: 50%;
-    width: 42%;
-    height: 28%;
-    bottom: 30%;
+    width: 46%;
+    height: 30%;
+    bottom: 28%;
     transform: translateX(-50%);
+  }
+
+  .gift-box-overlay__spark,
+  .gift-box-overlay__heart,
+  .gift-box-overlay__confetti {
+    animation: gift-fx-fade 0.55s ease forwards;
   }
 }
 
@@ -473,35 +512,43 @@
   to { opacity: 1; }
 }
 
-@keyframes gift-lid-lift {
-  from {
+@keyframes gift-lid-fly {
+  0% {
     opacity: 1;
     transform: translateX(-50%) translate(1%, 6%) rotate(0) scale(1);
   }
-  to {
+  28% {
     opacity: 1;
-    transform: translateX(-50%) translate(-8%, -34%) rotate(-16deg) scale(1.04);
+    transform: translateX(-50%) translate(var(--lid-x-mid), -48%) rotate(var(--lid-rot-mid)) scale(1.04);
+  }
+  68% {
+    opacity: 1;
+    transform: translateX(-50%) translate(var(--lid-x), -94%) rotate(var(--lid-rot-peak)) scale(0.98);
+  }
+  100% {
+    opacity: 1;
+    transform: var(--lid-rest);
   }
 }
 
 @keyframes gift-inner-glow {
-  from { opacity: 0; transform: scale(0.6); }
-  40% { opacity: 1; transform: scale(1.08); }
-  to { opacity: 0.68; transform: scale(1); }
+  from { opacity: 0; transform: scale(0.55); }
+  36% { opacity: 1; transform: scale(1.2); }
+  to { opacity: 0.62; transform: scale(1); }
 }
 
 @keyframes gift-rise {
   0% {
     opacity: 0;
-    transform: translateX(-50%) translateY(28px) scale(0.55);
+    transform: translateX(-50%) translateY(32px) scale(0.48);
   }
-  72% {
+  58% {
     opacity: 1;
-    transform: translateX(-50%) translateY(-46%) scale(1.05);
+    transform: translateX(-50%) translateY(-58%) scale(1.08);
   }
   100% {
     opacity: 1;
-    transform: translateX(-50%) translateY(-38%) scale(1);
+    transform: translateX(-50%) translateY(-52%) scale(1.04);
   }
 }
 
@@ -512,7 +559,7 @@
   }
   to {
     height: 78%;
-    z-index: 6;
+    z-index: 8;
   }
 }
 
@@ -529,7 +576,7 @@
   }
   38% {
     opacity: 1;
-    z-index: 6;
+    z-index: 8;
     transform: translateX(-50%) translateY(-25px) scale(1.08);
   }
   56% {
@@ -543,7 +590,7 @@
   }
   100% {
     opacity: 1;
-    z-index: 6;
+    z-index: 8;
     transform: translateX(-50%) translateY(0) scale(1);
   }
 }
@@ -574,7 +621,8 @@
     opacity: 0;
     transform: translate(0, 0) scale(0.4);
   }
-  24% { opacity: 1; }
+  18% { opacity: 1; }
+  62% { opacity: 0.9; }
   100% {
     opacity: 0;
     transform: translate(var(--dx), var(--dy)) scale(1.15);
@@ -586,11 +634,30 @@
     opacity: 0;
     transform: translate(-50%, -50%) scale(0.4);
   }
-  22% { opacity: 0.95; }
+  18% { opacity: 0.95; }
+  64% { opacity: 0.7; }
   100% {
     opacity: 0;
     transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(1.1);
   }
+}
+
+@keyframes gift-confetti-burst {
+  0% {
+    opacity: 0;
+    transform: translate(0, 0) rotate(0deg) scale(0.35);
+  }
+  16% { opacity: 1; }
+  58% { opacity: 0.92; }
+  100% {
+    opacity: 0;
+    transform: translate(var(--dx), var(--dy)) rotate(var(--rot)) scale(1);
+  }
+}
+
+@keyframes gift-fx-fade {
+  from { opacity: 0.35; }
+  to { opacity: 0; }
 }
 
 @keyframes gift-card-in {
@@ -653,6 +720,7 @@
   .gift-box-overlay--opening .gift-box-overlay__lid,
   .gift-box-overlay--opening .gift-box-overlay__spark,
   .gift-box-overlay--opening .gift-box-overlay__heart,
+  .gift-box-overlay--opening .gift-box-overlay__confetti,
   .gift-box-overlay--opening .gift-box-overlay__gift:not(.gift-box-overlay__gift--smile),
   .gift-box-overlay--opening.gift-box-overlay--gift-smile .gift-box-overlay__giftWell--smile,
   .gift-box-overlay--revealed .gift-box-overlay__card {
@@ -668,10 +736,10 @@
     .gift-box-overlay__gift,
     .gift-box-overlay__card { opacity: 1; }
     .gift-box-overlay__lid {
-      transform: translateX(-50%) translate(-8%, -34%) rotate(-16deg) scale(1.04);
+      transform: var(--lid-rest);
     }
     .gift-box-overlay__gift {
-      transform: translateX(-50%) translateY(-38%) scale(1);
+      transform: translateX(-50%) translateY(-52%) scale(1.04);
     }
     .gift-box-overlay__gift--smile {
       animation: gift-smile-reduced 0.22s ease forwards !important;
@@ -683,7 +751,8 @@
       z-index: 6;
     }
     .gift-box-overlay__spark,
-    .gift-box-overlay__heart { opacity: 0; }
+    .gift-box-overlay__heart,
+    .gift-box-overlay__confetti { opacity: 0; }
   }
 
   .gift-box-overlay--enter .gift-box-overlay__stage,

@@ -361,6 +361,12 @@
   #D8B66D 100%
 );
   }
+
+  .action--thank {
+    background: linear-gradient(90deg, #7b5cff 0%, #ff4fb1 100%);
+    color: #fff;
+    box-shadow: 0 10px 22px rgba(255, 79, 177, 0.28);
+  }
   
   .action--pink {
     background: rgba(255, 79, 177, 0.8);
@@ -1238,6 +1244,11 @@
   html[data-theme="dark"] .action--pink {
     background: rgba(255, 79, 177, 0.65);
   }
+
+  html[data-theme="dark"] .action--thank {
+    background: linear-gradient(90deg, #7b5cff 0%, #ff4fb1 100%);
+    color: #fff;
+  }
   
   html[data-theme="dark"] .my-gifts-page__chooseBtn {
     background: rgba(255, 223, 131, 0.95);
@@ -1522,6 +1533,20 @@
     box-shadow: none;
   }
 
+  .action--thank.my-gifts-page__sendBtn:disabled {
+    filter: grayscale(0.2);
+    background: linear-gradient(90deg, rgba(123, 92, 255, 0.38) 0%, rgba(255, 79, 177, 0.38) 100%);
+    color: rgba(255, 255, 255, 0.78);
+  }
+
+  .my-gifts-page.is-thank .my-gifts-page__title {
+    font-size: clamp(16px, 4.4vw, 20px);
+  }
+
+  .my-gifts-page.is-thank .my-gifts-page__tagline {
+    font-weight: 700;
+  }
+
   html[data-theme="dark"] .my-gifts-page__chip {
     background: #5b3d86;
     color: #fff;
@@ -1679,6 +1704,11 @@
   html[data-theme="dark"] .my-gifts-page__sendBtn:disabled {
     background: #6d5a28;
     color: #f6ead0;
+  }
+
+  html[data-theme="dark"] .action--thank.my-gifts-page__sendBtn:disabled {
+    background: linear-gradient(90deg, rgba(123, 92, 255, 0.4) 0%, rgba(255, 79, 177, 0.4) 100%);
+    color: rgba(255, 255, 255, 0.78);
   }
 
   @media (max-width: 767.98px) {
