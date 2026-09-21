@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
@@ -6,8 +6,12 @@ import { LOCAL_GIFT_CATALOG } from "../../constants/giftCatalog";
 import profileIcons from "../../constants/profileIcons";
 import { giftsApi } from "../../services/giftsApi";
 import { subscriptionsApi } from "../../services/subscriptionsApi";
-import { getApiErrorCode, getApiErrorMessage } from "../../utils/getApiErrorMessage";
-import { extractFollowingFromResponse, recipientDisplayName } from "../../utils/shareRecipients";
+import { getApiErrorMessage } from "../../utils/getApiErrorMessage";
+import {
+  extractFollowingFromResponse,
+  normalizeShareRecipient,
+  recipientDisplayName,
+} from "../../utils/shareRecipients";
 import "./MyGifts.scss";
 
 const DEFAULT_AVATAR = "/icon1/image0.png";
@@ -21,22 +25,36 @@ function isPaidGift(gift) {
   return String(gift?.type || "").toUpperCase() === "PAID";
 }
 
-function giftLabel(gift, t) {
-  return gift?.nameKey ? t(gift.nameKey) : "";
+function toggleMapItem(prev, key, value) {
+  const next = new Map(prev);
+  if (next.has(key)) next.delete(key);
+  else next.set(key, value);
+  return next;
 }
 
 export default function MyGifts({ goBack, receiverId, receiverName, onReply }) {
   const { t, i18n } = useTranslation();
   const [catalog, setCatalog] = useState(LOCAL_GIFT_CATALOG);
   const [received, setReceived] = useState([]);
-  const [confirmGift, setConfirmGift] = useState(null);
+  const [selectedGiftsById, setSelectedGiftsById] = useState(() => new Map());
+  const [selectedRecipientsById, setSelectedRecipientsById] = useState(() => new Map());
   const [pickFriendOpen, setPickFriendOpen] = useState(false);
   const [friends, setFriends] = useState([]);
   const [friendsLoading, setFriendsLoading] = useState(false);
   const [friendsQuery, setFriendsQuery] = useState("");
   const [paidNoticeOpen, setPaidNoticeOpen] = useState(false);
   const [sending, setSending] = useState(false);
-  const [resolvedReceiverName, setResolvedReceiverName] = useState(receiverName || "");
+  const prefilledToRef = useRef("");
+
+  const selectedGifts = useMemo(
+    () => [...selectedGiftsById.values()].filter((gift) => !isPaidGift(gift)),
+    [selectedGiftsById],
+  );
+  const selectedRecipients = useMemo(
+    () => [...selectedRecipientsById.values()],
+    [selectedRecipientsById],
+  );
+  const canSend = selectedGifts.length > 0 && selectedRecipients.length > 0 && !sending;
 
   const loadHistory = () =>
     giftsApi
@@ -65,15 +83,43 @@ export default function MyGifts({ goBack, receiverId, receiverName, onReply }) {
   }, []);
 
   useEffect(() => {
-    setResolvedReceiverName(receiverName || "");
-    if (!receiverId) return undefined;
+    if (!receiverId) {
+      prefilledToRef.current = "";
+      return undefined;
+    }
+
+    if (prefilledToRef.current !== receiverId) {
+      prefilledToRef.current = receiverId;
+      const stub = normalizeShareRecipient({
+        id: receiverId,
+        firstName: receiverName || "",
+        lastName: "",
+        username: "",
+        avatarUrl: null,
+      });
+      if (stub) {
+        setSelectedRecipientsById((prev) => {
+          if (prev.has(stub.id)) return prev;
+          const next = new Map(prev);
+          next.set(stub.id, stub);
+          return next;
+        });
+      }
+    }
+
     let cancelled = false;
     giftsApi
       .getRecipient(receiverId)
       .then((user) => {
         if (cancelled) return;
-        const name = displayName(user);
-        if (name) setResolvedReceiverName(name);
+        const recipient = normalizeShareRecipient(user);
+        if (!recipient) return;
+        setSelectedRecipientsById((prev) => {
+          if (!prev.has(recipient.id)) return prev;
+          const next = new Map(prev);
+          next.set(recipient.id, recipient);
+          return next;
+        });
       })
       .catch(() => {});
     return () => {
@@ -82,19 +128,18 @@ export default function MyGifts({ goBack, receiverId, receiverName, onReply }) {
   }, [receiverId, receiverName]);
 
   useEffect(() => {
-    if (!confirmGift && !paidNoticeOpen) return undefined;
+    if (!pickFriendOpen && !paidNoticeOpen) return undefined;
     const onKey = (event) => {
       if (event.key !== "Escape" || sending) return;
       if (pickFriendOpen) {
         setPickFriendOpen(false);
         return;
       }
-      setConfirmGift(null);
       setPaidNoticeOpen(false);
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [confirmGift, paidNoticeOpen, pickFriendOpen, sending]);
+  }, [paidNoticeOpen, pickFriendOpen, sending]);
 
   useEffect(() => {
     if (!pickFriendOpen) return undefined;
@@ -129,7 +174,6 @@ export default function MyGifts({ goBack, receiverId, receiverName, onReply }) {
     }
   };
 
-  const receiverLabel = resolvedReceiverName || t("common.user");
   const q = friendsQuery.trim().toLowerCase();
   const visibleFriends = (q
     ? friends.filter((friend) => {
@@ -147,63 +191,61 @@ export default function MyGifts({ goBack, receiverId, receiverName, onReply }) {
   }
 
   const handleCatalogClick = (gift) => {
-    if (!gift?.id) return;
+    if (!gift?.id || sending) return;
     if (isPaidGift(gift)) {
-      setConfirmGift(null);
       setPaidNoticeOpen(true);
       return;
     }
     setPaidNoticeOpen(false);
-    setPickFriendOpen(false);
-    setFriendsQuery("");
-    setConfirmGift(gift);
+    setSelectedGiftsById((prev) => toggleMapItem(prev, gift.id, gift));
   };
 
-  const closeConfirm = () => {
+  const toggleRecipient = (friend) => {
     if (sending) return;
-    setConfirmGift(null);
+    const recipient = normalizeShareRecipient(friend);
+    if (!recipient) return;
+    setSelectedRecipientsById((prev) => toggleMapItem(prev, recipient.id, recipient));
+  };
+
+  const removeRecipient = (user) => {
+    if (sending || !user?.id) return;
+    setSelectedRecipientsById((prev) => {
+      if (!prev.has(user.id)) return prev;
+      const next = new Map(prev);
+      next.delete(user.id);
+      return next;
+    });
+  };
+
+  const resetSelection = () => {
+    setSelectedGiftsById(new Map());
+    setSelectedRecipientsById(new Map());
     setPickFriendOpen(false);
     setFriendsQuery("");
   };
 
-  const handleConfirmSend = () => {
-    if (!confirmGift || sending) return;
-    setFriendsQuery("");
-    setPickFriendOpen(true);
-  };
-
-  const handleSendToFriend = async (friend) => {
-    if (!confirmGift || sending || !friend?.id) return;
-    const giftName = giftLabel(confirmGift, t);
-    const friendName = recipientDisplayName(friend) || t("common.user");
+  const handleFinalSend = async () => {
+    if (!canSend) return;
     setSending(true);
     try {
-      await giftsApi.send({ giftId: confirmGift.id, receiverId: friend.id });
-      toast.success(t("gifts.sent"));
-      closeConfirm();
-    } catch (error) {
-      const code = getApiErrorCode(error);
-      if (code === "GIFTS_PAYMENT_NOT_AVAILABLE") {
-        closeConfirm();
-        setPaidNoticeOpen(true);
+      const jobs = [];
+      for (const gift of selectedGifts) {
+        for (const recipient of selectedRecipients) {
+          jobs.push(giftsApi.send({ giftId: gift.id, receiverId: recipient.id }));
+        }
+      }
+      const results = await Promise.allSettled(jobs);
+      const failures = results.filter((result) => result.status === "rejected");
+      if (failures.length === 0) {
+        toast.success(t("gifts.sent"));
+        resetSelection();
         return;
       }
-      if (
-        code === "CANNOT_SEND_GIFT_TO_SELF" ||
-        code === "GIFTS_INVALID_GIFT_ID" ||
-        code === "FORBIDDEN"
-      ) {
-        toast.error(getApiErrorMessage(error) || t("errors.generic"));
+      if (failures.length === results.length) {
+        toast.error(getApiErrorMessage(failures[0].reason) || t("errors.generic"));
         return;
       }
-      // TEMP DEV/test fallback — remove once POST /gifts is verified in this environment.
-      toast.success(t("gifts.testSelectedTitle"), {
-        description: t("gifts.testSelectedBody", {
-          gift: giftName,
-          name: friendName,
-        }),
-      });
-      closeConfirm();
+      toast.error(t("gifts.sendPartialError"));
     } finally {
       setSending(false);
     }
@@ -213,117 +255,118 @@ export default function MyGifts({ goBack, receiverId, receiverName, onReply }) {
     onReply?.(sender);
   };
 
-  const confirmModal = confirmGift
+  const renderRecipientChips = () =>
+    selectedRecipients.length > 0 ? (
+      <div className="my-gifts-page__chips" aria-label={t("gifts.recipientsAria")}>
+        {selectedRecipients.map((user) => {
+          const name = recipientDisplayName(user) || t("common.user");
+          return (
+            <span key={user.id} className="my-gifts-page__chip">
+              <img
+                className="my-gifts-page__chipAvatar"
+                src={user.avatarUrl || user.avatar || DEFAULT_AVATAR}
+                alt=""
+              />
+              <span className="my-gifts-page__chipName">{name}</span>
+              <button
+                type="button"
+                className="my-gifts-page__chipRemove"
+                onClick={() => removeRecipient(user)}
+                disabled={sending}
+                aria-label={t("gifts.removeRecipient", { name })}
+              >
+                ×
+              </button>
+            </span>
+          );
+        })}
+      </div>
+    ) : null;
+
+  const renderSendButton = () => (
+    <button
+      type="button"
+      className="my-gifts-page__action action--yellow my-gifts-page__sendBtn"
+      onClick={handleFinalSend}
+      disabled={!canSend}
+    >
+      {t("gifts.sendAction")}
+    </button>
+  );
+
+  const friendsModal = pickFriendOpen
     ? createPortal(
         <div className="my-gifts-page__confirm" role="dialog" aria-modal="true">
           <button
             type="button"
             className="my-gifts-page__confirmBackdrop"
-            onClick={closeConfirm}
+            onClick={() => {
+              if (!sending) setPickFriendOpen(false);
+            }}
             aria-label={t("common.close")}
           />
           <div className="my-gifts-page__confirmPanel">
-            {pickFriendOpen ? (
-              <>
-                <h3 className="my-gifts-page__confirmTitle">{t("gifts.pickFriendTitle")}</h3>
-                {confirmGift.image ? (
-                  <img
-                    src={confirmGift.image}
-                    alt=""
-                    className="my-gifts-page__confirmImg my-gifts-page__confirmImg--small"
-                  />
-                ) : null}
-                <p className="my-gifts-page__confirmGiftName">{giftLabel(confirmGift, t)}</p>
-                <input
-                  type="search"
-                  className="my-gifts-page__friendsSearch"
-                  value={friendsQuery}
-                  onChange={(event) => setFriendsQuery(event.target.value)}
-                  placeholder={t("gifts.friendsSearch")}
-                  aria-label={t("gifts.friendsSearch")}
-                />
-                <div className="my-gifts-page__friendsList" role="list">
-                  {friendsLoading ? (
-                    <p className="my-gifts-page__friendsHint">{t("common.loading")}</p>
-                  ) : visibleFriends.length === 0 ? (
-                    <p className="my-gifts-page__friendsHint">{t("gifts.friendsEmpty")}</p>
-                  ) : (
-                    visibleFriends.map((friend) => {
-                      const name = recipientDisplayName(friend) || t("common.user");
-                      const handle = friend.username ? `@${friend.username}` : "";
-                      const isSuggested = receiverId && String(friend.id) === String(receiverId);
-                      return (
-                        <button
-                          key={friend.id}
-                          type="button"
-                          className={`my-gifts-page__friendRow${isSuggested ? " is-suggested" : ""}`}
-                          onClick={() => handleSendToFriend(friend)}
-                          disabled={sending}
-                          role="listitem"
-                        >
-                          <img
-                            className="my-gifts-page__friendAvatar"
-                            src={friend.avatarUrl || friend.avatar || DEFAULT_AVATAR}
-                            alt=""
-                          />
-                          <span className="my-gifts-page__friendMeta">
-                            <span className="my-gifts-page__friendName">{name}</span>
-                            {handle ? (
-                              <span className="my-gifts-page__friendHandle">{handle}</span>
-                            ) : null}
-                          </span>
-                        </button>
-                      );
-                    })
-                  )}
-                </div>
-                <div className="my-gifts-page__confirmActions">
-                  <button
-                    type="button"
-                    className="my-gifts-page__action action--pink"
-                    onClick={() => setPickFriendOpen(false)}
-                    disabled={sending}
-                  >
-                    {t("common.back")}
-                  </button>
-                </div>
-              </>
-            ) : (
-              <>
-                <h3 className="my-gifts-page__confirmTitle">{t("gifts.confirmTitle")}</h3>
-                {confirmGift.image ? (
-                  <img
-                    src={confirmGift.image}
-                    alt=""
-                    className="my-gifts-page__confirmImg"
-                  />
-                ) : null}
-                <p className="my-gifts-page__confirmGiftName">{giftLabel(confirmGift, t)}</p>
-                <p className="my-gifts-page__confirmBody">
-                  {receiverId
-                    ? t("gifts.confirmQuestion", { name: receiverLabel })
-                    : t("gifts.confirmPickFriend")}
-                </p>
-                <div className="my-gifts-page__confirmActions">
-                  <button
-                    type="button"
-                    className="my-gifts-page__action action--pink"
-                    onClick={closeConfirm}
-                    disabled={sending}
-                  >
-                    {t("common.cancel")}
-                  </button>
-                  <button
-                    type="button"
-                    className="my-gifts-page__action action--yellow"
-                    onClick={handleConfirmSend}
-                    disabled={sending}
-                  >
-                    {t("gifts.confirmSend")}
-                  </button>
-                </div>
-              </>
-            )}
+            <h3 className="my-gifts-page__confirmTitle">{t("gifts.pickFriendTitle")}</h3>
+            {renderRecipientChips()}
+            <input
+              type="search"
+              className="my-gifts-page__friendsSearch"
+              value={friendsQuery}
+              onChange={(event) => setFriendsQuery(event.target.value)}
+              placeholder={t("gifts.friendsSearch")}
+              aria-label={t("gifts.friendsSearch")}
+            />
+            <div className="my-gifts-page__friendsList" role="list">
+              {friendsLoading ? (
+                <p className="my-gifts-page__friendsHint">{t("common.loading")}</p>
+              ) : visibleFriends.length === 0 ? (
+                <p className="my-gifts-page__friendsHint">{t("gifts.friendsEmpty")}</p>
+              ) : (
+                visibleFriends.map((friend) => {
+                  const name = recipientDisplayName(friend) || t("common.user");
+                  const handle = friend.username ? `@${friend.username}` : "";
+                  const isSuggested = receiverId && String(friend.id) === String(receiverId);
+                  const isSelected = selectedRecipientsById.has(String(friend.id));
+                  return (
+                    <button
+                      key={friend.id}
+                      type="button"
+                      className={`my-gifts-page__friendRow${isSuggested ? " is-suggested" : ""}${isSelected ? " is-selected" : ""}`}
+                      onClick={() => toggleRecipient(friend)}
+                      disabled={sending}
+                      aria-pressed={isSelected}
+                      role="listitem"
+                    >
+                      <img
+                        className="my-gifts-page__friendAvatar"
+                        src={friend.avatarUrl || friend.avatar || DEFAULT_AVATAR}
+                        alt=""
+                      />
+                      <span className="my-gifts-page__friendMeta">
+                        <span className="my-gifts-page__friendName">{name}</span>
+                        {handle ? (
+                          <span className="my-gifts-page__friendHandle">{handle}</span>
+                        ) : null}
+                      </span>
+                      <span className="my-gifts-page__friendCheck" aria-hidden="true">
+                        {isSelected ? "✓" : ""}
+                      </span>
+                    </button>
+                  );
+                })
+              )}
+            </div>
+            <div className="my-gifts-page__confirmActions">
+              <button
+                type="button"
+                className="my-gifts-page__action action--pink"
+                onClick={() => setPickFriendOpen(false)}
+                disabled={sending}
+              >
+                {t("common.back")}
+              </button>
+              {renderSendButton()}
+            </div>
           </div>
         </div>,
         document.body,
@@ -438,37 +481,63 @@ export default function MyGifts({ goBack, receiverId, receiverName, onReply }) {
           <div className="my-gifts-page__send">
             <h2 className="my-gifts-page__sectionTitle section--send">{t("gifts.send")}</h2>
 
+            <div className="my-gifts-page__recipients">
+              {renderRecipientChips()}
+              <button
+                type="button"
+                className="my-gifts-page__recipientsAdd"
+                onClick={() => {
+                  setFriendsQuery("");
+                  setPickFriendOpen(true);
+                }}
+                disabled={sending}
+              >
+                {t("gifts.pickRecipients")}
+              </button>
+            </div>
+
             <div className="my-gifts-page__giftGrid">
-              {catalog.map((gift) => (
-                <button
-                  key={gift.id}
-                  type="button"
-                  className="my-gifts-page__giftCard"
-                  onClick={() => handleCatalogClick(gift)}
-                >
-                  <img src={gift.image} alt="" className="my-gifts-page__giftImg" />
-                  <div className="my-gifts-page__giftOverlay">
-                    <span className="my-gifts-page__giftTitle">
-                      {isPaidGift(gift) ? t("gifts.catalog.coins20") : ""}
-                    </span>
-                    <div className="my-gifts-page__giftInfo">
-                      {isPaidGift(gift) && (
-                        <img src={profileIcons.coin} alt="" className="my-gifts-page__coinIcon" />
-                      )}
-                      {isPaidGift(gift) ? (
-                        <p className="my-gifts-page__giftSubtitle">{t("gifts.catalog.coins20Subtitle")}</p>
-                      ) : null}
+              {catalog.map((gift) => {
+                const selected = !isPaidGift(gift) && selectedGiftsById.has(gift.id);
+                return (
+                  <button
+                    key={gift.id}
+                    type="button"
+                    className={`my-gifts-page__giftCard${selected ? " is-selected" : ""}`}
+                    onClick={() => handleCatalogClick(gift)}
+                    aria-pressed={selected}
+                    disabled={sending}
+                  >
+                    <img src={gift.image} alt="" className="my-gifts-page__giftImg" />
+                    <div className="my-gifts-page__giftOverlay">
+                      <span className="my-gifts-page__giftTitle">
+                        {isPaidGift(gift) ? t("gifts.catalog.coins20") : ""}
+                      </span>
+                      <div className="my-gifts-page__giftInfo">
+                        {isPaidGift(gift) && (
+                          <img src={profileIcons.coin} alt="" className="my-gifts-page__coinIcon" />
+                        )}
+                        {isPaidGift(gift) ? (
+                          <p className="my-gifts-page__giftSubtitle">{t("gifts.catalog.coins20Subtitle")}</p>
+                        ) : null}
+                      </div>
                     </div>
-                  </div>
-                  <span className="my-gifts-page__chooseBtn action--yellow">{t("gifts.choose")}</span>
-                </button>
-              ))}
+                    <span className={`my-gifts-page__chooseBtn action--yellow${selected ? " is-selected" : ""}`}>
+                      {selected ? t("gifts.selected") : t("gifts.choose")}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+
+            <div className="my-gifts-page__sendFooter">
+              {renderSendButton()}
             </div>
           </div>
         </section>
       </main>
 
-      {confirmModal}
+      {friendsModal}
       {paidModal}
     </div>
   );

@@ -210,11 +210,23 @@
     padding: 0;
     border-radius: 10px;
     overflow: hidden;
-    transition: transform 0.2s ease;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, outline-color 0.2s ease;
   }
   
   .my-gifts-page__giftCard:hover {
     transform: translateY(-4px);
+  }
+
+  .my-gifts-page__giftCard.is-selected {
+    outline: 3px solid #9B7AE6;
+    outline-offset: 2px;
+    box-shadow: 0 8px 20px rgba(155, 122, 230, 0.35);
+  }
+
+  .my-gifts-page__chooseBtn.is-selected {
+    background: linear-gradient(80deg, #9B7AE6 0%, #FF4FB1 100%);
+    color: #fff;
+    border-color: transparent;
   }
   
   .my-gifts-page__giftImg {
@@ -862,6 +874,116 @@
 
   .my-gifts-page__friendRow.is-suggested {
     outline: 2px solid #9B7AE6;
+  }
+
+  .my-gifts-page__friendRow.is-selected {
+    background: linear-gradient(181deg, #EDE0FF 0%, #F7D7F0 100%);
+    border-color: #9B7AE6;
+  }
+
+  .my-gifts-page__friendCheck {
+    margin-left: auto;
+    width: 18px;
+    text-align: center;
+    color: #9B7AE6;
+    font-weight: 700;
+  }
+
+  .my-gifts-page__recipients {
+    display: grid;
+    gap: 8px;
+    margin: 0 0 14px;
+  }
+
+  .my-gifts-page__chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .my-gifts-page__chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    max-width: 100%;
+    padding: 4px 8px 4px 4px;
+    border-radius: 999px;
+    background: linear-gradient(90deg, rgba(155, 122, 230, 0.16), rgba(255, 79, 177, 0.14));
+    border: 1px solid rgba(155, 122, 230, 0.4);
+    font-size: 12px;
+    font-weight: 600;
+    color: #4f3d7a;
+  }
+
+  .my-gifts-page__chipAvatar {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    object-fit: cover;
+    flex-shrink: 0;
+  }
+
+  .my-gifts-page__chipName {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .my-gifts-page__chipRemove {
+    border: 0;
+    background: transparent;
+    padding: 0 2px;
+    font-size: 16px;
+    line-height: 1;
+    cursor: pointer;
+    color: #65676b;
+  }
+
+  .my-gifts-page__recipientsAdd {
+    justify-self: start;
+    padding: 8px 12px;
+    border-radius: 12px;
+    border: 1px dashed rgba(155, 122, 230, 0.55);
+    background: rgba(255, 255, 255, 0.7);
+    color: #6b4bb5;
+    font-size: 13px;
+    font-weight: 600;
+  }
+
+  .my-gifts-page__sendFooter {
+    display: flex;
+    justify-content: center;
+    margin-top: 16px;
+  }
+
+  .my-gifts-page__sendBtn:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+
+  html[data-theme="dark"] .my-gifts-page__chip {
+    background: linear-gradient(90deg, rgba(155, 122, 230, 0.28), rgba(255, 79, 177, 0.22));
+    color: #f8f3ff;
+    border-color: rgba(255, 255, 255, 0.18);
+  }
+
+  html[data-theme="dark"] .my-gifts-page__chipRemove {
+    color: rgba(255, 255, 255, 0.82);
+  }
+
+  html[data-theme="dark"] .my-gifts-page__recipientsAdd {
+    background: rgba(54, 33, 73, 0.7);
+    color: #e4d4ff;
+    border-color: rgba(255, 255, 255, 0.22);
+  }
+
+  html[data-theme="dark"] .my-gifts-page__giftCard.is-selected {
+    outline-color: #d2b8ff;
+  }
+
+  html[data-theme="dark"] .my-gifts-page__friendRow.is-selected {
+    background: linear-gradient(181deg, rgba(90, 61, 120, 0.95) 0%, rgba(108, 74, 140, 0.95) 100%);
   }
 
   .my-gifts-page__friendAvatar {
