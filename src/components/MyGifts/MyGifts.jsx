@@ -513,13 +513,7 @@ export default function MyGifts({ goBack, receiverId, receiverName, onReply }) {
 
         <h1 className="my-gifts-page__title">{t("gifts.title")}</h1>
 
-        <button
-          type="button"
-          className="my-gifts-page__giftBtn"
-          aria-label={t("gifts.title")}
-        >
-          <img src={profileIcons.gift} alt="" className="my-gifts-page__giftIcon"/>
-        </button>
+        <span className="my-gifts-page__headerSpacer" aria-hidden="true" />
       </header>
 
       <main className="my-gifts-page__main">
