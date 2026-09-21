@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import "./HomeFeed.scss";
 import { useForceDarkTheme } from "../../hooks/useForceDarkTheme";
+import BrandLogo from "../BrandLogo/BrandLogo";
 import LanguageSwitcher from "../LanguageSwitcher/LanguageSwitcher";
 
 function Feature({ icon, title, to }) {
@@ -28,11 +29,7 @@ export default function HomeFeed({ onRegister, onLogin }) {
       </div>
       <div className="home__logoSection">
         <div className="home__logoCard">
-          <img
-            className="home__logoImg"
-            src="/Logo/photo.png?v=2"
-            alt={t("auth.common.logoAlt")}
-          />
+          <BrandLogo className="home__logoImg" />
         </div>
       </div>
 

@@ -4,6 +4,13 @@ function giftSendId(item) {
   return item?.id || item?.giftSendId || null;
 }
 
+export function isPendingGift(item) {
+  return Boolean(giftSendId(item) && item?.status !== 'OPENED');
+}
+
+export const selectPendingGiftCount = (state) =>
+  state.queue.filter(isPendingGift).length;
+
 export const useGiftInboxStore = create((set, get) => ({
   queue: [],
 
@@ -16,9 +23,7 @@ export const useGiftInboxStore = create((set, get) => ({
   },
 
   hydratePending: (items) => {
-    const pending = (Array.isArray(items) ? items : []).filter(
-      (item) => giftSendId(item) && item.status !== 'OPENED',
-    );
+    const pending = (Array.isArray(items) ? items : []).filter(isPendingGift);
     if (pending.length === 0) return;
     set((state) => {
       const seen = new Set(state.queue.map(giftSendId));
@@ -33,8 +38,25 @@ export const useGiftInboxStore = create((set, get) => ({
     });
   },
 
+  markOpened: (id) => {
+    if (!id) return;
+    set((state) => ({
+      queue: state.queue.map((item) =>
+        giftSendId(item) === id ? { ...item, status: 'OPENED' } : item,
+      ),
+    }));
+  },
+
   dismissCurrent: () => {
     set((state) => ({ queue: state.queue.slice(1) }));
+  },
+
+  pruneOpened: () => {
+    set((state) => {
+      const next = state.queue.filter(isPendingGift);
+      if (next.length === state.queue.length) return state;
+      return { queue: next };
+    });
   },
 
   clear: () => set({ queue: [] }),

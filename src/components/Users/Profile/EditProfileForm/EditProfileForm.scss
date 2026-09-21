@@ -43,13 +43,21 @@
   left: auto;
 }
 
-.ep-topbar__brand.app-brand-wordmark {
+.ep-topbar__brand {
   position: absolute;
   left: 50%;
-
   transform: translateX(-50%);
-
   pointer-events: none;
+}
+
+.ep-topbar__brand.app-brand-wordmark {
+  font-size: 28px;
+}
+
+@media (min-width: 1024px) {
+  .ep-topbar__brand.app-brand-wordmark {
+    font-size: 34px;
+  }
 }
 
 .ep-topbar__right {

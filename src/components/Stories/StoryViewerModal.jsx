@@ -12,6 +12,7 @@ import { subscriptionsApi } from "../../services/subscriptionsApi";
 import { getApiErrorMessage } from "../../utils/getApiErrorMessage";
 import { storyReactions } from "../../constants/storyReactions";
 import profileIcons from "../../constants/profileIcons";
+import BrandWordmark from "../BrandLogo/BrandWordmark";
 import {
   extractFollowingFromResponse,
   extractUsersFromSearchResponse,
@@ -502,7 +503,7 @@ function StoryAnalyticsModal({
     <div className="storyStatsModal" role="dialog" aria-modal="true" aria-label="Story statistics">
       <div className="storyStatsModal__dots" aria-hidden="true" />
       <header className="storyStatsModal__header">
-        <span className="storyStatsModal__brand">ME YOU</span>
+        <BrandWordmark className="storyStatsModal__brand" />
         <button type="button" className="storyStatsModal__close" onClick={onClose} aria-label="Закрыть">
           <LuX aria-hidden="true" />
         </button>
@@ -764,7 +765,7 @@ function StoryShareModal({ isOpen, story, onClose }) {
   const mediaType = getStoryMediaType(story);
   const storyText = story?.text || "";
   const storyUrl = `${window.location.origin}/stories/${encodeURIComponent(storyId)}`;
-  const shareText = storyText || "ME YOU story";
+  const shareText = storyText || "LunMeYo story";
   const storyAuthor = story?.author || story?.user || {};
 
   const toggleUser = (user) => {
@@ -1186,7 +1187,7 @@ export default function StoryViewerModal({
       const link = document.createElement("a");
 
       link.href = blobUrl;
-      link.download = `meyou-story-${storyId || Date.now()}.${extension}`;
+      link.download = `lunmeyo-story-${storyId || Date.now()}.${extension}`;
       document.body.appendChild(link);
       link.click();
       link.remove();

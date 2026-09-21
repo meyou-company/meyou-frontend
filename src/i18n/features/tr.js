@@ -12,7 +12,7 @@ export const FEATURE_PAGES = {
     title: 'Arkadaş bonusları',
     subtitle: 'Ödül programı — geliştiriliyor',
     intro:
-      'MeYou, arkadaş bonusları ve topluluk aktivitesi için bir program hazırlıyor. Bu sayfadaki tüm özellikler gelecekteki olanaklardır; lansmanı uygulamada duyuracağız.',
+      'LunMeYo, arkadaş bonusları ve topluluk aktivitesi için bir program hazırlıyor. Bu sayfadaki tüm özellikler gelecekteki olanaklardır; lansmanı uygulamada duyuracağız.',
     cards: [
       {
         emoji: '👥',
@@ -52,7 +52,7 @@ export const FEATURE_PAGES = {
       },
     ],
     comingSoonSection: {
-      title: 'Yakında MeYou’da',
+      title: 'Yakında LunMeYo’da',
       items: [
         {
           emoji: '👛',
@@ -105,7 +105,7 @@ export const FEATURE_PAGES = {
     title: 'Modern sohbet',
     subtitle: 'Medya, reaksiyonlar ve gizlilik korumasıyla hızlı iletişim',
     intro:
-      'Gerçek zamanlı özel diyaloglar. Metin, fotoğraf, video, sesli mesajlar ve emoji reaksiyonları — bildirimler ve erişim kontrolüyle pratik bir MeYou arayüzünde.',
+      'Gerçek zamanlı özel diyaloglar. Metin, fotoğraf, video, sesli mesajlar ve emoji reaksiyonları — bildirimler ve erişim kontrolüyle pratik bir LunMeYo arayüzünde.',
     cards: [
       {
         emoji: '💬',
@@ -137,12 +137,12 @@ export const FEATURE_PAGES = {
       {
         emoji: '🎙️',
         title: 'Sesli mesajlar',
-        text: 'Diyalogda doğrudan sesli notlar kaydedin ve gönderin — MeYou sohbetlerinde zaten mevcut.',
+        text: 'Diyalogda doğrudan sesli notlar kaydedin ve gönderin — LunMeYo sohbetlerinde zaten mevcut.',
       },
       {
         emoji: '📹',
         title: 'Görüntülü aramalar',
-        text: 'MeYou platformu içinde bire bir görüntülü görüşme.',
+        text: 'LunMeYo platformu içinde bire bir görüntülü görüşme.',
         comingSoon: true,
       },
       {
@@ -161,9 +161,9 @@ export const FEATURE_PAGES = {
     emoji: '🔒',
     icon: '/icon1/3.png',
     title: 'Tam güvenlik',
-    subtitle: 'MeYou’da hesap koruması, doğrulama ve gizlilik',
+    subtitle: 'LunMeYo’da hesap koruması, doğrulama ve gizlilik',
     intro:
-      'MeYou, Google Login’den moderasyona, engellemeye ve içerik görünürlük kontrolüne kadar teknik güvenlik önlemlerini şeffaf kurallarla birleştirir.',
+      'LunMeYo, Google Login’den moderasyona, engellemeye ve içerik görünürlük kontrolüne kadar teknik güvenlik önlemlerini şeffaf kurallarla birleştirir.',
     cards: [
       {
         emoji: '🔑',
@@ -222,14 +222,14 @@ export const FEATURE_PAGES = {
 };
 
 export const FEATURE_UI = {
-  brand: 'MeYou',
+  brand: 'LunMeYo',
   backHome: 'Ana sayfaya dön',
   highlightsTitle: 'Temel özellikler',
   blocksTitle: 'Daha fazla bilgi',
   faqTitle: 'SSS',
   futureTitle: 'Yakında',
   comingSoonLabel: 'Yakında',
-  comingSoonSectionTitle: 'Yakında MeYou’da',
-  exploreMore: 'MeYou özellikleri',
+  comingSoonSectionTitle: 'Yakında LunMeYo’da',
+  exploreMore: 'LunMeYo özellikleri',
   cardsSwipeHint: 'Daha fazlası için sağa kaydırın →',
 };

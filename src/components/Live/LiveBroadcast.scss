@@ -81,12 +81,9 @@
 
 .liveHeader__brand {
   min-width: 0;
-  color: #ff4fb1;
-  font-family: Montserrat, sans-serif;
-  font-size: 28px;
-  font-weight: 800;
-  letter-spacing: 0;
-  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .livePage__content {
@@ -1064,8 +1061,8 @@
     grid-template-columns: 48px minmax(0, 1fr) 48px;
   }
 
-  .liveHeader__brand {
-    font-size: 31px;
+  .liveHeader__brand .app-brand-wordmark {
+    font-size: 36px;
   }
 
   .livePage__content {

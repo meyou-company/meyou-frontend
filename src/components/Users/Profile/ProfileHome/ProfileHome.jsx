@@ -16,7 +16,9 @@ import {
 } from "../../../../services/postImageUploadApi";
 
 import MessagesNavBadge from "../../../Messages/MessagesNavBadge";
+import GiftInboxBadge from "../../../Gifts/GiftInboxBadge";
 import profileIcons from "../../../../constants/profileIcons";
+import { DEFAULT_AVATAR } from "../../../../constants/brand";
 import { getFriendsCountNumber } from "../../../../utils/profileFriends";
 import {
   normalizeFriendListItem,
@@ -136,7 +138,7 @@ export default function ProfileHome({
     [user?.firstName, user?.lastName].filter(Boolean).join(" ") || "";
 
   const titleName = username || fullNameReal || t('common.user');
-  const displayAvatar = user?.avatarUrl || user?.avatar || "/Logo/photo.png";
+  const displayAvatar = user?.avatarUrl || user?.avatar || DEFAULT_AVATAR;
   const profileUserId = user?.id || user?._id || postsAuthorId;
   useEffect(() => {
     if (!loadSecondary) return;
@@ -579,7 +581,10 @@ export default function ProfileHome({
                 </button>
 
                 <button type="button" className="profileMobileBadges__btn" onClick={onGifts} aria-label={t('profile.gifts')}>
-                  <img src={profileIcons.giftIcon} alt="" className="profileMobileBadges__icon" />
+                  <span className="profileMobileBadges__iconWrap">
+                    <img src={profileIcons.giftIcon} alt="" className="profileMobileBadges__icon" />
+                    <GiftInboxBadge />
+                  </span>
                   <span className="profileMobileBadges__label">{t('profile.gifts')}</span>
                 </button>
 
@@ -608,7 +613,10 @@ export default function ProfileHome({
 
               <div className="profileMobileGifts">
                 <button type="button" className="profileMobileGifts__btn" onClick={onGifts} aria-label={t('profile.gifts')}>
-                  <img src={profileIcons.giftIcon} alt="" className="profileMobileGifts__icon" />
+                  <span className="profileMobileGifts__iconWrap">
+                    <img src={profileIcons.giftIcon} alt="" className="profileMobileGifts__icon" />
+                    <GiftInboxBadge />
+                  </span>
                   <span className="profileMobileGifts__label">{t('profile.gifts')}</span>
                 </button>
               </div>
@@ -636,7 +644,10 @@ export default function ProfileHome({
                 onClick={onGifts}
                 aria-label={t('profile.myGifts')}
               >
-                <img src={profileIcons.giftIcon} alt="" className="msgIcon" />
+                <span className="btnMessages__iconWrap">
+                  <img src={profileIcons.giftIcon} alt="" className="msgIcon" />
+                  <GiftInboxBadge />
+                </span>
                 <span className="msgText">{t('profile.myGifts')}</span>
               </button>
               <button

@@ -11,6 +11,7 @@ import { usersApi } from "../../services/usersApi";
 import { getApiErrorMessage } from "../../utils/getApiErrorMessage";
 import { getLiveErrorMessage } from "../../utils/getLiveErrorMessage";
 import { emojiToReactionType as msgEmojiToReactionType } from "../../constants/messageReactions";
+import { DEFAULT_AVATAR } from "../../constants/brand";
 
 const LIVE_EMOJI_TO_REACTION_TYPE = {
   '❤️': 'HEART',
@@ -32,7 +33,6 @@ import LiveChat from "./LiveChat";
 import LiveUserPicker from "./LiveUserPicker";
 import "./LiveBroadcast.scss";
 
-const DEFAULT_AVATAR = "/Logo/photo.png";
 const LIVE_STATUS = "LIVE";
 const ENDED_STATUS = "ENDED";
 const LIVE_HOST_MEDIA_PREFIX = "meyou_live_host_media:";

@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import profileIcons from "../../../../constants/profileIcons";
+import { DEFAULT_AVATAR } from "../../../../constants/brand";
 import {
   normalizeFriendListItem,
   getFriendRouteHandle,
@@ -77,7 +78,7 @@ export default function ProfileVisitorVip({
   const titleName = user?.username || user?.fullNameReal || t('common.user');
 
   const displayAvatar =
-    user?.avatarUrl || user?.avatar || "/Logo/photo.png";
+    user?.avatarUrl || user?.avatar || DEFAULT_AVATAR;
   const profileUserId = user?.id || user?._id;
 
   const openTab = (tabId) => {

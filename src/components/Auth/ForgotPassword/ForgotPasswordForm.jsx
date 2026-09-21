@@ -6,6 +6,7 @@ import { useAuthStore } from "../../../zustand/useAuthStore";
 import { useForceDarkTheme } from "../../../hooks/useForceDarkTheme";
 import { getApiErrorMessage } from "../../../utils/getApiErrorMessage";
 import { EMAIL_REGEX } from "../../../utils/validationRegister";
+import BrandLogo from "../../BrandLogo/BrandLogo";
 
 export default function ForgotPasswordForm({ onBack, onSuccess }) {
   useForceDarkTheme();
@@ -76,7 +77,7 @@ export default function ForgotPasswordForm({ onBack, onSuccess }) {
       </button>
 
       <div className="forgot__logoCard" aria-hidden="true">
-        <img className="forgot__logoImg" src="/Logo/photo.png?v=2" alt={t("auth.common.logoAlt")} />
+        <BrandLogo className="forgot__logoImg" decorative />
       </div>
 
       <h1 className="forgot__title">{t("auth.forgotPassword.title")}</h1>

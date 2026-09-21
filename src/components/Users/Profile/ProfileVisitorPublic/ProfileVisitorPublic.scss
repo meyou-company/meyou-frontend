@@ -228,7 +228,7 @@ $tabBg: #fce9e9;
 
     grid-template-columns:
       minmax(0, 1fr)
-      180px
+      220px
       220px;
 
     grid-template-areas:
@@ -297,9 +297,7 @@ $tabBg: #fce9e9;
     }
   }
 
-  /* =========================
-       REPORT
-       ========================= */
+  /* ===== REPORT ===== */
 
   .ph-visitor-action__report {
     grid-area: report;
@@ -349,97 +347,10 @@ $tabBg: #fce9e9;
     text-align: center;
   }
 
-  /* =========================
-       VIP
-       ========================= */
+  /* ===== SUBSCRIBE / BLOCK / ADD_TO_VIP ===== */
 
-  .ph-visitor-action__addToVip {
-    grid-area: vip;
-
-    width: 100%;
-    min-width: 0;
-    min-height: 56px;
-
-    padding: 10px 18px;
-
-    box-sizing: border-box;
-
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-
-    gap: 8px;
-
-    border: 1px solid rgba(0, 0, 0, 0.08);
-    border-radius: 16px;
-
-    background: $goldGrad;
-
-    color: rgba(0, 0, 0, 0.78);
-
-    font-family: Montserrat, sans-serif;
-    font-size: 16px;
-    font-weight: 500;
-
-    cursor: pointer;
-
-    -webkit-tap-highlight-color: transparent;
-
-    transition:
-      transform 0.15s ease,
-      box-shadow 0.2s ease;
-  }
-
-  .ph-visitor-action__addToVip:hover {
-    box-shadow: 0 6px 18px rgba(176, 92, 255, 0.22);
-  }
-
-  .ph-visitor-action__addToVip:active {
-    transform: scale(0.98);
-  }
-
-  .ph-visitor-action__vipIcon {
-    width: 15px;
-    height: 15px;
-
-    flex: 0 0 15px;
-
-    object-fit: contain;
-  }
-
-  /* ===== VIP STATUS ===== */
-
-  .ph-visitor-tool__vipStatus {
-    grid-area: vip;
-
-    width: 100%;
-    min-height: 56px;
-
-    padding: 8px 14px;
-
-    box-sizing: border-box;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    border: 1px solid rgba(0, 0, 0, 0.18);
-    border-radius: 16px;
-
-    background: rgba(241, 231, 255, 0.75);
-
-    color: #1a1a1a;
-
-    font-size: 13px;
-    font-weight: 600;
-    cursor: not-allowed;
-    text-align: center;
-  }
-
-  /* =========================
-      // SUBSCRIBE / BLOCK
-      ========================= */
-
+  .ph-visitor-action__addToVip,
+  .ph-visitor-tool__vipStatus,
   .ph-visitor-action__subscribe,
   .ph-visitor-action__block {
     width: 100%;
@@ -454,7 +365,7 @@ $tabBg: #fce9e9;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-
+    gap: 8px;
     border: 0;
     border-radius: 16px;
 
@@ -473,6 +384,22 @@ $tabBg: #fce9e9;
       transform 0.15s ease;
   }
 
+  .ph-visitor-action__addToVip {
+    grid-area: vip;
+    background: $goldGrad;
+
+    color: rgba(0, 0, 0, 0.78);
+  }
+
+  .ph-visitor-action__vipIcon {
+    width: 25px;
+    height: 25px;
+
+    flex: 0 0 25px;
+
+    object-fit: contain;
+  }
+
   .ph-visitor-action__subscribe {
     grid-area: subscribe;
     background: $gradient;
@@ -483,13 +410,27 @@ $tabBg: #fce9e9;
     background: $bluePurple;
   }
 
+  .ph-visitor-tool__vipStatus {
+    grid-area: vip;
+
+    background: rgba(241, 231, 255, 0.75);
+    color: #1a1a1a;
+    border: 1px solid rgba(0, 0, 0, 0.16);
+    cursor: not-allowed;
+  }
+
   .ph-visitor-action__subscribe:hover:not(:disabled),
   .ph-visitor-action__block:hover {
     background: linear-gradient(90deg, #ff4fb1 0%, #b05cff 48%, #4f6bff 100%);
   }
 
+  .ph-visitor-action__addToVip:hover {
+    box-shadow: 0 6px 18px rgba(176, 92, 255, 0.22);
+  }
+
   .ph-visitor-action__subscribe:active:not(:disabled),
-  .ph-visitor-action__block:active {
+  .ph-visitor-action__block:active,
+  .ph-visitor-action__addToVip:active {
     transform: scale(0.98);
   }
 
@@ -497,135 +438,9 @@ $tabBg: #fce9e9;
     opacity: 0.7;
     cursor: not-allowed;
   }
-}
 
-/* =========================
-     MOBILE ACTIONS
-     ========================= */
+  /* ===== TABS ===== */
 
-.profile-visitor-public {
-  .ph-visitor-mobileActions {
-    display: none;
-  }
-
-  .ph-visitor-tools__mobileMenuWrap {
-    display: none;
-
-    position: relative;
-  }
-
-  .ph-visitor-tools__more {
-    width: 48px;
-    height: 40px;
-
-    padding: 0;
-
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-
-    border: 1px solid rgba(0, 0, 0, 0.12);
-    border-radius: 14px;
-
-    background: rgba(255, 255, 255, 0.72);
-
-    cursor: pointer;
-
-    -webkit-tap-highlight-color: transparent;
-  }
-
-  .ph-visitor-tools__moreDots {
-    font-size: 20px;
-    line-height: 1;
-    letter-spacing: 2px;
-
-    transform: translateY(-2px);
-  }
-
-  /* ===== MOBILE MENU ===== */
-
-  .ph-visitor-mobileMenu {
-    position: absolute;
-
-    top: calc(100% + 10px);
-    right: 0;
-
-    z-index: 50;
-
-    min-width: 210px;
-
-    padding: 14px 16px;
-
-    display: flex;
-    flex-direction: column;
-
-    gap: 8px;
-
-    border: 1px solid rgba(0, 0, 0, 0.08);
-    border-radius: 18px;
-
-    background: rgba(255, 255, 255, 0.96);
-
-    box-shadow: 0 14px 34px rgba(0, 0, 0, 0.12);
-  }
-
-  .ph-visitor-mobileMenu__item {
-    width: 100%;
-
-    padding: 0;
-
-    display: flex;
-    align-items: center;
-
-    gap: 12px;
-
-    border: 0;
-    background: transparent;
-
-    color: rgba(0, 0, 0, 0.85);
-
-    font-family: Montserrat, sans-serif;
-    font-size: 15px;
-    font-weight: 500;
-
-    text-align: left;
-
-    cursor: pointer;
-
-    -webkit-tap-highlight-color: transparent;
-  }
-
-  .ph-visitor-mobileMenu__text {
-    min-width: 0;
-
-    font-family: Montserrat, sans-serif;
-    font-size: 15px;
-    font-weight: 500;
-    line-height: 1.2;
-
-    white-space: nowrap;
-  }
-
-  .ph-visitor-mobileMenu__icon {
-    width: 24px;
-    height: 24px;
-
-    flex: 0 0 24px;
-
-    object-fit: contain;
-  }
-
-  .ph-visitor-tools__vipStatus {
-    font-size: 15px;
-    font-weight: 500;
-    padding-left: 38px;
-  }
-}
-/* =========================
-     TABS
-     ========================= */
-
-.profile-visitor-public {
   .ph-visitor-tabs {
     width: 100%;
     min-width: 0;
@@ -713,13 +528,7 @@ $tabBg: #fce9e9;
 
     overflow-wrap: anywhere;
   }
-}
 
-/* =========================
-     SHOW MORE
-     ========================= */
-
-.profile-visitor-public {
   .showMoreBtn {
     display: block;
 
@@ -743,6 +552,10 @@ $tabBg: #fce9e9;
     cursor: pointer;
 
     -webkit-tap-highlight-color: transparent;
+  }
+
+  .ph-visitor-mobileActions {
+    display: none;
   }
 }
 
@@ -784,7 +597,7 @@ $tabBg: #fce9e9;
     .ph-visitor-right {
       grid-template-columns:
         minmax(0, 1fr)
-        150px
+        170px
         170px;
 
       gap: 12px;
@@ -812,20 +625,12 @@ $tabBg: #fce9e9;
       font-size: 12px;
     }
 
-    .ph-visitor-action__addToVip {
-      min-height: 50px;
-
-      padding: 8px 12px;
-
-      font-size: 14px;
-    }
-
+    .ph-visitor-action__addToVip,
+    .ph-visitor-tool__vipStatus,
     .ph-visitor-action__subscribe,
     .ph-visitor-action__block {
       min-height: 50px;
-
       padding: 8px 12px;
-
       font-size: 14px;
     }
 
@@ -835,9 +640,7 @@ $tabBg: #fce9e9;
 
     .ph-visitor-tabs__tab {
       min-height: 40px;
-
       padding: 8px 8px;
-
       font-size: 12px;
     }
   }
@@ -852,8 +655,6 @@ $tabBg: #fce9e9;
     .profile-container {
       padding: 10px 12px 24px;
     }
-
-    /* ===== TOP ===== */
 
     .profileBlock--visitorNotSub {
       width: 100%;
@@ -961,16 +762,85 @@ $tabBg: #fce9e9;
       line-height: 1.2;
     }
 
-    /* Hide desktop actions */
-
-    .ph-visitor-action__report,
+    .ph-visitor-right > .ph-visitor-action__report,
     .ph-visitor-right > .ph-visitor-action__block,
     .ph-visitor-right > .ph-visitor-action__subscribe,
     .ph-visitor-right > .ph-visitor-action__addToVip,
     .ph-visitor-right > .ph-visitor-tool__vipStatus {
       display: none;
     }
+
     /* ===== MOBILE ACTIONS ===== */
+
+    .ph-visitor-mobileMenu {
+      position: absolute;
+
+      top: calc(100% + 10px);
+      right: 0;
+
+      z-index: 50;
+
+      min-width: 200px;
+
+      padding: 14px 16px;
+
+      display: flex;
+      flex-direction: column;
+
+      gap: 8px;
+
+      border-radius: 18px;
+
+      background: rgba(255, 255, 255, 0.96);
+
+      box-shadow: 0 14px 34px rgba(0, 0, 0, 0.12);
+    }
+
+    .ph-visitor-mobileMenu__item {
+      width: 100%;
+
+      padding: 0;
+
+      display: flex;
+      align-items: center;
+
+      gap: 12px;
+
+      border: 0;
+      background: transparent;
+
+      color: rgba(0, 0, 0, 0.85);
+
+      font-family: Montserrat, sans-serif;
+      font-size: 15px;
+      font-weight: 500;
+
+      text-align: left;
+
+      cursor: pointer;
+
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .ph-visitor-mobileMenu__text {
+      min-width: 0;
+
+      font-family: Montserrat, sans-serif;
+      font-size: 15px;
+      font-weight: 500;
+      line-height: 1.2;
+
+      white-space: nowrap;
+    }
+
+    .ph-visitor-mobileMenu__icon {
+      width: 24px;
+      height: 24px;
+
+      flex: 0 0 24px;
+
+      object-fit: contain;
+    }
 
     .ph-visitor-mobileActions {
       width: 100%;
@@ -979,6 +849,9 @@ $tabBg: #fce9e9;
       display: grid;
 
       grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      grid-template-areas:
+        'subscribe vip'
+        '.         more';
 
       gap: 6px;
 
@@ -988,31 +861,28 @@ $tabBg: #fce9e9;
     }
 
     .ph-visitor-mobileActions > .ph-visitor-action__subscribe {
-      grid-column: 1;
-      grid-row: 1;
-
-      grid-area: auto;
+      grid-area: subscribe;
     }
 
-    .ph-visitor-mobileActions > .ph-visitor-action__block {
-      grid-column: 2;
-      grid-row: 1;
-
-      grid-area: auto;
+    .ph-visitor-mobileActions > .ph-visitor-action__addToVip,
+    .ph-visitor-mobileActions > .ph-visitor-tool__vipStatus {
+      grid-area: vip;
     }
 
     .ph-visitor-mobileActions .ph-visitor-action__subscribe,
-    .ph-visitor-mobileActions .ph-visitor-action__block {
-      min-height: 38px;
+    .ph-visitor-mobileActions .ph-visitor-tool__vipStatus,
+    .ph-visitor-mobileActions .ph-visitor-action__addToVip {
+      min-height: 40px;
 
       padding: 7px 10px;
 
-      font-size: 14px;
+      font-size: 12px;
 
       border-radius: 10px;
     }
 
     .ph-visitor-mobileActions > .ph-visitor-tools__mobileMenuWrap {
+      grid-area: more;
       display: block;
       grid-column: 2;
       grid-row: 2;
@@ -1047,6 +917,7 @@ $tabBg: #fce9e9;
 
     .ph-visitor-tools__moreDots {
       font-size: 20px;
+      letter-spacing: 2px;
     }
 
     /* ===== TABS ===== */
@@ -1080,8 +951,6 @@ $tabBg: #fce9e9;
       width: 11px;
       height: 11px;
     }
-
-    /* ===== SHOW MORE ===== */
 
     .showMoreBtn {
       width: auto;
@@ -1176,8 +1045,22 @@ $tabBg: #fce9e9;
       margin-top: 10px;
     }
 
+    .ph-visitor-mobileMenu {
+      top: calc(100% + 8px);
+      right: 0;
+
+      min-width: 180px;
+
+      padding: 12px 14px;
+
+      gap: 6px;
+
+      border-radius: 16px;
+    }
+
     .ph-visitor-mobileActions .ph-visitor-action__subscribe,
-    .ph-visitor-mobileActions .ph-visitor-action__block {
+    .ph-visitor-mobileActions .ph-visitor-tool__vipStatus,
+    .ph-visitor-mobileActions .ph-visitor-action__addToVip {
       min-height: 34px;
 
       padding: 6px 6px;
@@ -1299,8 +1182,19 @@ $tabBg: #fce9e9;
       gap: 4px;
     }
 
+    .ph-visitor-mobileMenu {
+      min-width: 165px;
+
+      padding: 10px 12px;
+
+      gap: 5px;
+
+      border-radius: 14px;
+    }
+
     .ph-visitor-mobileActions .ph-visitor-action__subscribe,
-    .ph-visitor-mobileActions .ph-visitor-action__block {
+    .ph-visitor-mobileActions .ph-visitor-tool__vipStatus,
+    .ph-visitor-mobileActions .ph-visitor-action__addToVip {
       min-height: 32px;
 
       padding: 5px 5px;
@@ -1389,7 +1283,8 @@ $tabBg: #fce9e9;
     }
 
     .ph-visitor-mobileActions .ph-visitor-action__subscribe,
-    .ph-visitor-mobileActions .ph-visitor-action__block {
+    .ph-visitor-mobileActions .ph-visitor-tool__vipStatus,
+    .ph-visitor-mobileActions .ph-visitor-action__addToVip {
       min-height: 30px;
 
       padding: 5px 3px;
@@ -1452,10 +1347,6 @@ html[data-theme='dark'] .profile-visitor-public {
 
   .ph-visitor-action__reportText {
     color: rgba(255, 255, 255, 0.9);
-  }
-
-  .ph-visitor-tools__vipStatus {
-    color: rgba(255, 255, 255, 0.88);
   }
 
   .ph-visitor-tools__more {

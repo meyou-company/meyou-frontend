@@ -3,7 +3,9 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import ThemeToggleDark from '../../../ThemeToggleDark/ThemeToggleDark';
+import BrandWordmark from '../../../BrandLogo/BrandWordmark';
 import profileIcons from '../../../../constants/profileIcons';
+import { BRAND_NAME } from '../../../../constants/brand';
 import { HEADER_CONFIG } from '../../../../constants/profileNavigation';
 import { useBurgerMenu } from '../../../../hooks/useBurgerMenu';
 import MessagesNavBadge from '../../../Messages/MessagesNavBadge';
@@ -77,9 +79,9 @@ export default function ProfileHeader({
             type="button"
             className="logo"
             onClick={variant === 'owner' ? onGoHome : (onGoToMyProfile ?? onGoHome)}
-            aria-label={t('navigation.home')}
+            aria-label={BRAND_NAME}
           >
-            <span className="logoText app-brand-wordmark">ME YOU</span>
+            <BrandWordmark className="logoText" />
           </button>
         </div>
 

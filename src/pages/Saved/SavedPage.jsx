@@ -214,7 +214,7 @@ export default function SavedPage() {
     setMenuId(null);
     const url = `${window.location.origin}${item.kind === 'post' ? `/post/${item.id}` : `/video?video=${item.id}`}`;
     try {
-      if (navigator.share) await navigator.share({ title: item.title || item.text || 'ME YOU', url });
+      if (navigator.share) await navigator.share({ title: item.title || item.text || 'LunMeYo', url });
       else {
         await navigator.clipboard.writeText(url);
         toast.success('Ссылка скопирована');

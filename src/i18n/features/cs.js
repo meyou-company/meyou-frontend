@@ -12,7 +12,7 @@ export const FEATURE_PAGES = {
     title: 'Bonusy za přátele',
     subtitle: 'Program odměn — ve vývoji',
     intro:
-      'MeYou připravuje program bonusů za přátele a aktivitu v komunitě. Všechny funkce na této stránce jsou budoucí možnosti; o spuštění informujeme v aplikaci.',
+      'LunMeYo připravuje program bonusů za přátele a aktivitu v komunitě. Všechny funkce na této stránce jsou budoucí možnosti; o spuštění informujeme v aplikaci.',
     cards: [
       {
         emoji: '👥',
@@ -52,7 +52,7 @@ export const FEATURE_PAGES = {
       },
     ],
     comingSoonSection: {
-      title: 'Již brzy v MeYou',
+      title: 'Již brzy v LunMeYo',
       items: [
         {
           emoji: '👛',
@@ -105,7 +105,7 @@ export const FEATURE_PAGES = {
     title: 'Moderní chat',
     subtitle: 'Rychlá komunikace s médii, reakcemi a ochranou soukromí',
     intro:
-      'Soukromé dialogy v reálném čase. Text, fotky, video, hlasové zprávy a emoji reakce — v pohodlném rozhraní MeYou s notifikacemi a kontrolou přístupu.',
+      'Soukromé dialogy v reálném čase. Text, fotky, video, hlasové zprávy a emoji reakce — v pohodlném rozhraní LunMeYo s notifikacemi a kontrolou přístupu.',
     cards: [
       {
         emoji: '💬',
@@ -137,12 +137,12 @@ export const FEATURE_PAGES = {
       {
         emoji: '🎙️',
         title: 'Hlasové zprávy',
-        text: 'Nahrávejte a odesílejte hlasové poznámky přímo v dialogu — již dostupné v MeYou chatech.',
+        text: 'Nahrávejte a odesílejte hlasové poznámky přímo v dialogu — již dostupné v LunMeYo chatech.',
       },
       {
         emoji: '📹',
         title: 'Videohovory',
-        text: 'Videohovor jeden na jednoho v rámci platformy MeYou.',
+        text: 'Videohovor jeden na jednoho v rámci platformy LunMeYo.',
         comingSoon: true,
       },
       {
@@ -161,9 +161,9 @@ export const FEATURE_PAGES = {
     emoji: '🔒',
     icon: '/icon1/3.png',
     title: 'Plná bezpečnost',
-    subtitle: 'Ochrana účtu, ověření a soukromí na MeYou',
+    subtitle: 'Ochrana účtu, ověření a soukromí na LunMeYo',
     intro:
-      'MeYou kombinuje technická bezpečnostní opatření s transparentními pravidly: od Google Login po moderaci, blokování a kontrolu viditelnosti obsahu.',
+      'LunMeYo kombinuje technická bezpečnostní opatření s transparentními pravidly: od Google Login po moderaci, blokování a kontrolu viditelnosti obsahu.',
     cards: [
       {
         emoji: '🔑',
@@ -222,14 +222,14 @@ export const FEATURE_PAGES = {
 };
 
 export const FEATURE_UI = {
-  brand: 'MeYou',
+  brand: 'LunMeYo',
   backHome: 'Domů',
   highlightsTitle: 'Klíčové funkce',
   blocksTitle: 'Více informací',
   faqTitle: 'Časté dotazy',
   futureTitle: 'Již brzy',
   comingSoonLabel: 'Již brzy',
-  comingSoonSectionTitle: 'Již brzy v MeYou',
-  exploreMore: 'Funkce MeYou',
+  comingSoonSectionTitle: 'Již brzy v LunMeYo',
+  exploreMore: 'Funkce LunMeYo',
   cardsSwipeHint: 'Přejeďte doprava pro více →',
 };

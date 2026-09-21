@@ -3,6 +3,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import profileIcons from '../../../../constants/profileIcons';
+import { DEFAULT_AVATAR } from '../../../../constants/brand';
 import { getFriendsCountNumber } from '../../../../utils/profileFriends';
 import {
   normalizeFriendListItem,
@@ -153,7 +154,7 @@ export default function ProfileVisitorPublic({
   }, [profileUserId, loadSecondary]);
   const fullNameReal = [user?.firstName, user?.lastName].filter(Boolean).join(' ') || '';
   const titleName = username || fullNameReal || t('common.user');
-  const displayAvatar = user?.avatarUrl || user?.avatar || '/Logo/photo.png';
+  const displayAvatar = user?.avatarUrl || user?.avatar || DEFAULT_AVATAR;
   const hasProfileStories = profileStories.length > 0;
 
   const profileStoryGroups = hasProfileStories
@@ -406,15 +407,25 @@ export default function ProfileVisitorPublic({
                   ? t('profile.visitor.subscribing')
                   : t('profile.visitor.subscribe')}
               </button>
+              {vipUi.showAddButton ? (
+                <button
+                  type="button"
+                  className="ph-visitor-action__addToVip"
+                  onClick={handleVipClick}
+                  aria-label={t('profile.visitor.addToVip')}
+                >
+                  <span className="ph-visitor-action__vipText">
+                    {t('profile.visitor.addToVip')}
+                  </span>
+                  <img src={profileIcons.vipButton} alt="" className="ph-visitor-action__vipIcon" />
+                </button>
+              ) : null}
 
-              <button
-                type="button"
-                className="ph-visitor-action__block"
-                onClick={onBlock}
-                aria-label={t('profile.visitor.block')}
-              >
-                {t('profile.visitor.block')}
-              </button>
+              {vipUi.showStatus ? (
+                <span className="ph-visitor-tool__vipStatus" role="status">
+                  {t('profile.vipAccess.activeStatus')}
+                </span>
+              ) : null}
 
               <div className="ph-visitor-tools__mobileMenuWrap" ref={mobileMenuRef}>
                 <button
@@ -451,32 +462,27 @@ export default function ProfileVisitorPublic({
                         className="ph-visitor-mobileMenu__icon"
                         aria-hidden="true"
                       />
-                      <span className="ph-visitor-tools__text">{t('profile.visitor.report')}</span>
-                    </button>
-                    {vipUi.showAddButton ? (
-                      <button
-                        type="button"
-                        className="ph-visitor-mobileMenu__item"
-                        role="menuitem"
-                        onClick={handleVipClick}
-                        aria-label={t('profile.visitor.addToVip')}
-                      >
-                        <img
-                          src={profileIcons.vipChat}
-                          alt=""
-                          className="ph-visitor-mobileMenu__icon"
-                          aria-hidden="true"
-                        />
-                        <span className="ph-visitor-tools__text">
-                          {t('profile.visitor.addToVip')}
-                        </span>
-                      </button>
-                    ) : null}
-                    {vipUi.showStatus ? (
-                      <span className="ph-visitor-tools__vipStatus" role="status">
-                        {t('profile.vipAccess.activeStatus')}
+                      <span className="ph-visitor-mobileMenu__text">
+                        {t('profile.visitor.report')}
                       </span>
-                    ) : null}
+                    </button>
+                    <button
+                      type="button"
+                      className="ph-visitor-mobileMenu__item"
+                      role="menuitem"
+                      onClick={onBlock}
+                      aria-label={t('profile.visitor.block')}
+                    >
+                      <img
+                        src={profileIcons.complaints}
+                        alt=""
+                        className="ph-visitor-mobileMenu__icon"
+                        aria-hidden="true"
+                      />
+                      <span className="ph-visitor-mobileMenu__text">
+                        {t('profile.visitor.block')}
+                      </span>
+                    </button>
                   </div>
                 )}
               </div>
