@@ -3,6 +3,7 @@ import { createPortal } from "react-dom";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { LOCAL_GIFT_CATALOG } from "../../constants/giftCatalog";
+import { mergeCatalogSections } from "../../constants/giftDisplayCatalog";
 import profileIcons from "../../constants/profileIcons";
 import { giftsApi } from "../../services/giftsApi";
 import { subscriptionsApi } from "../../services/subscriptionsApi";
@@ -48,7 +49,9 @@ function monthKeyOf(value) {
 
 export default function MyGifts({ goBack, receiverId, receiverName, onReply }) {
   const { t, i18n } = useTranslation();
-  const [catalog, setCatalog] = useState(LOCAL_GIFT_CATALOG);
+  const [catalogSections, setCatalogSections] = useState(() =>
+    mergeCatalogSections(LOCAL_GIFT_CATALOG),
+  );
   const [received, setReceived] = useState([]);
   const [selectedGiftsById, setSelectedGiftsById] = useState(() => new Map());
   const [selectedRecipientsById, setSelectedRecipientsById] = useState(() => new Map());
@@ -57,6 +60,8 @@ export default function MyGifts({ goBack, receiverId, receiverName, onReply }) {
   const [friendsLoading, setFriendsLoading] = useState(false);
   const [friendsQuery, setFriendsQuery] = useState("");
   const [paidNoticeOpen, setPaidNoticeOpen] = useState(false);
+  const [comingSoonOpen, setComingSoonOpen] = useState(false);
+  const [pageView, setPageView] = useState("send");
   const [sending, setSending] = useState(false);
   const [historyTab, setHistoryTab] = useState("all");
   const [historyQuery, setHistoryQuery] = useState("");
@@ -88,7 +93,9 @@ export default function MyGifts({ goBack, receiverId, receiverName, onReply }) {
       .getCatalog()
       .then((data) => {
         const items = Array.isArray(data?.items) ? data.items : [];
-        if (!cancelled && items.length > 0) setCatalog(items);
+        if (!cancelled && items.length > 0) {
+          setCatalogSections(mergeCatalogSections(items));
+        }
       })
       .catch(() => {});
     loadHistory();
@@ -148,7 +155,11 @@ export default function MyGifts({ goBack, receiverId, receiverName, onReply }) {
   }, [receiverId, receiverName]);
 
   useEffect(() => {
-    if (!pickFriendOpen && !paidNoticeOpen) return undefined;
+    if (receiverId) setPageView("send");
+  }, [receiverId]);
+
+  useEffect(() => {
+    if (!pickFriendOpen && !paidNoticeOpen && !comingSoonOpen) return undefined;
     const onKey = (event) => {
       if (event.key !== "Escape" || sending) return;
       if (pickFriendOpen) {
@@ -156,10 +167,11 @@ export default function MyGifts({ goBack, receiverId, receiverName, onReply }) {
         return;
       }
       setPaidNoticeOpen(false);
+      setComingSoonOpen(false);
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [paidNoticeOpen, pickFriendOpen, sending]);
+  }, [paidNoticeOpen, comingSoonOpen, pickFriendOpen, sending]);
 
   useEffect(() => {
     if (!pickFriendOpen) return undefined;
@@ -285,13 +297,26 @@ export default function MyGifts({ goBack, receiverId, receiverName, onReply }) {
   }
 
   const handleCatalogClick = (gift) => {
-    if (!gift?.id || sending) return;
+    if (!gift || sending) return;
+    if (gift.comingSoon || !gift.sendId) {
+      setComingSoonOpen(true);
+      return;
+    }
     if (isPaidGift(gift)) {
       setPaidNoticeOpen(true);
       return;
     }
+    if (!gift.sendable) return;
     setPaidNoticeOpen(false);
-    setSelectedGiftsById((prev) => toggleMapItem(prev, gift.id, gift));
+    setComingSoonOpen(false);
+    setSelectedGiftsById((prev) =>
+      toggleMapItem(prev, gift.sendId, {
+        id: gift.sendId,
+        nameKey: gift.nameKey,
+        image: gift.image,
+        type: gift.type,
+      }),
+    );
   };
 
   const toggleRecipient = (friend) => {
@@ -346,6 +371,7 @@ export default function MyGifts({ goBack, receiverId, receiverName, onReply }) {
   };
 
   const handleReply = (sender) => {
+    setPageView("send");
     onReply?.(sender);
   };
 
@@ -494,6 +520,88 @@ export default function MyGifts({ goBack, receiverId, receiverName, onReply }) {
       )
     : null;
 
+  const comingSoonModal = comingSoonOpen
+    ? createPortal(
+        <div className="my-gifts-page__confirm" role="dialog" aria-modal="true">
+          <button
+            type="button"
+            className="my-gifts-page__confirmBackdrop"
+            onClick={() => setComingSoonOpen(false)}
+            aria-label={t("common.close")}
+          />
+          <div className="my-gifts-page__confirmPanel">
+            <h3 className="my-gifts-page__confirmTitle">{t("gifts.comingSoonTitle")}</h3>
+            <p className="my-gifts-page__confirmBody">{t("gifts.comingSoonBody")}</p>
+            <div className="my-gifts-page__confirmActions">
+              <button
+                type="button"
+                className="my-gifts-page__action action--yellow"
+                onClick={() => setComingSoonOpen(false)}
+              >
+                {t("common.close")}
+              </button>
+            </div>
+          </div>
+        </div>,
+        document.body,
+      )
+    : null;
+
+  const giftBadge = (gift) => {
+    if (gift.sectionId === "premium") {
+      return { className: "is-premium", label: t("gifts.badgePremium") };
+    }
+    if (gift.sendable || String(gift.type).toUpperCase() === "FREE") {
+      return { className: "is-free", label: t("gifts.badgeFree") };
+    }
+    if (gift.price != null && Number(gift.price) > 0) {
+      return { className: "is-coins", label: String(gift.price) };
+    }
+    return { className: "is-coins", label: t("gifts.badgeCoins") };
+  };
+
+  const renderCatalogCard = (gift) => {
+    const selected = Boolean(gift.sendable && gift.sendId && selectedGiftsById.has(gift.sendId));
+    const badge = giftBadge(gift);
+    return (
+      <button
+        key={gift.key}
+        type="button"
+        className={[
+          "my-gifts-page__shopCard",
+          selected ? "is-selected" : "",
+          gift.comingSoon ? "is-soon" : "",
+        ].filter(Boolean).join(" ")}
+        onClick={() => handleCatalogClick(gift)}
+        aria-pressed={selected}
+        aria-label={gift.nameKey ? t(gift.nameKey) : gift.key}
+        disabled={sending}
+      >
+        <span className="my-gifts-page__shopCardArt">
+          <img src={gift.image} alt="" className="my-gifts-page__shopCardImg" />
+        </span>
+        <span className="my-gifts-page__shopCardName">
+          {gift.nameKey ? t(gift.nameKey) : gift.key}
+        </span>
+        <span className={`my-gifts-page__shopBadge ${badge.className}`}>
+          {badge.className === "is-coins" ? (
+            <img src={profileIcons.coin} alt="" className="my-gifts-page__shopBadgeIcon" />
+          ) : null}
+          {badge.label}
+        </span>
+        {selected ? (
+          <span className="my-gifts-page__shopCheck" aria-hidden="true">✓</span>
+        ) : null}
+      </button>
+    );
+  };
+
+  const sectionIcon = (sectionId) => {
+    if (sectionId === "premium") return "👑";
+    if (sectionId === "coins") return "🪙";
+    return "🎁";
+  };
+
   return (
     <div className="my-gifts-page">
       <div className="my-gifts-page__bg">
@@ -522,6 +630,111 @@ export default function MyGifts({ goBack, receiverId, receiverName, onReply }) {
         </section>
 
         <section className="my-gifts-page__panel">
+          <div className="my-gifts-page__pageTabs" role="tablist" aria-label={t("gifts.title")}>
+            <button
+              type="button"
+              role="tab"
+              aria-selected={pageView === "send"}
+              className={`my-gifts-page__pageTab${pageView === "send" ? " is-active" : ""}`}
+              onClick={() => setPageView("send")}
+            >
+              {t("gifts.send")}
+            </button>
+            <button
+              type="button"
+              role="tab"
+              aria-selected={pageView === "history"}
+              className={`my-gifts-page__pageTab${pageView === "history" ? " is-active" : ""}`}
+              onClick={() => setPageView("history")}
+            >
+              {t("gifts.previous")}
+            </button>
+          </div>
+
+          {pageView === "send" ? (
+            <div className="my-gifts-page__shop">
+              <p className="my-gifts-page__tagline">{t("gifts.tagline")}</p>
+
+              <section className="my-gifts-page__toBar" aria-label={t("gifts.toWhom")}>
+                <h2 className="my-gifts-page__toTitle">{t("gifts.toWhom")}</h2>
+                <div className="my-gifts-page__toRow">
+                  {renderRecipientChips()}
+                  <button
+                    type="button"
+                    className="my-gifts-page__recipientsAdd"
+                    onClick={() => {
+                      setFriendsQuery("");
+                      setPickFriendOpen(true);
+                    }}
+                    disabled={sending}
+                  >
+                    <span aria-hidden="true">+</span>
+                    {selectedRecipients.length > 0
+                      ? t("gifts.addMore")
+                      : t("gifts.pickRecipients")}
+                  </button>
+                </div>
+              </section>
+
+              {catalogSections.map((section) => (
+                <section
+                  key={section.id}
+                  className={`my-gifts-page__shopSection is-${section.id}`}
+                >
+                  <div className="my-gifts-page__shopHead">
+                    <span className="my-gifts-page__shopEmoji" aria-hidden="true">
+                      {sectionIcon(section.id)}
+                    </span>
+                    <div className="my-gifts-page__shopHeadText">
+                      <h2 className="my-gifts-page__shopTitle">{t(section.titleKey)}</h2>
+                      <p className="my-gifts-page__shopHint">{t(section.hintKey)}</p>
+                    </div>
+                  </div>
+                  <div className="my-gifts-page__shopGrid">
+                    {section.items.map((gift) => renderCatalogCard(gift))}
+                  </div>
+                </section>
+              ))}
+
+              <div className="my-gifts-page__send">
+                {selectedGifts.length > 0 ? (
+                  <div className="my-gifts-page__picked" aria-label={t("gifts.selected")}>
+                    {selectedGifts.map((gift) => (
+                      <button
+                        key={gift.id}
+                        type="button"
+                        className="my-gifts-page__pickedItem"
+                        onClick={() => {
+                          setSelectedGiftsById((prev) => {
+                            if (!prev.has(gift.id)) return prev;
+                            const next = new Map(prev);
+                            next.delete(gift.id);
+                            return next;
+                          });
+                        }}
+                        disabled={sending}
+                        aria-label={gift.nameKey ? t(gift.nameKey) : gift.id}
+                      >
+                        <img src={gift.image} alt="" className="my-gifts-page__pickedImg" />
+                      </button>
+                    ))}
+                  </div>
+                ) : null}
+                <div className="my-gifts-page__sendFooter">
+                  <p
+                    className={`my-gifts-page__sendSummary${selectedGifts.length && selectedRecipients.length ? "" : " is-empty"}`}
+                  >
+                    {t("gifts.giftCount", { count: selectedGifts.length })}
+                    {" • "}
+                    {t("gifts.recipientCount", { count: selectedRecipients.length })}
+                  </p>
+                  {renderSendButton()}
+                </div>
+                <p className="my-gifts-page__footerLine">{t("gifts.footerLine")}</p>
+              </div>
+            </div>
+          ) : (
+            <>
           <div className="my-gifts-page__sectionTop">
             <h2 className="my-gifts-page__sectionTitle">{t("gifts.previous")}</h2>
             <button
@@ -699,68 +912,14 @@ export default function MyGifts({ goBack, receiverId, receiverName, onReply }) {
               })
             )}
           </div>
-
-          <div className="my-gifts-page__send">
-            <h2 className="my-gifts-page__sectionTitle section--send">{t("gifts.send")}</h2>
-
-            <div className="my-gifts-page__recipients">
-              {renderRecipientChips()}
-              <button
-                type="button"
-                className="my-gifts-page__recipientsAdd"
-                onClick={() => {
-                  setFriendsQuery("");
-                  setPickFriendOpen(true);
-                }}
-                disabled={sending}
-              >
-                {t("gifts.pickRecipients")}
-              </button>
-            </div>
-
-            <div className="my-gifts-page__giftGrid">
-              {catalog.map((gift) => {
-                const selected = !isPaidGift(gift) && selectedGiftsById.has(gift.id);
-                return (
-                  <button
-                    key={gift.id}
-                    type="button"
-                    className={`my-gifts-page__giftCard${selected ? " is-selected" : ""}`}
-                    onClick={() => handleCatalogClick(gift)}
-                    aria-pressed={selected}
-                    disabled={sending}
-                  >
-                    <img src={gift.image} alt="" className="my-gifts-page__giftImg" />
-                    <div className="my-gifts-page__giftOverlay">
-                      <span className="my-gifts-page__giftTitle">
-                        {isPaidGift(gift) ? t("gifts.catalog.coins20") : ""}
-                      </span>
-                      <div className="my-gifts-page__giftInfo">
-                        {isPaidGift(gift) && (
-                          <img src={profileIcons.coin} alt="" className="my-gifts-page__coinIcon" />
-                        )}
-                        {isPaidGift(gift) ? (
-                          <p className="my-gifts-page__giftSubtitle">{t("gifts.catalog.coins20Subtitle")}</p>
-                        ) : null}
-                      </div>
-                    </div>
-                    <span className={`my-gifts-page__chooseBtn action--yellow${selected ? " is-selected" : ""}`}>
-                      {selected ? t("gifts.selected") : t("gifts.choose")}
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
-
-            <div className="my-gifts-page__sendFooter">
-              {renderSendButton()}
-            </div>
-          </div>
+            </>
+          )}
         </section>
       </main>
 
       {friendsModal}
       {paidModal}
+      {comingSoonModal}
     </div>
   );
 }
