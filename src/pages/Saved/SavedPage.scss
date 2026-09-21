@@ -1,3 +1,18 @@
+.app-container:has(.savedPage),
+.savedPage {
+  background-color: #fff;
+  background-image:
+    radial-gradient(circle at 3% 8%, rgba(245, 140, 207, 0.34) 0 18px, transparent 19px),
+    radial-gradient(circle at 9% 2%, rgba(245, 140, 207, 0.26) 0 21px, transparent 22px),
+    radial-gradient(circle at 97% 0%, rgba(245, 140, 207, 0.32) 0 32px, transparent 33px),
+    radial-gradient(circle at 99% 36%, rgba(245, 140, 207, 0.28) 0 28px, transparent 29px),
+    radial-gradient(circle at 1% 58%, rgba(245, 140, 207, 0.26) 0 18px, transparent 19px),
+    radial-gradient(circle at 94% 71%, rgba(245, 140, 207, 0.25) 0 27px, transparent 28px),
+    radial-gradient(circle at 2% 96%, rgba(245, 140, 207, 0.27) 0 18px, transparent 19px);
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+}
+
 .savedPage {
   min-height: 100%;
   color: #151515;
@@ -237,17 +252,17 @@
 .savedCard__menu {
   position: absolute;
   z-index: 30;
-  right: 3px;
+  right: 0;
+  left: 0;
   top: calc(100% - 8px);
-  width: min(220px, calc(100vw - 36px));
+  width: 100%;
+  box-sizing: border-box;
   padding: 9px;
   border: 1px solid #aa79f4;
   border-radius: 8px;
   background: linear-gradient(145deg, #fff 0%, #ead8ff 100%);
   box-shadow: 0 12px 28px rgba(48, 32, 75, .2);
 }
-
-.savedPage__cards:not(.savedPage__cards--list) .savedCard:nth-child(3n + 1) .savedCard__menu { left: 0; right: auto; }
 
 .savedCard__menu button {
   display: flex;
@@ -372,6 +387,8 @@
 .savedPage__empty p { margin: 4px 0 10px; font-size: 14px; }
 
 body.dark .savedPage { color: #f8f8fb; }
+body.dark .app-container:has(.savedPage),
+body.dark .savedPage { background-color: #0f0f12; }
 body.dark .savedPage__tabs { border-color: rgba(255,255,255,.22); }
 body.dark .savedPage__tabs button.active::after { background: #fff; }
 body.dark .savedCard__menu { background: linear-gradient(145deg, #27232f, #3b2b50); border-color: #956ae4; }
@@ -398,6 +415,20 @@ body.dark .savedPage__sort option { color: #16121d; }
   .savedCard__footer { grid-template-columns: minmax(0, 1fr) 24px; }
   .savedCard__footer p { font-size: 10px; line-height: 1.2; }
   .savedCard__more { width: 24px; height: 30px; }
+  .savedCard__menu { padding: 5px; }
+  .savedCard__menu button {
+    gap: 4px;
+    padding: 6px 2px;
+    overflow: hidden;
+    font-size: clamp(7px, 1.4vw, 10px);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .savedCard__menu img {
+    flex: 0 0 auto;
+    width: clamp(10px, 2vw, 14px);
+    height: clamp(10px, 2vw, 14px);
+  }
   .savedPage__featured:not(.savedPage__featured--expanded) .savedCard:nth-child(n + 4) { display: none; }
   .savedPage__showAllRow { padding-top: 10px; }
   .savedPage__sectionHead { margin-top: 16px; }
@@ -406,6 +437,23 @@ body.dark .savedPage__sort option { color: #16121d; }
   .savedPage__viewToggle button { width: 34px; height: 34px; }
   .savedPage__cards--list .savedCard { grid-template-columns: 100px minmax(0, 1fr); }
   .savedPage__cards--list .savedCard__footer p { font-size: 13px; }
+}
+
+@media (max-width: 1199px) {
+  .savedPage__showAllRow button {
+    padding: 4px 12px;
+    border: 1px solid currentColor;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.86);
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 1.1;
+    text-decoration: none;
+  }
+
+  body.dark .savedPage__showAllRow button {
+    background: rgba(15, 15, 18, 0.86);
+  }
 }
 
 @media (max-width: 359px) {
@@ -433,8 +481,6 @@ body.dark .savedPage__sort option { color: #16121d; }
   .savedPage__sort { min-width: 320px; }
   .savedPage__sort select { font-size: 18px; }
   .savedPage__showAllRow--mobileOnly { display: none; }
-  .savedPage__cards:not(.savedPage__cards--list) .savedCard:nth-child(3n + 1) .savedCard__menu { left: auto; right: 3px; }
-  .savedPage__cards:not(.savedPage__cards--list) .savedCard:nth-child(4n + 1) .savedCard__menu { left: 0; right: auto; }
 }
 
 @media (min-width: 1200px) {
