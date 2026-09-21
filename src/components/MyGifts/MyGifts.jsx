@@ -32,6 +32,20 @@ function toggleMapItem(prev, key, value) {
   return next;
 }
 
+function senderIdOf(item) {
+  return String(item?.sender?.id || item?.senderId || "");
+}
+
+function giftIdOf(item) {
+  return String(item?.gift?.id || item?.giftId || "");
+}
+
+function monthKeyOf(value) {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "";
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
+}
+
 export default function MyGifts({ goBack, receiverId, receiverName, onReply }) {
   const { t, i18n } = useTranslation();
   const [catalog, setCatalog] = useState(LOCAL_GIFT_CATALOG);
@@ -44,6 +58,12 @@ export default function MyGifts({ goBack, receiverId, receiverName, onReply }) {
   const [friendsQuery, setFriendsQuery] = useState("");
   const [paidNoticeOpen, setPaidNoticeOpen] = useState(false);
   const [sending, setSending] = useState(false);
+  const [historyTab, setHistoryTab] = useState("all");
+  const [historyQuery, setHistoryQuery] = useState("");
+  const [senderFilterId, setSenderFilterId] = useState("");
+  const [giftFilterId, setGiftFilterId] = useState("");
+  const [monthFilter, setMonthFilter] = useState("");
+  const [dateSort, setDateSort] = useState("newest");
   const prefilledToRef = useRef("");
 
   const selectedGifts = useMemo(
@@ -167,11 +187,85 @@ export default function MyGifts({ goBack, receiverId, receiverName, onReply }) {
     try {
       return new Date(value).toLocaleDateString(i18n.language, {
         day: "numeric",
-        month: "long",
+        month: "short",
+        year: "numeric",
       });
     } catch {
       return "";
     }
+  };
+
+  const formatMonthLabel = (key) => {
+    const [year, month] = String(key).split("-");
+    const date = new Date(Number(year), Number(month) - 1, 1);
+    if (Number.isNaN(date.getTime())) return key;
+    return date.toLocaleDateString(i18n.language, { month: "long", year: "numeric" });
+  };
+
+  const historySenders = useMemo(() => {
+    const byId = new Map();
+    received.forEach((item) => {
+      const id = senderIdOf(item);
+      if (!id || byId.has(id)) return;
+      byId.set(id, item.sender || { id });
+    });
+    return [...byId.values()];
+  }, [received]);
+
+  const historyGifts = useMemo(() => {
+    const byId = new Map();
+    received.forEach((item) => {
+      const id = giftIdOf(item);
+      if (!id || byId.has(id)) return;
+      byId.set(id, item.gift || { id });
+    });
+    return [...byId.values()];
+  }, [received]);
+
+  const historyMonths = useMemo(() => {
+    const keys = new Set();
+    received.forEach((item) => {
+      const key = monthKeyOf(item.createdAt);
+      if (key) keys.add(key);
+    });
+    return [...keys].sort().reverse();
+  }, [received]);
+
+  const hasHistoryFilters = Boolean(
+    senderFilterId
+      || giftFilterId
+      || monthFilter
+      || historyQuery.trim()
+      || dateSort !== "newest"
+      || historyTab !== "all",
+  );
+
+  const filteredReceived = useMemo(() => {
+    const query = historyQuery.trim().toLowerCase();
+    const next = received.filter((item) => {
+      if (senderFilterId && senderIdOf(item) !== senderFilterId) return false;
+      if (giftFilterId && giftIdOf(item) !== giftFilterId) return false;
+      if (monthFilter && monthKeyOf(item.createdAt) !== monthFilter) return false;
+      if (!query) return true;
+      const sender = item.sender || {};
+      return [sender.firstName, sender.lastName, sender.username]
+        .some((value) => String(value || "").toLowerCase().includes(query));
+    });
+    next.sort((a, b) => {
+      const aTime = new Date(a.createdAt).getTime() || 0;
+      const bTime = new Date(b.createdAt).getTime() || 0;
+      return dateSort === "oldest" ? aTime - bTime : bTime - aTime;
+    });
+    return next;
+  }, [received, senderFilterId, giftFilterId, monthFilter, historyQuery, dateSort]);
+
+  const resetHistoryFilters = () => {
+    setHistoryTab("all");
+    setHistoryQuery("");
+    setSenderFilterId("");
+    setGiftFilterId("");
+    setMonthFilter("");
+    setDateSort("newest");
   };
 
   const q = friendsQuery.trim().toLowerCase();
@@ -436,30 +530,167 @@ export default function MyGifts({ goBack, receiverId, receiverName, onReply }) {
         <section className="my-gifts-page__panel">
           <div className="my-gifts-page__sectionTop">
             <h2 className="my-gifts-page__sectionTitle">{t("gifts.previous")}</h2>
-            <button type="button" className="my-gifts-page__linkBtn">
+            <button
+              type="button"
+              className="my-gifts-page__linkBtn"
+              onClick={resetHistoryFilters}
+              disabled={!hasHistoryFilters && historyTab === "all"}
+            >
               {t("gifts.viewAll")}
             </button>
           </div>
 
+          {received.length > 0 ? (
+            <div className="my-gifts-page__historyFilters">
+              <input
+                type="search"
+                className="my-gifts-page__historySearch"
+                value={historyQuery}
+                onChange={(event) => setHistoryQuery(event.target.value)}
+                placeholder={t("gifts.filterSearch")}
+                aria-label={t("gifts.filterSearch")}
+              />
+              <div className="my-gifts-page__filterTabs" role="tablist" aria-label={t("gifts.previous")}>
+                {[
+                  { id: "all", label: t("gifts.filterAll") },
+                  { id: "sender", label: t("gifts.filterFrom") },
+                  { id: "gift", label: t("gifts.filterGift") },
+                  { id: "date", label: t("gifts.filterDate") },
+                ].map((tab) => (
+                  <button
+                    key={tab.id}
+                    type="button"
+                    role="tab"
+                    aria-selected={historyTab === tab.id}
+                    className={`my-gifts-page__filterTab${historyTab === tab.id ? " is-active" : ""}`}
+                    onClick={() => {
+                      if (tab.id === "all") resetHistoryFilters();
+                      else setHistoryTab(tab.id);
+                    }}
+                  >
+                    {tab.label}
+                  </button>
+                ))}
+              </div>
+
+              {historyTab === "sender" ? (
+                <div className="my-gifts-page__filterOptions" role="list">
+                  <button
+                    type="button"
+                    className={`my-gifts-page__filterChip${senderFilterId ? "" : " is-selected"}`}
+                    onClick={() => setSenderFilterId("")}
+                  >
+                    {t("gifts.filterAllSenders")}
+                  </button>
+                  {historySenders.map((sender) => {
+                    const id = String(sender.id || "");
+                    const name = displayName(sender) || t("common.user");
+                    return (
+                      <button
+                        key={id}
+                        type="button"
+                        className={`my-gifts-page__filterChip${senderFilterId === id ? " is-selected" : ""}`}
+                        onClick={() => setSenderFilterId((prev) => (prev === id ? "" : id))}
+                      >
+                        <img
+                          src={sender.avatarUrl || sender.avatar || DEFAULT_AVATAR}
+                          alt=""
+                          className="my-gifts-page__filterChipAvatar"
+                        />
+                        <span className="my-gifts-page__filterChipLabel">{name}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              ) : null}
+
+              {historyTab === "gift" ? (
+                <div className="my-gifts-page__filterOptions" role="list">
+                  <button
+                    type="button"
+                    className={`my-gifts-page__filterChip${giftFilterId ? "" : " is-selected"}`}
+                    onClick={() => setGiftFilterId("")}
+                  >
+                    {t("gifts.filterAllGifts")}
+                  </button>
+                  {historyGifts.map((gift) => {
+                    const id = String(gift.id || "");
+                    const name = gift.nameKey ? t(gift.nameKey) : id;
+                    return (
+                      <button
+                        key={id}
+                        type="button"
+                        className={`my-gifts-page__filterChip${giftFilterId === id ? " is-selected" : ""}`}
+                        onClick={() => setGiftFilterId((prev) => (prev === id ? "" : id))}
+                      >
+                        {gift.image ? (
+                          <img src={gift.image} alt="" className="my-gifts-page__filterChipGift" />
+                        ) : null}
+                        <span className="my-gifts-page__filterChipLabel">{name}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              ) : null}
+
+              {historyTab === "date" ? (
+                <div className="my-gifts-page__filterOptions" role="list">
+                  <button
+                    type="button"
+                    className={`my-gifts-page__filterChip${dateSort === "newest" ? " is-selected" : ""}`}
+                    onClick={() => setDateSort("newest")}
+                  >
+                    {t("gifts.filterNewest")}
+                  </button>
+                  <button
+                    type="button"
+                    className={`my-gifts-page__filterChip${dateSort === "oldest" ? " is-selected" : ""}`}
+                    onClick={() => setDateSort("oldest")}
+                  >
+                    {t("gifts.filterOldest")}
+                  </button>
+                  {historyMonths.map((key) => (
+                    <button
+                      key={key}
+                      type="button"
+                      className={`my-gifts-page__filterChip${monthFilter === key ? " is-selected" : ""}`}
+                      onClick={() => setMonthFilter((prev) => (prev === key ? "" : key))}
+                    >
+                      <span className="my-gifts-page__filterChipLabel">{formatMonthLabel(key)}</span>
+                    </button>
+                  ))}
+                </div>
+              ) : null}
+            </div>
+          ) : null}
+
           <div className="my-gifts-page__previousList">
             {received.length === 0 ? (
               <p className="my-gifts-page__empty">{t("gifts.empty")}</p>
+            ) : filteredReceived.length === 0 ? (
+              <p className="my-gifts-page__empty">{t("gifts.filterEmpty")}</p>
             ) : (
-              received.map((item) => {
-                const giftName = item.gift?.nameKey ? t(item.gift.nameKey) : "";
-                const senderLabel = displayName(item.sender);
+              filteredReceived.map((item) => {
+                const sender = item.sender || {};
+                const senderLabel = displayName(sender) || t("common.user");
+                const handle = sender.username ? `@${sender.username}` : "";
                 return (
                   <article key={item.id} className="my-gifts-page__previousCard">
                     <img src={item.gift?.image || ""} alt="" className="my-gifts-page__previousImg" />
-
-                    <div className="my-gifts-page__previousInfo">
-                      <h3 className="my-gifts-page__previousTitle">{giftName}</h3>
-                      <div className="my-gifts-page__previousDetails">
+                    <div className="my-gifts-page__previousSender">
+                      <img
+                        className="my-gifts-page__previousAvatar"
+                        src={sender.avatarUrl || sender.avatar || DEFAULT_AVATAR}
+                        alt=""
+                      />
+                      <div className="my-gifts-page__previousMeta">
                         <p className="my-gifts-page__previousName">{senderLabel}</p>
+                        {handle ? (
+                          <p className="my-gifts-page__previousHandle">{handle}</p>
+                        ) : null}
                         <p className="my-gifts-page__previousDate">{formatGiftDate(item.createdAt)}</p>
                       </div>
                     </div>
-
                     <div className="my-gifts-page__previousActions">
                       <button
                         type="button"
@@ -467,9 +698,6 @@ export default function MyGifts({ goBack, receiverId, receiverName, onReply }) {
                         onClick={() => handleReply(item.sender)}
                       >
                         {t("gifts.reply")}
-                      </button>
-                      <button type="button" className="my-gifts-page__action action--pink">
-                        {t("gifts.viewAll")}
                       </button>
                     </div>
                   </article>
