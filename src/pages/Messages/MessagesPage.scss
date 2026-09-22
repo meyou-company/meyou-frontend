@@ -83,16 +83,6 @@
   align-items: stretch;
   gap: clamp(10px, 2.5vw, 16px);
   margin-bottom: clamp(16px, 4vw, 24px);
-
-  .messageSoundToggle {
-    height: auto;
-    min-height: clamp(48px, 12vw, 56px);
-    align-self: stretch;
-    border-radius: var(--msg-pill-radius);
-    border: var(--msg-pill-border);
-    background: var(--msg-pill-bg);
-    box-shadow: var(--msg-pill-shadow);
-  }
 }
 
 .messagesPage__createGroup {
@@ -100,19 +90,55 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
-  min-height: clamp(48px, 12vw, 56px);
-  padding: 0 clamp(12px, 2.5vw, 16px);
-  border-radius: var(--msg-pill-radius);
-  border: var(--msg-pill-border);
-  background: var(--msg-pill-bg);
-  box-shadow: var(--msg-pill-shadow);
-  color: var(--msg-text);
+  gap: 8px;
+  min-height: clamp(44px, 11vw, 52px);
+  padding: 0 clamp(14px, 2.4vw, 18px);
+  border: none;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #8b5cf6 0%, #c084fc 42%, #fb64b6 100%);
+  box-shadow:
+    0 6px 18px rgba(192, 90, 220, 0.32),
+    0 0 0 1px rgba(255, 255, 255, 0.12) inset;
+  color: #fff;
   font: inherit;
-  font-size: clamp(13px, 2.8vw, 14px);
+  font-size: 14px;
   font-weight: 600;
+  letter-spacing: 0.01em;
   cursor: pointer;
   white-space: nowrap;
+  transition:
+    transform 0.15s ease,
+    filter 0.15s ease,
+    box-shadow 0.15s ease;
+
+  &:hover {
+    filter: brightness(1.06);
+    box-shadow:
+      0 8px 22px rgba(192, 90, 220, 0.42),
+      0 0 0 1px rgba(255, 255, 255, 0.18) inset;
+  }
+
+  &:active {
+    transform: translateY(1px) scale(0.98);
+    filter: brightness(0.96);
+  }
+
+  &:focus-visible {
+    outline: 2px solid #fff;
+    outline-offset: 3px;
+  }
+}
+
+.messagesPage__createGroupIcon {
+  flex-shrink: 0;
+  display: block;
+}
+
+.messagesPage__createGroupPlus {
+  display: none;
+  font-size: 18px;
+  line-height: 1;
+  font-weight: 500;
 }
 
 .messagesPage__searchWrap {
@@ -382,12 +408,106 @@
 .messagesPage__emptyChat {
   flex: 1;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 24px;
+  gap: clamp(18px, 3vw, 28px);
+  padding: clamp(16px, 3vw, 32px) clamp(16px, 4vw, 40px);
+  min-height: 0;
+  overflow: auto;
+}
+
+.messagesPage__emptyArt {
+  display: block;
+  width: min(100%, 520px);
+  max-height: min(46vh, 360px);
+  height: auto;
+  object-fit: contain;
+  object-position: center;
+  pointer-events: none;
+  user-select: none;
+}
+
+.messagesPage__emptyFeatures {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  width: min(100%, 560px);
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(10px, 2vw, 18px);
+}
+
+.messagesPage__emptyFeatures li {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   text-align: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.messagesPage__emptyFeatureIcon {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.55);
+  box-shadow: 0 6px 16px rgba(140, 90, 200, 0.16);
+
+  img {
+    width: 28px;
+    height: 28px;
+    object-fit: contain;
+  }
+}
+
+.messagesPage__emptyFeatures strong {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--msg-text);
+  line-height: 1.25;
+}
+
+.messagesPage__emptyFeatures span:not(.messagesPage__emptyFeatureIcon) {
+  font-size: 12px;
+  line-height: 1.35;
   color: var(--msg-text-muted);
-  font-size: 15px;
+  max-width: 160px;
+}
+
+@media (max-width: 980px) {
+  .messagesPage__emptyFeatures {
+    grid-template-columns: 1fr;
+    max-width: 280px;
+    gap: 14px;
+  }
+
+  .messagesPage__emptyFeatures li {
+    display: grid;
+    grid-template-columns: 44px 1fr;
+    grid-template-rows: auto auto;
+    column-gap: 10px;
+    text-align: left;
+    align-items: center;
+  }
+
+  .messagesPage__emptyFeatureIcon {
+    grid-row: 1 / span 2;
+    width: 44px;
+    height: 44px;
+
+    img {
+      width: 24px;
+      height: 24px;
+    }
+  }
+
+  .messagesPage__emptyFeatures span:not(.messagesPage__emptyFeatureIcon) {
+    max-width: none;
+  }
 }
 
 .messagesPage__chatHead {
@@ -707,16 +827,33 @@
 }
 
 @media (max-width: 640px) {
-  .messagesPage__createGroup span[aria-hidden='true'] {
-    font-size: 18px;
+  .messagesPage__createGroup {
+    padding: 0 12px;
+    min-height: 44px;
+    gap: 6px;
+  }
+
+  .messagesPage__createGroupLabel {
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 420px) {
+  .messagesPage__createGroup {
+    min-width: 44px;
+    padding: 0 12px;
+  }
+
+  .messagesPage__createGroupLabel {
+    display: none;
+  }
+
+  .messagesPage__createGroupPlus {
+    display: inline;
   }
 }
 
 @media (max-width: 900px) {
-  .messagesPage__toolbar .messageSoundToggle {
-    display: none;
-  }
-
   .messagesPage__content--chatOpen .messagesPage__toolbar {
     display: none;
   }
@@ -947,32 +1084,10 @@ html[data-theme='dark'] {
     opacity: 0.75;
   }
 
-  .messagesPage__toolbar .messageSoundToggle {
-    border: var(--msg-pill-border);
-    background: var(--msg-pill-bg);
-    box-shadow: var(--msg-pill-shadow);
-    color: #fff;
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-
-    &.is-muted {
-      color: rgba(255, 255, 255, 0.55);
-    }
-  }
-
   .messagesPage__searchWrap {
     border: var(--msg-pill-border);
     background: var(--msg-pill-bg);
     box-shadow: var(--msg-pill-shadow);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-  }
-
-  .messagesPage__createGroup {
-    border: var(--msg-pill-border);
-    background: var(--msg-pill-bg);
-    box-shadow: var(--msg-pill-shadow);
-    color: #fff;
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
   }
@@ -992,6 +1107,15 @@ html[data-theme='dark'] {
     -webkit-backdrop-filter: blur(12px);
     border: 1px solid rgba(255, 255, 255, 0.1);
     box-shadow: var(--msg-shadow-card);
+  }
+
+  .messagesPage__emptyArt {
+    mix-blend-mode: screen;
+  }
+
+  .messagesPage__emptyFeatureIcon {
+    background: rgba(255, 255, 255, 0.1);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.18);
   }
 
   .messagesPage__hint--error {

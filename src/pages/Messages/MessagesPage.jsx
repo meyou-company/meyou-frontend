@@ -27,7 +27,6 @@ import MessageBubble from '../../components/Messages/MessageBubble';
 import MessageComposer from '../../components/Messages/MessageComposer';
 import MessageContextMenu from '../../components/Messages/MessageContextMenu';
 import MessageSearchPanel from '../../components/Messages/MessageSearchPanel';
-import MessageSoundToggle from '../../components/Messages/MessageSoundToggle';
 import MessagesNavBadge from '../../components/Messages/MessagesNavBadge';
 import ReportMessageModal from '../../components/Messages/ReportMessageModal';
 import TypingIndicator from '../../components/Messages/TypingIndicator';
@@ -77,6 +76,34 @@ function getDisplayName(user, fallback) {
   if (user.name?.trim()) return user.name.trim();
   const full = `${user.firstName || ''} ${user.lastName || ''}`.trim();
   return full || user.username || fallback;
+}
+
+function GroupUsersIcon() {
+  return (
+    <svg
+      className="messagesPage__createGroupIcon"
+      viewBox="0 0 24 24"
+      width="18"
+      height="18"
+      fill="none"
+      aria-hidden="true"
+    >
+      <circle cx="9" cy="8" r="3.1" stroke="currentColor" strokeWidth="1.7" />
+      <path
+        d="M3.6 18.2c.8-3.4 3.3-5.1 5.4-5.1 2.1 0 4.6 1.7 5.4 5.1"
+        stroke="currentColor"
+        strokeWidth="1.7"
+        strokeLinecap="round"
+      />
+      <circle cx="16.6" cy="9.1" r="2.5" stroke="currentColor" strokeWidth="1.7" />
+      <path
+        d="M16.6 13.2c1.9 0 3.8 1.3 4.6 3.8"
+        stroke="currentColor"
+        strokeWidth="1.7"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
 }
 
 function sortConversations(items) {
@@ -1050,15 +1077,19 @@ export default function MessagesPage() {
               </span>
             </label>
 
-            <MessageSoundToggle />
             <button
               type="button"
               className="messagesPage__createGroup"
               onClick={() => setShowCreateGroup(true)}
               aria-label={t('messenger.group.createAria')}
             >
-              <span aria-hidden="true">＋</span>
-              {t('messenger.group.create')}
+              <GroupUsersIcon />
+              <span className="messagesPage__createGroupLabel">
+                {t('messenger.group.create')}
+              </span>
+              <span className="messagesPage__createGroupPlus" aria-hidden="true">
+                +
+              </span>
             </button>
           </div>
 
@@ -1199,7 +1230,34 @@ export default function MessagesPage() {
             >
               {!activeConversationId && (
                 <div className="messagesPage__emptyChat">
-                  <p>{t('messenger.selectChat')}</p>
+                  <img
+                    src="/messages/messages-empty-chat.png"
+                    alt={t('messenger.empty.illustrationAlt')}
+                    className="messagesPage__emptyArt"
+                  />
+                  <ul className="messagesPage__emptyFeatures">
+                    <li>
+                      <span className="messagesPage__emptyFeatureIcon" aria-hidden="true">
+                        <img src={profileIcons.comments} alt="" />
+                      </span>
+                      <strong>{t('messenger.empty.communicate')}</strong>
+                      <span>{t('messenger.empty.communicateHint')}</span>
+                    </li>
+                    <li>
+                      <span className="messagesPage__emptyFeatureIcon" aria-hidden="true">
+                        <img src={profileIcons.friends} alt="" />
+                      </span>
+                      <strong>{t('messenger.empty.createGroups')}</strong>
+                      <span>{t('messenger.empty.createGroupsHint')}</span>
+                    </li>
+                    <li>
+                      <span className="messagesPage__emptyFeatureIcon" aria-hidden="true">
+                        <img src={profileIcons.like} alt="" />
+                      </span>
+                      <strong>{t('messenger.empty.closer')}</strong>
+                      <span>{t('messenger.empty.closerHint')}</span>
+                    </li>
+                  </ul>
                 </div>
               )}
 
