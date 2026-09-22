@@ -42,6 +42,7 @@ export default function ChatContextMenu({
   anchorRect,
   isPinned = false,
   isMuted = false,
+  isGroup = false,
   onClose,
   onAction,
 }) {
@@ -70,7 +71,7 @@ export default function ChatContextMenu({
       Icon: LuMailOpen,
       label: t('messenger.chatMenu.markUnread'),
     },
-    {
+    !isGroup && {
       id: 'block',
       Icon: LuBan,
       label: t('messenger.chatMenu.block'),
@@ -82,7 +83,7 @@ export default function ChatContextMenu({
       label: t('messenger.chatMenu.delete'),
       danger: true,
     },
-  ];
+  ].filter(Boolean);
 
   useLayoutEffect(() => {
     if (!isOpen || !anchorRect || !menuRef.current) {
@@ -92,7 +93,7 @@ export default function ChatContextMenu({
     const rect = menuRef.current.getBoundingClientRect();
     setPosition(computePosition(anchorRect, rect));
     setReady(true);
-  }, [isOpen, anchorRect, isPinned, isMuted]);
+  }, [isOpen, anchorRect, isPinned, isMuted, isGroup]);
 
   useEffect(() => {
     if (!isOpen) return undefined;

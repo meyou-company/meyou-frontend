@@ -143,6 +143,8 @@ export default function MessageBubble({
   currentUserId,
   peerAvatarUrl,
   peerName = '',
+  showSenderName = false,
+  hideReadReceipt = false,
   onOpenMenu,
   onReactionSelect,
   onOpenStory,
@@ -256,6 +258,9 @@ export default function MessageBubble({
       ) : null}
 
       <div className="msgBubbleRow__content">
+        {showSenderName && !isMine && peerName ? (
+          <span className="msgBubbleRow__sender">{peerName}</span>
+        ) : null}
         <div
           className={`msgBubbleRow__hoverZone${canShowReactionBar ? ' can-react' : ''}${showReactions ? ' is-reactions-visible' : ''}`}
           onMouseEnter={handleHoverZoneEnter}
@@ -342,7 +347,7 @@ export default function MessageBubble({
             <time className="msgBubble__time" dateTime={message.createdAt || undefined}>
               {timeLabel}
             </time>
-            {isMine ? <ReadReceipt isSeen={isSeenByPeer} /> : null}
+            {isMine && !hideReadReceipt ? <ReadReceipt isSeen={isSeenByPeer} /> : null}
           </div>
         </div>
         </div>

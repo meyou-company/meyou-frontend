@@ -95,6 +95,26 @@
   }
 }
 
+.messagesPage__createGroup {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: clamp(48px, 12vw, 56px);
+  padding: 0 clamp(12px, 2.5vw, 16px);
+  border-radius: var(--msg-pill-radius);
+  border: var(--msg-pill-border);
+  background: var(--msg-pill-bg);
+  box-shadow: var(--msg-pill-shadow);
+  color: var(--msg-text);
+  font: inherit;
+  font-size: clamp(13px, 2.8vw, 14px);
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
 .messagesPage__searchWrap {
   flex: 1;
   display: flex;
@@ -311,6 +331,22 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  min-width: 0;
+  flex: 1;
+}
+
+.messagesPage__chatTopRight {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.messagesPage__chatTime {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--msg-text-muted);
+  white-space: nowrap;
 }
 
 .messagesPage__unread {
@@ -390,6 +426,25 @@
   min-width: 0;
 }
 
+.messagesPage__chatHeadButton {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  flex: 1;
+  border: none;
+  padding: 0;
+  background: transparent;
+  color: inherit;
+  text-align: left;
+  font: inherit;
+  cursor: default;
+
+  &.is-group {
+    cursor: pointer;
+  }
+}
+
 .messagesPage__chatHeadAvatar {
   position: relative;
   width: 40px;
@@ -432,6 +487,13 @@
   white-space: nowrap;
 }
 
+.messagesPage__chatSubtitle {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--msg-text-muted);
+}
+
 .messagesPage__chatActions {
   display: flex;
   align-items: center;
@@ -458,6 +520,11 @@
 
   &.is-active {
     background: #e1cbff;
+  }
+
+  &:disabled {
+    opacity: 0.42;
+    cursor: not-allowed;
   }
 }
 
@@ -636,6 +703,12 @@
 
   .messagesPage__backMobile {
     display: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .messagesPage__createGroup span[aria-hidden='true'] {
+    font-size: 18px;
   }
 }
 
@@ -891,6 +964,15 @@ html[data-theme='dark'] {
     border: var(--msg-pill-border);
     background: var(--msg-pill-bg);
     box-shadow: var(--msg-pill-shadow);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+
+  .messagesPage__createGroup {
+    border: var(--msg-pill-border);
+    background: var(--msg-pill-bg);
+    box-shadow: var(--msg-pill-shadow);
+    color: #fff;
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
   }

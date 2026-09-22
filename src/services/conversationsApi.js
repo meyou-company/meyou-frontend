@@ -60,6 +60,64 @@ export const conversationsApi = {
     return data;
   },
 
+  async createGroup({ name, avatarUrl, memberIds }) {
+    const { data } = await api.post(apiPath('/conversations/groups'), {
+      name,
+      avatarUrl: avatarUrl || undefined,
+      memberIds,
+    });
+    return data;
+  },
+
+  async getById(conversationId) {
+    const { data } = await api.get(
+      apiPath(`/conversations/${encodeURIComponent(conversationId)}`),
+    );
+    return data;
+  },
+
+  async updateGroup(conversationId, payload) {
+    const { data } = await api.patch(
+      apiPath(`/conversations/${encodeURIComponent(conversationId)}`),
+      payload,
+    );
+    return data;
+  },
+
+  async addGroupMembers(conversationId, memberIds) {
+    const { data } = await api.post(
+      apiPath(`/conversations/${encodeURIComponent(conversationId)}/members`),
+      { memberIds },
+    );
+    return data;
+  },
+
+  async removeGroupMember(conversationId, userId) {
+    const { data } = await api.delete(
+      apiPath(
+        `/conversations/${encodeURIComponent(conversationId)}/members/${encodeURIComponent(userId)}`,
+      ),
+    );
+    return data;
+  },
+
+  async updateGroupMemberRole(conversationId, userId, role) {
+    const { data } = await api.patch(
+      apiPath(
+        `/conversations/${encodeURIComponent(conversationId)}/members/${encodeURIComponent(userId)}`,
+      ),
+      { role },
+    );
+    return data;
+  },
+
+  async leaveGroup(conversationId) {
+    const { data } = await api.post(
+      apiPath(`/conversations/${encodeURIComponent(conversationId)}/leave`),
+    );
+    return data;
+  },
+
   async getMessages(conversationId, { page = 1, limit = 50 } = {}) {
     const { data } = await api.get(
       apiPath(`/conversations/${encodeURIComponent(conversationId)}/messages`),
