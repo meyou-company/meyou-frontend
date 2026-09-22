@@ -14,6 +14,7 @@ import {
   dispatchMessageUpdated,
   dispatchUserStopTyping,
   dispatchUserTyping,
+  dispatchConversationDeleted,
 } from '../constants/messageEvents';
 import { getSessionAccessToken } from '../services/api';
 import { connectSocket } from '../services/socket';
@@ -154,6 +155,8 @@ export function MessagesSocketProvider() {
     const onUnpinned = (envelope) => dispatchMessageUnpinned(envelope);
     const onTyping = (envelope) => dispatchUserTyping(envelope);
     const onStopTyping = (envelope) => dispatchUserStopTyping(envelope);
+    const onConversationDeleted = (envelope) =>
+      dispatchConversationDeleted(envelope);
 
     const onConnect = () => refreshUnread();
 
@@ -169,6 +172,7 @@ export function MessagesSocketProvider() {
     socket.on('message.unpinned', onUnpinned);
     socket.on('user.typing', onTyping);
     socket.on('user.stopTyping', onStopTyping);
+    socket.on('conversation.deleted', onConversationDeleted);
 
     if (socket.connected) {
       refreshUnread();
@@ -187,6 +191,7 @@ export function MessagesSocketProvider() {
       socket.off('message.unpinned', onUnpinned);
       socket.off('user.typing', onTyping);
       socket.off('user.stopTyping', onStopTyping);
+      socket.off('conversation.deleted', onConversationDeleted);
     };
   }, [canConnectSocket, token]);
 

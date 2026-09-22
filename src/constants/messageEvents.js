@@ -9,6 +9,7 @@ export const MESSAGE_PINNED_EVENT = 'meyou:message.pinned';
 export const MESSAGE_UNPINNED_EVENT = 'meyou:message.unpinned';
 export const USER_TYPING_EVENT = 'meyou:user.typing';
 export const USER_STOP_TYPING_EVENT = 'meyou:user.stopTyping';
+export const CONVERSATION_DELETED_EVENT = 'meyou:conversation.deleted';
 
 function dispatch(name, detail) {
   if (typeof window === 'undefined') return;
@@ -57,4 +58,8 @@ export function dispatchUserTyping(detail) {
 
 export function dispatchUserStopTyping(detail) {
   dispatch(USER_STOP_TYPING_EVENT, detail);
+}
+
+export function dispatchConversationDeleted(detail) {
+  dispatch(CONVERSATION_DELETED_EVENT, detail);
 }

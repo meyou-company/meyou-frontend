@@ -71,7 +71,7 @@ export default function ChatContextMenu({
       Icon: LuMailOpen,
       label: t('messenger.chatMenu.markUnread'),
     },
-    !isGroup && {
+      !isGroup && {
       id: 'block',
       Icon: LuBan,
       label: t('messenger.chatMenu.block'),
@@ -80,7 +80,9 @@ export default function ChatContextMenu({
     {
       id: 'delete',
       Icon: LuTrash2,
-      label: t('messenger.chatMenu.delete'),
+      label: isGroup
+        ? t('messenger.chatMenu.hide')
+        : t('messenger.chatMenu.delete'),
       danger: true,
     },
   ].filter(Boolean);

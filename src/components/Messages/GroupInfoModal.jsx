@@ -159,9 +159,11 @@ export default function GroupInfoModal({
   onClose,
   onUpdated,
   onLeft,
+  onDeleted,
 }) {
   const { t } = useTranslation();
   const fileRef = useRef(null);
+  const deletingRef = useRef(false);
   const [view, setView] = useState('info');
   const [nameDraft, setNameDraft] = useState('');
   const [editingName, setEditingName] = useState(false);
@@ -172,6 +174,7 @@ export default function GroupInfoModal({
   const [loading, setLoading] = useState(false);
   const [busy, setBusy] = useState(false);
   const [memberMenu, setMemberMenu] = useState(null);
+  const [confirmDelete, setConfirmDelete] = useState(false);
 
   const members = useMemo(() => {
     const rows = Array.isArray(conversation?.members) ? conversation.members : [];
@@ -193,6 +196,8 @@ export default function GroupInfoModal({
       setQuery('');
       setPicked(new Map());
       setMemberMenu(null);
+      setConfirmDelete(false);
+      deletingRef.current = false;
       return;
     }
     setNameDraft(conversation?.name || '');
@@ -385,6 +390,24 @@ export default function GroupInfoModal({
     } catch (err) {
       toast.error(getApiErrorMessage(err, 'messenger.group.updateError'));
     } finally {
+      setBusy(false);
+    }
+  };
+
+  const handleDeleteGroup = async () => {
+    if (!conversation?.id || deletingRef.current) return;
+    deletingRef.current = true;
+    try {
+      setBusy(true);
+      await conversationsApi.deleteGroup(conversation.id);
+      toast.success(t('messenger.group.deleteSuccess'));
+      setConfirmDelete(false);
+      onClose?.();
+      onDeleted?.(conversation.id);
+    } catch (err) {
+      toast.error(getApiErrorMessage(err, 'messenger.group.updateError'));
+    } finally {
+      deletingRef.current = false;
       setBusy(false);
     }
   };
@@ -692,15 +715,28 @@ export default function GroupInfoModal({
               <div className="groupInfoModal__divider" />
             )}
 
-            <button
-              type="button"
-              className="groupInfoModal__leave"
-              onClick={() => void handleLeave()}
-              disabled={busy}
-            >
-              <LuLogOut size={16} aria-hidden="true" />
-              {t('messenger.group.leave')}
-            </button>
+            <div className="groupInfoModal__footerActions">
+              <button
+                type="button"
+                className="groupInfoModal__leave"
+                onClick={() => void handleLeave()}
+                disabled={busy}
+              >
+                <LuLogOut size={16} aria-hidden="true" />
+                {t('messenger.group.leave')}
+              </button>
+              {isOwner ? (
+                <button
+                  type="button"
+                  className="groupInfoModal__deleteGroup"
+                  onClick={() => setConfirmDelete(true)}
+                  disabled={busy}
+                >
+                  <LuTrash2 size={16} aria-hidden="true" />
+                  {t('messenger.group.delete')}
+                </button>
+              ) : null}
+            </div>
 
             <input
               ref={fileRef}
@@ -721,6 +757,57 @@ export default function GroupInfoModal({
         onClose={() => setMemberMenu(null)}
         onAction={handleMemberMenuAction}
       />
+
+      {confirmDelete
+        ? createPortal(
+            <div
+              className="groupDeleteConfirmOverlay"
+              role="presentation"
+              onClick={() => {
+                if (!busy) setConfirmDelete(false);
+              }}
+            >
+              <div
+                className="groupDeleteConfirm"
+                role="alertdialog"
+                aria-modal="true"
+                aria-labelledby="group-delete-title"
+                aria-describedby="group-delete-desc"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <h2 id="group-delete-title" className="groupDeleteConfirm__title">
+                  {t('messenger.group.deleteConfirmTitle')}
+                </h2>
+                <p id="group-delete-desc" className="groupDeleteConfirm__desc">
+                  {t('messenger.group.deleteConfirmBody', {
+                    name: title,
+                  })}
+                </p>
+                <div className="groupDeleteConfirm__actions">
+                  <button
+                    type="button"
+                    className="groupDeleteConfirm__cancel"
+                    onClick={() => setConfirmDelete(false)}
+                    disabled={busy}
+                  >
+                    {t('common.cancel')}
+                  </button>
+                  <button
+                    type="button"
+                    className="groupDeleteConfirm__confirm"
+                    onClick={() => void handleDeleteGroup()}
+                    disabled={busy}
+                  >
+                    {busy
+                      ? t('messenger.group.deleting')
+                      : t('messenger.group.delete')}
+                  </button>
+                </div>
+              </div>
+            </div>,
+            document.body,
+          )
+        : null}
     </div>
   );
 }

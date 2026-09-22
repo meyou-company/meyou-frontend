@@ -14,6 +14,7 @@ import {
   MESSAGE_UPDATED_EVENT,
   USER_STOP_TYPING_EVENT,
   USER_TYPING_EVENT,
+  CONVERSATION_DELETED_EVENT,
 } from '../../constants/messageEvents';
 import profileIcons from '../../constants/profileIcons';
 import AppHeader from '../../components/Layout/AppHeader';
@@ -683,6 +684,20 @@ export default function MessagesPage() {
       );
     };
 
+    const onConversationDeleted = (event) => {
+      const convId = event?.detail?.conversationId;
+      if (!convId) return;
+      setConversations((prev) =>
+        prev.filter((c) => String(c.id) !== String(convId)),
+      );
+      setShowGroupInfo(false);
+      if (String(activeConversationId) === String(convId)) {
+        setMessages([]);
+        navigate('/messages');
+      }
+      void fetchTotalUnreadCount(true);
+    };
+
     window.addEventListener(MESSAGE_CREATED_EVENT, onCreated);
     window.addEventListener(MESSAGE_READ_EVENT, onRead);
     window.addEventListener(MESSAGE_UPDATED_EVENT, onUpdated);
@@ -694,6 +709,7 @@ export default function MessagesPage() {
     window.addEventListener(MESSAGE_UNPINNED_EVENT, onUnpinned);
     window.addEventListener(USER_TYPING_EVENT, onTyping);
     window.addEventListener(USER_STOP_TYPING_EVENT, onStopTyping);
+    window.addEventListener(CONVERSATION_DELETED_EVENT, onConversationDeleted);
 
     return () => {
       window.removeEventListener(MESSAGE_CREATED_EVENT, onCreated);
@@ -707,13 +723,16 @@ export default function MessagesPage() {
       window.removeEventListener(MESSAGE_UNPINNED_EVENT, onUnpinned);
       window.removeEventListener(USER_TYPING_EVENT, onTyping);
       window.removeEventListener(USER_STOP_TYPING_EVENT, onStopTyping);
+      window.removeEventListener(CONVERSATION_DELETED_EVENT, onConversationDeleted);
     };
   }, [
     activeConversationId,
     appendOrUpdateMessage,
     currentUserId,
+    fetchTotalUnreadCount,
     loadConversations,
     markChatRead,
+    navigate,
     setTotalUnreadCount,
   ]);
 
@@ -996,7 +1015,12 @@ export default function MessagesPage() {
         }
 
         if (actionId === 'delete') {
-          const ok = window.confirm(t('messenger.chatMenu.deleteConfirm'));
+          const isGroup = isGroupConversation(chat);
+          const ok = window.confirm(
+            isGroup
+              ? t('messenger.chatMenu.hideConfirm')
+              : t('messenger.chatMenu.deleteConfirm'),
+          );
           if (!ok) return;
           const result = await conversationsApi.deleteConversationForMe(chatId);
           setConversations((prev) =>
@@ -1010,7 +1034,11 @@ export default function MessagesPage() {
           } else {
             void fetchTotalUnreadCount(true);
           }
-          toast.success(t('messenger.chatMenu.deleteSuccess'));
+          toast.success(
+            isGroup
+              ? t('messenger.chatMenu.hideSuccess')
+              : t('messenger.chatMenu.deleteSuccess'),
+          );
         }
       } catch (err) {
         toast.error(getApiErrorMessage(err, 'errors.generic'));
@@ -1596,6 +1624,17 @@ export default function MessagesPage() {
           if (String(activeConversationId) === String(leftId)) {
             navigate('/messages');
           }
+        }}
+        onDeleted={(deletedId) => {
+          setConversations((prev) =>
+            prev.filter((c) => String(c.id) !== String(deletedId)),
+          );
+          setShowGroupInfo(false);
+          if (String(activeConversationId) === String(deletedId)) {
+            setMessages([]);
+            navigate('/messages');
+          }
+          void fetchTotalUnreadCount(true);
         }}
       />
 

@@ -118,6 +118,13 @@ export const conversationsApi = {
     return data;
   },
 
+  async deleteGroup(conversationId) {
+    const { data } = await api.delete(
+      apiPath(`/conversations/${encodeURIComponent(conversationId)}/group`),
+    );
+    return data;
+  },
+
   async getMessages(conversationId, { page = 1, limit = 50 } = {}) {
     const { data } = await api.get(
       apiPath(`/conversations/${encodeURIComponent(conversationId)}/messages`),
