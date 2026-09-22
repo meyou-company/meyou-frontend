@@ -1,5 +1,16 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
+import {
+  LuCamera,
+  LuImage,
+  LuLogOut,
+  LuPencil,
+  LuPlus,
+  LuShield,
+  LuTrash2,
+  LuUser,
+} from 'react-icons/lu';
 import { toast } from 'sonner';
 import { conversationsApi } from '../../services/conversationsApi';
 import { subscriptionsApi } from '../../services/subscriptionsApi';
@@ -8,6 +19,7 @@ import { uploadMessageMedia } from '../../services/messageMediaUploadApi';
 import { getApiErrorMessage } from '../../utils/getApiErrorMessage';
 import { getMemberDisplayName } from '../../utils/conversationPreview';
 import GroupAvatar from './GroupAvatar';
+import './ChatContextMenu.scss';
 import './GroupInfoModal.scss';
 
 function extractUsers(payload) {
@@ -31,6 +43,115 @@ function roleRank(role) {
   return 2;
 }
 
+function computeMenuPosition(anchorRect, menuSize) {
+  const pad = 12;
+  const gap = 8;
+  const { width: menuW, height: menuH } = menuSize;
+  const viewportW = window.innerWidth;
+  const viewportH = window.innerHeight;
+
+  let top = anchorRect.bottom + gap;
+  let left = anchorRect.right - menuW;
+
+  if (top + menuH > viewportH - pad) {
+    top = anchorRect.top - menuH - gap;
+  }
+  if (left + menuW > viewportW - pad) {
+    left = viewportW - menuW - pad;
+  }
+  if (left < pad) left = pad;
+  if (top < pad) top = pad;
+
+  return { top, left };
+}
+
+function MemberActionsMenu({ isOpen, anchorRect, items, label, onClose, onAction }) {
+  const menuRef = useRef(null);
+  const [position, setPosition] = useState({ top: 0, left: 0 });
+  const [ready, setReady] = useState(false);
+
+  useLayoutEffect(() => {
+    if (!isOpen || !anchorRect || !menuRef.current) {
+      setReady(false);
+      return;
+    }
+    const rect = menuRef.current.getBoundingClientRect();
+    setPosition(computeMenuPosition(anchorRect, rect));
+    setReady(true);
+    const first = menuRef.current.querySelector('[role="menuitem"]');
+    first?.focus();
+  }, [isOpen, anchorRect]);
+
+  useEffect(() => {
+    if (!isOpen) return undefined;
+
+    const onDocDown = (e) => {
+      if (menuRef.current && !menuRef.current.contains(e.target)) {
+        onClose?.();
+      }
+    };
+    const onKey = (e) => {
+      if (e.key === 'Escape') {
+        e.stopPropagation();
+        onClose?.();
+      }
+    };
+
+    const onScrollOrResize = () => onClose?.();
+
+    document.addEventListener('mousedown', onDocDown);
+    document.addEventListener('touchstart', onDocDown, { passive: true });
+    document.addEventListener('keydown', onKey, true);
+    window.addEventListener('scroll', onScrollOrResize, true);
+    window.addEventListener('resize', onScrollOrResize);
+
+    return () => {
+      document.removeEventListener('mousedown', onDocDown);
+      document.removeEventListener('touchstart', onDocDown);
+      document.removeEventListener('keydown', onKey, true);
+      window.removeEventListener('scroll', onScrollOrResize, true);
+      window.removeEventListener('resize', onScrollOrResize);
+    };
+  }, [isOpen, onClose]);
+
+  if (!isOpen || !anchorRect) return null;
+
+  return createPortal(
+    <div
+      className="chatContextMenuOverlay groupInfoModal__menuOverlay"
+      role="presentation"
+      onClick={(e) => e.stopPropagation()}
+    >
+      <div
+        ref={menuRef}
+        className={`chatContextMenu groupInfoModal__menu${ready ? ' is-ready' : ''}`}
+        style={{ top: position.top, left: position.left }}
+        role="menu"
+        aria-label={label}
+      >
+        <ul className="chatContextMenu__list">
+          {items.map(({ id, Icon, label: itemLabel, danger }) => (
+            <li key={id}>
+              <button
+                type="button"
+                role="menuitem"
+                className={`chatContextMenu__item${danger ? ' chatContextMenu__item--danger' : ''}`}
+                onClick={() => onAction?.(id)}
+              >
+                <span className="chatContextMenu__icon" aria-hidden="true">
+                  <Icon size={16} />
+                </span>
+                <span>{itemLabel}</span>
+              </button>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>,
+    document.body,
+  );
+}
+
 export default function GroupInfoModal({
   isOpen,
   conversation,
@@ -50,6 +171,7 @@ export default function GroupInfoModal({
   const [picked, setPicked] = useState(() => new Map());
   const [loading, setLoading] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [memberMenu, setMemberMenu] = useState(null);
 
   const members = useMemo(() => {
     const rows = Array.isArray(conversation?.members) ? conversation.members : [];
@@ -70,6 +192,7 @@ export default function GroupInfoModal({
       setEditingName(false);
       setQuery('');
       setPicked(new Map());
+      setMemberMenu(null);
       return;
     }
     setNameDraft(conversation?.name || '');
@@ -277,7 +400,68 @@ export default function GroupInfoModal({
   const roleLabel = (role) => {
     if (role === 'OWNER') return t('messenger.group.owner');
     if (role === 'ADMIN') return t('messenger.group.admin');
-    return '';
+    return t('messenger.group.member');
+  };
+
+  const memberActions = (member) => {
+    const items = [];
+    if (isOwner && member.role === 'MEMBER') {
+      items.push({
+        id: 'makeAdmin',
+        Icon: LuShield,
+        label: t('messenger.group.makeAdmin'),
+      });
+    }
+    if (isOwner && member.role === 'ADMIN') {
+      items.push({
+        id: 'makeMember',
+        Icon: LuUser,
+        label: t('messenger.group.makeMember'),
+      });
+    }
+    if (canRemove(member)) {
+      items.push({
+        id: 'remove',
+        Icon: LuTrash2,
+        label: t('messenger.group.removeMember'),
+        danger: true,
+      });
+    }
+    return items;
+  };
+
+  const openMemberMenu = (event, member) => {
+    event.preventDefault();
+    event.stopPropagation();
+    const rect = event.currentTarget.getBoundingClientRect();
+    setMemberMenu({
+      member,
+      anchorRect: {
+        top: rect.top,
+        left: rect.left,
+        right: rect.right,
+        bottom: rect.bottom,
+        width: rect.width,
+        height: rect.height,
+      },
+    });
+  };
+
+  const handleMemberMenuAction = (actionId) => {
+    const member = memberMenu?.member;
+    setMemberMenu(null);
+    if (!member) return;
+    if (actionId === 'makeAdmin') {
+      void handleRole(member, 'ADMIN');
+      return;
+    }
+    if (actionId === 'makeMember') {
+      void handleRole(member, 'MEMBER');
+      return;
+    }
+    if (actionId === 'remove') {
+      void handleRemove(member);
+    }
   };
 
   return (
@@ -315,7 +499,7 @@ export default function GroupInfoModal({
               />
             </label>
             {loading ? <p className="msgModal__hint">{t('common.loading')}</p> : null}
-            <ul className="msgModal__list">
+            <ul className="msgModal__list groupInfoModal__addList">
               {visibleUsers.map((user) => {
                 const id = getUserId(user);
                 const label = getMemberDisplayName(user, t('common.user'));
@@ -337,7 +521,7 @@ export default function GroupInfoModal({
                       <span className="msgModal__avatar">
                         {user.avatarUrl ? <img src={user.avatarUrl} alt="" /> : label.charAt(0)}
                       </span>
-                      <span>{label}</span>
+                      <span className="groupInfoModal__addName">{label}</span>
                     </button>
                   </li>
                 );
@@ -360,7 +544,20 @@ export default function GroupInfoModal({
         ) : (
           <div className="groupInfoModal__body">
             <div className="groupInfoModal__hero">
-              <GroupAvatar src={conversation.avatarUrl} name={title} />
+              <div className="groupInfoModal__avatarWrap">
+                <GroupAvatar src={conversation.avatarUrl} name={title} />
+                {canManage ? (
+                  <button
+                    type="button"
+                    className="groupInfoModal__camera"
+                    onClick={() => fileRef.current?.click()}
+                    disabled={busy}
+                    aria-label={t('messenger.group.changeAvatar')}
+                  >
+                    <LuCamera size={14} />
+                  </button>
+                ) : null}
+              </div>
               {editingName ? (
                 <div className="groupInfoModal__nameEdit">
                   <input
@@ -368,15 +565,31 @@ export default function GroupInfoModal({
                     value={nameDraft}
                     maxLength={80}
                     onChange={(e) => setNameDraft(e.target.value)}
+                    aria-label={t('messenger.group.nameLabel')}
                   />
-                  <button type="button" className="msgModal__submit" disabled={busy} onClick={() => void handleSaveName()}>
+                  <button
+                    type="button"
+                    className="msgModal__submit"
+                    disabled={busy}
+                    onClick={() => void handleSaveName()}
+                  >
                     {t('common.save')}
+                  </button>
+                  <button
+                    type="button"
+                    className="groupInfoModal__ghost"
+                    onClick={() => {
+                      setEditingName(false);
+                      setNameDraft(conversation?.name || '');
+                    }}
+                  >
+                    {t('common.cancel')}
                   </button>
                 </div>
               ) : (
                 <>
-                  <h3>{title}</h3>
-                  <p>
+                  <h3 className="groupInfoModal__title">{title}</h3>
+                  <p className="groupInfoModal__count">
                     {t('messenger.group.membersCount', {
                       count: conversation.memberCount || members.length,
                     })}
@@ -385,74 +598,129 @@ export default function GroupInfoModal({
               )}
             </div>
 
+            <div className="groupInfoModal__divider" />
+
+            <div className="groupInfoModal__sectionHead">
+              <h3>{t('messenger.group.members')}</h3>
+              {canManage ? (
+                <button
+                  type="button"
+                  className="groupInfoModal__addBtn"
+                  onClick={() => {
+                    setMemberMenu(null);
+                    setView('add');
+                  }}
+                >
+                  {t('messenger.group.addMembers')}
+                  <LuPlus size={16} aria-hidden="true" />
+                </button>
+              ) : null}
+            </div>
+
             <ul className="groupInfoModal__members">
               {members.map((member) => {
                 const label = getMemberDisplayName(member, t('common.user'));
                 const role = roleLabel(member.role);
+                const isMemberOwner = member.role === 'OWNER';
+                const actions = memberActions(member);
                 return (
                   <li key={member.id} className="groupInfoModal__member">
-                    <span className="msgModal__avatar">
+                    <span className="msgModal__avatar groupInfoModal__memberAvatar">
                       {member.avatarUrl ? <img src={member.avatarUrl} alt="" /> : label.charAt(0)}
                     </span>
                     <div className="groupInfoModal__memberMeta">
-                      <strong>{label}</strong>
-                      {role ? <span>{role}</span> : null}
+                      <strong className="groupInfoModal__memberName" title={label}>
+                        {label}
+                      </strong>
+                      <span className="groupInfoModal__memberRole">{role}</span>
                     </div>
-                    <div className="groupInfoModal__memberActions">
-                      {isOwner && member.role === 'MEMBER' ? (
-                        <button type="button" disabled={busy} onClick={() => void handleRole(member, 'ADMIN')}>
-                          {t('messenger.group.makeAdmin')}
-                        </button>
-                      ) : null}
-                      {isOwner && member.role === 'ADMIN' ? (
-                        <button type="button" disabled={busy} onClick={() => void handleRole(member, 'MEMBER')}>
-                          {t('messenger.group.removeAdmin')}
-                        </button>
-                      ) : null}
-                      {canRemove(member) ? (
-                        <button
-                          type="button"
-                          className="is-danger"
-                          disabled={busy}
-                          onClick={() => void handleRemove(member)}
-                        >
-                          {t('messenger.group.removeMember')}
-                        </button>
-                      ) : null}
-                    </div>
+                    {isMemberOwner ? (
+                      <span
+                        className="groupInfoModal__crown"
+                        aria-label={t('messenger.group.owner')}
+                        title={t('messenger.group.owner')}
+                      >
+                        👑
+                      </span>
+                    ) : actions.length ? (
+                      <button
+                        type="button"
+                        className="groupInfoModal__kebab"
+                        aria-haspopup="menu"
+                        aria-expanded={
+                          String(memberMenu?.member?.id) === String(member.id)
+                        }
+                        aria-label={t('messenger.group.memberMenu')}
+                        disabled={busy}
+                        onClick={(e) => openMemberMenu(e, member)}
+                      >
+                        ⋮
+                      </button>
+                    ) : null}
                   </li>
                 );
               })}
             </ul>
 
-            <div className="groupInfoModal__controls">
-              {canManage ? (
-                <>
-                  <button type="button" onClick={() => setView('add')}>
-                    {t('messenger.group.addMembers')}
-                  </button>
-                  <button type="button" onClick={() => setEditingName(true)}>
+            {canManage ? (
+              <>
+                <div className="groupInfoModal__divider" />
+                <div className="groupInfoModal__sectionHead">
+                  <h3>{t('messenger.group.manage')}</h3>
+                </div>
+                <div className="groupInfoModal__manageRow">
+                  <button
+                    type="button"
+                    className="groupInfoModal__manageBtn"
+                    onClick={() => setEditingName(true)}
+                  >
+                    <LuPencil size={16} aria-hidden="true" />
                     {t('messenger.group.changeName')}
                   </button>
-                  <button type="button" onClick={() => fileRef.current?.click()} disabled={busy}>
+                  <button
+                    type="button"
+                    className="groupInfoModal__manageBtn"
+                    onClick={() => fileRef.current?.click()}
+                    disabled={busy}
+                  >
+                    <LuImage size={16} aria-hidden="true" />
                     {t('messenger.group.changeAvatar')}
                   </button>
-                  <input
-                    ref={fileRef}
-                    type="file"
-                    accept="image/*"
-                    className="groupInfoModal__file"
-                    onChange={handleAvatar}
-                  />
-                </>
-              ) : null}
-              <button type="button" className="is-danger" onClick={() => void handleLeave()} disabled={busy}>
-                {t('messenger.group.leave')}
-              </button>
-            </div>
+                </div>
+              </>
+            ) : (
+              <div className="groupInfoModal__divider" />
+            )}
+
+            <button
+              type="button"
+              className="groupInfoModal__leave"
+              onClick={() => void handleLeave()}
+              disabled={busy}
+            >
+              <LuLogOut size={16} aria-hidden="true" />
+              {t('messenger.group.leave')}
+            </button>
+
+            <input
+              ref={fileRef}
+              type="file"
+              accept="image/*"
+              className="groupInfoModal__file"
+              onChange={handleAvatar}
+            />
           </div>
         )}
       </div>
+
+      <MemberActionsMenu
+        isOpen={Boolean(memberMenu)}
+        anchorRect={memberMenu?.anchorRect}
+        items={memberMenu?.member ? memberActions(memberMenu.member) : []}
+        label={t('messenger.group.memberMenu')}
+        onClose={() => setMemberMenu(null)}
+        onAction={handleMemberMenuAction}
+      />
     </div>
   );
 }

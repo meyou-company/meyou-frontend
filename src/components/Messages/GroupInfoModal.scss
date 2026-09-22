@@ -1,11 +1,31 @@
-.groupInfoModal {
-  width: min(460px, 100%);
-  max-height: min(86vh, 720px);
+.groupInfoModal.msgModal {
+  width: min(480px, calc(100vw - 24px));
+  max-height: min(85vh, 740px);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  padding: 18px 20px 16px;
+  border-radius: 24px;
+}
+
+.groupInfoModal .msgModal__head {
+  flex-shrink: 0;
+  margin-bottom: 4px;
+  min-width: 0;
+
+  h2 {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
 }
 
 .groupInfoModal__body {
   display: flex;
   flex-direction: column;
+  flex: 1;
+  min-height: 0;
   gap: 14px;
 }
 
@@ -14,39 +34,84 @@
   flex-direction: column;
   align-items: center;
   text-align: center;
-  gap: 8px;
+  gap: 10px;
+  flex-shrink: 0;
+  padding: 4px 8px 2px;
+}
+
+.groupInfoModal__avatarWrap {
+  position: relative;
+  width: 108px;
+  height: 108px;
+  flex-shrink: 0;
+  overflow: visible;
 
   .groupAvatar {
-    width: 84px;
-    height: 84px;
-  }
-
-  h3 {
-    margin: 0;
-    font-size: 20px;
-    font-weight: 700;
-  }
-
-  p {
-    margin: 0;
-    color: rgba(0, 0, 0, 0.55);
-    font-size: 14px;
+    width: 108px;
+    height: 108px;
   }
 }
 
-.groupInfoModal__nameEdit,
-.groupInfoModal__actions {
+.groupInfoModal__camera {
+  position: absolute;
+  right: 2px;
+  bottom: 2px;
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #8b5cf6, #fb64b6);
+  color: #fff;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(192, 90, 220, 0.4);
+
+  &:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
+
+  &:focus-visible {
+    outline: 2px solid #fff;
+    outline-offset: 2px;
+  }
+}
+
+.groupInfoModal__title {
+  margin: 0;
+  max-width: 100%;
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1.25;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.groupInfoModal__count {
+  margin: 0;
+  color: rgba(0, 0, 0, 0.55);
+  font-size: 14px;
+}
+
+.groupInfoModal__nameEdit {
   display: flex;
+  flex-wrap: wrap;
   gap: 8px;
   width: 100%;
 
   .msgModal__submit {
     margin-top: 0;
+    width: auto;
+    padding: 10px 16px;
   }
 }
 
 .groupInfoModal__input {
-  flex: 1;
+  flex: 1 1 160px;
+  min-width: 0;
   border: 1px solid #c2b8b8;
   border-radius: 14px;
   padding: 10px 12px;
@@ -57,26 +122,79 @@
 .groupInfoModal__search {
   min-height: 44px;
   margin: 0;
+  flex-shrink: 0;
 }
 
-.groupInfoModal__members {
+.groupInfoModal__divider {
+  height: 1px;
+  background: rgba(150, 120, 200, 0.22);
+  flex-shrink: 0;
+}
+
+.groupInfoModal__sectionHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-shrink: 0;
+  min-width: 0;
+
+  h3 {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 700;
+    min-width: 0;
+  }
+}
+
+.groupInfoModal__addBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: none;
+  background: transparent;
+  color: #c026d3;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 4px 0;
+  white-space: nowrap;
+
+  &:focus-visible {
+    outline: 2px solid #c026d3;
+    outline-offset: 2px;
+    border-radius: 8px;
+  }
+}
+
+.groupInfoModal__members,
+.groupInfoModal__addList {
   list-style: none;
   margin: 0;
-  padding: 0;
+  padding: 0 2px 4px;
   display: flex;
   flex-direction: column;
   gap: 8px;
-  max-height: 280px;
-  overflow: auto;
+  flex: 0 1 auto;
+  min-height: 0;
+  overflow-y: auto;
 }
 
 .groupInfoModal__member {
   display: flex;
-  align-items: flex-start;
-  gap: 10px;
-  padding: 8px;
-  border-radius: 14px;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  padding: 10px 12px;
+  border-radius: 16px;
   background: rgba(255, 255, 255, 0.55);
+}
+
+.groupInfoModal__memberAvatar {
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
 }
 
 .groupInfoModal__memberMeta {
@@ -85,46 +203,140 @@
   display: flex;
   flex-direction: column;
   gap: 2px;
-
-  strong {
-    font-size: 14px;
-  }
-
-  span {
-    font-size: 12px;
-    color: rgba(0, 0, 0, 0.5);
-  }
 }
 
-.groupInfoModal__memberActions,
-.groupInfoModal__controls {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
+.groupInfoModal__memberName {
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.3;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.groupInfoModal__memberActions button,
-.groupInfoModal__controls button,
-.groupInfoModal__ghost {
-  border: none;
-  border-radius: 12px;
-  padding: 8px 10px;
-  background: rgba(183, 140, 255, 0.18);
-  color: inherit;
-  font: inherit;
+.groupInfoModal__memberRole {
   font-size: 12px;
+  color: rgba(0, 0, 0, 0.5);
+}
+
+.groupInfoModal__crown,
+.groupInfoModal__kebab {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.groupInfoModal__crown {
+  font-size: 16px;
+}
+
+.groupInfoModal__kebab {
+  border: none;
+  border-radius: 10px;
+  background: transparent;
+  color: inherit;
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+
+  &:hover,
+  &:focus-visible {
+    background: rgba(183, 140, 255, 0.2);
+    outline: none;
+  }
+}
+
+.groupInfoModal__manageRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.groupInfoModal__manageBtn,
+.groupInfoModal__ghost,
+.groupInfoModal__leave {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  border: none;
+  border-radius: 14px;
+  font: inherit;
+  font-size: 13px;
   font-weight: 600;
   cursor: pointer;
 }
 
-.groupInfoModal__memberActions .is-danger,
-.groupInfoModal__controls .is-danger {
-  background: rgba(255, 77, 184, 0.16);
+.groupInfoModal__manageBtn {
+  background: rgba(183, 140, 255, 0.16);
+  color: inherit;
+}
+
+.groupInfoModal__ghost {
+  background: transparent;
+  color: inherit;
+  padding: 0 10px;
+}
+
+.groupInfoModal__leave {
+  width: 100%;
+  flex-shrink: 0;
+  background: rgba(255, 77, 184, 0.14);
   color: #c4006d;
+}
+
+.groupInfoModal__manageBtn:focus-visible,
+.groupInfoModal__leave:focus-visible,
+.groupInfoModal__ghost:focus-visible {
+  outline: 2px solid #c084fc;
+  outline-offset: 2px;
+}
+
+.groupInfoModal__manageBtn:disabled,
+.groupInfoModal__leave:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.groupInfoModal__actions {
+  display: flex;
+  gap: 8px;
+  width: 100%;
+  flex-shrink: 0;
+  align-items: center;
+
+  .msgModal__submit {
+    margin-top: 0;
+    flex: 1;
+  }
+}
+
+.groupInfoModal__addName {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .groupInfoModal__file {
   display: none;
+}
+
+.groupInfoModal__menuOverlay {
+  z-index: 1300;
+}
+
+.groupInfoModal__menu.chatContextMenu {
+  z-index: 1301;
+}
+
+.groupInfoModal__menu .chatContextMenu__item--danger {
+  color: #e11d74;
 }
 
 .msgModal__listBtn.is-selected {
@@ -132,29 +344,53 @@
 }
 
 @media (max-width: 640px) {
-  .groupInfoModal {
-    width: 100%;
+  .groupInfoModal.msgModal {
+    width: calc(100% - 16px);
+    max-height: min(90vh, 740px);
+    padding: 16px 14px 14px;
   }
 
-  .groupInfoModal__member {
-    flex-wrap: wrap;
+  .groupInfoModal__addBtn {
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .groupInfoModal__manageRow {
+    grid-template-columns: 1fr;
   }
 
-  .groupInfoModal__memberActions {
-    width: 100%;
-    padding-left: 44px;
+  .groupInfoModal__avatarWrap,
+  .groupInfoModal__avatarWrap .groupAvatar {
+    width: 92px;
+    height: 92px;
   }
 }
 
 body.dark,
 html[data-theme='dark'] {
-  .groupInfoModal__hero p,
-  .groupInfoModal__memberMeta span {
+  .groupInfoModal.msgModal {
+    background: rgba(28, 16, 42, 0.92);
+    border: 1px solid rgba(232, 121, 249, 0.28);
+    box-shadow:
+      0 16px 48px rgba(0, 0, 0, 0.45),
+      0 0 0 1px rgba(255, 255, 255, 0.04) inset;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    color: #fff;
+  }
+
+  .groupInfoModal__count,
+  .groupInfoModal__memberRole {
     color: rgba(255, 255, 255, 0.62);
   }
 
+  .groupInfoModal__divider {
+    background: rgba(255, 255, 255, 0.1);
+  }
+
   .groupInfoModal__member {
-    background: rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.07);
   }
 
   .groupInfoModal__input {
@@ -163,16 +399,31 @@ html[data-theme='dark'] {
     color: #fff;
   }
 
-  .groupInfoModal__memberActions button,
-  .groupInfoModal__controls button,
+  .groupInfoModal__addBtn {
+    color: #e879f9;
+  }
+
+  .groupInfoModal__manageBtn,
   .groupInfoModal__ghost {
-    background: rgba(183, 140, 255, 0.22);
+    background: rgba(183, 140, 255, 0.16);
     color: #fff;
   }
 
-  .groupInfoModal__memberActions .is-danger,
-  .groupInfoModal__controls .is-danger {
-    background: rgba(255, 77, 184, 0.2);
+  .groupInfoModal__ghost {
+    background: transparent;
+  }
+
+  .groupInfoModal__leave {
+    background: rgba(255, 77, 184, 0.16);
+    color: #ff9ad0;
+  }
+
+  .groupInfoModal__kebab:hover,
+  .groupInfoModal__kebab:focus-visible {
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  .groupInfoModal__menu .chatContextMenu__item--danger {
     color: #ff9ad0;
   }
 }
