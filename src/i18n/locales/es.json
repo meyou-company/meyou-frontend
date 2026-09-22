@@ -428,6 +428,8 @@
     "selectChat": "Select a chat on the left or start a conversation from a user profile.",
     "empty": {
       "illustrationAlt": "Select a chat on the left. Interesting conversations, new connections and sincere emotions are waiting for you",
+      "title": "Select a chat on the left",
+      "description": "Interesting conversations, new connections and sincere emotions are waiting for you 💜",
       "communicate": "Chat together",
       "communicateHint": "Text, photos, video, voice and more",
       "createGroups": "Create groups",

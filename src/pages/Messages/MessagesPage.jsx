@@ -1260,9 +1260,18 @@ export default function MessagesPage() {
                 <div className="messagesPage__emptyChat">
                   <img
                     src="/messages/messages-empty-chat.png"
-                    alt={t('messenger.empty.illustrationAlt')}
+                    alt=""
                     className="messagesPage__emptyArt"
+                    aria-hidden="true"
                   />
+                  <div className="messagesPage__emptyCopy">
+                    <h2 className="messagesPage__emptyTitle">
+                      {t('messenger.empty.title')}
+                    </h2>
+                    <p className="messagesPage__emptyDesc">
+                      {t('messenger.empty.description')}
+                    </p>
+                  </div>
                   <ul className="messagesPage__emptyFeatures">
                     <li>
                       <span className="messagesPage__emptyFeatureIcon" aria-hidden="true">
