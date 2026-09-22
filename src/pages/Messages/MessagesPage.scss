@@ -132,13 +132,22 @@
 .messagesPage__createGroupIcon {
   flex-shrink: 0;
   display: block;
+  width: 18px;
+  height: 18px;
+}
+
+.messagesPage__createGroupGlyph {
+  position: relative;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
 }
 
 .messagesPage__createGroupPlus {
   display: none;
-  font-size: 18px;
-  line-height: 1;
-  font-weight: 500;
 }
 
 .messagesPage__searchWrap {
@@ -865,29 +874,53 @@
 }
 
 @media (max-width: 640px) {
-  .messagesPage__createGroup {
-    padding: 0 12px;
-    min-height: 44px;
-    gap: 6px;
+  .messagesPage__toolbar {
+    align-items: center;
+    gap: 10px;
   }
 
-  .messagesPage__createGroupLabel {
-    font-size: 13px;
+  .messagesPage__searchWrap {
+    flex: 1 1 auto;
+    min-width: 0;
+    min-height: 46px;
   }
-}
 
-@media (max-width: 420px) {
   .messagesPage__createGroup {
-    min-width: 44px;
-    padding: 0 12px;
+    width: 46px;
+    height: 46px;
+    min-width: 46px;
+    min-height: 46px;
+    max-width: 46px;
+    max-height: 46px;
+    padding: 0;
+    gap: 0;
+    border-radius: 50%;
+    flex-shrink: 0;
+    align-self: center;
   }
 
   .messagesPage__createGroupLabel {
     display: none;
   }
 
+  .messagesPage__createGroupGlyph {
+    width: 22px;
+    height: 22px;
+  }
+
+  .messagesPage__createGroupIcon {
+    width: 22px;
+    height: 22px;
+  }
+
   .messagesPage__createGroupPlus {
-    display: inline;
+    display: block;
+    position: absolute;
+    top: -3px;
+    right: -4px;
+    width: 11px;
+    height: 11px;
+    pointer-events: none;
   }
 }
 

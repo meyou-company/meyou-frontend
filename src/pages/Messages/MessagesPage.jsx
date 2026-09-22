@@ -84,8 +84,6 @@ function GroupUsersIcon() {
     <svg
       className="messagesPage__createGroupIcon"
       viewBox="0 0 24 24"
-      width="18"
-      height="18"
       fill="none"
       aria-hidden="true"
     >
@@ -101,6 +99,24 @@ function GroupUsersIcon() {
         d="M16.6 13.2c1.9 0 3.8 1.3 4.6 3.8"
         stroke="currentColor"
         strokeWidth="1.7"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
+
+function GroupCreatePlusIcon() {
+  return (
+    <svg
+      className="messagesPage__createGroupPlus"
+      viewBox="0 0 10 10"
+      fill="none"
+      aria-hidden="true"
+    >
+      <path
+        d="M5 1.15v7.7M1.15 5h7.7"
+        stroke="currentColor"
+        strokeWidth="1.85"
         strokeLinecap="round"
       />
     </svg>
@@ -1111,12 +1127,12 @@ export default function MessagesPage() {
               onClick={() => setShowCreateGroup(true)}
               aria-label={t('messenger.group.createAria')}
             >
-              <GroupUsersIcon />
+              <span className="messagesPage__createGroupGlyph" aria-hidden="true">
+                <GroupUsersIcon />
+                <GroupCreatePlusIcon />
+              </span>
               <span className="messagesPage__createGroupLabel">
                 {t('messenger.group.create')}
-              </span>
-              <span className="messagesPage__createGroupPlus" aria-hidden="true">
-                +
               </span>
             </button>
           </div>
