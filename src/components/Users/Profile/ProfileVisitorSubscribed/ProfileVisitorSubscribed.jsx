@@ -185,6 +185,7 @@ export default function ProfileVisitorSubscribed({
 
   // Subscribed visitor: hide VIP until owner enables it; show purchase CTA when enabled.
   const vipUi = useMemo(() => getVipButtonUi({ isSubscribed: true, user }), [user]);
+  const ownerVipDisabled = !vipUi.showAddButton && !vipUi.showStatus;
   const chatLocked = useMemo(() => isProfileChatLocked({ user, isOwnProfile: false }), [user]);
 
   const handleVipClick = () => {
@@ -275,30 +276,38 @@ export default function ProfileVisitorSubscribed({
               />
               {activeLiveStream && <span className="liveAvatar__badge">LIVE</span>}
             </div>
+
             <OnlineStatus
               userId={user?.id}
               user={user}
               variant="dot"
               className="profile-visitor-subscribed__onlineStatus"
             />
-          </div>
 
-          <OnlineStatus
-            userId={user?.id}
-            user={user}
-            variant="label"
-            className="profile-visitor-subscribed__onlineLabel"
-          />
+            <OnlineStatus
+              userId={user?.id}
+              user={user}
+              variant="label"
+              className="profile-visitor-subscribed__onlineLabel"
+            />
+          </div>
         </div>
         {/* CENTER — NAME */}
         <div className="profile-visitor-subscribed__center">
-          <h1 className="profile-visitor-subscribed__nickname">{nickname || displayName}</h1>
-
+          <div className="profile-visitor-subscribed__nameRow">
+            <h1 className="profile-visitor-subscribed__nickname">{nickname || displayName}</h1>
+            <img
+              src={profileIcons.vip}
+              alt=""
+              className="profile-visitor-subscribed__vipIcon"
+              aria-hidden="true"
+            />
+          </div>
           {fullName && nickname !== fullName && (
-            <p className="profile-visitor-subscribed__fullName">{fullName}.</p>
+            <p className="profile-visitor-subscribed__fullName">{fullName}</p>
           )}
 
-          {location && <p className="profile-visitor-subscribed__location">{location}.</p>}
+          {location && <p className="profile-visitor-subscribed__location">{location}</p>}
         </div>
         {/* RIGHT — CHAT / GIFTS / REPORT / VIP */}
         <div className="profile-visitor-subscribed__right">
@@ -323,7 +332,7 @@ export default function ProfileVisitorSubscribed({
                     aria-hidden="true"
                   />
                 </div>
-                <span className="pvs-tools__label">
+                <span className="pvs-tools__smallLabel">
                   {chatLocked
                     ? t('profile.visitor.writeMessageLocked')
                     : t('profile.visitor.writeMessage')}
@@ -393,10 +402,15 @@ export default function ProfileVisitorSubscribed({
             )}
 
             {/* VIP + UNSUBSCRIBE — MOBILE ONLY */}
-            <div className="pvs-mobile-actions" aria-label={t('profile.visitor.profileActions')}>
+            <div
+              className={`pvs-mobile-actions ${
+                ownerVipDisabled ? 'pvs-mobile-actions--single' : ''
+              }`}
+              aria-label={t('profile.visitor.profileActions')}
+            >
               <button
                 type="button"
-                className="profile-visitor-subscribed__btnDelete"
+                className="pvs-actions__btnDelete"
                 onClick={() => onTabClick('delete')}
               >
                 {t('profile.visitor.unsubscribe')}
