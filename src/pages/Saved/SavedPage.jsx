@@ -4,7 +4,6 @@ import { toast } from 'sonner';
 import { LuCheck, LuChevronDown, LuChevronRight, LuFolderPlus, LuPlus, LuX } from 'react-icons/lu';
 import AppHeader from '../../components/Layout/AppHeader';
 import MessagesNavBadge from '../../components/Messages/MessagesNavBadge';
-import DeletePostConfirmDialog from '../../components/PostFeed/DeletePostConfirmDialog';
 import VideoCardThumbnail from '../../components/Video/VideoCardThumbnail';
 import VideoPlayerModal from '../../components/Video/VideoPlayerModal';
 import profileIcons from '../../constants/profileIcons';
@@ -66,7 +65,7 @@ function DesktopNavigation() {
   );
 }
 
-function SavedCard({ item, view, menuOpen, onMenu, onCloseMenu, onOpen, onRemove, onAddToCollection, onShare, onDelete, onProfile }) {
+function SavedCard({ item, view, menuOpen, onMenu, onCloseMenu, onOpen, onRemove, onAddToCollection, onShare, onProfile }) {
   const isVideo = item.kind !== 'post';
   const media = item.media?.[0];
   const isPostVideo = !isVideo && media?.type === 'VIDEO';
@@ -166,9 +165,6 @@ function SavedCard({ item, view, menuOpen, onMenu, onCloseMenu, onOpen, onRemove
           </button>
           <button type="button" className="savedCard__menuAction" role="menuitem" onClick={onShare}>
             <img src={profileIcons.savedShareBlack} alt="" />Поделиться
-          </button>
-          <button type="button" className="savedCard__menuAction savedCard__menuAction--delete" role="menuitem" onClick={onDelete}>
-            <img src={profileIcons.savedDeleteBlack} alt="" />Удалить
           </button>
         </div>
       )}
@@ -271,8 +267,6 @@ export default function SavedPage() {
   const [selectedVideo, setSelectedVideo] = useState(null);
   const [collectionTarget, setCollectionTarget] = useState(null);
   const [collections, setCollections] = useState(readSavedCollections);
-  const [deleteTarget, setDeleteTarget] = useState(null);
-  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     try {
@@ -446,45 +440,6 @@ export default function SavedPage() {
     toast.success('Подборка создана');
   };
 
-  const requestDelete = (item) => {
-    setMenuId(null);
-    const author = item.kind === 'post' ? item.author : item.raw?.author;
-    const authorId = author?.id ?? author?._id;
-    const currentUserId = user?.id ?? user?._id;
-    const authorUsername = resolveProfileUsername(author).toLocaleLowerCase();
-    const currentUsername = resolveProfileUsername(user).toLocaleLowerCase();
-    const canDelete =
-      item.permissions?.canDelete === true ||
-      (authorId != null && currentUserId != null && String(authorId) === String(currentUserId)) ||
-      (authorUsername && currentUsername && authorUsername === currentUsername);
-
-    if (!canDelete) {
-      toast.error('Удалить можно только собственную публикацию');
-      return;
-    }
-
-    setDeleteTarget(item);
-  };
-
-  const confirmDelete = async () => {
-    if (!deleteTarget || deleting) return;
-    setDeleting(true);
-    try {
-      if (deleteTarget.kind === 'post') {
-        await postsApi.deletePost(deleteTarget.id);
-        setPosts((current) => current.filter((post) => post.id !== deleteTarget.id));
-      } else {
-        await videosApi.delete(deleteTarget.id);
-        setVideos((current) => current.filter((video) => video.id !== deleteTarget.id));
-      }
-      setDeleteTarget(null);
-      toast.success('Публикация удалена');
-    } catch {
-      toast.error('Не удалось удалить публикацию');
-    } finally {
-      setDeleting(false);
-    }
-  };
 
   const openProfile = (event, item) => {
     event.stopPropagation();
@@ -511,7 +466,6 @@ export default function SavedPage() {
         onRemove={() => removeSaved(item)}
         onAddToCollection={() => openCollections(item)}
         onShare={() => shareItem(item)}
-        onDelete={() => requestDelete(item)}
         onProfile={(event) => openProfile(event, item)}
       />
     );
@@ -621,18 +575,6 @@ export default function SavedPage() {
         onCreate={createCollection}
       />
 
-      <DeletePostConfirmDialog
-        isOpen={Boolean(deleteTarget)}
-        onCancel={() => {
-          if (!deleting) setDeleteTarget(null);
-        }}
-        onConfirm={confirmDelete}
-        confirming={deleting}
-        title="Удалить публикацию?"
-        description="Это действие нельзя отменить."
-        confirmLabel={deleting ? 'Удаление...' : 'Удалить'}
-        cancelLabel="Отмена"
-      />
     </div>
   );
 }
