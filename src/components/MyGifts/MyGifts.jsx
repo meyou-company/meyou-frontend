@@ -7,7 +7,7 @@ import { getGiftDisplayById, mergeCatalogSections } from "../../constants/giftDi
 import profileIcons from "../../constants/profileIcons";
 import { giftsApi } from "../../services/giftsApi";
 import { subscriptionsApi } from "../../services/subscriptionsApi";
-import { getApiErrorMessage } from "../../utils/getApiErrorMessage";
+import { getApiErrorCode, getApiErrorMessage } from "../../utils/getApiErrorMessage";
 import {
   extractFollowingFromResponse,
   normalizeShareRecipient,
@@ -126,9 +126,10 @@ export default function MyGifts({ goBack, receiverId, receiverName, thankMode = 
       });
       if (stub) {
         setSelectedRecipientsById((prev) => {
-          if (prev.has(stub.id)) return prev;
+          const existing = prev.get(stub.id);
+          if (existing && (existing.firstName || !stub.firstName)) return prev;
           const next = new Map(prev);
-          next.set(stub.id, stub);
+          next.set(stub.id, existing ? { ...existing, firstName: existing.firstName || stub.firstName } : stub);
           return next;
         });
       }
@@ -142,7 +143,6 @@ export default function MyGifts({ goBack, receiverId, receiverName, thankMode = 
         const recipient = normalizeShareRecipient(user);
         if (!recipient) return;
         setSelectedRecipientsById((prev) => {
-          if (!prev.has(recipient.id)) return prev;
           const next = new Map(prev);
           next.set(recipient.id, recipient);
           return next;
@@ -319,16 +319,22 @@ export default function MyGifts({ goBack, receiverId, receiverName, thankMode = 
     );
   };
 
+  const isLockedRecipient = (userId) =>
+    Boolean(receiverId) && String(userId) === String(receiverId);
+
   const toggleRecipient = (friend) => {
     if (sending) return;
     const recipient = normalizeShareRecipient(friend);
     if (!recipient) return;
+    if (isLockedRecipient(recipient.id) && selectedRecipientsById.has(recipient.id)) {
+      return;
+    }
     setSelectedRecipientsById((prev) => toggleMapItem(prev, recipient.id, recipient));
   };
 
   const removeRecipient = (user) => {
     if (sending || !user?.id) return;
-    if (thankMode && String(user.id) === String(receiverId)) return;
+    if (isLockedRecipient(user.id)) return;
     setSelectedRecipientsById((prev) => {
       if (!prev.has(user.id)) return prev;
       const next = new Map(prev);
@@ -339,9 +345,19 @@ export default function MyGifts({ goBack, receiverId, receiverName, thankMode = 
 
   const resetSelection = () => {
     setSelectedGiftsById(new Map());
-    setSelectedRecipientsById(new Map());
     setPickFriendOpen(false);
     setFriendsQuery("");
+    if (!receiverId) {
+      setSelectedRecipientsById(new Map());
+      return;
+    }
+    setSelectedRecipientsById((prev) => {
+      const kept =
+        prev.get(String(receiverId)) ||
+        [...prev.values()].find((user) => String(user.id) === String(receiverId));
+      if (!kept) return prev;
+      return new Map([[kept.id, kept]]);
+    });
   };
 
   const handleFinalSend = async () => {
@@ -367,6 +383,11 @@ export default function MyGifts({ goBack, receiverId, receiverName, thankMode = 
         return;
       }
       if (failures.length === results.length) {
+        const code = getApiErrorCode(failures[0].reason);
+        if (code === "GIFTS_PAYMENT_NOT_AVAILABLE") {
+          setPaidNoticeOpen(true);
+          return;
+        }
         toast.error(getApiErrorMessage(failures[0].reason) || t("errors.generic"));
         return;
       }
@@ -682,7 +703,7 @@ export default function MyGifts({ goBack, receiverId, receiverName, thankMode = 
                   <h2 className="my-gifts-page__toTitle">{t("gifts.toWhom")}</h2>
                 )}
                 <div className="my-gifts-page__toRow">
-                  {renderRecipientChips({ locked: thankMode })}
+                  {renderRecipientChips({ locked: thankMode || Boolean(receiverId) })}
                   {thankMode ? null : (
                   <button
                     type="button"
