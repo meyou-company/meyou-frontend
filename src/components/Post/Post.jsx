@@ -18,6 +18,7 @@ import {
 } from '../../utils/mergeCommentLikeResponse';
 import { getApiErrorMessage } from '../../utils/getApiErrorMessage';
 import { formatRelativeTime } from '../../utils/formatPostTime';
+import { resolveProfileUsername } from '../../utils/profileUsername';
 import '../PostFeed/CommentLikeButton.scss';
 
 import './Post.scss';
@@ -60,20 +61,25 @@ export default function Post({ onGoBack, onGoProfile }) {
   if (loading) return <p>{t('posts.page.loading')}</p>;
   if (!post) return <p>{t('posts.page.notFound')}</p>;
 
+  const openProfile = (author) => {
+    const username = resolveProfileUsername(author);
+    if (username) onGoProfile?.(username);
+  };
+
   return (
     <div className="post-page">
-      <Header onBack={onGoBack} onClick={onGoProfile} post={post} />
+      <Header onBack={onGoBack} onProfile={openProfile} post={post} />
 
-      <PostCard post={post} />
+      <PostCard post={post} onProfile={openProfile} />
 
       <div ref={commentsRef}>
-        <Comments postId={post.id} autoOpen={focus === 'comments'} />
+        <Comments postId={post.id} autoOpen={focus === 'comments'} onProfile={openProfile} />
       </div>
     </div>
   );
 }
 
-function Header({ onBack, onClick, post }) {
+function Header({ onBack, onProfile, post }) {
   const { t } = useTranslation();
 
   return (
@@ -96,23 +102,23 @@ function Header({ onBack, onClick, post }) {
 
       <h1 className="post-page__title">{t('posts.page.title')}</h1>
 
-      <button className="post-page__account" onClick={onClick}>
+      <button type="button" className="post-page__account" onClick={() => onProfile(post.author)}>
         <img src={post.author.avatarUrl} alt={t('posts.page.account')} />
       </button>
     </header>
   );
 }
 
-function PostCard({ post }) {
+function PostCard({ post, onProfile }) {
   return (
     <div className="post">
       <div className="post__header">
-        <div className="p_1">
+        <button type="button" className="p_1" onClick={() => onProfile(post.author)}>
           <img className="post__avatar" src={post.author.avatarUrl} alt="" />
           <span className="post__name">
             {post.author.firstName} {post.author.lastName}
           </span>
-        </div>
+        </button>
         <div className="p_2">
           <span className="post__loation">{post.location}</span>
         </div>
@@ -134,7 +140,7 @@ function PostCard({ post }) {
   );
 }
 
-function Comments({ postId, autoOpen }) {
+function Comments({ postId, autoOpen, onProfile }) {
   const { t } = useTranslation();
   const [open, setOpen] = useState(autoOpen);
 
@@ -146,10 +152,10 @@ function Comments({ postId, autoOpen }) {
     );
   }
 
-  return <CommentsList postId={postId} />;
+  return <CommentsList postId={postId} onProfile={onProfile} />;
 }
 
-function CommentCard({ comment, onToggleLike, onMissingId, likingId }) {
+function CommentCard({ comment, onToggleLike, onMissingId, likingId, onProfile }) {
   const { t } = useTranslation();
   const author = comment.author;
   const name = author
@@ -162,12 +168,16 @@ function CommentCard({ comment, onToggleLike, onMissingId, likingId }) {
 
   return (
     <div className="comments__item">
-      <img className="comments__avatar" src={avatar} alt="" />
+      <button type="button" className="comments__avatarBtn" onClick={() => onProfile(author)}>
+        <img className="comments__avatar" src={avatar} alt="" />
+      </button>
 
       <div className="comments__body">
         <div className="comments__head">
           <div className="comments__headMain">
-            <span className="comments__name">{name}</span>
+            <button type="button" className="comments__name" onClick={() => onProfile(author)}>
+              {name}
+            </button>
             {timeLabel ? (
               <time
                 className="comments__time"
@@ -202,7 +212,7 @@ function CommentCard({ comment, onToggleLike, onMissingId, likingId }) {
   );
 }
 
-function CommentsList({ postId }) {
+function CommentsList({ postId, onProfile }) {
   const { t } = useTranslation();
   const [comments, setComments] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -273,6 +283,7 @@ function CommentsList({ postId }) {
           onToggleLike={handleToggleCommentLike}
           onMissingId={() => toast.error(t('posts.toast.commentIdMissing'))}
           likingId={likingId}
+          onProfile={onProfile}
         />
       ))}
     </div>

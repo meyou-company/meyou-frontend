@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
+import { BRAND_NAME } from '../../constants/brand';
 import { adminApi } from '../../services/adminApi';
 import { getApiErrorMessage } from '../../utils/getApiErrorMessage';
 
@@ -37,7 +38,7 @@ export default function AdminDashboardPage() {
     <section className="adminPage">
       <header className="adminPage__header">
         <h1>Dashboard</h1>
-        <p>Огляд черги модерації LunMeYo.</p>
+        <p>Огляд черги модерації {BRAND_NAME}.</p>
       </header>
 
       {loading ? (

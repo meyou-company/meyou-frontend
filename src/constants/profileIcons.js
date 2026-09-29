@@ -64,6 +64,10 @@ const profileIcons = {
   vipButton: `${BLACK}/vip-button.svg`,
   arrowLeftBlack: `${BLACK}/arrow-left.svg`,
   arrowLeftFilledBlack: `${BLACK}/arrow-left-filled.svg`,
+  savedRemoveBlack: `${BLACK}/saved-remove.svg`,
+  savedAddCollectionBlack: `${BLACK}/saved-add-collection.svg`,
+  savedShareBlack: `${BLACK}/saved-share.svg`,
+  savedDeleteBlack: `${BLACK}/saved-delete.svg`,
   /* ========= BURGER MENU ICONS ========= */
   profileBlack: `${BLACK}/profile.svg`,
   eyeBlack: `${BLACK}/eye.svg`,

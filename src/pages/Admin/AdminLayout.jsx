@@ -1,5 +1,7 @@
 import { useEffect } from 'react';
 import { Navigate, Outlet, useLocation, useNavigate } from 'react-router-dom';
+import BrandLogo from '../../components/BrandLogo/BrandLogo';
+import { BRAND_NAME } from '../../constants/brand';
 import { useAuthStore } from '../../zustand/useAuthStore';
 import './AdminLayout.scss';
 
@@ -48,9 +50,9 @@ export default function AdminLayout() {
     <div className="adminShell">
       <aside className="adminShell__sidebar" aria-label="Admin navigation">
         <div className="adminShell__brand">
-          <span className="adminShell__brandMark">L</span>
+          <BrandLogo className="adminShell__brandMark" decorative />
           <div>
-            <strong>LunMeYo Admin</strong>
+            <strong>{BRAND_NAME} Admin</strong>
             <small>Moderation panel</small>
           </div>
         </div>

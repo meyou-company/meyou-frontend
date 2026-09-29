@@ -1,8 +1,10 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
+import { LuCheck, LuChevronDown, LuChevronRight, LuFolderPlus, LuPlus, LuX } from 'react-icons/lu';
 import AppHeader from '../../components/Layout/AppHeader';
 import MessagesNavBadge from '../../components/Messages/MessagesNavBadge';
+import DeletePostConfirmDialog from '../../components/PostFeed/DeletePostConfirmDialog';
 import VideoCardThumbnail from '../../components/Video/VideoCardThumbnail';
 import VideoPlayerModal from '../../components/Video/VideoPlayerModal';
 import profileIcons from '../../constants/profileIcons';
@@ -12,6 +14,7 @@ import { videosApi } from '../../services/videosApi';
 import { useAuthStore } from '../../zustand/useAuthStore';
 import { mapApiPostToFeedItem } from '../../utils/mapApiPostToFeedItem';
 import { formatVideoCount, mapApiVideosToCards } from '../../utils/mapApiVideoToCard';
+import { resolveProfileUsername } from '../../utils/profileUsername';
 import './SavedPage.scss';
 
 const TABS = [
@@ -21,6 +24,21 @@ const TABS = [
   { id: 'reels', label: 'Рилсы' },
   { id: 'photos', label: 'Фото' },
 ];
+
+const SAVED_COLLECTIONS_STORAGE_KEY = 'lunmeyo.savedCollections.v1';
+
+const getSavedItemKey = (item) => `${item.kind}:${item.id}`;
+
+const readSavedCollections = () => {
+  if (typeof window === 'undefined') return [];
+
+  try {
+    const value = JSON.parse(window.localStorage.getItem(SAVED_COLLECTIONS_STORAGE_KEY) || '[]');
+    return Array.isArray(value) ? value : [];
+  } catch {
+    return [];
+  }
+};
 
 const getPostAuthorName = (post) => {
   const author = post.author;
@@ -48,8 +66,8 @@ function DesktopNavigation() {
   );
 }
 
-function SavedCard({ item, view, menuOpen, onMenu, onOpen, onRemove, onShare, onProfile }) {
-  const isVideo = item.kind === 'video';
+function SavedCard({ item, view, menuOpen, onMenu, onCloseMenu, onOpen, onRemove, onAddToCollection, onShare, onDelete, onProfile }) {
+  const isVideo = item.kind !== 'post';
   const media = item.media?.[0];
   const isPostVideo = !isVideo && media?.type === 'VIDEO';
   const title = isVideo ? item.title : item.text;
@@ -57,9 +75,10 @@ function SavedCard({ item, view, menuOpen, onMenu, onOpen, onRemove, onShare, on
   const location = item.location || '';
   const likes = isVideo ? item.likes : formatVideoCount(item.counts?.likes);
   const comments = isVideo ? item.comments : formatVideoCount(item.counts?.comments);
+  const menuDomId = `saved-actions-${item.kind}-${item.id}`;
 
   return (
-    <article className={`savedCard savedCard--${view}`}>
+    <article className={`savedCard savedCard--${view} ${menuOpen ? 'savedCard--menuOpen' : ''}`}>
       <div
         className="savedCard__media"
         role="button"
@@ -95,35 +114,144 @@ function SavedCard({ item, view, menuOpen, onMenu, onOpen, onRemove, onShare, on
         )}
 
         <span className="savedCard__overlay">
-          <span className="savedCard__identity">
-            <button type="button" onClick={onProfile}>{authorName}</button>
-            {location && <span><img src={profileIcons.locationVideo} alt="" />{location}</span>}
-          </span>
-          <span className="savedCard__stats">
-            <span><img src={profileIcons.heartVideo} alt="" />{likes}</span>
-            <span><img src={profileIcons.commentsVideo} alt="" />{comments}</span>
+          <button type="button" className="savedCard__author" onClick={onProfile}>{authorName}</button>
+          <span className="savedCard__meta">
+            {location && <span className="savedCard__location"><img src={profileIcons.locationVideo} alt="" />{location}</span>}
+            <span className="savedCard__stats">
+              <span><img src={profileIcons.heartVideo} alt="" />{likes}</span>
+              <span><img src={profileIcons.commentsVideo} alt="" />{comments}</span>
+            </span>
           </span>
         </span>
       </div>
 
       <div className="savedCard__footer">
         <p>{title || 'Сохранённый материал'}</p>
-        <button type="button" className="savedCard__more" onClick={onMenu} aria-label="Действия с материалом" aria-expanded={menuOpen}>
+        <button
+          type="button"
+          className="savedCard__more"
+          onClick={onMenu}
+          aria-label="Действия с материалом"
+          aria-expanded={menuOpen}
+          aria-controls={menuOpen ? menuDomId : undefined}
+          aria-haspopup="menu"
+        >
           <span aria-hidden="true">&#8942;</span>
         </button>
       </div>
 
       {menuOpen && (
-        <div className="savedCard__menu" role="menu">
-          <button type="button" role="menuitem" onClick={onRemove}>
-            <img src={profileIcons.savedPost} alt="" />Убрать из сохранённого
+        <div
+          id={menuDomId}
+          className="savedCard__menu"
+          role="menu"
+          aria-label="Действия с сохранённым материалом"
+          onClick={(event) => event.stopPropagation()}
+        >
+          <button
+            type="button"
+            className="savedCard__menuClose"
+            onClick={onCloseMenu}
+            aria-label="Закрыть меню"
+          >
+            <LuX aria-hidden="true" />
           </button>
-          <button type="button" role="menuitem" onClick={onShare}>
-            <img src={profileIcons.share} alt="" />Поделиться
+          <button type="button" className="savedCard__menuAction" role="menuitem" onClick={onRemove} autoFocus>
+            <img src={profileIcons.savedRemoveBlack} alt="" />Убрать из сохранённого
+          </button>
+          <button type="button" className="savedCard__menuAction" role="menuitem" onClick={onAddToCollection}>
+            <img src={profileIcons.savedAddCollectionBlack} alt="" />
+            <span>Добавить в подборку</span>
+            <LuChevronRight className="savedCard__menuChevron" aria-hidden="true" />
+          </button>
+          <button type="button" className="savedCard__menuAction" role="menuitem" onClick={onShare}>
+            <img src={profileIcons.savedShareBlack} alt="" />Поделиться
+          </button>
+          <button type="button" className="savedCard__menuAction savedCard__menuAction--delete" role="menuitem" onClick={onDelete}>
+            <img src={profileIcons.savedDeleteBlack} alt="" />Удалить
           </button>
         </div>
       )}
     </article>
+  );
+}
+
+function SavedCollectionModal({ item, collections, onClose, onToggle, onCreate }) {
+  const [name, setName] = useState('');
+  const itemKey = item ? getSavedItemKey(item) : '';
+
+  useEffect(() => {
+    if (!item) return undefined;
+    const handleKeyDown = (event) => {
+      if (event.key === 'Escape') onClose();
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [item, onClose]);
+
+  if (!item) return null;
+
+  const submitCollection = (event) => {
+    event.preventDefault();
+    const trimmedName = name.trim();
+    if (!trimmedName) return;
+    onCreate(trimmedName);
+    setName('');
+  };
+
+  return (
+    <div className="savedCollectionModal" role="presentation" onPointerDown={onClose}>
+      <section
+        className="savedCollectionModal__panel"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="saved-collection-title"
+        onPointerDown={(event) => event.stopPropagation()}
+      >
+        <header className="savedCollectionModal__header">
+          <h2 id="saved-collection-title">Добавить в подборку</h2>
+          <button type="button" onClick={onClose} aria-label="Закрыть">
+            <LuX aria-hidden="true" />
+          </button>
+        </header>
+
+        <div className="savedCollectionModal__list">
+          {collections.length === 0 ? (
+            <p className="savedCollectionModal__empty">Создайте первую подборку для сохранённых материалов.</p>
+          ) : collections.map((collection) => {
+            const selected = collection.items?.includes(itemKey);
+            return (
+              <button
+                key={collection.id}
+                type="button"
+                className={selected ? 'is-selected' : ''}
+                aria-pressed={selected}
+                onClick={() => onToggle(collection.id)}
+              >
+                <span className="savedCollectionModal__folder"><LuFolderPlus aria-hidden="true" /></span>
+                <span>{collection.name}</span>
+                <span className="savedCollectionModal__check" aria-hidden="true">
+                  {selected && <LuCheck />}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+
+        <form className="savedCollectionModal__create" onSubmit={submitCollection}>
+          <input
+            value={name}
+            onChange={(event) => setName(event.target.value)}
+            placeholder="Название новой подборки"
+            maxLength={60}
+            autoFocus={collections.length === 0}
+          />
+          <button type="submit" disabled={!name.trim()} aria-label="Создать подборку">
+            <LuPlus aria-hidden="true" />
+          </button>
+        </form>
+      </section>
+    </div>
   );
 }
 
@@ -135,12 +263,24 @@ export default function SavedPage() {
   const [videos, setVideos] = useState([]);
   const [activeTab, setActiveTab] = useState('all');
   const [view, setView] = useState('grid');
+  const [sortOrder, setSortOrder] = useState('recent');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [showAllTop, setShowAllTop] = useState(false);
   const [menuId, setMenuId] = useState(null);
   const [selectedVideo, setSelectedVideo] = useState(null);
-  const menuRootRef = useRef(null);
+  const [collectionTarget, setCollectionTarget] = useState(null);
+  const [collections, setCollections] = useState(readSavedCollections);
+  const [deleteTarget, setDeleteTarget] = useState(null);
+  const [deleting, setDeleting] = useState(false);
+
+  useEffect(() => {
+    try {
+      window.localStorage.setItem(SAVED_COLLECTIONS_STORAGE_KEY, JSON.stringify(collections));
+    } catch {
+      // The collection remains available for the current session if storage is unavailable.
+    }
+  }, [collections]);
 
   const loadSaved = useCallback(async () => {
     setLoading(true);
@@ -151,7 +291,10 @@ export default function SavedPage() {
     ]);
 
     const nextPosts = postsResult.status === 'fulfilled'
-      ? postsResult.value.map(mapApiPostToFeedItem).filter(Boolean).map((post) => ({ ...post, kind: 'post' }))
+      ? postsResult.value.map((raw) => {
+        const post = mapApiPostToFeedItem(raw);
+        return post && { ...post, savedAt: raw.savedAt, kind: 'post' };
+      }).filter(Boolean)
       : [];
     const nextVideos = videosResult.status === 'fulfilled'
       ? mapApiVideosToCards(videosResult.value.items).map((video) => ({ ...video, kind: video.raw?.type === 'REEL' ? 'reel' : 'video' }))
@@ -169,25 +312,37 @@ export default function SavedPage() {
 
   useEffect(() => {
     const closeMenu = (event) => {
-      if (!menuRootRef.current?.contains(event.target)) setMenuId(null);
+      if (
+        !event.target.closest?.('.savedCard__menu') &&
+        !event.target.closest?.('.savedCard__more')
+      ) {
+        setMenuId(null);
+      }
+    };
+    const closeMenuWithKeyboard = (event) => {
+      if (event.key === 'Escape') setMenuId(null);
     };
     document.addEventListener('pointerdown', closeMenu);
-    return () => document.removeEventListener('pointerdown', closeMenu);
+    document.addEventListener('keydown', closeMenuWithKeyboard);
+    return () => {
+      document.removeEventListener('pointerdown', closeMenu);
+      document.removeEventListener('keydown', closeMenuWithKeyboard);
+    };
   }, []);
 
   const allItems = useMemo(() => [...posts, ...videos].sort((a, b) => {
     const aDate = Date.parse(a.kind === 'post' ? getPostDate(a) : a.raw?.savedAt || a.raw?.createdAt || 0) || 0;
     const bDate = Date.parse(b.kind === 'post' ? getPostDate(b) : b.raw?.savedAt || b.raw?.createdAt || 0) || 0;
-    return bDate - aDate;
-  }), [posts, videos]);
+    return sortOrder === 'recent' ? bDate - aDate : aDate - bDate;
+  }), [posts, videos, sortOrder]);
 
   const filteredItems = useMemo(() => {
     if (activeTab === 'all') return allItems;
-    if (activeTab === 'posts') return posts;
-    if (activeTab === 'videos') return videos.filter((item) => item.kind === 'video');
-    if (activeTab === 'reels') return videos.filter((item) => item.kind === 'reel');
-    return posts.filter((post) => post.media?.some((media) => media.type === 'IMAGE'));
-  }, [activeTab, allItems, posts, videos]);
+    if (activeTab === 'posts') return allItems.filter((item) => item.kind === 'post');
+    if (activeTab === 'videos') return allItems.filter((item) => item.kind === 'video');
+    if (activeTab === 'reels') return allItems.filter((item) => item.kind === 'reel');
+    return allItems.filter((item) => item.kind === 'post' && item.media?.some((media) => media.type === 'IMAGE'));
+  }, [activeTab, allItems]);
 
   const featured = showAllTop ? filteredItems : filteredItems.slice(0, 4);
 
@@ -207,7 +362,13 @@ export default function SavedPage() {
 
   const shareItem = async (item) => {
     setMenuId(null);
-    const url = `${window.location.origin}${item.kind === 'post' ? `/post/${item.id}` : `/video?video=${item.id}`}`;
+    const username = resolveProfileUsername(
+      item.kind === 'post' ? item.author : item.raw?.author,
+    );
+    const postPath = username
+      ? `/profile/${encodeURIComponent(username)}?post=${encodeURIComponent(item.id)}`
+      : `/post/${encodeURIComponent(item.id)}`;
+    const url = `${window.location.origin}${item.kind === 'post' ? postPath : `/video?video=${encodeURIComponent(item.id)}`}`;
     try {
       if (navigator.share) await navigator.share({ title: item.title || item.text || 'LunMeYo', url });
       else {
@@ -221,38 +382,143 @@ export default function SavedPage() {
 
   const openItem = (item) => {
     setMenuId(null);
-    if (item.kind === 'post') navigate(`/post/${item.id}`);
-    else setSelectedVideo(item);
+    if (item.kind === 'post') {
+      const username = resolveProfileUsername(item.author);
+      if (!username) {
+        toast.error('Не удалось открыть профиль автора');
+        return;
+      }
+
+      navigate(
+        `/profile/${encodeURIComponent(username)}?post=${encodeURIComponent(item.id)}`,
+      );
+      return;
+    }
+
+    setSelectedVideo(item);
+  };
+
+  const openCollections = (item) => {
+    setMenuId(null);
+    setCollectionTarget(item);
+  };
+
+  const toggleCollectionItem = (collectionId) => {
+    if (!collectionTarget) return;
+    const itemKey = getSavedItemKey(collectionTarget);
+    const selectedCollection = collections.find((collection) => collection.id === collectionId);
+    const alreadyAdded = selectedCollection?.items?.includes(itemKey) === true;
+
+    setCollections((current) => current.map((collection) => {
+      if (collection.id !== collectionId) return collection;
+      const items = Array.isArray(collection.items) ? collection.items : [];
+      const itemIsPresent = items.includes(itemKey);
+      return {
+        ...collection,
+        items: itemIsPresent
+          ? items.filter((key) => key !== itemKey)
+          : [...items, itemKey],
+      };
+    }));
+
+    toast.success(alreadyAdded ? 'Убрано из подборки' : 'Добавлено в подборку');
+  };
+
+  const createCollection = (name) => {
+    if (!collectionTarget) return;
+    const normalizedName = name.trim();
+    const existing = collections.find(
+      (collection) => collection.name.toLocaleLowerCase() === normalizedName.toLocaleLowerCase(),
+    );
+
+    if (existing) {
+      const itemKey = getSavedItemKey(collectionTarget);
+      if (!existing.items?.includes(itemKey)) toggleCollectionItem(existing.id);
+      else toast.info('Материал уже находится в этой подборке');
+      return;
+    }
+
+    const id = globalThis.crypto?.randomUUID?.() || `collection-${Date.now()}`;
+    setCollections((current) => [
+      ...current,
+      { id, name: normalizedName, items: [getSavedItemKey(collectionTarget)] },
+    ]);
+    toast.success('Подборка создана');
+  };
+
+  const requestDelete = (item) => {
+    setMenuId(null);
+    const author = item.kind === 'post' ? item.author : item.raw?.author;
+    const authorId = author?.id ?? author?._id;
+    const currentUserId = user?.id ?? user?._id;
+    const authorUsername = resolveProfileUsername(author).toLocaleLowerCase();
+    const currentUsername = resolveProfileUsername(user).toLocaleLowerCase();
+    const canDelete =
+      item.permissions?.canDelete === true ||
+      (authorId != null && currentUserId != null && String(authorId) === String(currentUserId)) ||
+      (authorUsername && currentUsername && authorUsername === currentUsername);
+
+    if (!canDelete) {
+      toast.error('Удалить можно только собственную публикацию');
+      return;
+    }
+
+    setDeleteTarget(item);
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteTarget || deleting) return;
+    setDeleting(true);
+    try {
+      if (deleteTarget.kind === 'post') {
+        await postsApi.deletePost(deleteTarget.id);
+        setPosts((current) => current.filter((post) => post.id !== deleteTarget.id));
+      } else {
+        await videosApi.delete(deleteTarget.id);
+        setVideos((current) => current.filter((video) => video.id !== deleteTarget.id));
+      }
+      setDeleteTarget(null);
+      toast.success('Публикация удалена');
+    } catch {
+      toast.error('Не удалось удалить публикацию');
+    } finally {
+      setDeleting(false);
+    }
   };
 
   const openProfile = (event, item) => {
     event.stopPropagation();
-    const username = item.kind === 'post' ? item.author?.username : item.raw?.author?.username;
+    const username = resolveProfileUsername(
+      item.kind === 'post' ? item.author : item.raw?.author,
+    );
     if (username) navigate(`/profile/${encodeURIComponent(username)}`);
   };
 
-  const renderCards = (items, keyPrefix) => items.map((item) => {
+  const renderCards = (items, keyPrefix, cardView = view) => items.map((item) => {
     const itemKey = `${item.kind}-${item.id}`;
     return (
       <SavedCard
         key={`${keyPrefix}-${itemKey}`}
         item={item}
-        view={view}
+        view={cardView}
         menuOpen={menuId === `${keyPrefix}-${itemKey}`}
         onMenu={(event) => {
           event.stopPropagation();
           setMenuId((current) => current === `${keyPrefix}-${itemKey}` ? null : `${keyPrefix}-${itemKey}`);
         }}
+        onCloseMenu={() => setMenuId(null)}
         onOpen={() => openItem(item)}
         onRemove={() => removeSaved(item)}
+        onAddToCollection={() => openCollections(item)}
         onShare={() => shareItem(item)}
+        onDelete={() => requestDelete(item)}
         onProfile={(event) => openProfile(event, item)}
       />
     );
   });
 
   return (
-    <div className="savedPage" ref={menuRootRef}>
+    <div className="savedPage">
       <DesktopNavigation />
       <div className="savedPage__appHeader">
         <AppHeader
@@ -267,7 +533,7 @@ export default function SavedPage() {
       <main className="savedPage__content">
         <header className="savedPage__titleRow">
           <button type="button" className="savedPage__back" onClick={() => navigate(-1)} aria-label="Назад">
-            <img src={profileIcons.arrowLeftFilledBlack} alt="" />
+            <span className="savedPage__backIcon" aria-hidden="true" />
           </button>
           <h1>Сохраненное</h1>
         </header>
@@ -296,17 +562,23 @@ export default function SavedPage() {
 
         {!loading && !error && filteredItems.length > 0 && (
           <>
-            <section className={`savedPage__featured ${showAllTop ? 'savedPage__featured--expanded' : ''} savedPage__cards savedPage__cards--${view}`}>
-              {renderCards(featured, 'featured')}
+            <section className={`savedPage__featured ${showAllTop ? 'savedPage__featured--expanded' : ''} savedPage__cards`}>
+              {renderCards(featured, 'featured', 'grid')}
             </section>
-            {filteredItems.length > 4 && (
-              <div className="savedPage__showAllRow">
+            {filteredItems.length > 3 && (
+              <div className={`savedPage__showAllRow ${filteredItems.length === 4 ? 'savedPage__showAllRow--mobileOnly' : ''}`}>
                 <button type="button" onClick={() => setShowAllTop((value) => !value)}>{showAllTop ? 'Свернуть' : 'Смотреть все'}</button>
               </div>
             )}
 
             <div className="savedPage__sectionHead">
-              <button type="button" className="savedPage__sort">Недавно сохраненное <span aria-hidden="true">⌄</span></button>
+              <label className="savedPage__sort">
+                <select value={sortOrder} onChange={(event) => setSortOrder(event.target.value)} aria-label="Порядок сохранённых материалов">
+                  <option value="recent">Недавно сохраненное</option>
+                  <option value="oldest">Сначала старые</option>
+                </select>
+                <LuChevronDown aria-hidden="true" />
+              </label>
               <div className="savedPage__viewToggle" aria-label="Вид материалов">
                 <button type="button" className={view === 'grid' ? 'active' : ''} onClick={() => setView('grid')} aria-label="Сетка" aria-pressed={view === 'grid'}>
                   <img src={profileIcons.layoutBlack} alt="" />
@@ -339,6 +611,27 @@ export default function SavedPage() {
         onClose={() => setSelectedVideo(null)}
         isAuthed={isAuthed}
         currentUserId={user?.id}
+      />
+
+      <SavedCollectionModal
+        item={collectionTarget}
+        collections={collections}
+        onClose={() => setCollectionTarget(null)}
+        onToggle={toggleCollectionItem}
+        onCreate={createCollection}
+      />
+
+      <DeletePostConfirmDialog
+        isOpen={Boolean(deleteTarget)}
+        onCancel={() => {
+          if (!deleting) setDeleteTarget(null);
+        }}
+        onConfirm={confirmDelete}
+        confirming={deleting}
+        title="Удалить публикацию?"
+        description="Это действие нельзя отменить."
+        confirmLabel={deleting ? 'Удаление...' : 'Удалить'}
+        cancelLabel="Отмена"
       />
     </div>
   );

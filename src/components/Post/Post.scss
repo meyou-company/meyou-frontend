@@ -18,6 +18,17 @@
   object-fit: cover;
 }
 
+.comments__avatarBtn {
+  flex: 0 0 auto;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  line-height: 0;
+  cursor: pointer;
+}
+
 .comments__body {
   flex: 1;
   min-width: 0;
@@ -43,9 +54,15 @@
 }
 
 .comments__name {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
   font-weight: 600;
   font-size: 13px;
   color: #222;
+  font-family: inherit;
+  cursor: pointer;
 }
 
 .comments__time {
@@ -360,6 +377,14 @@ body.dark {
   flex-direction: row;
   align-items: center;
   gap: 10px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
 }
 .p_2 {
 }
@@ -386,10 +411,71 @@ body.dark {
 .post__image {
   width: 100%;
   border-radius: 12px;
+  object-fit: contain;
 }
 
 .post__meta {
   margin-top: 8px;
   font-size: 14px;
   color: #666;
+}
+
+@media (min-width: $bp-tablet) {
+  .app-container:has(.post-page) {
+    padding-top: 12px;
+    padding-bottom: 12px;
+  }
+
+  .post-page {
+    width: min(100%, 760px);
+    min-height: 0;
+    margin: 0 auto;
+    padding: 0 16px;
+  }
+
+  .post-page__topbar {
+    width: 100%;
+    margin-bottom: 8px;
+  }
+
+  .post-page__title {
+    font-size: 24px;
+  }
+
+  .post {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 8px 12px;
+  }
+
+  .post__header {
+    gap: 4px;
+    margin-bottom: 4px;
+  }
+
+  .post__text {
+    margin: 4px 0 6px;
+  }
+
+  .post__image {
+    display: block;
+    width: auto;
+    max-width: 100%;
+    max-height: clamp(220px, calc(100dvh - 320px), 660px);
+    margin: 0 auto;
+  }
+
+  .post__meta {
+    margin-top: 6px;
+  }
+
+  .comments__openBtn {
+    margin: 6px 0;
+  }
+}
+
+@media (min-width: $bp-desktop) {
+  .post-page__title {
+    font-size: 28px;
+  }
 }

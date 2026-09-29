@@ -1,4 +1,5 @@
 import ThemeToggleDark from "../ThemeToggleDark/ThemeToggleDark";
+import BrandWordmark from "../BrandLogo/BrandWordmark";
 import profileIcons from "../../constants/profileIcons";
 import { BRAND_NAME } from "../../constants/brand";
 import { useBurgerMenu } from "../../hooks/useBurgerMenu";
@@ -44,10 +45,10 @@ export default function AppHeader({
         <button
           type="button"
           onClick={onGoHome}
-          className="logoText app-brand-wordmark max-w-full min-w-0 justify-self-center text-center"
+          className="logoText max-w-full min-w-0 justify-self-center text-center"
           aria-label={BRAND_NAME}
         >
-          {BRAND_NAME}
+          <BrandWordmark />
         </button>
 
         <div className="flex min-w-0 items-center justify-end gap-2 md:gap-3 xl:gap-4">

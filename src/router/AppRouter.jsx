@@ -72,6 +72,7 @@ import { PresenceSocketProvider } from '../providers/PresenceSocketProvider';
 import { StoriesSocketProvider } from '../providers/StoriesSocketProvider';
 import { CallsProvider } from '../providers/CallsProvider';
 import { GiftInboxProvider } from '../providers/GiftInboxProvider';
+import { resolveProfileUsername } from '../utils/profileUsername';
 
 /** Глобальне бургер-меню — рендериться один раз, відкривається з будь-якої сторінки */
 function GlobalBurgerMenu() {
@@ -152,7 +153,10 @@ function AppLayout() {
                 element={
                   <Post
                     onGoBack={() => navigate(-1)}
-                    onGoProfile={(username) => navigate(`/profile/${username}`)}
+                    onGoProfile={(value) => {
+                      const username = resolveProfileUsername(value);
+                      if (username) navigate(`/profile/${encodeURIComponent(username)}`);
+                    }}
                   />
                 }
               />
