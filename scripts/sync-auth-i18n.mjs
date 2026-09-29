@@ -11,7 +11,7 @@ const localesDir = path.join(__dirname, '../src/i18n/locales');
 
 const authUk = {
   common: {
-    logoAlt: 'Me You logo',
+    logoAlt: 'LunMeYo logo',
     googleAlt: 'Google',
     showPassword: 'Показати пароль',
     hidePassword: 'Сховати пароль',
@@ -137,7 +137,7 @@ const authUk = {
 
 const authEn = {
   common: {
-    logoAlt: 'Me You logo',
+    logoAlt: 'LunMeYo logo',
     googleAlt: 'Google',
     showPassword: 'Show password',
     hidePassword: 'Hide password',
@@ -263,7 +263,7 @@ const authEn = {
 
 const authRu = {
   common: {
-    logoAlt: 'Me You logo',
+    logoAlt: 'LunMeYo logo',
     googleAlt: 'Google',
     showPassword: 'Показать пароль',
     hidePassword: 'Скрыть пароль',

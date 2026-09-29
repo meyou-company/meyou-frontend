@@ -31,14 +31,12 @@
 }
 
 .adminShell__brandMark {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+  display: block;
   width: 40px;
   height: 40px;
+  max-width: 40px;
   border-radius: 12px;
-  background: linear-gradient(135deg, #ec4899, #8b5cf6);
-  font-weight: 700;
+  object-fit: cover;
 }
 
 .adminShell__brand strong {

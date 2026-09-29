@@ -2,6 +2,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useForceDarkTheme } from '../../hooks/useForceDarkTheme';
 import { getFeatureNav, getFeatureUi } from '../../i18n/features';
+import BrandWordmark from '../../components/BrandLogo/BrandWordmark';
 import './features.scss';
 
 export default function FeatureLayout({ children }) {
@@ -17,7 +18,7 @@ export default function FeatureLayout({ children }) {
     <div className="featureLayout">
       <div className="featureLayout__inner">
         <header className="featureLayout__header">
-          <p className="featureLayout__brand">{ui.brand}</p>
+          <BrandWordmark className="featureLayout__brand" as="p" />
           <div className="featureLayout__headerActions">
             <button
               type="button"
