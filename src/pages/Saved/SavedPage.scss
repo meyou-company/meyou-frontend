@@ -1,5 +1,4 @@
-.app-container:has(.savedPage),
-.savedPage {
+.app-shell:has(.savedPage) {
   background-color: #fff;
   background-image:
     radial-gradient(circle at 3% 8%, rgba(245, 140, 207, 0.34) 0 18px, transparent 19px),
@@ -11,6 +10,12 @@
     radial-gradient(circle at 2% 96%, rgba(245, 140, 207, 0.27) 0 18px, transparent 19px);
   background-attachment: fixed;
   background-repeat: no-repeat;
+}
+
+.app-page:has(.savedPage),
+.app-container:has(.savedPage),
+.savedPage {
+  background: transparent;
 }
 
 .savedPage {
@@ -392,8 +397,7 @@
 .savedPage__empty p { margin: 4px 0 10px; font-size: 14px; }
 
 body.dark .savedPage { color: #f8f8fb; }
-body.dark .app-container:has(.savedPage),
-body.dark .savedPage { background-color: #0f0f12; }
+body.dark .app-shell:has(.savedPage) { background-color: #0f0f12; }
 body.dark .savedPage__tabs { border-color: rgba(255,255,255,.22); }
 body.dark .savedPage__tabs button.active::after { background: #fff; }
 body.dark .savedCard__menu { background: linear-gradient(145deg, #27232f, #3b2b50); border-color: #956ae4; }
@@ -499,7 +503,10 @@ body.dark .savedPage__sort option { color: #16121d; }
     display: flex;
     align-items: center;
     justify-content: space-evenly;
-    width: 100%;
+    width: 100vw;
+    max-width: 100vw;
+    margin-left: calc(50% - 50vw);
+    margin-right: calc(50% - 50vw);
     min-height: 78px;
     background: #f4fdff;
     box-shadow: 0 6px 14px rgba(0, 0, 0, .14);
@@ -518,11 +525,26 @@ body.dark .savedPage__sort option { color: #16121d; }
   .savedPage__desktopNavItem:hover { color: #111; }
   .savedPage__desktopNavIconWrap { position: relative; display: inline-flex; }
   .savedPage__desktopNavIconWrap > img { width: 28px; height: 28px; object-fit: contain; opacity: .62; }
+  .savedPage__desktopNavIconWrap .messages-nav-badge {
+    top: -8px;
+    right: -10px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 20px;
+    height: 20px;
+    padding: 0 5px;
+    border: 2px solid #f4fdff;
+    box-sizing: border-box;
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 1;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  }
   .savedPage__content { width: min(100%, 1360px); padding: 36px 44px 50px; }
   .savedPage__titleRow { justify-content: flex-start; min-height: 64px; }
   .savedPage__titleRow h1 { font-size: 28px; font-weight: 400; }
   .savedPage__back { display: none; }
-  .savedPage__tabs { margin-top: 120px; }
   .savedPage__cards { gap: 42px 38px; }
   .savedCard__footer p { font-size: 15px; }
   .savedCard__author { font-size: 14px; }
@@ -530,4 +552,5 @@ body.dark .savedPage__sort option { color: #16121d; }
   .savedPage__showAllRow { padding-top: 24px; }
   body.dark .savedPage__desktopNav { background: #14141e; }
   body.dark .savedPage__desktopNavItem { color: rgba(255,255,255,.7); }
+  body.dark .savedPage__desktopNavIconWrap .messages-nav-badge { border-color: #14141e; }
 }
