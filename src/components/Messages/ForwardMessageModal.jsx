@@ -3,6 +3,8 @@ import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import { conversationsApi } from '../../services/conversationsApi';
 import { getApiErrorMessage } from '../../utils/getApiErrorMessage';
+import GroupAvatar from './GroupAvatar';
+import { getConversationTitle, isGroupConversation } from '../../utils/conversationPreview';
 import './ForwardMessageModal.scss';
 
 function getDisplayName(user, fallback) {
@@ -62,7 +64,10 @@ export default function ForwardMessageModal({
         ) : (
           <ul className="msgModal__list">
             {targets.map((chat) => {
-              const name = getDisplayName(chat.participant, t('common.user'));
+              const group = isGroupConversation(chat);
+              const name = group
+                ? getConversationTitle(chat, t('messenger.group.untitled'))
+                : getDisplayName(chat.participant, t('common.user'));
               return (
                 <li key={chat.id}>
                   <button
@@ -72,7 +77,9 @@ export default function ForwardMessageModal({
                     onClick={() => handleSelect(chat.id)}
                   >
                     <span className="msgModal__avatar">
-                      {chat.participant?.avatarUrl ? (
+                      {group ? (
+                        <GroupAvatar src={chat.avatarUrl} name={name} />
+                      ) : chat.participant?.avatarUrl ? (
                         <img src={chat.participant.avatarUrl} alt="" />
                       ) : (
                         name.charAt(0).toUpperCase()

@@ -31,6 +31,7 @@ import { getApiErrorCode, getApiErrorMessage } from '../../../../utils/getApiErr
 import { applyBirthDateNormalization } from '../../../../utils/profileFormUtils';
 
 import profileIcons from '../../../../constants/profileIcons';
+import BrandWordmark from '../../../BrandLogo/BrandWordmark';
 
 import ThemeToggleDark from '../../../../components/ThemeToggleDark/ThemeToggleDark';
 import AvatarCropModal from '../../../../components/AvatarCropModal/AvatarCropModal';
@@ -337,7 +338,7 @@ export default function EditProfileForm({ onBack, onSave }) {
             />
           </button>
 
-          <div className="ep-topbar__brand app-brand-wordmark">ME YOU</div>
+          <BrandWordmark className="ep-topbar__brand" as="div" />
 
           <div className="ep-topbar__right">
             <ThemeToggleDark />

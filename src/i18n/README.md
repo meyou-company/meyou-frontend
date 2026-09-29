@@ -1,4 +1,4 @@
-# MeYou i18n
+# LunMeYo i18n
 
 Shared translation bundles for **React Web** and future **React Native / Expo**.
 

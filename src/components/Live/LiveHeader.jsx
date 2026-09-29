@@ -1,6 +1,8 @@
 import { useNavigate } from "react-router-dom";
 import { useNavItems } from "../../hooks/useNavItems";
 import { useBurgerMenu } from "../../hooks/useBurgerMenu";
+import BrandWordmark from "../BrandLogo/BrandWordmark";
+import { BRAND_NAME } from "../../constants/brand";
 import profileIcons from "../../constants/profileIcons";
 import MessagesNavBadge from "../Messages/MessagesNavBadge";
 
@@ -60,9 +62,9 @@ export default function LiveHeader({ isOwner = false }) {
           type="button"
           className="liveHeader__brand"
           onClick={() => navigate("/first-page")}
-          aria-label="ME YOU"
+          aria-label={BRAND_NAME}
         >
-          ME YOU
+          <BrandWordmark />
         </button>
 
         <button

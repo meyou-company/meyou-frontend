@@ -50,6 +50,22 @@
   align-items: flex-end;
 }
 
+.msgBubbleRow__sender {
+  display: block;
+  margin: 0 6px 4px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #8b5cf6;
+  line-height: 1.2;
+}
+
+body.dark,
+html[data-theme='dark'] {
+  .msgBubbleRow__sender {
+    color: #c4b5fd;
+  }
+}
+
 .msgBubbleRow__hoverZone {
   position: relative;
   width: 100%;

@@ -1,13 +1,22 @@
 /** Local copy of backend catalog — used when GET /gifts/catalog is unavailable. */
-export const LOCAL_GIFT_CATALOG = [
-  {
-    id: 'smile',
-    nameKey: 'gifts.catalog.smile',
-    image: '/gifts/smile.webp',
+function freeGift(id, nameKey, image) {
+  return {
+    id,
+    nameKey,
+    image,
     type: 'FREE',
     price: 0,
     currency: null,
-  },
+  };
+}
+
+export const LOCAL_GIFT_CATALOG = [
+  freeGift('smile', 'gifts.catalog.smile', '/gifts/catalog/smile.png'),
+  freeGift('love', 'gifts.catalog.love', '/gifts/catalog/love.png'),
+  freeGift('kiss', 'gifts.catalog.kiss', '/gifts/catalog/kiss.png'),
+  freeGift('coffee', 'gifts.catalog.coffee', '/gifts/catalog/coffee.png'),
+  freeGift('good_day', 'gifts.catalog.goodDay', '/gifts/catalog/good_day.png'),
+  freeGift('hugs', 'gifts.catalog.hugs', '/gifts/catalog/hugs.png'),
   {
     id: 'flowers',
     nameKey: 'gifts.catalog.flowers',

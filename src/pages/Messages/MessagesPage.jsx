@@ -14,17 +14,20 @@ import {
   MESSAGE_UPDATED_EVENT,
   USER_STOP_TYPING_EVENT,
   USER_TYPING_EVENT,
+  CONVERSATION_DELETED_EVENT,
 } from '../../constants/messageEvents';
 import profileIcons from '../../constants/profileIcons';
 import AppHeader from '../../components/Layout/AppHeader';
 import ChatContextMenu from '../../components/Messages/ChatContextMenu';
+import CreateGroupModal from '../../components/Messages/CreateGroupModal';
 import EditMessageModal from '../../components/Messages/EditMessageModal';
 import ForwardMessageModal from '../../components/Messages/ForwardMessageModal';
+import GroupAvatar from '../../components/Messages/GroupAvatar';
+import GroupInfoModal from '../../components/Messages/GroupInfoModal';
 import MessageBubble from '../../components/Messages/MessageBubble';
 import MessageComposer from '../../components/Messages/MessageComposer';
 import MessageContextMenu from '../../components/Messages/MessageContextMenu';
 import MessageSearchPanel from '../../components/Messages/MessageSearchPanel';
-import MessageSoundToggle from '../../components/Messages/MessageSoundToggle';
 import MessagesNavBadge from '../../components/Messages/MessagesNavBadge';
 import ReportMessageModal from '../../components/Messages/ReportMessageModal';
 import TypingIndicator from '../../components/Messages/TypingIndicator';
@@ -42,7 +45,11 @@ import {
 } from '../../utils/messageReadReceipt';
 import {
   conversationMatchesSearch,
+  formatConversationClock,
   getConversationListPreview,
+  getConversationTitle,
+  getMessageSenderName,
+  isGroupConversation,
   patchConversationLastMessage,
 } from '../../utils/conversationPreview';
 import {
@@ -70,6 +77,50 @@ function getDisplayName(user, fallback) {
   if (user.name?.trim()) return user.name.trim();
   const full = `${user.firstName || ''} ${user.lastName || ''}`.trim();
   return full || user.username || fallback;
+}
+
+function GroupUsersIcon() {
+  return (
+    <svg
+      className="messagesPage__createGroupIcon"
+      viewBox="0 0 24 24"
+      fill="none"
+      aria-hidden="true"
+    >
+      <circle cx="9" cy="8" r="3.1" stroke="currentColor" strokeWidth="1.7" />
+      <path
+        d="M3.6 18.2c.8-3.4 3.3-5.1 5.4-5.1 2.1 0 4.6 1.7 5.4 5.1"
+        stroke="currentColor"
+        strokeWidth="1.7"
+        strokeLinecap="round"
+      />
+      <circle cx="16.6" cy="9.1" r="2.5" stroke="currentColor" strokeWidth="1.7" />
+      <path
+        d="M16.6 13.2c1.9 0 3.8 1.3 4.6 3.8"
+        stroke="currentColor"
+        strokeWidth="1.7"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
+
+function GroupCreatePlusIcon() {
+  return (
+    <svg
+      className="messagesPage__createGroupPlus"
+      viewBox="0 0 10 10"
+      fill="none"
+      aria-hidden="true"
+    >
+      <path
+        d="M5 1.15v7.7M1.15 5h7.7"
+        stroke="currentColor"
+        strokeWidth="1.85"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
 }
 
 function sortConversations(items) {
@@ -246,7 +297,9 @@ export default function MessagesPage() {
   const [editMessage, setEditMessage] = useState(null);
   const [showChatSearch, setShowChatSearch] = useState(false);
   const [highlightMessageId, setHighlightMessageId] = useState(null);
-  const [typingUserId, setTypingUserId] = useState(null);
+  const [typingUserIds, setTypingUserIds] = useState([]);
+  const [showCreateGroup, setShowCreateGroup] = useState(false);
+  const [showGroupInfo, setShowGroupInfo] = useState(false);
   const [pinnedMessageId, setPinnedMessageId] = useState(null);
   const [seenMessageIds, setSeenMessageIds] = useState(() => new Set());
   const [mutedOverrides, setMutedOverrides] = useState({});
@@ -304,6 +357,10 @@ export default function MessagesPage() {
   );
 
   const peerId = activeConversation?.participant?.id;
+  const isActiveGroup = isGroupConversation(activeConversation);
+  const chatTitle = isActiveGroup
+    ? getConversationTitle(activeConversation, t('messenger.group.untitled'))
+    : getDisplayName(activeConversation?.participant, t('common.user'));
 
   const filteredConversations = useMemo(() => {
     const q = searchQuery.trim().toLowerCase();
@@ -430,10 +487,29 @@ export default function MessagesPage() {
   }, [isAuthed, loadConversations, fetchTotalUnreadCount]);
 
   useEffect(() => {
+    if (!isAuthed || !activeConversationId || activeConversation) return undefined;
+    let cancelled = false;
+    conversationsApi
+      .getById(activeConversationId)
+      .then((row) => {
+        if (cancelled || !row?.id) return;
+        setConversations((prev) => {
+          if (prev.some((c) => String(c.id) === String(row.id))) return prev;
+          return sortConversations([row, ...prev]);
+        });
+      })
+      .catch(() => undefined);
+    return () => {
+      cancelled = true;
+    };
+  }, [isAuthed, activeConversation, activeConversationId]);
+
+  useEffect(() => {
     if (!isAuthed || !activeConversationId) return;
     setReplyTo(null);
     setShowChatSearch(false);
-    setTypingUserId(null);
+    setTypingUserIds([]);
+    setShowGroupInfo(false);
     setPinnedMessageId(null);
     setSeenMessageIds(new Set());
     setHighlightMessageId(null);
@@ -443,7 +519,7 @@ export default function MessagesPage() {
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages, activeConversationId, typingUserId]);
+  }, [messages, activeConversationId, typingUserIds]);
 
   useEffect(() => {
     if (!highlightMessageId) return undefined;
@@ -607,8 +683,11 @@ export default function MessagesPage() {
     const onTyping = (event) => {
       const envelope = event?.detail;
       if (!matchesActive(envelope?.conversationId)) return;
-      if (String(envelope?.typingUserId) === String(currentUserId)) return;
-      setTypingUserId(envelope?.typingUserId ?? null);
+      const typerId = envelope?.typingUserId;
+      if (!typerId || String(typerId) === String(currentUserId)) return;
+      setTypingUserIds((prev) =>
+        prev.includes(String(typerId)) ? prev : [...prev, String(typerId)],
+      );
     };
 
     const onStopTyping = (event) => {
@@ -616,9 +695,23 @@ export default function MessagesPage() {
       if (!matchesActive(envelope?.conversationId)) return;
       const stoppedUserId = envelope?.typingUserId;
       if (!stoppedUserId) return;
-      setTypingUserId((prev) =>
-        String(stoppedUserId) === String(prev) ? null : prev,
+      setTypingUserIds((prev) =>
+        prev.filter((id) => String(id) !== String(stoppedUserId)),
       );
+    };
+
+    const onConversationDeleted = (event) => {
+      const convId = event?.detail?.conversationId;
+      if (!convId) return;
+      setConversations((prev) =>
+        prev.filter((c) => String(c.id) !== String(convId)),
+      );
+      setShowGroupInfo(false);
+      if (String(activeConversationId) === String(convId)) {
+        setMessages([]);
+        navigate('/messages');
+      }
+      void fetchTotalUnreadCount(true);
     };
 
     window.addEventListener(MESSAGE_CREATED_EVENT, onCreated);
@@ -632,6 +725,7 @@ export default function MessagesPage() {
     window.addEventListener(MESSAGE_UNPINNED_EVENT, onUnpinned);
     window.addEventListener(USER_TYPING_EVENT, onTyping);
     window.addEventListener(USER_STOP_TYPING_EVENT, onStopTyping);
+    window.addEventListener(CONVERSATION_DELETED_EVENT, onConversationDeleted);
 
     return () => {
       window.removeEventListener(MESSAGE_CREATED_EVENT, onCreated);
@@ -645,13 +739,16 @@ export default function MessagesPage() {
       window.removeEventListener(MESSAGE_UNPINNED_EVENT, onUnpinned);
       window.removeEventListener(USER_TYPING_EVENT, onTyping);
       window.removeEventListener(USER_STOP_TYPING_EVENT, onStopTyping);
+      window.removeEventListener(CONVERSATION_DELETED_EVENT, onConversationDeleted);
     };
   }, [
     activeConversationId,
     appendOrUpdateMessage,
     currentUserId,
+    fetchTotalUnreadCount,
     loadConversations,
     markChatRead,
+    navigate,
     setTotalUnreadCount,
   ]);
 
@@ -770,6 +867,10 @@ export default function MessagesPage() {
   const callBusy = callPhase !== 'idle';
 
   const startCall = async (mediaType) => {
+    if (isGroupConversation(activeConversation)) {
+      toast.info(t('messenger.group.callsComingSoon'));
+      return;
+    }
     if (!activeConversationId || callBusy || startCallInFlightRef.current) {
       if (callBusy) toast.error(t('messenger.calls.busyLocal'));
       return;
@@ -793,6 +894,10 @@ export default function MessagesPage() {
         toast.error(t('messenger.calls.unavailableTitle'), {
           description: t('messenger.calls.subscriptionRequired'),
         });
+        return;
+      }
+      if (code === 'GROUP_CALLS_NOT_AVAILABLE') {
+        toast.info(t('messenger.group.callsComingSoon'));
         return;
       }
       toast.error(getApiErrorMessage(err) || t('messenger.calls.startFailed'));
@@ -926,7 +1031,12 @@ export default function MessagesPage() {
         }
 
         if (actionId === 'delete') {
-          const ok = window.confirm(t('messenger.chatMenu.deleteConfirm'));
+          const isGroup = isGroupConversation(chat);
+          const ok = window.confirm(
+            isGroup
+              ? t('messenger.chatMenu.hideConfirm')
+              : t('messenger.chatMenu.deleteConfirm'),
+          );
           if (!ok) return;
           const result = await conversationsApi.deleteConversationForMe(chatId);
           setConversations((prev) =>
@@ -940,7 +1050,11 @@ export default function MessagesPage() {
           } else {
             void fetchTotalUnreadCount(true);
           }
-          toast.success(t('messenger.chatMenu.deleteSuccess'));
+          toast.success(
+            isGroup
+              ? t('messenger.chatMenu.hideSuccess')
+              : t('messenger.chatMenu.deleteSuccess'),
+          );
         }
       } catch (err) {
         toast.error(getApiErrorMessage(err, 'errors.generic'));
@@ -1007,7 +1121,20 @@ export default function MessagesPage() {
               </span>
             </label>
 
-            <MessageSoundToggle />
+            <button
+              type="button"
+              className="messagesPage__createGroup"
+              onClick={() => setShowCreateGroup(true)}
+              aria-label={t('messenger.group.createAria')}
+            >
+              <span className="messagesPage__createGroupGlyph" aria-hidden="true">
+                <GroupUsersIcon />
+                <GroupCreatePlusIcon />
+              </span>
+              <span className="messagesPage__createGroupLabel">
+                {t('messenger.group.create')}
+              </span>
+            </button>
           </div>
 
           <div className="messagesPage__body">
@@ -1027,7 +1154,10 @@ export default function MessagesPage() {
               <ul className="messagesPage__chatList">
                 {filteredConversations.map((chat) => {
                   const isActive = chat.id === activeConversationId;
-                  const name = getDisplayName(chat.participant, t('common.user'));
+                  const isGroup = isGroupConversation(chat);
+                  const name = isGroup
+                    ? getConversationTitle(chat, t('messenger.group.untitled'))
+                    : getDisplayName(chat.participant, t('common.user'));
                   const preview = getConversationListPreview(
                     chat,
                     t,
@@ -1036,6 +1166,11 @@ export default function MessagesPage() {
                   );
                   const chatMuted = isConversationMuted(chat);
                   const chatPinned = Boolean(chat.isPinned || chat.pinnedAt);
+                  const groupTime = isGroup
+                    ? formatConversationClock(
+                        chat.lastMessage?.createdAt || chat.updatedAt,
+                      )
+                    : '';
                   return (
                     <li key={chat.id} className="messagesPage__chatRow">
                       <Link
@@ -1065,16 +1200,20 @@ export default function MessagesPage() {
                         onTouchCancel={clearLongPress}
                       >
                         <div className="messagesPage__chatAvatar">
-                          {chat.participant?.avatarUrl ? (
+                          {isGroup ? (
+                            <GroupAvatar src={chat.avatarUrl} name={name} />
+                          ) : chat.participant?.avatarUrl ? (
                             <img src={chat.participant.avatarUrl} alt="" />
                           ) : (
                             <span>{name.charAt(0).toUpperCase()}</span>
                           )}
-                          <OnlineStatus
-                            userId={chat.participant?.id}
-                            user={chat.participant}
-                            className="onlineStatus--onAvatar"
-                          />
+                          {!isGroup ? (
+                            <OnlineStatus
+                              userId={chat.participant?.id}
+                              user={chat.participant}
+                              className="onlineStatus--onAvatar"
+                            />
+                          ) : null}
                         </div>
                         <div className="messagesPage__chatMeta">
                           <div className="messagesPage__chatTop">
@@ -1091,9 +1230,14 @@ export default function MessagesPage() {
                                 </span>
                               ) : null}
                             </span>
-                            {chat.unreadCount > 0 ? (
-                              <span className="messagesPage__unread">{chat.unreadCount}</span>
-                            ) : null}
+                            <span className="messagesPage__chatTopRight">
+                              {groupTime ? (
+                                <time className="messagesPage__chatTime">{groupTime}</time>
+                              ) : null}
+                              {chat.unreadCount > 0 ? (
+                                <span className="messagesPage__unread">{chat.unreadCount}</span>
+                              ) : null}
+                            </span>
                           </div>
                           <p
                             className={`messagesPage__chatPreview${preview.isDraft ? ' is-draft' : ''}`}
@@ -1130,7 +1274,43 @@ export default function MessagesPage() {
             >
               {!activeConversationId && (
                 <div className="messagesPage__emptyChat">
-                  <p>{t('messenger.selectChat')}</p>
+                  <img
+                    src="/messages/messages-empty-chat.png"
+                    alt=""
+                    className="messagesPage__emptyArt"
+                    aria-hidden="true"
+                  />
+                  <div className="messagesPage__emptyCopy">
+                    <h2 className="messagesPage__emptyTitle">
+                      {t('messenger.empty.title')}
+                    </h2>
+                    <p className="messagesPage__emptyDesc">
+                      {t('messenger.empty.description')}
+                    </p>
+                  </div>
+                  <ul className="messagesPage__emptyFeatures">
+                    <li>
+                      <span className="messagesPage__emptyFeatureIcon" aria-hidden="true">
+                        <img src={profileIcons.comments} alt="" />
+                      </span>
+                      <strong>{t('messenger.empty.communicate')}</strong>
+                      <span>{t('messenger.empty.communicateHint')}</span>
+                    </li>
+                    <li>
+                      <span className="messagesPage__emptyFeatureIcon" aria-hidden="true">
+                        <img src={profileIcons.friends} alt="" />
+                      </span>
+                      <strong>{t('messenger.empty.createGroups')}</strong>
+                      <span>{t('messenger.empty.createGroupsHint')}</span>
+                    </li>
+                    <li>
+                      <span className="messagesPage__emptyFeatureIcon" aria-hidden="true">
+                        <img src={profileIcons.like} alt="" />
+                      </span>
+                      <strong>{t('messenger.empty.closer')}</strong>
+                      <span>{t('messenger.empty.closerHint')}</span>
+                    </li>
+                  </ul>
                 </div>
               )}
 
@@ -1146,35 +1326,73 @@ export default function MessagesPage() {
                       <img src={profileIcons.arrowLeftBlack} alt="" aria-hidden="true" />
                     </button>
                     <div className="messagesPage__chatHeadPeer">
+                      <button
+                        type="button"
+                        className={`messagesPage__chatHeadButton${isActiveGroup ? ' is-group' : ''}`}
+                        onClick={() => {
+                          if (isActiveGroup) setShowGroupInfo(true);
+                        }}
+                        disabled={!isActiveGroup}
+                        aria-label={
+                          isActiveGroup ? t('messenger.group.info') : undefined
+                        }
+                      >
                       <div className="messagesPage__chatHeadAvatar" aria-hidden="true">
-                        {activeConversation?.participant?.avatarUrl ? (
+                        {isActiveGroup ? (
+                          <GroupAvatar
+                            src={activeConversation?.avatarUrl}
+                            name={chatTitle}
+                          />
+                        ) : activeConversation?.participant?.avatarUrl ? (
                           <img src={activeConversation.participant.avatarUrl} alt="" />
                         ) : (
-                          <span>{peerName.charAt(0).toUpperCase()}</span>
+                          <span>{chatTitle.charAt(0).toUpperCase()}</span>
                         )}
-                        <OnlineStatus
-                          userId={activeConversation?.participant?.id}
-                          user={activeConversation?.participant}
-                          className="onlineStatus--onAvatar"
-                        />
+                        {!isActiveGroup ? (
+                          <OnlineStatus
+                            userId={activeConversation?.participant?.id}
+                            user={activeConversation?.participant}
+                            className="onlineStatus--onAvatar"
+                          />
+                        ) : null}
                       </div>
                       <div className="messagesPage__chatHeadPresence">
-                        <h2 className="messagesPage__chatTitle">{peerName}</h2>
-                        <OnlineStatus
-                          userId={activeConversation?.participant?.id}
-                          user={activeConversation?.participant}
-                          variant="label"
-                        />
+                        <h2 className="messagesPage__chatTitle">{chatTitle}</h2>
+                        {isActiveGroup ? (
+                          <p className="messagesPage__chatSubtitle">
+                            {t('messenger.group.membersCount', {
+                              count:
+                                activeConversation?.memberCount ||
+                                activeConversation?.members?.length ||
+                                0,
+                            })}
+                          </p>
+                        ) : (
+                          <OnlineStatus
+                            userId={activeConversation?.participant?.id}
+                            user={activeConversation?.participant}
+                            variant="label"
+                          />
+                        )}
                       </div>
+                      </button>
                     </div>
                     <div className="messagesPage__chatActions">
                       <button
                         type="button"
                         className="messagesPage__chatAction"
                         onClick={() => void startCall('AUDIO')}
-                        disabled={callBusy}
-                        aria-label={t('messenger.calls.audioCall')}
-                        title={t('messenger.calls.audioCall')}
+                        disabled={callBusy || isActiveGroup}
+                        aria-label={
+                          isActiveGroup
+                            ? t('messenger.group.callsComingSoon')
+                            : t('messenger.calls.audioCall')
+                        }
+                        title={
+                          isActiveGroup
+                            ? t('messenger.group.callsComingSoon')
+                            : t('messenger.calls.audioCall')
+                        }
                       >
                         📞
                       </button>
@@ -1182,9 +1400,17 @@ export default function MessagesPage() {
                         type="button"
                         className="messagesPage__chatAction"
                         onClick={() => void startCall('VIDEO')}
-                        disabled={callBusy}
-                        aria-label={t('messenger.calls.videoCall')}
-                        title={t('messenger.calls.videoCall')}
+                        disabled={callBusy || isActiveGroup}
+                        aria-label={
+                          isActiveGroup
+                            ? t('messenger.group.callsComingSoon')
+                            : t('messenger.calls.videoCall')
+                        }
+                        title={
+                          isActiveGroup
+                            ? t('messenger.group.callsComingSoon')
+                            : t('messenger.calls.videoCall')
+                        }
                       >
                         🎥
                       </button>
@@ -1276,6 +1502,19 @@ export default function MessagesPage() {
                         }
                         const isMine = msg.senderId === currentUserId;
                         const peer = activeConversation?.participant;
+                        const senderName = isActiveGroup
+                          ? getMessageSenderName(
+                              msg,
+                              activeConversation?.members,
+                              t('common.user'),
+                            )
+                          : getDisplayName(peer, t('common.user'));
+                        const senderAvatar = isActiveGroup
+                          ? msg.sender?.avatarUrl ||
+                            activeConversation?.members?.find(
+                              (m) => String(m.id) === String(msg.senderId),
+                            )?.avatarUrl
+                          : peer?.avatarUrl;
                         const storyAuthorFallback = isMine
                           ? {
                               id: peer?.id,
@@ -1295,8 +1534,10 @@ export default function MessagesPage() {
                             message={msg}
                             isMine={isMine}
                             currentUserId={currentUserId}
-                            peerAvatarUrl={peer?.avatarUrl}
-                            peerName={getDisplayName(peer, t('common.user'))}
+                            peerAvatarUrl={senderAvatar}
+                            peerName={senderName}
+                            showSenderName={isActiveGroup}
+                            hideReadReceipt={isActiveGroup}
                             highlight={String(msg.id) === String(highlightMessageId)}
                             onOpenMenu={(message, rect, bubbleTimeLabel, isMineBubble) => {
                               setMenuState({
@@ -1319,9 +1560,20 @@ export default function MessagesPage() {
                           />
                         );
                       })}
-                    {typingUserId && String(typingUserId) === String(peerId) ? (
-                      <TypingIndicator peerName={peerName} />
-                    ) : null}
+                    {(() => {
+                      const visibleTypingIds = isActiveGroup
+                        ? typingUserIds
+                        : typingUserIds.filter((id) => String(id) === String(peerId));
+                      if (!visibleTypingIds.length) return null;
+                      const typingName = isActiveGroup
+                        ? getMessageSenderName(
+                            { senderId: visibleTypingIds[0] },
+                            activeConversation?.members,
+                            t('common.user'),
+                          )
+                        : peerName;
+                      return <TypingIndicator peerName={typingName} />;
+                    })()}
                     <div ref={messagesEndRef} />
                   </div>
 
@@ -1358,8 +1610,57 @@ export default function MessagesPage() {
         anchorRect={chatMenu?.anchorRect}
         isPinned={Boolean(chatMenu?.chat?.isPinned || chatMenu?.chat?.pinnedAt)}
         isMuted={isConversationMuted(chatMenu?.chat)}
+        isGroup={isGroupConversation(chatMenu?.chat)}
         onClose={() => setChatMenu(null)}
         onAction={handleChatMenuAction}
+      />
+
+      <CreateGroupModal
+        isOpen={showCreateGroup}
+        currentUserId={currentUserId}
+        onClose={() => setShowCreateGroup(false)}
+        onCreated={(created) => {
+          if (!created?.id) return;
+          setConversations((prev) => {
+            const rest = prev.filter((c) => String(c.id) !== String(created.id));
+            return sortConversations([created, ...rest]);
+          });
+          navigate(`/messages/${created.id}`);
+        }}
+      />
+
+      <GroupInfoModal
+        isOpen={showGroupInfo && isActiveGroup}
+        conversation={activeConversation}
+        currentUserId={currentUserId}
+        onClose={() => setShowGroupInfo(false)}
+        onUpdated={(updated) => {
+          if (!updated?.id) return;
+          setConversations((prev) =>
+            prev.map((c) =>
+              String(c.id) === String(updated.id) ? { ...c, ...updated } : c,
+            ),
+          );
+        }}
+        onLeft={(leftId) => {
+          setConversations((prev) =>
+            prev.filter((c) => String(c.id) !== String(leftId)),
+          );
+          if (String(activeConversationId) === String(leftId)) {
+            navigate('/messages');
+          }
+        }}
+        onDeleted={(deletedId) => {
+          setConversations((prev) =>
+            prev.filter((c) => String(c.id) !== String(deletedId)),
+          );
+          setShowGroupInfo(false);
+          if (String(activeConversationId) === String(deletedId)) {
+            setMessages([]);
+            navigate('/messages');
+          }
+          void fetchTotalUnreadCount(true);
+        }}
       />
 
       <ForwardMessageModal

@@ -3,6 +3,8 @@ import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { PASSWORD_REGEX } from "../../../utils/validationRegister";
 import { useForceDarkTheme } from "../../../hooks/useForceDarkTheme";
+import BrandLogo from "../../BrandLogo/BrandLogo";
+import "../Login/LoginForm.scss";
 import "./ResetNewPasswordForm.scss";
 
 export default function ResetNewPasswordForm({ onBack, onSuccess }) {
@@ -77,7 +79,7 @@ export default function ResetNewPasswordForm({ onBack, onSuccess }) {
       </button>
 
       <div className="auth__logoCard" aria-hidden="true">
-        <img className="auth__logoImg" src="/Logo/photo.png?v=2" alt={t("auth.common.logoAlt")} />
+        <BrandLogo className="auth__logoImg" decorative />
       </div>
 
       <h1 className="auth__title">{t("auth.resetPassword.title")}</h1>

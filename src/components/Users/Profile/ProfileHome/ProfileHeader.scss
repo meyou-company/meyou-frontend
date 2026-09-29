@@ -17,6 +17,22 @@
 .profile-header .logo {
   flex: 1;
   min-width: 0;
+  display: flex;
+  justify-content: center;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.profile-header .app-brand-wordmark {
+  font-size: 28px;
+}
+
+@media (min-width: 1024px) {
+  .profile-header .app-brand-wordmark {
+    font-size: 36px;
+  }
 }
 
 /* default desktop */
@@ -83,18 +99,6 @@
     object-fit: contain;
   }
 }
-
-.profile-header .logo {
-  flex: 1;
-  display: flex;
-  justify-content: center;
-  background: transparent;
-  border: 0;
-  cursor: pointer;
-  -webkit-tap-highlight-color: transparent;
-}
-
-/* типографіка логотипа — .app-brand-wordmark у index.css */
 
 /* -------------------------
    ICON BUTTONS
@@ -246,7 +250,7 @@ body.dark .profile-header .desktopNavRow::before {
     height: 52px;
   }
 
-  /* Центруємо ME YOU в мобільному хедері незалежно від іконок з боків */
+  /* Центруємо логотип у мобільному хедері незалежно від іконок з боків */
   .profile-header .logo {
     position: absolute;
     left: 50%;
@@ -394,7 +398,7 @@ body.dark .profile-header .desktopNavRow::before {
   pointer-events: none;
 }
 
-/* underline під ME YOU (плоска рожева) */
+/* underline під логотипом (плоска рожева) */
 .profile-header .logoText {
   position: relative;
   display: inline-block;

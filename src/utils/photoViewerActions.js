@@ -6,7 +6,7 @@ export async function photoUrlToFile(url, fileName = "photo.jpg") {
   return new File([blob], fileName, { type: blob.type || "image/jpeg" });
 }
 
-export async function downloadPhoto(url, fileName = "meyou-photo.jpg") {
+export async function downloadPhoto(url, fileName = "lunmeyo-photo.jpg") {
   const file = await photoUrlToFile(url, fileName);
   const objectUrl = URL.createObjectURL(file);
   const link = document.createElement("a");
