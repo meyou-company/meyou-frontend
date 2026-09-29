@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
-import { LuArrowLeft, LuChevronDown } from 'react-icons/lu';
+import { LuChevronDown } from 'react-icons/lu';
 import AppHeader from '../../components/Layout/AppHeader';
 import MessagesNavBadge from '../../components/Messages/MessagesNavBadge';
 import VideoCardThumbnail from '../../components/Video/VideoCardThumbnail';
@@ -13,6 +13,7 @@ import { videosApi } from '../../services/videosApi';
 import { useAuthStore } from '../../zustand/useAuthStore';
 import { mapApiPostToFeedItem } from '../../utils/mapApiPostToFeedItem';
 import { formatVideoCount, mapApiVideosToCards } from '../../utils/mapApiVideoToCard';
+import { resolveProfileUsername } from '../../utils/profileUsername';
 import './SavedPage.scss';
 
 const TABS = [
@@ -232,7 +233,9 @@ export default function SavedPage() {
 
   const openProfile = (event, item) => {
     event.stopPropagation();
-    const username = item.kind === 'post' ? item.author?.username : item.raw?.author?.username;
+    const username = resolveProfileUsername(
+      item.kind === 'post' ? item.author : item.raw?.author,
+    );
     if (username) navigate(`/profile/${encodeURIComponent(username)}`);
   };
 
@@ -272,7 +275,7 @@ export default function SavedPage() {
       <main className="savedPage__content">
         <header className="savedPage__titleRow">
           <button type="button" className="savedPage__back" onClick={() => navigate(-1)} aria-label="Назад">
-            <LuArrowLeft aria-hidden="true" />
+            <span className="savedPage__backIcon" aria-hidden="true" />
           </button>
           <h1>Сохраненное</h1>
         </header>

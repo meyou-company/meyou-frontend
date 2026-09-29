@@ -63,8 +63,17 @@
   cursor: pointer;
 }
 
-.savedPage__back img { width: 32px; height: 32px; }
-.savedPage__back svg { width: 34px; height: 34px; stroke: #956ee4; stroke-width: 2.8; }
+.savedPage__back img,
+.savedPage__back svg { display: none; }
+
+.savedPage__backIcon {
+  display: block;
+  width: 46px;
+  height: 36px;
+  background: #956ee4;
+  -webkit-mask: url('/icon-black/arrow-left.svg') center / contain no-repeat;
+  mask: url('/icon-black/arrow-left.svg') center / contain no-repeat;
+}
 
 .savedPage__tabs {
   display: flex;
@@ -404,7 +413,7 @@ body.dark .savedCard__menu { background: linear-gradient(145deg, #27232f, #3b2b5
 body.dark .savedCard__menu button { color: #fff; }
 body.dark .savedCard__menu img,
 body.dark .savedPage__viewToggle img { filter: invert(1); }
-body.dark .savedPage__back svg { stroke: #bb9bff; }
+body.dark .savedPage__backIcon { background: #bb9bff; }
 body.dark .savedPage__sort { background: linear-gradient(180deg, #312a3b, #46305c); color: #fff; }
 body.dark .savedPage__sort option { color: #16121d; }
 
