@@ -2,6 +2,47 @@ import { getStoryMessageText, getStoryReplyPreview } from './storyMessagePreview
 import { formatCallEventLabel } from './callEventMessage';
 import { formatDraftListPreview, getConversationDraft, isNonEmptyDraft } from './messageDrafts';
 
+export function isGroupConversation(chat) {
+  return String(chat?.type || '').toUpperCase() === 'GROUP';
+}
+
+export function getConversationTitle(chat, fallback = '') {
+  if (isGroupConversation(chat)) {
+    return (chat?.name || '').trim() || fallback;
+  }
+  return fallback;
+}
+
+export function formatConversationClock(iso) {
+  if (!iso) return '';
+  try {
+    return new Date(iso).toLocaleTimeString(undefined, {
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+  } catch {
+    return '';
+  }
+}
+
+export function getMemberDisplayName(user, fallback = '') {
+  if (!user) return fallback;
+  if (user.name?.trim()) return user.name.trim();
+  const full = `${user.firstName || ''} ${user.lastName || ''}`.trim();
+  return full || user.username || fallback;
+}
+
+export function getMessageSenderName(message, members, fallback = '') {
+  const fromMessage = getMemberDisplayName(message?.sender, '');
+  if (fromMessage) return fromMessage;
+  const senderId = message?.senderId;
+  if (!senderId) return fallback;
+  const member = (members || []).find(
+    (row) => String(row.id || row.userId) === String(senderId),
+  );
+  return getMemberDisplayName(member, fallback);
+}
+
 export function getConversationLastMessagePreview(lastMessage, t, viewerId) {
   if (!lastMessage?.id) {
     return t('messenger.noMessages');
@@ -63,9 +104,23 @@ export function getConversationListPreview(chat, t, viewerId, drafts) {
     };
   }
 
+  const preview = getConversationLastMessagePreview(chat?.lastMessage, t, viewerId);
+  if (!isGroupConversation(chat) || !chat?.lastMessage?.id) {
+    return {
+      isDraft: false,
+      text: preview,
+      draftText: '',
+    };
+  }
+
+  const mine =
+    viewerId && String(chat.lastMessage.senderId) === String(viewerId);
+  const senderName = mine
+    ? t('messenger.you', { defaultValue: 'You' })
+    : getMessageSenderName(chat.lastMessage, chat.members, '');
   return {
     isDraft: false,
-    text: getConversationLastMessagePreview(chat?.lastMessage, t, viewerId),
+    text: senderName ? `${senderName}: ${preview}` : preview,
     draftText: '',
   };
 }
@@ -73,7 +128,11 @@ export function getConversationListPreview(chat, t, viewerId, drafts) {
 export function conversationMatchesSearch(chat, query, t, getDisplayName, drafts) {
   const q = query.trim().toLowerCase();
   if (!q) return true;
-  const name = (getDisplayName?.(chat.participant, '') || '').toLowerCase();
+  const name = (
+    isGroupConversation(chat)
+      ? getConversationTitle(chat, '')
+      : getDisplayName?.(chat.participant, '') || ''
+  ).toLowerCase();
   const preview = getConversationListPreview(chat, t, undefined, drafts);
   return name.includes(q) || preview.text.toLowerCase().includes(q);
 }
