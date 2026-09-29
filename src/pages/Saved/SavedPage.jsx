@@ -1,9 +1,10 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
-import { LuChevronDown } from 'react-icons/lu';
+import { LuCheck, LuChevronDown, LuChevronRight, LuFolderPlus, LuPlus, LuX } from 'react-icons/lu';
 import AppHeader from '../../components/Layout/AppHeader';
 import MessagesNavBadge from '../../components/Messages/MessagesNavBadge';
+import DeletePostConfirmDialog from '../../components/PostFeed/DeletePostConfirmDialog';
 import VideoCardThumbnail from '../../components/Video/VideoCardThumbnail';
 import VideoPlayerModal from '../../components/Video/VideoPlayerModal';
 import profileIcons from '../../constants/profileIcons';
@@ -23,6 +24,21 @@ const TABS = [
   { id: 'reels', label: 'Рилсы' },
   { id: 'photos', label: 'Фото' },
 ];
+
+const SAVED_COLLECTIONS_STORAGE_KEY = 'lunmeyo.savedCollections.v1';
+
+const getSavedItemKey = (item) => `${item.kind}:${item.id}`;
+
+const readSavedCollections = () => {
+  if (typeof window === 'undefined') return [];
+
+  try {
+    const value = JSON.parse(window.localStorage.getItem(SAVED_COLLECTIONS_STORAGE_KEY) || '[]');
+    return Array.isArray(value) ? value : [];
+  } catch {
+    return [];
+  }
+};
 
 const getPostAuthorName = (post) => {
   const author = post.author;
@@ -50,7 +66,7 @@ function DesktopNavigation() {
   );
 }
 
-function SavedCard({ item, view, menuOpen, onMenu, onOpen, onRemove, onShare, onProfile }) {
+function SavedCard({ item, view, menuOpen, onMenu, onCloseMenu, onOpen, onRemove, onAddToCollection, onShare, onDelete, onProfile }) {
   const isVideo = item.kind !== 'post';
   const media = item.media?.[0];
   const isPostVideo = !isVideo && media?.type === 'VIDEO';
@@ -59,6 +75,7 @@ function SavedCard({ item, view, menuOpen, onMenu, onOpen, onRemove, onShare, on
   const location = item.location || '';
   const likes = isVideo ? item.likes : formatVideoCount(item.counts?.likes);
   const comments = isVideo ? item.comments : formatVideoCount(item.counts?.comments);
+  const menuDomId = `saved-actions-${item.kind}-${item.id}`;
 
   return (
     <article className={`savedCard savedCard--${view} ${menuOpen ? 'savedCard--menuOpen' : ''}`}>
@@ -110,22 +127,131 @@ function SavedCard({ item, view, menuOpen, onMenu, onOpen, onRemove, onShare, on
 
       <div className="savedCard__footer">
         <p>{title || 'Сохранённый материал'}</p>
-        <button type="button" className="savedCard__more" onClick={onMenu} aria-label="Действия с материалом" aria-expanded={menuOpen}>
+        <button
+          type="button"
+          className="savedCard__more"
+          onClick={onMenu}
+          aria-label="Действия с материалом"
+          aria-expanded={menuOpen}
+          aria-controls={menuOpen ? menuDomId : undefined}
+          aria-haspopup="menu"
+        >
           <span aria-hidden="true">&#8942;</span>
         </button>
       </div>
 
       {menuOpen && (
-        <div className="savedCard__menu" role="menu">
-          <button type="button" role="menuitem" onClick={onRemove}>
-            <img src={profileIcons.savedPost} alt="" />Убрать из сохранённого
+        <div
+          id={menuDomId}
+          className="savedCard__menu"
+          role="menu"
+          aria-label="Действия с сохранённым материалом"
+          onClick={(event) => event.stopPropagation()}
+        >
+          <button
+            type="button"
+            className="savedCard__menuClose"
+            onClick={onCloseMenu}
+            aria-label="Закрыть меню"
+          >
+            <LuX aria-hidden="true" />
           </button>
-          <button type="button" role="menuitem" onClick={onShare}>
-            <img src={profileIcons.share} alt="" />Поделиться
+          <button type="button" className="savedCard__menuAction" role="menuitem" onClick={onRemove} autoFocus>
+            <img src={profileIcons.savedRemoveBlack} alt="" />Убрать из сохранённого
+          </button>
+          <button type="button" className="savedCard__menuAction" role="menuitem" onClick={onAddToCollection}>
+            <img src={profileIcons.savedAddCollectionBlack} alt="" />
+            <span>Добавить в подборку</span>
+            <LuChevronRight className="savedCard__menuChevron" aria-hidden="true" />
+          </button>
+          <button type="button" className="savedCard__menuAction" role="menuitem" onClick={onShare}>
+            <img src={profileIcons.savedShareBlack} alt="" />Поделиться
+          </button>
+          <button type="button" className="savedCard__menuAction savedCard__menuAction--delete" role="menuitem" onClick={onDelete}>
+            <img src={profileIcons.savedDeleteBlack} alt="" />Удалить
           </button>
         </div>
       )}
     </article>
+  );
+}
+
+function SavedCollectionModal({ item, collections, onClose, onToggle, onCreate }) {
+  const [name, setName] = useState('');
+  const itemKey = item ? getSavedItemKey(item) : '';
+
+  useEffect(() => {
+    if (!item) return undefined;
+    const handleKeyDown = (event) => {
+      if (event.key === 'Escape') onClose();
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [item, onClose]);
+
+  if (!item) return null;
+
+  const submitCollection = (event) => {
+    event.preventDefault();
+    const trimmedName = name.trim();
+    if (!trimmedName) return;
+    onCreate(trimmedName);
+    setName('');
+  };
+
+  return (
+    <div className="savedCollectionModal" role="presentation" onPointerDown={onClose}>
+      <section
+        className="savedCollectionModal__panel"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="saved-collection-title"
+        onPointerDown={(event) => event.stopPropagation()}
+      >
+        <header className="savedCollectionModal__header">
+          <h2 id="saved-collection-title">Добавить в подборку</h2>
+          <button type="button" onClick={onClose} aria-label="Закрыть">
+            <LuX aria-hidden="true" />
+          </button>
+        </header>
+
+        <div className="savedCollectionModal__list">
+          {collections.length === 0 ? (
+            <p className="savedCollectionModal__empty">Создайте первую подборку для сохранённых материалов.</p>
+          ) : collections.map((collection) => {
+            const selected = collection.items?.includes(itemKey);
+            return (
+              <button
+                key={collection.id}
+                type="button"
+                className={selected ? 'is-selected' : ''}
+                aria-pressed={selected}
+                onClick={() => onToggle(collection.id)}
+              >
+                <span className="savedCollectionModal__folder"><LuFolderPlus aria-hidden="true" /></span>
+                <span>{collection.name}</span>
+                <span className="savedCollectionModal__check" aria-hidden="true">
+                  {selected && <LuCheck />}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+
+        <form className="savedCollectionModal__create" onSubmit={submitCollection}>
+          <input
+            value={name}
+            onChange={(event) => setName(event.target.value)}
+            placeholder="Название новой подборки"
+            maxLength={60}
+            autoFocus={collections.length === 0}
+          />
+          <button type="submit" disabled={!name.trim()} aria-label="Создать подборку">
+            <LuPlus aria-hidden="true" />
+          </button>
+        </form>
+      </section>
+    </div>
   );
 }
 
@@ -143,7 +269,18 @@ export default function SavedPage() {
   const [showAllTop, setShowAllTop] = useState(false);
   const [menuId, setMenuId] = useState(null);
   const [selectedVideo, setSelectedVideo] = useState(null);
-  const menuRootRef = useRef(null);
+  const [collectionTarget, setCollectionTarget] = useState(null);
+  const [collections, setCollections] = useState(readSavedCollections);
+  const [deleteTarget, setDeleteTarget] = useState(null);
+  const [deleting, setDeleting] = useState(false);
+
+  useEffect(() => {
+    try {
+      window.localStorage.setItem(SAVED_COLLECTIONS_STORAGE_KEY, JSON.stringify(collections));
+    } catch {
+      // The collection remains available for the current session if storage is unavailable.
+    }
+  }, [collections]);
 
   const loadSaved = useCallback(async () => {
     setLoading(true);
@@ -175,10 +312,22 @@ export default function SavedPage() {
 
   useEffect(() => {
     const closeMenu = (event) => {
-      if (!menuRootRef.current?.contains(event.target)) setMenuId(null);
+      if (
+        !event.target.closest?.('.savedCard__menu') &&
+        !event.target.closest?.('.savedCard__more')
+      ) {
+        setMenuId(null);
+      }
+    };
+    const closeMenuWithKeyboard = (event) => {
+      if (event.key === 'Escape') setMenuId(null);
     };
     document.addEventListener('pointerdown', closeMenu);
-    return () => document.removeEventListener('pointerdown', closeMenu);
+    document.addEventListener('keydown', closeMenuWithKeyboard);
+    return () => {
+      document.removeEventListener('pointerdown', closeMenu);
+      document.removeEventListener('keydown', closeMenuWithKeyboard);
+    };
   }, []);
 
   const allItems = useMemo(() => [...posts, ...videos].sort((a, b) => {
@@ -213,7 +362,13 @@ export default function SavedPage() {
 
   const shareItem = async (item) => {
     setMenuId(null);
-    const url = `${window.location.origin}${item.kind === 'post' ? `/post/${item.id}` : `/video?video=${item.id}`}`;
+    const username = resolveProfileUsername(
+      item.kind === 'post' ? item.author : item.raw?.author,
+    );
+    const postPath = username
+      ? `/profile/${encodeURIComponent(username)}?post=${encodeURIComponent(item.id)}`
+      : `/post/${encodeURIComponent(item.id)}`;
+    const url = `${window.location.origin}${item.kind === 'post' ? postPath : `/video?video=${encodeURIComponent(item.id)}`}`;
     try {
       if (navigator.share) await navigator.share({ title: item.title || item.text || 'LunMeYo', url });
       else {
@@ -227,8 +382,108 @@ export default function SavedPage() {
 
   const openItem = (item) => {
     setMenuId(null);
-    if (item.kind === 'post') navigate(`/post/${item.id}`);
-    else setSelectedVideo(item);
+    if (item.kind === 'post') {
+      const username = resolveProfileUsername(item.author);
+      if (!username) {
+        toast.error('Не удалось открыть профиль автора');
+        return;
+      }
+
+      navigate(
+        `/profile/${encodeURIComponent(username)}?post=${encodeURIComponent(item.id)}`,
+      );
+      return;
+    }
+
+    setSelectedVideo(item);
+  };
+
+  const openCollections = (item) => {
+    setMenuId(null);
+    setCollectionTarget(item);
+  };
+
+  const toggleCollectionItem = (collectionId) => {
+    if (!collectionTarget) return;
+    const itemKey = getSavedItemKey(collectionTarget);
+    const selectedCollection = collections.find((collection) => collection.id === collectionId);
+    const alreadyAdded = selectedCollection?.items?.includes(itemKey) === true;
+
+    setCollections((current) => current.map((collection) => {
+      if (collection.id !== collectionId) return collection;
+      const items = Array.isArray(collection.items) ? collection.items : [];
+      const itemIsPresent = items.includes(itemKey);
+      return {
+        ...collection,
+        items: itemIsPresent
+          ? items.filter((key) => key !== itemKey)
+          : [...items, itemKey],
+      };
+    }));
+
+    toast.success(alreadyAdded ? 'Убрано из подборки' : 'Добавлено в подборку');
+  };
+
+  const createCollection = (name) => {
+    if (!collectionTarget) return;
+    const normalizedName = name.trim();
+    const existing = collections.find(
+      (collection) => collection.name.toLocaleLowerCase() === normalizedName.toLocaleLowerCase(),
+    );
+
+    if (existing) {
+      const itemKey = getSavedItemKey(collectionTarget);
+      if (!existing.items?.includes(itemKey)) toggleCollectionItem(existing.id);
+      else toast.info('Материал уже находится в этой подборке');
+      return;
+    }
+
+    const id = globalThis.crypto?.randomUUID?.() || `collection-${Date.now()}`;
+    setCollections((current) => [
+      ...current,
+      { id, name: normalizedName, items: [getSavedItemKey(collectionTarget)] },
+    ]);
+    toast.success('Подборка создана');
+  };
+
+  const requestDelete = (item) => {
+    setMenuId(null);
+    const author = item.kind === 'post' ? item.author : item.raw?.author;
+    const authorId = author?.id ?? author?._id;
+    const currentUserId = user?.id ?? user?._id;
+    const authorUsername = resolveProfileUsername(author).toLocaleLowerCase();
+    const currentUsername = resolveProfileUsername(user).toLocaleLowerCase();
+    const canDelete =
+      item.permissions?.canDelete === true ||
+      (authorId != null && currentUserId != null && String(authorId) === String(currentUserId)) ||
+      (authorUsername && currentUsername && authorUsername === currentUsername);
+
+    if (!canDelete) {
+      toast.error('Удалить можно только собственную публикацию');
+      return;
+    }
+
+    setDeleteTarget(item);
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteTarget || deleting) return;
+    setDeleting(true);
+    try {
+      if (deleteTarget.kind === 'post') {
+        await postsApi.deletePost(deleteTarget.id);
+        setPosts((current) => current.filter((post) => post.id !== deleteTarget.id));
+      } else {
+        await videosApi.delete(deleteTarget.id);
+        setVideos((current) => current.filter((video) => video.id !== deleteTarget.id));
+      }
+      setDeleteTarget(null);
+      toast.success('Публикация удалена');
+    } catch {
+      toast.error('Не удалось удалить публикацию');
+    } finally {
+      setDeleting(false);
+    }
   };
 
   const openProfile = (event, item) => {
@@ -251,16 +506,19 @@ export default function SavedPage() {
           event.stopPropagation();
           setMenuId((current) => current === `${keyPrefix}-${itemKey}` ? null : `${keyPrefix}-${itemKey}`);
         }}
+        onCloseMenu={() => setMenuId(null)}
         onOpen={() => openItem(item)}
         onRemove={() => removeSaved(item)}
+        onAddToCollection={() => openCollections(item)}
         onShare={() => shareItem(item)}
+        onDelete={() => requestDelete(item)}
         onProfile={(event) => openProfile(event, item)}
       />
     );
   });
 
   return (
-    <div className="savedPage" ref={menuRootRef}>
+    <div className="savedPage">
       <DesktopNavigation />
       <div className="savedPage__appHeader">
         <AppHeader
@@ -353,6 +611,27 @@ export default function SavedPage() {
         onClose={() => setSelectedVideo(null)}
         isAuthed={isAuthed}
         currentUserId={user?.id}
+      />
+
+      <SavedCollectionModal
+        item={collectionTarget}
+        collections={collections}
+        onClose={() => setCollectionTarget(null)}
+        onToggle={toggleCollectionItem}
+        onCreate={createCollection}
+      />
+
+      <DeletePostConfirmDialog
+        isOpen={Boolean(deleteTarget)}
+        onCancel={() => {
+          if (!deleting) setDeleteTarget(null);
+        }}
+        onConfirm={confirmDelete}
+        confirming={deleting}
+        title="Удалить публикацию?"
+        description="Это действие нельзя отменить."
+        confirmLabel={deleting ? 'Удаление...' : 'Удалить'}
+        cancelLabel="Отмена"
       />
     </div>
   );
