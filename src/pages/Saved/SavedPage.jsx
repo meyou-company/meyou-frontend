@@ -48,7 +48,7 @@ function DesktopNavigation() {
   );
 }
 
-function SavedCard({ item, view, menuOpen, onMenu, onCloseMenu, onOpen, onRemove, onAddToCollection, onShare, onDelete, onProfile, t }) {
+function SavedCard({ item, view, menuOpen, onMenu, onCloseMenu, onOpen, onRemove, onAddToCollection, onShare, onProfile, t }) {
   const isVideo = item.kind !== 'post';
   const media = item.media?.[0];
   const isPostVideo = !isVideo && media?.type === 'VIDEO';
@@ -148,9 +148,6 @@ function SavedCard({ item, view, menuOpen, onMenu, onCloseMenu, onOpen, onRemove
           </button>
           <button type="button" className="savedCard__menuAction" role="menuitem" onClick={onShare}>
             <img src={profileIcons.savedShareBlack} alt="" />{t('savedPage.share')}
-          </button>
-          <button type="button" className="savedCard__menuAction savedCard__menuAction--delete" role="menuitem" onClick={onDelete}>
-            <img src={profileIcons.savedDeleteBlack} alt="" />{t('savedPage.delete')}
           </button>
         </div>
       )}
@@ -280,7 +277,6 @@ export default function SavedPage() {
   const [renameOpen, setRenameOpen] = useState(false);
   const [renameValue, setRenameValue] = useState('');
   const [renaming, setRenaming] = useState(false);
-  const [deleteTarget, setDeleteTarget] = useState(null);
   const [deleteCollectionOpen, setDeleteCollectionOpen] = useState(false);
   const [deleting, setDeleting] = useState(false);
 
@@ -613,46 +609,6 @@ export default function SavedPage() {
     }
   };
 
-  const requestDelete = (item) => {
-    setMenuId(null);
-    const author = item.kind === 'post' ? item.author : item.raw?.author;
-    const authorId = author?.id ?? author?._id;
-    const currentUserId = user?.id ?? user?._id;
-    const authorUsername = resolveProfileUsername(author).toLocaleLowerCase();
-    const currentUsername = resolveProfileUsername(user).toLocaleLowerCase();
-    const canDelete =
-      item.permissions?.canDelete === true ||
-      (authorId != null && currentUserId != null && String(authorId) === String(currentUserId)) ||
-      (authorUsername && currentUsername && authorUsername === currentUsername);
-
-    if (!canDelete) {
-      toast.error(t('savedPage.deleteOwnOnly'));
-      return;
-    }
-
-    setDeleteTarget(item);
-  };
-
-  const confirmDelete = async () => {
-    if (!deleteTarget || deleting) return;
-    setDeleting(true);
-    try {
-      if (deleteTarget.kind === 'post') {
-        await postsApi.deletePost(deleteTarget.id);
-        setPosts((current) => current.filter((post) => post.id !== deleteTarget.id));
-      } else {
-        await videosApi.delete(deleteTarget.id);
-        setVideos((current) => current.filter((video) => video.id !== deleteTarget.id));
-      }
-      setDeleteTarget(null);
-      toast.success(t('savedPage.deleted'));
-    } catch {
-      toast.error(t('savedPage.deleteFailed'));
-    } finally {
-      setDeleting(false);
-    }
-  };
-
   const openProfile = (event, item) => {
     event.stopPropagation();
     const username = resolveProfileUsername(
@@ -679,7 +635,6 @@ export default function SavedPage() {
         onRemove={() => removeSaved(item)}
         onAddToCollection={() => openCollections(item)}
         onShare={() => shareItem(item)}
-        onDelete={() => requestDelete(item)}
         onProfile={(event) => openProfile(event, item)}
       />
     );
@@ -908,19 +863,6 @@ export default function SavedPage() {
           </section>
         </div>
       ) : null}
-
-      <DeletePostConfirmDialog
-        isOpen={Boolean(deleteTarget)}
-        onCancel={() => {
-          if (!deleting) setDeleteTarget(null);
-        }}
-        onConfirm={confirmDelete}
-        confirming={deleting}
-        title={t('savedPage.deleteTitle')}
-        description={t('savedPage.deleteDescription')}
-        confirmLabel={deleting ? t('savedPage.deleting') : t('savedPage.delete')}
-        cancelLabel={t('common.cancel')}
-      />
 
       <DeletePostConfirmDialog
         isOpen={deleteCollectionOpen}
