@@ -37,21 +37,78 @@ function extractCommentsList(payload) {
 }
 
 export const postsApi = {
-  /** GET /posts/saved — збережені публікації поточного користувача. */
+  /** GET /posts/me/saved — збережені публікації поточного користувача. */
   async listSaved({ page = 1, limit = 100 } = {}) {
     try {
-      const { data } = await api.get('/posts/saved', {
+      const { data } = await api.get('/posts/me/saved', {
         params: { page, limit },
       });
       return extractPostsList(data);
     } catch (error) {
-      // Older API deployments expose saved state only on the regular feed.
       if (![400, 404, 405].includes(error?.response?.status)) throw error;
-      const posts = await this.list({ page, limit });
-      return posts.filter(
-        (post) => post?.viewerState?.isSaved === true || post?.isSavedByMe === true,
-      );
+      try {
+        const { data } = await api.get('/posts/saved', {
+          params: { page, limit },
+        });
+        return extractPostsList(data);
+      } catch (legacyError) {
+        if (![400, 404, 405].includes(legacyError?.response?.status)) throw legacyError;
+        const posts = await this.list({ page, limit });
+        return posts.filter(
+          (post) => post?.viewerState?.isSaved === true || post?.isSavedByMe === true,
+        );
+      }
     }
+  },
+
+  async listSavedCollections({ postId } = {}) {
+    const { data } = await api.get('/posts/me/saved/collections', {
+      params: postId ? { postId } : undefined,
+    });
+    if (Array.isArray(data)) return data;
+    return Array.isArray(data?.items) ? data.items : [];
+  },
+
+  async getSavedCollection(collectionId) {
+    const { data } = await api.get(
+      `/posts/me/saved/collections/${encodeURIComponent(collectionId)}`,
+    );
+    return data;
+  },
+
+  async createSavedCollection(name) {
+    const { data } = await api.post('/posts/me/saved/collections', { name });
+    return data;
+  },
+
+  async renameSavedCollection(collectionId, name) {
+    const { data } = await api.patch(
+      `/posts/me/saved/collections/${encodeURIComponent(collectionId)}`,
+      { name },
+    );
+    return data;
+  },
+
+  async deleteSavedCollection(collectionId) {
+    const { data } = await api.delete(
+      `/posts/me/saved/collections/${encodeURIComponent(collectionId)}`,
+    );
+    return data;
+  },
+
+  async addPostToSavedCollection(collectionId, postId) {
+    const { data } = await api.post(
+      `/posts/me/saved/collections/${encodeURIComponent(collectionId)}/posts`,
+      { postId },
+    );
+    return data;
+  },
+
+  async removePostFromSavedCollection(collectionId, postId) {
+    const { data } = await api.delete(
+      `/posts/me/saved/collections/${encodeURIComponent(collectionId)}/posts/${encodeURIComponent(postId)}`,
+    );
+    return data;
   },
 
   /**
