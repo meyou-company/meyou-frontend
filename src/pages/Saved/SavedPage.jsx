@@ -5,6 +5,7 @@ import { toast } from 'sonner';
 import { LuCheck, LuChevronDown, LuChevronRight, LuFolderPlus, LuPlus, LuX } from 'react-icons/lu';
 import AppHeader from '../../components/Layout/AppHeader';
 import MessagesNavBadge from '../../components/Messages/MessagesNavBadge';
+import DeletePostConfirmDialog from '../../components/PostFeed/DeletePostConfirmDialog';
 import VideoCardThumbnail from '../../components/Video/VideoCardThumbnail';
 import VideoPlayerModal from '../../components/Video/VideoPlayerModal';
 import profileIcons from '../../constants/profileIcons';
