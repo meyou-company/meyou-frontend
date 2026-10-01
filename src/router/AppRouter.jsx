@@ -166,6 +166,7 @@ function AppLayout() {
               <Route path="/video" element={<VideoPage />} />
               <Route path="/live/:liveId?" element={<LivePage />} />
               <Route path="/saved" element={<SavedPage />} />
+              <Route path="/saved/collections/:collectionId" element={<SavedPage />} />
               <Route path="/oops" element={<OopsPage />} />
               <Route path="/users/profile/complete" element={<CompleteProfilePage />} />
               <Route path="/users/profile/edit" element={<EditProfilePage />} />
