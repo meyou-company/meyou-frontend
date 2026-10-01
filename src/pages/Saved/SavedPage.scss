@@ -49,6 +49,10 @@
 
 .savedPage__titleRow h1 {
   margin: 0;
+  max-width: calc(100% - 104px);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   font-size: 30px;
   font-weight: 600;
 }
@@ -77,6 +81,55 @@
   background: #956ee4;
   -webkit-mask: url('/icon-black/arrow-left.svg') center / contain no-repeat;
   mask: url('/icon-black/arrow-left.svg') center / contain no-repeat;
+}
+
+.savedPage__collectionMenu {
+  position: absolute;
+  right: 0;
+}
+
+.savedPage__collectionActions {
+  top: calc(100% + 6px);
+  right: 0;
+  left: auto;
+  width: max-content;
+  min-width: 180px;
+}
+
+.savedPage__collections {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 14px 0 0;
+}
+
+.savedPage__collectionChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 36px;
+  max-width: 100%;
+  padding: 0 12px;
+  border: 1px solid #aa79f4;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, .62);
+  color: #151515;
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.savedPage__collectionChip span {
+  min-width: 0;
+  max-width: 16rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.savedPage__collectionChip svg {
+  width: 16px;
+  height: 16px;
 }
 
 .savedPage__tabs {
@@ -470,6 +523,8 @@
   display: grid;
   gap: 6px;
   margin-top: 14px;
+  max-height: min(280px, 42dvh);
+  overflow: auto;
 }
 
 .savedCollectionModal__list>button {
@@ -493,6 +548,18 @@
 .savedCollectionModal__list>button.is-selected {
   border-color: #9a6de7;
   background: rgba(255, 255, 255, .8);
+}
+
+.savedCollectionModal__list>button:disabled {
+  cursor: wait;
+  opacity: .7;
+}
+
+.savedCollectionModal__name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .savedCollectionModal__folder,
@@ -741,6 +808,12 @@ body.dark .savedPage__tabs {
 
 body.dark .savedPage__tabs button.active::after {
   background: #fff;
+}
+
+body.dark .savedPage__collectionChip {
+  border-color: #956ae4;
+  background: rgba(39, 35, 47, .72);
+  color: #fff;
 }
 
 body.dark .savedCard__menu {
