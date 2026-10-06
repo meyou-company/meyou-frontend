@@ -51,7 +51,8 @@
     "privacyPolicy": "Privacy policy",
     "logout": "Log out",
     "closeMenu": "Close menu",
-    "language": "Language"
+    "language": "Language",
+    "suggestions": "💬 اقتراحاتكم"
   },
   "auth": {
     "login": {
@@ -721,7 +722,8 @@
       "postSharedToUser": "شارك {{name}} منشورًا معك",
       "message": "أرسل {{name}} إليك رسالة",
       "system": "إشعار النظام",
-      "giftReceived": "{{name}} أرسل لك هدية"
+      "giftReceived": "{{name}} أرسل لك هدية",
+      "feedbackReply": "💜 رد LunMeYo على اقتراحكم"
     },
     "items": {
       "follow": {
@@ -1282,6 +1284,85 @@
       "actionsAria": "Comment actions",
       "edit": "Edit",
       "delete": "Delete"
+    }
+  },
+  "feedback": {
+    "fabLabel": "اقتراحاتكم",
+    "fabAria": "فتح نموذج الاقتراحات",
+    "title": "ساعدونا على تحسين LunMeYo 💜",
+    "intro": "نحن نختبر النسخة التجريبية من LunMeYo. أخبرونا بما أعجبكم، وما كان غير واضح، أو ما تودون تغييره.",
+    "typeLegend": "نوع الملاحظة",
+    "types": {
+      "suggestion": "لدي اقتراح",
+      "bug": "وجدت خطأ",
+      "unclear": "شيء ما كان غير واضح",
+      "review": "أريد ترك تقييم"
+    },
+    "detailsLabel": "أخبرونا بالمزيد...",
+    "detailsPlaceholder": "أخبرونا بالمزيد...",
+    "attach": "📎 إضافة لقطة شاشة",
+    "removeScreenshot": "إزالة لقطة الشاشة",
+    "screenshotPreview": "معاينة لقطة الشاشة",
+    "submit": "إرسال",
+    "submitting": "جارٍ الإرسال…",
+    "success": "شكرًا لكم! 💜 رأيكم يساعدنا على جعل LunMeYo أفضل.",
+    "close": "إغلاق",
+    "typeRequired": "اختر نوع الملاحظة",
+    "messageRequired": "أضف بضع كلمات",
+    "screenshotTooBig": "يجب ألا يتجاوز حجم لقطة الشاشة 5 ميغابايت",
+    "screenshotType": "أرفق صورة (JPEG أو PNG أو WebP أو GIF)",
+    "screenshotUploadError": "تعذر رفع لقطة الشاشة",
+    "unreadAria": "{{count}} ردود غير مقروءة",
+    "status": {
+      "new": "جديدة",
+      "inProgress": "قيد العمل",
+      "answered": "تم الرد",
+      "closed": "مغلقة"
+    },
+    "mine": {
+      "title": "طلباتي",
+      "empty": "لم ترسل أي اقتراحات بعد.",
+      "hasReply": "هناك رد 💜"
+    },
+    "thread": {
+      "you": "أنت",
+      "team": "LunMeYo"
+    }
+  },
+  "admin": {
+    "nav": {
+      "dashboard": "Dashboard",
+      "feedback": "الاقتراحات",
+      "reports": "Reports",
+      "users": "Users"
+    },
+    "feedback": {
+      "title": "الاقتراحات / Feedback",
+      "subtitle": "طلبات اختبار النسخة التجريبية من LunMeYo.",
+      "empty": "لا توجد ملاحظات",
+      "detailTitle": "الطلب",
+      "thread": "سجل الردود",
+      "replyLabel": "الرد على المستخدم",
+      "replyPlaceholder": "اكتب ردًا…",
+      "sendReply": "إرسال الرد",
+      "replySent": "تم إرسال الرد",
+      "statusUpdated": "تم تحديث الحالة",
+      "viewProfile": "عرض الملف",
+      "next": "التالي",
+      "page": "صفحة {{page}} / {{totalPages}} · {{total}}",
+      "filters": {
+        "all": "الكل",
+        "allTypes": "كل الأنواع"
+      },
+      "fields": {
+        "status": "الحالة",
+        "user": "المستخدم",
+        "type": "النوع",
+        "message": "الرسالة",
+        "screenshot": "لقطة الشاشة",
+        "page": "الصفحة",
+        "date": "التاريخ"
+      }
     }
   }
 }

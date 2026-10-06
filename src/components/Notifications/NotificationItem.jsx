@@ -139,6 +139,11 @@ function buildLink(item) {
     case 'gifts':
       return '/my-gifts';
 
+    case 'feedback':
+      return item.target.feedbackId
+        ? `/first-page?feedback=${encodeURIComponent(item.target.feedbackId)}`
+        : '/first-page';
+
     default:
       return '/notifications';
   }

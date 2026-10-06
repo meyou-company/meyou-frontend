@@ -59,7 +59,8 @@
     "privacyPolicy": "Privacy policy",
     "logout": "Log out",
     "closeMenu": "Close menu",
-    "language": "Language"
+    "language": "Language",
+    "suggestions": "💬 Vaše návrhy"
   },
   "auth": {
     "login": {
@@ -729,7 +730,8 @@
       "postSharedToUser": "{{name}} s vámi sdílel(a) příspěvek",
       "message": "{{name}} vám poslal(a) zprávu",
       "system": "Systémové oznámení",
-      "giftReceived": "{{name}} vám poslal(a) dárek"
+      "giftReceived": "{{name}} vám poslal(a) dárek",
+      "feedbackReply": "💜 LunMeYo odpověděl na váš návrh"
     },
     "items": {
       "follow": {
@@ -1500,5 +1502,84 @@
     "quiet_evenings": "Klidné večery",
     "kids": "Děti",
     "family": "Rodina"
+  },
+  "feedback": {
+    "fabLabel": "Vaše návrhy",
+    "fabAria": "Otevřít formulář návrhů",
+    "title": "Pomozte nám vylepšit LunMeYo 💜",
+    "intro": "Testujeme demo verzi LunMeYo. Řekněte nám, co se vám líbilo, co bylo nejasné nebo co byste chtěli změnit.",
+    "typeLegend": "Typ zpětné vazby",
+    "types": {
+      "suggestion": "Mám návrh",
+      "bug": "Našel/našla jsem chybu",
+      "unclear": "Něco bylo nejasné",
+      "review": "Chci zanechat recenzi"
+    },
+    "detailsLabel": "Řekněte nám víc...",
+    "detailsPlaceholder": "Řekněte nám víc...",
+    "attach": "📎 Přidat snímek obrazovky",
+    "removeScreenshot": "Odstranit snímek",
+    "screenshotPreview": "Náhled snímku obrazovky",
+    "submit": "Odeslat",
+    "submitting": "Odesílání…",
+    "success": "Děkujeme! 💜 Váš názor nám pomáhá vylepšit LunMeYo.",
+    "close": "Zavřít",
+    "typeRequired": "Vyberte typ zpětné vazby",
+    "messageRequired": "Přidejte prosím pár slov",
+    "screenshotTooBig": "Snímek musí mít 5 MB nebo méně",
+    "screenshotType": "Přidejte obrázek (JPEG, PNG, WebP, GIF)",
+    "screenshotUploadError": "Snímek se nepodařilo nahrát",
+    "unreadAria": "{{count}} nepřečtených odpovědí",
+    "status": {
+      "new": "Nové",
+      "inProgress": "Probíhá",
+      "answered": "Odpovězeno",
+      "closed": "Zavřeno"
+    },
+    "mine": {
+      "title": "Moje žádosti",
+      "empty": "Zatím jste neodeslali žádný návrh.",
+      "hasReply": "Je tu odpověď 💜"
+    },
+    "thread": {
+      "you": "Vy",
+      "team": "LunMeYo"
+    }
+  },
+  "admin": {
+    "nav": {
+      "dashboard": "Dashboard",
+      "feedback": "Návrhy",
+      "reports": "Reports",
+      "users": "Users"
+    },
+    "feedback": {
+      "title": "Návrhy / Feedback",
+      "subtitle": "Žádosti z demo testování LunMeYo.",
+      "empty": "Žádný feedback",
+      "detailTitle": "Žádost",
+      "thread": "Historie odpovědí",
+      "replyLabel": "Odpovědět uživateli",
+      "replyPlaceholder": "Napište odpověď…",
+      "sendReply": "Odeslat odpověď",
+      "replySent": "Odpověď odeslána",
+      "statusUpdated": "Stav aktualizován",
+      "viewProfile": "Zobrazit profil",
+      "next": "Další",
+      "page": "Strana {{page}} / {{totalPages}} · {{total}}",
+      "filters": {
+        "all": "Vše",
+        "allTypes": "Všechny typy"
+      },
+      "fields": {
+        "status": "Stav",
+        "user": "Uživatel",
+        "type": "Typ",
+        "message": "Zpráva",
+        "screenshot": "Snímek",
+        "page": "Stránka",
+        "date": "Datum"
+      }
+    }
   }
 }

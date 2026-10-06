@@ -15,6 +15,7 @@ const notificationTypeMap = {
   LIVE_STREAM_STARTED: 'liveStarted',
   SYSTEM: 'system',
   GIFT_RECEIVED: 'giftReceived',
+  FEEDBACK_REPLY: 'feedbackReply',
 };
 
 export function mapType(type, metadata = {}) {
@@ -154,6 +155,12 @@ function buildTarget(n, post, metadata) {
       return {
         type: 'gifts',
         giftSendId: metadata.giftSendId,
+      };
+
+    case 'FEEDBACK_REPLY':
+      return {
+        type: 'feedback',
+        feedbackId: metadata.feedbackId,
       };
 
     default:

@@ -230,9 +230,86 @@
   color: #1d4ed8;
 }
 
+.adminStatus--NEW {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.adminStatus--IN_PROGRESS {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.adminStatus--ANSWERED {
+  background: #ede9fe;
+  color: #5b21b6;
+}
+
 .adminStatus--CLOSED {
   background: #e5e7eb;
   color: #374151;
+}
+
+.adminUserCell--avatar {
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+}
+
+.adminUserCell--avatar img {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.adminShell__badge {
+  display: inline-flex;
+  min-width: 18px;
+  justify-content: center;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: #e11d48;
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
+.adminFeedbackThread {
+  margin-top: 18px;
+  display: grid;
+  gap: 10px;
+}
+
+.adminFeedbackThread h3 {
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+.adminFeedbackThread__item {
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: #f5f3ff;
+}
+
+.adminFeedbackThread__item p {
+  margin: 6px 0 0;
+  white-space: pre-wrap;
+}
+
+.adminFeedbackReply {
+  margin-top: 16px;
+  display: grid;
+  gap: 8px;
+}
+
+.adminFeedbackReply textarea {
+  width: 100%;
+  min-height: 96px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid #d1d5db;
+  font: inherit;
 }
 
 .adminUserCell {

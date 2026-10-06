@@ -61,9 +61,11 @@ import FeatureGiftsPage from '../app/features/gifts/page';
 import { useBurgerMenuStore } from '../zustand/useBurgerMenuStore';
 import { useLocaleStore } from '../zustand/useLocaleStore';
 import { useThemeStore } from '../zustand/useThemeStore';
+import FeedbackWidget from '../components/Feedback/FeedbackWidget';
 import AdminLayout from '../pages/Admin/AdminLayout';
 import AdminDashboardPage from '../pages/Admin/AdminDashboardPage';
 import AdminReportsPage from '../pages/Admin/AdminReportsPage';
+import AdminFeedbackPage from '../pages/Admin/AdminFeedbackPage';
 import AdminUsersPage from '../pages/Admin/AdminUsersPage';
 import Post from '../components/Post/Post';
 import { MessagesSocketProvider } from '../providers/MessagesSocketProvider';
@@ -180,6 +182,7 @@ function AppLayout() {
 
               <Route path="/admin" element={<AdminLayout />}>
                 <Route index element={<AdminDashboardPage />} />
+                <Route path="feedback" element={<AdminFeedbackPage />} />
                 <Route path="reports" element={<AdminReportsPage />} />
                 <Route path="users" element={<AdminUsersPage />} />
               </Route>
@@ -232,6 +235,7 @@ export default function AppRouter() {
       <UserProfileNavProvider>
         <ProfileGuard>
           <GlobalBurgerMenu />
+          <FeedbackWidget />
           <AppLayout />
         </ProfileGuard>
       </UserProfileNavProvider>

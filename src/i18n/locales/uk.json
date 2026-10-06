@@ -59,7 +59,8 @@
     "privacyPolicy": "Політика конфіденційності",
     "logout": "Вийти",
     "closeMenu": "Закрити меню",
-    "language": "Мова"
+    "language": "Мова",
+    "suggestions": "💬 Ваші пропозиції"
   },
   "auth": {
     "login": {
@@ -801,7 +802,8 @@
       "postSharedToUser": "{{name}} поділився(-лася) з вами дописом",
       "message": "{{name}} надіслав(-ла) вам повідомлення",
       "system": "Системне сповіщення",
-      "giftReceived": "{{name}} надіслав(-ла) вам подарунок"
+      "giftReceived": "{{name}} надіслав(-ла) вам подарунок",
+      "feedbackReply": "💜 LunMeYo відповів на вашу пропозицію"
     },
     "items": {
       "follow": {
@@ -1577,5 +1579,84 @@
     "quiet_evenings": "Тихі вечори",
     "kids": "Діти",
     "family": "Сім'я"
+  },
+  "feedback": {
+    "fabLabel": "Ваші пропозиції",
+    "fabAria": "Відкрити форму пропозицій",
+    "title": "Допоможіть нам зробити LunMeYo кращим 💜",
+    "intro": "Ми тестуємо демо-версію LunMeYo. Розкажіть, що вам сподобалося, що було незрозуміло або що ви хотіли б змінити.",
+    "typeLegend": "Тип звернення",
+    "types": {
+      "suggestion": "Є пропозиція",
+      "bug": "Знайшов(-ла) помилку",
+      "unclear": "Щось незрозуміло",
+      "review": "Хочу залишити відгук"
+    },
+    "detailsLabel": "Розкажіть детальніше...",
+    "detailsPlaceholder": "Розкажіть детальніше...",
+    "attach": "📎 Додати скріншот",
+    "removeScreenshot": "Видалити скріншот",
+    "screenshotPreview": "Попередній перегляд скріншота",
+    "submit": "Надіслати",
+    "submitting": "Надсилання…",
+    "success": "Дякуємо! 💜 Ваша думка допомагає нам зробити LunMeYo кращим.",
+    "close": "Закрити",
+    "typeRequired": "Оберіть тип звернення",
+    "messageRequired": "Додайте кілька слів у повідомлення",
+    "screenshotTooBig": "Скріншот має бути до 5 МБ",
+    "screenshotType": "Додайте зображення (JPEG, PNG, WebP, GIF)",
+    "screenshotUploadError": "Не вдалося завантажити скріншот",
+    "unreadAria": "{{count}} непрочитаних відповідей",
+    "status": {
+      "new": "Нові",
+      "inProgress": "В роботі",
+      "answered": "Відповіли",
+      "closed": "Закриті"
+    },
+    "mine": {
+      "title": "Мої звернення",
+      "empty": "Ви ще не надсилали пропозицій.",
+      "hasReply": "Є відповідь 💜"
+    },
+    "thread": {
+      "you": "Ви",
+      "team": "LunMeYo"
+    }
+  },
+  "admin": {
+    "nav": {
+      "dashboard": "Dashboard",
+      "feedback": "Пропозиції",
+      "reports": "Reports",
+      "users": "Users"
+    },
+    "feedback": {
+      "title": "Пропозиції / Feedback",
+      "subtitle": "Звернення з демо-тестування LunMeYo.",
+      "empty": "Звернень не знайдено",
+      "detailTitle": "Звернення",
+      "thread": "Історія відповідей",
+      "replyLabel": "Відповісти користувачу",
+      "replyPlaceholder": "Напишіть відповідь…",
+      "sendReply": "Надіслати відповідь",
+      "replySent": "Відповідь надіслано",
+      "statusUpdated": "Статус оновлено",
+      "viewProfile": "Профіль користувача",
+      "next": "Далі",
+      "page": "Сторінка {{page}} / {{totalPages}} · {{total}}",
+      "filters": {
+        "all": "Усі",
+        "allTypes": "Усі типи"
+      },
+      "fields": {
+        "status": "Статус",
+        "user": "Користувач",
+        "type": "Тип",
+        "message": "Повідомлення",
+        "screenshot": "Скріншот",
+        "page": "Сторінка",
+        "date": "Дата"
+      }
+    }
   }
 }

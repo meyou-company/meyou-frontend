@@ -59,7 +59,8 @@
     "privacyPolicy": "Политика конфиденциальности",
     "logout": "Выйти",
     "closeMenu": "Закрыть меню",
-    "language": "Язык"
+    "language": "Язык",
+    "suggestions": "💬 Ваши предложения"
   },
   "auth": {
     "login": {
@@ -770,7 +771,8 @@
       "postSharedToUser": "{{name}} поделился(-ась) с вами публикацией",
       "message": "{{name}} отправил(-а) вам сообщение",
       "system": "Системное уведомление",
-      "giftReceived": "{{name}} отправил(а) вам подарок"
+      "giftReceived": "{{name}} отправил(а) вам подарок",
+      "feedbackReply": "💜 LunMeYo ответил на ваше предложение"
     },
     "items": {
       "follow": {
@@ -1546,5 +1548,84 @@
     "quiet_evenings": "Тихие вечера",
     "kids": "Дети",
     "family": "Семья"
+  },
+  "feedback": {
+    "fabLabel": "Ваши предложения",
+    "fabAria": "Открыть форму предложений",
+    "title": "Помогите сделать LunMeYo лучше 💜",
+    "intro": "Мы тестируем демо-версию LunMeYo. Расскажите, что вам понравилось, что было непонятно или что вы хотели бы изменить.",
+    "typeLegend": "Тип обращения",
+    "types": {
+      "suggestion": "Есть предложение",
+      "bug": "Нашёл(-ла) ошибку",
+      "unclear": "Что-то непонятно",
+      "review": "Хочу оставить отзыв"
+    },
+    "detailsLabel": "Расскажите подробнее...",
+    "detailsPlaceholder": "Расскажите подробнее...",
+    "attach": "📎 Добавить скриншот",
+    "removeScreenshot": "Удалить скриншот",
+    "screenshotPreview": "Предпросмотр скриншота",
+    "submit": "Отправить",
+    "submitting": "Отправка…",
+    "success": "Спасибо! 💜 Ваше мнение помогает сделать LunMeYo лучше.",
+    "close": "Закрыть",
+    "typeRequired": "Выберите тип обращения",
+    "messageRequired": "Добавьте несколько слов в сообщение",
+    "screenshotTooBig": "Скриншот должен быть до 5 МБ",
+    "screenshotType": "Добавьте изображение (JPEG, PNG, WebP, GIF)",
+    "screenshotUploadError": "Не удалось загрузить скриншот",
+    "unreadAria": "{{count}} непрочитанных ответов",
+    "status": {
+      "new": "Новые",
+      "inProgress": "В работе",
+      "answered": "Ответили",
+      "closed": "Закрытые"
+    },
+    "mine": {
+      "title": "Мои обращения",
+      "empty": "Вы ещё не отправляли предложения.",
+      "hasReply": "Есть ответ 💜"
+    },
+    "thread": {
+      "you": "Вы",
+      "team": "LunMeYo"
+    }
+  },
+  "admin": {
+    "nav": {
+      "dashboard": "Dashboard",
+      "feedback": "Предложения",
+      "reports": "Reports",
+      "users": "Users"
+    },
+    "feedback": {
+      "title": "Предложения / Feedback",
+      "subtitle": "Обращения с демо-тестирования LunMeYo.",
+      "empty": "Обращений не найдено",
+      "detailTitle": "Обращение",
+      "thread": "История ответов",
+      "replyLabel": "Ответить пользователю",
+      "replyPlaceholder": "Напишите ответ…",
+      "sendReply": "Отправить ответ",
+      "replySent": "Ответ отправлен",
+      "statusUpdated": "Статус обновлён",
+      "viewProfile": "Профиль пользователя",
+      "next": "Далее",
+      "page": "Страница {{page}} / {{totalPages}} · {{total}}",
+      "filters": {
+        "all": "Все",
+        "allTypes": "Все типы"
+      },
+      "fields": {
+        "status": "Статус",
+        "user": "Пользователь",
+        "type": "Тип",
+        "message": "Сообщение",
+        "screenshot": "Скриншот",
+        "page": "Страница",
+        "date": "Дата"
+      }
+    }
   }
 }

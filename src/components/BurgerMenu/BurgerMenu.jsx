@@ -10,6 +10,7 @@ import {
   useMenuItems,
 } from '../../hooks/useMenuItems';
 import { useLocaleStore } from '../../zustand/useLocaleStore';
+import { useFeedbackStore } from '../../zustand/useFeedbackStore';
 import './BurgerMenu.scss';
 import { useMemo, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -43,6 +44,7 @@ export default function BurgerMenu({
   const logoutItem = useLogoutItem();
   const closeItem = useCloseMenuItem();
   const currentLocale = useLocaleStore((s) => s.locale);
+  const openFeedback = useFeedbackStore((s) => s.open);
 
   const avatarUrl = user?.avatarUrl || user?.avatar || null;
 
@@ -109,6 +111,12 @@ export default function BurgerMenu({
 
     if (id === 'blocked') {
       navigate('/settings/blocked');
+      onClose();
+      return;
+    }
+
+    if (id === 'suggestions') {
+      openFeedback();
       onClose();
       return;
     }

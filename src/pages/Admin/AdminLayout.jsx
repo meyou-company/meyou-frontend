@@ -1,14 +1,17 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Navigate, Outlet, useLocation, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import BrandLogo from '../../components/BrandLogo/BrandLogo';
 import { BRAND_NAME } from '../../constants/brand';
+import { adminApi } from '../../services/adminApi';
 import { useAuthStore } from '../../zustand/useAuthStore';
 import './AdminLayout.scss';
 
 const NAV_ITEMS = [
-  { to: '/admin', label: 'Dashboard', end: true },
-  { to: '/admin/reports', label: 'Reports' },
-  { to: '/admin/users', label: 'Users' },
+  { to: '/admin', labelKey: 'admin.nav.dashboard', end: true },
+  { to: '/admin/feedback', labelKey: 'admin.nav.feedback' },
+  { to: '/admin/reports', labelKey: 'admin.nav.reports' },
+  { to: '/admin/users', labelKey: 'admin.nav.users' },
 ];
 
 function isAdminUser(user) {
@@ -16,9 +19,11 @@ function isAdminUser(user) {
 }
 
 export default function AdminLayout() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
   const { user, isAuthed, isAuthLoading } = useAuthStore();
+  const [newFeedbackCount, setNewFeedbackCount] = useState(0);
 
   useEffect(() => {
     if (isAuthLoading) return;
@@ -29,6 +34,25 @@ export default function AdminLayout() {
       });
     }
   }, [isAuthLoading, isAuthed, user, location.pathname, navigate]);
+
+  useEffect(() => {
+    if (!isAuthed || !isAdminUser(user)) return undefined;
+    let cancelled = false;
+    const load = async () => {
+      try {
+        const data = await adminApi.getFeedbackOverview();
+        if (!cancelled) setNewFeedbackCount(Number(data?.new ?? 0));
+      } catch {
+        if (!cancelled) setNewFeedbackCount(0);
+      }
+    };
+    void load();
+    const id = window.setInterval(load, 30000);
+    return () => {
+      cancelled = true;
+      window.clearInterval(id);
+    };
+  }, [isAuthed, user, location.pathname]);
 
   if (isAuthLoading) {
     return (
@@ -70,7 +94,10 @@ export default function AdminLayout() {
                 className={`adminShell__navItem${active ? ' is-active' : ''}`}
                 onClick={() => navigate(item.to)}
               >
-                {item.label}
+                {t(item.labelKey)}
+                {item.to === '/admin/feedback' && newFeedbackCount > 0 ? (
+                  <small className="adminShell__badge">{newFeedbackCount}</small>
+                ) : null}
               </button>
             );
           })}

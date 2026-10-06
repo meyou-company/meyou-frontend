@@ -59,7 +59,8 @@
     "privacyPolicy": "Privacy policy",
     "logout": "Log out",
     "closeMenu": "Close menu",
-    "language": "Language"
+    "language": "Language",
+    "suggestions": "💬 Your suggestions"
   },
   "auth": {
     "login": {
@@ -801,7 +802,8 @@
       "postSharedToUser": "{{name}} shared a post with you",
       "message": "{{name}} sent you a message",
       "system": "System notification",
-      "giftReceived": "{{name}} sent you a gift"
+      "giftReceived": "{{name}} sent you a gift",
+      "feedbackReply": "💜 LunMeYo replied to your suggestion"
     },
     "items": {
       "follow": {
@@ -1570,5 +1572,84 @@
     "quiet_evenings": "Quiet evenings",
     "kids": "Children",
     "family": "Family"
+  },
+  "feedback": {
+    "fabLabel": "Your suggestions",
+    "fabAria": "Open suggestions form",
+    "title": "Help us make LunMeYo better 💜",
+    "intro": "We are testing the LunMeYo demo. Tell us what you liked, what was unclear, or what you would like to change.",
+    "typeLegend": "Feedback type",
+    "types": {
+      "suggestion": "I have a suggestion",
+      "bug": "I found a bug",
+      "unclear": "Something was unclear",
+      "review": "I want to leave a review"
+    },
+    "detailsLabel": "Tell us more...",
+    "detailsPlaceholder": "Tell us more...",
+    "attach": "📎 Add a screenshot",
+    "removeScreenshot": "Remove screenshot",
+    "screenshotPreview": "Screenshot preview",
+    "submit": "Send",
+    "submitting": "Sending…",
+    "success": "Thank you! 💜 Your feedback helps us make LunMeYo better.",
+    "close": "Close",
+    "typeRequired": "Choose a feedback type",
+    "messageRequired": "Please add a few words",
+    "screenshotTooBig": "Screenshot must be 5MB or less",
+    "screenshotType": "Attach an image (JPEG, PNG, WebP, GIF)",
+    "screenshotUploadError": "Could not upload the screenshot",
+    "unreadAria": "{{count}} unread replies",
+    "status": {
+      "new": "New",
+      "inProgress": "In progress",
+      "answered": "Answered",
+      "closed": "Closed"
+    },
+    "mine": {
+      "title": "My requests",
+      "empty": "You have not sent any suggestions yet.",
+      "hasReply": "New reply 💜"
+    },
+    "thread": {
+      "you": "You",
+      "team": "LunMeYo"
+    }
+  },
+  "admin": {
+    "nav": {
+      "dashboard": "Dashboard",
+      "feedback": "Feedback",
+      "reports": "Reports",
+      "users": "Users"
+    },
+    "feedback": {
+      "title": "Suggestions / Feedback",
+      "subtitle": "Requests from LunMeYo demo testing.",
+      "empty": "No feedback found",
+      "detailTitle": "Request",
+      "thread": "Reply history",
+      "replyLabel": "Reply to the user",
+      "replyPlaceholder": "Write a reply…",
+      "sendReply": "Send reply",
+      "replySent": "Reply sent",
+      "statusUpdated": "Status updated",
+      "viewProfile": "View profile",
+      "next": "Next",
+      "page": "Page {{page}} / {{totalPages}} · {{total}}",
+      "filters": {
+        "all": "All",
+        "allTypes": "All types"
+      },
+      "fields": {
+        "status": "Status",
+        "user": "User",
+        "type": "Type",
+        "message": "Message",
+        "screenshot": "Screenshot",
+        "page": "Page",
+        "date": "Date"
+      }
+    }
   }
 }

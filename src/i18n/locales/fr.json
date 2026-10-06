@@ -59,7 +59,8 @@
     "privacyPolicy": "Privacy policy",
     "logout": "Log out",
     "closeMenu": "Close menu",
-    "language": "Language"
+    "language": "Language",
+    "suggestions": "💬 Vos suggestions"
   },
   "auth": {
     "login": {
@@ -729,7 +730,8 @@
       "postSharedToUser": "{{name}} a partagé une publication avec vous",
       "message": "{{name}} vous a envoyé un message",
       "system": "Notification système",
-      "giftReceived": "{{name}} vous a envoyé un cadeau"
+      "giftReceived": "{{name}} vous a envoyé un cadeau",
+      "feedbackReply": "💜 LunMeYo a répondu à votre suggestion"
     },
     "items": {
       "follow": {
@@ -1497,5 +1499,84 @@
     "quiet_evenings": "Soirées tranquilles",
     "kids": "Enfants",
     "family": "Famille"
+  },
+  "feedback": {
+    "fabLabel": "Vos suggestions",
+    "fabAria": "Ouvrir le formulaire de suggestions",
+    "title": "Aidez-nous à améliorer LunMeYo 💜",
+    "intro": "Nous testons la version démo de LunMeYo. Dites-nous ce que vous avez aimé, ce qui n’était pas clair ou ce que vous aimeriez changer.",
+    "typeLegend": "Type de retour",
+    "types": {
+      "suggestion": "J’ai une suggestion",
+      "bug": "J’ai trouvé un bug",
+      "unclear": "Quelque chose n’était pas clair",
+      "review": "Je veux laisser un avis"
+    },
+    "detailsLabel": "Dites-nous en plus...",
+    "detailsPlaceholder": "Dites-nous en plus...",
+    "attach": "📎 Ajouter une capture",
+    "removeScreenshot": "Supprimer la capture",
+    "screenshotPreview": "Aperçu de la capture",
+    "submit": "Envoyer",
+    "submitting": "Envoi…",
+    "success": "Merci ! 💜 Votre avis nous aide à améliorer LunMeYo.",
+    "close": "Fermer",
+    "typeRequired": "Choisissez un type de retour",
+    "messageRequired": "Ajoutez quelques mots",
+    "screenshotTooBig": "La capture doit faire 5 Mo ou moins",
+    "screenshotType": "Ajoutez une image (JPEG, PNG, WebP, GIF)",
+    "screenshotUploadError": "Impossible de téléverser la capture",
+    "unreadAria": "{{count}} réponses non lues",
+    "status": {
+      "new": "Nouveaux",
+      "inProgress": "En cours",
+      "answered": "Répondus",
+      "closed": "Fermés"
+    },
+    "mine": {
+      "title": "Mes demandes",
+      "empty": "Vous n’avez pas encore envoyé de suggestion.",
+      "hasReply": "Nouvelle réponse 💜"
+    },
+    "thread": {
+      "you": "Vous",
+      "team": "LunMeYo"
+    }
+  },
+  "admin": {
+    "nav": {
+      "dashboard": "Dashboard",
+      "feedback": "Suggestions",
+      "reports": "Reports",
+      "users": "Users"
+    },
+    "feedback": {
+      "title": "Suggestions / Feedback",
+      "subtitle": "Demandes du test démo LunMeYo.",
+      "empty": "Aucun retour trouvé",
+      "detailTitle": "Demande",
+      "thread": "Historique des réponses",
+      "replyLabel": "Répondre à l’utilisateur",
+      "replyPlaceholder": "Écrire une réponse…",
+      "sendReply": "Envoyer la réponse",
+      "replySent": "Réponse envoyée",
+      "statusUpdated": "Statut mis à jour",
+      "viewProfile": "Voir le profil",
+      "next": "Suivant",
+      "page": "Page {{page}} / {{totalPages}} · {{total}}",
+      "filters": {
+        "all": "Tous",
+        "allTypes": "Tous les types"
+      },
+      "fields": {
+        "status": "Statut",
+        "user": "Utilisateur",
+        "type": "Type",
+        "message": "Message",
+        "screenshot": "Capture",
+        "page": "Page",
+        "date": "Date"
+      }
+    }
   }
 }

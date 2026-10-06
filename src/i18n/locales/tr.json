@@ -59,7 +59,8 @@
     "privacyPolicy": "Privacy policy",
     "logout": "Log out",
     "closeMenu": "Close menu",
-    "language": "Language"
+    "language": "Language",
+    "suggestions": "💬 Önerileriniz"
   },
   "auth": {
     "login": {
@@ -729,7 +730,8 @@
       "postSharedToUser": "{{name}} sizinle bir gönderi paylaştı",
       "message": "{{name}} size bir mesaj gönderdi",
       "system": "Sistem bildirimi",
-      "giftReceived": "{{name}} size bir hediye gönderdi"
+      "giftReceived": "{{name}} size bir hediye gönderdi",
+      "feedbackReply": "💜 LunMeYo önerinize yanıt verdi"
     },
     "items": {
       "follow": {
@@ -1497,5 +1499,84 @@
     "quiet_evenings": "Sessiz akşamlar",
     "kids": "Çocuklar",
     "family": "Aile"
+  },
+  "feedback": {
+    "fabLabel": "Önerileriniz",
+    "fabAria": "Öneri formunu aç",
+    "title": "LunMeYo’yu birlikte geliştirelim 💜",
+    "intro": "LunMeYo demosunu test ediyoruz. Neyi beğendiğinizi, neyin belirsiz olduğunu veya neyi değiştirmek istediğinizi anlatın.",
+    "typeLegend": "Geri bildirim türü",
+    "types": {
+      "suggestion": "Bir önerim var",
+      "bug": "Hata buldum",
+      "unclear": "Bir şey belirsizdi",
+      "review": "Yorum bırakmak istiyorum"
+    },
+    "detailsLabel": "Daha fazla anlatın...",
+    "detailsPlaceholder": "Daha fazla anlatın...",
+    "attach": "📎 Ekran görüntüsü ekle",
+    "removeScreenshot": "Ekran görüntüsünü kaldır",
+    "screenshotPreview": "Ekran görüntüsü önizlemesi",
+    "submit": "Gönder",
+    "submitting": "Gönderiliyor…",
+    "success": "Teşekkürler! 💜 Görüşünüz LunMeYo’yu geliştirmemize yardımcı oluyor.",
+    "close": "Kapat",
+    "typeRequired": "Bir geri bildirim türü seçin",
+    "messageRequired": "Lütfen birkaç kelime ekleyin",
+    "screenshotTooBig": "Ekran görüntüsü 5 MB veya daha küçük olmalı",
+    "screenshotType": "Bir görsel ekleyin (JPEG, PNG, WebP, GIF)",
+    "screenshotUploadError": "Ekran görüntüsü yüklenemedi",
+    "unreadAria": "{{count}} okunmamış yanıt",
+    "status": {
+      "new": "Yeni",
+      "inProgress": "Devam ediyor",
+      "answered": "Yanıtlandı",
+      "closed": "Kapatıldı"
+    },
+    "mine": {
+      "title": "Taleplerim",
+      "empty": "Henüz öneri göndermediniz.",
+      "hasReply": "Yanıt var 💜"
+    },
+    "thread": {
+      "you": "Siz",
+      "team": "LunMeYo"
+    }
+  },
+  "admin": {
+    "nav": {
+      "dashboard": "Dashboard",
+      "feedback": "Öneriler",
+      "reports": "Reports",
+      "users": "Users"
+    },
+    "feedback": {
+      "title": "Öneriler / Feedback",
+      "subtitle": "LunMeYo demo testinden gelen talepler.",
+      "empty": "Geri bildirim bulunamadı",
+      "detailTitle": "Talep",
+      "thread": "Yanıt geçmişi",
+      "replyLabel": "Kullanıcıya yanıtla",
+      "replyPlaceholder": "Yanıt yazın…",
+      "sendReply": "Yanıtı gönder",
+      "replySent": "Yanıt gönderildi",
+      "statusUpdated": "Durum güncellendi",
+      "viewProfile": "Profili gör",
+      "next": "İleri",
+      "page": "Sayfa {{page}} / {{totalPages}} · {{total}}",
+      "filters": {
+        "all": "Tümü",
+        "allTypes": "Tüm türler"
+      },
+      "fields": {
+        "status": "Durum",
+        "user": "Kullanıcı",
+        "type": "Tür",
+        "message": "Mesaj",
+        "screenshot": "Ekran görüntüsü",
+        "page": "Sayfa",
+        "date": "Tarih"
+      }
+    }
   }
 }
