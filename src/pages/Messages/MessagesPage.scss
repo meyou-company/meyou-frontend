@@ -607,8 +607,16 @@
   font: inherit;
   cursor: default;
 
-  &.is-group {
+  &.is-group,
+  &.is-peerProfile {
     cursor: pointer;
+  }
+
+  @media (hover: hover) {
+    &.is-group:hover .messagesPage__chatTitle,
+    &.is-peerProfile:hover .messagesPage__chatTitle {
+      opacity: 0.82;
+    }
   }
 }
 

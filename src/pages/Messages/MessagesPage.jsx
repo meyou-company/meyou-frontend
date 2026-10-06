@@ -37,6 +37,7 @@ import { conversationsApi } from '../../services/conversationsApi';
 import { usersApi } from '../../services/usersApi';
 import { usePresenceStore } from '../../zustand/usePresenceStore';
 import { getApiErrorCode, getApiErrorMessage } from '../../utils/getApiErrorMessage';
+import { resolveProfileUsername } from '../../utils/profileUsername';
 import {
   collectSeenOutgoingIds,
   extractSeenTargetIds,
@@ -1070,6 +1071,19 @@ export default function MessagesPage() {
     ],
   );
 
+  const openChatHeaderPeer = useCallback(() => {
+    if (isActiveGroup) {
+      setShowGroupInfo(true);
+      return;
+    }
+    const username = resolveProfileUsername(activeConversation?.participant);
+    if (!username) {
+      toast.error(t('profile.header.profileUnavailable'));
+      return;
+    }
+    navigate(`/profile/${encodeURIComponent(username)}`);
+  }, [activeConversation?.participant, isActiveGroup, navigate, t]);
+
   if (isAuthLoading || !isAuthed) return null;
 
   const showChatOnMobile = Boolean(activeConversationId);
@@ -1328,13 +1342,12 @@ export default function MessagesPage() {
                     <div className="messagesPage__chatHeadPeer">
                       <button
                         type="button"
-                        className={`messagesPage__chatHeadButton${isActiveGroup ? ' is-group' : ''}`}
-                        onClick={() => {
-                          if (isActiveGroup) setShowGroupInfo(true);
-                        }}
-                        disabled={!isActiveGroup}
+                        className={`messagesPage__chatHeadButton${isActiveGroup ? ' is-group' : ' is-peerProfile'}`}
+                        onClick={openChatHeaderPeer}
                         aria-label={
-                          isActiveGroup ? t('messenger.group.info') : undefined
+                          isActiveGroup
+                            ? t('messenger.group.info')
+                            : t('profile.header.openProfile', { name: chatTitle })
                         }
                       >
                       <div className="messagesPage__chatHeadAvatar" aria-hidden="true">
