@@ -301,6 +301,20 @@ $accent-logout: #e53333;
    }
 }
 
+.profile-menu__badge {
+  margin-left: auto;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: #c2185b;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 18px;
+  text-align: center;
+}
+
 /* Переключатель "Посмотреть как гость" */
 .profile-menu__guest-toggle {
   margin-left: auto;

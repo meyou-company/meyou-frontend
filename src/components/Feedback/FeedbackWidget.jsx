@@ -236,7 +236,7 @@ export default function FeedbackWidget() {
       dragRef.current.moved = false;
       return;
     }
-    open();
+    open(unreadCount > 0 ? { view: 'list' } : undefined);
   };
 
   const style =

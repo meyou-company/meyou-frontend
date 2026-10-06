@@ -111,7 +111,18 @@ export function NotificationsSocketProvider() {
 
       if (notification.type === 'FEEDBACK_REPLY') {
         void useFeedbackStore.getState().fetchUnreadCount();
-        toast(i18n.t('notifications.messages.feedbackReply'));
+        const feedbackId = notification.metadata?.feedbackId;
+        toast(i18n.t('notifications.messages.feedbackReply'), {
+          description: i18n.t('notifications.messages.feedbackReplyBody'),
+          action: {
+            label: i18n.t('feedback.fabLabel'),
+            onClick: () => {
+              useFeedbackStore.getState().open(
+                feedbackId ? { feedbackId } : { view: 'list' },
+              );
+            },
+          },
+        });
         return;
       }
 

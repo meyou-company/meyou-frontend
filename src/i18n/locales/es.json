@@ -745,7 +745,8 @@
       "message": "{{name}} te envió un mensaje",
       "system": "Notificación del sistema",
       "giftReceived": "{{name}} te envió un regalo",
-      "feedbackReply": "💜 LunMeYo respondió a tu sugerencia",
+      "feedbackReply": "La administración respondió a tu solicitud",
+      "feedbackReplyBody": "Recibiste una respuesta a tu sugerencia.",
       "groupCallStarted": "A video room started in the LunMeYo group"
     },
     "items": {
@@ -1555,7 +1556,7 @@
     },
     "thread": {
       "you": "Tú",
-      "team": "LunMeYo"
+      "team": "Administración de MeYou"
     }
   },
   "admin": {
@@ -1574,7 +1575,7 @@
       "replyLabel": "Responder al usuario",
       "replyPlaceholder": "Escribe una respuesta…",
       "sendReply": "Enviar respuesta",
-      "replySent": "Respuesta enviada",
+      "replySent": "Respuesta enviada al usuario",
       "statusUpdated": "Estado actualizado",
       "viewProfile": "Ver perfil",
       "next": "Siguiente",

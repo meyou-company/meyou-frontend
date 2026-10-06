@@ -786,7 +786,8 @@
       "message": "{{name}} отправил(-а) вам сообщение",
       "system": "Системное уведомление",
       "giftReceived": "{{name}} отправил(а) вам подарок",
-      "feedbackReply": "💜 LunMeYo ответил на ваше предложение",
+      "feedbackReply": "Администрация ответила на ваше обращение",
+      "feedbackReplyBody": "Вы получили ответ на своё предложение.",
       "groupCallStarted": "В группе LunMeYo началась видеокомната"
     },
     "items": {
@@ -1604,7 +1605,7 @@
     },
     "thread": {
       "you": "Вы",
-      "team": "LunMeYo"
+      "team": "Администрация MeYou"
     }
   },
   "admin": {
@@ -1623,7 +1624,7 @@
       "replyLabel": "Ответить пользователю",
       "replyPlaceholder": "Напишите ответ…",
       "sendReply": "Отправить ответ",
-      "replySent": "Ответ отправлен",
+      "replySent": "Ответ отправлен пользователю",
       "statusUpdated": "Статус обновлён",
       "viewProfile": "Профиль пользователя",
       "next": "Далее",

@@ -745,7 +745,8 @@
       "message": "{{name}} size bir mesaj gönderdi",
       "system": "Sistem bildirimi",
       "giftReceived": "{{name}} size bir hediye gönderdi",
-      "feedbackReply": "💜 LunMeYo önerinize yanıt verdi",
+      "feedbackReply": "Yönetim talebinize yanıt verdi",
+      "feedbackReplyBody": "Önerinize bir yanıt aldınız.",
       "groupCallStarted": "A video room started in the LunMeYo group"
     },
     "items": {
@@ -1555,7 +1556,7 @@
     },
     "thread": {
       "you": "Siz",
-      "team": "LunMeYo"
+      "team": "MeYou Yönetimi"
     }
   },
   "admin": {
@@ -1574,7 +1575,7 @@
       "replyLabel": "Kullanıcıya yanıtla",
       "replyPlaceholder": "Yanıt yazın…",
       "sendReply": "Yanıtı gönder",
-      "replySent": "Yanıt gönderildi",
+      "replySent": "Yanıt kullanıcıya gönderildi",
       "statusUpdated": "Durum güncellendi",
       "viewProfile": "Profili gör",
       "next": "İleri",

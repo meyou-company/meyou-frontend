@@ -745,7 +745,8 @@
       "message": "{{name}} vám poslal(a) zprávu",
       "system": "Systémové oznámení",
       "giftReceived": "{{name}} vám poslal(a) dárek",
-      "feedbackReply": "💜 LunMeYo odpověděl na váš návrh",
+      "feedbackReply": "Administrace odpověděla na váš požadavek",
+      "feedbackReplyBody": "Obdrželi jste odpověď na svůj návrh.",
       "groupCallStarted": "A video room started in the LunMeYo group"
     },
     "items": {
@@ -1558,7 +1559,7 @@
     },
     "thread": {
       "you": "Vy",
-      "team": "LunMeYo"
+      "team": "Administrace MeYou"
     }
   },
   "admin": {
@@ -1577,7 +1578,7 @@
       "replyLabel": "Odpovědět uživateli",
       "replyPlaceholder": "Napište odpověď…",
       "sendReply": "Odeslat odpověď",
-      "replySent": "Odpověď odeslána",
+      "replySent": "Odpověď byla odeslána uživateli",
       "statusUpdated": "Stav aktualizován",
       "viewProfile": "Zobrazit profil",
       "next": "Další",

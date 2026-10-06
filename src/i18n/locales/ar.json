@@ -737,7 +737,8 @@
       "message": "أرسل {{name}} إليك رسالة",
       "system": "إشعار النظام",
       "giftReceived": "{{name}} أرسل لك هدية",
-      "feedbackReply": "💜 رد LunMeYo على اقتراحكم",
+      "feedbackReply": "أجابت الإدارة على طلبكم",
+      "feedbackReplyBody": "تلقّيتم ردًا على اقتراحكم.",
       "groupCallStarted": "A video room started in the LunMeYo group"
     },
     "items": {
@@ -1341,7 +1342,7 @@
     },
     "thread": {
       "you": "أنت",
-      "team": "LunMeYo"
+      "team": "إدارة MeYou"
     }
   },
   "admin": {
@@ -1360,7 +1361,7 @@
       "replyLabel": "الرد على المستخدم",
       "replyPlaceholder": "اكتب ردًا…",
       "sendReply": "إرسال الرد",
-      "replySent": "تم إرسال الرد",
+      "replySent": "تم إرسال الرد إلى المستخدم",
       "statusUpdated": "تم تحديث الحالة",
       "viewProfile": "عرض الملف",
       "next": "التالي",

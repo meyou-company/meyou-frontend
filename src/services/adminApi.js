@@ -1,13 +1,13 @@
-import { api } from './api';
+import { api, apiPath } from './api';
 
 export const adminApi = {
   async getReportsOverview() {
-    const { data } = await api.get('/admin/reports');
+    const { data } = await api.get(apiPath('/admin/reports'));
     return data;
   },
 
   async listUserReports({ status, username, page = 1, limit = 20 } = {}) {
-    const { data } = await api.get('/admin/reports/users', {
+    const { data } = await api.get(apiPath('/admin/reports/users'), {
       params: {
         ...(status ? { status } : {}),
         ...(username?.trim() ? { username: username.trim() } : {}),
@@ -19,25 +19,27 @@ export const adminApi = {
   },
 
   async getUserReport(reportId) {
-    const { data } = await api.get(`/admin/reports/users/${encodeURIComponent(reportId)}`);
+    const { data } = await api.get(
+      apiPath(`/admin/reports/users/${encodeURIComponent(reportId)}`),
+    );
     return data;
   },
 
   async updateUserReportStatus(reportId, status) {
     const { data } = await api.patch(
-      `/admin/reports/users/${encodeURIComponent(reportId)}/status`,
+      apiPath(`/admin/reports/users/${encodeURIComponent(reportId)}/status`),
       { status },
     );
     return data;
   },
 
   async getFeedbackOverview() {
-    const { data } = await api.get('/admin/feedback/overview');
+    const { data } = await api.get(apiPath('/admin/feedback/overview'));
     return data;
   },
 
   async listFeedback({ status, type, page = 1, limit = 20 } = {}) {
-    const { data } = await api.get('/admin/feedback', {
+    const { data } = await api.get(apiPath('/admin/feedback'), {
       params: {
         ...(status ? { status } : {}),
         ...(type ? { type } : {}),
@@ -50,14 +52,14 @@ export const adminApi = {
 
   async getFeedback(feedbackId) {
     const { data } = await api.get(
-      `/admin/feedback/${encodeURIComponent(feedbackId)}`,
+      apiPath(`/admin/feedback/${encodeURIComponent(feedbackId)}`),
     );
     return data;
   },
 
   async updateFeedbackStatus(feedbackId, status) {
     const { data } = await api.patch(
-      `/admin/feedback/${encodeURIComponent(feedbackId)}/status`,
+      apiPath(`/admin/feedback/${encodeURIComponent(feedbackId)}/status`),
       { status },
     );
     return data;
@@ -65,7 +67,7 @@ export const adminApi = {
 
   async replyToFeedback(feedbackId, message) {
     const { data } = await api.post(
-      `/admin/feedback/${encodeURIComponent(feedbackId)}/replies`,
+      apiPath(`/admin/feedback/${encodeURIComponent(feedbackId)}/replies`),
       { message },
     );
     return data;

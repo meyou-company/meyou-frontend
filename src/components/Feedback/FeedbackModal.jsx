@@ -403,7 +403,9 @@ function MineList({ titleId, items, loading, onBack, onOpen, t }) {
               <li key={item.id}>
                 <button
                   type="button"
-                  className="feedbackMineList__item"
+                  className={`feedbackMineList__item${
+                    item.hasUnreadReply ? ' is-unread' : ''
+                  }`}
                   onClick={() => onOpen(item.id)}
                 >
                   <strong>
@@ -456,7 +458,6 @@ function MineDetail({ titleId, detail, loading, currentUserId, onBack, t }) {
       <h2 id={titleId} className="feedbackModal__title">
         <span aria-hidden="true">{meta.emoji}</span> {t(meta.labelKey)}
       </h2>
-      <p className="feedbackModal__intro">{formatWhen(detail.createdAt)}</p>
       <div className="feedbackThread">
         <article className="feedbackThread__bubble feedbackThread__bubble--you">
           <strong>{t('feedback.thread.you')}</strong>
@@ -469,6 +470,7 @@ function MineDetail({ titleId, detail, loading, currentUserId, onBack, t }) {
               />
             </a>
           ) : null}
+          <small>{formatWhen(detail.createdAt)}</small>
         </article>
         {(detail.replies || []).map((reply) => {
           const mine = String(reply.authorId) === String(currentUserId);
