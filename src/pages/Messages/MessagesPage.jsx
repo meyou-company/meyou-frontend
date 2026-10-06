@@ -34,6 +34,7 @@ import TypingIndicator from '../../components/Messages/TypingIndicator';
 import OnlineStatus from '../../components/Presence/OnlineStatus';
 import StoryViewerModal from '../../components/Stories/StoryViewerModal';
 import { conversationsApi } from '../../services/conversationsApi';
+import { callsApi } from '../../services/callsApi';
 import { usersApi } from '../../services/usersApi';
 import { usePresenceStore } from '../../zustand/usePresenceStore';
 import { getApiErrorCode, getApiErrorMessage } from '../../utils/getApiErrorMessage';
@@ -69,8 +70,9 @@ import {
 import { useMessageActions } from '../../hooks/useMessageActions';
 import { useAuthStore } from '../../zustand/useAuthStore';
 import { useMessagesStore } from '../../zustand/useMessagesStore';
-import { startConversationCall } from '../../providers/CallsProvider';
+import { startConversationCall, joinConversationGroupRoom } from '../../providers/CallsProvider';
 import { useCallsStore } from '../../zustand/useCallsStore';
+import { useGroupRoomsStore } from '../../zustand/useGroupRoomsStore';
 import './MessagesPage.scss';
 
 function getDisplayName(user, fallback) {
@@ -865,15 +867,88 @@ export default function MessagesPage() {
   };
 
   const callPhase = useCallsStore((s) => s.phase);
+  const activeCall = useCallsStore((s) => s.call);
   const callBusy = callPhase !== 'idle';
+  const groupRoom = useGroupRoomsStore((s) =>
+    activeConversationId ? s.byConversationId[activeConversationId] : null,
+  );
+  const inThisGroupRoom =
+    isActiveGroup &&
+    callBusy &&
+    activeCall?.kind === 'GROUP' &&
+    String(activeCall?.conversationId) === String(activeConversationId);
+
+  useEffect(() => {
+    if (!isActiveGroup || !activeConversationId) return undefined;
+    let cancelled = false;
+    void callsApi
+      .getConversationActive(activeConversationId)
+      .then((data) => {
+        if (cancelled) return;
+        if (data?.call) useGroupRoomsStore.getState().upsertFromCall(data.call);
+        else useGroupRoomsStore.getState().removeByConversationId(activeConversationId);
+      })
+      .catch(() => {
+        /* ignore */
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [isActiveGroup, activeConversationId]);
 
   const startCall = async (mediaType) => {
-    if (isGroupConversation(activeConversation)) {
-      toast.info(t('messenger.group.callsComingSoon'));
+    if (!activeConversationId || startCallInFlightRef.current) {
       return;
     }
-    if (!activeConversationId || callBusy || startCallInFlightRef.current) {
-      if (callBusy) toast.error(t('messenger.calls.busyLocal'));
+    if (isGroupConversation(activeConversation)) {
+      if (inThisGroupRoom) {
+        useCallsStore.getState().setUiMode('full');
+        return;
+      }
+      if (callBusy) {
+        toast.error(t('messenger.calls.busyLocal'));
+        return;
+      }
+      startCallInFlightRef.current = true;
+      try {
+        const fetched = await callsApi.getConversationActive(activeConversationId);
+        const existingCall = fetched?.call;
+        const existingId = existingCall?.id || groupRoom?.callId;
+        if (existingCall) {
+          useGroupRoomsStore.getState().upsertFromCall(existingCall);
+        }
+        if (existingId) {
+          const ok = window.confirm(t('messenger.calls.groupJoinConfirm'));
+          if (!ok) return;
+          await joinConversationGroupRoom(existingId);
+          return;
+        }
+        await startConversationCall(activeConversationId, mediaType, {
+          group: true,
+        });
+      } catch (err) {
+        if (err?.message === 'CALL_BUSY_LOCAL') {
+          toast.error(t('messenger.calls.busyLocal'));
+          return;
+        }
+        const code = getApiErrorCode(err);
+        if (code === 'CALL_ROOM_ALREADY_ACTIVE') {
+          const existingCall = err?.response?.data?.details?.call;
+          if (existingCall?.id) {
+            useGroupRoomsStore.getState().upsertFromCall(existingCall);
+            const ok = window.confirm(t('messenger.calls.groupJoinConfirm'));
+            if (ok) await joinConversationGroupRoom(existingCall.id);
+          }
+          return;
+        }
+        toast.error(getApiErrorMessage(err) || t('messenger.calls.startFailed'));
+      } finally {
+        startCallInFlightRef.current = false;
+      }
+      return;
+    }
+    if (callBusy) {
+      toast.error(t('messenger.calls.busyLocal'));
       return;
     }
     startCallInFlightRef.current = true;
@@ -895,10 +970,6 @@ export default function MessagesPage() {
         toast.error(t('messenger.calls.unavailableTitle'), {
           description: t('messenger.calls.subscriptionRequired'),
         });
-        return;
-      }
-      if (code === 'GROUP_CALLS_NOT_AVAILABLE') {
-        toast.info(t('messenger.group.callsComingSoon'));
         return;
       }
       toast.error(getApiErrorMessage(err) || t('messenger.calls.startFailed'));
@@ -1395,17 +1466,9 @@ export default function MessagesPage() {
                         type="button"
                         className="messagesPage__chatAction"
                         onClick={() => void startCall('AUDIO')}
-                        disabled={callBusy || isActiveGroup}
-                        aria-label={
-                          isActiveGroup
-                            ? t('messenger.group.callsComingSoon')
-                            : t('messenger.calls.audioCall')
-                        }
-                        title={
-                          isActiveGroup
-                            ? t('messenger.group.callsComingSoon')
-                            : t('messenger.calls.audioCall')
-                        }
+                        disabled={callBusy && !inThisGroupRoom}
+                        aria-label={t('messenger.calls.audioCall')}
+                        title={t('messenger.calls.audioCall')}
                       >
                         📞
                       </button>
@@ -1413,17 +1476,9 @@ export default function MessagesPage() {
                         type="button"
                         className="messagesPage__chatAction"
                         onClick={() => void startCall('VIDEO')}
-                        disabled={callBusy || isActiveGroup}
-                        aria-label={
-                          isActiveGroup
-                            ? t('messenger.group.callsComingSoon')
-                            : t('messenger.calls.videoCall')
-                        }
-                        title={
-                          isActiveGroup
-                            ? t('messenger.group.callsComingSoon')
-                            : t('messenger.calls.videoCall')
-                        }
+                        disabled={callBusy && !inThisGroupRoom}
+                        aria-label={t('messenger.calls.videoCall')}
+                        title={t('messenger.calls.videoCall')}
                       >
                         🎥
                       </button>
@@ -1445,6 +1500,53 @@ export default function MessagesPage() {
                       </button>
                     </div>
                   </header>
+
+                  {isActiveGroup && groupRoom ? (
+                    <div className="messagesPage__groupRoom">
+                      <div className="messagesPage__groupRoomCopy">
+                        <strong>
+                          {groupRoom.mediaType === 'VIDEO'
+                            ? t('messenger.calls.groupVideoRoom')
+                            : t('messenger.calls.groupAudioRoom')}
+                        </strong>
+                        <span>
+                          {t('messenger.calls.groupParticipantsNow', {
+                            count: groupRoom.participantCount || 0,
+                          })}
+                        </span>
+                      </div>
+                      {inThisGroupRoom ? (
+                        <button
+                          type="button"
+                          className="messagesPage__groupRoomJoin"
+                          onClick={() => useCallsStore.getState().setUiMode('full')}
+                        >
+                          {t('messenger.calls.returnToRoom')}
+                        </button>
+                      ) : (
+                        <button
+                          type="button"
+                          className="messagesPage__groupRoomJoin"
+                          onClick={() => {
+                            if (callBusy) {
+                              toast.error(t('messenger.calls.busyLocal'));
+                              return;
+                            }
+                            void joinConversationGroupRoom(groupRoom.callId).catch(
+                              (err) => {
+                                toast.error(
+                                  getApiErrorMessage(err) ||
+                                    t('messenger.calls.startFailed'),
+                                );
+                              },
+                            );
+                          }}
+                        >
+                          {t('messenger.calls.joinRoom')}
+                        </button>
+                      )}
+                    </div>
+                  ) : null}
 
                   {showChatSearch ? (
                     <MessageSearchPanel

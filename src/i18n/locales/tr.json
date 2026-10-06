@@ -695,7 +695,21 @@
       "cameraRetry": "Tekrar dene",
       "unavailableTitle": "Arama kullanılamıyor",
       "vipRequired": "Bu kullanıcı mesajlara ve aramalara yalnızca VIP üyeler için izin veriyor.",
-      "subscriptionRequired": "Arama yapmak için bu profile abone olmanız gerekir."
+      "subscriptionRequired": "Arama yapmak için bu profile abone olmanız gerekir.",
+      "you": "you",
+      "leaveRoom": "Leave",
+      "joinRoom": "Join",
+      "returnToRoom": "Return to room",
+      "backToChat": "Back to chat",
+      "groupAudioRoom": "🔊 Voice room",
+      "groupVideoRoom": "🎥 Video room",
+      "groupParticipantsNow": "{{count}} participants now",
+      "groupJoinConfirm": "This group already has an active room. Join it?",
+      "groupAudioStarted": "A voice room started in the LunMeYo group",
+      "groupVideoStarted": "A video room started in the LunMeYo group",
+      "groupRoomEnded": "The room ended",
+      "screenShare": "Share screen",
+      "speaker": "Speaker"
     }
   },
   "notifications": {
@@ -731,7 +745,8 @@
       "message": "{{name}} size bir mesaj gönderdi",
       "system": "Sistem bildirimi",
       "giftReceived": "{{name}} size bir hediye gönderdi",
-      "feedbackReply": "💜 LunMeYo önerinize yanıt verdi"
+      "feedbackReply": "💜 LunMeYo önerinize yanıt verdi",
+      "groupCallStarted": "A video room started in the LunMeYo group"
     },
     "items": {
       "follow": {

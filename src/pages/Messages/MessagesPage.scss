@@ -725,6 +725,44 @@
   white-space: nowrap;
 }
 
+.messagesPage__groupRoom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 16px;
+  border-bottom: 1px solid rgba(150, 120, 200, 0.18);
+  background: rgba(90, 46, 140, 0.08);
+}
+
+.messagesPage__groupRoomCopy {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+
+  strong,
+  span {
+    font-size: 13px;
+  }
+
+  span {
+    opacity: 0.72;
+  }
+}
+
+.messagesPage__groupRoomJoin {
+  flex-shrink: 0;
+  border: none;
+  border-radius: 999px;
+  padding: 8px 14px;
+  background: #5b2d8e;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
 .messagesPage__messages {
   flex: 1;
   overflow-y: auto;

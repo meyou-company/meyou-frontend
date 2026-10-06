@@ -16,6 +16,7 @@ const notificationTypeMap = {
   SYSTEM: 'system',
   GIFT_RECEIVED: 'giftReceived',
   FEEDBACK_REPLY: 'feedbackReply',
+  GROUP_CALL_STARTED: 'groupCallStarted',
 };
 
 export function mapType(type, metadata = {}) {
@@ -161,6 +162,12 @@ function buildTarget(n, post, metadata) {
       return {
         type: 'feedback',
         feedbackId: metadata.feedbackId,
+      };
+
+    case 'GROUP_CALL_STARTED':
+      return {
+        type: 'conversation',
+        conversationId: metadata.conversationId,
       };
 
     default:

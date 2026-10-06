@@ -14,6 +14,13 @@ export const callsApi = {
     return data;
   },
 
+  async getConversationActive(conversationId) {
+    const { data } = await api.get(
+      apiPath(`/conversations/${encodeURIComponent(conversationId)}/calls/active`),
+    );
+    return data;
+  },
+
   async accept(callId) {
     const { data } = await api.post(
       apiPath(`/calls/${encodeURIComponent(callId)}/accept`),
@@ -38,6 +45,20 @@ export const callsApi = {
   async end(callId) {
     const { data } = await api.post(
       apiPath(`/calls/${encodeURIComponent(callId)}/end`),
+    );
+    return data;
+  },
+
+  async join(callId) {
+    const { data } = await api.post(
+      apiPath(`/calls/${encodeURIComponent(callId)}/join`),
+    );
+    return data;
+  },
+
+  async leave(callId) {
+    const { data } = await api.post(
+      apiPath(`/calls/${encodeURIComponent(callId)}/leave`),
     );
     return data;
   },

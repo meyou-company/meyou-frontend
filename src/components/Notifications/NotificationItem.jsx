@@ -63,6 +63,12 @@ export default function NotificationItem({ item, onRead }) {
         name: actorName,
         defaultValue: `${actorName} started a live stream`,
       })
+    : item.type === 'groupCallStarted'
+      ? t(
+          item.metadata?.mediaType === 'AUDIO'
+            ? 'messenger.calls.groupAudioStarted'
+            : 'messenger.calls.groupVideoStarted',
+        )
     : t(`notifications.messages.${item.type}`, {
         name: `${actorName} `,
       });

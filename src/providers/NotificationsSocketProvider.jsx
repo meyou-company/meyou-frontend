@@ -115,6 +115,11 @@ export function NotificationsSocketProvider() {
         return;
       }
 
+      if (notification.type === 'GROUP_CALL_STARTED') {
+        toast(i18n.t('notifications.messages.groupCallStarted'));
+        return;
+      }
+
       toast(notification.body ?? notification.title ?? 'Нова нотифікація');
     };
 

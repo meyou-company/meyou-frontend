@@ -687,7 +687,21 @@
       "cameraRetry": "حاول مرة أخرى",
       "unavailableTitle": "المكالمة غير متاحة",
       "vipRequired": "يسمح هذا المستخدم بالرسائل والمكالمات لأعضاء VIP فقط.",
-      "subscriptionRequired": "اشترك في هذا الملف الشخصي لإجراء مكالمة."
+      "subscriptionRequired": "اشترك في هذا الملف الشخصي لإجراء مكالمة.",
+      "you": "you",
+      "leaveRoom": "Leave",
+      "joinRoom": "Join",
+      "returnToRoom": "Return to room",
+      "backToChat": "Back to chat",
+      "groupAudioRoom": "🔊 Voice room",
+      "groupVideoRoom": "🎥 Video room",
+      "groupParticipantsNow": "{{count}} participants now",
+      "groupJoinConfirm": "This group already has an active room. Join it?",
+      "groupAudioStarted": "A voice room started in the LunMeYo group",
+      "groupVideoStarted": "A video room started in the LunMeYo group",
+      "groupRoomEnded": "The room ended",
+      "screenShare": "Share screen",
+      "speaker": "Speaker"
     }
   },
   "notifications": {
@@ -723,7 +737,8 @@
       "message": "أرسل {{name}} إليك رسالة",
       "system": "إشعار النظام",
       "giftReceived": "{{name}} أرسل لك هدية",
-      "feedbackReply": "💜 رد LunMeYo على اقتراحكم"
+      "feedbackReply": "💜 رد LunMeYo على اقتراحكم",
+      "groupCallStarted": "A video room started in the LunMeYo group"
     },
     "items": {
       "follow": {

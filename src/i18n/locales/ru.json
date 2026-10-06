@@ -736,7 +736,21 @@
       "cameraRetry": "Попробовать ещё раз",
       "unavailableTitle": "Звонок недоступен",
       "vipRequired": "Этот пользователь разрешает сообщения и звонки только VIP-пользователям.",
-      "subscriptionRequired": "Чтобы звонить, нужно подписаться на этот профиль."
+      "subscriptionRequired": "Чтобы звонить, нужно подписаться на этот профиль.",
+      "you": "вы",
+      "leaveRoom": "Выйти",
+      "joinRoom": "Присоединиться",
+      "returnToRoom": "Вернуться в комнату",
+      "backToChat": "Назад в чат",
+      "groupAudioRoom": "🔊 Голосовая комната",
+      "groupVideoRoom": "🎥 Видеокомната",
+      "groupParticipantsNow": "{{count}} участников сейчас",
+      "groupJoinConfirm": "В этой группе уже есть активная комната. Присоединиться?",
+      "groupAudioStarted": "В группе LunMeYo началась голосовая комната",
+      "groupVideoStarted": "В группе LunMeYo началась видеокомната",
+      "groupRoomEnded": "Комната завершилась",
+      "screenShare": "Демонстрация экрана",
+      "speaker": "Динамик"
     }
   },
   "notifications": {
@@ -772,7 +786,8 @@
       "message": "{{name}} отправил(-а) вам сообщение",
       "system": "Системное уведомление",
       "giftReceived": "{{name}} отправил(а) вам подарок",
-      "feedbackReply": "💜 LunMeYo ответил на ваше предложение"
+      "feedbackReply": "💜 LunMeYo ответил на ваше предложение",
+      "groupCallStarted": "В группе LunMeYo началась видеокомната"
     },
     "items": {
       "follow": {

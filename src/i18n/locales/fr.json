@@ -695,7 +695,21 @@
       "cameraRetry": "Réessayer",
       "unavailableTitle": "Appel indisponible",
       "vipRequired": "Cet utilisateur autorise les messages et les appels uniquement aux membres VIP.",
-      "subscriptionRequired": "Abonnez-vous à ce profil pour pouvoir appeler."
+      "subscriptionRequired": "Abonnez-vous à ce profil pour pouvoir appeler.",
+      "you": "you",
+      "leaveRoom": "Leave",
+      "joinRoom": "Join",
+      "returnToRoom": "Return to room",
+      "backToChat": "Back to chat",
+      "groupAudioRoom": "🔊 Voice room",
+      "groupVideoRoom": "🎥 Video room",
+      "groupParticipantsNow": "{{count}} participants now",
+      "groupJoinConfirm": "This group already has an active room. Join it?",
+      "groupAudioStarted": "A voice room started in the LunMeYo group",
+      "groupVideoStarted": "A video room started in the LunMeYo group",
+      "groupRoomEnded": "The room ended",
+      "screenShare": "Share screen",
+      "speaker": "Speaker"
     }
   },
   "notifications": {
@@ -731,7 +745,8 @@
       "message": "{{name}} vous a envoyé un message",
       "system": "Notification système",
       "giftReceived": "{{name}} vous a envoyé un cadeau",
-      "feedbackReply": "💜 LunMeYo a répondu à votre suggestion"
+      "feedbackReply": "💜 LunMeYo a répondu à votre suggestion",
+      "groupCallStarted": "A video room started in the LunMeYo group"
     },
     "items": {
       "follow": {
