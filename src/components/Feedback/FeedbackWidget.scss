@@ -83,16 +83,24 @@
 
 .feedbackModal__panel {
   position: relative;
-  width: min(100%, 420px);
-  max-height: min(640px, calc(100dvh - 32px));
+  box-sizing: border-box;
+  width: min(100%, 700px);
+  max-height: calc(100dvh - 32px);
   overflow: auto;
-  padding: 18px 16px 16px;
+  overscroll-behavior: contain;
+  padding: 22px 24px 20px;
   border: 1px solid #aa79f4;
   border-radius: 16px;
   background: linear-gradient(145deg, #fff 0%, #ead8ff 100%);
   box-shadow: 0 22px 60px rgba(34, 20, 57, 0.32);
   color: #241433;
   font-family: Montserrat, sans-serif;
+}
+
+.feedbackModal__panel form {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
 }
 
 .feedbackModal__title {
@@ -112,13 +120,15 @@
 
 .feedbackModal__types {
   display: grid;
-  gap: 8px;
-  margin: 0 0 14px;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin: 0 0 16px;
   padding: 0;
   border: 0;
 }
 
 .feedbackModal__legend {
+  grid-column: 1 / -1;
   padding: 0;
   font-weight: 700;
 }
@@ -127,8 +137,9 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  min-height: 44px;
-  padding: 8px 12px;
+  min-height: 48px;
+  min-width: 0;
+  padding: 10px 12px;
   border: 1px solid rgba(143, 104, 220, 0.28);
   border-radius: 12px;
   background: rgba(255, 255, 255, 0.72);
@@ -152,16 +163,19 @@
 .feedbackModal__details {
   display: grid;
   gap: 6px;
-  margin-bottom: 12px;
+  width: 100%;
+  margin-bottom: 14px;
   font-size: 13px;
   font-weight: 600;
 }
 
 .feedbackModal__details textarea {
+  box-sizing: border-box;
   width: 100%;
+  max-width: 100%;
   resize: vertical;
-  min-height: 110px;
-  padding: 10px 12px;
+  min-height: 140px;
+  padding: 12px 14px;
   border: 1px solid #c2b8b8;
   border-radius: 14px;
   background: rgba(255, 255, 255, 0.85);
@@ -220,15 +234,18 @@
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  gap: 8px;
+  gap: 12px;
   margin-bottom: 8px;
 }
 
 .feedbackModal__topRow .feedbackModal__title {
+  flex: 1 1 auto;
+  min-width: 0;
   margin-bottom: 0;
 }
 
 .feedbackModal__textLink {
+  flex: 0 0 auto;
   border: 0;
   background: transparent;
   color: #6b3bb5;
@@ -237,6 +254,7 @@
   font-weight: 700;
   cursor: pointer;
   padding: 4px 0;
+  white-space: nowrap;
 }
 
 .feedbackModal__rowBtns {
@@ -361,6 +379,27 @@ body.dark .feedbackThread__bubble--team {
 @media (max-width: 768px) {
   .feedbackFab--desktop {
     display: none;
+  }
+
+  .feedbackModal {
+    padding: max(10px, env(safe-area-inset-top))
+      8px
+      max(10px, env(safe-area-inset-bottom));
+  }
+
+  .feedbackModal__panel {
+    width: 100%;
+    max-width: 100%;
+    max-height: calc(100dvh - 16px);
+    padding: 16px 14px max(16px, env(safe-area-inset-bottom));
+  }
+
+  .feedbackModal__types {
+    grid-template-columns: 1fr;
+  }
+
+  .feedbackModal__details textarea {
+    min-height: 120px;
   }
 }
 
