@@ -82,6 +82,13 @@ export default function ProfileVisitorVip({
   const profileUserId = user?.id || user?._id;
 
   const openTab = (tabId) => {
+    if (tabId === "photo") {
+      const handle = user?.username || user?.nick || user?.nickname;
+      if (handle) {
+        navigate(`/profile/${encodeURIComponent(String(handle).replace(/^@/, ""))}/photos`);
+      }
+      return;
+    }
     if (tabId === "video" && profileUserId) {
       navigate(`/video?authorId=${encodeURIComponent(profileUserId)}`);
       return;
@@ -261,11 +268,6 @@ export default function ProfileVisitorVip({
         </div>
       </section>
 
-      <ProfileVipMediaPanel
-        user={user}
-        kind="photo"
-        isOpen={activeTab === "photo"}
-      />
       <ProfileVipMediaPanel
         user={user}
         kind="video"

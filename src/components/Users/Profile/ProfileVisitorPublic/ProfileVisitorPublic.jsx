@@ -102,6 +102,13 @@ export default function ProfileVisitorPublic({
   const username = user?.username || user?.nick || user?.nickname || user?.login || '';
   const profileUserId = user?.id || user?._id || postsAuthorId;
   const openVisitorTab = (tabId) => {
+    if (tabId === 'photo') {
+      const handle = user?.username || user?.nick || user?.nickname;
+      if (handle) {
+        navigate(`/profile/${encodeURIComponent(String(handle).replace(/^@/, ''))}/photos`);
+      }
+      return;
+    }
     if (tabId === 'video' && profileUserId) {
       navigate(`/video?authorId=${encodeURIComponent(profileUserId)}`);
       return;
@@ -526,12 +533,6 @@ export default function ProfileVisitorPublic({
           postsCount={profilePostsCount}
         />
 
-        <ProfileVipMediaPanel
-          user={user}
-          kind="photo"
-          isOpen={visitorTab === 'photo'}
-          onGetVip={handleVipClick}
-        />
         <ProfileVipMediaPanel
           user={user}
           kind="video"

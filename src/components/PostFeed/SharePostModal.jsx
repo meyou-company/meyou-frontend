@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { subscriptionsApi } from "../../services/subscriptionsApi";
@@ -30,10 +31,18 @@ export default function SharePostModal({
   onSendToUsers,
   onRepostToFeed,
   isReposted = false,
+  shareUrl,
+  shareText: shareTextOverride,
+  onDownload,
+  downloadLabel,
 }) {
   const { t } = useTranslation();
   const postId = post?.id;
-  const postUrl = useMemo(() => buildPostShareUrl(postId), [postId]);
+  const canSendInApp = typeof onSendToUsers === "function";
+  const resolvedShareUrl = useMemo(
+    () => shareUrl || buildPostShareUrl(postId),
+    [postId, shareUrl],
+  );
 
   const [searchQuery, setSearchQuery] = useState("");
   const [suggestions, setSuggestions] = useState([]);
@@ -63,6 +72,11 @@ export default function SharePostModal({
       resetState();
       return;
     }
+    if (!canSendInApp) {
+      setSuggestions([]);
+      setLoadingSuggestions(false);
+      return;
+    }
     let cancelled = false;
     setLoadingSuggestions(true);
     subscriptionsApi
@@ -80,10 +94,10 @@ export default function SharePostModal({
     return () => {
       cancelled = true;
     };
-  }, [isOpen, resetState]);
+  }, [canSendInApp, isOpen, resetState]);
 
   useEffect(() => {
-    if (!isOpen) return;
+    if (!isOpen || !canSendInApp) return;
     const q = searchQuery.trim();
     if (!q) {
       setSearchResults([]);
@@ -107,7 +121,7 @@ export default function SharePostModal({
     }, 300);
 
     return () => clearTimeout(timer);
-  }, [searchQuery, isOpen]);
+  }, [canSendInApp, searchQuery, isOpen]);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -147,7 +161,7 @@ export default function SharePostModal({
 
   const handleSend = async () => {
     const ids = selectedUsers.map((u) => u.id).filter(Boolean);
-    if (!postId || ids.length === 0 || sending) return;
+    if (!canSendInApp || ids.length === 0 || sending) return;
     setSending(true);
     setStatus(null);
     try {
@@ -155,6 +169,7 @@ export default function SharePostModal({
         postId,
         recipientUserIds: ids,
         message: message.trim(),
+        shareUrl: resolvedShareUrl,
       });
       setStatus({ type: "success", text: t('posts.toast.sendSuccess') });
       toast.success(t('posts.toast.sendSuccess'));
@@ -185,13 +200,13 @@ export default function SharePostModal({
     }
   };
 
-  const shareText = getPostShareText(t);
+  const shareText = shareTextOverride || getPostShareText(t);
   const systemShareAvailable = canUseSystemShare();
 
   const handleSystemShare = async () => {
-    if (!postUrl || !systemShareAvailable) return;
+    if (!resolvedShareUrl || !systemShareAvailable) return;
     try {
-      await shareViaSystem({ postUrl, text: shareText });
+      await shareViaSystem({ postUrl: resolvedShareUrl, text: shareText });
     } catch (e) {
       if (e?.name === "AbortError") return;
       toast.error(t('posts.share.systemShareFailed'));
@@ -199,19 +214,19 @@ export default function SharePostModal({
   };
 
   const handleExternalProvider = (provider) => {
-    if (!postUrl) return;
+    if (!resolvedShareUrl) return;
     switch (provider) {
       case "telegram":
-        openExternalShareUrl(buildTelegramShareUrl(postUrl, shareText));
+        openExternalShareUrl(buildTelegramShareUrl(resolvedShareUrl, shareText));
         break;
       case "whatsapp":
-        openExternalShareUrl(buildWhatsAppShareUrl(postUrl, shareText));
+        openExternalShareUrl(buildWhatsAppShareUrl(resolvedShareUrl, shareText));
         break;
       case "facebook":
-        openExternalShareUrl(buildFacebookShareUrl(postUrl));
+        openExternalShareUrl(buildFacebookShareUrl(resolvedShareUrl));
         break;
       case "twitter":
-        openExternalShareUrl(buildTwitterShareUrl(postUrl, shareText));
+        openExternalShareUrl(buildTwitterShareUrl(resolvedShareUrl, shareText));
         break;
       case "tiktok":
         handleCopyPostLink(t('posts.share.linkCopiedTiktok'));
@@ -222,10 +237,10 @@ export default function SharePostModal({
   };
 
   const handleCopyPostLink = async (successMessage) => {
-    if (!postUrl) return;
+    if (!resolvedShareUrl) return;
     try {
       if (navigator.clipboard?.writeText) {
-        await navigator.clipboard.writeText(postUrl);
+        await navigator.clipboard.writeText(resolvedShareUrl);
       } else {
         throw new Error("clipboard unavailable");
       }
@@ -238,12 +253,12 @@ export default function SharePostModal({
     }
   };
 
-  if (!isOpen || !postId) return null;
+  if (!isOpen || !resolvedShareUrl || typeof document === "undefined") return null;
 
   const listLoading = searchQuery.trim() ? loadingSearch : loadingSuggestions;
   const canSend = selectedUsers.length > 0 && !sending;
 
-  return (
+  return createPortal((
     <div
       className="share-post-overlay"
       role="presentation"
@@ -271,6 +286,7 @@ export default function SharePostModal({
         </header>
 
         <div className="share-post-modal__body">
+          {canSendInApp ? (
           <section className="share-post-modal__section" aria-labelledby="share-meyou-title">
             <h3 id="share-meyou-title" className="share-post-modal__sectionTitle">
               {t('posts.share.sendInApp')}
@@ -371,6 +387,7 @@ export default function SharePostModal({
               {sending ? t('posts.share.sending') : t('posts.share.send')}
             </button>
 
+            {onRepostToFeed ? (
             <button
               type="button"
               className="share-post-modal__repostBtn"
@@ -383,7 +400,9 @@ export default function SharePostModal({
                   ? t('posts.share.reposting')
                   : t('posts.share.repost')}
             </button>
+            ) : null}
           </section>
+          ) : null}
 
           <section className="share-post-modal__section" aria-labelledby="share-external-title">
             <h3 id="share-external-title" className="share-post-modal__sectionTitle">
@@ -394,6 +413,8 @@ export default function SharePostModal({
               onCopyLink={() => handleCopyPostLink()}
               onSystemShare={handleSystemShare}
               onOpenUrl={handleExternalProvider}
+              onDownload={onDownload}
+              downloadLabel={downloadLabel}
             />
           </section>
 
@@ -408,5 +429,5 @@ export default function SharePostModal({
         </div>
       </div>
     </div>
-  );
+  ), document.body);
 }
