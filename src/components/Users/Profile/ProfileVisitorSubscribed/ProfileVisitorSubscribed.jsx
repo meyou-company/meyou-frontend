@@ -594,12 +594,6 @@ export default function ProfileVisitorSubscribed({
                             canOpen ? t('profile.friends.openProfile', { name: handle }) : undefined
                           }
                         >
-                          <img
-                            src={profileIcons.friends}
-                            alt=""
-                            className="vipFriendNameIcon"
-                            aria-hidden="true"
-                          />
                           <span className="vipFriendNameText">{label || handle || '—'}</span>
                         </button>
                       )}

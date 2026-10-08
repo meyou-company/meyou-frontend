@@ -691,7 +691,7 @@ export default function ProfilePhotosView({
 
       {selectedPhoto ? createPortal(
         <div
-          className="profilePhotosViewer"
+          className={`profilePhotosViewer${isOwner ? "" : " profilePhotosViewer--visitor"}`}
           role="dialog"
           aria-modal="true"
           aria-label={t("profile.viewPhotoFull")}

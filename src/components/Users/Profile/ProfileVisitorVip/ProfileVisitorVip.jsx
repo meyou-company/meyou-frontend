@@ -33,7 +33,7 @@ export default function ProfileVisitorVip({
   const { t } = useTranslation();
   const navigate = useNavigate();
   const TABS = useVipProfileTabs();
-  const [activeTab, setActiveTab] = useState("info");
+  const [activeTab, setActiveTab] = useState("");
   const [viewImageUrl, setViewImageUrl] = useState(null);
   const touchAvatarUx = useTouchAvatarUx();
   const profileVipVisual = shouldShowProfileVipVisual(user);

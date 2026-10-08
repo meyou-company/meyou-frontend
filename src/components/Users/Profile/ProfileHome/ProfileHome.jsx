@@ -225,10 +225,9 @@ export default function ProfileHome({
     ? t('posts.placeholderWithName', { name: composerFirstName })
     : t('posts.placeholder');
 
-  const profileLocation =
-    [user?.city, user?.country].filter(Boolean).join(", ") || "";
+  const profileCity = String(user?.city || "").trim();
+  const profileCountry = String(user?.country || "").trim();
   const bioLine1 = fullNameReal ? `${fullNameReal}.` : "";
-  const bioLine2 = profileLocation ? `${profileLocation}.` : "";
 
   const friends = useMemo(() => {
     if (Array.isArray(followingList) && followingList.length > 0) {
@@ -560,7 +559,17 @@ export default function ProfileHome({
 
             <div className="profileBioWrap">
               {bioLine1 && <p className="bio bioName">{bioLine1}</p>}
-              {bioLine2 && <p className="bio bioLocation">{bioLine2}</p>}
+              {(profileCity || profileCountry) && (
+                <p className="bio bioLocation">
+                  {profileCity ? (
+                    <span className="bioLocation__city">
+                      {profileCity}{profileCountry ? "," : "."}
+                    </span>
+                  ) : null}
+                  {profileCity && profileCountry ? " " : null}
+                  {profileCountry ? <span className="bioLocation__country">{profileCountry}.</span> : null}
+                </p>
+              )}
             </div>
 
             <div className="profileInfoAside">
@@ -821,12 +830,6 @@ export default function ProfileHome({
                                 : undefined
                             }
                           >
-                            <img
-                              src={profileIcons.friends}
-                              alt=""
-                              className="vipFriendNameIcon"
-                              aria-hidden="true"
-                            />
                             <span className="vipFriendNameText">
                               {label || handle || "—"}
                             </span>

@@ -55,7 +55,7 @@ export default function ProfileVisitorPublic({
   const navigate = useNavigate();
   const currentUserId = useAuthStore((state) => state.user?.id || state.user?._id || null);
   const visitorTabs = useProfileTabs({ withLocks: true, user });
-  const [visitorTab, setVisitorTab] = useState('info');
+  const [visitorTab, setVisitorTab] = useState('');
   const [viewImageUrl, setViewImageUrl] = useState(null);
   const touchAvatarUx = useTouchAvatarUx();
   const profileVipVisual = shouldShowProfileVipVisual(user);
@@ -586,12 +586,6 @@ export default function ProfileVisitorPublic({
                                 : undefined
                             }
                           >
-                            <img
-                              src={profileIcons.friends}
-                              alt=""
-                              className="vipFriendNameIcon"
-                              aria-hidden="true"
-                            />
                             <span className="vipFriendNameText">{label || handle || '—'}</span>
                           </button>
                         )}

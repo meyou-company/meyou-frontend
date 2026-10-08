@@ -114,7 +114,7 @@
 
 .profilePhotos__grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(210px, 260px));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   justify-content: start;
   gap: 20px;
 }
@@ -412,6 +412,35 @@
   height: 18px;
   flex: 0 0 18px;
   object-fit: contain;
+}
+
+@media (min-width: 768px) {
+  .profilePhotosViewer--visitor .profilePhotosViewer__panel {
+    height: min(760px, calc(100dvh - 150px));
+  }
+
+  .profilePhotosViewer--visitor .profilePhotosViewer__media {
+    position: relative;
+    width: 100%;
+    height: auto;
+    min-height: 0;
+    align-self: stretch;
+    overflow: hidden;
+    box-sizing: border-box;
+  }
+
+  .profilePhotosViewer--visitor .profilePhotosViewer__image {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    min-width: 0;
+    min-height: 0;
+    max-width: none;
+    max-height: none;
+    display: block;
+    object-fit: contain;
+  }
 }
 
 @media (max-width: 1023px) {
@@ -915,7 +944,6 @@ html[data-theme="dark"] .profilePhotosViewer__nav img {
 
   .profilePhotosActionSheet__panel {
     width: 100%;
-    min-height: min(40dvh, 420px);
     max-height: min(70dvh, 560px);
     padding: 10px 18px calc(18px + env(safe-area-inset-bottom, 0px));
     border-radius: 22px 22px 0 0;

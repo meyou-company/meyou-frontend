@@ -1,10 +1,30 @@
 export async function photoUrlToFile(url, fileName = "photo.jpg") {
   if (!url) throw new Error("Photo URL is required");
-  const response = await fetch(url, {
-    mode: "cors",
-    credentials: "omit",
-  });
-  if (!response.ok) throw new Error("Photo download failed");
+  const resolvedUrl = normalizePhotoUrl(url);
+  const parsed = new URL(resolvedUrl);
+  const isPublicMediaHost =
+    /(^|\.)res\.cloudinary\.com$/i.test(parsed.hostname) ||
+    /(^|\.)googleusercontent\.com$/i.test(parsed.hostname);
+  const credentialModes = isPublicMediaHost
+    ? ["omit", "include"]
+    : ["include", "omit"];
+  let response;
+  let lastError;
+
+  for (const credentials of credentialModes) {
+    try {
+      response = await fetch(resolvedUrl, {
+        mode: "cors",
+        credentials,
+      });
+      if (response.ok) break;
+      lastError = new Error(`Photo download failed (${response.status})`);
+    } catch (error) {
+      lastError = error;
+    }
+  }
+
+  if (!response?.ok) throw lastError || new Error("Photo download failed");
   const blob = await response.blob();
   return new File([blob], fileName, { type: blob.type || "image/jpeg" });
 }
@@ -22,10 +42,26 @@ function triggerDownload(href, fileName) {
   link.href = href;
   link.download = fileName;
   link.rel = "noopener";
-  link.style.display = "none";
+  link.style.position = "fixed";
+  link.style.left = "-10000px";
+  link.style.top = "0";
   document.body.appendChild(link);
   link.click();
   link.remove();
+}
+
+function triggerAttachmentDownload(href) {
+  const frame = document.createElement("iframe");
+  frame.src = href;
+  frame.title = "";
+  frame.setAttribute("aria-hidden", "true");
+  frame.style.position = "fixed";
+  frame.style.width = "1px";
+  frame.style.height = "1px";
+  frame.style.left = "-10000px";
+  frame.style.border = "0";
+  document.body.appendChild(frame);
+  window.setTimeout(() => frame.remove(), 60_000);
 }
 
 function getCloudinaryAttachmentUrl(value, fileName) {
@@ -59,8 +95,22 @@ export async function downloadPhoto(url, fileName = "lunmeyo-photo.jpg") {
   // Keep this click synchronous. Safari and mobile Chromium can block a
   // download started only after an awaited network request loses user activation.
   if (cloudinaryAttachmentUrl) {
-    triggerDownload(cloudinaryAttachmentUrl, fileName);
+    triggerAttachmentDownload(cloudinaryAttachmentUrl);
     return;
+  }
+
+  if (typeof window.showSaveFilePicker === "function") {
+    try {
+      const fileHandle = await window.showSaveFilePicker({ suggestedName: fileName });
+      const file = await photoUrlToFile(resolvedUrl, fileName);
+      const writable = await fileHandle.createWritable();
+      await writable.write(file);
+      await writable.close();
+      return;
+    } catch (error) {
+      if (error?.name === "AbortError") return;
+      // Unsupported picker options or browser policy: continue with Blob download.
+    }
   }
 
   let objectUrl;
