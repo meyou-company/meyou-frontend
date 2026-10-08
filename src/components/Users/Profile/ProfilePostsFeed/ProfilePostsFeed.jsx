@@ -6,6 +6,7 @@ import profileIcons from '../../../../constants/profileIcons';
 import { authApi } from '../../../../services/auth';
 import { getApiErrorMessage } from '../../../../utils/getApiErrorMessage';
 import { downloadPhoto, photoUrlToFile } from '../../../../utils/photoViewerActions';
+import { splitPostMedia } from '../../../../utils/postMedia';
 import PostCommentsSection from '../../../PostFeed/PostCommentsSection';
 import PostFeedBody from '../../../PostFeed/PostFeedBody';
 import '../../../PostFeed/PostFeedBody.scss';
@@ -115,6 +116,18 @@ export default function ProfilePostsFeed({
       toast.success(t('profile.photos.profileUpdated', { defaultValue: 'Фото профиля обновлено' }));
     } catch (error) {
       toast.error(getApiErrorMessage(error) || t('profile.photos.profileUpdateError', { defaultValue: 'Не удалось обновить фото профиля' }));
+    }
+  };
+
+  const sharedPostImageUrl = splitPostMedia(feedActions.sharePost).images[0]?.url || '';
+
+  const downloadSharedPostPhoto = async () => {
+    if (!sharedPostImageUrl) return;
+    try {
+      await downloadPhoto(sharedPostImageUrl, 'lunmeyo-post-photo.jpg');
+    } catch (error) {
+      console.error('[post share download] failed', error);
+      toast.error(t('profile.photos.downloadError', { defaultValue: 'Не удалось скачать фото' }));
     }
   };
 
@@ -296,7 +309,7 @@ export default function ProfilePostsFeed({
           closeLightbox();
           feedActions.requestDeletePost(post);
         } : undefined}
-        onSave={currentLightboxUrl ? saveLightboxPhoto : undefined}
+        onSave={lightboxCanManage && currentLightboxUrl ? saveLightboxPhoto : undefined}
         onMakeProfile={lightboxCanManage ? makeLightboxPhotoProfile : undefined}
       />
 
@@ -309,6 +322,8 @@ export default function ProfilePostsFeed({
         onSendToUsers={feedActions.handleSendToUsers}
         onRepostToFeed={feedActions.handleRepostToFeed}
         isReposted={feedActions.sharePost?.viewerState?.isReposted === true}
+        onDownload={sharedPostImageUrl ? downloadSharedPostPhoto : undefined}
+        downloadLabel={t('profile.photos.download', { defaultValue: 'Сохранить на устройство' })}
       />
 
       <EditPostModal

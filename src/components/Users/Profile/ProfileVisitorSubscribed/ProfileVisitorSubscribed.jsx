@@ -207,6 +207,13 @@ export default function ProfileVisitorSubscribed({
       setActiveTab('info');
       return;
     }
+    if (tabId === 'photo') {
+      const handle = user?.username || user?.nick || user?.nickname;
+      if (handle) {
+        navigate(`/profile/${encodeURIComponent(String(handle).replace(/^@/, ''))}/photos`);
+      }
+      return;
+    }
     if (tabId === 'video' && profileUserId) {
       navigate(`/video?authorId=${encodeURIComponent(profileUserId)}`);
       return;
@@ -527,12 +534,6 @@ export default function ProfileVisitorSubscribed({
 
       <ProfileVipMediaPanel
         user={user}
-        kind="photo"
-        isOpen={activeTab === 'photo'}
-        onGetVip={handleVipClick}
-      />
-      <ProfileVipMediaPanel
-        user={user}
         kind="video"
         isOpen={activeTab === 'video'}
         onGetVip={handleVipClick}
@@ -593,12 +594,6 @@ export default function ProfileVisitorSubscribed({
                             canOpen ? t('profile.friends.openProfile', { name: handle }) : undefined
                           }
                         >
-                          <img
-                            src={profileIcons.friends}
-                            alt=""
-                            className="vipFriendNameIcon"
-                            aria-hidden="true"
-                          />
                           <span className="vipFriendNameText">{label || handle || '—'}</span>
                         </button>
                       )}

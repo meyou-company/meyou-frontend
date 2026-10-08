@@ -27,6 +27,7 @@ import {
 import { getProfileRouteHandle } from '../../utils/profileFriendNav';
 import { resolvePostMenuPermissions } from '../../utils/postMenuPermissions';
 import { downloadPhoto, photoUrlToFile } from '../../utils/photoViewerActions';
+import { splitPostMedia } from '../../utils/postMedia';
 import AppHeader from "../../components/Layout/AppHeader";
 import StoryCircle from "../../components/Stories/StoryCircle";
 import NotificationBell from '../../components/Notifications/NotificationBell';
@@ -430,6 +431,17 @@ export default function FirstPageView({
     currentUserId,
     refetchFeed: () => fetchFeedPage(1, { append: false }),
   });
+  const sharedPostImageUrl = splitPostMedia(feedActions.sharePost).images[0]?.url || '';
+
+  const downloadSharedPostPhoto = async () => {
+    if (!sharedPostImageUrl) return;
+    try {
+      await downloadPhoto(sharedPostImageUrl, 'lunmeyo-post-photo.jpg');
+    } catch (error) {
+      console.error('[post share download] failed', error);
+      toast.error(t('profile.photos.downloadError', { defaultValue: 'Не удалось скачать фото' }));
+    }
+  };
 
   useEffect(() => {
     if (!currentUserId) return;
@@ -616,7 +628,7 @@ export default function FirstPageView({
             closeLightbox();
             feedActions.requestDeletePost(post);
           } : undefined}
-          onSave={currentLightboxUrl ? saveLightboxPhoto : undefined}
+          onSave={lightboxCanManage && currentLightboxUrl ? saveLightboxPhoto : undefined}
           onMakeProfile={lightboxCanManage ? makeLightboxPhotoProfile : undefined}
         />
 
@@ -670,6 +682,8 @@ export default function FirstPageView({
           onSendToUsers={feedActions.handleSendToUsers}
           onRepostToFeed={feedActions.handleRepostToFeed}
           isReposted={feedActions.sharePost?.viewerState?.isReposted === true}
+          onDownload={sharedPostImageUrl ? downloadSharedPostPhoto : undefined}
+          downloadLabel={t('profile.photos.download', { defaultValue: 'Сохранить на устройство' })}
         />
 
         <EditPostModal

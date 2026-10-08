@@ -586,7 +586,7 @@
   display: inline-block;
 }
 
-/* Друг у vipRow: перехід на /profile/:username з аватара, іконки друзів або підпису */
+/* Друг у vipRow: перехід на /profile/:username з аватара або підпису */
 .vipFriendCell {
   display: flex;
   flex-direction: column;
@@ -620,13 +620,6 @@
 .vipFriendNameBtn:disabled {
   cursor: not-allowed;
   opacity: 0.55;
-}
-
-.vipFriendNameIcon {
-  width: 18px;
-  height: 18px;
-  object-fit: contain;
-  flex-shrink: 0;
 }
 
 .vipFriendNameText {
@@ -2288,7 +2281,7 @@ html[data-theme="dark"] .profile-home .postActionCount {
     flex-wrap: nowrap;
     align-items: center;
     overflow-x: auto;
-    gap: 12px;
+    gap: 8px;
     padding-bottom: 6px;
     -webkit-overflow-scrolling: touch;
     scroll-snap-type: x mandatory;
@@ -3377,6 +3370,34 @@ html[data-theme="dark"] .profile-home .postActionCount {
 
   .profileMobileBadges__label {
     font-size: 7px;
+  }
+}
+
+@media (max-width: 480px) {
+  .profileInfoAside {
+    padding-top: 32px;
+  }
+
+  .profileBioWrap .bioLocation {
+    font-size: 10px;
+    line-height: 1.35;
+    max-width: 100%;
+    white-space: normal;
+    overflow: visible;
+    text-overflow: clip;
+    overflow-wrap: anywhere;
+  }
+
+  .bioLocation__city {
+    display: inline-block;
+    white-space: nowrap;
+    text-decoration: underline;
+  }
+
+  .bioLocation__country {
+    white-space: normal;
+    word-break: normal;
+    overflow-wrap: normal;
   }
 }
 

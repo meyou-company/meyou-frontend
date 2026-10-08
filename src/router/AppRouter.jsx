@@ -140,6 +140,7 @@ function AppLayout() {
               <Route path="/friends" element={<Friends />} />
               <Route path="/profile" element={<Profile />} />
               <Route path="/profile/photos" element={<ProfilePhotosPage />} />
+              <Route path="/profile/:username/photos" element={<ProfilePhotosPage />} />
               <Route path="/profile/:username" element={<Profile />} />
               <Route path="/profile/:username/friends" element={<ProfileFriendsPage />} />
               <Route path="/vip-chat" element={<VipChat />} />
