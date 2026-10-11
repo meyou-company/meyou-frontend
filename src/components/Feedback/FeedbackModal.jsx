@@ -261,13 +261,13 @@ export default function FeedbackModal({ isOpen, onClose, returnFocusRef }) {
         tabIndex={-1}
         onClick={(event) => event.stopPropagation()}
       >
+        <ModalCloseButton onClose={onClose} t={t} />
         {view === 'list' ? (
           <MineList
             titleId={titleId}
             items={mine}
             loading={mineLoading}
             onBack={() => setView('compose')}
-            onClose={onClose}
             onOpen={(id) => setView('detail', id)}
             t={t}
           />
@@ -278,7 +278,6 @@ export default function FeedbackModal({ isOpen, onClose, returnFocusRef }) {
             loading={detailLoading}
             currentUserId={currentUserId}
             onBack={() => setView('list')}
-            onClose={onClose}
             t={t}
           />
         ) : success ? (
@@ -305,16 +304,13 @@ export default function FeedbackModal({ isOpen, onClose, returnFocusRef }) {
               <h2 id={titleId} className="feedbackModal__title">
                 {t('feedback.title')}
               </h2>
-              <div className="feedbackModal__topActions">
-                <button
-                  type="button"
-                  className="feedbackModal__textLink"
-                  onClick={() => setView('list')}
-                >
-                  {t('feedback.mine.title')}
-                </button>
-                <ModalCloseButton onClose={onClose} t={t} />
-              </div>
+              <button
+                type="button"
+                className="feedbackModal__textLink"
+                onClick={() => setView('list')}
+              >
+                {t('feedback.mine.title')}
+              </button>
             </div>
             <p id="feedback-modal-intro" className="feedbackModal__intro">
               {t('feedback.intro')}
@@ -398,14 +394,13 @@ export default function FeedbackModal({ isOpen, onClose, returnFocusRef }) {
   );
 }
 
-function MineList({ titleId, items, loading, onBack, onClose, onOpen, t }) {
+function MineList({ titleId, items, loading, onBack, onOpen, t }) {
   return (
     <div>
       <div className="feedbackModal__topRow">
         <button type="button" className="feedbackModal__textLink" onClick={onBack}>
           {t('common.back')}
         </button>
-        <ModalCloseButton onClose={onClose} t={t} />
       </div>
       <h2 id={titleId} className="feedbackModal__title">
         {t('feedback.mine.title')}
@@ -453,16 +448,13 @@ function statusKey(status) {
   return 'new';
 }
 
-function MineDetail({ titleId, detail, loading, currentUserId, onBack, onClose, t }) {
+function MineDetail({ titleId, detail, loading, currentUserId, onBack, t }) {
   if (loading || !detail) {
     return (
       <div>
-        <div className="feedbackModal__topRow">
-          <button type="button" className="feedbackModal__textLink" onClick={onBack}>
-            {t('common.back')}
-          </button>
-          <ModalCloseButton onClose={onClose} t={t} />
-        </div>
+        <button type="button" className="feedbackModal__textLink" onClick={onBack}>
+          {t('common.back')}
+        </button>
         <p className="feedbackModal__intro">{t('common.loading')}</p>
       </div>
     );
@@ -475,10 +467,7 @@ function MineDetail({ titleId, detail, loading, currentUserId, onBack, onClose, 
         <button type="button" className="feedbackModal__textLink" onClick={onBack}>
           {t('common.back')}
         </button>
-        <div className="feedbackModal__topActions">
-          <small>{t(`feedback.status.${statusKey(detail.status)}`)}</small>
-          <ModalCloseButton onClose={onClose} t={t} />
-        </div>
+        <small>{t(`feedback.status.${statusKey(detail.status)}`)}</small>
       </div>
       <h2 id={titleId} className="feedbackModal__title">
         <span aria-hidden="true">{meta.emoji}</span> {t(meta.labelKey)}
