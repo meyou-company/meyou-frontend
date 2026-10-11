@@ -668,6 +668,8 @@
       "connectTimeout": "Connection timed out",
       "unknown": "User",
       "enableSound": "Tap to enable call sounds",
+      "tapToHear": "Tap the screen to hear other participants",
+      "micFailed": "Could not enable microphone",
       "inCall": "In call",
       "chatMissedAudio": "Missed audio call",
       "chatMissedVideo": "Missed video call",

@@ -155,6 +155,42 @@ function ensureRemoteCameraSubscribed(participant) {
   }
 }
 
+function isRemoteMicrophonePublication(pub) {
+  if (!pub || isScreenShareSource(pub.source)) return false;
+  return (
+    pub.source === Track.Source.Microphone || pub.kind === Track.Kind.Audio
+  );
+}
+
+function ensureRemoteMicrophoneSubscribed(participant) {
+  if (!participant?.trackPublications) return;
+  participant.trackPublications.forEach((pub) => {
+    if (!isRemoteMicrophonePublication(pub)) return;
+    if (pub.isSubscribed === false && typeof pub.setSubscribed === 'function') {
+      try {
+        pub.setSubscribed(true);
+      } catch {
+        /* ignore */
+      }
+    }
+  });
+}
+
+function attachRemoteMicrophone(participant, audioEl) {
+  if (!participant || !audioEl) return false;
+  ensureRemoteMicrophoneSubscribed(participant);
+  let attached = false;
+  participant.trackPublications.forEach((pub) => {
+    if (!pub.track || !isRemoteMicrophonePublication(pub)) return;
+    pub.track.attach(audioEl);
+    attached = true;
+  });
+  if (attached) {
+    void audioEl.play?.().catch(() => {});
+  }
+  return attached;
+}
+
 function detachTrackFromElement(track, element) {
   if (!track || !element) return;
   try {
@@ -259,7 +295,6 @@ function bindParticipantMedia(participant, onChange) {
 
 function ParticipantTile({ tile, speaking, youLabel, layoutKey }) {
   const videoRef = useRef(null);
-  const audioRef = useRef(null);
   const [hasVideo, setHasVideo] = useState(false);
   const participantSid = tile.participant?.sid || '';
 
@@ -268,7 +303,6 @@ function ParticipantTile({ tile, speaking, youLabel, layoutKey }) {
 
     const sync = () => {
       const videoEl = videoRef.current;
-      const audioEl = audioRef.current;
       if (!participant) {
         setHasVideo(false);
         return;
@@ -280,20 +314,6 @@ function ParticipantTile({ tile, speaking, youLabel, layoutKey }) {
       }
       const live = publicationHasLiveCamera(cam);
       setHasVideo(live);
-      if (tile.isLocal) {
-        console.log('GROUP LOCAL CAMERA DISPLAY', {
-          identity: tile.identity,
-          hasVideo: live,
-          pubMuted: cam?.isMuted ?? null,
-          readyState: cam?.track?.mediaStreamTrack?.readyState ?? null,
-          attached: Boolean(videoEl?.srcObject),
-          trackSid: cam?.trackSid ?? cam?.track?.sid ?? null,
-        });
-      }
-      if (!tile.isLocal) {
-        const mic = participant.getTrackPublication?.(Track.Source.Microphone);
-        if (mic?.track && audioEl) mic.track.attach(audioEl);
-      }
     };
 
     sync();
@@ -303,8 +323,6 @@ function ParticipantTile({ tile, speaking, youLabel, layoutKey }) {
       unbind();
       const cam = cameraPublication(participant);
       detachTrackFromElement(cam?.track, videoRef.current);
-      const mic = participant.getTrackPublication?.(Track.Source.Microphone);
-      detachTrackFromElement(mic?.track, audioRef.current);
     };
   }, [tile.identity, tile.isLocal, participantSid]);
 
@@ -328,9 +346,8 @@ function ParticipantTile({ tile, speaking, youLabel, layoutKey }) {
         className={`callGroupTile__video${hasVideo ? '' : ' is-hidden'}`}
         autoPlay
         playsInline
-        muted={tile.isLocal}
+        muted
       />
-      <audio ref={audioRef} autoPlay playsInline />
       {!hasVideo && (
         <div className="callGroupTile__avatar" aria-hidden="true">
           {tile.avatarUrl ? (
@@ -344,6 +361,81 @@ function ParticipantTile({ tile, speaking, youLabel, layoutKey }) {
         {tile.name}
         {tile.isLocal ? ` (${youLabel})` : ''}
       </span>
+    </div>
+  );
+}
+
+function RemoteParticipantAudio({ participant }) {
+  const audioRef = useRef(null);
+  const identity = participant?.identity || participant?.sid || '';
+
+  useLayoutEffect(() => {
+    const audioEl = audioRef.current;
+    if (!participant || !audioEl) return undefined;
+
+    const sync = () => {
+      attachRemoteMicrophone(participant, audioEl);
+    };
+
+    sync();
+    const unbind = bindParticipantMedia(participant, sync);
+    return () => {
+      unbind();
+      participant.trackPublications.forEach((pub) => {
+        if (isRemoteMicrophonePublication(pub)) {
+          detachTrackFromElement(pub.track, audioRef.current);
+        }
+      });
+    };
+  }, [identity, participant]);
+
+  return (
+    <audio
+      ref={audioRef}
+      autoPlay
+      playsInline
+      data-identity={identity}
+    />
+  );
+}
+
+function GroupRemoteAudio({ room }) {
+  const [remotes, setRemotes] = useState([]);
+
+  useEffect(() => {
+    if (!room) {
+      setRemotes([]);
+      return undefined;
+    }
+
+    const sync = () => {
+      setRemotes([...room.remoteParticipants.values()]);
+    };
+
+    sync();
+    room.on(RoomEvent.ParticipantConnected, sync);
+    room.on(RoomEvent.ParticipantDisconnected, sync);
+    room.on(RoomEvent.TrackSubscribed, sync);
+    room.on(RoomEvent.TrackUnsubscribed, sync);
+    room.on(RoomEvent.Connected, sync);
+    return () => {
+      room.off(RoomEvent.ParticipantConnected, sync);
+      room.off(RoomEvent.ParticipantDisconnected, sync);
+      room.off(RoomEvent.TrackSubscribed, sync);
+      room.off(RoomEvent.TrackUnsubscribed, sync);
+      room.off(RoomEvent.Connected, sync);
+    };
+  }, [room]);
+
+  if (!room) return null;
+  return (
+    <div className="callGroupRemoteAudio" aria-hidden="true">
+      {remotes.map((participant) => (
+        <RemoteParticipantAudio
+          key={participant.identity || participant.sid}
+          participant={participant}
+        />
+      ))}
     </div>
   );
 }
@@ -452,6 +544,8 @@ export default function GroupCallOverlay({
   const [speakerSupported, setSpeakerSupported] = useState(false);
   const [audioOutputs, setAudioOutputs] = useState([]);
   const [cameraError, setCameraError] = useState(null);
+  const [micError, setMicError] = useState(false);
+  const [audioBlocked, setAudioBlocked] = useState(false);
   const [screenShareError, setScreenShareError] = useState(null);
   const [screenShareBusy, setScreenShareBusy] = useState(false);
   const [narrowViewport, setNarrowViewport] = useState(() =>
@@ -579,7 +673,13 @@ export default function GroupCallOverlay({
         (room.state === ConnectionState.Connected ||
           room.state === ConnectionState.Connecting)
       ) {
-        if (room.state === ConnectionState.Connected) markConnected();
+        if (room.state === ConnectionState.Connected) {
+          void room
+            .startAudio()
+            .then(() => setAudioBlocked(false))
+            .catch(() => setAudioBlocked(true));
+          markConnected();
+        }
         return;
       }
 
@@ -588,11 +688,20 @@ export default function GroupCallOverlay({
         if (getSharedCallRoomSession()?.room !== room) return;
         try {
           await room.startAudio();
-        } catch {
-          /* autoplay */
+          setAudioBlocked(false);
+        } catch (error) {
+          console.warn('GROUP startAudio blocked', error);
+          setAudioBlocked(true);
         }
         const micOn = Boolean(micEnabledRef.current);
-        await room.localParticipant.setMicrophoneEnabled(micOn);
+        try {
+          await room.localParticipant.setMicrophoneEnabled(micOn);
+          setMicError(false);
+        } catch (error) {
+          console.warn('GROUP microphone start failed', error);
+          setMicError(true);
+          onMicChangeRef.current?.(false);
+        }
         const wantVideo =
           (mediaTypeRef.current || callRef.current?.mediaType) === 'VIDEO' ||
           Boolean(cameraEnabledRef.current);
@@ -651,7 +760,14 @@ export default function GroupCallOverlay({
   useEffect(() => {
     const room = roomRef.current;
     if (!room || room.state !== ConnectionState.Connected) return;
-    void room.localParticipant.setMicrophoneEnabled(Boolean(micEnabled));
+    void room.localParticipant
+      .setMicrophoneEnabled(Boolean(micEnabled))
+      .then(() => setMicError(false))
+      .catch((error) => {
+        console.warn('GROUP microphone toggle failed', error);
+        setMicError(true);
+        onMicChangeRef.current?.(false);
+      });
   }, [micEnabled]);
 
   useEffect(() => {
@@ -800,12 +916,23 @@ export default function GroupCallOverlay({
   const hasScreenShare = screenShares.length > 0;
   const layoutKey = `${gridCols}:${hasScreenShare ? 1 : 0}:${count}`;
 
+  const unlockAudio = () => {
+    const room = roomRef.current;
+    if (!room) return;
+    void room
+      .startAudio()
+      .then(() => setAudioBlocked(false))
+      .catch(() => setAudioBlocked(true));
+  };
+
   const body = (
     <div
       className={`callOverlay callOverlay--group${compact ? ' is-mini' : ' callOverlay--active'}`}
       role="dialog"
       aria-modal={!compact}
+      onPointerDown={unlockAudio}
     >
+      <GroupRemoteAudio room={isConnected ? roomRef.current : null} />
       {compact ? (
         <button
           type="button"
@@ -879,6 +1006,16 @@ export default function GroupCallOverlay({
           </div>
 
           <div className="callActive__footer">
+            {audioBlocked ? (
+              <p className="callActive__cameraErrorBody">
+                {t('messenger.calls.tapToHear')}
+              </p>
+            ) : null}
+            {micError ? (
+              <p className="callActive__cameraErrorBody">
+                {t('messenger.calls.micFailed')}
+              </p>
+            ) : null}
             {cameraError ? (
               <p className="callActive__cameraErrorBody">
                 {t('messenger.calls.cameraBusyTitle')}

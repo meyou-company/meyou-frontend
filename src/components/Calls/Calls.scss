@@ -486,6 +486,17 @@
   cursor: pointer;
 }
 
+.callGroupRemoteAudio {
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  width: 0;
+  height: 0;
+  opacity: 0;
+  pointer-events: none;
+  z-index: -1;
+}
+
 .callGroup__stage {
   flex: 1 1 auto;
   min-height: 0;

@@ -321,6 +321,13 @@ export function createGroupCallRoom() {
     adaptiveStream: false,
     dynacast: true,
     disconnectOnPageLeave: false,
-    audioCaptureDefaults: { autoGainControl: true, echoCancellation: true },
+    // Mix remote mics in Web Audio so Safari/iOS does not play only one
+    // HTML <audio> element when several people are speaking.
+    webAudioMix: true,
+    audioCaptureDefaults: {
+      autoGainControl: true,
+      echoCancellation: true,
+      noiseSuppression: true,
+    },
   });
 }

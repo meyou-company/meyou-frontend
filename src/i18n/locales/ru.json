@@ -717,6 +717,8 @@
       "connectTimeout": "Connection timed out",
       "unknown": "User",
       "enableSound": "Tap to enable call sounds",
+      "tapToHear": "Нажмите на экран, чтобы слышать других участников",
+      "micFailed": "Не удалось включить микрофон",
       "inCall": "In call",
       "chatMissedAudio": "Missed audio call",
       "chatMissedVideo": "Missed video call",
