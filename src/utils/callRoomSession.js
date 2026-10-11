@@ -253,6 +253,7 @@ async function runTeardownCallRoom(room, { callId, reason } = {}) {
   const local = room.localParticipant;
   const cameraPub = local?.getTrackPublication(Track.Source.Camera);
   const micPub = local?.getTrackPublication(Track.Source.Microphone);
+  const screenPub = local?.getTrackPublication(Track.Source.ScreenShare);
   const cameraTrack = cameraPub?.track?.mediaStreamTrack;
   const micTrack = micPub?.track?.mediaStreamTrack;
 
@@ -276,6 +277,11 @@ async function runTeardownCallRoom(room, { callId, reason } = {}) {
       if (micPub) await local.setMicrophoneEnabled(false);
     } catch (error) {
       console.warn('CAMERA CLEANUP setMicrophoneEnabled(false) failed', error);
+    }
+    try {
+      if (screenPub) await local.setScreenShareEnabled(false);
+    } catch (error) {
+      console.warn('CAMERA CLEANUP setScreenShareEnabled(false) failed', error);
     }
     try {
       await room.disconnect();

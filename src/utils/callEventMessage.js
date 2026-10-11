@@ -40,6 +40,7 @@ export function getCallEventMeta(message) {
       typeof meta.durationSec === 'number' ? meta.durationSec : null,
     callerId: meta.callerId ?? message?.senderId ?? null,
     calleeId: meta.calleeId ?? null,
+    kind: meta.kind === 'GROUP' ? 'GROUP' : 'DIRECT',
     startedAt: meta.startedAt || meta.createdAt || message?.createdAt || null,
   };
 }
@@ -50,15 +51,20 @@ export function getCallEventClock(message) {
 }
 
 export function formatCallEventLabel(message, t, viewerId) {
-  const { callStatus, mediaType, durationSec, callerId } =
+  const { callStatus, mediaType, durationSec, callerId, kind } =
     getCallEventMeta(message);
   const isVideo = mediaType === 'VIDEO';
+  const isGroup = kind === 'GROUP';
   const isOutgoing =
     viewerId && callerId && String(viewerId) === String(callerId);
 
   if (callStatus === 'ENDED') {
     let typeLabel;
-    if (viewerId && callerId) {
+    if (isGroup) {
+      typeLabel = isVideo
+        ? t('messenger.calls.videoCall')
+        : t('messenger.calls.audioCall');
+    } else if (viewerId && callerId) {
       typeLabel = t(
         isOutgoing
           ? isVideo
@@ -117,7 +123,8 @@ const REDIALABLE_STATUSES = new Set([
 const LIVE_CALL_STATUSES = new Set(['RINGING', 'ACTIVE']);
 
 export function canRedialCallEvent(message) {
-  const { callStatus } = getCallEventMeta(message);
+  const { callStatus, kind } = getCallEventMeta(message);
+  if (kind === 'GROUP') return false;
   if (!callStatus || LIVE_CALL_STATUSES.has(callStatus)) return false;
   return REDIALABLE_STATUSES.has(callStatus);
 }

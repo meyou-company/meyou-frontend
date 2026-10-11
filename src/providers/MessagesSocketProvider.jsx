@@ -100,7 +100,14 @@ export function MessagesSocketProvider() {
       const conversationId = envelope?.conversationId;
       const senderId = message?.senderId;
 
-      if (senderId && ctx.currentUserId && String(senderId) === String(ctx.currentUserId)) {
+      // CALL_EVENT is a system history row (sender = original caller).
+      // Do not treat it as an optimistic self-message.
+      if (
+        senderId &&
+        ctx.currentUserId &&
+        String(senderId) === String(ctx.currentUserId) &&
+        message?.type !== 'CALL_EVENT'
+      ) {
         return;
       }
 

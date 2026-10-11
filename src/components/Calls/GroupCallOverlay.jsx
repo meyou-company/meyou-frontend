@@ -10,7 +10,7 @@ import {
   LuVideoOff,
   LuVolume2,
 } from 'react-icons/lu';
-import { ConnectionState, RoomEvent, Track } from 'livekit-client';
+import { ConnectionState, ParticipantEvent, RoomEvent, Track } from 'livekit-client';
 import {
   adoptSharedCallRoom,
   createDefaultCallRoom,
@@ -95,6 +95,58 @@ function avatarFor(call, identity) {
   return users.find((u) => u?.id === identity)?.avatarUrl || null;
 }
 
+function isScreenShareSource(source) {
+  return (
+    source === Track.Source.ScreenShare ||
+    source === Track.Source.ScreenShareAudio
+  );
+}
+
+function collectScreenShares(room, call, localUserId) {
+  if (!room) return [];
+  const shares = [];
+  const consider = (participant, isLocal) => {
+    if (!participant) return;
+    participant.trackPublications.forEach((pub) => {
+      if (pub.source !== Track.Source.ScreenShare || !pub.track || pub.isMuted) {
+        return;
+      }
+      const identity = participant.identity || (isLocal ? localUserId : '');
+      shares.push({
+        identity,
+        name: participant.name || tFallback(call, identity, identity),
+        isLocal,
+        participant,
+      });
+    });
+  };
+  consider(room.localParticipant, true);
+  for (const remote of room.remoteParticipants.values()) {
+    consider(remote, false);
+  }
+  return shares;
+}
+
+function bindParticipantMedia(participant, onChange) {
+  if (!participant || typeof participant.on !== 'function') {
+    return () => {};
+  }
+  const events = [
+    ParticipantEvent.TrackSubscribed,
+    ParticipantEvent.TrackUnsubscribed,
+    ParticipantEvent.TrackMuted,
+    ParticipantEvent.TrackUnmuted,
+    ParticipantEvent.TrackPublished,
+    ParticipantEvent.TrackUnpublished,
+    ParticipantEvent.LocalTrackPublished,
+    ParticipantEvent.LocalTrackUnpublished,
+  ];
+  events.forEach((event) => participant.on(event, onChange));
+  return () => {
+    events.forEach((event) => participant.off(event, onChange));
+  };
+}
+
 function ParticipantTile({ tile, speaking, showVideo, youLabel }) {
   const videoRef = useRef(null);
   const audioRef = useRef(null);
@@ -107,13 +159,13 @@ function ParticipantTile({ tile, speaking, showVideo, youLabel }) {
     const attach = () => {
       let video = false;
       participant.trackPublications.forEach((pub) => {
-        if (!pub.track) return;
-        if (pub.kind === Track.Kind.Video && videoRef.current) {
+        if (!pub.track || isScreenShareSource(pub.source)) return;
+        if (pub.source === Track.Source.Camera && videoRef.current) {
           pub.track.attach(videoRef.current);
           if (!pub.isMuted) video = true;
         }
         if (
-          pub.kind === Track.Kind.Audio &&
+          pub.source === Track.Source.Microphone &&
           !tile.isLocal &&
           audioRef.current
         ) {
@@ -124,8 +176,11 @@ function ParticipantTile({ tile, speaking, showVideo, youLabel }) {
     };
 
     attach();
+    const unbind = bindParticipantMedia(participant, attach);
     return () => {
+      unbind();
       participant.trackPublications.forEach((pub) => {
+        if (isScreenShareSource(pub.source)) return;
         try {
           pub.track?.detach();
         } catch {
@@ -166,6 +221,70 @@ function ParticipantTile({ tile, speaking, showVideo, youLabel }) {
   );
 }
 
+function ScreenSharePane({ share, youLabel, sharingLabel }) {
+  const videoRef = useRef(null);
+  const audioRef = useRef(null);
+
+  useEffect(() => {
+    const participant = share.participant;
+    if (!participant) return undefined;
+
+    const attach = () => {
+      participant.trackPublications.forEach((pub) => {
+        if (!pub.track) return;
+        if (pub.source === Track.Source.ScreenShare && videoRef.current) {
+          pub.track.attach(videoRef.current);
+        }
+        if (
+          pub.source === Track.Source.ScreenShareAudio &&
+          !share.isLocal &&
+          audioRef.current
+        ) {
+          pub.track.attach(audioRef.current);
+        }
+      });
+    };
+
+    attach();
+    const unbind = bindParticipantMedia(participant, attach);
+    const media = participant.getTrackPublication?.(Track.Source.ScreenShare)
+      ?.track?.mediaStreamTrack;
+    const onEnded = () => attach();
+    media?.addEventListener('ended', onEnded);
+    return () => {
+      unbind();
+      media?.removeEventListener('ended', onEnded);
+      participant.trackPublications.forEach((pub) => {
+        if (!isScreenShareSource(pub.source)) return;
+        try {
+          pub.track?.detach();
+        } catch {
+          /* ignore */
+        }
+      });
+    };
+  }, [share.participant, share.isLocal, share.identity]);
+
+  return (
+    <div className="callGroupScreen">
+      <video
+        ref={videoRef}
+        className="callGroupScreen__video"
+        autoPlay
+        playsInline
+        muted={share.isLocal}
+      />
+      <audio ref={audioRef} autoPlay playsInline />
+      <span className="callGroupScreen__name">
+        {share.name}
+        {share.isLocal ? ` (${youLabel})` : ''}
+        {' · '}
+        {sharingLabel}
+      </span>
+    </div>
+  );
+}
+
 export default function GroupCallOverlay({
   call,
   media,
@@ -199,6 +318,7 @@ export default function GroupCallOverlay({
   const [isConnected, setIsConnected] = useState(false);
   const [statusLabel, setStatusLabel] = useState(t('messenger.calls.connecting'));
   const [tiles, setTiles] = useState([]);
+  const [screenShares, setScreenShares] = useState([]);
   const [speakingIds, setSpeakingIds] = useState(() => new Set());
   const [screenShareOn, setScreenShareOn] = useState(false);
   const [speakerSupported, setSpeakerSupported] = useState(false);
@@ -243,7 +363,7 @@ export default function GroupCallOverlay({
     });
     roomRef.current = room;
 
-    const syncTiles = () => {
+    const syncMedia = () => {
       setTiles(
         collectParticipantTiles(
           room,
@@ -251,6 +371,22 @@ export default function GroupCallOverlay({
           callRef.current,
         ),
       );
+      setScreenShares(
+        collectScreenShares(room, callRef.current, localUserIdRef.current),
+      );
+      const localShare = room.localParticipant?.getTrackPublication(
+        Track.Source.ScreenShare,
+      );
+      const sharing = Boolean(localShare?.track && !localShare.isMuted);
+      setScreenShareOn(sharing);
+      const mediaTrack = localShare?.track?.mediaStreamTrack;
+      if (mediaTrack && mediaTrack.readyState !== 'ended') {
+        const onBrowserStop = () => {
+          void room.localParticipant.setScreenShareEnabled(false).catch(() => {});
+          setScreenShareOn(false);
+        };
+        mediaTrack.addEventListener('ended', onBrowserStop, { once: true });
+      }
     };
 
     const markConnected = () => {
@@ -258,7 +394,7 @@ export default function GroupCallOverlay({
       setIsConnected(true);
       setStatusLabel(tRef.current('messenger.calls.inCall'));
       onConnectionStatusRef.current?.('connected');
-      syncTiles();
+      syncMedia();
     };
 
     const onConnection = (state) => {
@@ -279,13 +415,16 @@ export default function GroupCallOverlay({
 
     room.on(RoomEvent.Connected, markConnected);
     room.on(RoomEvent.ConnectionStateChanged, onConnection);
-    room.on(RoomEvent.ParticipantConnected, syncTiles);
-    room.on(RoomEvent.ParticipantDisconnected, syncTiles);
-    room.on(RoomEvent.TrackSubscribed, syncTiles);
-    room.on(RoomEvent.TrackUnsubscribed, syncTiles);
-    room.on(RoomEvent.TrackMuted, syncTiles);
-    room.on(RoomEvent.TrackUnmuted, syncTiles);
-    room.on(RoomEvent.LocalTrackPublished, syncTiles);
+    room.on(RoomEvent.ParticipantConnected, syncMedia);
+    room.on(RoomEvent.ParticipantDisconnected, syncMedia);
+    room.on(RoomEvent.TrackSubscribed, syncMedia);
+    room.on(RoomEvent.TrackUnsubscribed, syncMedia);
+    room.on(RoomEvent.TrackPublished, syncMedia);
+    room.on(RoomEvent.TrackUnpublished, syncMedia);
+    room.on(RoomEvent.TrackMuted, syncMedia);
+    room.on(RoomEvent.TrackUnmuted, syncMedia);
+    room.on(RoomEvent.LocalTrackPublished, syncMedia);
+    room.on(RoomEvent.LocalTrackUnpublished, syncMedia);
     room.on(RoomEvent.ActiveSpeakersChanged, onSpeakers);
 
     (async () => {
@@ -335,13 +474,16 @@ export default function GroupCallOverlay({
       cancelled = true;
       room.off(RoomEvent.Connected, markConnected);
       room.off(RoomEvent.ConnectionStateChanged, onConnection);
-      room.off(RoomEvent.ParticipantConnected, syncTiles);
-      room.off(RoomEvent.ParticipantDisconnected, syncTiles);
-      room.off(RoomEvent.TrackSubscribed, syncTiles);
-      room.off(RoomEvent.TrackUnsubscribed, syncTiles);
-      room.off(RoomEvent.TrackMuted, syncTiles);
-      room.off(RoomEvent.TrackUnmuted, syncTiles);
-      room.off(RoomEvent.LocalTrackPublished, syncTiles);
+      room.off(RoomEvent.ParticipantConnected, syncMedia);
+      room.off(RoomEvent.ParticipantDisconnected, syncMedia);
+      room.off(RoomEvent.TrackSubscribed, syncMedia);
+      room.off(RoomEvent.TrackUnsubscribed, syncMedia);
+      room.off(RoomEvent.TrackPublished, syncMedia);
+      room.off(RoomEvent.TrackUnpublished, syncMedia);
+      room.off(RoomEvent.TrackMuted, syncMedia);
+      room.off(RoomEvent.TrackUnmuted, syncMedia);
+      room.off(RoomEvent.LocalTrackPublished, syncMedia);
+      room.off(RoomEvent.LocalTrackUnpublished, syncMedia);
       room.off(RoomEvent.ActiveSpeakersChanged, onSpeakers);
 
       const state = useCallsStore.getState();
@@ -417,13 +559,23 @@ export default function GroupCallOverlay({
 
   const toggleScreenShare = async () => {
     const room = roomRef.current;
-    if (!room) return;
+    if (!room || room.state !== ConnectionState.Connected) return;
     try {
       const next = !screenShareOn;
       await room.localParticipant.setScreenShareEnabled(next);
-      setScreenShareOn(next);
+      const pub = room.localParticipant.getTrackPublication(
+        Track.Source.ScreenShare,
+      );
+      const live = Boolean(pub?.track && !pub.isMuted);
+      setScreenShareOn(next ? live : false);
+      setScreenShares(
+        collectScreenShares(room, callRef.current, localUserIdRef.current),
+      );
     } catch {
       setScreenShareOn(false);
+      setScreenShares(
+        collectScreenShares(room, callRef.current, localUserIdRef.current),
+      );
     }
   };
 
@@ -473,7 +625,11 @@ export default function GroupCallOverlay({
           </span>
         </button>
       ) : (
-        <div className="callActive callActive--group">
+        <div
+          className={`callActive callActive--group${
+            screenShares.length ? ' has-screen' : ''
+          }`}
+        >
           <div className="callGroup__top">
             <h2 className="callOverlay__name">{title}</h2>
             <p className="callOverlay__hint">
@@ -489,6 +645,15 @@ export default function GroupCallOverlay({
               {t('messenger.calls.backToChat')}
             </button>
           </div>
+
+          {screenShares.map((share) => (
+            <ScreenSharePane
+              key={`share-${share.identity}`}
+              share={share}
+              youLabel={t('messenger.calls.you')}
+              sharingLabel={t('messenger.calls.screenShare')}
+            />
+          ))}
 
           <div className={`callGroupGrid${isVideo ? ' is-video' : ' is-audio'}`}>
             {tiles.map((tile) => (
