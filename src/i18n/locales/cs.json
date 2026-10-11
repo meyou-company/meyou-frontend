@@ -933,8 +933,32 @@
     }
   },
   "stories": {
-    "yourStory": "Your story",
-    "closeFriends": "Close friends"
+    "yourStory": "Váš příběh",
+    "closeFriends": "Blízcí přátelé",
+    "createTitle": "Přidat do příběhu",
+    "viewerLabel": "Prohlížeč příběhů",
+    "close": "Zavřít",
+    "more": "Více",
+    "views": "Zhlédnutí",
+    "share": "Sdílet",
+    "mention": "Označit",
+    "delete": "Smazat",
+    "deleteConfirm": "Smazat tento příběh?",
+    "saveMedia": "Uložit foto/video",
+    "addText": "Text",
+    "textPhotoOnly": "Text je dostupný u fotek",
+    "done": "Hotovo",
+    "moveText": "Přesunout text",
+    "textPlaceholder": "Váš text",
+    "fontSize": "Velikost textu",
+    "textColor": "Barva textu",
+    "pickColor": "Barva {{color}}",
+    "tools": "Nástroje příběhu",
+    "music": "Hudba",
+    "templates": "Šablony",
+    "collage": "Koláž",
+    "stickers": "Nálepky",
+    "draw": "Kreslit"
   },
   "liveNotifications": {
     "started": "{{name}} zahájil(a) živé vysílání"

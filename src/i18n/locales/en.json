@@ -1013,7 +1013,31 @@
   },
   "stories": {
     "yourStory": "Your story",
-    "closeFriends": "Close friends"
+    "closeFriends": "Close friends",
+    "createTitle": "Add to story",
+    "viewerLabel": "Story viewer",
+    "close": "Close",
+    "more": "More",
+    "views": "Views",
+    "share": "Share",
+    "mention": "Mention",
+    "delete": "Delete",
+    "deleteConfirm": "Delete this story?",
+    "saveMedia": "Save photo/video",
+    "addText": "Text",
+    "textPhotoOnly": "Text is available for photos",
+    "done": "Done",
+    "moveText": "Move text",
+    "textPlaceholder": "Your text",
+    "fontSize": "Font size",
+    "textColor": "Text color",
+    "pickColor": "Color {{color}}",
+    "tools": "Story tools",
+    "music": "Music",
+    "templates": "Templates",
+    "collage": "Collage",
+    "stickers": "Stickers",
+    "draw": "Draw"
   },
   "liveNotifications": {
     "started": "{{name}} started a live stream"

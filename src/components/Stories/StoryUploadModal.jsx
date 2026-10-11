@@ -1,12 +1,13 @@
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
-import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { useAuthStore } from "../../zustand/useAuthStore";
 import { storiesApi } from "../../services/storiesApi";
 import { uploadStoryMedia } from "../../services/storyMediaUploadApi";
 import { getApiErrorMessage } from "../../utils/getApiErrorMessage";
 import { composeStoryImage } from "../../utils/composeStoryImage";
-import AppHeader from "../Layout/AppHeader";
+import { clampStoryTextPosition } from "../../utils/storySafeArea";
+import { useStoriesOverlayLock } from "../../hooks/useStoriesOverlayLock";
 import profileIcons from "../../constants/profileIcons";
 import StoryTextEditor from "./StoryTextEditor";
 import "./StoryUploadModal.scss";
@@ -65,6 +66,8 @@ function getStoryCreateErrorMessage(error) {
 }
 
 export default function StoryUploadModal({ isOpen, onClose, onCreated }) {
+  const { t } = useTranslation();
+  useStoriesOverlayLock(isOpen);
   const inputRef = useRef(null);
   const visibilityWrapRef = useRef(null);
   const mediaFrameRef = useRef(null);
@@ -82,7 +85,6 @@ export default function StoryUploadModal({ isOpen, onClose, onCreated }) {
   const [visibility, setVisibility] = useState("FOLLOWERS");
   const [isVisibilityOpen, setIsVisibilityOpen] = useState(false);
 
-  const navigate = useNavigate();
   const currentUser = useAuthStore((s) => s.user);
   const currentUserAvatar =
     currentUser?.avatarUrl ||
@@ -292,13 +294,22 @@ export default function StoryUploadModal({ isOpen, onClose, onCreated }) {
       setIsPublishing(true);
       const isVideo = fileItem.type === "video";
       const mediaFrame = mediaFrameRef.current?.getBoundingClientRect();
+      const overlayEl = mediaFrameRef.current?.querySelector(".storyTextEditor__overlay");
+      const position = clampStoryTextPosition({
+        x: storyTextPosition.x,
+        y: storyTextPosition.y,
+        frameWidth: mediaFrame?.width,
+        frameHeight: mediaFrame?.height,
+        textWidth: overlayEl?.offsetWidth,
+        textHeight: overlayEl?.offsetHeight,
+      });
       const uploadFile = !isVideo && storyText.trim()
         ? await composeStoryImage({
             file: fileItem.file,
             text: storyText,
             color: storyTextColor,
             fontSize: storyTextSize,
-            position: storyTextPosition,
+            position,
             frameWidth: mediaFrame?.width,
             frameHeight: mediaFrame?.height,
           })
@@ -346,16 +357,8 @@ export default function StoryUploadModal({ isOpen, onClose, onCreated }) {
       className={`storyUploadModal ${fileItem ? "storyUploadModal--editorMode" : ""}`}
       role="dialog"
       aria-modal="true"
-      aria-label="Додати story"
+      aria-label={t("stories.createTitle")}
     >
-      <AppHeader
-        onGoProfile={() => navigate("/profile")}
-        onGoExplore={() => navigate("/search")}
-        onGoWallet={() => navigate("/wallet")}
-        onGoVipChat={() => navigate("/vip-chat")}
-        onGoHome={() => navigate("/first-page")}
-      />
-
       <div className="storyUploadModal__page">
         <div className="storyUploadModal__bgDots" aria-hidden="true" />
 
@@ -398,7 +401,7 @@ export default function StoryUploadModal({ isOpen, onClose, onCreated }) {
                   />
                 </button>
 
-                <h3 className="storyUploadModal__title">Дополнить историю</h3>
+                <h3 className="storyUploadModal__title">{t("stories.createTitle")}</h3>
 
                 <button
                   type="button"
@@ -413,29 +416,45 @@ export default function StoryUploadModal({ isOpen, onClose, onCreated }) {
                 </button>
               </div>
 
-              <div className="storyUploadModal__tools" aria-label="Story tools">
-                <button type="button" className="storyUploadModal__tool">
+              <div className="storyUploadModal__tools" aria-label={t("stories.tools")}>
+                <button
+                  type="button"
+                  className="storyUploadModal__tool"
+                  aria-label={t("stories.addText")}
+                  title={t("stories.addText")}
+                >
                   <span className="storyUploadModal__toolIcon storyUploadModal__toolIcon--text">
                     Aa
                   </span>
-                  <span>Текст</span>
                 </button>
 
-                <button type="button" className="storyUploadModal__tool">
+                <button
+                  type="button"
+                  className="storyUploadModal__tool"
+                  aria-label={t("stories.music")}
+                  title={t("stories.music")}
+                >
                   <span className="storyUploadModal__toolIcon">
                     <img src={profileIcons.storyMusic} alt="" />
                   </span>
-                  <span>Музыка</span>
                 </button>
 
-                <button type="button" className="storyUploadModal__tool">
+                <button
+                  type="button"
+                  className="storyUploadModal__tool"
+                  aria-label={t("stories.templates")}
+                  title={t("stories.templates")}
+                >
                   <img src={profileIcons.storyTemplate} alt="" />
-                  <span>Шаблоны</span>
                 </button>
 
-                <button type="button" className="storyUploadModal__tool">
+                <button
+                  type="button"
+                  className="storyUploadModal__tool"
+                  aria-label={t("stories.collage")}
+                  title={t("stories.collage")}
+                >
                   <img src={profileIcons.storyCollage} alt="" />
-                  <span>Коллаж</span>
                 </button>
               </div>
 
@@ -491,9 +510,13 @@ export default function StoryUploadModal({ isOpen, onClose, onCreated }) {
                       className={`storyUploadModal__editorTool ${isTextEditorOpen ? "storyUploadModal__editorTool--active" : ""}`}
                       onClick={() => setIsTextEditorOpen((prev) => !prev)}
                       disabled={fileItem.type !== "image" || isPublishing}
-                      aria-label="Добавить текст на фото"
+                      aria-label={t("stories.addText")}
                       aria-pressed={isTextEditorOpen}
-                      title={fileItem.type === "image" ? "Добавить текст" : "Текст доступен для фото"}
+                      title={
+                        fileItem.type === "image"
+                          ? t("stories.addText")
+                          : t("stories.textPhotoOnly")
+                      }
                     >
                       <span className="storyUploadModal__editorToolIcon storyUploadModal__editorToolIcon--text">
                         Aa
@@ -503,6 +526,8 @@ export default function StoryUploadModal({ isOpen, onClose, onCreated }) {
                     <button
                       type="button"
                       className="storyUploadModal__editorTool"
+                      aria-label={t("stories.stickers")}
+                      title={t("stories.stickers")}
                     >
                       <img src={profileIcons.storySticker} alt="" />
                     </button>
@@ -510,6 +535,8 @@ export default function StoryUploadModal({ isOpen, onClose, onCreated }) {
                     <button
                       type="button"
                       className="storyUploadModal__editorTool"
+                      aria-label={t("stories.music")}
+                      title={t("stories.music")}
                     >
                       <img src={profileIcons.storyEditorMusic} alt="" />
                     </button>
@@ -517,6 +544,8 @@ export default function StoryUploadModal({ isOpen, onClose, onCreated }) {
                     <button
                       type="button"
                       className="storyUploadModal__editorTool"
+                      aria-label={t("stories.draw")}
+                      title={t("stories.draw")}
                     >
                       <img src={profileIcons.storyBrush} alt="" />
                     </button>
@@ -524,6 +553,8 @@ export default function StoryUploadModal({ isOpen, onClose, onCreated }) {
                     <button
                       type="button"
                       className="storyUploadModal__editorTool storyUploadModal__editorTool--small"
+                      aria-label={t("common.back")}
+                      title={t("common.back")}
                     >
                       <img src={profileIcons.storyArrowFilled} alt="" />
                     </button>
@@ -553,6 +584,9 @@ export default function StoryUploadModal({ isOpen, onClose, onCreated }) {
                     />
                   )}
 
+                  <div className="storySafeMask storySafeMask--top" aria-hidden="true" />
+                  <div className="storySafeMask storySafeMask--bottom" aria-hidden="true" />
+
                   {fileItem.type === "image" && (
                     <StoryTextEditor
                       isOpen={isTextEditorOpen}
@@ -565,6 +599,8 @@ export default function StoryUploadModal({ isOpen, onClose, onCreated }) {
                       onColorChange={setStoryTextColor}
                       onFontSizeChange={setStoryTextSize}
                       onPositionChange={setStoryTextPosition}
+                      onClose={() => setIsTextEditorOpen(false)}
+                      onRequestOpen={() => setIsTextEditorOpen(true)}
                     />
                   )}
                 </div>

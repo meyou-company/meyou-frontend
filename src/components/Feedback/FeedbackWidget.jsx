@@ -21,6 +21,7 @@ import './FeedbackWidget.scss';
 
 const IMMERSIVE_SELECTORS = [
   '.storyViewer',
+  '.storyUploadModal',
   '.videoPlayerModal',
   '.callOverlay',
   '.gift-box-overlay',

@@ -933,8 +933,32 @@
     }
   },
   "stories": {
-    "yourStory": "Your story",
-    "closeFriends": "Close friends"
+    "yourStory": "Hikâyeniz",
+    "closeFriends": "Yakın arkadaşlar",
+    "createTitle": "Hikâyeye ekle",
+    "viewerLabel": "Hikâye görüntüleyici",
+    "close": "Kapat",
+    "more": "Daha fazla",
+    "views": "Görüntüleme",
+    "share": "Paylaş",
+    "mention": "Etiketle",
+    "delete": "Sil",
+    "deleteConfirm": "Bu hikâye silinsin mi?",
+    "saveMedia": "Fotoğrafı/videoyu kaydet",
+    "addText": "Metin",
+    "textPhotoOnly": "Metin yalnızca fotoğraflarda kullanılabilir",
+    "done": "Tamam",
+    "moveText": "Metni taşı",
+    "textPlaceholder": "Metniniz",
+    "fontSize": "Yazı boyutu",
+    "textColor": "Metin rengi",
+    "pickColor": "Renk {{color}}",
+    "tools": "Hikâye araçları",
+    "music": "Müzik",
+    "templates": "Şablonlar",
+    "collage": "Kolaj",
+    "stickers": "Çıkartmalar",
+    "draw": "Çiz"
   },
   "liveNotifications": {
     "started": "{{name}} canlı yayın başlattı"

@@ -933,8 +933,32 @@
     }
   },
   "stories": {
-    "yourStory": "Your story",
-    "closeFriends": "Close friends"
+    "yourStory": "Votre story",
+    "closeFriends": "Amis proches",
+    "createTitle": "Ajouter à la story",
+    "viewerLabel": "Lecteur de stories",
+    "close": "Fermer",
+    "more": "Plus",
+    "views": "Vues",
+    "share": "Partager",
+    "mention": "Mentionner",
+    "delete": "Supprimer",
+    "deleteConfirm": "Supprimer cette story ?",
+    "saveMedia": "Enregistrer la photo/vidéo",
+    "addText": "Texte",
+    "textPhotoOnly": "Le texte est disponible pour les photos",
+    "done": "OK",
+    "moveText": "Déplacer le texte",
+    "textPlaceholder": "Votre texte",
+    "fontSize": "Taille du texte",
+    "textColor": "Couleur du texte",
+    "pickColor": "Couleur {{color}}",
+    "tools": "Outils de story",
+    "music": "Musique",
+    "templates": "Modèles",
+    "collage": "Collage",
+    "stickers": "Stickers",
+    "draw": "Dessiner"
   },
   "liveNotifications": {
     "started": "{{name}} a démarré un direct"

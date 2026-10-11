@@ -933,8 +933,32 @@
     }
   },
   "stories": {
-    "yourStory": "Your story",
-    "closeFriends": "Close friends"
+    "yourStory": "Tu historia",
+    "closeFriends": "Amigos cercanos",
+    "createTitle": "Añadir a la historia",
+    "viewerLabel": "Visor de historias",
+    "close": "Cerrar",
+    "more": "Más",
+    "views": "Vistas",
+    "share": "Compartir",
+    "mention": "Mencionar",
+    "delete": "Eliminar",
+    "deleteConfirm": "¿Eliminar esta historia?",
+    "saveMedia": "Guardar foto/vídeo",
+    "addText": "Texto",
+    "textPhotoOnly": "El texto está disponible para fotos",
+    "done": "Listo",
+    "moveText": "Mover texto",
+    "textPlaceholder": "Tu texto",
+    "fontSize": "Tamaño del texto",
+    "textColor": "Color del texto",
+    "pickColor": "Color {{color}}",
+    "tools": "Herramientas de historia",
+    "music": "Música",
+    "templates": "Plantillas",
+    "collage": "Collage",
+    "stickers": "Stickers",
+    "draw": "Dibujar"
   },
   "liveNotifications": {
     "started": "{{name}} inició una transmisión en directo"

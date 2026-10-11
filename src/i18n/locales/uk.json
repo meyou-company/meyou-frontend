@@ -1013,7 +1013,31 @@
   },
   "stories": {
     "yourStory": "Ваша історія",
-    "closeFriends": "Близькі"
+    "closeFriends": "Близькі",
+    "createTitle": "Доповнити історію",
+    "viewerLabel": "Перегляд історії",
+    "close": "Закрити",
+    "more": "Більше",
+    "views": "Перегляди",
+    "share": "Поширити",
+    "mention": "Позначити",
+    "delete": "Видалити",
+    "deleteConfirm": "Видалити цю історію?",
+    "saveMedia": "Зберегти фото/відео",
+    "addText": "Текст",
+    "textPhotoOnly": "Текст доступний для фото",
+    "done": "Готово",
+    "moveText": "Перемістити текст",
+    "textPlaceholder": "Ваш текст",
+    "fontSize": "Розмір тексту",
+    "textColor": "Колір тексту",
+    "pickColor": "Колір {{color}}",
+    "tools": "Інструменти історії",
+    "music": "Музика",
+    "templates": "Шаблони",
+    "collage": "Колаж",
+    "stickers": "Стікери",
+    "draw": "Малювання"
   },
   "liveNotifications": {
     "started": "{{name}} розпочав(-ла) прямий ефір"

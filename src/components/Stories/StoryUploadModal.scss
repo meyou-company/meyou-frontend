@@ -1,12 +1,12 @@
 .storyUploadModal {
   position: fixed;
   inset: 0;
-  padding-top: 28px;
+  padding-top: max(8px, env(safe-area-inset-top));
   overflow-y: auto;
   background: #fff;
   color: #111;
   font-family: Montserrat, sans-serif;
-  z-index: 200;
+  z-index: 11010;
 }
 
 .storyUploadModal__page {
@@ -64,7 +64,7 @@
 
 .storyUploadModal__bgDots {
   position: fixed;
-  inset: 84px 0 0;
+  inset: 0;
   pointer-events: none;
   background:
     radial-gradient(circle at 3% 8%, rgba(245, 140, 207, 0.34) 0 18px, transparent 19px),
@@ -389,8 +389,13 @@
 
 .storyUploadModal__mediaFrame {
   position: relative;
-  width: 100%;
-  background: transparent;
+  width: min(100%, calc((100dvh - 240px) * 9 / 16));
+  margin-inline: auto;
+  aspect-ratio: 9 / 16;
+  height: auto;
+  max-height: calc(100dvh - 240px);
+  overflow: hidden;
+  background: #111;
 }
 
 .storyUploadModal__editorMedia {
@@ -400,9 +405,24 @@
   object-fit: cover;
 }
 
-.storyUploadModal__mediaFrame {
-  height: 470px;
-  overflow: hidden;
+.storySafeMask {
+  position: absolute;
+  left: 0;
+  right: 0;
+  z-index: 4;
+  pointer-events: none;
+}
+
+.storySafeMask--top {
+  top: 0;
+  height: 16%;
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.42), transparent);
+}
+
+.storySafeMask--bottom {
+  bottom: 0;
+  height: 12%;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.28), transparent);
 }
 
 .storyUploadModal__caption {
@@ -482,6 +502,39 @@
   background: rgba(16, 13, 22, 0.88);
   box-shadow: 0 8px 26px rgba(0, 0, 0, 0.28);
   backdrop-filter: blur(10px);
+}
+
+.storyTextEditor__controlsHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.storyTextEditor__close,
+.storyTextEditor__done {
+  border: 0;
+  background: transparent;
+  color: #fff;
+  cursor: pointer;
+  font-family: Montserrat, sans-serif;
+}
+
+.storyTextEditor__close {
+  width: 32px;
+  height: 32px;
+  font-size: 18px;
+  line-height: 1;
+}
+
+.storyTextEditor__done {
+  margin-left: auto;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.16);
+  font-size: 13px;
+  font-weight: 700;
 }
 
 .storyTextEditor__input {
@@ -695,7 +748,7 @@
   color: #111;
   font-family: Montserrat, sans-serif;
   font-size: 18px;
-  font-weight: 800;
+  font-weight: 500;
   display: inline-flex;
   align-items: center;
   gap: 12px;
@@ -1108,7 +1161,7 @@
   }
 
   .storyUploadModal--editorMode .storyUploadModal__editor {
-    padding-bottom: 56px;
+    padding-bottom: 0;
   }
 }
 
@@ -1142,7 +1195,7 @@
   }
 
   .storyUploadModal--editorMode .storyUploadModal__editor {
-    padding-bottom: 42px;
+    padding-bottom: 0;
   }
 }
 
@@ -1158,48 +1211,18 @@
 
 .storyUploadModal__editorMedia {
   display: block;
-  max-width: 100%;
-  max-height: 100%;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
   background: transparent;
 }
 
-/* вертикальное фото/медиа — аккуратно вмещаем в story-frame */
 .storyUploadModal__mediaFrame--portrait .storyUploadModal__editorMedia,
-.storyUploadModal__mediaFrame--unknown .storyUploadModal__editorMedia {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-}
-
-/* горизонтальное фото — растягиваем по ширине, высота естественная */
+.storyUploadModal__mediaFrame--unknown .storyUploadModal__editorMedia,
 .storyUploadModal__mediaFrame--landscape .storyUploadModal__editorMedia {
   width: 100%;
-  height: auto;
-  max-height: 100%;
-  object-fit: contain;
-}
-
-@media (max-width: 425px) {
-
-  .storyUploadModal__mediaFrame--portrait,
-  .storyUploadModal__mediaFrame--unknown {
-    align-items: center;
-    justify-content: stretch;
-  }
-
-  .storyUploadModal__mediaFrame--portrait .storyUploadModal__editorMedia,
-  .storyUploadModal__mediaFrame--unknown .storyUploadModal__editorMedia {
-    width: 100% !important;
-    min-width: 100%;
-    height: auto !important;
-    max-height: none;
-    object-fit: cover;
-  }
-
-  .storyUploadModal__mediaFrame--portrait video.storyUploadModal__editorMedia,
-  .storyUploadModal__mediaFrame--unknown video.storyUploadModal__editorMedia {
-    height: auto !important;
-  }
+  height: 100%;
+  object-fit: cover;
 }
 
 .storyUploadModal--editorMode {
@@ -1207,7 +1230,7 @@
 }
 
 .storyUploadModal--editorMode .storyUploadModal__page {
-  height: calc(100dvh - 84px);
+  height: 100%;
   min-height: 0;
   overflow: hidden;
 }
@@ -1240,9 +1263,11 @@
 }
 
 .storyUploadModal--editorMode .storyUploadModal__mediaFrame {
-  flex: 1;
-  min-height: 0;
+  flex: 0 1 auto;
+  width: min(100%, calc((100dvh - 240px) * 9 / 16));
+  aspect-ratio: 9 / 16;
   height: auto;
+  max-height: calc(100dvh - 240px);
 }
 
 .storyUploadModal--editorMode .storyUploadModal__caption {
@@ -1257,7 +1282,7 @@
 
 @media (max-width: 767px) {
   .storyUploadModal--editorMode .storyUploadModal__page {
-    height: calc(100dvh - 76px);
+    height: 100%;
   }
 
   .storyUploadModal--editorMode .storyUploadModal__content--editor {

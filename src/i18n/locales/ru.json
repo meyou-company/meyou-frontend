@@ -974,8 +974,32 @@
     }
   },
   "stories": {
-    "yourStory": "Your story",
-    "closeFriends": "Close friends"
+    "yourStory": "Ваша история",
+    "closeFriends": "Близкие",
+    "createTitle": "Дополнить историю",
+    "viewerLabel": "Просмотр истории",
+    "close": "Закрыть",
+    "more": "Ещё",
+    "views": "Просмотры",
+    "share": "Поделиться",
+    "mention": "Отметить",
+    "delete": "Удалить",
+    "deleteConfirm": "Удалить эту историю?",
+    "saveMedia": "Сохранить фото/видео",
+    "addText": "Текст",
+    "textPhotoOnly": "Текст доступен для фото",
+    "done": "Готово",
+    "moveText": "Переместить текст",
+    "textPlaceholder": "Ваш текст",
+    "fontSize": "Размер текста",
+    "textColor": "Цвет текста",
+    "pickColor": "Цвет {{color}}",
+    "tools": "Инструменты истории",
+    "music": "Музыка",
+    "templates": "Шаблоны",
+    "collage": "Коллаж",
+    "stickers": "Стикеры",
+    "draw": "Рисование"
   },
   "liveNotifications": {
     "started": "{{name}} начал(-а) прямой эфир"
