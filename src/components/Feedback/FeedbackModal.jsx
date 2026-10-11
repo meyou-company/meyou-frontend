@@ -31,6 +31,19 @@ function typeMeta(typeId) {
   return FEEDBACK_TYPES.find((item) => item.id === typeId) || FEEDBACK_TYPES[0];
 }
 
+function ModalCloseButton({ onClose, t }) {
+  return (
+    <button
+      type="button"
+      className="feedbackModal__close"
+      onClick={onClose}
+      aria-label={t('feedback.close')}
+    >
+      ×
+    </button>
+  );
+}
+
 function formatWhen(value) {
   if (!value) return '';
   try {
@@ -254,6 +267,7 @@ export default function FeedbackModal({ isOpen, onClose, returnFocusRef }) {
             items={mine}
             loading={mineLoading}
             onBack={() => setView('compose')}
+            onClose={onClose}
             onOpen={(id) => setView('detail', id)}
             t={t}
           />
@@ -264,6 +278,7 @@ export default function FeedbackModal({ isOpen, onClose, returnFocusRef }) {
             loading={detailLoading}
             currentUserId={currentUserId}
             onBack={() => setView('list')}
+            onClose={onClose}
             t={t}
           />
         ) : success ? (
@@ -290,13 +305,16 @@ export default function FeedbackModal({ isOpen, onClose, returnFocusRef }) {
               <h2 id={titleId} className="feedbackModal__title">
                 {t('feedback.title')}
               </h2>
-              <button
-                type="button"
-                className="feedbackModal__textLink"
-                onClick={() => setView('list')}
-              >
-                {t('feedback.mine.title')}
-              </button>
+              <div className="feedbackModal__topActions">
+                <button
+                  type="button"
+                  className="feedbackModal__textLink"
+                  onClick={() => setView('list')}
+                >
+                  {t('feedback.mine.title')}
+                </button>
+                <ModalCloseButton onClose={onClose} t={t} />
+              </div>
             </div>
             <p id="feedback-modal-intro" className="feedbackModal__intro">
               {t('feedback.intro')}
@@ -380,13 +398,14 @@ export default function FeedbackModal({ isOpen, onClose, returnFocusRef }) {
   );
 }
 
-function MineList({ titleId, items, loading, onBack, onOpen, t }) {
+function MineList({ titleId, items, loading, onBack, onClose, onOpen, t }) {
   return (
     <div>
       <div className="feedbackModal__topRow">
         <button type="button" className="feedbackModal__textLink" onClick={onBack}>
           {t('common.back')}
         </button>
+        <ModalCloseButton onClose={onClose} t={t} />
       </div>
       <h2 id={titleId} className="feedbackModal__title">
         {t('feedback.mine.title')}
@@ -434,13 +453,16 @@ function statusKey(status) {
   return 'new';
 }
 
-function MineDetail({ titleId, detail, loading, currentUserId, onBack, t }) {
+function MineDetail({ titleId, detail, loading, currentUserId, onBack, onClose, t }) {
   if (loading || !detail) {
     return (
       <div>
-        <button type="button" className="feedbackModal__textLink" onClick={onBack}>
-          {t('common.back')}
-        </button>
+        <div className="feedbackModal__topRow">
+          <button type="button" className="feedbackModal__textLink" onClick={onBack}>
+            {t('common.back')}
+          </button>
+          <ModalCloseButton onClose={onClose} t={t} />
+        </div>
         <p className="feedbackModal__intro">{t('common.loading')}</p>
       </div>
     );
@@ -453,7 +475,10 @@ function MineDetail({ titleId, detail, loading, currentUserId, onBack, t }) {
         <button type="button" className="feedbackModal__textLink" onClick={onBack}>
           {t('common.back')}
         </button>
-        <small>{t(`feedback.status.${statusKey(detail.status)}`)}</small>
+        <div className="feedbackModal__topActions">
+          <small>{t(`feedback.status.${statusKey(detail.status)}`)}</small>
+          <ModalCloseButton onClose={onClose} t={t} />
+        </div>
       </div>
       <h2 id={titleId} className="feedbackModal__title">
         <span aria-hidden="true">{meta.emoji}</span> {t(meta.labelKey)}

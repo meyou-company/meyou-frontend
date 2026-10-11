@@ -244,6 +244,13 @@
   margin-bottom: 0;
 }
 
+.feedbackModal__topActions {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  flex: 0 0 auto;
+}
+
 .feedbackModal__textLink {
   flex: 0 0 auto;
   border: 0;
@@ -255,6 +262,28 @@
   cursor: pointer;
   padding: 4px 0;
   white-space: nowrap;
+}
+
+.feedbackModal__close {
+  display: none;
+  flex: 0 0 auto;
+  width: 44px;
+  height: 44px;
+  margin: -8px -6px -8px 0;
+  border: 0;
+  border-radius: 12px;
+  background: transparent;
+  color: #3a1d63;
+  font-size: 28px;
+  line-height: 1;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+}
+
+.feedbackModal__close:focus-visible {
+  outline: 2px solid #8f68dc;
+  outline-offset: 2px;
 }
 
 .feedbackModal__rowBtns {
@@ -379,7 +408,9 @@ body.dark .feedbackThread__bubble {
 html[data-theme='dark'] .feedbackThread__bubble--team,
 body.dark .feedbackThread__bubble--team,
 html[data-theme='dark'] .feedbackModal__textLink,
-body.dark .feedbackModal__textLink {
+body.dark .feedbackModal__textLink,
+html[data-theme='dark'] .feedbackModal__close,
+body.dark .feedbackModal__close {
   color: #e3ccff;
 }
 
@@ -412,6 +443,14 @@ body.dark .feedbackThread__bubble--team {
 
   .feedbackModal__details textarea {
     min-height: 120px;
+  }
+
+  .feedbackModal__close {
+    display: inline-flex;
+  }
+
+  .feedbackModal__topRow {
+    align-items: center;
   }
 }
 
