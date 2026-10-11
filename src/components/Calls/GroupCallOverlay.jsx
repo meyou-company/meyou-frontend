@@ -95,6 +95,16 @@ function avatarFor(call, identity) {
   return users.find((u) => u?.id === identity)?.avatarUrl || null;
 }
 
+function getGroupGridCols(count, narrow) {
+  const n = Math.max(1, Number(count) || 1);
+  if (n === 1) return 1;
+  if (n === 2) return narrow ? 1 : 2;
+  if (n <= 4) return 2;
+  if (narrow) return n <= 6 ? 2 : 3;
+  if (n <= 9) return 3;
+  return Math.min(4, Math.ceil(Math.sqrt(n)));
+}
+
 function isScreenShareSource(source) {
   return (
     source === Track.Source.ScreenShare ||
@@ -324,6 +334,11 @@ export default function GroupCallOverlay({
   const [speakerSupported, setSpeakerSupported] = useState(false);
   const [audioOutputs, setAudioOutputs] = useState([]);
   const [cameraError, setCameraError] = useState(null);
+  const [narrowViewport, setNarrowViewport] = useState(() =>
+    typeof window !== 'undefined'
+      ? window.matchMedia('(max-width: 720px)').matches
+      : false,
+  );
 
   useEffect(() => {
     tRef.current = t;
@@ -525,6 +540,14 @@ export default function GroupCallOverlay({
   }, [cameraEnabled]);
 
   useEffect(() => {
+    const mq = window.matchMedia('(max-width: 720px)');
+    const apply = () => setNarrowViewport(mq.matches);
+    apply();
+    mq.addEventListener('change', apply);
+    return () => mq.removeEventListener('change', apply);
+  }, []);
+
+  useEffect(() => {
     const supported = Boolean(
       typeof HTMLMediaElement !== 'undefined' &&
         HTMLMediaElement.prototype.setSinkId,
@@ -597,7 +620,9 @@ export default function GroupCallOverlay({
         ? 'messenger.calls.groupVideoRoom'
         : 'messenger.calls.groupAudioRoom',
     );
-  const count = tiles.length || call?.participantCount || 1;
+  const count = tiles.length || 1;
+  const gridCols = getGroupGridCols(count, narrowViewport);
+  const hasScreenShare = screenShares.length > 0;
 
   const body = (
     <div
@@ -627,7 +652,7 @@ export default function GroupCallOverlay({
       ) : (
         <div
           className={`callActive callActive--group${
-            screenShares.length ? ' has-screen' : ''
+            hasScreenShare ? ' has-screen' : ''
           }`}
         >
           <div className="callGroup__top">
@@ -646,25 +671,35 @@ export default function GroupCallOverlay({
             </button>
           </div>
 
-          {screenShares.map((share) => (
-            <ScreenSharePane
-              key={`share-${share.identity}`}
-              share={share}
-              youLabel={t('messenger.calls.you')}
-              sharingLabel={t('messenger.calls.screenShare')}
-            />
-          ))}
+          <div className="callGroup__stage">
+            {hasScreenShare ? (
+              <div className="callGroup__screenStage">
+                {screenShares.map((share) => (
+                  <ScreenSharePane
+                    key={`share-${share.identity}`}
+                    share={share}
+                    youLabel={t('messenger.calls.you')}
+                    sharingLabel={t('messenger.calls.screenShare')}
+                  />
+                ))}
+              </div>
+            ) : null}
 
-          <div className={`callGroupGrid${isVideo ? ' is-video' : ' is-audio'}`}>
-            {tiles.map((tile) => (
-              <ParticipantTile
-                key={tile.identity}
-                tile={tile}
-                speaking={speakingIds.has(tile.identity)}
-                showVideo={isVideo}
-                youLabel={t('messenger.calls.you')}
-              />
-            ))}
+            <div
+              className={`callGroupGrid${isVideo ? ' is-video' : ' is-audio'}`}
+              data-count={count}
+              style={{ '--group-cols': gridCols }}
+            >
+              {tiles.map((tile) => (
+                <ParticipantTile
+                  key={tile.identity}
+                  tile={tile}
+                  speaking={speakingIds.has(tile.identity)}
+                  showVideo={isVideo}
+                  youLabel={t('messenger.calls.you')}
+                />
+              ))}
+            </div>
           </div>
 
           <div className="callActive__footer">

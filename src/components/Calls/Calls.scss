@@ -430,20 +430,43 @@
   opacity: 0.8;
 }
 
+.callOverlay--group:not(.is-mini) {
+  padding: 0;
+  align-items: stretch;
+  justify-content: stretch;
+}
+
 .callActive--group {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
   background: #120a1c;
 }
 
 .callGroup__top {
   position: relative;
   z-index: 3;
-  padding: max(16px, env(safe-area-inset-top)) 16px 8px;
+  flex: 0 0 auto;
+  padding: max(10px, env(safe-area-inset-top)) 16px 8px;
   text-align: center;
   color: #fff;
+
+  .callOverlay__name {
+    margin: 0 0 4px;
+    font-size: 16px;
+    font-weight: 600;
+  }
+
+  .callOverlay__hint {
+    margin: 0 0 6px;
+    font-size: 13px;
+  }
 }
 
 .callGroup__back {
-  margin-top: 8px;
+  margin-top: 4px;
   border: none;
   border-radius: 999px;
   padding: 6px 12px;
@@ -453,17 +476,27 @@
   cursor: pointer;
 }
 
-.callActive--group.has-screen .callGroupGrid {
-  flex: 0 0 auto;
-  max-height: 28vh;
-  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+.callGroup__stage {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 0 12px;
+}
+
+.callGroup__screenStage {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
 .callGroupScreen {
   position: relative;
-  flex: 1.6;
-  min-height: 180px;
-  margin: 0 12px 8px;
+  flex: 1 1 auto;
+  min-height: 0;
   border-radius: 16px;
   overflow: hidden;
   background: #000;
@@ -473,7 +506,6 @@
   display: block;
   width: 100%;
   height: 100%;
-  max-height: 52vh;
   object-fit: contain;
   background: #000;
 }
@@ -489,39 +521,54 @@
 }
 
 .callGroupGrid {
-  flex: 1;
+  flex: 1 1 auto;
   min-height: 0;
   display: grid;
   gap: 8px;
-  padding: 8px 12px 120px;
-  overflow: auto;
-  align-content: start;
+  overflow: hidden;
+  align-content: stretch;
+  justify-content: stretch;
+  grid-template-columns: repeat(var(--group-cols, 1), minmax(0, 1fr));
+  grid-auto-rows: minmax(0, 1fr);
+}
 
-  &.is-audio {
-    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-  }
+.callActive--group.has-screen .callGroupGrid {
+  flex: 0 0 auto;
+  max-height: min(22vh, 160px);
+  overflow-x: auto;
+  overflow-y: hidden;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(96px, 22vw);
+  grid-template-columns: none;
+  grid-auto-rows: minmax(72px, min(18vh, 140px));
+}
 
-  &.is-video {
-    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-  }
+.callActive--group .callActive__footer {
+  position: relative;
+  left: auto;
+  right: auto;
+  bottom: auto;
+  flex: 0 0 auto;
+  z-index: 4;
+  padding: 8px 16px max(12px, env(safe-area-inset-bottom));
+  pointer-events: auto;
 }
 
 .callGroupTile {
   position: relative;
-  min-height: 120px;
+  min-width: 0;
+  min-height: 0;
+  width: 100%;
+  height: 100%;
   border-radius: 16px;
   overflow: hidden;
-  background: rgba(255, 255, 255, 0.06);
+  background: #0c0614;
   display: flex;
   align-items: center;
   justify-content: center;
 
   &.is-speaking {
     box-shadow: 0 0 0 3px #3ecf8e;
-  }
-
-  &.is-audio {
-    min-height: 140px;
   }
 }
 
@@ -530,7 +577,8 @@
   inset: 0;
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
+  background: #0c0614;
 
   &.is-hidden {
     display: none;
@@ -538,16 +586,18 @@
 }
 
 .callGroupTile__avatar {
-  width: 72px;
-  height: 72px;
+  width: min(28%, 96px);
+  height: min(28%, 96px);
+  min-width: 56px;
+  min-height: 56px;
   border-radius: 50%;
   overflow: hidden;
   background: rgba(255, 255, 255, 0.12);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 28px;
-  font-weight: 700;
+  font-size: clamp(20px, 4vw, 36px);
+  font-weight: 600;
   color: #fff;
 
   img {
@@ -559,23 +609,28 @@
 
 .callGroupTile__name {
   position: absolute;
-  left: 8px;
-  right: 8px;
-  bottom: 8px;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 18px 10px 8px;
   font-size: 12px;
+  font-weight: 500;
   color: #fff;
+  text-align: left;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.62), transparent);
   text-shadow: 0 1px 6px rgba(0, 0, 0, 0.6);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  pointer-events: none;
 }
 
-@media (max-width: 768px) {
-  .callOverlay--group:not(.is-mini) {
-    padding: 0;
+@media (max-width: 720px) {
+  .callGroup__stage {
+    padding: 0 8px;
   }
 
-  .callGroupGrid.is-video {
-    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  .callGroupTile {
+    border-radius: 12px;
   }
 }
