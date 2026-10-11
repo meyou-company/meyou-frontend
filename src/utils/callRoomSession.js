@@ -314,3 +314,13 @@ export function createDefaultCallRoom() {
     audioCaptureDefaults: { autoGainControl: true, echoCancellation: true },
   });
 }
+
+/** Group grid resizes often; adaptiveStream would unsubscribe cameras mid-layout. */
+export function createGroupCallRoom() {
+  return new Room({
+    adaptiveStream: false,
+    dynacast: true,
+    disconnectOnPageLeave: false,
+    audioCaptureDefaults: { autoGainControl: true, echoCancellation: true },
+  });
+}

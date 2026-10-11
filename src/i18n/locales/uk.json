@@ -788,6 +788,12 @@
       "groupVideoStarted": "У групі LunMeYo почалася відеокімната",
       "groupRoomEnded": "Кімната завершилась",
       "screenShare": "Демонстрація екрана",
+      "stopScreenShare": "Зупинити демонстрацію",
+      "screenShareUnsupported": "Цей браузер не підтримує демонстрацію екрана",
+      "screenShareInsecure": "Для демонстрації екрана потрібне захищене з’єднання (HTTPS)",
+      "screenSharePermissionDenied": "Дозвіл на демонстрацію екрана відхилено",
+      "screenShareNotConnected": "Зачекайте підключення до дзвінка й спробуйте ще раз",
+      "screenShareFailed": "Не вдалося почати демонстрацію екрана",
       "speaker": "Динамік"
     }
   },

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import {
@@ -13,7 +13,7 @@ import {
 import { ConnectionState, ParticipantEvent, RoomEvent, Track } from 'livekit-client';
 import {
   adoptSharedCallRoom,
-  createDefaultCallRoom,
+  createGroupCallRoom,
   getSharedCallRoomSession,
   isCameraNotReadableError,
   isCameraStartInFlight,
@@ -53,34 +53,79 @@ function mapConnectError(err, t) {
   return t('messenger.calls.connectFailed');
 }
 
+function userIdOf(user) {
+  return user?.id || user?.userId || '';
+}
+
+function usersFromCall(call) {
+  const list = [];
+  const add = (user) => {
+    const id = userIdOf(user);
+    if (!id || list.some((row) => row.id === id)) return;
+    list.push({
+      id,
+      name: displayName(user, id),
+      avatarUrl: user?.avatarUrl || null,
+    });
+  };
+  add(call?.caller);
+  if (Array.isArray(call?.participants)) {
+    for (const row of call.participants) {
+      add(row?.id ? row : row?.user);
+    }
+  }
+  return list;
+}
+
 function collectParticipantTiles(room, localUserId, call) {
-  if (!room) return [];
   const tiles = [];
   const seen = new Set();
-  const local = room.localParticipant;
-  if (local) {
-    const identity = local.identity || localUserId || 'local';
+  const roster = usersFromCall(call);
+  const livekitById = new Map();
+  const local = room?.localParticipant;
+  const localIdentity = local?.identity || localUserId || '';
+  if (local && localIdentity) {
+    livekitById.set(localIdentity, { participant: local, isLocal: true });
+  }
+  if (room?.remoteParticipants) {
+    for (const remote of room.remoteParticipants.values()) {
+      if (!remote?.identity || livekitById.has(remote.identity)) continue;
+      livekitById.set(remote.identity, { participant: remote, isLocal: false });
+    }
+  }
+
+  const pushTile = (identity, isLocal, participant) => {
+    if (!identity || seen.has(identity)) return;
     seen.add(identity);
+    const rosterUser = roster.find((user) => user.id === identity);
     tiles.push({
       identity,
-      name: local.name || tFallback(call, localUserId, local.identity),
-      avatarUrl: avatarFor(call, identity),
-      isLocal: true,
-      participant: local,
+      name:
+        participant?.name ||
+        rosterUser?.name ||
+        tFallback(call, identity, identity),
+      avatarUrl: rosterUser?.avatarUrl || avatarFor(call, identity),
+      isLocal,
+      participant: participant || null,
     });
+  };
+
+  if (localIdentity) {
+    pushTile(localIdentity, true, local || null);
+  } else if (localUserId) {
+    pushTile(localUserId, true, null);
   }
-  for (const remote of room.remoteParticipants.values()) {
-    const identity = remote.identity;
-    if (!identity || seen.has(identity)) continue;
-    seen.add(identity);
-    tiles.push({
-      identity,
-      name: remote.name || tFallback(call, identity, identity),
-      avatarUrl: avatarFor(call, identity),
-      isLocal: false,
-      participant: remote,
-    });
+
+  for (const [identity, entry] of livekitById) {
+    if (identity === localIdentity) continue;
+    pushTile(identity, false, entry.participant);
   }
+
+  for (const user of roster) {
+    if (user.id === localIdentity || user.id === localUserId) continue;
+    pushTile(user.id, false, livekitById.get(user.id)?.participant || null);
+  }
+
   tiles.sort((a, b) => {
     if (a.isLocal !== b.isLocal) return a.isLocal ? -1 : 1;
     return String(a.identity).localeCompare(String(b.identity));
@@ -88,36 +133,26 @@ function collectParticipantTiles(room, localUserId, call) {
   return tiles;
 }
 
-function isCameraPublication(pub) {
-  if (!pub || isScreenShareSource(pub.source)) return false;
-  return pub.source === Track.Source.Camera || pub.kind === Track.Kind.Video;
+function cameraPublication(participant) {
+  return participant?.getTrackPublication?.(Track.Source.Camera) || null;
 }
 
-function isMicrophonePublication(pub) {
-  if (!pub || isScreenShareSource(pub.source)) return false;
-  return (
-    pub.source === Track.Source.Microphone || pub.kind === Track.Kind.Audio
-  );
-}
-
-function publicationHasLiveVideo(pub) {
-  if (!isCameraPublication(pub) || !pub.track) return false;
+function publicationHasLiveCamera(pub) {
+  if (!pub || pub.source !== Track.Source.Camera || !pub.track) return false;
   const readyState = pub.track.mediaStreamTrack?.readyState;
   return !pub.isMuted && readyState !== 'ended';
 }
 
 function ensureRemoteCameraSubscribed(participant) {
-  if (!participant?.trackPublications) return;
-  participant.trackPublications.forEach((pub) => {
-    if (!isCameraPublication(pub)) return;
-    if (pub.isSubscribed === false && typeof pub.setSubscribed === 'function') {
-      try {
-        pub.setSubscribed(true);
-      } catch {
-        /* ignore */
-      }
+  const pub = cameraPublication(participant);
+  if (!pub || pub.isSubscribed !== false) return;
+  if (typeof pub.setSubscribed === 'function') {
+    try {
+      pub.setSubscribed(true);
+    } catch {
+      /* ignore */
     }
-  });
+  }
 }
 
 function detachTrackFromElement(track, element) {
@@ -129,21 +164,35 @@ function detachTrackFromElement(track, element) {
   }
 }
 
+function screenShareSupport() {
+  if (typeof window === 'undefined' || typeof navigator === 'undefined') {
+    return { ok: false, reason: 'unsupported' };
+  }
+  if (!window.isSecureContext) return { ok: false, reason: 'insecure' };
+  if (typeof navigator.mediaDevices?.getDisplayMedia !== 'function') {
+    return { ok: false, reason: 'unsupported' };
+  }
+  return { ok: true, reason: '' };
+}
+
+function isScreenShareCancelError(error) {
+  const name = String(error?.name || '');
+  const message = String(error?.message || '').toLowerCase();
+  return (
+    name === 'AbortError' ||
+    message.includes('abort') ||
+    message.includes('cancel') ||
+    message.includes('dismiss')
+  );
+}
+
 function tFallback(call, identity, fallback) {
-  const users = [
-    call?.caller,
-    ...(Array.isArray(call?.participants) ? call.participants : []),
-  ];
-  const match = users.find((u) => u?.id === identity);
-  return displayName(match, fallback);
+  const match = usersFromCall(call).find((user) => user.id === identity);
+  return match?.name || fallback;
 }
 
 function avatarFor(call, identity) {
-  const users = [
-    call?.caller,
-    ...(Array.isArray(call?.participants) ? call.participants : []),
-  ];
-  return users.find((u) => u?.id === identity)?.avatarUrl || null;
+  return usersFromCall(call).find((user) => user.id === identity)?.avatarUrl || null;
 }
 
 function getGroupGridCols(count, narrow) {
@@ -208,50 +257,65 @@ function bindParticipantMedia(participant, onChange) {
   };
 }
 
-function ParticipantTile({ tile, speaking, youLabel }) {
+function ParticipantTile({ tile, speaking, youLabel, layoutKey }) {
   const videoRef = useRef(null);
   const audioRef = useRef(null);
   const [hasVideo, setHasVideo] = useState(false);
+  const participantSid = tile.participant?.sid || '';
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const participant = tile.participant;
-    if (!participant) return undefined;
 
-    const attach = () => {
-      if (!tile.isLocal) ensureRemoteCameraSubscribed(participant);
-      let video = false;
-      participant.trackPublications.forEach((pub) => {
-        if (!pub.track) return;
-        if (isCameraPublication(pub) && videoRef.current) {
-          pub.track.attach(videoRef.current);
-          if (publicationHasLiveVideo(pub)) video = true;
-        }
-        if (
-          isMicrophonePublication(pub) &&
-          !tile.isLocal &&
-          audioRef.current
-        ) {
-          pub.track.attach(audioRef.current);
-        }
-      });
-      setHasVideo(video);
-    };
-
-    attach();
-    const unbind = bindParticipantMedia(participant, attach);
-    return () => {
-      unbind();
+    const sync = () => {
       const videoEl = videoRef.current;
       const audioEl = audioRef.current;
-      participant.trackPublications.forEach((pub) => {
-        if (isCameraPublication(pub)) {
-          detachTrackFromElement(pub.track, videoEl);
-        } else if (isMicrophonePublication(pub)) {
-          detachTrackFromElement(pub.track, audioEl);
-        }
-      });
+      if (!participant) {
+        setHasVideo(false);
+        return;
+      }
+      if (!tile.isLocal) ensureRemoteCameraSubscribed(participant);
+      const cam = cameraPublication(participant);
+      if (cam?.track && videoEl) {
+        cam.track.attach(videoEl);
+      }
+      const live = publicationHasLiveCamera(cam);
+      setHasVideo(live);
+      if (tile.isLocal) {
+        console.log('GROUP LOCAL CAMERA DISPLAY', {
+          identity: tile.identity,
+          hasVideo: live,
+          pubMuted: cam?.isMuted ?? null,
+          readyState: cam?.track?.mediaStreamTrack?.readyState ?? null,
+          attached: Boolean(videoEl?.srcObject),
+          trackSid: cam?.trackSid ?? cam?.track?.sid ?? null,
+        });
+      }
+      if (!tile.isLocal) {
+        const mic = participant.getTrackPublication?.(Track.Source.Microphone);
+        if (mic?.track && audioEl) mic.track.attach(audioEl);
+      }
     };
-  }, [tile.participant, tile.isLocal, tile.identity]);
+
+    sync();
+    if (!participant) return undefined;
+    const unbind = bindParticipantMedia(participant, sync);
+    return () => {
+      unbind();
+      const cam = cameraPublication(participant);
+      detachTrackFromElement(cam?.track, videoRef.current);
+      const mic = participant.getTrackPublication?.(Track.Source.Microphone);
+      detachTrackFromElement(mic?.track, audioRef.current);
+    };
+  }, [tile.identity, tile.isLocal, participantSid]);
+
+  useLayoutEffect(() => {
+    const participant = tile.participant;
+    const videoEl = videoRef.current;
+    const cam = cameraPublication(participant);
+    if (cam?.track && videoEl) {
+      cam.track.attach(videoEl);
+    }
+  }, [layoutKey, tile.identity, participantSid]);
 
   return (
     <div
@@ -388,6 +452,8 @@ export default function GroupCallOverlay({
   const [speakerSupported, setSpeakerSupported] = useState(false);
   const [audioOutputs, setAudioOutputs] = useState([]);
   const [cameraError, setCameraError] = useState(null);
+  const [screenShareError, setScreenShareError] = useState(null);
+  const [screenShareBusy, setScreenShareBusy] = useState(false);
   const [narrowViewport, setNarrowViewport] = useState(() =>
     typeof window !== 'undefined'
       ? window.matchMedia('(max-width: 720px)').matches
@@ -428,11 +494,11 @@ export default function GroupCallOverlay({
       url,
       token,
       roomName,
-      createRoom: createDefaultCallRoom,
+      createRoom: createGroupCallRoom,
     });
     roomRef.current = room;
 
-    const syncMedia = () => {
+    const syncParticipants = () => {
       setTiles(
         collectParticipantTiles(
           room,
@@ -440,6 +506,9 @@ export default function GroupCallOverlay({
           callRef.current,
         ),
       );
+    };
+
+    const syncScreen = () => {
       setScreenShares(
         collectScreenShares(room, callRef.current, localUserIdRef.current),
       );
@@ -458,12 +527,22 @@ export default function GroupCallOverlay({
       }
     };
 
+    const syncRoster = () => {
+      syncParticipants();
+      syncScreen();
+    };
+
+    const onScreenTrack = (trackOrPub, maybePub) => {
+      const source = maybePub?.source || trackOrPub?.source;
+      if (isScreenShareSource(source)) syncScreen();
+    };
+
     const markConnected = () => {
       if (cancelled || connectGenRef.current !== gen) return;
       setIsConnected(true);
       setStatusLabel(tRef.current('messenger.calls.inCall'));
       onConnectionStatusRef.current?.('connected');
-      syncMedia();
+      syncRoster();
     };
 
     const onConnection = (state) => {
@@ -484,16 +563,14 @@ export default function GroupCallOverlay({
 
     room.on(RoomEvent.Connected, markConnected);
     room.on(RoomEvent.ConnectionStateChanged, onConnection);
-    room.on(RoomEvent.ParticipantConnected, syncMedia);
-    room.on(RoomEvent.ParticipantDisconnected, syncMedia);
-    room.on(RoomEvent.TrackSubscribed, syncMedia);
-    room.on(RoomEvent.TrackUnsubscribed, syncMedia);
-    room.on(RoomEvent.TrackPublished, syncMedia);
-    room.on(RoomEvent.TrackUnpublished, syncMedia);
-    room.on(RoomEvent.TrackMuted, syncMedia);
-    room.on(RoomEvent.TrackUnmuted, syncMedia);
-    room.on(RoomEvent.LocalTrackPublished, syncMedia);
-    room.on(RoomEvent.LocalTrackUnpublished, syncMedia);
+    room.on(RoomEvent.ParticipantConnected, syncRoster);
+    room.on(RoomEvent.ParticipantDisconnected, syncRoster);
+    room.on(RoomEvent.TrackSubscribed, onScreenTrack);
+    room.on(RoomEvent.TrackUnsubscribed, onScreenTrack);
+    room.on(RoomEvent.TrackPublished, onScreenTrack);
+    room.on(RoomEvent.TrackUnpublished, onScreenTrack);
+    room.on(RoomEvent.LocalTrackPublished, onScreenTrack);
+    room.on(RoomEvent.LocalTrackUnpublished, onScreenTrack);
     room.on(RoomEvent.ActiveSpeakersChanged, onSpeakers);
 
     (async () => {
@@ -543,16 +620,14 @@ export default function GroupCallOverlay({
       cancelled = true;
       room.off(RoomEvent.Connected, markConnected);
       room.off(RoomEvent.ConnectionStateChanged, onConnection);
-      room.off(RoomEvent.ParticipantConnected, syncMedia);
-      room.off(RoomEvent.ParticipantDisconnected, syncMedia);
-      room.off(RoomEvent.TrackSubscribed, syncMedia);
-      room.off(RoomEvent.TrackUnsubscribed, syncMedia);
-      room.off(RoomEvent.TrackPublished, syncMedia);
-      room.off(RoomEvent.TrackUnpublished, syncMedia);
-      room.off(RoomEvent.TrackMuted, syncMedia);
-      room.off(RoomEvent.TrackUnmuted, syncMedia);
-      room.off(RoomEvent.LocalTrackPublished, syncMedia);
-      room.off(RoomEvent.LocalTrackUnpublished, syncMedia);
+      room.off(RoomEvent.ParticipantConnected, syncRoster);
+      room.off(RoomEvent.ParticipantDisconnected, syncRoster);
+      room.off(RoomEvent.TrackSubscribed, onScreenTrack);
+      room.off(RoomEvent.TrackUnsubscribed, onScreenTrack);
+      room.off(RoomEvent.TrackPublished, onScreenTrack);
+      room.off(RoomEvent.TrackUnpublished, onScreenTrack);
+      room.off(RoomEvent.LocalTrackPublished, onScreenTrack);
+      room.off(RoomEvent.LocalTrackUnpublished, onScreenTrack);
       room.off(RoomEvent.ActiveSpeakersChanged, onSpeakers);
 
       const state = useCallsStore.getState();
@@ -591,19 +666,20 @@ export default function GroupCallOverlay({
     void setLocalCameraEnabled(room, true)
       .then(() => {
         setCameraError(null);
-        setTiles(
-          collectParticipantTiles(
-            room,
-            localUserIdRef.current,
-            callRef.current,
-          ),
-        );
       })
       .catch((error) => {
         setCameraError(isCameraNotReadableError(error) ? 'not-readable' : 'failed');
         onCameraChangeRef.current?.(false);
       });
   }, [cameraEnabled, isConnected]);
+
+  useEffect(() => {
+    const room = roomRef.current;
+    if (!room) return;
+    setTiles(
+      collectParticipantTiles(room, localUserId, call),
+    );
+  }, [call, localUserId, isConnected]);
 
   useEffect(() => {
     const mq = window.matchMedia('(max-width: 720px)');
@@ -646,11 +722,26 @@ export default function GroupCallOverlay({
     }
   };
 
+  const screenShareCapability = screenShareSupport();
+  const screenShareBlockedReason = !screenShareCapability.ok
+    ? t(
+        screenShareCapability.reason === 'insecure'
+          ? 'messenger.calls.screenShareInsecure'
+          : 'messenger.calls.screenShareUnsupported',
+      )
+    : '';
+
   const toggleScreenShare = async () => {
+    if (screenShareBlockedReason || screenShareBusy) return;
     const room = roomRef.current;
-    if (!room || room.state !== ConnectionState.Connected) return;
+    if (!room || room.state !== ConnectionState.Connected) {
+      setScreenShareError(t('messenger.calls.screenShareNotConnected'));
+      return;
+    }
+    setScreenShareBusy(true);
+    setScreenShareError(null);
+    const next = !screenShareOn;
     try {
-      const next = !screenShareOn;
       await room.localParticipant.setScreenShareEnabled(next);
       const pub = room.localParticipant.getTrackPublication(
         Track.Source.ScreenShare,
@@ -660,11 +751,29 @@ export default function GroupCallOverlay({
       setScreenShares(
         collectScreenShares(room, callRef.current, localUserIdRef.current),
       );
-    } catch {
+    } catch (error) {
+      if (isScreenShareCancelError(error)) {
+        setScreenShareOn(false);
+        setScreenShares(
+          collectScreenShares(room, callRef.current, localUserIdRef.current),
+        );
+        return;
+      }
+      const name = String(error?.name || '');
+      const message = String(error?.message || '').toLowerCase();
+      if (name === 'NotAllowedError' || message.includes('permission')) {
+        setScreenShareError(t('messenger.calls.screenSharePermissionDenied'));
+      } else if (name === 'NotSupportedError' || message.includes('support')) {
+        setScreenShareError(t('messenger.calls.screenShareUnsupported'));
+      } else {
+        setScreenShareError(t('messenger.calls.screenShareFailed'));
+      }
       setScreenShareOn(false);
       setScreenShares(
         collectScreenShares(room, callRef.current, localUserIdRef.current),
       );
+    } finally {
+      setScreenShareBusy(false);
     }
   };
 
@@ -689,6 +798,7 @@ export default function GroupCallOverlay({
   const count = tiles.length || 1;
   const gridCols = getGroupGridCols(count, narrowViewport);
   const hasScreenShare = screenShares.length > 0;
+  const layoutKey = `${gridCols}:${hasScreenShare ? 1 : 0}:${count}`;
 
   const body = (
     <div
@@ -758,10 +868,11 @@ export default function GroupCallOverlay({
             >
               {tiles.map((tile) => (
                 <ParticipantTile
-                  key={tile.identity}
+                  key={tile.isLocal ? `local-${tile.identity}` : `remote-${tile.identity}`}
                   tile={tile}
                   speaking={speakingIds.has(tile.identity)}
                   youLabel={t('messenger.calls.you')}
+                  layoutKey={layoutKey}
                 />
               ))}
             </div>
@@ -772,6 +883,9 @@ export default function GroupCallOverlay({
               <p className="callActive__cameraErrorBody">
                 {t('messenger.calls.cameraBusyTitle')}
               </p>
+            ) : null}
+            {screenShareError ? (
+              <p className="callActive__cameraErrorBody">{screenShareError}</p>
             ) : null}
             <div className="callActive__controls">
               <button
@@ -810,7 +924,19 @@ export default function GroupCallOverlay({
                 type="button"
                 className={`callOverlay__ctrl${screenShareOn ? '' : ' is-off'}`}
                 onClick={() => void toggleScreenShare()}
-                aria-label={t('messenger.calls.screenShare')}
+                disabled={Boolean(screenShareBlockedReason) || screenShareBusy}
+                title={
+                  screenShareBlockedReason ||
+                  (screenShareOn
+                    ? t('messenger.calls.stopScreenShare')
+                    : t('messenger.calls.screenShare'))
+                }
+                aria-label={
+                  screenShareOn
+                    ? t('messenger.calls.stopScreenShare')
+                    : t('messenger.calls.screenShare')
+                }
+                aria-pressed={screenShareOn}
               >
                 {screenShareOn ? <LuMonitorOff /> : <LuMonitor />}
               </button>

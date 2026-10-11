@@ -709,6 +709,12 @@
       "groupVideoStarted": "A video room started in the LunMeYo group",
       "groupRoomEnded": "The room ended",
       "screenShare": "Share screen",
+      "stopScreenShare": "Stop sharing",
+      "screenShareUnsupported": "Screen sharing is not supported in this browser",
+      "screenShareInsecure": "Screen sharing needs a secure (HTTPS) connection",
+      "screenSharePermissionDenied": "Screen sharing permission was denied",
+      "screenShareNotConnected": "Wait until you are in the call, then try again",
+      "screenShareFailed": "Could not start screen sharing",
       "speaker": "Speaker"
     }
   },
