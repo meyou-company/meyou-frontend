@@ -62,6 +62,21 @@ export default function BurgerMenu({
     return undefined;
   }, [isOpen, fetchFeedbackUnreadCount]);
 
+  useEffect(() => {
+    if (!isOpen) return undefined;
+
+    const html = document.documentElement;
+    const { overflow: prevHtmlOverflow } = html.style;
+    const { overflow: prevBodyOverflow } = document.body.style;
+    html.style.overflow = 'hidden';
+    document.body.style.overflow = 'hidden';
+
+    return () => {
+      html.style.overflow = prevHtmlOverflow;
+      document.body.style.overflow = prevBodyOverflow;
+    };
+  }, [isOpen]);
+
   const handleItemClick = async (id) => {
     if (guestPreviewEnabled && GUEST_PREVIEW_BLOCKED_MENU.has(id)) {
       toast.message(t('profile.guestPreview.actionDisabled'));
@@ -186,7 +201,13 @@ export default function BurgerMenu({
   if (!isOpen) return null;
 
   return (
-    <div className="profile-menu-wrap" aria-hidden="false">
+    <div
+      className="profile-menu-wrap"
+      aria-hidden="false"
+      onWheel={(e) => {
+        if (!e.target.closest('.profile-menu__list')) e.preventDefault();
+      }}
+    >
       <div
         className="profile-menu__backdrop"
         onClick={onClose}

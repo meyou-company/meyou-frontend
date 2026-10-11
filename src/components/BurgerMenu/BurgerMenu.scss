@@ -12,6 +12,7 @@ $accent-logout: #e53333;
   inset: 0;
   z-index: 1000000;
   pointer-events: auto;
+  overscroll-behavior: none;
 }
 
 .profile-menu__backdrop {
@@ -35,6 +36,8 @@ $accent-logout: #e53333;
   box-shadow: 0 0 30px rgba(0, 0, 0, 0.25);
   display: flex;
   flex-direction: column;
+  overflow: hidden;
+  overscroll-behavior: contain;
   transform: translateY(130%);
   transition: transform 0.3s ease;
 
@@ -230,7 +233,10 @@ $accent-logout: #e53333;
   flex-direction: column;
   gap: 8px;
   flex: 1;
+  min-height: 0;
   overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
 
   @media (min-width: $bp-tablet) {
     padding: 14px 24px 18px;
@@ -387,7 +393,8 @@ $accent-logout: #e53333;
    !🌙 DARK MODE 
    ========================= */
 
-[data-theme="dark"] {
+body.dark,
+html[data-theme="dark"] {
   .profile-menu {
     --bg-menu: #1a1a1a;
     --bg-header: #2a2a2a;
@@ -425,8 +432,14 @@ $accent-logout: #e53333;
     }
   }
   
-  .profile-menu__name {
+  .profile-menu__name,
+  .profile-menu__userTap .profile-menu__name {
     color: var(--text-primary);
+    text-decoration-color: currentColor;
+  }
+
+  .profile-menu__info {
+    text-decoration-color: currentColor;
   }
   
   .profile-menu__email {
@@ -437,12 +450,13 @@ $accent-logout: #e53333;
     background: var(--divider-color);
   }
   
-  .profile-menu__item {
+  .profile-menu__item,
+  .profile-menu__label {
     color: var(--text-primary);
-    
-    &:hover {
-      background: var(--hover-bg);
-    }
+  }
+
+  .profile-menu__item:hover {
+    background: var(--hover-bg);
   }
   
   .profile-menu__section--language {
@@ -451,6 +465,7 @@ $accent-logout: #e53333;
   
   .profile-menu__item--language {
     border-color: var(--border-color);
+    color: var(--text-primary);
   }
   
   .profile-menu__item--logout {

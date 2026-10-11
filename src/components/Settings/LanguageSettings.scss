@@ -1,18 +1,24 @@
 .langSettings__overlay {
   position: fixed;
   inset: 0;
-  z-index: 1200;
+  z-index: 1000001;
   background: rgba(0, 0, 0, 0.45);
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 16px;
+  overflow: hidden;
+  overscroll-behavior: none;
+  touch-action: none;
 }
 
 .langSettings__modal {
   width: min(420px, 100%);
   max-height: min(80vh, 640px);
   overflow: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
   background: #f4fdff;
   border-radius: 16px;
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.18);
@@ -98,9 +104,33 @@ html[data-theme='dark'] .langSettings__modal {
   color: #fff;
 }
 
+body.dark .langSettings__header h2,
+html[data-theme='dark'] .langSettings__header h2,
+body.dark .langSettings__close,
+html[data-theme='dark'] .langSettings__close {
+  color: #fff;
+}
+
+body.dark .langSettings__subtitle,
+html[data-theme='dark'] .langSettings__subtitle {
+  color: rgba(255, 255, 255, 0.68);
+}
+
 body.dark .langSettings__option,
 html[data-theme='dark'] .langSettings__option {
   background: rgba(255, 255, 255, 0.06);
   border-color: rgba(255, 255, 255, 0.12);
-  color: inherit;
+  color: #fff;
+}
+
+body.dark .langSettings__option.is-active,
+html[data-theme='dark'] .langSettings__option.is-active {
+  background: rgba(79, 107, 255, 0.22);
+  border-color: #4f6bff;
+  color: #fff;
+}
+
+body.dark .langSettings__check,
+html[data-theme='dark'] .langSettings__check {
+  color: #8ea2ff;
 }
