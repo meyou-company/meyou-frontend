@@ -821,6 +821,12 @@
 }
 
 @media (min-width: 768px) {
+  .storyTextEditor__overlay {
+    z-index: 5;
+    max-width: 88%;
+    box-sizing: border-box;
+  }
+
   .storyUploadModal__content {
     padding: 0;
   }

@@ -1850,10 +1850,10 @@ body.dark .storyViewer__popupItem:active,
   }
 
   .storyViewer__progress {
-    top: 14px;
-    left: 44px;
-    right: 44px;
-    gap: 10px;
+    top: 12px;
+    left: 16px;
+    right: 16px;
+    gap: 6px;
   }
 
   .storyViewer__actions {
@@ -1870,7 +1870,7 @@ body.dark .storyViewer__popupItem:active,
   }
 
   .storyViewer__menu {
-    font-size: 28px;
+    font-size: 22px;
   }
 
   .storyViewer {
@@ -1888,19 +1888,71 @@ body.dark .storyViewer__popupItem:active,
   }
 
   .storyViewer__author {
-    top: 30px;
-    left: 24px;
+    top: 28px;
+    left: 12px;
+    right: auto;
+    max-width: calc(100% - 168px);
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
 
     img {
-      width: 42px;
-      height: 42px;
+      width: 34px;
+      height: 34px;
+      flex-shrink: 0;
     }
   }
 
-  .storyViewer__authorName,
+  .storyViewer__authorText {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    margin-top: 0;
+    gap: 8px;
+    min-width: 0;
+    flex: 1;
+
+    > div {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+      max-width: 100%;
+    }
+  }
+
+  .storyViewer__authorName {
+    font-size: 15px;
+    font-weight: 500;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    min-width: 0;
+  }
+
   .storyViewer__time,
   .storyViewer__music {
-    font-size: 16px;
+    font-size: 12px;
+    font-weight: 500;
+    margin-left: 0;
+    flex-shrink: 0;
+    white-space: nowrap;
+  }
+
+  .storyViewer__topRight {
+    top: 28px;
+    right: 8px;
+    height: 36px;
+  }
+
+  .storyViewer__followBtn {
+    top: 28px;
+    right: 84px;
+    height: 34px;
+    padding: 0 12px;
+    font-size: 12px;
+    display: inline-flex;
+    align-items: center;
   }
 
   .storyViewer__shareIcons {
@@ -1968,10 +2020,10 @@ body.dark .storyViewer__popupItem:active,
   }
 
   .storyViewer__followBtn {
-    top: 34px;
-    right: 52px;
-    border-radius: 18px;
-    font-size: 15px;
+    top: 28px;
+    right: 84px;
+    border-radius: 12px;
+    font-size: 12px;
   }
 
   .storyViewer__popupItem {
@@ -2046,9 +2098,8 @@ body.dark .storyViewer__popupItem:active,
   }
 
   .storyViewer__menu {
-    font-size: 32px;
+    font-size: 22px;
   }
-
 
   .storyViewer__actions {
     width: min(420px, calc(100% - 96px));
@@ -2067,32 +2118,35 @@ body.dark .storyViewer__popupItem:active,
   }
 
   .storyViewer__author {
-    top: 46px;
+    top: 28px;
 
     img {
-      width: 80px;
-      height: 80px;
+      width: 34px;
+      height: 34px;
     }
   }
 
-  .storyViewer__authorName,
+  .storyViewer__authorName {
+    font-size: 15px;
+  }
+
   .storyViewer__time,
   .storyViewer__music {
-    font-size: 24px;
+    font-size: 12px;
   }
 
   .storyViewer__progress {
-    top: 28px;
-    left: 58px;
-    right: 58px;
+    top: 12px;
+    left: 16px;
+    right: 16px;
   }
 
   .storyViewer__time {
-    margin-left: 24px;
+    margin-left: 0;
   }
 
   .storyViewer__authorText {
-    margin-top: 6px;
+    margin-top: 0;
   }
 
   .storyViewer__viewers img,
@@ -2170,9 +2224,9 @@ body.dark .storyViewer__popupItem:active,
   }
 
   .storyViewer__followBtn {
-    top: 44px;
-    padding: 9px 20px;
-    font-size: 20px;
+    top: 28px;
+    padding: 0 12px;
+    font-size: 12px;
   }
 
 
