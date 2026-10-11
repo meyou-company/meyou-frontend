@@ -580,8 +580,11 @@
   object-fit: contain;
   background: #0c0614;
 
+  // Keep the element laid out. display:none made LiveKit adaptiveStream
+  // unsubscribe, which blocked other participants' cameras in the grid.
   &.is-hidden {
-    display: none;
+    opacity: 0;
+    pointer-events: none;
   }
 }
 

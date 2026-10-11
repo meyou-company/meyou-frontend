@@ -307,6 +307,10 @@ export function createDefaultCallRoom() {
   return new Room({
     adaptiveStream: true,
     dynacast: true,
+    // pagehide/visibilitychange must not drop the SFU session: a short
+    // tab background or camera-permission prompt would otherwise look like
+    // a leave and used to end the group room for everyone.
+    disconnectOnPageLeave: false,
     audioCaptureDefaults: { autoGainControl: true, echoCancellation: true },
   });
 }

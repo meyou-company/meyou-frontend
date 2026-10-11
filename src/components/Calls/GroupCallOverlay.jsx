@@ -56,26 +56,77 @@ function mapConnectError(err, t) {
 function collectParticipantTiles(room, localUserId, call) {
   if (!room) return [];
   const tiles = [];
+  const seen = new Set();
   const local = room.localParticipant;
   if (local) {
+    const identity = local.identity || localUserId || 'local';
+    seen.add(identity);
     tiles.push({
-      identity: local.identity || localUserId || 'local',
+      identity,
       name: local.name || tFallback(call, localUserId, local.identity),
-      avatarUrl: avatarFor(call, local.identity || localUserId),
+      avatarUrl: avatarFor(call, identity),
       isLocal: true,
       participant: local,
     });
   }
   for (const remote of room.remoteParticipants.values()) {
+    const identity = remote.identity;
+    if (!identity || seen.has(identity)) continue;
+    seen.add(identity);
     tiles.push({
-      identity: remote.identity,
-      name: remote.name || tFallback(call, remote.identity, remote.identity),
-      avatarUrl: avatarFor(call, remote.identity),
+      identity,
+      name: remote.name || tFallback(call, identity, identity),
+      avatarUrl: avatarFor(call, identity),
       isLocal: false,
       participant: remote,
     });
   }
+  tiles.sort((a, b) => {
+    if (a.isLocal !== b.isLocal) return a.isLocal ? -1 : 1;
+    return String(a.identity).localeCompare(String(b.identity));
+  });
   return tiles;
+}
+
+function isCameraPublication(pub) {
+  if (!pub || isScreenShareSource(pub.source)) return false;
+  return pub.source === Track.Source.Camera || pub.kind === Track.Kind.Video;
+}
+
+function isMicrophonePublication(pub) {
+  if (!pub || isScreenShareSource(pub.source)) return false;
+  return (
+    pub.source === Track.Source.Microphone || pub.kind === Track.Kind.Audio
+  );
+}
+
+function publicationHasLiveVideo(pub) {
+  if (!isCameraPublication(pub) || !pub.track) return false;
+  const readyState = pub.track.mediaStreamTrack?.readyState;
+  return !pub.isMuted && readyState !== 'ended';
+}
+
+function ensureRemoteCameraSubscribed(participant) {
+  if (!participant?.trackPublications) return;
+  participant.trackPublications.forEach((pub) => {
+    if (!isCameraPublication(pub)) return;
+    if (pub.isSubscribed === false && typeof pub.setSubscribed === 'function') {
+      try {
+        pub.setSubscribed(true);
+      } catch {
+        /* ignore */
+      }
+    }
+  });
+}
+
+function detachTrackFromElement(track, element) {
+  if (!track || !element) return;
+  try {
+    track.detach(element);
+  } catch {
+    /* ignore */
+  }
 }
 
 function tFallback(call, identity, fallback) {
@@ -157,7 +208,7 @@ function bindParticipantMedia(participant, onChange) {
   };
 }
 
-function ParticipantTile({ tile, speaking, showVideo, youLabel }) {
+function ParticipantTile({ tile, speaking, youLabel }) {
   const videoRef = useRef(null);
   const audioRef = useRef(null);
   const [hasVideo, setHasVideo] = useState(false);
@@ -167,15 +218,16 @@ function ParticipantTile({ tile, speaking, showVideo, youLabel }) {
     if (!participant) return undefined;
 
     const attach = () => {
+      if (!tile.isLocal) ensureRemoteCameraSubscribed(participant);
       let video = false;
       participant.trackPublications.forEach((pub) => {
-        if (!pub.track || isScreenShareSource(pub.source)) return;
-        if (pub.source === Track.Source.Camera && videoRef.current) {
+        if (!pub.track) return;
+        if (isCameraPublication(pub) && videoRef.current) {
           pub.track.attach(videoRef.current);
-          if (!pub.isMuted) video = true;
+          if (publicationHasLiveVideo(pub)) video = true;
         }
         if (
-          pub.source === Track.Source.Microphone &&
+          isMicrophonePublication(pub) &&
           !tile.isLocal &&
           audioRef.current
         ) {
@@ -189,12 +241,13 @@ function ParticipantTile({ tile, speaking, showVideo, youLabel }) {
     const unbind = bindParticipantMedia(participant, attach);
     return () => {
       unbind();
+      const videoEl = videoRef.current;
+      const audioEl = audioRef.current;
       participant.trackPublications.forEach((pub) => {
-        if (isScreenShareSource(pub.source)) return;
-        try {
-          pub.track?.detach();
-        } catch {
-          /* ignore */
+        if (isCameraPublication(pub)) {
+          detachTrackFromElement(pub.track, videoEl);
+        } else if (isMicrophonePublication(pub)) {
+          detachTrackFromElement(pub.track, audioEl);
         }
       });
     };
@@ -203,18 +256,18 @@ function ParticipantTile({ tile, speaking, showVideo, youLabel }) {
   return (
     <div
       className={`callGroupTile${speaking ? ' is-speaking' : ''}${
-        showVideo ? ' is-video' : ' is-audio'
+        hasVideo ? ' is-video' : ' is-audio'
       }`}
     >
       <video
         ref={videoRef}
-        className={`callGroupTile__video${hasVideo && showVideo ? '' : ' is-hidden'}`}
+        className={`callGroupTile__video${hasVideo ? '' : ' is-hidden'}`}
         autoPlay
         playsInline
         muted={tile.isLocal}
       />
       <audio ref={audioRef} autoPlay playsInline />
-      {(!showVideo || !hasVideo) && (
+      {!hasVideo && (
         <div className="callGroupTile__avatar" aria-hidden="true">
           {tile.avatarUrl ? (
             <img src={tile.avatarUrl} alt="" />
@@ -264,12 +317,13 @@ function ScreenSharePane({ share, youLabel, sharingLabel }) {
     return () => {
       unbind();
       media?.removeEventListener('ended', onEnded);
+      const videoEl = videoRef.current;
+      const audioEl = audioRef.current;
       participant.trackPublications.forEach((pub) => {
-        if (!isScreenShareSource(pub.source)) return;
-        try {
-          pub.track?.detach();
-        } catch {
-          /* ignore */
+        if (pub.source === Track.Source.ScreenShare) {
+          detachTrackFromElement(pub.track, videoEl);
+        } else if (pub.source === Track.Source.ScreenShareAudio) {
+          detachTrackFromElement(pub.track, audioEl);
         }
       });
     };
@@ -530,14 +584,26 @@ export default function GroupCallOverlay({
     if (!room || room.state !== ConnectionState.Connected) return;
     if (!cameraEnabled) {
       void setLocalCameraEnabled(room, false);
+      setCameraError(null);
       return;
     }
     if (isCameraStartInFlight() || isLocalCameraLive(room)) return;
-    void setLocalCameraEnabled(room, true).catch((error) => {
-      setCameraError(isCameraNotReadableError(error) ? 'not-readable' : 'failed');
-      onCameraChangeRef.current?.(false);
-    });
-  }, [cameraEnabled]);
+    void setLocalCameraEnabled(room, true)
+      .then(() => {
+        setCameraError(null);
+        setTiles(
+          collectParticipantTiles(
+            room,
+            localUserIdRef.current,
+            callRef.current,
+          ),
+        );
+      })
+      .catch((error) => {
+        setCameraError(isCameraNotReadableError(error) ? 'not-readable' : 'failed');
+        onCameraChangeRef.current?.(false);
+      });
+  }, [cameraEnabled, isConnected]);
 
   useEffect(() => {
     const mq = window.matchMedia('(max-width: 720px)');
@@ -686,7 +752,7 @@ export default function GroupCallOverlay({
             ) : null}
 
             <div
-              className={`callGroupGrid${isVideo ? ' is-video' : ' is-audio'}`}
+              className="callGroupGrid is-video"
               data-count={count}
               style={{ '--group-cols': gridCols }}
             >
@@ -695,7 +761,6 @@ export default function GroupCallOverlay({
                   key={tile.identity}
                   tile={tile}
                   speaking={speakingIds.has(tile.identity)}
-                  showVideo={isVideo}
                   youLabel={t('messenger.calls.you')}
                 />
               ))}
