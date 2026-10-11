@@ -1,14 +1,25 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { getLegalNav, getLegalUi } from '../../i18n/legal';
+import { useAuthStore } from '../../zustand/useAuthStore';
 import './legal.scss';
 
 export default function LegalLayout({ children }) {
   const { i18n } = useTranslation();
   const location = useLocation();
   const navigate = useNavigate();
+  const isAuthed = useAuthStore((s) => s.isAuthed);
+  const user = useAuthStore((s) => s.user);
   const nav = getLegalNav(i18n.language);
   const ui = getLegalUi(i18n.language);
+
+  const goHome = () => {
+    if (isAuthed && user) {
+      navigate('/profile');
+      return;
+    }
+    navigate('/');
+  };
 
   return (
     <div className="legalLayout">
@@ -19,7 +30,7 @@ export default function LegalLayout({ children }) {
             <button
               type="button"
               className="legalLayout__homeLink"
-              onClick={() => navigate('/')}
+              onClick={goHome}
             >
               {ui.backHome}
             </button>
