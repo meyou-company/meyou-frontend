@@ -15,7 +15,6 @@ import {
   normalizeComment,
   organizeComments,
   countPostReplies,
-  mapApiPostToFeedItem,
 } from "../utils/mapApiPostToFeedItem";
 import { clearPostLikeOverride, persistPostLike } from "../utils/postLikePersistence";
 import {
@@ -743,39 +742,27 @@ export function usePostFeedActions(
       if (!post?.id || !canEdit) return;
       setIsSavingEditPost(true);
       try {
-        const updated = await postsApi.update(post.id, {
+        await postsApi.update(post.id, {
           fullText: text,
           media,
           location,
         });
-        const mapped = mapApiPostToFeedItem(updated);
-        if (mapped) {
-          patchPost(post.id, (p) => ({
-            ...mapped,
-            comments: p.comments,
-            counts: {
-              ...mapped.counts,
-              comments: p.counts?.comments ?? mapped.counts?.comments,
-              replies: p.counts?.replies ?? mapped.counts?.replies,
-            },
-          }));
-        }
+        patchPost(post.id, (p) => ({
+          ...p,
+          text,
+          location,
+          media: Array.isArray(media) ? media : p.media,
+        }));
         setEditingPost(null);
         toast.success(i18n.t('posts.toast.updated'));
       } catch (e) {
-        if (isPostNotFoundError(e)) {
-          dropPostEverywhere(post.id);
-          setEditingPost(null);
-          return;
-        }
         const msg = getApiErrorMessage(e) || i18n.t('posts.toast.updateFailed');
         toast.error(msg);
-        throw e;
       } finally {
         setIsSavingEditPost(false);
       }
     },
-    [editingPost, patchPost, dropPostEverywhere, currentUserId, readOnly]
+    [editingPost, patchPost, currentUserId, readOnly]
   );
 
   const onSave = useCallback(

@@ -1,12 +1,13 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { restoreOAuthSession } from '../../services/authSession';
+import { readOAuthQueryError, restoreOAuthSession } from '../../services/authSession';
 import { useAuthStore } from '../../zustand/useAuthStore';
 import AuthLoadingScreen from '../../components/Auth/AuthLoadingScreen';
+import { hasAcceptedTerms } from '../../utils/authTerms';
 
 function postAuthPath(user) {
-  const needsTerms = !user?.acceptedTermsAt && !user?.accepted_terms_at;
+  const needsTerms = !hasAcceptedTerms(user);
   if (needsTerms) return '/legal/accept-terms';
 
   const verified =
@@ -31,6 +32,14 @@ export default function GoogleOAuthSuccess() {
     setAuth({ isAuthLoading: true });
 
     (async () => {
+      if (readOAuthQueryError()) {
+        useAuthStore.getState().clearSession();
+        if (!cancelled) {
+          setAuth({ isAuthLoading: false });
+          navigate('/auth/login', { replace: true });
+        }
+        return;
+      }
       try {
         const user = await restoreOAuthSession(setAuth);
         if (cancelled) return;

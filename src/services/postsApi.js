@@ -312,13 +312,20 @@ export const postsApi = {
       body.media = Array.isArray(payload.media) ? payload.media : [];
     }
     if (payload.location !== undefined) {
-      body.location = payload.location || undefined;
+      body.location = String(payload.location ?? '').trim();
     }
     if (payload.visibility !== undefined) {
       body.visibility = payload.visibility;
     }
-    const { data } = await api.put(`/posts/${encodeURIComponent(postId)}`, body);
-    return data;
+    const url = `/posts/${encodeURIComponent(postId)}`;
+    try {
+      const { data } = await api.put(url, body);
+      return data?.post ?? data?.data?.post ?? data?.data ?? data;
+    } catch (error) {
+      if (![404, 405].includes(error?.response?.status)) throw error;
+      const { data } = await api.patch(url, body);
+      return data?.post ?? data?.data?.post ?? data?.data ?? data;
+    }
   },
 
   /** DELETE /posts/:id — лише для автора (перевірка на бекенді) */
