@@ -2,6 +2,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { getLegalNav, getLegalUi } from '../../i18n/legal';
 import { useAuthStore } from '../../zustand/useAuthStore';
+import { hasAcceptedTerms } from '../../utils/authTerms';
 import './legal.scss';
 
 export default function LegalLayout({ children }) {
@@ -10,11 +11,17 @@ export default function LegalLayout({ children }) {
   const navigate = useNavigate();
   const isAuthed = useAuthStore((s) => s.isAuthed);
   const user = useAuthStore((s) => s.user);
+  const clearSession = useAuthStore((s) => s.clearSession);
   const nav = getLegalNav(i18n.language);
   const ui = getLegalUi(i18n.language);
 
   const goHome = () => {
     if (isAuthed && user) {
+      if (!hasAcceptedTerms(user)) {
+        clearSession();
+        navigate('/auth/login', { replace: true });
+        return;
+      }
       navigate('/profile');
       return;
     }

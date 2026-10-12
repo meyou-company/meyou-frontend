@@ -197,6 +197,30 @@
   cursor: not-allowed;
 }
 
+.legalAccept__actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.legalAccept__btn--secondary {
+  border: 1px solid rgba(107, 102, 255, 0.3);
+  background: rgba(255, 255, 255, 0.78);
+  color: #4b3f72;
+}
+
+body.dark .legalAccept__btn--secondary {
+  border-color: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.9);
+}
+
+@media (max-width: 480px) {
+  .legalAccept__actions {
+    grid-template-columns: 1fr;
+  }
+}
+
 .legalDeleteAction {
   margin-top: 28px;
   padding-top: 20px;
