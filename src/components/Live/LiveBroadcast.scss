@@ -1,12 +1,15 @@
 .app-container:has(.livePage) {
   max-width: none;
+  width: 100%;
   padding: 0;
+  overflow: visible;
 }
 
 .livePage {
   position: relative;
   min-height: 100dvh;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
   background: #fff;
   color: #111;
   font-family: Montserrat, sans-serif;
@@ -975,74 +978,6 @@
   }
 }
 
-@media (max-width: 767px) {
-  .liveChat__quickReactions {
-    flex-wrap: nowrap;
-    justify-content: space-between;
-    gap: 2px;
-    padding: 7px 4px 0;
-
-    button {
-      width: 24px;
-      height: 24px;
-      flex: 0 0 24px;
-      font-size: 20px;
-    }
-  }
-
-  .liveStage__host strong {
-    max-width: min(38vw, 150px);
-    overflow: hidden;
-    font-size: 13px;
-    line-height: 1.2;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  .liveStage__speakerLabel {
-    font-size: 9px;
-  }
-
-  .liveStage__speakerIcon {
-    width: 20px;
-    height: 20px;
-  }
-
-  .liveStage__hostInfo {
-    grid-template-columns: 20px minmax(0, 1fr);
-    column-gap: 6px;
-  }
-
-  .liveStage__settingsPanel {
-    top: 60px;
-    right: 8px;
-    width: min(195px, calc(100% - 16px));
-    padding: 8px 10px;
-    border-radius: 16px;
-  }
-
-  .liveStage__settingRow,
-  .liveStage__settingAction {
-    min-height: 32px;
-    gap: 6px;
-    font-size: 9px;
-  }
-
-  .liveStage__switch {
-    width: 42px;
-    height: 22px;
-
-    span {
-      width: 16px;
-      height: 16px;
-    }
-  }
-
-  .liveStage__switch--active span {
-    transform: translateX(20px);
-  }
-}
-
 @media (min-width: 768px) {
   .liveHeader--compact {
     height: 76px;
@@ -1185,6 +1120,326 @@
   .liveStage__switchCameraButton {
     width: 32px;
     height: 32px;
+  }
+}
+
+@media (max-width: 767.98px) {
+  .livePage {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  .livePage__content {
+    width: 100%;
+    max-width: 100%;
+    padding: 16px 16px max(20px, env(safe-area-inset-bottom, 0px));
+  }
+
+  .livePage__headingRow {
+    margin-bottom: 14px;
+  }
+
+  .livePage__headingRow>h1 {
+    font-size: 22px;
+    font-weight: 500;
+  }
+
+  .liveStage {
+    width: 100%;
+    min-height: 52dvh;
+  }
+
+  .liveStage__top {
+    gap: 10px;
+    padding: 12px;
+  }
+
+  .liveStage__hostAvatar {
+    width: 46px;
+    height: 46px;
+    border-width: 3px;
+  }
+
+  .liveStage__hostInfo {
+    grid-template-columns: 24px minmax(0, 1fr);
+    column-gap: 8px;
+  }
+
+  .liveStage__speakerIcon {
+    width: 24px;
+    height: 24px;
+  }
+
+  .liveStage__speakerLabel {
+    font-size: 13px;
+    font-weight: 400;
+  }
+
+  .liveStage__host strong {
+    max-width: min(56vw, 220px);
+    font-size: 16px;
+    font-weight: 500;
+    line-height: 1.2;
+  }
+
+  .liveStage__hostStats {
+    gap: 12px;
+    font-size: 13px;
+
+    img {
+      width: 16px;
+      height: 16px;
+    }
+  }
+
+  .liveStage__status {
+    height: 36px;
+    font-size: 12px;
+
+    strong {
+      font-size: 14px;
+      letter-spacing: 3px;
+    }
+  }
+
+  .liveStage__settingsButton {
+    width: 44px;
+    height: 44px;
+    padding: 10px;
+  }
+
+  .liveStage__switchCameraButton {
+    width: 44px;
+    height: 44px;
+  }
+
+  .liveStage__settingsPanel {
+    top: 64px;
+    right: 8px;
+    width: min(240px, calc(100% - 16px));
+    padding: 12px 14px;
+    border-radius: 18px;
+  }
+
+  .liveStage__settingRow,
+  .liveStage__settingAction {
+    min-height: 44px;
+    gap: 8px;
+    font-size: 12px;
+    font-weight: 500;
+  }
+
+  .liveStage__switch {
+    width: 48px;
+    height: 26px;
+
+    span {
+      width: 20px;
+      height: 20px;
+    }
+  }
+
+  .liveStage__switch--active span {
+    transform: translateX(22px);
+  }
+
+  .liveStage__cameraStart {
+    min-width: 180px;
+    min-height: 44px;
+    padding: 12px 22px;
+    font-size: 15px;
+    font-weight: 500;
+  }
+
+  .liveStage__ended {
+    font-size: 14px;
+
+    strong {
+      font-size: 18px;
+    }
+  }
+
+  .liveStage__bottom {
+    flex-wrap: wrap;
+    gap: 12px;
+    padding: 12px;
+  }
+
+  .liveStage__metrics {
+    gap: 14px;
+    font-size: 14px;
+    font-weight: 400;
+
+    img {
+      width: 20px;
+      height: 20px;
+    }
+  }
+
+  .liveStage__ownerActions {
+    max-width: 100%;
+  }
+
+  .liveStage__ownerActions>div {
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 8px;
+  }
+
+  .liveStage__endIconButton {
+    width: 44px;
+    height: 44px;
+  }
+
+  .liveStage__outlineButton {
+    min-height: 44px;
+    padding: 10px 14px;
+    border-radius: 22px;
+    font-size: 14px;
+    font-weight: 500;
+  }
+
+  .liveStage__reactions {
+    gap: 8px;
+
+    button {
+      width: 44px;
+      height: 44px;
+      font-size: 26px;
+    }
+  }
+
+  .liveChat {
+    width: 100%;
+    height: min(52dvh, 440px);
+    min-height: 280px;
+    max-height: min(52dvh, 520px);
+    overflow: hidden;
+  }
+
+  .liveChat__header {
+    height: 52px;
+    padding: 0 14px;
+
+    h2 {
+      font-size: 18px;
+      font-weight: 500;
+    }
+  }
+
+  .liveChat__messages,
+  .liveChat__pinnedMessages {
+    min-height: 0;
+  }
+
+  .liveChat__message {
+    grid-template-columns: 40px minmax(0, 1fr) 44px;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+
+  .liveChat__avatarButton {
+    width: 40px;
+    height: 40px;
+
+    img {
+      width: 40px;
+      height: 40px;
+    }
+  }
+
+  .liveChat__author {
+    font-size: 14px;
+    font-weight: 500;
+  }
+
+  .liveChat__messageContent p {
+    padding: 10px 12px;
+    font-size: 15px;
+    font-weight: 400;
+    line-height: 1.4;
+  }
+
+  .liveChat__messageMenuButton {
+    width: 44px;
+    height: 44px;
+  }
+
+  .liveChat__messageMenu button {
+    min-height: 44px;
+    padding: 10px 12px;
+    font-size: 14px;
+  }
+
+  .liveChat__footer {
+    padding: 10px 10px max(10px, env(safe-area-inset-bottom, 0px));
+  }
+
+  .liveChat__composer {
+    width: 100%;
+    min-height: 52px;
+    height: auto;
+    grid-template-columns: 40px minmax(0, 1fr) 44px;
+    gap: 10px;
+    padding: 6px 8px;
+
+    >img {
+      width: 40px;
+      height: 40px;
+    }
+
+    input {
+      min-height: 44px;
+      font-size: 16px;
+    }
+
+    button {
+      width: 44px;
+      height: 44px;
+
+      img {
+        width: 22px;
+        height: 20px;
+      }
+    }
+  }
+
+  .liveChat__quickReactions {
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 8px 6px;
+    padding: 10px 4px 4px;
+
+    button {
+      width: 44px;
+      height: 44px;
+      flex: 0 0 44px;
+      font-size: 24px;
+    }
+  }
+
+  .liveChat__loadOlder {
+    min-height: 44px;
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 359.98px) {
+  .livePage__content {
+    padding-inline: 12px;
+  }
+
+  .livePage__headingRow>h1 {
+    font-size: 20px;
+  }
+
+  .liveStage__host strong {
+    max-width: min(48vw, 180px);
+    font-size: 15px;
+  }
+
+  .liveStage__cameraStart {
+    min-width: 0;
+    width: min(100%, 220px);
   }
 }
 
