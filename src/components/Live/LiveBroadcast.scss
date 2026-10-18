@@ -10,6 +10,7 @@
   background: #fff;
   color: #111;
   font-family: Montserrat, sans-serif;
+  font-weight: 400;
 }
 
 .livePage__background {
@@ -94,37 +95,21 @@
   padding: 22px 16px 30px;
 }
 
-.livePage__back {
-  width: 42px;
-  height: 42px;
-  margin: 0;
-  padding: 6px;
-  border: 0;
-  background: transparent;
-  cursor: pointer;
-
-  img {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-  }
-}
-
 .livePage__headingRow {
   width: 100%;
-  display: grid;
-  grid-template-columns: 42px minmax(0, 1fr) 42px;
+  display: flex;
   align-items: center;
-  gap: 8px;
+  justify-content: center;
   margin: 0 0 20px;
 }
 
 .livePage__headingRow>h1 {
   min-width: 0;
+  max-width: 100%;
   margin: 0;
   color: #9b7ae6;
   font-size: 24px;
-  font-weight: 600;
+  font-weight: 500;
   letter-spacing: 0;
   text-align: center;
   overflow: hidden;
@@ -277,6 +262,7 @@
   max-width: 170px;
   overflow: hidden;
   font-size: 18px;
+  font-weight: 500;
   line-height: 1.05;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -325,6 +311,7 @@
 
   strong {
     font-size: 13px;
+    font-weight: 600;
     letter-spacing: 5px;
   }
 }
@@ -395,7 +382,7 @@
   color: #111;
   font-family: Montserrat, sans-serif;
   font-size: 12px;
-  font-weight: 700;
+  font-weight: 500;
   text-align: left;
   text-transform: uppercase;
 }
@@ -846,6 +833,7 @@
   background: transparent;
   color: inherit;
   font-size: 10px;
+  font-weight: 500;
   text-align: left;
   cursor: pointer;
 }
@@ -1069,10 +1057,6 @@
     padding: 28px 28px 30px;
   }
 
-  .livePage__headingRow {
-    grid-template-columns: 46px minmax(0, 1fr) 46px;
-  }
-
   .livePage__headingRow>h1 {
     font-size: 28px;
   }
@@ -1248,7 +1232,7 @@
   .liveHeader__navItem--active {
     color: #9b7ae6;
     font-size: 20px;
-    font-weight: 700;
+    font-weight: 600;
   }
 
   .liveHeader__navIcon {

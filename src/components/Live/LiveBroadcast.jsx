@@ -346,6 +346,10 @@ export default function LiveBroadcast() {
   const accessToken = storeToken || getSessionAccessToken();
   const chatRef = useRef(null);
   const streamRef = useRef(null);
+  const liveNavGuardRef = useRef(false);
+  const isOwnerRef = useRef(false);
+  const handleEndRef = useRef(async () => {});
+  const handleBackRef = useRef(() => {});
   const hostReconnectRef = useRef(null);
   const viewerAutoConnectRef = useRef(null);
   const pinIntentRef = useRef(new Map());
@@ -1431,6 +1435,62 @@ export default function LiveBroadcast() {
     navigate(isOwner ? "/profile" : "/first-page");
   };
 
+  isOwnerRef.current = isOwner;
+  handleEndRef.current = handleEnd;
+  handleBackRef.current = handleBack;
+
+  useEffect(() => {
+    const shouldGuard =
+      stream?.status === LIVE_STATUS && !isEnded && !isLoading && !loadError;
+    if (!shouldGuard) {
+      liveNavGuardRef.current = false;
+      return undefined;
+    }
+
+    if (!liveNavGuardRef.current) {
+      window.history.pushState({ meyouLiveStay: true }, "");
+      liveNavGuardRef.current = true;
+    }
+
+    const onPopState = () => {
+      liveNavGuardRef.current = false;
+      const confirmed = window.confirm(
+        isOwnerRef.current
+          ? "Завершить прямой эфир и выйти?"
+          : "Выйти из прямого эфира?",
+      );
+      if (!confirmed) {
+        window.history.pushState({ meyouLiveStay: true }, "");
+        liveNavGuardRef.current = true;
+        return;
+      }
+
+      void (async () => {
+        if (isOwnerRef.current) {
+          await handleEndRef.current();
+          if (streamRef.current?.status === LIVE_STATUS) {
+            window.history.pushState({ meyouLiveStay: true }, "");
+            liveNavGuardRef.current = true;
+            return;
+          }
+        }
+        handleBackRef.current();
+      })();
+    };
+
+    const onBeforeUnload = (event) => {
+      event.preventDefault();
+      event.returnValue = "";
+    };
+
+    window.addEventListener("popstate", onPopState);
+    window.addEventListener("beforeunload", onBeforeUnload);
+    return () => {
+      window.removeEventListener("popstate", onPopState);
+      window.removeEventListener("beforeunload", onBeforeUnload);
+    };
+  }, [isEnded, isLoading, loadError, stream?.status]);
+
   const handleToggleChat = () => {
     setIsChatOpen((current) => {
       const next = !current;
@@ -1455,8 +1515,6 @@ export default function LiveBroadcast() {
   const viewerCount = liveKit.participantCount > 0
     ? Math.max(0, liveKit.participantCount - 1)
     : stream?.viewersCount || 0;
-  const showBackButton = !isOwner || stream?.status !== LIVE_STATUS || isEnded;
-
   return (
     <main className={`livePage ${isOwner ? "livePage--owner" : "livePage--viewer"}`}>
       <LiveHeader isOwner={isOwner} />
@@ -1464,15 +1522,7 @@ export default function LiveBroadcast() {
 
       <div className="livePage__content">
         <div className="livePage__headingRow">
-          {showBackButton ? (
-            <button type="button" className="livePage__back" onClick={handleBack} aria-label="Назад">
-              <img src={profileIcons.storyBack} alt="" />
-            </button>
-          ) : (
-            <span aria-hidden="true" />
-          )}
           <h1>{stream?.title || "Прямой эфир"}</h1>
-          <span aria-hidden="true" />
         </div>
 
         {isLoading ? <div className="livePage__state">Загрузка эфира...</div> : null}
