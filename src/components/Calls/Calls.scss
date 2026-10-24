@@ -372,20 +372,6 @@
   &--end {
     background: #ff5a5f;
   }
-
-  &--select {
-    width: auto;
-    min-width: 56px;
-    padding: 0 8px;
-    position: relative;
-
-    select {
-      position: absolute;
-      inset: 0;
-      opacity: 0;
-      cursor: pointer;
-    }
-  }
 }
 
 .callOverlay--group.is-mini {

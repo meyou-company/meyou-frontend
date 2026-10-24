@@ -757,8 +757,7 @@
       "screenShareInsecure": "Для демонстрации экрана нужно защищённое соединение (HTTPS)",
       "screenSharePermissionDenied": "Разрешение на демонстрацию экрана отклонено",
       "screenShareNotConnected": "Дождитесь подключения к звонку и попробуйте снова",
-      "screenShareFailed": "Не удалось начать демонстрацию экрана",
-      "speaker": "Динамик"
+      "screenShareFailed": "Не удалось начать демонстрацию экрана"
     }
   },
   "notifications": {

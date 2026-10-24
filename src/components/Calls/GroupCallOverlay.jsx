@@ -8,7 +8,6 @@ import {
   LuMonitorOff,
   LuVideo,
   LuVideoOff,
-  LuVolume2,
 } from 'react-icons/lu';
 import { ConnectionState, ParticipantEvent, RoomEvent, Track } from 'livekit-client';
 import {
@@ -541,8 +540,6 @@ export default function GroupCallOverlay({
   const [screenShares, setScreenShares] = useState([]);
   const [speakingIds, setSpeakingIds] = useState(() => new Set());
   const [screenShareOn, setScreenShareOn] = useState(false);
-  const [speakerSupported, setSpeakerSupported] = useState(false);
-  const [audioOutputs, setAudioOutputs] = useState([]);
   const [cameraError, setCameraError] = useState(null);
   const [micError, setMicError] = useState(false);
   const [audioBlocked, setAudioBlocked] = useState(false);
@@ -805,21 +802,6 @@ export default function GroupCallOverlay({
     return () => mq.removeEventListener('change', apply);
   }, []);
 
-  useEffect(() => {
-    const supported = Boolean(
-      typeof HTMLMediaElement !== 'undefined' &&
-        HTMLMediaElement.prototype.setSinkId,
-    );
-    setSpeakerSupported(supported);
-    if (!supported || !navigator.mediaDevices?.enumerateDevices) return;
-    navigator.mediaDevices
-      .enumerateDevices()
-      .then((list) =>
-        setAudioOutputs(list.filter((d) => d.kind === 'audiooutput')),
-      )
-      .catch(() => setAudioOutputs([]));
-  }, []);
-
   const switchCamera = async () => {
     const room = roomRef.current;
     if (!room) return;
@@ -890,17 +872,6 @@ export default function GroupCallOverlay({
       );
     } finally {
       setScreenShareBusy(false);
-    }
-  };
-
-  const changeSpeaker = async (event) => {
-    const room = roomRef.current;
-    const deviceId = event.target.value;
-    if (!room || !deviceId) return;
-    try {
-      await room.switchActiveDevice('audiooutput', deviceId);
-    } catch {
-      /* unsupported */
     }
   };
 
@@ -1077,21 +1048,6 @@ export default function GroupCallOverlay({
               >
                 {screenShareOn ? <LuMonitorOff /> : <LuMonitor />}
               </button>
-              {speakerSupported && audioOutputs.length > 1 ? (
-                <label className="callOverlay__ctrl callOverlay__ctrl--select">
-                  <LuVolume2 aria-hidden="true" />
-                  <select
-                    aria-label={t('messenger.calls.speaker')}
-                    onChange={(e) => void changeSpeaker(e)}
-                  >
-                    {audioOutputs.map((d) => (
-                      <option key={d.deviceId} value={d.deviceId}>
-                        {d.label || t('messenger.calls.speaker')}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-              ) : null}
               <button
                 type="button"
                 className="callOverlay__ctrl callOverlay__ctrl--end"
