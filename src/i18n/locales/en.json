@@ -649,8 +649,14 @@
       "deleteConfirm": "Delete this chat for you only? The other person will keep their messages.",
       "deleteSuccess": "Chat deleted",
       "hideConfirm": "Hide this chat for you only? The group will remain for other members.",
-      "hideSuccess": "Chat hidden"
+      "hideSuccess": "Chat hidden",
+      "unhide": "Unhide chat",
+      "unhideSuccess": "Chat restored to the list"
     },
+    "hiddenChats": "Hidden chats",
+    "hiddenChatsEmpty": "No hidden chats",
+    "hiddenChatsOpen": "Open hidden chats",
+    "hiddenChatsBack": "Back to chats",
     "uploading": "Uploading…",
     "uploadError": "Upload failed",
     "voiceNotSupported": "Voice recording is not supported in this browser",

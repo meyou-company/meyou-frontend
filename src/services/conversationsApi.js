@@ -19,6 +19,18 @@ export const conversationsApi = {
     return extractList(data);
   },
 
+  async listHidden() {
+    const { data } = await api.get(apiPath('/conversations/hidden'));
+    return extractList(data);
+  },
+
+  async unhideConversation(conversationId) {
+    const { data } = await api.patch(
+      apiPath(`/conversations/${encodeURIComponent(conversationId)}/unhide`),
+    );
+    return data;
+  },
+
   async markConversationRead(conversationId) {
     const { data } = await api.patch(
       apiPath(`/conversations/${encodeURIComponent(conversationId)}/read`),

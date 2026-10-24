@@ -611,8 +611,14 @@
       "deleteSuccess": "Чат удалён",
       "hide": "Скрыть чат",
       "hideConfirm": "Скрыть этот чат только для вас? Группа останется у других участников.",
-      "hideSuccess": "Чат скрыт"
+      "hideSuccess": "Чат скрыт",
+      "unhide": "Показать чат",
+      "unhideSuccess": "Чат возвращён в список"
     },
+    "hiddenChats": "Скрытые чаты",
+    "hiddenChatsEmpty": "Нет скрытых чатов",
+    "hiddenChatsOpen": "Открыть скрытые чаты",
+    "hiddenChatsBack": "К чатам",
     "uploading": "Загрузка…",
     "uploadError": "Не удалось загрузить",
     "voiceNotSupported": "Запись голоса не поддерживается",

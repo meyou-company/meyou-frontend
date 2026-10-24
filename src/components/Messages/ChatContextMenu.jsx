@@ -4,6 +4,8 @@ import {
   LuBell,
   LuBellOff,
   LuBan,
+  LuEye,
+  LuEyeOff,
   LuMailOpen,
   LuPin,
   LuPinOff,
@@ -43,6 +45,7 @@ export default function ChatContextMenu({
   isPinned = false,
   isMuted = false,
   isGroup = false,
+  isHidden = false,
   onClose,
   onAction,
 }) {
@@ -52,7 +55,7 @@ export default function ChatContextMenu({
   const [ready, setReady] = useState(false);
 
   const items = [
-    {
+    !isHidden && {
       id: 'pin',
       Icon: isPinned ? LuPinOff : LuPin,
       label: isPinned
@@ -71,20 +74,30 @@ export default function ChatContextMenu({
       Icon: LuMailOpen,
       label: t('messenger.chatMenu.markUnread'),
     },
-      !isGroup && {
+    !isGroup && {
       id: 'block',
       Icon: LuBan,
       label: t('messenger.chatMenu.block'),
       danger: true,
     },
-    {
-      id: 'delete',
-      Icon: LuTrash2,
-      label: isGroup
-        ? t('messenger.chatMenu.hide')
-        : t('messenger.chatMenu.delete'),
-      danger: true,
-    },
+    isHidden
+      ? {
+          id: 'unhide',
+          Icon: LuEye,
+          label: t('messenger.chatMenu.unhide'),
+        }
+      : isGroup
+        ? {
+            id: 'delete',
+            Icon: LuEyeOff,
+            label: t('messenger.chatMenu.hide'),
+          }
+        : {
+            id: 'delete',
+            Icon: LuTrash2,
+            label: t('messenger.chatMenu.delete'),
+            danger: true,
+          },
   ].filter(Boolean);
 
   useLayoutEffect(() => {
@@ -95,7 +108,7 @@ export default function ChatContextMenu({
     const rect = menuRef.current.getBoundingClientRect();
     setPosition(computePosition(anchorRect, rect));
     setReady(true);
-  }, [isOpen, anchorRect, isPinned, isMuted, isGroup]);
+  }, [isOpen, anchorRect, isPinned, isMuted, isGroup, isHidden]);
 
   useEffect(() => {
     if (!isOpen) return undefined;

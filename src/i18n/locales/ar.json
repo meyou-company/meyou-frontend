@@ -494,6 +494,10 @@
     "soundLabel": "🔔 Message sound:",
     "loadChatsError": "Could not load chats",
     "noChats": "No chats yet",
+    "hiddenChats": "Hidden chats",
+    "hiddenChatsEmpty": "No hidden chats",
+    "hiddenChatsOpen": "Open hidden chats",
+    "hiddenChatsBack": "Back to chats",
     "selectChat": "Select a chat on the left or start a conversation from a user profile.",
     "empty": {
       "illustrationAlt": "Select a chat on the left. Interesting conversations, new connections and sincere emotions are waiting for you",

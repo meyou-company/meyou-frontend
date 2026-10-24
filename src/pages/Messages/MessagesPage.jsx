@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useNavigate, useParams } from 'react-router-dom';
+import { LuEyeOff } from 'react-icons/lu';
 import { toast } from 'sonner';
 import {
   MESSAGE_CREATED_EVENT,
@@ -285,8 +286,11 @@ export default function MessagesPage() {
   const fetchTotalUnreadCount = useMessagesStore((s) => s.fetchTotalUnreadCount);
 
   const [conversations, setConversations] = useState([]);
+  const [hiddenConversations, setHiddenConversations] = useState([]);
+  const [sidebarMode, setSidebarMode] = useState('inbox');
   const [messages, setMessages] = useState([]);
   const [loadingList, setLoadingList] = useState(true);
+  const [loadingHidden, setLoadingHidden] = useState(false);
   const [loadingChat, setLoadingChat] = useState(false);
   const [sending, setSending] = useState(false);
   const [drafts, setDrafts] = useState({});
@@ -308,6 +312,7 @@ export default function MessagesPage() {
   const [mutedOverrides, setMutedOverrides] = useState({});
   const [storyViewerGroup, setStoryViewerGroup] = useState(null);
   const [chatMenu, setChatMenu] = useState(null);
+  const hiddenIdsRef = useRef(new Set());
 
   const messagesEndRef = useRef(null);
   const longPressTimerRef = useRef(null);
@@ -355,8 +360,11 @@ export default function MessagesPage() {
   }, [currentUserId]);
 
   const activeConversation = useMemo(
-    () => conversations.find((c) => c.id === activeConversationId) ?? null,
-    [conversations, activeConversationId],
+    () =>
+      conversations.find((c) => c.id === activeConversationId) ||
+      hiddenConversations.find((c) => c.id === activeConversationId) ||
+      null,
+    [conversations, hiddenConversations, activeConversationId],
   );
 
   const peerId = activeConversation?.participant?.id;
@@ -372,6 +380,17 @@ export default function MessagesPage() {
       conversationMatchesSearch(chat, q, t, (user, fb) => getDisplayName(user, fb), drafts),
     );
   }, [conversations, drafts, searchQuery, t]);
+
+  const filteredHiddenConversations = useMemo(() => {
+    const q = searchQuery.trim().toLowerCase();
+    if (!q) return hiddenConversations;
+    return hiddenConversations.filter((chat) =>
+      conversationMatchesSearch(chat, q, t, (user, fb) => getDisplayName(user, fb), drafts),
+    );
+  }, [hiddenConversations, drafts, searchQuery, t]);
+
+  const sidebarConversations =
+    sidebarMode === 'hidden' ? filteredHiddenConversations : filteredConversations;
 
   const groupedMessages = useMemo(
     () => groupMessagesWithDates(messages, t),
@@ -426,6 +445,29 @@ export default function MessagesPage() {
       setConversations([]);
     } finally {
       setLoadingList(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    hiddenIdsRef.current = new Set(
+      hiddenConversations.map((c) => String(c.id)),
+    );
+  }, [hiddenConversations]);
+
+  const loadHiddenConversations = useCallback(async () => {
+    try {
+      setLoadingHidden(true);
+      const items = await conversationsApi.listHidden();
+      const list = sortConversations(Array.isArray(items) ? items : []);
+      usePresenceStore.getState().hydrateMany(
+        list.map((c) => c.participant).filter(Boolean),
+      );
+      setHiddenConversations(list);
+    } catch (err) {
+      console.error('[messages] hidden list failed', err);
+      setHiddenConversations([]);
+    } finally {
+      setLoadingHidden(false);
     }
   }, []);
 
@@ -486,8 +528,9 @@ export default function MessagesPage() {
   useEffect(() => {
     if (!isAuthed) return;
     loadConversations();
+    loadHiddenConversations();
     fetchTotalUnreadCount();
-  }, [isAuthed, loadConversations, fetchTotalUnreadCount]);
+  }, [isAuthed, loadConversations, loadHiddenConversations, fetchTotalUnreadCount]);
 
   useEffect(() => {
     if (!isAuthed || !activeConversationId || activeConversation) return undefined;
@@ -496,10 +539,20 @@ export default function MessagesPage() {
       .getById(activeConversationId)
       .then((row) => {
         if (cancelled || !row?.id) return;
+        if (row.isHidden) {
+          setHiddenConversations((prev) => {
+            if (prev.some((c) => String(c.id) === String(row.id))) return prev;
+            return sortConversations([row, ...prev]);
+          });
+          return;
+        }
         setConversations((prev) => {
           if (prev.some((c) => String(c.id) === String(row.id))) return prev;
           return sortConversations([row, ...prev]);
         });
+        setHiddenConversations((prev) =>
+          prev.filter((c) => String(c.id) !== String(row.id)),
+        );
       })
       .catch(() => undefined);
     return () => {
@@ -562,11 +615,17 @@ export default function MessagesPage() {
       const convId = envelope?.conversationId;
       if (!message?.id || !convId) return;
 
-      setConversations((prev) => {
-        const next = upsertConversationFromMessage(prev, envelope);
-        if (next === prev) void loadConversations();
-        return next;
-      });
+      if (hiddenIdsRef.current.has(String(convId))) {
+        setHiddenConversations((prev) =>
+          upsertConversationFromMessage(prev, envelope),
+        );
+      } else {
+        setConversations((prev) => {
+          const next = upsertConversationFromMessage(prev, envelope);
+          if (next === prev) void loadConversations();
+          return next;
+        });
+      }
 
       if (matchesActive(convId)) {
         setMessages((prev) => {
@@ -795,15 +854,12 @@ export default function MessagesPage() {
       setDrafts(nextDrafts);
       setReplyTo(null);
       appendOrUpdateMessage(created);
-      setConversations((prev) =>
-        sortConversations(
-          prev.map((c) =>
-            c.id === activeConversationId
-              ? { ...c, lastMessage: created, updatedAt: created.createdAt }
-              : c,
-          ),
-        ),
-      );
+      const patchLastMessage = (c) =>
+        String(c.id) === String(activeConversationId)
+          ? { ...c, lastMessage: created, updatedAt: created.createdAt }
+          : c;
+      setHiddenConversations((prev) => prev.map(patchLastMessage));
+      setConversations((prev) => sortConversations(prev.map(patchLastMessage)));
     } catch (err) {
       console.error('[messages] send failed', err);
       toast.error(getApiErrorMessage(err, 'messenger.sendError'));
@@ -1067,16 +1123,11 @@ export default function MessagesPage() {
 
         if (actionId === 'unread') {
           const result = await conversationsApi.markConversationUnread(chatId);
-          setConversations((prev) =>
-            prev.map((c) =>
-              String(c.id) === String(chatId)
-                ? {
-                    ...c,
-                    unreadCount: Math.max(1, result.unreadCount ?? 1),
-                  }
-                : c,
-            ),
-          );
+          const unreadCount = Math.max(1, result.unreadCount ?? 1);
+          const patchUnread = (c) =>
+            String(c.id) === String(chatId) ? { ...c, unreadCount } : c;
+          setHiddenConversations((prev) => prev.map(patchUnread));
+          setConversations((prev) => prev.map(patchUnread));
           if (typeof result.totalUnreadCount === 'number') {
             setTotalUnreadCount(result.totalUnreadCount);
           } else {
@@ -1086,12 +1137,37 @@ export default function MessagesPage() {
           return;
         }
 
+        if (actionId === 'unhide') {
+          const result = await conversationsApi.unhideConversation(chatId);
+          const restored = {
+            ...chat,
+            ...(result && typeof result === 'object' ? result : {}),
+            isHidden: false,
+          };
+          setHiddenConversations((prev) => {
+            const next = prev.filter((c) => String(c.id) !== String(chatId));
+            if (next.length === 0) setSidebarMode('inbox');
+            return next;
+          });
+          setConversations((prev) => {
+            if (prev.some((c) => String(c.id) === String(chatId))) {
+              return sortConversations(prev);
+            }
+            return sortConversations([restored, ...prev]);
+          });
+          toast.success(t('messenger.chatMenu.unhideSuccess'));
+          return;
+        }
+
         if (actionId === 'block') {
           if (!peerUserId) return;
           const ok = window.confirm(t('messenger.chatMenu.blockConfirm'));
           if (!ok) return;
           await usersApi.blockUser(peerUserId);
           setConversations((prev) =>
+            prev.filter((c) => String(c.id) !== String(chatId)),
+          );
+          setHiddenConversations((prev) =>
             prev.filter((c) => String(c.id) !== String(chatId)),
           );
           if (String(activeConversationId) === String(chatId)) {
@@ -1114,6 +1190,18 @@ export default function MessagesPage() {
           setConversations((prev) =>
             prev.filter((c) => String(c.id) !== String(chatId)),
           );
+          setHiddenConversations((prev) => {
+            if (prev.some((c) => String(c.id) === String(chatId))) return prev;
+            return sortConversations([
+              {
+                ...chat,
+                isHidden: true,
+                isPinned: false,
+                pinnedAt: null,
+              },
+              ...prev,
+            ]);
+          });
           if (String(activeConversationId) === String(chatId)) {
             navigate('/messages');
           }
@@ -1226,18 +1314,64 @@ export default function MessagesPage() {
             <aside
               className={`messagesPage__sidebar${showChatOnMobile ? ' is-hidden-mobile' : ''}`}
             >
-              {loadingList && (
+              {sidebarMode === 'hidden' ? (
+                <div className="messagesPage__hiddenHead">
+                  <button
+                    type="button"
+                    className="messagesPage__hiddenBack"
+                    onClick={() => setSidebarMode('inbox')}
+                    aria-label={t('messenger.hiddenChatsBack')}
+                  >
+                    <img src={profileIcons.arrowLeftBlack} alt="" />
+                    <span>{t('messenger.hiddenChats')}</span>
+                  </button>
+                </div>
+              ) : null}
+              {(sidebarMode === 'hidden' ? loadingHidden : loadingList) && (
                 <p className="messagesPage__hint">{t('common.loading')}</p>
               )}
-              {!loadingList && listError && (
+              {sidebarMode === 'inbox' && !loadingList && listError && (
                 <p className="messagesPage__hint messagesPage__hint--error">{listError}</p>
               )}
-              {!loadingList && !listError && filteredConversations.length === 0 && (
+              {sidebarMode === 'inbox' &&
+                !loadingList &&
+                !listError &&
+                filteredConversations.length === 0 &&
+                hiddenConversations.length === 0 && (
                 <p className="messagesPage__hint">{t('messenger.noChats')}</p>
+              )}
+              {sidebarMode === 'hidden' &&
+                !loadingHidden &&
+                filteredHiddenConversations.length === 0 && (
+                <p className="messagesPage__hint">{t('messenger.hiddenChatsEmpty')}</p>
               )}
 
               <ul className="messagesPage__chatList">
-                {filteredConversations.map((chat) => {
+                {sidebarMode === 'inbox' && hiddenConversations.length > 0 ? (
+                  <li className="messagesPage__chatRow">
+                    <button
+                      type="button"
+                      className="messagesPage__chatItem messagesPage__hiddenFolder"
+                      onClick={() => setSidebarMode('hidden')}
+                      aria-label={t('messenger.hiddenChatsOpen')}
+                    >
+                      <div className="messagesPage__chatAvatar messagesPage__hiddenFolderIcon">
+                        <LuEyeOff aria-hidden="true" />
+                      </div>
+                      <div className="messagesPage__chatMeta">
+                        <div className="messagesPage__chatTop">
+                          <span className="messagesPage__chatName">
+                            {t('messenger.hiddenChats')}
+                          </span>
+                          <span className="messagesPage__hiddenCount">
+                            {hiddenConversations.length}
+                          </span>
+                        </div>
+                      </div>
+                    </button>
+                  </li>
+                ) : null}
+                {sidebarConversations.map((chat) => {
                   const isActive = chat.id === activeConversationId;
                   const isGroup = isGroupConversation(chat);
                   const name = isGroup
@@ -1726,6 +1860,9 @@ export default function MessagesPage() {
         isPinned={Boolean(chatMenu?.chat?.isPinned || chatMenu?.chat?.pinnedAt)}
         isMuted={isConversationMuted(chatMenu?.chat)}
         isGroup={isGroupConversation(chatMenu?.chat)}
+        isHidden={Boolean(
+          chatMenu?.chat?.isHidden || sidebarMode === 'hidden',
+        )}
         onClose={() => setChatMenu(null)}
         onAction={handleChatMenuAction}
       />
