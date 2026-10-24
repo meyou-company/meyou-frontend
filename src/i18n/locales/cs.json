@@ -720,7 +720,8 @@
       "screenShareInsecure": "Screen sharing needs a secure (HTTPS) connection",
       "screenSharePermissionDenied": "Screen sharing permission was denied",
       "screenShareNotConnected": "Wait until you are in the call, then try again",
-      "screenShareFailed": "Could not start screen sharing"
+      "screenShareFailed": "Could not start screen sharing",
+      "speaker": "Speaker"
     }
   },
   "notifications": {
