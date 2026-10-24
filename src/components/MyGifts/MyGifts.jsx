@@ -397,6 +397,24 @@ export default function MyGifts({ goBack, receiverId, receiverName, thankMode = 
     }
   };
 
+  const handleSendCta = () => {
+    if (pageView !== "send") {
+      setPageView("send");
+      return;
+    }
+    if (sending) return;
+    if (selectedRecipients.length === 0) {
+      setFriendsQuery("");
+      setPickFriendOpen(true);
+      return;
+    }
+    if (selectedGifts.length === 0) {
+      toast.message(t("gifts.needGift"));
+      return;
+    }
+    void handleFinalSend();
+  };
+
   const handleReply = (sender) => {
     setPageView("send");
     onReply?.(sender);
@@ -440,7 +458,7 @@ export default function MyGifts({ goBack, receiverId, receiverName, thankMode = 
       onClick={handleFinalSend}
       disabled={!canSend}
     >
-      {thankMode ? t("gifts.thankSend") : t("gifts.sendAction")}
+      {thankMode ? t("gifts.thankSend") : t("gifts.send")}
     </button>
   );
 
@@ -669,7 +687,7 @@ export default function MyGifts({ goBack, receiverId, receiverName, thankMode = 
               role="tab"
               aria-selected={pageView === "send"}
               className={`my-gifts-page__pageTab${pageView === "send" ? " is-active" : ""}`}
-              onClick={() => setPageView("send")}
+              onClick={handleSendCta}
             >
               {t("gifts.send")}
             </button>
@@ -775,7 +793,7 @@ export default function MyGifts({ goBack, receiverId, receiverName, thankMode = 
                     {" • "}
                     {t("gifts.recipientCount", { count: selectedRecipients.length })}
                   </p>
-                  {renderSendButton()}
+                  {thankMode ? renderSendButton() : null}
                 </div>
                 <p className="my-gifts-page__footerLine">{t("gifts.footerLine")}</p>
               </div>

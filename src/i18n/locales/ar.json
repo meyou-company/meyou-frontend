@@ -1043,6 +1043,7 @@
     "friendsSearch": "البحث بين الأصدقاء",
     "friendsEmpty": "ليس لديك أصدقاء بعد",
     "needRecipient": "افتح ملف المستخدم لإرسال هدية.",
+    "needGift": "اختر هدية لإرسالها.",
     "sent": "تم إرسال الهدية",
     "testSelectedTitle": "تم اختيار الهدية",
     "testSelectedBody": "سيتم إرسال {{gift}} إلى {{name}}.",

@@ -1144,6 +1144,7 @@
     "friendsSearch": "Search friends",
     "friendsEmpty": "You have no friends yet",
     "needRecipient": "Open a user’s profile to send a gift.",
+    "needGift": "Choose a gift to send.",
     "sent": "Gift sent",
     "testSelectedTitle": "Gift selected",
     "testSelectedBody": "{{gift}} will be sent to {{name}}.",

@@ -1066,6 +1066,7 @@
     "friendsSearch": "Hledat mezi přáteli",
     "friendsEmpty": "Zatím nemáte žádné přátele",
     "needRecipient": "Chcete-li odeslat dárek, otevřete profil uživatele.",
+    "needGift": "Vyberte dárek k odeslání.",
     "sent": "Dárek odeslán",
     "testSelectedTitle": "Dárek vybrán",
     "testSelectedBody": "{{gift}} bude odeslán uživateli {{name}}.",

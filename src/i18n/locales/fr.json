@@ -1064,6 +1064,7 @@
     "friendsSearch": "Rechercher parmi les amis",
     "friendsEmpty": "Vous n’avez pas encore d’amis",
     "needRecipient": "Ouvrez le profil d’un utilisateur pour envoyer un cadeau.",
+    "needGift": "Choisissez un cadeau à envoyer.",
     "sent": "Cadeau envoyé",
     "testSelectedTitle": "Cadeau sélectionné",
     "testSelectedBody": "{{gift}} sera envoyé à {{name}}.",
