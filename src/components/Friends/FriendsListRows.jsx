@@ -1,90 +1,110 @@
-import profileIcons from "../../constants/profileIcons";
+import { useTranslation } from "react-i18next";
 import { getProfileRouteHandle } from "../../utils/profileFriendNav";
-import OnlineStatus from "../Presence/OnlineStatus";
+import { formatLastSeenAt } from "../../utils/formatLastSeen";
 import UserAvatar from "../UserAvatar/UserAvatar";
 
-const DEFAULT_AVATAR = "/icon1/image0.png";
-
-function displayNameFor(user, handle) {
-  const full = [user.firstName, user.lastName].filter(Boolean).join(" ").trim();
-  if (full) return full;
-  if (handle) return handle;
-  return "Користувач";
+function displayName(u) {
+  const first = (u.firstName || "").trim();
+  const last = (u.lastName || "").trim();
+  const full = `${first} ${last}`.trim();
+  return full || u.username || "";
 }
 
-function VerifiedBadge() {
-  return (
-    <span className="friends-content__verified friends-content__desktopOnly" title="Верифіковано">
-      <svg className="friends-content__verifiedIcon" viewBox="0 0 24 24" aria-hidden="true">
-        <circle cx="12" cy="12" r="11" fill="#1d9bf0" />
-        <path
-          fill="#fff"
-          d="M10.2 15.6 6.8 12.2l1.4-1.4 2 2 5.6-5.6 1.4 1.4-7 7z"
-        />
-      </svg>
-    </span>
-  );
+function displayUsername(u) {
+  const uname = (u.username || "").trim();
+  return uname ? `@${uname}` : "";
 }
 
 /**
  * Спільний список друзів для /friends та /profile/:user/friends.
- * Декоративні іконки (друзі, верифікація, стрілка) — лише від tablet/desktop (див. SCSS .friends-content__desktopOnly).
  */
-export default function FriendsListRows({ users, onOpenProfile, onOpenUser }) {
+export default function FriendsListRows({
+  users,
+  onOpenProfile,
+  onOpenUser,
+  action = null,
+  actionBusyId = null,
+  onAction,
+  subscribeLabel,
+  unsubscribeLabel,
+  vipBadgeLabel,
+  showVipBadge = false,
+}) {
+  const { t, i18n } = useTranslation();
   const openProfile = onOpenProfile ?? onOpenUser;
+  const actionLabel = action === "subscribe" ? subscribeLabel : unsubscribeLabel;
 
   return (
-    <ul className="friends-content__list" role="list">
-      {users.map((user) => {
-        const handle = getProfileRouteHandle(user);
-        const name = displayNameFor(user, handle);
+    <ul className="friends-content__list">
+      {users.map((u) => {
+        const name = displayName(u);
+        const uname = displayUsername(u);
+        const handle = getProfileRouteHandle(u);
+        const canOpen = Boolean(handle);
+        const isOnline = u.isOnline === true || u.online === true;
+        const lastSeenText = isOnline
+          ? t("presence.online")
+          : formatLastSeenAt(u.lastSeenAt, t, i18n.language);
+        const busy = actionBusyId != null && actionBusyId === u.id;
+
         return (
-          <li key={user.id} className="friends-content__item">
-            <button
-              type="button"
-              className="friends-content__userBtn"
-              disabled={!handle}
-              onClick={() => handle && openProfile?.(handle)}
-              aria-label={
-                handle ? `Відкрити профіль ${name}, @${handle}` : `Профіль: ${name}`
-              }
-            >
-              <div className="friends-content__avatarWrap">
-                <UserAvatar
-                  user={user}
-                  src={user.avatarUrl || user.avatar || DEFAULT_AVATAR}
-                  alt=""
-                  className="friends-content__avatar"
-                />
-                <OnlineStatus
-                  userId={user.id}
-                  user={user}
-                  className="onlineStatus--onAvatar"
-                />
-              </div>
-              <div className="friends-content__userInfo">
-                <span className="friends-content__nameRow">
-                  <span className="friends-content__name">{name}</span>
-                  {user.isVerified === true ? <VerifiedBadge /> : null}
-                  <img
-                    src={profileIcons.friends}
+          <li key={u.id || handle} className="friends-content__item">
+            <div className="friends-content__row">
+              <button
+                type="button"
+                className="friends-content__userBtn"
+                onClick={() => canOpen && openProfile?.(handle)}
+                disabled={!canOpen}
+                aria-label={
+                  canOpen
+                    ? t("profile.friends.openProfile", { name: name || handle })
+                    : t("profile.friends.profileUnavailable")
+                }
+              >
+                <span className="friends-content__avatarWrap">
+                  <UserAvatar
+                    className="friends-content__avatar"
+                    src={u.avatarUrl || u.avatar}
                     alt=""
-                    className="friends-content__nameInlineIcon friends-content__desktopOnly"
-                    aria-hidden="true"
+                    size={52}
+                    isOnline={isOnline}
                   />
                 </span>
-                {handle ? (
-                  <span className="friends-content__username">@{handle}</span>
-                ) : null}
-              </div>
-              <div className="friends-content__trail friends-content__desktopOnly" aria-hidden="true">
-                <img
-                  src={profileIcons.arrowRightFilledBlack}
-                  alt=""
-                  className="friends-content__chevron"
-                />
-              </div>
-            </button>
+                <span className="friends-content__userInfo">
+                  <span className="friends-content__nameRow">
+                    <span className="friends-content__name">{name || uname || "—"}</span>
+                    {u.isVerified && (
+                      <span className="friends-content__verified friends-content__desktopOnly" aria-hidden="true">
+                        <img src="/icon1/verified.svg" alt="" className="friends-content__verifiedIcon" />
+                      </span>
+                    )}
+                    <img src="/icon1/Vector-2.png" alt="" className="friends-content__nameInlineIcon friends-content__desktopOnly" aria-hidden="true" />
+                  </span>
+                  {(uname || lastSeenText) && (
+                    <span className="friends-content__username">
+                      {uname}
+                      {uname && lastSeenText ? " · " : ""}
+                      {lastSeenText}
+                    </span>
+                  )}
+                </span>
+                <span className="friends-content__trail friends-content__desktopOnly" aria-hidden="true">
+                  <img src="/icon1/Vector-1.png" alt="" className="friends-content__chevron" />
+                </span>
+              </button>
+              {action && onAction ? (
+                <button
+                  type="button"
+                  className={`friends-content__action friends-content__action--${action}`}
+                  onClick={() => onAction(u)}
+                  disabled={busy}
+                >
+                  {busy ? t("common.loading") : actionLabel}
+                </button>
+              ) : showVipBadge ? (
+                <span className="friends-content__vipBadge">{vipBadgeLabel}</span>
+              ) : null}
+            </div>
           </li>
         );
       })}

@@ -34,6 +34,27 @@
     "messages": "Сообщения",
     "profile": "Профиль"
   },
+  "friends": {
+    "page": {
+      "title": "Друзья",
+      "searchPlaceholder": "Поиск по имени или нику…",
+      "sections": "Разделы друзей",
+      "tabFriends": "Друзья",
+      "tabFollowers": "Подписчики",
+      "tabFollowing": "Подписки",
+      "tabVip": "VIP-друзья",
+      "subscribeBack": "Подписаться в ответ",
+      "unsubscribe": "Отписаться",
+      "vipBadge": "VIP",
+      "emptyFriends": "Пока нет взаимных друзей",
+      "emptyFollowers": "Пока нет подписчиков",
+      "emptyFollowing": "Вы ещё ни на кого не подписаны",
+      "emptyVip": "Пока нет VIP-друзей",
+      "emptySearch": "Никого не найдено",
+      "loadError": "Не удалось загрузить список",
+      "actionError": "Не удалось обновить подписку"
+    }
+  },
   "landing": {
     "tagline": "LunMeYo — современная платформа для знакомств, общения и безопасных социальных связей.",
     "features": {

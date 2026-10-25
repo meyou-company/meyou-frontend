@@ -34,6 +34,27 @@
     "messages": "Zprávy",
     "profile": "Profil"
   },
+  "friends": {
+    "page": {
+      "title": "Přátelé",
+      "searchPlaceholder": "Hledat podle jména nebo uživatelského jména…",
+      "sections": "Sekce přátel",
+      "tabFriends": "Přátelé",
+      "tabFollowers": "Sledující",
+      "tabFollowing": "Sledovaní",
+      "tabVip": "VIP přátelé",
+      "subscribeBack": "Sledovat zpět",
+      "unsubscribe": "Přestat sledovat",
+      "vipBadge": "VIP",
+      "emptyFriends": "Zatím žádní vzájemní přátelé",
+      "emptyFollowers": "Zatím žádní sledující",
+      "emptyFollowing": "Zatím nikoho nesledujete",
+      "emptyVip": "Zatím žádní VIP přátelé",
+      "emptySearch": "Nikdo nebyl nalezen",
+      "loadError": "Seznam se nepodařilo načíst",
+      "actionError": "Odběr se nepodařilo aktualizovat"
+    }
+  },
   "landing": {
     "tagline": "LunMeYo je moderní platforma pro seznamování, komunikaci a bezpečné sociální vazby.",
     "features": {

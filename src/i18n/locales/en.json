@@ -34,6 +34,27 @@
     "messages": "Messages",
     "profile": "Profile"
   },
+  "friends": {
+    "page": {
+      "title": "Friends",
+      "searchPlaceholder": "Search by name or username…",
+      "sections": "Friends sections",
+      "tabFriends": "Friends",
+      "tabFollowers": "Followers",
+      "tabFollowing": "Following",
+      "tabVip": "VIP friends",
+      "subscribeBack": "Follow back",
+      "unsubscribe": "Unfollow",
+      "vipBadge": "VIP",
+      "emptyFriends": "No mutual friends yet",
+      "emptyFollowers": "No followers yet",
+      "emptyFollowing": "You are not following anyone yet",
+      "emptyVip": "No VIP friends yet",
+      "emptySearch": "No one found for this query",
+      "loadError": "Could not load the list",
+      "actionError": "Could not update the subscription"
+    }
+  },
   "landing": {
     "tagline": "LunMeYo is a modern platform for dating, communication, and safe social connections.",
     "features": {

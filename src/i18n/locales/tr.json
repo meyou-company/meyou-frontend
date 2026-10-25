@@ -34,6 +34,27 @@
     "messages": "Mesajlar",
     "profile": "Profil"
   },
+  "friends": {
+    "page": {
+      "title": "Arkadaşlar",
+      "searchPlaceholder": "İsim veya kullanıcı adına göre ara…",
+      "sections": "Arkadaş bölümleri",
+      "tabFriends": "Arkadaşlar",
+      "tabFollowers": "Takipçiler",
+      "tabFollowing": "Takip edilenler",
+      "tabVip": "VIP arkadaşlar",
+      "subscribeBack": "Geri takip et",
+      "unsubscribe": "Takipten çık",
+      "vipBadge": "VIP",
+      "emptyFriends": "Henüz karşılıklı arkadaş yok",
+      "emptyFollowers": "Henüz takipçi yok",
+      "emptyFollowing": "Henüz kimseyi takip etmiyorsunuz",
+      "emptyVip": "Henüz VIP arkadaş yok",
+      "emptySearch": "Bu arama için kimse bulunamadı",
+      "loadError": "Liste yüklenemedi",
+      "actionError": "Abonelik güncellenemedi"
+    }
+  },
   "landing": {
     "tagline": "LunMeYo, tanisma, iletisim ve guvenli sosyal baglantilar icin modern bir platformdur.",
     "features": {
