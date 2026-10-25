@@ -47,6 +47,13 @@ import {
   mergeSeenMessageIds,
 } from '../../utils/messageReadReceipt';
 import {
+  createClientId,
+  createOptimisticMessage,
+  markOptimisticFailed,
+  mergeMessageRecord,
+  mergeOutgoingMessage,
+} from '../../utils/optimisticChatMessage';
+import {
   conversationMatchesSearch,
   formatConversationClock,
   getConversationListPreview,
@@ -292,9 +299,9 @@ export default function MessagesPage() {
   const [loadingList, setLoadingList] = useState(true);
   const [loadingHidden, setLoadingHidden] = useState(false);
   const [loadingChat, setLoadingChat] = useState(false);
-  const [sending, setSending] = useState(false);
   const [drafts, setDrafts] = useState({});
   const draftsRef = useRef({});
+  const activeConversationIdRef = useRef(conversationId || null);
   const [listError, setListError] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [replyTo, setReplyTo] = useState(null);
@@ -318,6 +325,7 @@ export default function MessagesPage() {
   const longPressTimerRef = useRef(null);
   const startCallInFlightRef = useRef(false);
   const activeConversationId = conversationId || null;
+  activeConversationIdRef.current = activeConversationId;
 
   useEffect(() => {
     const mobile = window.matchMedia('(max-width: 768px)');
@@ -591,8 +599,18 @@ export default function MessagesPage() {
       const idx = prev.findIndex((m) => String(m.id) === String(message.id));
       if (idx >= 0) {
         const next = [...prev];
-        next[idx] = { ...prev[idx], ...message };
+        next[idx] = mergeMessageRecord(prev[idx], message);
         return next;
+      }
+      if (
+        message.clientId &&
+        prev.some((m) => String(m.clientId) === String(message.clientId))
+      ) {
+        return mergeOutgoingMessage(
+          prev,
+          `optimistic-${message.clientId}`,
+          message,
+        );
       }
       return [...prev, message];
     });
@@ -630,6 +648,16 @@ export default function MessagesPage() {
       if (matchesActive(convId)) {
         setMessages((prev) => {
           if (prev.some((m) => String(m.id) === String(message.id))) return prev;
+          if (
+            message.clientId &&
+            prev.some((m) => String(m.clientId) === String(message.clientId))
+          ) {
+            return mergeOutgoingMessage(
+              prev,
+              `optimistic-${message.clientId}`,
+              message,
+            );
+          }
           return [...prev, message];
         });
         void markChatRead(convId);
@@ -659,6 +687,16 @@ export default function MessagesPage() {
       setConversations((prev) => patchConversationLastMessage(prev, convId, message));
 
       if (!matchesActive(convId)) return;
+      if (
+        message.clientId &&
+        currentUserId &&
+        String(message.senderId) === String(currentUserId)
+      ) {
+        setMessages((prev) =>
+          mergeOutgoingMessage(prev, `optimistic-${message.clientId}`, message),
+        );
+        return;
+      }
       appendOrUpdateMessage(message);
     };
 
@@ -830,42 +868,73 @@ export default function MessagesPage() {
   );
 
   const handleSendPayload = async (payload) => {
-    if (!activeConversationId || sending) return;
+    const conversationIdForSend = activeConversationId;
+    if (!conversationIdForSend || !currentUserId) return;
 
     const hasText = Boolean(payload?.text?.trim());
     const hasAttachments = Array.isArray(payload?.attachments) && payload.attachments.length > 0;
     if (!hasText && !hasAttachments) return;
 
-    try {
-      setSending(true);
+    const clientId = createClientId();
+    const replySnapshot = replyTo;
+    const optimistic = createOptimisticMessage({
+      clientId,
+      conversationId: conversationIdForSend,
+      senderId: currentUserId,
+      sender: {
+        id: currentUser?.id,
+        username: currentUser?.username,
+        firstName: currentUser?.firstName,
+        lastName: currentUser?.lastName,
+        avatarUrl: currentUser?.avatarUrl,
+        name: getDisplayName(currentUser, ''),
+      },
+      payload,
+      replyTo: replySnapshot,
+    });
 
-      const body = {
+    appendOrUpdateMessage(optimistic);
+    const patchOptimisticLast = (c) =>
+      String(c.id) === String(conversationIdForSend)
+        ? { ...c, lastMessage: optimistic, updatedAt: optimistic.createdAt }
+        : c;
+    setHiddenConversations((prev) => prev.map(patchOptimisticLast));
+    setConversations((prev) => sortConversations(prev.map(patchOptimisticLast)));
+
+    const nextDrafts = persistConversationDraft(
+      currentUserId,
+      draftsRef.current,
+      conversationIdForSend,
+      '',
+    );
+    draftsRef.current = nextDrafts;
+    setDrafts(nextDrafts);
+    setReplyTo(null);
+
+    void conversationsApi
+      .sendMessage(conversationIdForSend, {
         ...payload,
-        replyToMessageId: replyTo?.id,
-      };
-      const created = await conversationsApi.sendMessage(activeConversationId, body);
-      const nextDrafts = persistConversationDraft(
-        currentUserId,
-        draftsRef.current,
-        activeConversationId,
-        '',
-      );
-      draftsRef.current = nextDrafts;
-      setDrafts(nextDrafts);
-      setReplyTo(null);
-      appendOrUpdateMessage(created);
-      const patchLastMessage = (c) =>
-        String(c.id) === String(activeConversationId)
-          ? { ...c, lastMessage: created, updatedAt: created.createdAt }
-          : c;
-      setHiddenConversations((prev) => prev.map(patchLastMessage));
-      setConversations((prev) => sortConversations(prev.map(patchLastMessage)));
-    } catch (err) {
-      console.error('[messages] send failed', err);
-      toast.error(getApiErrorMessage(err, 'messenger.sendError'));
-    } finally {
-      setSending(false);
-    }
+        replyToMessageId: replySnapshot?.id,
+        clientId,
+      })
+      .then((created) => {
+        if (String(activeConversationIdRef.current) === String(conversationIdForSend)) {
+          setMessages((prev) => mergeOutgoingMessage(prev, optimistic.id, created));
+        }
+        const patchLastMessage = (c) =>
+          String(c.id) === String(conversationIdForSend)
+            ? { ...c, lastMessage: created, updatedAt: created.createdAt }
+            : c;
+        setHiddenConversations((prev) => prev.map(patchLastMessage));
+        setConversations((prev) => sortConversations(prev.map(patchLastMessage)));
+      })
+      .catch((err) => {
+        console.error('[messages] send failed', err);
+        if (String(activeConversationIdRef.current) === String(conversationIdForSend)) {
+          setMessages((prev) => markOptimisticFailed(prev, optimistic.id));
+        }
+        toast.error(getApiErrorMessage(err, 'messenger.sendError'));
+      });
   };
 
   const {
@@ -1789,6 +1858,7 @@ export default function MessagesPage() {
                             hideReadReceipt={isActiveGroup}
                             highlight={String(msg.id) === String(highlightMessageId)}
                             onOpenMenu={(message, rect, bubbleTimeLabel, isMineBubble) => {
+                              if (message?.pending) return;
                               setMenuState({
                                 message,
                                 anchorRect: rect,
@@ -1830,7 +1900,6 @@ export default function MessagesPage() {
                     value={getConversationDraft(drafts, activeConversationId)}
                     onChange={handleDraftChange}
                     onSendPayload={handleSendPayload}
-                    sending={sending}
                     replyTo={replyTo}
                     onCancelReply={() => setReplyTo(null)}
                     conversationId={activeConversationId}

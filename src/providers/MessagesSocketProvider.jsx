@@ -111,20 +111,22 @@ export function MessagesSocketProvider() {
         return;
       }
 
-      ctx.applyMessageCreated?.({
-        conversationId,
-        unreadCount: envelope?.unreadCount,
-        totalUnreadCount: envelope?.totalUnreadCount,
-      });
-
-      dispatchMessageCreated(envelope);
-
       const isActiveChat =
         ctx.activeConversationId &&
         conversationId &&
         String(ctx.activeConversationId) === String(conversationId) &&
         document.visibilityState === 'visible' &&
         ctx.pathname.startsWith('/messages');
+
+      ctx.applyMessageCreated?.({
+        conversationId,
+        unreadCount: envelope?.unreadCount,
+        totalUnreadCount: envelope?.totalUnreadCount,
+        incrementUnread: envelope?.incrementUnread,
+        isActiveVisibleChat: isActiveChat,
+      });
+
+      dispatchMessageCreated(envelope);
 
       if (!isActiveChat) {
         if (ctx.soundEnabled) {
