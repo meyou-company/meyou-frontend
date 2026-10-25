@@ -111,19 +111,28 @@
   background: #000;
 }
 
+.videoUploadModal__musicRow {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+}
+
 .videoUploadModal__musicBtn {
-  align-self: flex-start;
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
+  width: 100%;
+  min-height: 48px;
   border: 0;
   border-radius: 50px;
-  padding: 10px 16px;
+  padding: 12px 16px;
   color: #fff;
   background: linear-gradient(90deg, #4f6bff, #ff4fb1);
   cursor: pointer;
   font: inherit;
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 700;
 
   &:disabled {
@@ -212,7 +221,7 @@
     min-height: 0;
     overflow-y: auto;
     padding-bottom: 46px;
-    justify-content: center;
+    justify-content: flex-start;
   }
 
   .videoUploadModal__preview {
@@ -279,6 +288,13 @@ html[data-theme="dark"] .videoUploadModal__pickBtn--secondary {
   background: rgba(30, 22, 44, 0.9);
   color: #c4b5fd;
   border: 1px solid rgba(167, 139, 250, 0.35);
+}
+
+body.dark .videoUploadModal__musicBtn,
+html[data-theme="dark"] .videoUploadModal__musicBtn,
+.dark .videoUploadModal__musicBtn {
+  color: #fff;
+  background: linear-gradient(90deg, #4f6bff, #ff4fb1);
 }
 
 body.dark .videoUploadModal__backdrop,

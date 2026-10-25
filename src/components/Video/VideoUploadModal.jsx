@@ -384,33 +384,36 @@ export default function VideoUploadModal({ isOpen, onClose, onCreated }) {
             >
               {videoFile ? "Заменить видео" : "Выбрать видео"}
             </button>
-            {videoPreviewUrl && (
-              <video
-                ref={videoPreviewRef}
-                className="videoUploadModal__preview"
-                src={videoPreviewUrl}
-                controls
-                muted={!soundtrack || soundtrack.originalVolume <= 0}
-              />
-            )}
-          </div>
-
-          <div className="videoUploadModal__field">
-            <button
-              type="button"
-              className={`videoUploadModal__musicBtn ${soundtrack ? "videoUploadModal__musicBtn--active" : ""}`}
-              onClick={openMusicPicker}
-              disabled={isPublishing}
-            >
-              <span aria-hidden="true">🎵</span>
-              <span>{t("stories.music")}</span>
-            </button>
-            <SoundtrackChip
-              soundtrack={soundtrack}
-              disabled={isPublishing}
-              onChange={openMusicPicker}
-              onRemove={() => setSoundtrack(null)}
-            />
+            {videoPreviewUrl ? (
+              <>
+                <video
+                  ref={videoPreviewRef}
+                  className="videoUploadModal__preview"
+                  src={videoPreviewUrl}
+                  controls
+                  playsInline
+                  muted={!soundtrack || soundtrack.originalVolume <= 0}
+                />
+                <div className="videoUploadModal__musicRow">
+                  <button
+                    type="button"
+                    className={`videoUploadModal__musicBtn ${soundtrack ? "videoUploadModal__musicBtn--active" : ""}`}
+                    onClick={openMusicPicker}
+                    disabled={isPublishing}
+                    aria-label={t("stories.music")}
+                  >
+                    <span aria-hidden="true">🎵</span>
+                    <span>{t("stories.music")}</span>
+                  </button>
+                  <SoundtrackChip
+                    soundtrack={soundtrack}
+                    disabled={isPublishing}
+                    onChange={openMusicPicker}
+                    onRemove={() => setSoundtrack(null)}
+                  />
+                </div>
+              </>
+            ) : null}
           </div>
 
           <div className="videoUploadModal__field">
