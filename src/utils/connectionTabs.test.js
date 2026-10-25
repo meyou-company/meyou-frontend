@@ -5,6 +5,7 @@ import {
   CONNECTION_TABS,
   actionForConnectionTab,
   normalizeConnectionCounts,
+  parseConnectionTab,
 } from "./connectionTabs.js";
 
 describe("connectionTabs", () => {
@@ -32,5 +33,12 @@ describe("connectionTabs", () => {
       following: 0,
       vip: 1,
     });
+  });
+
+  it("parses friends-page tab query values", () => {
+    assert.equal(parseConnectionTab("following"), "following");
+    assert.equal(parseConnectionTab("vip"), "vip");
+    assert.equal(parseConnectionTab("nope"), "friends");
+    assert.equal(parseConnectionTab(null), "friends");
   });
 });

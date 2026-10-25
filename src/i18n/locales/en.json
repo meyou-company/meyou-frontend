@@ -46,7 +46,7 @@
       "subscribeBack": "Follow back",
       "unsubscribe": "Unfollow",
       "vipBadge": "VIP",
-      "emptyFriends": "No mutual friends yet",
+      "emptyFriends": "You don't have any friends yet",
       "emptyFollowers": "No followers yet",
       "emptyFollowing": "You are not following anyone yet",
       "emptyVip": "No VIP friends yet",
@@ -258,7 +258,8 @@
       "showMore": "Show more",
       "findFriends": "Find friends",
       "viewFriends": "View friends",
-      "empty": "No friends yet",
+      "allContacts": "All contacts",
+      "empty": "You don't have any friends yet",
       "profileOf": "Profile {{name}}",
       "profileUnavailable": "Profile unavailable",
       "openProfile": "Open profile {{name}}"

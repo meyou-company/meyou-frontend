@@ -19,7 +19,7 @@ import MessagesNavBadge from "../../../Messages/MessagesNavBadge";
 import GiftInboxBadge from "../../../Gifts/GiftInboxBadge";
 import profileIcons from "../../../../constants/profileIcons";
 import { DEFAULT_AVATAR } from "../../../../constants/brand";
-import { getFriendsCountNumber } from "../../../../utils/profileFriends";
+import { getOwnProfileFriendsCount } from "../../../../utils/profileFriends";
 import {
   normalizeFriendListItem,
   getFriendRouteHandle,
@@ -57,11 +57,13 @@ export default function ProfileHome({
   loadSecondary = true,
   /** Список взаємних друзів (GET /subscriptions/connections?tab=friends) для блоку «Друзі» */
   followingList,
+  /** Classified friends count from connections — not following/followers totals. */
+  classifiedFriendsCount,
   /** Відкрити профіль користувача за username (клік по аватару друга) */
   onOpenUser,
-  /** Відкрити сторінку «Друзі та VIP» (Показать больше) */
+  /** Open /friends with all contact tabs */
   onShowMore,
-  /** Відкрити пошук (коли немає друзів — кнопка «Знайти друзів») */
+  /** Open people search to find new users */
   onFindFriends,
   refreshMe,
   onEditProfile,
@@ -243,10 +245,10 @@ export default function ProfileHome({
     if (h) onOpenUser?.(h);
   };
   const hasFriends = friends.length > 0;
-  /** Загальна кількість друзів з бекенду (friendsCount: { followers, following } або число); інакше — довжина списку */
-  const apiCount = getFriendsCountNumber(user?.friendsCount ?? user?.friends_count);
-  const displayFriendsCount =
-    typeof apiCount === "number" && apiCount >= 0 ? apiCount : friends.length;
+  const displayFriendsCount = getOwnProfileFriendsCount(
+    classifiedFriendsCount,
+    friends.length,
+  );
 
   const onFileSelect = (e) => {
     const file = e.target.files?.[0];
@@ -781,84 +783,89 @@ export default function ProfileHome({
 
         {/* ================= VIP / FRIENDS ================= */}
         <section className="vipCard">
-          <div className="friendsTitle">
+          <button
+            type="button"
+            className="friendsTitle"
+            onClick={onShowMore}
+            aria-label={t('profile.friends.titleWithCount', { count: displayFriendsCount })}
+          >
             <span className="friendsTitle__label">{t('profile.friends.title')}</span>{" "}
             <span className="friendsTitle__count">{displayFriendsCount}</span>
-          </div>
+          </button>
 
           {hasFriends ? (
-            <>
-              <div className="vipRow">
-                {friends.slice(0, 7).map((v) => {
-                  const handle = getFriendRouteHandle(v);
-                  const canOpen = Boolean(handle);
-                  const label = getFriendDisplayLabel(v);
-                  return (
-                    <div key={v.id} className="vipItem">
-                      <div className="vipFriendCell">
+            <div className="vipRow">
+              {friends.slice(0, 7).map((v) => {
+                const handle = getFriendRouteHandle(v);
+                const canOpen = Boolean(handle);
+                const label = getFriendDisplayLabel(v);
+                return (
+                  <div key={v.id} className="vipItem">
+                    <div className="vipFriendCell">
+                      <button
+                        type="button"
+                        className="vipAvatarWrap vipAvatarWrap--clickable"
+                        onClick={() => openFriendProfile(v)}
+                        disabled={!canOpen}
+                        aria-label={
+                          canOpen
+                            ? t('profile.friends.profileOf', { name: handle })
+                            : t('profile.friends.profileUnavailable')
+                        }
+                      >
+                        <img
+                          src={v.avatar || "/icon1/image0.png"}
+                          className="vipAvatar"
+                          alt=""
+                        />
+                        <OnlineStatus
+                          userId={v.id}
+                          user={v}
+                          className="onlineStatus--onAvatar onlineDot"
+                        />
+                      </button>
+                      {(label || canOpen) && (
                         <button
                           type="button"
-                          className="vipAvatarWrap vipAvatarWrap--clickable"
+                          className="vipFriendNameBtn"
                           onClick={() => openFriendProfile(v)}
                           disabled={!canOpen}
                           aria-label={
                             canOpen
-                              ? t('profile.friends.profileOf', { name: handle })
-                              : t('profile.friends.profileUnavailable')
+                              ? t('profile.friends.openProfile', { name: handle })
+                              : undefined
                           }
                         >
-                          <img
-                            src={v.avatar || "/icon1/image0.png"}
-                            className="vipAvatar"
-                            alt=""
-                          />
-                          <OnlineStatus
-                            userId={v.id}
-                            user={v}
-                            className="onlineStatus--onAvatar onlineDot"
-                          />
+                          <span className="vipFriendNameText">
+                            {label || handle || "—"}
+                          </span>
                         </button>
-                        {(label || canOpen) && (
-                          <button
-                            type="button"
-                            className="vipFriendNameBtn"
-                            onClick={() => openFriendProfile(v)}
-                            disabled={!canOpen}
-                            aria-label={
-                              canOpen
-                                ? t('profile.friends.openProfile', { name: handle })
-                                : undefined
-                            }
-                          >
-                            <span className="vipFriendNameText">
-                              {label || handle || "—"}
-                            </span>
-                          </button>
-                        )}
-                      </div>
+                      )}
                     </div>
-                  );
-                })}
-              </div>
-              <button
-                className="showMoreBtn"
-                type="button"
-                onClick={onShowMore}
-              >
-                {t('profile.friends.viewFriends')}
-              </button>
-            </>
-          ) : (
-            <div className="friendsEmpty">
-              <button
-                type="button"
-                className="showMoreBtn"
-                onClick={onFindFriends ?? onShowMore}
-              >
-                {t('profile.friends.findFriends')}
-              </button>
+                  </div>
+                );
+              })}
             </div>
+          ) : (
+            <p className="friendsEmptyMsg">{t('profile.friends.empty')}</p>
           )}
+
+          <div className="friendsActions">
+            <button
+              className="showMoreBtn"
+              type="button"
+              onClick={onShowMore}
+            >
+              {t('profile.friends.allContacts')}
+            </button>
+            <button
+              type="button"
+              className="findFriendsBtn"
+              onClick={onFindFriends}
+            >
+              {t('profile.friends.findFriends')}
+            </button>
+          </div>
         </section>
 
         {/* ================= NEW POST ================= */}

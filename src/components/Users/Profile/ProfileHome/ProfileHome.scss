@@ -569,10 +569,24 @@
 }
 
 .friendsTitle {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+  margin: 0 0 28px;
+  padding: 0;
+  border: 0;
+  background: transparent;
   font-size: 20px;
   font-weight: 400;
   color: rgba(0, 0, 0, 0.82);
-  margin: 0 0 28px;
+  cursor: pointer;
+  text-align: left;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.friendsTitle:hover .friendsTitle__label,
+.friendsTitle:focus-visible .friendsTitle__label {
+  opacity: 0.78;
 }
 
 .friendsTitle__label {
@@ -655,8 +669,23 @@
   justify-content: center;
 }
 
+.friendsEmptyMsg {
+  margin: 0 0 8px;
+  font-size: 15px;
+  line-height: 1.4;
+  color: rgba(0, 0, 0, 0.62);
+}
+
+.friendsActions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  margin-top: 14px;
+}
+
 .showMoreBtn {
-  margin: 14px auto 0;
+  margin: 0 auto;
   display: block;
   width: 415px;
   max-width: 100%;
@@ -673,10 +702,19 @@
 }
 
 .findFriendsBtn {
-  width: 100%;
-  height: 70px;
-  max-width: 380px;
-  margin-top: 8px;
+  display: block;
+  width: 415px;
+  max-width: 100%;
+  height: 56px;
+  margin: 0 auto;
+  padding: 0 22px;
+  border-radius: 240px;
+  border: 1px solid rgba(79, 107, 255, 0.35);
+  background: rgba(255, 255, 255, 0.72);
+  color: rgba(0, 0, 0, 0.78);
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
 }
 
 .newPostHead {
@@ -1662,10 +1700,19 @@ body.dark .profile-home .vipTitle,
 body.dark .profile-home .friendsTitle,
 body.dark .profile-home .friendsTitle__label,
 body.dark .profile-home .friendsTitle__count,
+body.dark .profile-home .friendsEmptyMsg,
 body.dark .profile-home .newPostTitle,
 html[data-theme="dark"] .profile-home .friendsTitle,
 html[data-theme="dark"] .profile-home .friendsTitle__label,
-html[data-theme="dark"] .profile-home .friendsTitle__count {
+html[data-theme="dark"] .profile-home .friendsTitle__count,
+html[data-theme="dark"] .profile-home .friendsEmptyMsg {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+body.dark .profile-home .findFriendsBtn,
+html[data-theme="dark"] .profile-home .findFriendsBtn {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.22);
   color: rgba(255, 255, 255, 0.9);
 }
 
@@ -2329,6 +2376,12 @@ html[data-theme="dark"] .profile-home .postActionCount {
     padding: 0 18px;
   }
 
+  .findFriendsBtn {
+    height: 35px;
+    font-size: 12px;
+    padding: 0 18px;
+  }
+
   .newPostTitle {
     font-size: 12px;
   }
@@ -2790,6 +2843,12 @@ html[data-theme="dark"] .profile-home .postActionCount {
     padding: 0 14px;
   }
 
+  .findFriendsBtn {
+    height: 28px;
+    font-size: 11px;
+    padding: 0 14px;
+  }
+
   .newPostTitle {
     font-size: 11px;
   }
@@ -3210,10 +3269,15 @@ html[data-theme="dark"] .profile-home .postActionCount {
 
   .showMoreBtn {
     display: block;
-    margin-top: 12px;
+    margin-top: 0;
     height: 52px;
     padding: 0 24px;
     font-size: 18px;
+  }
+
+  .findFriendsBtn {
+    height: 44px;
+    font-size: 15px;
   }
 
   .profileRight__stack {

@@ -46,7 +46,7 @@
       "subscribeBack": "Подписаться в ответ",
       "unsubscribe": "Отписаться",
       "vipBadge": "VIP",
-      "emptyFriends": "Пока нет взаимных друзей",
+      "emptyFriends": "У вас пока нет друзей",
       "emptyFollowers": "Пока нет подписчиков",
       "emptyFollowing": "Вы ещё ни на кого не подписаны",
       "emptyVip": "Пока нет VIP-друзей",
@@ -254,7 +254,8 @@
       "showMore": "Показать больше",
       "findFriends": "Найти друзей",
       "viewFriends": "Посмотреть друзей",
-      "empty": "Пока нет друзей",
+      "allContacts": "Все контакты",
+      "empty": "У вас пока нет друзей",
       "profileOf": "Профиль {{name}}",
       "profileUnavailable": "Профиль недоступен",
       "openProfile": "Открыть профиль {{name}}"

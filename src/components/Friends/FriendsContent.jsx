@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { subscriptionsApi } from "../../services/subscriptionsApi";
 import { useFollowingStore } from "../../zustand/useFollowingStore";
@@ -7,6 +8,7 @@ import {
   EMPTY_CONNECTION_COUNTS,
   actionForConnectionTab,
   normalizeConnectionCounts,
+  parseConnectionTab,
 } from "../../utils/connectionTabs";
 import FriendsListRows from "./FriendsListRows";
 import "./FriendsContent.scss";
@@ -30,8 +32,9 @@ function matchQuery(user, q) {
 
 export default function FriendsContent({ onBack, onOpenProfile }) {
   const { t } = useTranslation();
+  const [searchParams, setSearchParams] = useSearchParams();
   const fetchFollowing = useFollowingStore((s) => s.fetchFollowing);
-  const [tab, setTab] = useState("friends");
+  const tab = parseConnectionTab(searchParams.get("tab"));
   const [query, setQuery] = useState("");
   const [listsByTab, setListsByTab] = useState(EMPTY_LISTS);
   const [counts, setCounts] = useState(EMPTY_CONNECTION_COUNTS);
@@ -68,8 +71,12 @@ export default function FriendsContent({ onBack, onOpenProfile }) {
   }, [tab, loadTab]);
 
   const handleTabChange = (tabId) => {
-    if (tabId === tab) return;
-    setTab(tabId);
+    const nextTab = parseConnectionTab(tabId);
+    if (nextTab === tab) return;
+    const nextParams = new URLSearchParams(searchParams);
+    if (nextTab === "friends") nextParams.delete("tab");
+    else nextParams.set("tab", nextTab);
+    setSearchParams(nextParams, { replace: true });
     setError(null);
     setActionError(false);
   };

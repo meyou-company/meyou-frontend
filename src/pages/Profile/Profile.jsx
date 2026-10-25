@@ -16,6 +16,7 @@ import { subscriptionsApi } from "../../services/subscriptionsApi";
 import { conversationsApi } from "../../services/conversationsApi";
 import { getApiErrorMessage } from "../../utils/getApiErrorMessage";
 import { getFriendsFromUser, getFriendsCountNumber, normalizeFriendsApiResponse } from "../../utils/profileFriends";
+import { normalizeConnectionCounts } from "../../utils/connectionTabs";
 import { getViewerIsVipMember, getMessengerWriteDenial } from "../../utils/profileVipUi";
 import { usePresenceStore } from "../../zustand/usePresenceStore";
 import {
@@ -147,8 +148,9 @@ export default function Profile() {
   const [fetchedProfile, setFetchedProfile] = useState({ key: "", user: null });
   const [profileFetchError, setProfileFetchError] = useState({ key: "", value: null });
   const [subscriptionLoading, setSubscriptionLoading] = useState(false);
-  /** Список підписок (following) — для блоку «Друзья» на своєму профілі */
+  /** Mutual friends preview for the own-profile «Друзі» card. */
   const [followingList, setFollowingList] = useState([]);
+  const [classifiedFriendsCount, setClassifiedFriendsCount] = useState(null);
   const [secondaryReady, setSecondaryReady] = useState(false);
   const [vipPurchaseModalOpen, setVipPurchaseModalOpen] = useState(false);
   const [chatLockedModalOpen, setChatLockedModalOpen] = useState(false);
@@ -185,32 +187,31 @@ export default function Profile() {
     }
   }, [guestPreviewEnabled, isOwnProfile, setGuestPreviewEnabled]);
 
-  /** На своєму профілі блок «Друзі» — лише взаємні підписки (без VIP). */
+  /** Own profile Friends card: classified mutual friends, including /profile/:ownUsername. */
   useEffect(() => {
-    if (urlUsername || !user) return;
+    if (!isOwnProfile || !user?.id) {
+      setFollowingList([]);
+      setClassifiedFriendsCount(null);
+      return;
+    }
     let cancelled = false;
     subscriptionsApi
       .getConnections({ tab: "friends", take: 200 })
       .then((res) => {
         const data = res?.data ?? res;
         const items = data?.items ?? [];
-        if (!cancelled) setFollowingList(Array.isArray(items) ? items : []);
+        const counts = normalizeConnectionCounts(data?.counts);
+        if (cancelled) return;
+        setFollowingList(Array.isArray(items) ? items : []);
+        setClassifiedFriendsCount(counts.friends);
       })
       .catch(() => {
         if (cancelled) return;
-        subscriptionsApi
-          .getFollowing({ take: 200 })
-          .then((res) => {
-            const data = res?.data ?? res;
-            const items = data?.items ?? [];
-            if (!cancelled) setFollowingList(Array.isArray(items) ? items : []);
-          })
-          .catch(() => {
-            if (!cancelled) setFollowingList([]);
-          });
+        setFollowingList([]);
+        setClassifiedFriendsCount(0);
       });
     return () => { cancelled = true; };
-  }, [urlUsername, user?.id]);
+  }, [isOwnProfile, user?.id]);
 
   useEffect(() => {
     if (!urlUsername) {
@@ -577,6 +578,7 @@ export default function Profile() {
           postsAuthorId={profileUser.id}
           loadSecondary={secondaryReady}
           followingList={followingList}
+          classifiedFriendsCount={classifiedFriendsCount}
           onOpenUser={onOpenUser}
           onShowMore={onShowMore}
           onFindFriends={onFindFriends}

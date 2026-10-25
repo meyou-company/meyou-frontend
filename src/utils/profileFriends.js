@@ -1,7 +1,21 @@
 /**
+ * Own-profile Friends counter: classified mutual friends from
+ * GET /subscriptions/connections, never following/followers totals.
+ * @param {number|null|undefined} classifiedFriendsCount
+ * @param {number} previewLength
+ * @returns {number}
+ */
+export function getOwnProfileFriendsCount(classifiedFriendsCount, previewLength = 0) {
+  if (Number.isFinite(classifiedFriendsCount) && classifiedFriendsCount >= 0) {
+    return classifiedFriendsCount;
+  }
+  return Number.isFinite(previewLength) && previewLength >= 0 ? previewLength : 0;
+}
+
+/**
  * Повертає кількість друзів з friendsCount API.
  * Бекенд: { followers, following, total } або число.
- * Пріоритет: total (унікальні ACTIVE-зв’язки) → following (як сторінка «Друзі») → сума.
+ * Для власного профілю / сторінки «Друзі» не використовувати — там classified friends.
  * @param {number|{ followers?: number, following?: number, total?: number }|undefined} raw
  * @returns {number|undefined}
  */

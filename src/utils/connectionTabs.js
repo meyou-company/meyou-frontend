@@ -39,6 +39,10 @@ export function actionForConnectionTab(tabId) {
   return tab?.action ?? null;
 }
 
+export function parseConnectionTab(value) {
+  return CONNECTION_TAB_IDS.includes(value) ? value : "friends";
+}
+
 export function normalizeConnectionCounts(raw) {
   const source = raw && typeof raw === "object" ? raw : {};
   return {

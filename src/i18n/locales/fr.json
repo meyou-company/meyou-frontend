@@ -46,7 +46,7 @@
       "subscribeBack": "Suivre en retour",
       "unsubscribe": "Se désabonner",
       "vipBadge": "VIP",
-      "emptyFriends": "Pas encore d’amis mutuels",
+      "emptyFriends": "You don't have any friends yet",
       "emptyFollowers": "Pas encore d’abonnés",
       "emptyFollowing": "Vous ne suivez encore personne",
       "emptyVip": "Pas encore d’amis VIP",
@@ -254,7 +254,8 @@
       "showMore": "Show more",
       "findFriends": "Find friends",
       "viewFriends": "View friends",
-      "empty": "No friends yet",
+      "allContacts": "All contacts",
+      "empty": "You don't have any friends yet",
       "profileOf": "Profile {{name}}",
       "profileUnavailable": "Profile unavailable",
       "openProfile": "Open profile {{name}}"

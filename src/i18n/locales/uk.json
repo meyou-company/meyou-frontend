@@ -46,7 +46,7 @@
       "subscribeBack": "Підписатися у відповідь",
       "unsubscribe": "Відписатися",
       "vipBadge": "VIP",
-      "emptyFriends": "Поки немає взаємних друзів",
+      "emptyFriends": "У вас поки немає друзів",
       "emptyFollowers": "Поки немає підписників",
       "emptyFollowing": "Ви ще ні на кого не підписані",
       "emptyVip": "Поки немає VIP-друзів",
@@ -258,7 +258,8 @@
       "showMore": "Показати більше",
       "findFriends": "Знайти друзів",
       "viewFriends": "Переглянути друзів",
-      "empty": "Поки немає друзів",
+      "allContacts": "Усі контакти",
+      "empty": "У вас поки немає друзів",
       "profileOf": "Профіль {{name}}",
       "profileUnavailable": "Профіль недоступний",
       "openProfile": "Відкрити профіль {{name}}"

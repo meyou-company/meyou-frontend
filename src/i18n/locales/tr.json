@@ -46,7 +46,7 @@
       "subscribeBack": "Geri takip et",
       "unsubscribe": "Takipten çık",
       "vipBadge": "VIP",
-      "emptyFriends": "Henüz karşılıklı arkadaş yok",
+      "emptyFriends": "You don't have any friends yet",
       "emptyFollowers": "Henüz takipçi yok",
       "emptyFollowing": "Henüz kimseyi takip etmiyorsunuz",
       "emptyVip": "Henüz VIP arkadaş yok",
@@ -254,7 +254,8 @@
       "showMore": "Show more",
       "findFriends": "Find friends",
       "viewFriends": "View friends",
-      "empty": "No friends yet",
+      "allContacts": "All contacts",
+      "empty": "You don't have any friends yet",
       "profileOf": "Profile {{name}}",
       "profileUnavailable": "Profile unavailable",
       "openProfile": "Open profile {{name}}"
