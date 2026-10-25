@@ -34,6 +34,28 @@
     "messages": "الرسائل",
     "profile": "الملف الشخصي"
   },
+  "friends": {
+    "page": {
+      "title": "الأصدقاء",
+      "searchPlaceholder": "البحث بالاسم أو اسم المستخدم…",
+      "sections": "أقسام الأصدقاء",
+      "tabFriends": "الأصدقاء",
+      "tabFollowers": "المتابعون",
+      "tabFollowing": "المتابَعون",
+      "tabVip": "أصدقاء VIP",
+      "subscribeBack": "متابعة بالمثل",
+      "unsubscribe": "إلغاء المتابعة",
+      "vipBadge": "VIP",
+      "emptyFriends": "لا يوجد أصدقاء متبادلون بعد",
+      "emptyFollowers": "لا يوجد متابعون بعد",
+      "emptyFollowing": "أنت لا تتابع أحداً بعد",
+      "emptyVip": "لا يوجد أصدقاء VIP بعد",
+      "emptySearch": "لم يتم العثور على أحد",
+      "loadError": "تعذر تحميل القائمة",
+      "actionError": "تعذر تحديث الاشتراك"
+    }
+  },
+
   "menu": {
     "myProfile": "My profile",
     "edit": "Edit",

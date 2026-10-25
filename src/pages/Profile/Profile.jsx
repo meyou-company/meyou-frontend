@@ -185,19 +185,29 @@ export default function Profile() {
     }
   }, [guestPreviewEnabled, isOwnProfile, setGuestPreviewEnabled]);
 
-  /** На своєму профілі завантажуємо список підписок (following) для блоку «Друзья» */
+  /** На своєму профілі блок «Друзі» — лише взаємні підписки (без VIP). */
   useEffect(() => {
     if (urlUsername || !user) return;
     let cancelled = false;
     subscriptionsApi
-      .getFollowing({ take: 200 })
+      .getConnections({ tab: "friends", take: 200 })
       .then((res) => {
         const data = res?.data ?? res;
         const items = data?.items ?? [];
         if (!cancelled) setFollowingList(Array.isArray(items) ? items : []);
       })
       .catch(() => {
-        if (!cancelled) setFollowingList([]);
+        if (cancelled) return;
+        subscriptionsApi
+          .getFollowing({ take: 200 })
+          .then((res) => {
+            const data = res?.data ?? res;
+            const items = data?.items ?? [];
+            if (!cancelled) setFollowingList(Array.isArray(items) ? items : []);
+          })
+          .catch(() => {
+            if (!cancelled) setFollowingList([]);
+          });
       });
     return () => { cancelled = true; };
   }, [urlUsername, user?.id]);
@@ -360,7 +370,7 @@ export default function Profile() {
       }
       if (!urlUsername && user) {
         refreshMe?.();
-        subscriptionsApi.getFollowing({ take: 50 }).then((res) => {
+        subscriptionsApi.getConnections({ tab: "friends", take: 50 }).then((res) => {
           const data = res?.data ?? res;
           const items = data?.items ?? [];
           setFollowingList(Array.isArray(items) ? items : []);

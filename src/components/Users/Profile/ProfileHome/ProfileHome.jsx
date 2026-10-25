@@ -55,7 +55,7 @@ export default function ProfileHome({
   postsAuthorId,
   /** Defer posts/stories fetch until profile shell is painted */
   loadSecondary = true,
-  /** Список з GET /subscriptions/following — для блоку «Друзья» на своєму профілі */
+  /** Список взаємних друзів (GET /subscriptions/connections?tab=friends) для блоку «Друзі» */
   followingList,
   /** Відкрити профіль користувача за username (клік по аватару друга) */
   onOpenUser,
