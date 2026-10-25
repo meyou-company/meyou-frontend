@@ -111,6 +111,31 @@
   background: #000;
 }
 
+.videoUploadModal__musicBtn {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 0;
+  border-radius: 50px;
+  padding: 10px 16px;
+  color: #fff;
+  background: linear-gradient(90deg, #4f6bff, #ff4fb1);
+  cursor: pointer;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 700;
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  &--active {
+    box-shadow: 0 0 0 3px rgba(155, 122, 230, 0.45);
+  }
+}
+
 .videoUploadModal__thumbPreview {
   width: 120px;
   height: 120px;

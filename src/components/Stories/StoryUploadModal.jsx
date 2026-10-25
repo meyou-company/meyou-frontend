@@ -8,7 +8,11 @@ import { getApiErrorMessage } from "../../utils/getApiErrorMessage";
 import { composeStoryImage } from "../../utils/composeStoryImage";
 import { clampStoryTextPosition } from "../../utils/storySafeArea";
 import { useStoriesOverlayLock } from "../../hooks/useStoriesOverlayLock";
+import { useSoundtrackOverlay } from "../../hooks/useSoundtrackOverlay";
 import profileIcons from "../../constants/profileIcons";
+import MusicPicker, { SoundtrackChip } from "../Music/MusicPicker";
+import { epidemicSoundApi } from "../../services/epidemicSoundApi";
+import { canPublishWithSoundtrack } from "../../utils/soundtrackClip";
 import StoryTextEditor from "./StoryTextEditor";
 import "./StoryUploadModal.scss";
 
@@ -71,7 +75,10 @@ export default function StoryUploadModal({ isOpen, onClose, onCreated }) {
   const inputRef = useRef(null);
   const visibilityWrapRef = useRef(null);
   const mediaFrameRef = useRef(null);
+  const editorVideoRef = useRef(null);
   const [fileItem, setFileItem] = useState(null);
+  const [soundtrack, setSoundtrack] = useState(null);
+  const [isMusicPickerOpen, setIsMusicPickerOpen] = useState(false);
   const [text, setText] = useState("");
   const [storyText, setStoryText] = useState("");
   const [storyTextColor, setStoryTextColor] = useState(DEFAULT_STORY_TEXT_COLOR);
@@ -102,7 +109,9 @@ export default function StoryUploadModal({ isOpen, onClose, onCreated }) {
     document.documentElement.style.overflow = "hidden";
 
     const onEscape = (e) => {
-      if (e.key === "Escape") onClose?.();
+      if (e.key !== "Escape") return;
+      if (isMusicPickerOpen) return;
+      onClose?.();
     };
 
     window.addEventListener("keydown", onEscape);
@@ -112,7 +121,14 @@ export default function StoryUploadModal({ isOpen, onClose, onCreated }) {
       document.body.style.overflow = previousBodyOverflow;
       document.documentElement.style.overflow = previousHtmlOverflow;
     };
-  }, [isOpen, onClose]);
+  }, [isOpen, isMusicPickerOpen, onClose]);
+
+  useSoundtrackOverlay({
+    soundtrack,
+    videoRef: editorVideoRef,
+    isImage: fileItem?.type !== "video",
+    enabled: Boolean(isOpen && soundtrack && !isMusicPickerOpen),
+  });
 
   useEffect(() => {
     if (!isOpen) return;
@@ -179,6 +195,22 @@ export default function StoryUploadModal({ isOpen, onClose, onCreated }) {
     setIsVisibilityOpen(false);
     setIsPublishing(false);
     setPublishPhase(null);
+    setSoundtrack(null);
+    setIsMusicPickerOpen(false);
+  };
+
+  const openMusicPicker = async () => {
+    if (isPublishing) return;
+    try {
+      const status = await epidemicSoundApi.getStatus();
+      if (!status.enabled) {
+        toast.error(t("musicPicker.unavailable"));
+        return;
+      }
+      setIsMusicPickerOpen(true);
+    } catch (error) {
+      toast.error(getApiErrorMessage(error) || t("musicPicker.unavailable"));
+    }
   };
 
   const handleClose = () => {
@@ -282,6 +314,11 @@ export default function StoryUploadModal({ isOpen, onClose, onCreated }) {
   const handlePublish = async () => {
     if (!fileItem?.file) {
       toast.error("Спочатку виберіть фото або відео");
+      return;
+    }
+
+    if (!canPublishWithSoundtrack(soundtrack)) {
+      toast.error(t("musicPicker.publishBlocked"));
       return;
     }
 
@@ -430,13 +467,16 @@ export default function StoryUploadModal({ isOpen, onClose, onCreated }) {
 
                 <button
                   type="button"
-                  className="storyUploadModal__tool"
+                  className={`storyUploadModal__tool ${soundtrack ? "storyUploadModal__tool--active" : ""}`}
                   aria-label={t("stories.music")}
                   title={t("stories.music")}
+                  onClick={openMusicPicker}
+                  disabled={isPublishing}
                 >
                   <span className="storyUploadModal__toolIcon">
                     <img src={profileIcons.storyMusic} alt="" />
                   </span>
+                  <span className="storyUploadModal__toolLabel">{t("stories.music")}</span>
                 </button>
 
                 <button
@@ -457,6 +497,13 @@ export default function StoryUploadModal({ isOpen, onClose, onCreated }) {
                   <img src={profileIcons.storyCollage} alt="" />
                 </button>
               </div>
+
+              <SoundtrackChip
+                soundtrack={soundtrack}
+                disabled={isPublishing}
+                onChange={openMusicPicker}
+                onRemove={() => setSoundtrack(null)}
+              />
 
               <div className="storyUploadModal__galleryHead">
                 <button type="button" className="storyUploadModal__galleryTitle">
@@ -534,9 +581,11 @@ export default function StoryUploadModal({ isOpen, onClose, onCreated }) {
 
                     <button
                       type="button"
-                      className="storyUploadModal__editorTool"
+                      className={`storyUploadModal__editorTool ${soundtrack ? "storyUploadModal__editorTool--active" : ""}`}
                       aria-label={t("stories.music")}
                       title={t("stories.music")}
+                      onClick={openMusicPicker}
+                      disabled={isPublishing}
                     >
                       <img src={profileIcons.storyEditorMusic} alt="" />
                     </button>
@@ -572,6 +621,7 @@ export default function StoryUploadModal({ isOpen, onClose, onCreated }) {
                 >
                   {fileItem.type === "video" ? (
                     <video
+                      ref={editorVideoRef}
                       src={fileItem.previewUrl}
                       className="storyUploadModal__editorMedia"
                       controls
@@ -604,6 +654,13 @@ export default function StoryUploadModal({ isOpen, onClose, onCreated }) {
                     />
                   )}
                 </div>
+
+                <SoundtrackChip
+                  soundtrack={soundtrack}
+                  disabled={isPublishing}
+                  onChange={openMusicPicker}
+                  onRemove={() => setSoundtrack(null)}
+                />
 
                 <div className="storyUploadModal__captionWrap">
                   <textarea
@@ -704,6 +761,13 @@ export default function StoryUploadModal({ isOpen, onClose, onCreated }) {
           )}
         </div>
       </div>
+      <MusicPicker
+        isOpen={isMusicPickerOpen}
+        selected={soundtrack}
+        showOriginalVolume={fileItem?.type === "video"}
+        onClose={() => setIsMusicPickerOpen(false)}
+        onSelect={setSoundtrack}
+      />
     </div>
   );
 }

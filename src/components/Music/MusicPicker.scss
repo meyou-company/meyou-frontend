@@ -1,0 +1,321 @@
+.musicPicker {
+  position: fixed;
+  inset: 0;
+  z-index: 13000;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.musicPicker__backdrop {
+  position: absolute;
+  inset: 0;
+  border: 0;
+  background: rgba(12, 8, 18, 0.55);
+  cursor: pointer;
+}
+
+.musicPicker__panel {
+  position: relative;
+  z-index: 1;
+  width: min(560px, 100%);
+  max-height: min(92vh, 760px);
+  overflow: auto;
+  padding: 18px 18px calc(18px + env(safe-area-inset-bottom));
+  border-radius: 24px 24px 0 0;
+  background: #fff;
+  color: #111;
+  box-shadow: 0 -16px 48px rgba(40, 18, 72, 0.22);
+}
+
+.musicPicker__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.musicPicker__head h2 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.musicPicker__close {
+  width: 36px;
+  height: 36px;
+  border: 0;
+  border-radius: 999px;
+  background: #f3edff;
+  color: #111;
+  font-size: 24px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.musicPicker__notice {
+  margin: 0 0 12px;
+  color: #6b5a86;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.musicPicker__search input {
+  width: 100%;
+  border: 1px solid rgba(111, 76, 176, 0.22);
+  border-radius: 14px;
+  padding: 12px 14px;
+  font: inherit;
+  background: #fcfaff;
+}
+
+.musicPicker__list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 14px 0;
+  min-height: 80px;
+}
+
+.musicPicker__hint {
+  margin: 0;
+  color: #6b5a86;
+  font-size: 13px;
+}
+
+.musicPicker__row,
+.musicPicker__selected,
+.soundtrackChip {
+  display: grid;
+  grid-template-columns: 48px minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 10px;
+  padding: 8px;
+  border-radius: 14px;
+  background: #f7f2ff;
+}
+
+.musicPicker__row--active,
+.musicPicker__selected {
+  box-shadow: inset 0 0 0 1px rgba(155, 122, 230, 0.55);
+}
+
+.musicPicker__cover,
+.soundtrackChip .musicPicker__cover {
+  width: 48px;
+  height: 48px;
+  border-radius: 10px;
+  object-fit: cover;
+  background: linear-gradient(180deg, #f1e7ff 0%, #d7c2ff 100%);
+}
+
+.musicPicker__cover--empty {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+}
+
+.musicPicker__rowMeta,
+.musicPicker__selectedMeta,
+.soundtrackChip__meta {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.musicPicker__rowMeta strong,
+.musicPicker__selectedMeta strong,
+.soundtrackChip__meta strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 14px;
+}
+
+.musicPicker__rowMeta span,
+.musicPicker__selectedMeta span,
+.soundtrackChip__meta span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #6b5a86;
+  font-size: 12px;
+}
+
+.musicPicker__iconBtn,
+.musicPicker__textBtn,
+.soundtrackChip__btn {
+  border: 0;
+  border-radius: 999px;
+  padding: 7px 10px;
+  background: linear-gradient(90deg, #4f6bff, #ff4fb1);
+  color: #fff;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.musicPicker__textBtn,
+.soundtrackChip__btn--ghost {
+  background: #fff;
+  color: #5b3d9c;
+  box-shadow: inset 0 0 0 1px rgba(111, 76, 176, 0.28);
+}
+
+.musicPicker__controls {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.musicPicker__slider {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.musicPicker__slider input {
+  width: 100%;
+  accent-color: #9b7ae6;
+}
+
+.musicPicker__actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+.musicPicker__primary,
+.musicPicker__secondary {
+  border: 0;
+  border-radius: 999px;
+  padding: 10px 16px;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.musicPicker__primary {
+  color: #fff;
+  background: linear-gradient(90deg, #4f6bff, #ff4fb1);
+}
+
+.musicPicker__primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.musicPicker__secondary {
+  background: #f3edff;
+  color: #111;
+}
+
+.soundtrackChip {
+  margin: 10px 0 14px;
+}
+
+@media (min-width: 720px) {
+  .musicPicker {
+    align-items: center;
+    padding: 16px;
+  }
+
+  .musicPicker__panel {
+    border-radius: 24px;
+    max-height: min(84vh, 720px);
+  }
+}
+
+body.dark .musicPicker__panel,
+.dark .musicPicker__panel,
+html[data-theme="dark"] .musicPicker__panel,
+[data-theme="dark"] .musicPicker__panel {
+  background: #1c1724;
+  color: #fff;
+}
+
+body.dark .musicPicker__search input,
+.dark .musicPicker__search input,
+html[data-theme="dark"] .musicPicker__search input,
+[data-theme="dark"] .musicPicker__search input {
+  background: #15121c;
+  color: #fff;
+  border-color: rgba(196, 181, 253, 0.28);
+}
+
+body.dark .musicPicker__row,
+body.dark .musicPicker__selected,
+body.dark .soundtrackChip,
+.dark .musicPicker__row,
+.dark .musicPicker__selected,
+.dark .soundtrackChip,
+html[data-theme="dark"] .musicPicker__row,
+html[data-theme="dark"] .musicPicker__selected,
+html[data-theme="dark"] .soundtrackChip,
+[data-theme="dark"] .musicPicker__row,
+[data-theme="dark"] .musicPicker__selected,
+[data-theme="dark"] .soundtrackChip {
+  background: #2a2236;
+}
+
+body.dark .musicPicker__close,
+body.dark .musicPicker__secondary,
+.dark .musicPicker__close,
+.dark .musicPicker__secondary,
+html[data-theme="dark"] .musicPicker__close,
+html[data-theme="dark"] .musicPicker__secondary,
+[data-theme="dark"] .musicPicker__close,
+[data-theme="dark"] .musicPicker__secondary {
+  background: #34224a;
+  color: #fff;
+}
+
+body.dark .musicPicker__textBtn,
+body.dark .soundtrackChip__btn--ghost,
+.dark .musicPicker__textBtn,
+.dark .soundtrackChip__btn--ghost,
+html[data-theme="dark"] .musicPicker__textBtn,
+html[data-theme="dark"] .soundtrackChip__btn--ghost,
+[data-theme="dark"] .musicPicker__textBtn,
+[data-theme="dark"] .soundtrackChip__btn--ghost {
+  background: #1c1724;
+  color: #e9d5ff;
+}
+
+body.dark .musicPicker__notice,
+body.dark .musicPicker__hint,
+body.dark .musicPicker__rowMeta span,
+body.dark .soundtrackChip__meta span,
+.dark .musicPicker__notice,
+.dark .musicPicker__hint,
+.dark .musicPicker__rowMeta span,
+.dark .soundtrackChip__meta span,
+html[data-theme="dark"] .musicPicker__notice,
+html[data-theme="dark"] .musicPicker__hint,
+html[data-theme="dark"] .musicPicker__rowMeta span,
+html[data-theme="dark"] .soundtrackChip__meta span,
+[data-theme="dark"] .musicPicker__notice,
+[data-theme="dark"] .musicPicker__hint,
+[data-theme="dark"] .musicPicker__rowMeta span,
+[data-theme="dark"] .soundtrackChip__meta span {
+  color: #c4b5fd;
+}
+
+.musicPicker__srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}

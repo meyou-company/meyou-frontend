@@ -13,6 +13,10 @@ import { detectCurrentLocationLabel } from "../../utils/postGeolocation";
 import { getOwnerVipEnabled } from "../../utils/profileVipUi";
 import profileIcons from "../../constants/profileIcons";
 import { useAuthStore } from "../../zustand/useAuthStore";
+import MusicPicker, { SoundtrackChip } from "../Music/MusicPicker";
+import { epidemicSoundApi } from "../../services/epidemicSoundApi";
+import { canPublishWithSoundtrack } from "../../utils/soundtrackClip";
+import { useSoundtrackOverlay } from "../../hooks/useSoundtrackOverlay";
 import "./VideoUploadModal.scss";
 
 export default function VideoUploadModal({ isOpen, onClose, onCreated }) {
@@ -21,6 +25,9 @@ export default function VideoUploadModal({ isOpen, onClose, onCreated }) {
   const ownerVipEnabled = getOwnerVipEnabled(currentUser);
   const videoInputRef = useRef(null);
   const thumbnailInputRef = useRef(null);
+  const videoPreviewRef = useRef(null);
+  const [soundtrack, setSoundtrack] = useState(null);
+  const [isMusicPickerOpen, setIsMusicPickerOpen] = useState(false);
 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -41,7 +48,9 @@ export default function VideoUploadModal({ isOpen, onClose, onCreated }) {
     document.body.style.overflow = "hidden";
 
     const onEscape = (e) => {
-      if (e.key === "Escape") onClose?.();
+      if (e.key !== "Escape") return;
+      if (isMusicPickerOpen) return;
+      onClose?.();
     };
 
     window.addEventListener("keydown", onEscape);
@@ -50,7 +59,14 @@ export default function VideoUploadModal({ isOpen, onClose, onCreated }) {
       window.removeEventListener("keydown", onEscape);
       document.body.style.overflow = previousBodyOverflow;
     };
-  }, [isOpen, onClose]);
+  }, [isOpen, isMusicPickerOpen, onClose]);
+
+  useSoundtrackOverlay({
+    soundtrack,
+    videoRef: videoPreviewRef,
+    isImage: false,
+    enabled: Boolean(isOpen && soundtrack && !isMusicPickerOpen),
+  });
 
   useEffect(() => {
     return () => {
@@ -76,6 +92,22 @@ export default function VideoUploadModal({ isOpen, onClose, onCreated }) {
     setThumbnailPreviewUrl("");
     setIsPublishing(false);
     setVisibility("PUBLIC");
+    setSoundtrack(null);
+    setIsMusicPickerOpen(false);
+  };
+
+  const openMusicPicker = async () => {
+    if (isPublishing) return;
+    try {
+      const status = await epidemicSoundApi.getStatus();
+      if (!status.enabled) {
+        toast.error(t("musicPicker.unavailable"));
+        return;
+      }
+      setIsMusicPickerOpen(true);
+    } catch (error) {
+      toast.error(getApiErrorMessage(error) || t("musicPicker.unavailable"));
+    }
   };
 
   const handleClose = () => {
@@ -154,6 +186,11 @@ export default function VideoUploadModal({ isOpen, onClose, onCreated }) {
 
     if (!videoFile) {
       toast.error("Выберите видеофайл");
+      return;
+    }
+
+    if (!canPublishWithSoundtrack(soundtrack)) {
+      toast.error(t("musicPicker.publishBlocked"));
       return;
     }
 
@@ -349,12 +386,31 @@ export default function VideoUploadModal({ isOpen, onClose, onCreated }) {
             </button>
             {videoPreviewUrl && (
               <video
+                ref={videoPreviewRef}
                 className="videoUploadModal__preview"
                 src={videoPreviewUrl}
                 controls
-                muted
+                muted={!soundtrack || soundtrack.originalVolume <= 0}
               />
             )}
+          </div>
+
+          <div className="videoUploadModal__field">
+            <button
+              type="button"
+              className={`videoUploadModal__musicBtn ${soundtrack ? "videoUploadModal__musicBtn--active" : ""}`}
+              onClick={openMusicPicker}
+              disabled={isPublishing}
+            >
+              <span aria-hidden="true">🎵</span>
+              <span>{t("stories.music")}</span>
+            </button>
+            <SoundtrackChip
+              soundtrack={soundtrack}
+              disabled={isPublishing}
+              onChange={openMusicPicker}
+              onRemove={() => setSoundtrack(null)}
+            />
           </div>
 
           <div className="videoUploadModal__field">
@@ -393,6 +449,13 @@ export default function VideoUploadModal({ isOpen, onClose, onCreated }) {
           </button>
         </form>
       </div>
+      <MusicPicker
+        isOpen={isMusicPickerOpen}
+        selected={soundtrack}
+        showOriginalVolume
+        onClose={() => setIsMusicPickerOpen(false)}
+        onSelect={setSoundtrack}
+      />
     </div>
   );
 }
