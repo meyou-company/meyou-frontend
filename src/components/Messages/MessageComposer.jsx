@@ -117,9 +117,10 @@ export default function MessageComposer({
 
     const text = value?.trim() || '';
     const snapshot = [...pendingAttachments];
+    if (text) onChange?.('');
 
     try {
-      setUploadingFile(true);
+      if (snapshot.length) setUploadingFile(true);
       const attachments = [];
       for (const item of snapshot) {
         const url = await uploadMessageMedia(item.file);
@@ -137,8 +138,8 @@ export default function MessageComposer({
       });
 
       resetPendingAttachments();
-      if (text) onChange?.('');
     } catch (err) {
+      if (text) onChange?.(text);
       toast.error(getApiErrorMessage(err, 'messenger.uploadError'));
     } finally {
       setUploadingFile(false);

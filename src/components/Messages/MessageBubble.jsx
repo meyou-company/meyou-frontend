@@ -11,10 +11,39 @@ import './MessageBubble.scss';
 const LONG_PRESS_MS = 500;
 const REACTION_HIDE_DELAY_MS = 400;
 
-function ReadReceipt({ isSeen }) {
+function ReadReceipt({ isSeen, pending, sendFailed, hideChecks, deliveryStatus, t }) {
+  if (pending) {
+    return (
+      <span className="msgBubble__sending" role="status" aria-label={t('messenger.sendingStatus')}>
+        <span className="msgBubble__sendingClock" aria-hidden="true" />
+      </span>
+    );
+  }
+  if (sendFailed) {
+    return (
+      <span className="msgBubble__sendFailed" role="status" aria-label={t('messenger.sendFailedStatus')}>
+        !
+      </span>
+    );
+  }
+  if (hideChecks) return null;
+  if (isSeen || deliveryStatus === 'SEEN') {
+    return (
+      <span className="msgBubble__checks is-read" role="status" aria-label={t('messenger.seenStatus')}>
+        ✓✓
+      </span>
+    );
+  }
+  if (deliveryStatus === 'DELIVERED') {
+    return (
+      <span className="msgBubble__checks" role="status" aria-label={t('messenger.deliveredStatus')}>
+        ✓✓
+      </span>
+    );
+  }
   return (
-    <span className={`msgBubble__checks${isSeen ? ' is-read' : ''}`} aria-hidden="true">
-      {isSeen ? '✓✓' : '✓'}
+    <span className="msgBubble__checks" role="status" aria-label={t('messenger.sentStatus')}>
+      ✓
     </span>
   );
 }
@@ -178,6 +207,7 @@ export default function MessageBubble({
   })();
 
   const openMenu = (target) => {
+    if (message.pending) return;
     const rect = target.getBoundingClientRect();
     onOpenMenu?.(message, rect, timeLabel, isMine);
   };
@@ -280,7 +310,7 @@ export default function MessageBubble({
           ) : null}
 
           <div
-            className={`msgBubble${isMine ? ' msgBubble--mine' : ' msgBubble--theirs'}`}
+            className={`msgBubble${isMine ? ' msgBubble--mine' : ' msgBubble--theirs'}${message.pending ? ' is-pending' : ''}${message.sendFailed ? ' is-failed' : ''}`}
             onClick={handleBubbleClick}
             onMouseDown={startLongPress}
             onMouseUp={clearLongPress}
@@ -347,7 +377,16 @@ export default function MessageBubble({
             <time className="msgBubble__time" dateTime={message.createdAt || undefined}>
               {timeLabel}
             </time>
-            {isMine && !hideReadReceipt ? <ReadReceipt isSeen={isSeenByPeer} /> : null}
+            {isMine ? (
+              <ReadReceipt
+                isSeen={isSeenByPeer}
+                pending={Boolean(message.pending)}
+                sendFailed={Boolean(message.sendFailed)}
+                hideChecks={hideReadReceipt}
+                deliveryStatus={message.deliveryStatus}
+                t={t}
+              />
+            ) : null}
           </div>
         </div>
         </div>
