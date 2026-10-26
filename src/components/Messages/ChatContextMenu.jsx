@@ -6,6 +6,7 @@ import {
   LuBan,
   LuEye,
   LuEyeOff,
+  LuMail,
   LuMailOpen,
   LuPin,
   LuPinOff,
@@ -46,6 +47,7 @@ export default function ChatContextMenu({
   isMuted = false,
   isGroup = false,
   isHidden = false,
+  isUnread = false,
   onClose,
   onAction,
 }) {
@@ -70,9 +72,11 @@ export default function ChatContextMenu({
         : t('messenger.chatMenu.mute'),
     },
     {
-      id: 'unread',
-      Icon: LuMailOpen,
-      label: t('messenger.chatMenu.markUnread'),
+      id: isUnread ? 'read' : 'unread',
+      Icon: isUnread ? LuMailOpen : LuMail,
+      label: isUnread
+        ? t('messenger.chatMenu.markRead', { defaultValue: 'Позначити як прочитаний' })
+        : t('messenger.chatMenu.markUnread'),
     },
     !isGroup && {
       id: 'block',
@@ -108,7 +112,7 @@ export default function ChatContextMenu({
     const rect = menuRef.current.getBoundingClientRect();
     setPosition(computePosition(anchorRect, rect));
     setReady(true);
-  }, [isOpen, anchorRect, isPinned, isMuted, isGroup, isHidden]);
+  }, [isOpen, anchorRect, isPinned, isMuted, isGroup, isHidden, isUnread]);
 
   useEffect(() => {
     if (!isOpen) return undefined;

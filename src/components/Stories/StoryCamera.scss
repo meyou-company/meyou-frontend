@@ -1,0 +1,220 @@
+.storyCamera {
+  position: relative;
+  width: min(100%, 480px);
+  height: min(82dvh, 760px);
+  min-height: 520px;
+  margin: 0 auto;
+  overflow: hidden;
+  border-radius: 24px;
+  background: #09090b;
+  color: #fff;
+}
+
+.storyCamera__source {
+  position: fixed;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.storyCamera__preview {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+}
+
+.storyCamera__topBar {
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: max(14px, env(safe-area-inset-top)) 14px 14px;
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.52), transparent);
+}
+
+.storyCamera__roundBtn,
+.storyCamera__shutter,
+.storyCamera__record,
+.storyCamera__filterToggle {
+  border: 0;
+  color: inherit;
+  cursor: pointer;
+}
+
+.storyCamera__roundBtn {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: rgba(12, 12, 14, 0.55);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 23px;
+  backdrop-filter: blur(10px);
+}
+
+.storyCamera__timer {
+  min-width: 66px;
+  padding: 7px 11px;
+  border-radius: 999px;
+  background: #e62955;
+  text-align: center;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.storyCamera__bottom {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 2;
+  padding: 18px 14px max(18px, env(safe-area-inset-bottom));
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.78), rgba(0, 0, 0, 0));
+}
+
+.storyCamera__filtersPanel {
+  margin-bottom: 15px;
+}
+
+.storyCamera__filters {
+  display: flex;
+  gap: 13px;
+  overflow-x: auto;
+  padding: 4px 2px 10px;
+  scrollbar-width: none;
+  scroll-snap-type: x proximity;
+}
+
+.storyCamera__filters::-webkit-scrollbar {
+  display: none;
+}
+
+.storyCamera__filter {
+  flex: 0 0 62px;
+  border: 0;
+  background: transparent;
+  color: #fff;
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  font: 600 10px/1.2 Montserrat, sans-serif;
+  cursor: pointer;
+  scroll-snap-align: center;
+}
+
+.storyCamera__filterSwatch {
+  width: 48px;
+  height: 48px;
+  border: 2px solid rgba(255, 255, 255, 0.72);
+  border-radius: 50%;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.3);
+}
+
+.storyCamera__filter.is-active .storyCamera__filterSwatch {
+  border-color: #ff4fb1;
+  box-shadow: 0 0 0 3px #fff, 0 0 0 5px #ff4fb1;
+}
+
+.storyCamera__intensity {
+  display: grid;
+  grid-template-columns: auto 1fr 38px;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 11px;
+  border-radius: 8px;
+  background: rgba(18, 16, 23, 0.72);
+  font: 600 11px/1 Montserrat, sans-serif;
+  backdrop-filter: blur(12px);
+}
+
+.storyCamera__intensity input {
+  width: 100%;
+  accent-color: #ff4fb1;
+}
+
+.storyCamera__intensity output {
+  text-align: right;
+}
+
+.storyCamera__controls {
+  display: grid;
+  grid-template-columns: 1fr 74px 1fr;
+  align-items: center;
+  gap: 18px;
+}
+
+.storyCamera__filterToggle {
+  justify-self: start;
+  min-width: 72px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: rgba(20, 18, 25, 0.58);
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  font: 600 10px/1 Montserrat, sans-serif;
+}
+
+.storyCamera__filterToggle.is-active {
+  background: rgba(155, 122, 230, 0.82);
+}
+
+.storyCamera__shutter,
+.storyCamera__record {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+}
+
+.storyCamera__shutter {
+  justify-self: center;
+  background: #fff;
+  color: #17121f;
+  box-shadow: 0 0 0 5px rgba(255, 255, 255, 0.32);
+}
+
+.storyCamera__record {
+  justify-self: end;
+  background: #e62955;
+}
+
+.storyCamera__record.is-recording {
+  border-radius: 18px;
+  transform: scale(0.82);
+}
+
+.storyCamera button:disabled,
+.storyCamera input:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+@media (max-width: 600px) {
+  .storyCamera {
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    border-radius: 0;
+  }
+
+  .storyCamera__filtersPanel {
+    margin-bottom: 11px;
+  }
+
+  .storyCamera__filter {
+    flex-basis: 58px;
+  }
+}
+
