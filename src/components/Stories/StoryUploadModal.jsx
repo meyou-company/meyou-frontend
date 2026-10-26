@@ -369,7 +369,7 @@ export default function StoryUploadModal({ isOpen, onClose, onCreated }) {
 
   return (
     <div
-      className={`storyUploadModal ${fileItem || isCameraOpen ? "storyUploadModal--editorMode" : ""}`}
+      className={`storyUploadModal ${fileItem || isCameraOpen ? "storyUploadModal--editorMode" : ""} ${isCameraOpen ? "storyUploadModal--cameraMode" : ""}`}
       role="dialog"
       aria-modal="true"
       aria-label={t("stories.createTitle")}

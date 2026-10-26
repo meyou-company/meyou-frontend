@@ -1419,3 +1419,59 @@
 .dark .storyUploadModal__bgDots {
   opacity: 0.55;
 }
+
+.storyUploadModal.storyUploadModal--cameraMode {
+  padding: 0;
+  height: 100dvh;
+  overflow: hidden;
+}
+
+.storyUploadModal.storyUploadModal--cameraMode .storyUploadModal__page,
+.storyUploadModal.storyUploadModal--cameraMode .storyUploadModal__content {
+  width: 100%;
+  max-width: none;
+  height: 100%;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+}
+
+.storyUploadModal--cameraMode .storyUploadModal__bgDots {
+  display: none;
+}
+
+@media (min-width: 581px) {
+  .storyUploadModal.storyUploadModal--cameraMode {
+    background: rgb(var(--app-bg));
+  }
+
+  .storyUploadModal.storyUploadModal--cameraMode::before,
+  .storyUploadModal.storyUploadModal--cameraMode::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+
+  .storyUploadModal.storyUploadModal--cameraMode::before {
+    background-image: var(--app-bg-image);
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    opacity: var(--app-bg-image-opacity);
+  }
+
+  .storyUploadModal.storyUploadModal--cameraMode::after {
+    background: radial-gradient(
+      circle at 50% 30%,
+      var(--app-overlay-1) 0%,
+      var(--app-overlay-2) 55%,
+      var(--app-overlay-3) 100%
+    );
+  }
+
+  .storyUploadModal.storyUploadModal--cameraMode .storyUploadModal__page {
+    z-index: 1;
+    background: transparent;
+  }
+}

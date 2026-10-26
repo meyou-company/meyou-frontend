@@ -37,6 +37,9 @@ function canvasToBlob(canvas, type = 'image/jpeg', quality = 0.92) {
 
 export default function StoryCamera({ onClose, onCapture }) {
   const videoRef = useRef(null);
+  const filtersRef = useRef(null);
+  const filterDragRef = useRef(null);
+  const suppressFilterClickRef = useRef(false);
   const canvasRef = useRef(null);
   const streamRef = useRef(null);
   const animationRef = useRef(0);
@@ -67,6 +70,19 @@ export default function StoryCamera({ onClose, onCapture }) {
     () => getStoryFilterCss(filterId, intensity / 100),
     [filterId, intensity],
   );
+
+  useEffect(() => {
+    const list = filtersRef.current;
+    if (!list) return;
+    const onWheel = (event) => {
+      if (event.ctrlKey || list.scrollWidth <= list.clientWidth) return;
+      const delta = Math.abs(event.deltaX) > Math.abs(event.deltaY) ? event.deltaX : event.deltaY;
+      event.preventDefault();
+      list.scrollLeft += delta * (event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? list.clientWidth : 1);
+    };
+    list.addEventListener('wheel', onWheel, { passive: false });
+    return () => list.removeEventListener('wheel', onWheel);
+  }, [showFilters]);
 
   useEffect(() => {
     if (filterId !== 'beauty' || typeof createImageBitmap !== 'function') return;
@@ -356,7 +372,42 @@ export default function StoryCamera({ onClose, onCapture }) {
       <div className="storyCamera__bottom">
         {showFilters ? (
           <div className="storyCamera__filtersPanel">
-            <div className="storyCamera__filters" role="listbox" aria-label="Фільтри">
+            <div
+              ref={filtersRef}
+              className="storyCamera__filters"
+              role="listbox"
+              aria-label="Фільтри"
+              onPointerDown={(event) => {
+                if (event.pointerType !== 'mouse' || event.button !== 0) return;
+                suppressFilterClickRef.current = false;
+                filterDragRef.current = { x: event.clientX, scrollLeft: event.currentTarget.scrollLeft };
+              }}
+              onPointerMove={(event) => {
+                const drag = filterDragRef.current;
+                if (!drag) return;
+                const distance = event.clientX - drag.x;
+                if (Math.abs(distance) < 5 && !suppressFilterClickRef.current) return;
+                suppressFilterClickRef.current = true;
+                event.currentTarget.setPointerCapture(event.pointerId);
+                event.currentTarget.classList.add('is-dragging');
+                event.currentTarget.scrollLeft = drag.scrollLeft - distance;
+              }}
+              onPointerUp={(event) => {
+                filterDragRef.current = null;
+                event.currentTarget.classList.remove('is-dragging');
+              }}
+              onPointerCancel={(event) => {
+                filterDragRef.current = null;
+                event.currentTarget.classList.remove('is-dragging');
+              }}
+              onPointerLeave={() => { filterDragRef.current = null; }}
+              onClickCapture={(event) => {
+                if (!suppressFilterClickRef.current) return;
+                event.preventDefault();
+                event.stopPropagation();
+                suppressFilterClickRef.current = false;
+              }}
+            >
               {STORY_FILTERS.map((filter) => (
                 <button
                   key={filter.id}
