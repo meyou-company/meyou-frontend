@@ -100,9 +100,11 @@ export async function composeStoryImage({
   position,
   frameWidth,
   frameHeight,
+  filter = "none",
 }) {
   const normalizedText = String(text || "").trim();
-  if (!normalizedText) return file;
+  const normalizedFilter = filter && filter !== "none" ? filter : "none";
+  if (!normalizedText && normalizedFilter === "none") return file;
 
   const image = await loadImage(file);
   const canvas = document.createElement("canvas");
@@ -114,7 +116,10 @@ export async function composeStoryImage({
 
   canvas.width = image.naturalWidth;
   canvas.height = image.naturalHeight;
+  context.save();
+  context.filter = normalizedFilter;
   context.drawImage(image, 0, 0);
+  context.restore();
 
   const safeFrameWidth = Math.max(1, Number(frameWidth) || image.naturalWidth);
   const safeFrameHeight = Math.max(1, Number(frameHeight) || image.naturalHeight);

@@ -10,6 +10,7 @@ import { clampStoryTextPosition } from "../../utils/storySafeArea";
 import { useStoriesOverlayLock } from "../../hooks/useStoriesOverlayLock";
 import profileIcons from "../../constants/profileIcons";
 import StoryTextEditor from "./StoryTextEditor";
+import StoryCamera from "./StoryCamera";
 import "./StoryUploadModal.scss";
 
 const STORY_VISIBILITY_OPTIONS = [
@@ -84,6 +85,7 @@ export default function StoryUploadModal({ isOpen, onClose, onCreated }) {
   const [publishPhase, setPublishPhase] = useState(null);
   const [visibility, setVisibility] = useState("FOLLOWERS");
   const [isVisibilityOpen, setIsVisibilityOpen] = useState(false);
+  const [isCameraOpen, setIsCameraOpen] = useState(false);
 
   const currentUser = useAuthStore((s) => s.user);
   const currentUserAvatar =
@@ -179,6 +181,7 @@ export default function StoryUploadModal({ isOpen, onClose, onCreated }) {
     setIsVisibilityOpen(false);
     setIsPublishing(false);
     setPublishPhase(null);
+    setIsCameraOpen(false);
   };
 
   const handleClose = () => {
@@ -195,12 +198,10 @@ export default function StoryUploadModal({ isOpen, onClose, onCreated }) {
     setText("");
     resetStoryText();
     setIsVisibilityOpen(false);
+    setIsCameraOpen(false);
   };
 
-  const handleSelectFile = (e) => {
-    const file = e.target.files?.[0];
-    e.target.value = "";
-
+  const prepareStoryFile = (file, metadata = {}) => {
     if (!file) return;
 
     const isImage = file.type?.startsWith("image/");
@@ -218,6 +219,7 @@ export default function StoryUploadModal({ isOpen, onClose, onCreated }) {
     setText("");
     resetStoryText();
     setIsVisibilityOpen(false);
+    setIsCameraOpen(false);
 
     const previewUrl = URL.createObjectURL(file);
 
@@ -233,6 +235,7 @@ export default function StoryUploadModal({ isOpen, onClose, onCreated }) {
           type: "image",
           previewUrl,
           orientation,
+          filterBaked: Boolean(metadata.filterBaked),
         });
       };
 
@@ -242,6 +245,7 @@ export default function StoryUploadModal({ isOpen, onClose, onCreated }) {
           type: "image",
           previewUrl,
           orientation: "unknown",
+          filterBaked: Boolean(metadata.filterBaked),
         });
       };
 
@@ -255,7 +259,10 @@ export default function StoryUploadModal({ isOpen, onClose, onCreated }) {
 
     video.onloadedmetadata = () => {
 
-      const durationSec = Math.max(1, Math.ceil(video.duration || 0));
+      const durationSec = Math.max(
+        1,
+        Number(metadata.durationSec) || Math.ceil(video.duration || 0),
+      );
 
       setFileItem({
         file,
@@ -263,6 +270,7 @@ export default function StoryUploadModal({ isOpen, onClose, onCreated }) {
         previewUrl,
         orientation: "unknown",
         durationSec,
+        filterBaked: Boolean(metadata.filterBaked),
       });
     };
 
@@ -272,11 +280,18 @@ export default function StoryUploadModal({ isOpen, onClose, onCreated }) {
         type: "video",
         previewUrl,
         orientation: "unknown",
-        durationSec: 1,
+        durationSec: Math.max(1, Number(metadata.durationSec) || 1),
+        filterBaked: Boolean(metadata.filterBaked),
       });
     };
 
     video.src = previewUrl;
+  };
+
+  const handleSelectFile = (e) => {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    prepareStoryFile(file);
   };
 
   const handlePublish = async () => {
@@ -354,7 +369,7 @@ export default function StoryUploadModal({ isOpen, onClose, onCreated }) {
 
   return (
     <div
-      className={`storyUploadModal ${fileItem ? "storyUploadModal--editorMode" : ""}`}
+      className={`storyUploadModal ${fileItem || isCameraOpen ? "storyUploadModal--editorMode" : ""}`}
       role="dialog"
       aria-modal="true"
       aria-label={t("stories.createTitle")}
@@ -382,10 +397,10 @@ export default function StoryUploadModal({ isOpen, onClose, onCreated }) {
         )}
 
         <div
-          className={`storyUploadModal__content ${fileItem ? "storyUploadModal__content--editor" : ""
+          className={`storyUploadModal__content ${fileItem || isCameraOpen ? "storyUploadModal__content--editor" : ""
             }`}
         >
-          {!fileItem && (
+          {!fileItem && !isCameraOpen && (
             <>
               <div className="storyUploadModal__head">
                 <button
@@ -491,7 +506,12 @@ export default function StoryUploadModal({ isOpen, onClose, onCreated }) {
             onChange={handleSelectFile}
           />
 
-          {fileItem ? (
+          {isCameraOpen ? (
+            <StoryCamera
+              onClose={() => setIsCameraOpen(false)}
+              onCapture={prepareStoryFile}
+            />
+          ) : fileItem ? (
             <div className="storyUploadModal__editor">
               <div className="storyUploadModal__editorCard">
                 <div className="storyUploadModal__editorTop">
@@ -696,9 +716,20 @@ export default function StoryUploadModal({ isOpen, onClose, onCreated }) {
                 disabled={isPublishing}
               >
                 <span className="storyUploadModal__pickFileIcon">
+                  <img src={profileIcons.storyGallery} alt="" />
+                </span>
+                <span>Вибрати фото або відео</span>
+              </button>
+              <button
+                type="button"
+                className="storyUploadModal__pickFileBtn storyUploadModal__pickFileBtn--camera"
+                onClick={() => setIsCameraOpen(true)}
+                disabled={isPublishing}
+              >
+                <span className="storyUploadModal__pickFileIcon">
                   <img src={profileIcons.storyCamera} alt="" />
                 </span>
-                <span>Выбрать фото или видео</span>
+                <span>Відкрити камеру</span>
               </button>
             </div>
           )}

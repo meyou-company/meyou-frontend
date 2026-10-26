@@ -320,6 +320,8 @@ export default function MessagesPage() {
   const [storyViewerGroup, setStoryViewerGroup] = useState(null);
   const [chatMenu, setChatMenu] = useState(null);
   const hiddenIdsRef = useRef(new Set());
+  const manuallyUnreadRef = useRef(new Set());
+  const readInFlightRef = useRef(new Map());
 
   const messagesEndRef = useRef(null);
   const longPressTimerRef = useRef(null);
@@ -480,24 +482,49 @@ export default function MessagesPage() {
   }, []);
 
   const markChatRead = useCallback(
-    async (id) => {
+    async (id, { force = false } = {}) => {
       if (!id) return;
-      try {
-        const result = await conversationsApi.markConversationRead(id);
-        if (typeof result?.totalUnreadCount === 'number') {
-          setTotalUnreadCount(result.totalUnreadCount);
+      const key = String(id);
+      if (!force && manuallyUnreadRef.current.has(key)) return;
+      const pending = readInFlightRef.current.get(key);
+      if (pending) return pending;
+
+      const request = (async () => {
+        try {
+          const result = await conversationsApi.markConversationRead(id);
+          manuallyUnreadRef.current.delete(key);
+          if (typeof result?.totalUnreadCount === 'number') {
+            setTotalUnreadCount(result.totalUnreadCount);
+          } else {
+            void fetchTotalUnreadCount(true);
+          }
+          applyConversationRead(result || {});
+          setConversations((prev) =>
+            prev.map((c) =>
+              String(c.id) === key ? { ...c, unreadCount: 0 } : c,
+            ),
+          );
+          setHiddenConversations((prev) =>
+            prev.map((c) =>
+              String(c.id) === key ? { ...c, unreadCount: 0 } : c,
+            ),
+          );
+          return true;
+        } catch (err) {
+          console.error('[messages] mark read failed', err);
+          if (force) throw err;
+          return false;
+        } finally {
+          if (readInFlightRef.current.get(key) === request) {
+            readInFlightRef.current.delete(key);
+          }
         }
-        applyConversationRead(result);
-        setConversations((prev) =>
-          prev.map((c) =>
-            String(c.id) === String(id) ? { ...c, unreadCount: 0 } : c,
-          ),
-        );
-      } catch (err) {
-        console.error('[messages] mark read failed', err);
-      }
+      })();
+
+      readInFlightRef.current.set(key, request);
+      return request;
     },
-    [setTotalUnreadCount, applyConversationRead],
+    [setTotalUnreadCount, applyConversationRead, fetchTotalUnreadCount],
   );
 
   const loadMessages = useCallback(
@@ -570,6 +597,7 @@ export default function MessagesPage() {
 
   useEffect(() => {
     if (!isAuthed || !activeConversationId) return;
+    manuallyUnreadRef.current.delete(String(activeConversationId));
     setReplyTo(null);
     setShowChatSearch(false);
     setTypingUserIds([]);
@@ -668,10 +696,16 @@ export default function MessagesPage() {
       const envelope = event?.detail;
       const convId = envelope?.conversationId;
       if (!convId) return;
+      if (manuallyUnreadRef.current.has(String(convId))) return;
       if (typeof envelope.totalUnreadCount === 'number') {
         setTotalUnreadCount(envelope.totalUnreadCount);
       }
       setConversations((prev) =>
+        prev.map((c) =>
+          String(c.id) === String(convId) ? { ...c, unreadCount: 0 } : c,
+        ),
+      );
+      setHiddenConversations((prev) =>
         prev.map((c) =>
           String(c.id) === String(convId) ? { ...c, unreadCount: 0 } : c,
         ),
@@ -1191,18 +1225,37 @@ export default function MessagesPage() {
         }
 
         if (actionId === 'unread') {
-          const result = await conversationsApi.markConversationUnread(chatId);
-          const unreadCount = Math.max(1, result.unreadCount ?? 1);
+          const pendingRead = readInFlightRef.current.get(String(chatId));
+          if (pendingRead) await pendingRead;
+          manuallyUnreadRef.current.add(String(chatId));
+          let result;
+          try {
+            result = await conversationsApi.markConversationUnread(chatId);
+          } catch (error) {
+            manuallyUnreadRef.current.delete(String(chatId));
+            throw error;
+          }
+          const unreadCount = Math.max(1, result?.unreadCount ?? 1);
           const patchUnread = (c) =>
             String(c.id) === String(chatId) ? { ...c, unreadCount } : c;
           setHiddenConversations((prev) => prev.map(patchUnread));
           setConversations((prev) => prev.map(patchUnread));
-          if (typeof result.totalUnreadCount === 'number') {
+          if (typeof result?.totalUnreadCount === 'number') {
             setTotalUnreadCount(result.totalUnreadCount);
           } else {
             void fetchTotalUnreadCount(true);
           }
           toast.success(t('messenger.chatMenu.markUnreadSuccess'));
+          return;
+        }
+
+        if (actionId === 'read') {
+          await markChatRead(chatId, { force: true });
+          toast.success(
+            t('messenger.chatMenu.markReadSuccess', {
+              defaultValue: 'Чат позначено як прочитаний',
+            }),
+          );
           return;
         }
 
@@ -1294,6 +1347,7 @@ export default function MessagesPage() {
       chatMenu,
       fetchTotalUnreadCount,
       navigate,
+      markChatRead,
       setTotalUnreadCount,
       t,
     ],
@@ -1932,6 +1986,7 @@ export default function MessagesPage() {
         isHidden={Boolean(
           chatMenu?.chat?.isHidden || sidebarMode === 'hidden',
         )}
+        isUnread={Number(chatMenu?.chat?.unreadCount) > 0}
         onClose={() => setChatMenu(null)}
         onAction={handleChatMenuAction}
       />
