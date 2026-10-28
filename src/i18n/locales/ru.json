@@ -414,6 +414,9 @@
         "maritalStatusRequired": "Выберите семейное положение",
         "countryRequired": "Выберите страну",
         "cityRequired": "Выберите город",
+        "cityInvalid": "Введите корректное название города",
+        "cityMaxLength": "Название города слишком длинное",
+        "regionMaxLength": "Название региона слишком длинное",
         "interestsRequired": "Выберите интересы",
         "hobbiesRequired": "Выберите хобби",
         "usernameRequired": "Укажите ник",
@@ -1060,6 +1063,8 @@
   "errors": {
     "generic": "Произошла ошибка. Попробуйте снова.",
     "VALIDATION_ERROR": "Проверьте введённые данные.",
+    "CITY_NAME_INVALID": "Введите корректное название города",
+    "CITY_NAME_TOO_LONG": "Название города слишком длинное",
     "UNAUTHORIZED": "Войдите в аккаунт.",
     "FORBIDDEN": "Недостаточно прав.",
     "NOT_FOUND": "Не найдено.",
