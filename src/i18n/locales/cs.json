@@ -972,6 +972,18 @@
       "all": "All",
       "following": "Following",
       "saved": "Saved"
+    },
+    "upload": {
+      "progress": "Nahrávání {{percent}} %",
+      "publish": "Publikovat",
+      "errors": {
+        "required": "Vyberte video soubor",
+        "type": "Použijte video MP4, MOV nebo M4V",
+        "tooLarge": "Video musí mít {{maxMb}} MB nebo méně",
+        "network": "Video se nepodařilo nahrát. Zkontrolujte připojení.",
+        "failed": "Video se nepodařilo nahrát",
+        "missingUrl": "Nahrávání skončilo, ale chybí URL videa"
+      }
     }
   },
   "stories": {
@@ -1297,6 +1309,7 @@
       "cancel": "Cancel",
       "publish": "Publish",
       "publishing": "Publishing…",
+      "uploadingVideo": "Uploading video {{percent}}%",
       "privacy": "Only your friends see your location"
     },
     "edit": {

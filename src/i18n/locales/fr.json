@@ -972,6 +972,18 @@
       "all": "All",
       "following": "Following",
       "saved": "Saved"
+    },
+    "upload": {
+      "progress": "Téléchargement {{percent}} %",
+      "publish": "Publier",
+      "errors": {
+        "required": "Sélectionnez un fichier vidéo",
+        "type": "Utilisez une vidéo MP4, MOV ou M4V",
+        "tooLarge": "La vidéo doit faire {{maxMb}} Mo ou moins",
+        "network": "Impossible de télécharger la vidéo. Vérifiez la connexion.",
+        "failed": "Impossible de télécharger la vidéo",
+        "missingUrl": "Le téléchargement est terminé, mais l’URL de la vidéo est absente"
+      }
     }
   },
   "stories": {
@@ -1295,6 +1307,7 @@
       "cancel": "Cancel",
       "publish": "Publish",
       "publishing": "Publishing…",
+      "uploadingVideo": "Uploading video {{percent}}%",
       "privacy": "Only your friends see your location"
     },
     "edit": {

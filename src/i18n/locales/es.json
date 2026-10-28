@@ -972,6 +972,18 @@
       "all": "All",
       "following": "Following",
       "saved": "Saved"
+    },
+    "upload": {
+      "progress": "Subiendo {{percent}}%",
+      "publish": "Publicar",
+      "errors": {
+        "required": "Selecciona un archivo de vídeo",
+        "type": "Usa un vídeo MP4, MOV o M4V",
+        "tooLarge": "El vídeo debe ocupar {{maxMb}} MB o menos",
+        "network": "No se pudo subir el vídeo. Comprueba la conexión.",
+        "failed": "No se pudo subir el vídeo",
+        "missingUrl": "La subida terminó, pero falta la URL del vídeo"
+      }
     }
   },
   "stories": {
@@ -1295,6 +1307,7 @@
       "cancel": "Cancel",
       "publish": "Publish",
       "publishing": "Publishing…",
+      "uploadingVideo": "Uploading video {{percent}}%",
       "privacy": "Only your friends see your location"
     },
     "edit": {
