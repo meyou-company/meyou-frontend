@@ -24,6 +24,7 @@ import { useLocationSystem } from '../../../../hooks/useLocationSystem';
 import {
   validateEditProfile,
   translateValidationErrors,
+  locationFieldErrorsFromApi,
 } from '../../../../utils/validationProfile';
 import { normalizeForValidation, toEditProfilePayload } from '../../../../utils/profilePayload';
 import { cropImageToFile } from '../../../../utils/cropImageToFile';
@@ -293,10 +294,23 @@ export default function EditProfileForm({ onBack, onSave }) {
     } catch (err) {
       console.log('ERR RAW', err);
       const code = getApiErrorCode(err) || '';
+      const locationCodes = locationFieldErrorsFromApi(err);
+      const locationMessages = translateValidationErrors(locationCodes, t);
+      if (Object.keys(locationCodes).length > 0) {
+        setErrors((prev) => ({ ...prev, ...locationMessages }));
+        setTouched((prev) => ({
+          ...prev,
+          ...Object.fromEntries(Object.keys(locationCodes).map((key) => [key, true])),
+        }));
+      }
       const msg =
         code === 'CONFLICT' && payload.phone
           ? t('errors.PHONE_ALREADY_EXISTS')
-          : getApiErrorMessage(err) || t('profile.editForm.errors.updateError');
+          : locationMessages.city ||
+            locationMessages.country ||
+            locationMessages.region ||
+            getApiErrorMessage(err) ||
+            t('profile.editForm.errors.updateError');
       setSubmitError(msg);
     } finally {
       setIsSubmitting(false);

@@ -449,6 +449,9 @@
         "maritalStatusRequired": "Оберіть сімейне положення",
         "countryRequired": "Оберіть країну",
         "cityRequired": "Оберіть місто",
+        "cityInvalid": "Введіть коректну назву міста",
+        "cityMaxLength": "Назва міста занадто довга",
+        "regionMaxLength": "Назва регіону занадто довга",
         "interestsRequired": "Оберіть інтереси",
         "hobbiesRequired": "Оберіть хобі",
         "usernameRequired": "Вкажіть нік",
@@ -1098,6 +1101,8 @@
   "errors": {
     "generic": "Сталася помилка. Спробуйте ще раз.",
     "VALIDATION_ERROR": "Перевірте введені дані.",
+    "CITY_NAME_INVALID": "Введіть коректну назву міста",
+    "CITY_NAME_TOO_LONG": "Назва міста занадто довга",
     "UNAUTHORIZED": "Увійдіть у акаунт.",
     "FORBIDDEN": "Недостатньо прав.",
     "NOT_FOUND": "Не знайдено.",

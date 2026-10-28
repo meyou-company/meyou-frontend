@@ -25,6 +25,9 @@ const MESSAGE_CODE_HINTS = [
   { pattern: /(verify|підтверд|confirm).*(email|пошт)/i, code: 'EMAIL_NOT_VERIFIED' },
   { pattern: /(blocked|заблокован|suspended)/i, code: 'ACCOUNT_SUSPENDED' },
   { pattern: /(deleted|видален|удален)/i, code: 'ACCOUNT_DELETED' },
+  { pattern: /^CITY_NAME_INVALID$/i, code: 'CITY_NAME_INVALID' },
+  { pattern: /^CITY_NAME_TOO_LONG$/i, code: 'CITY_NAME_TOO_LONG' },
+  { pattern: /название города|назва міста/i, code: 'CITY_NAME_INVALID' },
 ];
 
 function isTechnicalErrorMessage(message) {
@@ -120,8 +123,14 @@ function resolveErrorCode(payload, error) {
     if (inferred) return inferred;
   }
 
-  if (!code && serverMessage) {
-    code = inferCodeFromMessage(serverMessage);
+  if (serverMessage) {
+    const inferred = inferCodeFromMessage(serverMessage);
+    if (inferred === 'CITY_NAME_INVALID' || inferred === 'CITY_NAME_TOO_LONG') {
+      return inferred;
+    }
+    if (!code) {
+      code = inferred;
+    }
   }
 
   return code || '';
@@ -152,6 +161,11 @@ export function getApiErrorMessage(error, fallbackKey = 'errors.generic') {
   let code = resolveErrorCode(payload, error);
 
   if (code === 'VALIDATION_ERROR') {
+    const inferred = inferCodeFromMessage(serverMessage);
+    if (inferred) {
+      const translated = translateErrorCode(inferred);
+      if (translated) return translated;
+    }
     if (serverMessage && !isTechnicalErrorMessage(serverMessage)) {
       return serverMessage;
     }
