@@ -117,7 +117,7 @@
       "emailPlaceholder": "Enter email",
       "submit": "Confirm",
       "submitting": "Sending…",
-      "toastSuccess": "Code sent to your email",
+      "toastSuccess": "If an account exists, the code will arrive by email. If it does not, request it again in a minute.",
       "errors": {
         "emailRequired": "Enter your email",
         "emailInvalid": "Enter a valid email",
@@ -164,13 +164,13 @@
     },
     "verifyResetCode": {
       "title": "Reset password",
-      "subtitle": "Code sent to your email. Valid for 15 minutes.",
+      "subtitle": "The code is valid for 15 minutes. If no email arrives, request it again in a minute.",
       "submit": "Next",
       "submitting": "Verifying…",
       "resend": "Resend code",
       "resending": "Sending…",
       "toastVerified": "Code confirmed",
-      "toastResent": "Code resent",
+      "toastResent": "If an account exists, a new code will arrive by email. If it does not, try again in a minute.",
       "errors": {
         "incomplete": "Enter the full code",
         "noEmail": "No email. Go back and enter your email again.",
@@ -857,7 +857,7 @@
       "emailHint": "The code will be sent to this address",
       "submit": "Send code",
       "submitting": "Sending…",
-      "toastSent": "Code sent to your email",
+      "toastSent": "If an account exists, the code will arrive by email. If it does not, request it again in a minute.",
       "backToAccount": "Back to settings",
       "errors": {
         "emailRequired": "Enter your email",

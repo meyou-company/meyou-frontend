@@ -268,7 +268,10 @@ export const useAuthStore = create((set) => ({
   verifyResetCode: async ({ email, code }) => {
     set({ isAuthLoading: true });
     try {
-      await passwordApi.verifyResetCode({ email, code });
+      const data = await passwordApi.verifyResetCode({ email, code });
+      if (data?.valid === false) {
+        return { ok: false, error: new Error("Invalid reset code") };
+      }
       return { ok: true };
     } catch (e) {
       return { ok: false, error: e };
