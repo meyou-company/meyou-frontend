@@ -14,6 +14,10 @@ import {
   resolvePostMediaMime,
   uploadPostMedia,
 } from "../../../../services/postImageUploadApi";
+import {
+  getRegularVideoErrorMessage,
+  isRegularVideoFile,
+} from "../../../../utils/regularVideoUpload.js";
 
 import MessagesNavBadge from "../../../Messages/MessagesNavBadge";
 import GiftInboxBadge from "../../../Gifts/GiftInboxBadge";
@@ -86,6 +90,7 @@ export default function ProfileHome({
   const [isComposerOpen, setIsComposerOpen] = useState(false);
   const [locationPanelOpen, setLocationPanelOpen] = useState(false);
   const [isPublishingPost, setIsPublishingPost] = useState(false);
+  const [postVideoUploadProgress, setPostVideoUploadProgress] = useState(null);
   const [cropModalSrc, setCropModalSrc] = useState(null);
   const [isSaving, setIsSaving] = useState(false);
   /** URL фото для перегляду в повному розмірі (null = закрито) */
@@ -265,8 +270,8 @@ export default function ProfileHome({
     const accepted = files.filter((file) => {
       const mime = resolvePostMediaMime(file);
       if (preferKind === "image") return mime.startsWith("image/");
-      if (preferKind === "video") return mime.startsWith("video/");
-      return mime.startsWith("image/") || mime.startsWith("video/");
+      if (preferKind === "video") return isRegularVideoFile(file);
+      return mime.startsWith("image/") || isRegularVideoFile(file);
     });
     if (!accepted.length) {
       toast.error(
@@ -287,7 +292,7 @@ export default function ProfileHome({
         return {
           id: `${file.name}-${file.size}-${file.lastModified}`,
           file,
-          type: mime.startsWith("video/") ? "video" : "image",
+          type: isRegularVideoFile(file) ? "video" : "image",
           previewUrl: URL.createObjectURL(file),
         };
       });
@@ -349,6 +354,7 @@ export default function ProfileHome({
 
     try {
       setIsPublishingPost(true);
+      setPostVideoUploadProgress(null);
 
       // Upload all selected media first. If any file fails — do NOT create the post.
       let media = [];
@@ -372,7 +378,12 @@ export default function ProfileHome({
             size: file.size,
           });
 
-          const { url, mediaType } = await uploadPostMedia(file);
+          const isVideo = isRegularVideoFile(file);
+          if (isVideo) setPostVideoUploadProgress(0);
+          const { url, mediaType } = await uploadPostMedia(file, {
+            onProgress: isVideo ? setPostVideoUploadProgress : undefined,
+          });
+          if (isVideo) setPostVideoUploadProgress(100);
           uploaded.push({
             url,
             type: mediaType,
@@ -442,13 +453,15 @@ export default function ProfileHome({
       });
       const hadMedia = postMediaFiles.length > 0;
       toast.error(
-        hadMedia && details
-          ? `${t('posts.toast.editMediaUploadFileFailed')}: ${details}`
-          : details || t('posts.toast.publishFailed')
+        getRegularVideoErrorMessage(err, t) ||
+          (hadMedia && details
+            ? `${t('posts.toast.editMediaUploadFileFailed')}: ${details}`
+            : details || t('posts.toast.publishFailed'))
       );
       // Keep modal open and preserve text / selected media.
     } finally {
       setIsPublishingPost(false);
+      setPostVideoUploadProgress(null);
     }
   };
 
@@ -926,6 +939,7 @@ export default function ProfileHome({
           onUseCurrentLocation={handleUseCurrentLocation}
           isDetectingLocation={isDetectingLocation}
           isPublishing={isPublishingPost}
+          uploadProgress={postVideoUploadProgress}
           onPublish={handlePublishPost}
           onClose={closeComposer}
           canPublish={

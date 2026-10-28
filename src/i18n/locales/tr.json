@@ -972,6 +972,18 @@
       "all": "All",
       "following": "Following",
       "saved": "Saved"
+    },
+    "upload": {
+      "progress": "Yükleniyor {{percent}}%",
+      "publish": "Yayınla",
+      "errors": {
+        "required": "Bir video dosyası seçin",
+        "type": "MP4, MOV veya M4V videosu kullanın",
+        "tooLarge": "Video {{maxMb}} MB veya daha küçük olmalıdır",
+        "network": "Video yüklenemedi. Bağlantınızı kontrol edin.",
+        "failed": "Video yüklenemedi",
+        "missingUrl": "Yükleme bitti ancak video URL’si yok"
+      }
     }
   },
   "stories": {
@@ -1295,6 +1307,7 @@
       "cancel": "Cancel",
       "publish": "Publish",
       "publishing": "Publishing…",
+      "uploadingVideo": "Uploading video {{percent}}%",
       "privacy": "Only your friends see your location"
     },
     "edit": {

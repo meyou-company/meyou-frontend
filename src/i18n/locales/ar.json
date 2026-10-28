@@ -965,6 +965,18 @@
       "all": "All",
       "following": "Following",
       "saved": "Saved"
+    },
+    "upload": {
+      "progress": "جارٍ الرفع {{percent}}٪",
+      "publish": "نشر",
+      "errors": {
+        "required": "اختر ملف فيديو",
+        "type": "استخدم فيديو MP4 أو MOV أو M4V",
+        "tooLarge": "يجب ألا يتجاوز الفيديو {{maxMb}} ميغابايت",
+        "network": "تعذر رفع الفيديو. تحقق من الاتصال.",
+        "failed": "تعذر رفع الفيديو",
+        "missingUrl": "اكتمل الرفع ولكن رابط الفيديو غير موجود"
+      }
     }
   },
   "stories": {
@@ -1213,6 +1225,7 @@
       "cancel": "Cancel",
       "publish": "Publish",
       "publishing": "Publishing…",
+      "uploadingVideo": "Uploading video {{percent}}%",
       "privacy": "Only your friends see your location"
     },
     "edit": {

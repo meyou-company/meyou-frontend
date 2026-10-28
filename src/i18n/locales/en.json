@@ -1055,6 +1055,18 @@
       "all": "All",
       "following": "Following",
       "saved": "Saved"
+    },
+    "upload": {
+      "progress": "Uploading {{percent}}%",
+      "publish": "Publish",
+      "errors": {
+        "required": "Select a video file",
+        "type": "Use an MP4, MOV, or M4V video file",
+        "tooLarge": "Video must be {{maxMb}} MB or smaller",
+        "network": "Could not upload the video. Check your connection.",
+        "failed": "Could not upload the video",
+        "missingUrl": "Upload finished but the video URL is missing"
+      }
     }
   },
   "stories": {
@@ -1379,6 +1391,7 @@
       "cancel": "Cancel",
       "publish": "Publish",
       "publishing": "Publishing…",
+      "uploadingVideo": "Uploading video {{percent}}%",
       "privacy": "Only your friends see your location"
     },
     "edit": {

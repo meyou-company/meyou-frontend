@@ -9,6 +9,10 @@ import {
   uploadVideoThumbnail,
 } from "../../services/videoMediaUploadApi";
 import { getApiErrorMessage } from "../../utils/getApiErrorMessage";
+import {
+  getRegularVideoErrorMessage,
+  getRegularVideoIssue,
+} from "../../utils/regularVideoUpload.js";
 import { detectCurrentLocationLabel } from "../../utils/postGeolocation";
 import { getOwnerVipEnabled } from "../../utils/profileVipUi";
 import profileIcons from "../../constants/profileIcons";
@@ -32,6 +36,7 @@ export default function VideoUploadModal({ isOpen, onClose, onCreated }) {
   const [videoPreviewUrl, setVideoPreviewUrl] = useState("");
   const [thumbnailPreviewUrl, setThumbnailPreviewUrl] = useState("");
   const [isPublishing, setIsPublishing] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(null);
   const [visibility, setVisibility] = useState("PUBLIC");
 
   useEffect(() => {
@@ -75,6 +80,7 @@ export default function VideoUploadModal({ isOpen, onClose, onCreated }) {
     setVideoPreviewUrl("");
     setThumbnailPreviewUrl("");
     setIsPublishing(false);
+    setUploadProgress(null);
     setVisibility("PUBLIC");
   };
 
@@ -114,8 +120,14 @@ export default function VideoUploadModal({ isOpen, onClose, onCreated }) {
     e.target.value = "";
     if (!file) return;
 
-    if (!file.type?.startsWith("video/")) {
-      toast.error("Можно загрузить только видео");
+    const issue = getRegularVideoIssue(file);
+    if (issue) {
+      toast.error(
+        getRegularVideoErrorMessage(
+          { code: issue.code, maxMb: issue.maxMb },
+          t,
+        ),
+      );
       return;
     }
 
@@ -159,9 +171,10 @@ export default function VideoUploadModal({ isOpen, onClose, onCreated }) {
 
     try {
       setIsPublishing(true);
+      setUploadProgress(0);
 
       const [{ mediaUrl: videoUrl }, duration] = await Promise.all([
-        uploadVideoMedia(videoFile),
+        uploadVideoMedia(videoFile, { onProgress: setUploadProgress }),
         getVideoDurationSeconds(videoFile),
       ]);
 
@@ -210,8 +223,14 @@ export default function VideoUploadModal({ isOpen, onClose, onCreated }) {
       handleClose();
     } catch (err) {
       console.error("[video-upload] failed", err);
-      toast.error(getApiErrorMessage(err) || err?.message || "Не удалось добавить видео");
+      toast.error(
+        getRegularVideoErrorMessage(err, t) ||
+          getApiErrorMessage(err) ||
+          err?.message ||
+          t("video.upload.errors.failed"),
+      );
       setIsPublishing(false);
+      setUploadProgress(null);
     }
   };
 
@@ -334,7 +353,7 @@ export default function VideoUploadModal({ isOpen, onClose, onCreated }) {
             <input
               ref={videoInputRef}
               type="file"
-              accept="video/*"
+              accept="video/mp4,video/quicktime,video/webm,video/x-m4v,.mp4,.mov,.m4v,video/*"
               className="videoUploadModal__fileInput"
               onChange={handleVideoSelect}
               disabled={isPublishing}
@@ -384,12 +403,28 @@ export default function VideoUploadModal({ isOpen, onClose, onCreated }) {
             )}
           </div>
 
+          {typeof uploadProgress === "number" && (
+            <div className="videoUploadModal__progress" aria-live="polite">
+              <div className="videoUploadModal__progressTrack">
+                <div
+                  className="videoUploadModal__progressBar"
+                  style={{ width: `${uploadProgress}%` }}
+                />
+              </div>
+              <span className="videoUploadModal__progressLabel">
+                {t("video.upload.progress", { percent: uploadProgress })}
+              </span>
+            </div>
+          )}
+
           <button
             type="submit"
             className="videoUploadModal__submit"
             disabled={isPublishing}
           >
-            {isPublishing ? "Загрузка..." : "Опубликовать"}
+            {isPublishing
+              ? t("video.upload.progress", { percent: uploadProgress ?? 0 })
+              : t("video.upload.publish", { defaultValue: "Publish" })}
           </button>
         </form>
       </div>

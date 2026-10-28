@@ -1,4 +1,11 @@
 import { api } from "./api";
+import {
+  RegularVideoUploadError,
+  REGULAR_VIDEO_ERROR,
+  assertRegularVideoFile,
+  isRegularVideoFile,
+  uploadFormDataWithProgress,
+} from "../utils/regularVideoUpload.js";
 
 /**
  * Post image upload is optional. Only call the backend upload route when
@@ -14,7 +21,6 @@ const UPLOAD_URL_PATH =
   import.meta.env.VITE_POST_IMAGE_UPLOAD_PATH ||
   "/uploads/post-media/presigned-url";
 const MAX_IMAGE_SIZE_BYTES = 5 * 1024 * 1024;
-const MAX_VIDEO_SIZE_BYTES = 80 * 1024 * 1024;
 
 /** Optional: direct unsigned upload (preset must allow unsigned in Cloudinary). */
 const UNSIGNED_CLOUD_NAME = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME?.trim();
@@ -289,6 +295,47 @@ async function uploadViaPostMediaPresign(file) {
   return publicUrl;
 }
 
+async function uploadPostVideoViaPresign(file, onProgress) {
+  const ext = (file.name?.split(".").pop() || "").trim().toLowerCase() || "mp4";
+  const fileName = file.name && file.name.includes(".")
+    ? file.name
+    : `post-${Date.now()}.${ext}`;
+
+  const { data } = await api.get(UPLOAD_URL_PATH, {
+    params: {
+      fileName,
+      fileType: file.type || "video",
+    },
+  });
+
+  const uploadUrl = extractSignedUrl(data);
+  if (!uploadUrl) {
+    throw new RegularVideoUploadError(REGULAR_VIDEO_ERROR.MISSING_URL);
+  }
+
+  const uploadFields = extractUploadFields(data);
+  if (!uploadFields) {
+    throw new RegularVideoUploadError(REGULAR_VIDEO_ERROR.MISSING_URL);
+  }
+
+  const formData = new FormData();
+  appendFormFields(formData, uploadFields);
+  formData.append("file", file);
+
+  const cloudBody = await uploadFormDataWithProgress({
+    url: uploadUrl,
+    formData,
+    onProgress,
+  });
+
+  const publicUrl = extractPublicMediaUrl(data, cloudBody);
+  if (!publicUrl) {
+    throw new RegularVideoUploadError(REGULAR_VIDEO_ERROR.MISSING_URL);
+  }
+
+  return publicUrl;
+}
+
 /**
  * Upload an image for a post (legacy name; prefers image MIME).
  * @returns {Promise<string>} public image URL
@@ -323,7 +370,7 @@ export async function uploadPostImage(file) {
  * Videos stay on the post-media endpoint (folder `meyou/posts`), not video-media.
  * @returns {Promise<{ url: string, mediaType: 'IMAGE' | 'VIDEO' }>}
  */
-export async function uploadPostMedia(file) {
+export async function uploadPostMedia(file, { onProgress } = {}) {
   if (!file) throw new Error("No media file provided");
 
   const mime = resolvePostMediaMime(file);
@@ -341,11 +388,9 @@ export async function uploadPostMedia(file) {
     return { url, mediaType: "IMAGE" };
   }
 
-  if (mime.startsWith("video/")) {
-    if (uploadFile.size > MAX_VIDEO_SIZE_BYTES) {
-      throw new Error("Video size must be 80MB or less");
-    }
-    const url = await uploadViaPostMediaPresign(uploadFile);
+  if (isRegularVideoFile(file)) {
+    const videoFile = assertRegularVideoFile(file);
+    const url = await uploadPostVideoViaPresign(videoFile, onProgress);
     return { url, mediaType: "VIDEO" };
   }
 

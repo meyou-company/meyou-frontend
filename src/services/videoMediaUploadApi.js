@@ -1,7 +1,12 @@
 import { videosApi } from "./videosApi";
+import {
+  RegularVideoUploadError,
+  REGULAR_VIDEO_ERROR,
+  assertRegularVideoFile,
+  uploadFormDataWithProgress,
+} from "../utils/regularVideoUpload.js";
 
 const MAX_IMAGE_SIZE = 10 * 1024 * 1024;
-const MAX_VIDEO_SIZE = 80 * 1024 * 1024;
 
 function pickString(...values) {
   return values.find((v) => typeof v === "string" && v.trim())?.trim() || null;
@@ -68,17 +73,7 @@ function appendFormFields(formData, fields) {
 }
 
 function validateVideoFile(file) {
-  if (!file) {
-    throw new Error("Файл не выбран");
-  }
-
-  if (!file.type?.startsWith("video/")) {
-    throw new Error("Можно загрузить только видео");
-  }
-
-  if (file.size > MAX_VIDEO_SIZE) {
-    throw new Error("Видео должно быть меньше 80MB");
-  }
+  return assertRegularVideoFile(file);
 }
 
 function validateThumbnailFile(file) {
@@ -93,13 +88,13 @@ function validateThumbnailFile(file) {
   }
 }
 
-async function uploadToCloudinary(file, presignType) {
+async function uploadToCloudinary(file, presignType, onProgress) {
   const presign = await videosApi.getPresignedUrl(file, presignType);
   const uploadUrl = extractUploadUrl(presign);
   const uploadFields = extractUploadFields(presign);
 
   if (!uploadUrl) {
-    throw new Error("Backend не вернул uploadUrl для video media");
+    throw new RegularVideoUploadError(REGULAR_VIDEO_ERROR.MISSING_URL);
   }
 
   let uploadBody = null;
@@ -108,42 +103,27 @@ async function uploadToCloudinary(file, presignType) {
     const formData = new FormData();
     appendFormFields(formData, uploadFields);
     formData.append("file", file);
-
-    const response = await fetch(uploadUrl, {
-      method: "POST",
-      body: formData,
+    uploadBody = await uploadFormDataWithProgress({
+      url: uploadUrl,
+      formData,
+      onProgress,
     });
-
-    try {
-      uploadBody = await response.json();
-    } catch {
-      uploadBody = null;
-    }
-
-    if (!response.ok) {
-      throw new Error(
-        uploadBody?.error?.message ||
-          `Не удалось загрузить video media (${response.status})`,
-      );
-    }
   } else {
-    const response = await fetch(uploadUrl, {
+    uploadBody = await uploadFormDataWithProgress({
+      url: uploadUrl,
       method: "PUT",
       headers: {
         "Content-Type": file.type || "application/octet-stream",
       },
       body: file,
+      onProgress,
     });
-
-    if (!response.ok) {
-      throw new Error(`Не удалось загрузить video media (${response.status})`);
-    }
   }
 
   const mediaUrl = extractFinalUrl(presign, uploadBody);
 
   if (!mediaUrl) {
-    throw new Error("Upload прошёл, но mediaUrl не найден");
+    throw new RegularVideoUploadError(REGULAR_VIDEO_ERROR.MISSING_URL);
   }
 
   return mediaUrl;
@@ -230,19 +210,23 @@ function captureFrameFromFile(file, seekSeconds) {
 }
 
 export async function generateVideoThumbnailFromFile(file, seekSeconds = 1) {
-  validateVideoFile(file);
+  const videoFile = validateVideoFile(file);
 
   try {
-    return await captureFrameFromFile(file, seekSeconds);
+    return await captureFrameFromFile(videoFile, seekSeconds);
   } catch (firstError) {
     if (seekSeconds === 0) throw firstError;
-    return captureFrameFromFile(file, 0);
+    return captureFrameFromFile(videoFile, 0);
   }
 }
 
-export async function uploadVideoMedia(file) {
-  validateVideoFile(file);
-  const mediaUrl = await uploadToCloudinary(file, file.type || "video");
+export async function uploadVideoMedia(file, { onProgress } = {}) {
+  const videoFile = validateVideoFile(file);
+  const mediaUrl = await uploadToCloudinary(
+    videoFile,
+    videoFile.type || "video",
+    onProgress,
+  );
   return { mediaUrl };
 }
 
