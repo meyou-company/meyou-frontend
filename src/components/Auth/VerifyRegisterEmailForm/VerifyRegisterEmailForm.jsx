@@ -3,17 +3,24 @@ import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { useAuthStore } from "../../../zustand/useAuthStore";
 import { useForceDarkTheme } from "../../../hooks/useForceDarkTheme";
-import { getApiErrorMessage } from "../../../utils/getApiErrorMessage";
+import { useResendCooldown } from "../../../hooks/useResendCooldown";
+import { RESEND_COOLDOWN_SECONDS, VERIFICATION_CODE_EXPIRY_MINUTES } from "../../../constants/verificationCode";
+import { getApiErrorMessage, getRetryAfterSeconds } from "../../../utils/getApiErrorMessage";
+import { isIcloudMailbox } from "../../../utils/icloudEmail";
 import BrandLogo from "../../BrandLogo/BrandLogo";
 import "../VerifyRegisterEmailForm/VerifyRegisterEmailForm.scss";
 
 const CODE_LEN = 4;
 
-export default function VerifyRegisterEmailForm({ onBack, onSuccess }) {
+export default function VerifyRegisterEmailForm({ onBack, onSuccess, email }) {
   useForceDarkTheme();
   const { t } = useTranslation();
   const verifyEmailCode = useAuthStore((s) => s.verifyEmailCode);
   const resendEmailCode = useAuthStore((s) => s.resendEmailCode);
+  const storedEmail = useAuthStore((s) => s.user?.email);
+  const mailbox = email || storedEmail || "";
+  const { secondsLeft, isCoolingDown, start, tryStartRequest, endRequest } =
+    useResendCooldown();
 
   const [code, setCode] = useState(Array(CODE_LEN).fill(""));
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -24,6 +31,7 @@ export default function VerifyRegisterEmailForm({ onBack, onSuccess }) {
 
   const isComplete = useMemo(() => code.every((c) => c.trim() !== ""), [code]);
   const codeValue = useMemo(() => code.join(""), [code]);
+  const showIcloudHint = isIcloudMailbox(mailbox);
 
   const focusIndex = (idx) => {
     const el = inputsRef.current?.[idx];
@@ -113,6 +121,8 @@ export default function VerifyRegisterEmailForm({ onBack, onSuccess }) {
   };
 
   const resend = async () => {
+    if (!tryStartRequest()) return;
+
     setSubmitError("");
     setCode(Array(CODE_LEN).fill(""));
     focusIndex(0);
@@ -122,18 +132,24 @@ export default function VerifyRegisterEmailForm({ onBack, onSuccess }) {
       const res = await resendEmailCode?.();
 
       if (res && !res?.ok) {
+        const wait = getRetryAfterSeconds(res?.error);
+        if (wait) start(wait);
         const msg = getApiErrorMessage(res?.error) || t("auth.verifyEmail.errors.resendFailed");
         toast.error(msg);
         setSubmitError(msg);
       } else if (res?.ok) {
+        start(RESEND_COOLDOWN_SECONDS);
         toast.success(t("auth.verifyEmail.toastResent"));
       }
     } catch (e) {
+      const wait = getRetryAfterSeconds(e);
+      if (wait) start(wait);
       const msg = getApiErrorMessage(e) || t("auth.verifyEmail.errors.resendFailed");
       toast.error(msg);
       setSubmitError(msg);
     } finally {
       setIsResending(false);
+      endRequest();
     }
   };
 
@@ -148,7 +164,12 @@ export default function VerifyRegisterEmailForm({ onBack, onSuccess }) {
       </div>
 
       <h1 className="verify__title">{t("auth.verifyEmail.title")}</h1>
-      <p className="verify__subtitle">{t("auth.verifyEmail.subtitle")}</p>
+      <p className="verify__subtitle">
+        {t("auth.verifyEmail.subtitle", { minutes: VERIFICATION_CODE_EXPIRY_MINUTES })}
+      </p>
+      {showIcloudHint && (
+        <p className="verify__icloudHint">{t("auth.icloudDeliveryHint")}</p>
+      )}
 
       <form className="verify__form" onSubmit={onSubmit} noValidate>
         <div className="verifyCode" onPaste={handlePaste}>
@@ -183,9 +204,13 @@ export default function VerifyRegisterEmailForm({ onBack, onSuccess }) {
           type="button"
           className="btn-gradient verify__btnResend"
           onClick={resend}
-          disabled={isResending}
+          disabled={isResending || isCoolingDown}
         >
-          {isResending ? t("auth.verifyEmail.resending") : t("auth.verifyEmail.resend")}
+          {isResending
+            ? t("auth.verifyEmail.resending")
+            : isCoolingDown
+              ? t("auth.verify.resendIn", { seconds: secondsLeft })
+              : t("auth.verifyEmail.resend")}
         </button>
 
         <input type="hidden" name="code" value={codeValue} readOnly />

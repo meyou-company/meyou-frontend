@@ -27,7 +27,10 @@ export default function LoginPage() {
           Boolean(u?.emailVerifiedAt);
 
         if (!isVerified) {
-          navigate("/auth/verify-email", { replace: true });
+          navigate("/auth/verify-email", {
+            replace: true,
+            state: { email: u?.email },
+          });
           return;
         }
 
