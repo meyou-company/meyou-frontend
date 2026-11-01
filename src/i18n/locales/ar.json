@@ -149,7 +149,7 @@
     },
     "verifyEmail": {
       "title": "Verification",
-      "subtitle": "Code sent to your email. Valid for {{minutes}} minutes.",
+      "subtitle": "أرسلنا رمز التأكيد إلى بريدك الإلكتروني. إذا لم يصل، تحقق من البريد العشوائي أو أعد الإرسال.",
       "submit": "Confirm",
       "submitting": "Verifying…",
       "resend": "Resend code",
@@ -164,7 +164,7 @@
     },
     "verifyResetCode": {
       "title": "Reset password",
-      "subtitle": "The code is valid for {{minutes}} minutes. If no email arrives, request it again in a minute.",
+      "subtitle": "أرسلنا رمز إعادة تعيين كلمة المرور إلى بريدك. إذا لم يصل، تحقق من البريد العشوائي أو أعد الإرسال.",
       "submit": "Next",
       "submitting": "Verifying…",
       "resend": "Resend code",

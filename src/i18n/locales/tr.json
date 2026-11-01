@@ -156,7 +156,7 @@
     },
     "verifyEmail": {
       "title": "Verification",
-      "subtitle": "Code sent to your email. Valid for {{minutes}} minutes.",
+      "subtitle": "E-postanıza bir doğrulama kodu gönderdik. Gelmezse Spam klasörünü kontrol edin veya kodu yeniden gönderin.",
       "submit": "Confirm",
       "submitting": "Verifying…",
       "resend": "Resend code",
@@ -171,7 +171,7 @@
     },
     "verifyResetCode": {
       "title": "Reset password",
-      "subtitle": "The code is valid for {{minutes}} minutes. If no email arrives, request it again in a minute.",
+      "subtitle": "E-postanıza bir şifre sıfırlama kodu gönderdik. Gelmezse Spam klasörünü kontrol edin veya kodu yeniden gönderin.",
       "submit": "Next",
       "submitting": "Verifying…",
       "resend": "Resend code",

@@ -4,7 +4,7 @@ import { toast } from "sonner";
 import { useAuthStore } from "../../../zustand/useAuthStore";
 import { useForceDarkTheme } from "../../../hooks/useForceDarkTheme";
 import { useResendCooldown } from "../../../hooks/useResendCooldown";
-import { RESEND_COOLDOWN_SECONDS, VERIFICATION_CODE_EXPIRY_MINUTES } from "../../../constants/verificationCode";
+import { RESEND_COOLDOWN_SECONDS } from "../../../constants/verificationCode";
 import { getApiErrorMessage, getRetryAfterSeconds } from "../../../utils/getApiErrorMessage";
 import { isIcloudMailbox } from "../../../utils/icloudEmail";
 import BrandLogo from "../../BrandLogo/BrandLogo";
@@ -174,7 +174,7 @@ export default function VerifyResetCodeForm({ onBack, onSuccess, email }) {
 
       <h1 className="verify__title">{t("auth.verifyResetCode.title")}</h1>
       <p className="verify__subtitle">
-        {t("auth.verifyResetCode.subtitle", { minutes: VERIFICATION_CODE_EXPIRY_MINUTES })}
+        {t("auth.verifyResetCode.subtitle")}
       </p>
       {showIcloudHint && (
         <p className="verify__icloudHint">{t("auth.icloudDeliveryHint")}</p>
