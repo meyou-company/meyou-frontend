@@ -225,6 +225,14 @@
     "loadError": "Failed to load profile",
     "myBalance": "My balance",
     "editProfile": "Edit profile",
+    "avatarCrop": {
+      "title": "Úprava fotografie",
+      "zoom": "Přiblížení",
+      "fill": "Vyplnit",
+      "fit": "Přizpůsobit",
+      "preview": "Náhled",
+      "done": "Hotovo"
+    },
     "guestPreview": {
       "banner": "You are viewing your profile as a guest",
       "exit": "Exit preview mode",

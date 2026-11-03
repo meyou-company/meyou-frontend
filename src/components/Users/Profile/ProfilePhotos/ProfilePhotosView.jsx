@@ -11,6 +11,7 @@ import { postsApi } from "../../../../services/postsApi";
 import { conversationsApi } from "../../../../services/conversationsApi";
 import { uploadPostImage } from "../../../../services/postImageUploadApi";
 import { cropImageToFile } from "../../../../utils/cropImageToFile";
+import { AVATAR_OUTPUT_SIZE } from "../../../../utils/avatarCrop";
 import { getApiErrorMessage } from "../../../../utils/getApiErrorMessage";
 import { mapApiPostToFeedItem } from "../../../../utils/mapApiPostToFeedItem";
 import { downloadPhoto } from "../../../../utils/photoViewerActions";
@@ -269,7 +270,7 @@ export default function ProfilePhotosView({
     return new File([blob], fileName, { type: blob.type || "image/jpeg" });
   };
 
-  const handleCropConfirm = async (croppedPixels) => {
+  const handleCropConfirm = async (croppedPixels, options) => {
     if (!cropTarget || !croppedPixels) return;
 
     try {
@@ -277,7 +278,10 @@ export default function ProfilePhotosView({
       const file = await cropImageToFile(
         cropTarget.url,
         croppedPixels,
-        cropTarget.type === "avatar" ? "avatar.jpg" : "photo.jpg"
+        cropTarget.type === "avatar" ? "avatar.jpg" : "photo.jpg",
+        cropTarget.type === "avatar"
+          ? { mode: options?.mode, outputSize: AVATAR_OUTPUT_SIZE }
+          : undefined
       );
 
       if (cropTarget.type === "avatar") {

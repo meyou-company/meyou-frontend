@@ -28,6 +28,7 @@ import {
 } from '../../../../utils/validationProfile';
 import { normalizeForValidation, toEditProfilePayload } from '../../../../utils/profilePayload';
 import { cropImageToFile } from '../../../../utils/cropImageToFile';
+import { AVATAR_OUTPUT_SIZE } from '../../../../utils/avatarCrop';
 import { getApiErrorCode, getApiErrorMessage } from '../../../../utils/getApiErrorMessage';
 import { applyBirthDateNormalization } from '../../../../utils/profileFormUtils';
 
@@ -191,12 +192,15 @@ export default function EditProfileForm({ onBack, onSave }) {
     if (fileRef.current) fileRef.current.value = '';
   };
 
-  const handleCropConfirm = async (croppedPixels) => {
+  const handleCropConfirm = async (croppedPixels, options) => {
     try {
       setIsAvatarUploading(true);
       setAvatarError('');
 
-      const file = await cropImageToFile(cropSrc, croppedPixels, 'avatar.jpg');
+      const file = await cropImageToFile(cropSrc, croppedPixels, 'avatar.jpg', {
+        mode: options?.mode,
+        outputSize: AVATAR_OUTPUT_SIZE,
+      });
 
       await authApi.uploadAvatar(file);
 

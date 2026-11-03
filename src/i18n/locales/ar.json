@@ -218,6 +218,14 @@
     "loadError": "Failed to load profile",
     "myBalance": "My balance",
     "editProfile": "Edit profile",
+    "avatarCrop": {
+      "title": "تحرير الصورة",
+      "zoom": "تكبير",
+      "fill": "ملء",
+      "fit": "ملاءمة",
+      "preview": "معاينة",
+      "done": "تم"
+    },
     "guestPreview": {
       "banner": "You are viewing your profile as a guest",
       "exit": "Exit preview mode",

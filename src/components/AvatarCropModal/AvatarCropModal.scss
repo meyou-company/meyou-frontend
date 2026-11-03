@@ -4,40 +4,107 @@
   z-index: 99999999;
   display: grid;
   place-items: center;
+  padding: 12px;
+  box-sizing: border-box;
 }
 
 .cropm__overlay {
   position: absolute;
   inset: 0;
-  background: rgba(0,0,0,.55);
+  background: var(--app-overlay-3, rgba(0, 0, 0, 0.55));
   backdrop-filter: blur(6px);
 }
 
 .cropm__panel {
   position: relative;
   width: min(520px, calc(100vw - 24px));
+  max-height: min(100dvh - 24px, 920px);
+  overflow: auto;
+  overscroll-behavior: contain;
   border-radius: 22px;
   padding: 16px;
-  background: rgba(30, 8, 60, 0.65);
-  border: 1px solid rgba(255,255,255,0.14);
-  box-shadow: 0 20px 70px rgba(0,0,0,.45);
+  background: var(--field-inner, rgba(30, 8, 60, 0.65));
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow: 0 20px 70px rgba(0, 0, 0, 0.45);
+  color: var(--field-text, rgba(255, 255, 255, 0.92));
+  -webkit-overflow-scrolling: touch;
 }
 
 .cropm__title {
   font-weight: 800;
   font-size: 18px;
-  letter-spacing: .2px;
+  letter-spacing: 0.2px;
   margin-bottom: 12px;
-  color: rgba(255,255,255,.92);
+  color: var(--field-text, rgba(255, 255, 255, 0.92));
+}
+
+.cropm__modes {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.cropm__mode {
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 999px;
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--field-text, rgba(255, 255, 255, 0.9));
+  font-weight: 700;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.cropm__mode.is-active {
+  border-color: transparent;
+  background: var(--field-grad, linear-gradient(90deg, #4f6bff, #b05cff 55%, #ff4fb1));
+  color: #fff;
 }
 
 .cropm__cropArea {
   position: relative;
   width: 100%;
-  height: 340px;
   border-radius: 18px;
   overflow: hidden;
-  background: rgba(255,255,255,0.06);
+  background: rgba(255, 255, 255, 0.06);
+  touch-action: none;
+  user-select: none;
+  cursor: grab;
+}
+
+.cropm__cropArea:active {
+  cursor: grabbing;
+}
+
+.cropm__cropArea--round {
+  width: min(100%, 360px);
+  aspect-ratio: 1;
+  height: auto;
+  min-height: 220px;
+  margin-inline: auto;
+}
+
+.cropm__cropArea--rect {
+  aspect-ratio: 4 / 3;
+  height: auto;
+  min-height: 200px;
+}
+
+.cropm__cropArea .reactEasyCrop_Container {
+  background: transparent;
+}
+
+.cropm__blurBg {
+  position: absolute;
+  inset: -18%;
+  width: 136%;
+  height: 136%;
+  object-fit: cover;
+  filter: blur(22px);
+  transform: scale(1.08);
+  pointer-events: none;
+  user-select: none;
 }
 
 .cropm__controls {
@@ -46,13 +113,42 @@
   gap: 8px;
 }
 
+.cropm__controls--avatar {
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  gap: 14px;
+}
+
+.cropm__zoom {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+}
+
 .cropm__label {
-  color: rgba(255,255,255,.75);
+  color: var(--field-text, rgba(255, 255, 255, 0.75));
   font-size: 13px;
+  opacity: 0.86;
 }
 
 .cropm__range {
   width: 100%;
+  accent-color: #b05cff;
+}
+
+.cropm__preview {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+}
+
+.cropm__previewCanvas {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  display: block;
+  background: rgba(0, 0, 0, 0.2);
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.18);
 }
 
 .cropm__actions {
@@ -71,16 +167,133 @@
 }
 
 .cropm__btn.ghost {
-  background: rgba(255,255,255,0.1);
-  color: rgba(255,255,255,.9);
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--field-text, rgba(255, 255, 255, 0.9));
 }
 
 .cropm__btn.primary {
-  background: linear-gradient(90deg, #4f6bff, #b05cff 55%, #ff4fb1);
+  background: var(--field-grad, linear-gradient(90deg, #4f6bff, #b05cff 55%, #ff4fb1));
   color: white;
 }
 
 .cropm__btn:disabled {
-  opacity: .55;
+  opacity: 0.55;
   cursor: not-allowed;
+}
+
+html[data-theme="light"] .cropm__panel {
+  background: rgba(255, 255, 255, 0.92);
+  border-color: rgba(43, 27, 79, 0.12);
+  box-shadow: 0 20px 70px rgba(43, 27, 79, 0.16);
+}
+
+html[data-theme="light"] .cropm__mode {
+  background: rgba(43, 27, 79, 0.06);
+  border-color: rgba(43, 27, 79, 0.12);
+}
+
+html[data-theme="light"] .cropm__mode.is-active {
+  border-color: transparent;
+  color: #fff;
+}
+
+html[data-theme="light"] .cropm__cropArea {
+  background: rgba(43, 27, 79, 0.06);
+}
+
+html[data-theme="light"] .cropm__btn.ghost {
+  background: rgba(43, 27, 79, 0.08);
+}
+
+html[data-theme="light"] .cropm__previewCanvas {
+  box-shadow: 0 0 0 2px rgba(43, 27, 79, 0.16);
+}
+
+html[data-theme="dark"] .cropm__panel,
+body.dark .cropm__panel {
+  background: rgba(18, 10, 34, 0.88);
+  border-color: rgba(255, 255, 255, 0.14);
+}
+
+@media (max-width: 640px) {
+  .cropm {
+    padding: 8px;
+    align-items: end;
+  }
+
+  .cropm__panel {
+    width: min(100%, calc(100vw - 16px));
+    max-height: min(100dvh - 16px, 920px);
+    padding: 14px 12px calc(12px + env(safe-area-inset-bottom));
+    border-radius: 20px 20px 16px 16px;
+  }
+
+  .cropm__cropArea--round {
+    width: min(100%, 320px);
+    min-height: 200px;
+  }
+
+  .cropm__actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .cropm__btn {
+    width: 100%;
+  }
+}
+
+@media (max-width: 420px) {
+  .cropm__controls--avatar {
+    grid-template-columns: 1fr;
+    justify-items: stretch;
+  }
+
+  .cropm__preview {
+    justify-items: start;
+    grid-template-columns: auto 1fr;
+    align-items: center;
+  }
+
+  .cropm__preview .cropm__label {
+    grid-column: 2;
+  }
+
+  .cropm__previewCanvas {
+    grid-row: 1;
+  }
+}
+
+@media (min-width: 768px) {
+  .cropm__cropArea--round {
+    width: min(100%, 380px);
+  }
+
+  .cropm__previewCanvas {
+    width: 80px;
+    height: 80px;
+  }
+}
+
+@media (max-height: 640px) {
+  .cropm__cropArea--round,
+  .cropm__cropArea--rect {
+    min-height: 160px;
+    width: min(100%, 240px);
+  }
+
+  .cropm__title {
+    margin-bottom: 8px;
+  }
+
+  .cropm__modes {
+    margin-bottom: 8px;
+  }
+}
+
+html.locale-ar .cropm__title,
+html.locale-ar .cropm__label,
+body.locale-ar .cropm__title,
+body.locale-ar .cropm__label {
+  text-align: start;
 }

@@ -6,6 +6,7 @@ import { toast } from "sonner";
 
 import AvatarCropModal from "../../../AvatarCropModal/AvatarCropModal";
 import { cropImageToFile } from "../../../../utils/cropImageToFile";
+import { AVATAR_OUTPUT_SIZE } from "../../../../utils/avatarCrop";
 import { authApi } from "../../../../services/auth";
 import { postsApi } from "../../../../services/postsApi";
 import { storiesApi } from "../../../../services/storiesApi";
@@ -465,12 +466,15 @@ export default function ProfileHome({
     }
   };
 
-  const handleAvatarConfirm = async (croppedPixels) => {
+  const handleAvatarConfirm = async (croppedPixels, options) => {
     if (!cropModalSrc || !croppedPixels) return;
 
     try {
       setIsSaving(true);
-      const file = await cropImageToFile(cropModalSrc, croppedPixels);
+      const file = await cropImageToFile(cropModalSrc, croppedPixels, "avatar.jpg", {
+        mode: options?.mode,
+        outputSize: AVATAR_OUTPUT_SIZE,
+      });
       await authApi.uploadAvatar(file);
       await refreshMe?.();
       setCropModalSrc(null);
