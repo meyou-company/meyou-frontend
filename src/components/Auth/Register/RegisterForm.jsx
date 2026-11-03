@@ -125,7 +125,7 @@ export default function RegisterForm({ onBack, onGoLogin, onSuccess }) {
       }
 
       toast.success(t("auth.register.toastSuccess"));
-      onSuccess?.();
+      onSuccess?.(payload.email);
     } catch (err) {
       const msg = getApiErrorMessage(err) || t("auth.register.errors.registerFailed");
       toast.error(msg);

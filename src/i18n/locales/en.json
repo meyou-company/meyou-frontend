@@ -160,7 +160,7 @@
     },
     "verifyEmail": {
       "title": "Verification",
-      "subtitle": "Code sent to your email. Valid for 15 minutes.",
+      "subtitle": "We sent a confirmation code to your email. If it has not arrived, check Spam or use resend.",
       "submit": "Confirm",
       "submitting": "Verifying…",
       "resend": "Resend code",
@@ -175,7 +175,7 @@
     },
     "verifyResetCode": {
       "title": "Reset password",
-      "subtitle": "The code is valid for 15 minutes. If no email arrives, request it again in a minute.",
+      "subtitle": "We sent a password reset code to your email. If it has not arrived, check Spam or use resend.",
       "submit": "Next",
       "submitting": "Verifying…",
       "resend": "Resend code",
@@ -190,8 +190,10 @@
       }
     },
     "verify": {
-      "digitAria": "Digit {{n}}"
+      "digitAria": "Digit {{n}}",
+      "resendIn": "Resend in {{seconds}}s"
     },
+    "icloudDeliveryHint": "iCloud Mail may sometimes deliver messages with a delay. Check the Spam folder. If you requested the code again, use the code from the newest email.",
     "google": {
       "loading": "Signing in with Google…",
       "loadingGeneric": "Authorizing…"
@@ -1124,6 +1126,8 @@
     "EMAIL_ALREADY_VERIFIED": "Email is already verified.",
     "INVALID_VERIFICATION_CODE": "Invalid verification code.",
     "VERIFICATION_CODE_EXPIRED": "Verification code has expired.",
+    "VERIFICATION_ATTEMPTS_EXCEEDED": "Too many attempts. Request a new code.",
+    "VERIFICATION_RESEND_COOLDOWN": "Wait {{seconds}} seconds before resending the code.",
     "INVALID_RESET_CREDENTIALS": "Invalid email or code.",
     "INVALID_PASSWORD": "Invalid password.",
     "AVATAR_INVALID_FORMAT": "Allowed formats: JPEG, PNG, WebP.",
