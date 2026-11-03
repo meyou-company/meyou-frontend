@@ -12,6 +12,7 @@ import { conversationsApi } from "../../../../services/conversationsApi";
 import { uploadPostImage } from "../../../../services/postImageUploadApi";
 import { cropImageToFile } from "../../../../utils/cropImageToFile";
 import { AVATAR_OUTPUT_SIZE } from "../../../../utils/avatarCrop";
+import { isPostFullTextTooLong } from "../../../../utils/postText";
 import { getApiErrorMessage } from "../../../../utils/getApiErrorMessage";
 import { mapApiPostToFeedItem } from "../../../../utils/mapApiPostToFeedItem";
 import { downloadPhoto } from "../../../../utils/photoViewerActions";
@@ -232,6 +233,10 @@ export default function ProfilePhotosView({
 
   const handlePublishPhotoPost = async () => {
     if (postMediaFiles.length === 0 || isPublishing) return;
+    if (isPostFullTextTooLong(postText)) {
+      toast.error(t("posts.validation.tooLong"));
+      return;
+    }
 
     try {
       setIsPublishing(true);
@@ -686,7 +691,7 @@ export default function ProfilePhotosView({
           isPublishing={isPublishing}
           onPublish={handlePublishPhotoPost}
           onClose={closeComposer}
-          canPublish={postMediaFiles.length > 0}
+          canPublish={postMediaFiles.length > 0 && !isPostFullTextTooLong(postText)}
           showVisibilityPicker={ownerVipEnabled}
           visibility={uploadVisibility}
           onVisibilityChange={setUploadVisibility}

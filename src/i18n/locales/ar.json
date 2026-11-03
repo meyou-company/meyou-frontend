@@ -1027,6 +1027,7 @@
     "CITY_NAME_INVALID": "أدخل اسم مدينة صالحًا",
     "CITY_NAME_TOO_LONG": "اسم المدينة طويل جدًا",
     "PERSON_NAME_INVALID": "أدخل اسمًا صالحًا",
+    "POST_FULL_TEXT_TOO_LONG": "يمكن أن يحتوي المنشور على 5 000 حرف كحد أقصى",
     "UNAUTHORIZED": "يرجى تسجيل الدخول.",
     "FORBIDDEN": "Not enough permissions.",
     "NOT_FOUND": "Not found.",
@@ -1307,9 +1308,12 @@
       "systemAria": "System share menu",
       "listAria": "Share outside app"
     },
+    "readMore": "اقرأ المزيد",
+    "collapse": "طي",
     "validation": {
       "emptyContent": "Add text or media",
       "emptyTextOrPhoto": "Add text or a photo",
+      "tooLong": "يمكن أن يحتوي المنشور على 5 000 حرف كحد أقصى",
       "selectRecipients": "Select recipients"
     },
     "toast": {

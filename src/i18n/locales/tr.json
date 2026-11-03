@@ -1047,6 +1047,7 @@
     "CITY_NAME_INVALID": "Geçerli bir şehir adı girin",
     "CITY_NAME_TOO_LONG": "Şehir adı çok uzun",
     "PERSON_NAME_INVALID": "Geçerli bir ad girin",
+    "POST_FULL_TEXT_TOO_LONG": "Gönderi en fazla 5 000 karakter olabilir",
     "UNAUTHORIZED": "Please sign in.",
     "FORBIDDEN": "Not enough permissions.",
     "NOT_FOUND": "Not found.",
@@ -1389,9 +1390,12 @@
       "systemAria": "System share menu",
       "listAria": "Share outside app"
     },
+    "readMore": "Devamını oku",
+    "collapse": "Daralt",
     "validation": {
       "emptyContent": "Add text or media",
       "emptyTextOrPhoto": "Add text or a photo",
+      "tooLong": "Gönderi en fazla 5 000 karakter olabilir",
       "selectRecipients": "Select recipients"
     },
     "toast": {

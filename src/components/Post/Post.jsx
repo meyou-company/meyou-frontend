@@ -21,6 +21,8 @@ import { formatRelativeTime } from '../../utils/formatPostTime';
 import { resolveProfileUsername } from '../../utils/profileUsername';
 import '../PostFeed/CommentLikeButton.scss';
 
+import { PostExpandableText } from '../PostFeed/PostFeedBody';
+import '../PostFeed/PostFeedBody.scss';
 import './Post.scss';
 
 export default function Post({ onGoBack, onGoProfile }) {
@@ -124,7 +126,10 @@ function PostCard({ post, onProfile }) {
         </div>
       </div>
 
-      <p className="post__text">{post.text || post.fullText || post.shortText}</p>
+      <PostExpandableText
+        text={post.text || post.fullText || post.shortText}
+        className="post__text postText"
+      />
 
       {(() => {
         const media = getPostMediaItems(post);

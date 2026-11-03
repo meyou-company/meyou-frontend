@@ -1047,6 +1047,7 @@
     "CITY_NAME_INVALID": "Introduce un nombre de ciudad válido",
     "CITY_NAME_TOO_LONG": "El nombre de la ciudad es demasiado largo",
     "PERSON_NAME_INVALID": "Introduce un nombre válido",
+    "POST_FULL_TEXT_TOO_LONG": "La publicación puede tener un máximo de 5 000 caracteres",
     "UNAUTHORIZED": "Please sign in.",
     "FORBIDDEN": "Not enough permissions.",
     "NOT_FOUND": "Not found.",
@@ -1389,9 +1390,12 @@
       "systemAria": "System share menu",
       "listAria": "Share outside app"
     },
+    "readMore": "Leer más",
+    "collapse": "Contraer",
     "validation": {
       "emptyContent": "Add text or media",
       "emptyTextOrPhoto": "Add text or a photo",
+      "tooLong": "La publicación puede tener un máximo de 5 000 caracteres",
       "selectRecipients": "Select recipients"
     },
     "toast": {

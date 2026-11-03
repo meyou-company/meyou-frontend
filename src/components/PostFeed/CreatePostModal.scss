@@ -183,6 +183,32 @@
   }
 }
 
+.createPostModal__charRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  margin: -8px 4px 14px;
+}
+
+.createPostModal__charCount {
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(42, 24, 61, 0.55);
+}
+
+.createPostModal__charCount.is-over,
+.createPostModal__charError {
+  color: #c0266a;
+}
+
+.createPostModal__charError {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 600;
+}
+
 .createPostModal__emojiBtn {
   position: absolute;
   right: 14px;
@@ -842,11 +868,20 @@ body.dark .createPostModal__actionLabel,
 body.dark .createPostModal__locationSubtitle,
 body.dark .createPostModal__privacy,
 body.dark .createPostModal__cancelBtn,
+body.dark .createPostModal__charCount,
 html[data-theme="dark"] .createPostModal__actionLabel,
 html[data-theme="dark"] .createPostModal__locationSubtitle,
 html[data-theme="dark"] .createPostModal__privacy,
-html[data-theme="dark"] .createPostModal__cancelBtn {
+html[data-theme="dark"] .createPostModal__cancelBtn,
+html[data-theme="dark"] .createPostModal__charCount {
   color: rgba(255, 255, 255, 0.62);
+}
+
+body.dark .createPostModal__charCount.is-over,
+body.dark .createPostModal__charError,
+html[data-theme="dark"] .createPostModal__charCount.is-over,
+html[data-theme="dark"] .createPostModal__charError {
+  color: #fb7185;
 }
 
 body.dark .createPostModal__close,

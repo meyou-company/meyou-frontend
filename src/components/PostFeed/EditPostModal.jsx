@@ -13,6 +13,12 @@ import {
   getRegularVideoErrorMessage,
   isRegularVideoFile,
 } from "../../utils/regularVideoUpload.js";
+import {
+  countPostChars,
+  formatPostCharCounter,
+  isPostFullTextTooLong,
+  POST_FULL_TEXT_MAX,
+} from "../../utils/postText";
 import "./EditPostModal.scss";
 
 function mediaItemId() {
@@ -38,7 +44,7 @@ export default function EditPostModal({
 
   useEffect(() => {
     if (!isOpen || !post) return;
-    setText(post.text ?? "");
+    setText(post.text ?? post.fullText ?? "");
     setLocation(post.location ?? "");
     setExistingMedia(
       Array.isArray(post.media)
@@ -117,6 +123,10 @@ export default function EditPostModal({
     const hasMedia = existingMedia.length > 0 || newMediaFiles.length > 0;
     if (!trimmed && !hasMedia) {
       toast.error(t('posts.validation.emptyContent'));
+      return;
+    }
+    if (isPostFullTextTooLong(text)) {
+      toast.error(t('posts.validation.tooLong'));
       return;
     }
 
@@ -217,6 +227,18 @@ export default function EditPostModal({
             ariaLabel={t('posts.edit.addEmoji')}
           />
         </div>
+        <div className="editPostModal__charRow">
+          <span
+            className={`editPostModal__charCount${isPostFullTextTooLong(text) ? " is-over" : ""}`}
+          >
+            {formatPostCharCounter(countPostChars(text), POST_FULL_TEXT_MAX)}
+          </span>
+          {isPostFullTextTooLong(text) ? (
+            <p className="editPostModal__charError" role="alert">
+              {t("posts.validation.tooLong")}
+            </p>
+          ) : null}
+        </div>
 
         <label className="editPostModal__locationLabel">
           {t('posts.edit.locationLabel')}
@@ -296,7 +318,7 @@ export default function EditPostModal({
           <button
             type="button"
             className="editPostModal__saveBtn"
-            disabled={saving || uploadProgress != null}
+            disabled={saving || uploadProgress != null || isPostFullTextTooLong(text)}
             onClick={handleSave}
           >
             {typeof uploadProgress === "number"

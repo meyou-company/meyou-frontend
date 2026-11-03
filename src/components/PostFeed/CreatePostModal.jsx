@@ -2,6 +2,12 @@ import { useCallback, useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import profileIcons from "../../constants/profileIcons";
 import EmojiPickerButton from "../EmojiPicker/EmojiPickerButton";
+import {
+  countPostChars,
+  formatPostCharCounter,
+  isPostFullTextTooLong,
+  POST_FULL_TEXT_MAX,
+} from "../../utils/postText";
 import "./CreatePostModal.scss";
 
 const TEXTAREA_MIN_PX = 72;
@@ -111,6 +117,10 @@ export default function CreatePostModal({
     syncComposerTextareaHeight(textareaRef?.current);
   }, [text, textareaRef, showLocationPanel, postMediaFiles.length]);
 
+  const charCount = countPostChars(text);
+  const overLimit = isPostFullTextTooLong(text);
+  const publishEnabled = canPublish && !overLimit;
+
   const handleTextChange = useCallback(
     (next) => {
       onTextChange(next);
@@ -177,6 +187,18 @@ export default function CreatePostModal({
               className="createPostModal__emojiBtn"
               ariaLabel={t('posts.create.addEmoji')}
             />
+          </div>
+          <div className="createPostModal__charRow">
+            <span
+              className={`createPostModal__charCount${overLimit ? " is-over" : ""}`}
+            >
+              {formatPostCharCounter(charCount, POST_FULL_TEXT_MAX)}
+            </span>
+            {overLimit ? (
+              <p className="createPostModal__charError" role="alert">
+                {t("posts.validation.tooLong")}
+              </p>
+            ) : null}
           </div>
 
           {showVisibilityPicker ? (
@@ -368,7 +390,7 @@ export default function CreatePostModal({
             <button
               type="button"
               className="createPostModal__publishBtn"
-              disabled={isPublishing || !canPublish}
+              disabled={isPublishing || !publishEnabled}
               onClick={onPublish}
             >
               {isPublishing
