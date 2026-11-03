@@ -50,7 +50,6 @@
   display: none;
 }
 
-
 /* LEFT */
 .profileLeft {
   display: flex;
@@ -75,7 +74,7 @@
 
 /* online dot (desktop) */
 .avatarWrap::before {
-  content: "";
+  content: '';
   position: absolute;
   top: 10px;
   left: 78%;
@@ -165,7 +164,9 @@
   justify-content: center;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
-  transition: opacity 0.2s ease, transform 0.2s ease;
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
 
   &:hover {
     opacity: 0.92;
@@ -300,7 +301,6 @@
   /* <- прибирає чорну лінію */
 }
 
-
 .bio {
   margin: 0;
   font-size: 16px;
@@ -311,7 +311,6 @@
 }
 
 .actionsBlock {
-
   width: 100%;
   display: grid;
   gap: 16px;
@@ -421,14 +420,18 @@
   -webkit-tap-highlight-color: transparent;
 
   &::before {
-    content: "";
+    content: '';
     position: absolute;
     inset: 0;
     border-radius: 20px;
     padding: 2px;
     background: linear-gradient(135deg, #4f6bff, #b05cff, #ff4fb1);
-    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask:
+      linear-gradient(#fff 0 0) content-box,
+      linear-gradient(#fff 0 0);
+    mask:
+      linear-gradient(#fff 0 0) content-box,
+      linear-gradient(#fff 0 0);
     -webkit-mask-composite: xor;
     mask-composite: exclude;
     pointer-events: none;
@@ -447,7 +450,7 @@
 }
 
 .msgText {
-  font-family: "Montserrat", sans-serif;
+  font-family: 'Montserrat', sans-serif;
   font-size: 12px;
   font-weight: 500;
   color: #000;
@@ -821,10 +824,7 @@
   width: min(560px, 100%);
   border-radius: 28px;
   border: 1px solid rgba(255, 255, 255, 0.65);
-  background: linear-gradient(165deg,
-      #f3ecff 0%,
-      #fce9f2 45%,
-      #efe6ff 100%);
+  background: linear-gradient(165deg, #f3ecff 0%, #fce9f2 45%, #efe6ff 100%);
   box-shadow:
     0 24px 56px rgba(88, 48, 120, 0.22),
     0 0 0 1px rgba(255, 255, 255, 0.4) inset;
@@ -841,7 +841,7 @@
 
 .composerTitle {
   margin: 0;
-  font-family: "Montserrat", sans-serif;
+  font-family: 'Montserrat', sans-serif;
   font-size: 20px;
   font-weight: 700;
   color: #2a183d;
@@ -861,7 +861,9 @@
   cursor: pointer;
   display: grid;
   place-items: center;
-  transition: background 0.2s ease, transform 0.15s ease;
+  transition:
+    background 0.2s ease,
+    transform 0.15s ease;
 
   &:hover {
     background: #fff;
@@ -953,7 +955,7 @@
 }
 
 .composerLocation__label {
-  font-family: "Montserrat", sans-serif;
+  font-family: 'Montserrat', sans-serif;
   font-size: 13px;
   font-weight: 600;
   color: #4a3d5c;
@@ -980,7 +982,7 @@
   border: 1px solid rgba(167, 139, 250, 0.35);
   border-radius: 12px;
   background: #fff;
-  font-family: "Montserrat", sans-serif;
+  font-family: 'Montserrat', sans-serif;
   font-size: 14px;
   color: #2a183d;
 
@@ -1002,14 +1004,16 @@
   border: 1px solid rgba(167, 139, 250, 0.35);
   border-radius: 12px;
   background: rgba(255, 255, 255, 0.92);
-  font-family: "Montserrat", sans-serif;
+  font-family: 'Montserrat', sans-serif;
   font-size: 13px;
   font-weight: 600;
   color: #7c3aed;
   cursor: pointer;
   white-space: nowrap;
   -webkit-tap-highlight-color: transparent;
-  transition: background 0.2s ease, opacity 0.2s ease;
+  transition:
+    background 0.2s ease,
+    opacity 0.2s ease;
 
   &:hover:not(:disabled) {
     background: #fff;
@@ -1055,12 +1059,14 @@
   align-items: center;
   gap: 10px;
   color: #7c3aed;
-  font-family: "Montserrat", sans-serif;
+  font-family: 'Montserrat', sans-serif;
   font-size: 15px;
   font-weight: 600;
   cursor: pointer;
   box-shadow: 0 2px 8px rgba(124, 58, 237, 0.08);
-  transition: box-shadow 0.2s ease, transform 0.15s ease;
+  transition:
+    box-shadow 0.2s ease,
+    transform 0.15s ease;
 
   &:hover {
     box-shadow: 0 4px 14px rgba(124, 58, 237, 0.14);
@@ -1077,7 +1083,8 @@
   height: 22px;
   object-fit: contain;
   flex-shrink: 0;
-  filter: brightness(0) saturate(100%) invert(27%) sepia(85%) saturate(2000%) hue-rotate(250deg) brightness(0.95);
+  filter: brightness(0) saturate(100%) invert(27%) sepia(85%) saturate(2000%) hue-rotate(250deg)
+    brightness(0.95);
 }
 
 .publishBtn {
@@ -1088,11 +1095,13 @@
   border: 0;
   background: linear-gradient(90deg, #6d5cff 0%, #a855f7 48%, #ff4fb1 100%);
   color: #fff;
-  font-family: "Montserrat", sans-serif;
+  font-family: 'Montserrat', sans-serif;
   font-size: 16px;
   font-weight: 700;
   cursor: pointer;
-  transition: opacity 0.2s ease, transform 0.15s ease;
+  transition:
+    opacity 0.2s ease,
+    transform 0.15s ease;
   box-shadow: 0 6px 20px rgba(168, 85, 247, 0.35);
 
   &:hover:not(:disabled) {
@@ -1120,6 +1129,9 @@
    ========================= */
 .postCard {
   width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
   padding: 12px 12px 10px;
   border-radius: 14px;
   border: 1px solid rgba(0, 0, 0, 0.14);
@@ -1302,34 +1314,34 @@
 }
 
 body.dark .profile-home .postDeleteBtn,
-html[data-theme="dark"] .profile-home .postDeleteBtn {
+html[data-theme='dark'] .profile-home .postDeleteBtn {
   background: rgba(248, 113, 113, 0.18);
   color: #fecaca;
 }
 
 body.dark .profile-home .postDeleteBtn:hover,
-html[data-theme="dark"] .profile-home .postDeleteBtn:hover {
+html[data-theme='dark'] .profile-home .postDeleteBtn:hover {
   background: rgba(248, 113, 113, 0.28);
 }
 
 body.dark .profile-home .postMenuBtn,
-html[data-theme="dark"] .profile-home .postMenuBtn {
+html[data-theme='dark'] .profile-home .postMenuBtn {
   color: rgba(255, 255, 255, 0.88);
 }
 
 body.dark .profile-home .postMenuBtn:hover,
-html[data-theme="dark"] .profile-home .postMenuBtn:hover {
+html[data-theme='dark'] .profile-home .postMenuBtn:hover {
   background: rgba(255, 255, 255, 0.12);
 }
 
 body.dark .profile-home .postMenuDropdown,
-html[data-theme="dark"] .profile-home .postMenuDropdown {
+html[data-theme='dark'] .profile-home .postMenuDropdown {
   border-color: rgba(255, 255, 255, 0.14);
   background: rgba(18, 12, 28, 0.96);
 }
 
 body.dark .profile-home .postMenuDeleteBtn,
-html[data-theme="dark"] .profile-home .postMenuDeleteBtn {
+html[data-theme='dark'] .profile-home .postMenuDeleteBtn {
   background: rgba(248, 113, 113, 0.16);
   color: #fecaca;
 }
@@ -1579,7 +1591,8 @@ html[data-theme="dark"] .profile-home .postMenuDeleteBtn {
 }
 
 .postActionBtn--liked .postActionIcon {
-  filter: brightness(0) saturate(100%) invert(55%) sepia(42%) saturate(2211%) hue-rotate(299deg) brightness(103%) contrast(97%);
+  filter: brightness(0) saturate(100%) invert(55%) sepia(42%) saturate(2211%) hue-rotate(299deg)
+    brightness(103%) contrast(97%);
 }
 
 .profile-home .postActionBtn.postActionBtn--active .postActionCount {
@@ -1629,7 +1642,7 @@ body.dark .profile-home .postActionBtn.postActionBtn--active .postActionCount {
 }
 
 body.dark .profile-home .postActionReplies,
-html[data-theme="dark"] .profile-home .postActionReplies {
+html[data-theme='dark'] .profile-home .postActionReplies {
   color: rgba(255, 255, 255, 0.72);
 }
 
@@ -1674,16 +1687,16 @@ body.dark .profile-home .actionBtn {
   }
 }
 
-html[data-theme="dark"] .profile-home .actionBtn img {
+html[data-theme='dark'] .profile-home .actionBtn img {
   filter: grayscale(100%) invert(1);
 }
 
-html[data-theme="dark"] .profile-home .actionBtn .actionPlus img {
+html[data-theme='dark'] .profile-home .actionBtn .actionPlus img {
   filter: brightness(0);
 }
 
 body.dark .profile-home .msgText,
-html[data-theme="dark"] .profile-home .msgText {
+html[data-theme='dark'] .profile-home .msgText {
   color: rgba(255, 255, 255, 0.9);
 }
 
@@ -1700,27 +1713,20 @@ body.dark .profile-home .friendsTitle__label,
 body.dark .profile-home .friendsTitle__count,
 body.dark .profile-home .friendsEmptyMsg,
 body.dark .profile-home .newPostTitle,
-html[data-theme="dark"] .profile-home .friendsTitle,
-html[data-theme="dark"] .profile-home .friendsTitle__label,
-html[data-theme="dark"] .profile-home .friendsTitle__count,
-html[data-theme="dark"] .profile-home .friendsEmptyMsg {
-  color: rgba(255, 255, 255, 0.9);
-}
-
-body.dark .profile-home .findFriendsBtn,
-html[data-theme="dark"] .profile-home .findFriendsBtn {
-  background: rgba(255, 255, 255, 0.08);
-  border-color: rgba(255, 255, 255, 0.22);
+html[data-theme='dark'] .profile-home .friendsTitle,
+html[data-theme='dark'] .profile-home .friendsTitle__label,
+html[data-theme='dark'] .profile-home .friendsTitle__count,
+html[data-theme='dark'] .profile-home .friendsEmptyMsg {
   color: rgba(255, 255, 255, 0.9);
 }
 
 body.dark .profile-home .vipFriendNameBtn,
-html[data-theme="dark"] .profile-home .vipFriendNameBtn {
+html[data-theme='dark'] .profile-home .vipFriendNameBtn {
   color: rgba(255, 255, 255, 0.88);
 }
 
 body.dark .profile-home .vipFriendNameBtn:hover:not(:disabled),
-html[data-theme="dark"] .profile-home .vipFriendNameBtn:hover:not(:disabled) {
+html[data-theme='dark'] .profile-home .vipFriendNameBtn:hover:not(:disabled) {
   background: rgba(255, 255, 255, 0.08);
 }
 
@@ -1735,10 +1741,12 @@ body.dark .profile-home .postInput::placeholder {
 }
 
 body.dark .profile-home .composerCard {
-  background: linear-gradient(165deg,
-      rgba(38, 26, 58, 0.98) 0%,
-      rgba(32, 22, 48, 0.99) 50%,
-      rgba(28, 18, 42, 1) 100%);
+  background: linear-gradient(
+    165deg,
+    rgba(38, 26, 58, 0.98) 0%,
+    rgba(32, 22, 48, 0.99) 50%,
+    rgba(28, 18, 42, 1) 100%
+  );
   border-color: rgba(255, 255, 255, 0.12);
   box-shadow:
     0 24px 56px rgba(0, 0, 0, 0.45),
@@ -1800,13 +1808,13 @@ body.dark .profile-home .onlineDot .onlineStatus__dot {
 
 /* кругла кнопка з іконкою камери на аватарі — іконка й обводка темні в темному режимі */
 body.dark .profile-home .avatarEdit,
-html[data-theme="dark"] .profile-home .avatarEdit {
+html[data-theme='dark'] .profile-home .avatarEdit {
   border-color: rgba(255, 255, 255, 0.25);
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
 }
 
 body.dark .profile-home .avatarEdit img,
-html[data-theme="dark"] .profile-home .avatarEdit img {
+html[data-theme='dark'] .profile-home .avatarEdit img {
   filter: brightness(0);
 }
 
@@ -1817,13 +1825,13 @@ body.dark .profile-home .badgeText {
 
 /* тільки панель лайків/коментарів/saved/share — темна в темній темі (як на фото) */
 body.dark .profile-home .postActions,
-html[data-theme="dark"] .profile-home .postActions {
+html[data-theme='dark'] .profile-home .postActions {
   background: rgba(18, 12, 28, 0.92);
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 body.dark .profile-home .postActionCount,
-html[data-theme="dark"] .profile-home .postActionCount {
+html[data-theme='dark'] .profile-home .postActionCount {
   color: rgba(255, 255, 255, 0.95);
 }
 
@@ -1940,7 +1948,6 @@ html[data-theme="dark"] .profile-home .postActionCount {
     align-items: center;
     justify-content: center;
     gap: 6px;
-
   }
 
   /* same “gradient border card” style for both buttons */
@@ -1962,14 +1969,18 @@ html[data-theme="dark"] .profile-home .postActionCount {
     -webkit-tap-highlight-color: transparent;
 
     &::before {
-      content: "";
+      content: '';
       position: absolute;
       inset: 0;
       border-radius: 18px;
       padding: 2px;
       background: linear-gradient(135deg, #4f6bff, #b05cff, #ff4fb1);
-      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-      mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask:
+        linear-gradient(#fff 0 0) content-box,
+        linear-gradient(#fff 0 0);
+      mask:
+        linear-gradient(#fff 0 0) content-box,
+        linear-gradient(#fff 0 0);
       -webkit-mask-composite: xor;
       mask-composite: exclude;
       pointer-events: none;
@@ -1994,7 +2005,7 @@ html[data-theme="dark"] .profile-home .postActionCount {
   }
 
   .savedText {
-    font-family: "Montserrat", sans-serif;
+    font-family: 'Montserrat', sans-serif;
     font-size: 12px;
     font-weight: 500;
     line-height: 1;
@@ -2098,8 +2109,8 @@ html[data-theme="dark"] .profile-home .postActionCount {
     display: grid;
     grid-template-columns: 1fr auto;
     grid-template-areas:
-      "name aside"
-      "bio aside";
+      'name aside'
+      'bio aside';
     column-gap: 8px;
     row-gap: 6px;
     align-items: start;
@@ -2452,8 +2463,8 @@ html[data-theme="dark"] .profile-home .postActionCount {
     display: grid;
     grid-template-columns: 1fr auto;
     grid-template-areas:
-      "name aside"
-      "bio aside";
+      'name aside'
+      'bio aside';
     column-gap: 8px;
     row-gap: 5px;
     padding-top: 0;
@@ -2497,7 +2508,7 @@ html[data-theme="dark"] .profile-home .postActionCount {
   .nameText {
     font-size: 20px;
 
-    background: linear-gradient(236.31deg, #FF4FB1 11.54%, #4F6BFF 88.46%);
+    background: linear-gradient(236.31deg, #ff4fb1 11.54%, #4f6bff 88.46%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -2607,7 +2618,7 @@ html[data-theme="dark"] .profile-home .postActionCount {
   }
 
   /* icons on the right for ANY button */
-  .actionBtn>img {
+  .actionBtn > img {
     position: absolute;
     right: 14px;
     width: 18px;
@@ -2772,7 +2783,7 @@ html[data-theme="dark"] .profile-home .postActionCount {
     }
   }
 
-  .actionBtn>img {
+  .actionBtn > img {
     right: 10px;
     width: 16px;
     height: 16px;
@@ -3314,33 +3325,32 @@ html[data-theme="dark"] .profile-home .postActionCount {
 
 /* Desktop dark: “My messages” + action row match editBtn / dark surfaces (no gray 0.36 fill) */
 @media (min-width: 1024px) {
-
   body.dark .profile-home .btnMessages,
-  html[data-theme="dark"] .profile-home .btnMessages {
+  html[data-theme='dark'] .profile-home .btnMessages {
     background: rgba(255, 255, 255, 0.1);
     border: 1px solid rgba(255, 255, 255, 0.2);
   }
 
   body.dark .profile-home .btnMessages::before,
-  html[data-theme="dark"] .profile-home .btnMessages::before {
+  html[data-theme='dark'] .profile-home .btnMessages::before {
     display: none;
   }
 
   body.dark .profile-home .actionBtnDesktop,
-  html[data-theme="dark"] .profile-home .actionBtnDesktop {
+  html[data-theme='dark'] .profile-home .actionBtnDesktop {
     border-color: rgba(255, 255, 255, 0.2);
     background: rgba(255, 255, 255, 0.1);
   }
 
   body.dark .profile-home .actionBtnDesktop span,
-  html[data-theme="dark"] .profile-home .actionBtnDesktop span {
+  html[data-theme='dark'] .profile-home .actionBtnDesktop span {
     color: rgba(255, 255, 255, 0.88);
   }
 
   body.dark .profile-home .actionBtnDesktop .actionRightDots,
   body.dark .profile-home .actionBtnDesktop .actionRightArrow,
-  html[data-theme="dark"] .profile-home .actionBtnDesktop .actionRightDots,
-  html[data-theme="dark"] .profile-home .actionBtnDesktop .actionRightArrow {
+  html[data-theme='dark'] .profile-home .actionBtnDesktop .actionRightDots,
+  html[data-theme='dark'] .profile-home .actionBtnDesktop .actionRightArrow {
     color: rgba(255, 255, 255, 0.55);
   }
 }
@@ -3392,7 +3402,7 @@ html[data-theme="dark"] .profile-home .postActionCount {
   }
 
   body.dark .profileMobileBadges__label,
-  html[data-theme="dark"] .profileMobileBadges__label {
+  html[data-theme='dark'] .profileMobileBadges__label {
     color: rgba(255, 255, 255, 0.72);
   }
 }
@@ -3426,35 +3436,6 @@ html[data-theme="dark"] .profile-home .postActionCount {
     font-size: 7px;
   }
 }
-
-@media (max-width: 480px) {
-  .profileInfoAside {
-    padding-top: 32px;
-  }
-
-  .profileBioWrap .bioLocation {
-    font-size: 10px;
-    line-height: 1.35;
-    max-width: 100%;
-    white-space: normal;
-    overflow: visible;
-    text-overflow: clip;
-    overflow-wrap: anywhere;
-  }
-
-  .bioLocation__city {
-    display: inline-block;
-    white-space: nowrap;
-    text-decoration: underline;
-  }
-
-  .bioLocation__country {
-    white-space: normal;
-    word-break: normal;
-    overflow-wrap: normal;
-  }
-}
-
 
 @media (min-width: 1024px) {
   .profileRight {

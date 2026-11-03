@@ -284,21 +284,19 @@ export default function ProfileVisitorSubscribed({
               />
               {activeLiveStream && <span className="liveAvatar__badge">LIVE</span>}
             </div>
-
             <OnlineStatus
               userId={user?.id}
               user={user}
               variant="dot"
               className="profile-visitor-subscribed__onlineStatus"
             />
-
-            <OnlineStatus
-              userId={user?.id}
-              user={user}
-              variant="label"
-              className="profile-visitor-subscribed__onlineLabel"
-            />
           </div>
+          <OnlineStatus
+            userId={user?.id}
+            user={user}
+            variant="label"
+            className="profile-visitor-subscribed__onlineLabel"
+          />
         </div>
         {/* CENTER — NAME */}
         <div className="profile-visitor-subscribed__center">
@@ -334,7 +332,7 @@ export default function ProfileVisitorSubscribed({
               >
                 <div className="pvs-tools__vipIconWrap">
                   <img
-                    src={chatLocked ? profileIcons.vipChat : profileIcons.chat}
+                    src={profileIcons.chat}
                     alt=""
                     className="pvs-tools__vipIcon"
                     aria-hidden="true"

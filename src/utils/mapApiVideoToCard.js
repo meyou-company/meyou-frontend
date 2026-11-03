@@ -1,36 +1,31 @@
-import { DEFAULT_VIDEO_THUMBNAIL } from "./videoThumbnail";
+import { DEFAULT_VIDEO_THUMBNAIL } from './videoThumbnail';
 
 export function formatVideoCount(value) {
   const num = Number(value) || 0;
   if (num >= 1_000_000) {
-    return `${(num / 1_000_000).toFixed(1).replace(/\.0$/, "")}M`;
+    return `${(num / 1_000_000).toFixed(1).replace(/\.0$/, '')}M`;
   }
   if (num >= 1_000) {
-    return `${(num / 1_000).toFixed(1).replace(/\.0$/, "")}K`;
+    return `${(num / 1_000).toFixed(1).replace(/\.0$/, '')}K`;
   }
   return String(num);
 }
 
 export function getAuthorDisplayName(author) {
-  if (!author) return "";
-  const first = author.firstName?.trim() || "";
-  const last = author.lastName?.trim() || "";
+  if (!author) return '';
+  const first = author.firstName?.trim() || '';
+  const last = author.lastName?.trim() || '';
   const full = `${first} ${last}`.trim();
-  return full || author.username || "";
+  return full || author.username || '';
 }
 
 export function getVideoLocation(location) {
-  if (!location) return "";
-  if (typeof location === "string") return location.trim();
-  if (typeof location === "object") {
-    return (
-      location.label?.trim() ||
-      location.city?.trim() ||
-      location.country?.trim() ||
-      ""
-    );
+  if (!location) return '';
+  if (typeof location === 'string') return location.trim();
+  if (typeof location === 'object') {
+    return location.label?.trim() || location.city?.trim() || location.country?.trim() || '';
   }
-  return "";
+  return '';
 }
 
 export function mapApiVideoToCard(video) {
@@ -39,17 +34,29 @@ export function mapApiVideoToCard(video) {
   return {
     id: video.id,
     authorId: video.author?.id ?? null,
+    authorUsername: video.author?.username ?? '',
     name: getAuthorDisplayName(video.author),
+    avatarUrl: video.author?.avatarUrl || null,
+
     location: getVideoLocation(video.location),
+
     thumbnailUrl: video.thumbnailUrl || null,
+
     likesCount: Math.max(0, Number(video.likesCount) || 0),
     likes: formatVideoCount(video.likesCount),
+
     views: formatVideoCount(video.viewsCount),
+    commentsCount: Math.max(0, Number(video.commentsCount) || 0),
     comments: formatVideoCount(video.commentsCount),
+
     videoUrl: video.videoUrl,
-    title: video.title || "",
+
+    title: video.title || '',
+    description: video.description || '',
+
     isLikedByMe: Boolean(video.isLikedByMe),
     isSavedByMe: Boolean(video.isSavedByMe),
+
     raw: video,
   };
 }

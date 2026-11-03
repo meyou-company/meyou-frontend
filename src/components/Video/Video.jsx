@@ -1,54 +1,23 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useTranslation } from "react-i18next";
-import { useNavigate, useSearchParams } from "react-router-dom";
-import { toast } from "sonner";
-import { useNavItems } from "../../hooks/useNavItems";
-import profileIcons from "../../constants/profileIcons";
-import { videosApi } from "../../services/videosApi";
-import { getApiErrorMessage } from "../../utils/getApiErrorMessage";
-import { mapApiVideosToCards, formatVideoCount } from "../../utils/mapApiVideoToCard";
-import MessagesNavBadge from "../Messages/MessagesNavBadge";
-import { useAuthStore } from "../../zustand/useAuthStore";
-import DeletePostConfirmDialog from "../PostFeed/DeletePostConfirmDialog";
-import VideoCardThumbnail from "./VideoCardThumbnail";
-import VideoPlayerModal from "./VideoPlayerModal";
-import VideoUploadModal from "./VideoUploadModal";
-import "./Video.scss";
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { toast } from 'sonner';
+import profileIcons from '../../constants/profileIcons';
+import { videosApi } from '../../services/videosApi';
+import { getApiErrorMessage } from '../../utils/getApiErrorMessage';
+import { mapApiVideosToCards, formatVideoCount } from '../../utils/mapApiVideoToCard';
+import { useAuthStore } from '../../zustand/useAuthStore';
+import { useFollowingStore } from '../../zustand/useFollowingStore';
+import DeletePostConfirmDialog from '../PostFeed/DeletePostConfirmDialog';
+import VideoCardThumbnail from './VideoCardThumbnail';
+import VideoPlayerModal from './VideoPlayerModal';
+import VideoUploadModal from './VideoUploadModal';
+import './Video.scss';
+import Header from '../Navigation/Header';
 
-const VIDEO_TAB_IDS = ["recommended", "mine", "all", "following", "saved"];
+const VIDEO_TAB_IDS = ['recommended', 'mine', 'all', 'following', 'saved'];
 
-const AUTH_REQUIRED_TABS = new Set(["mine", "following", "saved"]);
-
-function Header({ currentPage, alwaysVisible = false }) {
-  const navigate = useNavigate();
-  const navItems = useNavItems();
-
-  return (
-    <div className={`video__desktopHeader ${alwaysVisible ? "always" : ""}`}>
-      {navItems.map((item) => {
-        const isActive = item.key === currentPage;
-
-        return (
-          <div
-            key={item.key}
-            onClick={() => navigate(item.path)}
-            className={`video__navItem ${isActive ? "active" : ""}`}
-          >
-            <span className="video__navIconWrap">
-              <img
-                src={profileIcons[item.icon]}
-                className="video__navigationIcon"
-                alt={item.label}
-              />
-              {item.key === "messages" && <MessagesNavBadge />}
-            </span>
-            <span className="video__navigationTitle">{item.label}</span>
-          </div>
-        );
-      })}
-    </div>
-  );
-}
+const AUTH_REQUIRED_TABS = new Set(['mine', 'following', 'saved']);
 
 const Video = () => {
   const navigate = useNavigate();
@@ -57,46 +26,81 @@ const Video = () => {
   const isAuthed = useAuthStore((s) => s.isAuthed);
   const currentUser = useAuthStore((s) => s.user);
 
+  const following = useFollowingStore((s) => s.following);
+  const fetchFollowing = useFollowingStore((s) => s.fetchFollowing);
+  const followUser = useFollowingStore((s) => s.follow);
+
+  const handleFollowAuthor = async (e, video) => {
+    e.stopPropagation();
+
+    if (!isAuthed) {
+      toast.error('Увійдіть, щоб підписатися на користувача');
+      navigate('/auth/login');
+      return;
+    }
+
+    if (!video?.authorId || isOwnVideo(video)) return;
+
+    await followUser(video.authorId);
+  };
+
   const videoTabs = useMemo(
     () =>
       VIDEO_TAB_IDS.map((id) => ({
         id,
         label: t(`video.tabs.${id}`),
       })),
-    [t],
+    [t]
   );
 
   const [showAll, setShowAll] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isUploadOpen, setIsUploadOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState("recommended");
-  const [searchQuery, setSearchQuery] = useState("");
+  const [activeTab, setActiveTab] = useState('recommended');
+  const [searchQuery, setSearchQuery] = useState('');
   const [videos, setVideos] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const [error, setError] = useState('');
   const [refreshKey, setRefreshKey] = useState(0);
   const [selectedVideo, setSelectedVideo] = useState(null);
   const [saveLoadingId, setSaveLoadingId] = useState(null);
   const [likeLoadingId, setLikeLoadingId] = useState(null);
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [isDeletingVideo, setIsDeletingVideo] = useState(false);
-  const [isDesktop, setIsDesktop] = useState(window.innerWidth >= 1440);
+  const [isDesktop, setIsDesktop] = useState(window.innerWidth >= 1024);
 
   const lastReqId = useRef(0);
-  const authorId = searchParams.get("authorId")?.trim() || "";
+  const authorId = searchParams.get('authorId')?.trim() || '';
+
+  useEffect(() => {
+    if (isAuthed) {
+      fetchFollowing();
+    }
+  }, [isAuthed, fetchFollowing]);
+
+  const isSelectedAuthorFollowed = Boolean(
+    selectedVideo?.authorId &&
+    following.some((user) => String(user.id) === String(selectedVideo.authorId))
+  );
 
   const activeTabLabel = useMemo(
-    () => videoTabs.find((tab) => tab.id === activeTab)?.label ?? t("video.tabs.recommended"),
-    [activeTab, videoTabs, t],
+    () => videoTabs.find((tab) => tab.id === activeTab)?.label ?? t('video.tabs.recommended'),
+    [activeTab, videoTabs, t]
   );
 
   useEffect(() => {
     const handleResize = () => {
-      setIsDesktop(window.innerWidth >= 1440);
+      const desktop = window.innerWidth >= 1024;
+
+      setIsDesktop(desktop);
+
+      if (desktop) {
+        setIsSearchOpen(false);
+      }
     };
 
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
   }, []);
 
   useEffect(() => {
@@ -106,18 +110,18 @@ const Video = () => {
   useEffect(() => {
     const reqId = ++lastReqId.current;
 
+    setLoading(true);
+    setError('');
+
     const timer = setTimeout(async () => {
       if (AUTH_REQUIRED_TABS.has(activeTab) && !isAuthed) {
         setVideos([]);
-        setError("Войдите, чтобы просматривать эту вкладку");
+        setError('Войдите, чтобы просматривать эту вкладку');
         setLoading(false);
         return;
       }
 
       try {
-        setLoading(true);
-        setError("");
-
         const result = authorId
           ? await videosApi.listByAuthor(authorId, {
               limit: showAll ? 50 : 12,
@@ -139,16 +143,16 @@ const Video = () => {
             ? cards.filter((video) =>
                 [video.title, video.name, video.location]
                   .filter(Boolean)
-                  .some((value) => String(value).toLowerCase().includes(normalizedQuery)),
+                  .some((value) => String(value).toLowerCase().includes(normalizedQuery))
               )
-            : cards,
+            : cards
         );
       } catch (err) {
         if (reqId !== lastReqId.current) return;
 
-        console.error("[video-feed] failed", err);
+        console.error('[video-feed] failed', err);
         setVideos([]);
-        setError(getApiErrorMessage(err) || "Не удалось загрузить видео");
+        setError(getApiErrorMessage(err) || 'Не удалось загрузить видео');
       } finally {
         if (reqId === lastReqId.current) setLoading(false);
       }
@@ -157,15 +161,22 @@ const Video = () => {
     return () => clearTimeout(timer);
   }, [activeTab, authorId, searchQuery, showAll, isAuthed, refreshKey]);
 
-  const displayedVideos = useMemo(
-    () => (showAll ? videos : videos.slice(0, 5)),
-    [videos, showAll],
-  );
+  const displayedVideos = useMemo(() => (showAll ? videos : videos.slice(0, 5)), [videos, showAll]);
+
+  useEffect(() => {
+    if (!selectedVideo?.id) return;
+
+    const exists = displayedVideos.some((video) => String(video.id) === String(selectedVideo.id));
+
+    if (!exists) {
+      setSelectedVideo(null);
+    }
+  }, [displayedVideos, selectedVideo?.id]);
 
   const handleAddClick = () => {
     if (!isAuthed) {
-      toast.error("Войдите, чтобы добавить видео");
-      navigate("/auth/login");
+      toast.error('Войдите, чтобы добавить видео');
+      navigate('/auth/login');
       return;
     }
     setIsUploadOpen(true);
@@ -173,8 +184,8 @@ const Video = () => {
 
   const handleTabClick = (tabId) => {
     if (AUTH_REQUIRED_TABS.has(tabId) && !isAuthed) {
-      toast.error("Войдите, чтобы просматривать эту вкладку");
-      navigate("/auth/login");
+      toast.error('Войдите, чтобы просматривать эту вкладку');
+      navigate('/auth/login');
       return;
     }
     setActiveTab(tabId);
@@ -182,7 +193,7 @@ const Video = () => {
 
   const handleVideoCreated = useCallback(() => {
     setRefreshKey((prev) => prev + 1);
-    setActiveTab("mine");
+    setActiveTab('mine');
   }, []);
 
   const handleSearchChange = (value) => {
@@ -191,30 +202,52 @@ const Video = () => {
 
   const handlePlayVideo = (video) => {
     if (!video?.videoUrl) {
-      toast.error("Ссылка на видео недоступна");
+      toast.error('Ссылка на видео недоступна');
       return;
     }
     setSelectedVideo(video);
   };
 
+  const getSelectedVideoIndex = useCallback(() => {
+    if (!selectedVideo?.id) return -1;
+
+    return displayedVideos.findIndex((video) => String(video.id) === String(selectedVideo.id));
+  }, [displayedVideos, selectedVideo?.id]);
+
+  const handleNextVideo = useCallback(() => {
+    const currentIndex = getSelectedVideoIndex();
+
+    if (currentIndex < 0 || currentIndex >= displayedVideos.length - 1) {
+      return;
+    }
+
+    setSelectedVideo(displayedVideos[currentIndex + 1]);
+  }, [displayedVideos, getSelectedVideoIndex]);
+
+  const handlePrevVideo = useCallback(() => {
+    const currentIndex = getSelectedVideoIndex();
+
+    if (currentIndex <= 0) {
+      return;
+    }
+
+    setSelectedVideo(displayedVideos[currentIndex - 1]);
+  }, [displayedVideos, getSelectedVideoIndex]);
+
   const handleViewRecorded = useCallback((videoId, viewsCount) => {
     const formattedViews = formatVideoCount(viewsCount);
     setVideos((prev) =>
-      prev.map((item) =>
-        item.id === videoId ? { ...item, views: formattedViews } : item,
-      ),
+      prev.map((item) => (item.id === videoId ? { ...item, views: formattedViews } : item))
     );
-    setSelectedVideo((prev) =>
-      prev?.id === videoId ? { ...prev, views: formattedViews } : prev,
-    );
+    setSelectedVideo((prev) => (prev?.id === videoId ? { ...prev, views: formattedViews } : prev));
   }, []);
 
   const handleToggleSave = async (e, video) => {
     e.stopPropagation();
 
     if (!isAuthed) {
-      toast.error("Войдите, чтобы сохранить видео");
-      navigate("/auth/login");
+      toast.error('Войдите, чтобы сохранить видео');
+      navigate('/auth/login');
       return;
     }
 
@@ -222,12 +255,10 @@ const Video = () => {
     const wasSaved = video.isSavedByMe;
 
     setVideos((prev) => {
-      if (activeTab === "saved" && wasSaved) {
+      if (activeTab === 'saved' && wasSaved) {
         return prev.filter((item) => item.id !== videoId);
       }
-      return prev.map((item) =>
-        item.id === videoId ? { ...item, isSavedByMe: !wasSaved } : item,
-      );
+      return prev.map((item) => (item.id === videoId ? { ...item, isSavedByMe: !wasSaved } : item));
     });
 
     setSaveLoadingId(videoId);
@@ -235,23 +266,21 @@ const Video = () => {
     try {
       if (wasSaved) {
         await videosApi.unsave(videoId);
-        toast.success("Видео удалено из сохранённых");
+        toast.success('Видео удалено из сохранённых');
       } else {
         await videosApi.save(videoId);
-        toast.success("Видео сохранено");
+        toast.success('Видео сохранено');
       }
     } catch (err) {
-      console.error("[video-save] failed", err);
-      if (activeTab === "saved" && wasSaved) {
+      console.error('[video-save] failed', err);
+      if (activeTab === 'saved' && wasSaved) {
         setRefreshKey((prev) => prev + 1);
       } else {
         setVideos((prev) =>
-          prev.map((item) =>
-            item.id === videoId ? { ...item, isSavedByMe: wasSaved } : item,
-          ),
+          prev.map((item) => (item.id === videoId ? { ...item, isSavedByMe: wasSaved } : item))
         );
       }
-      toast.error(getApiErrorMessage(err) || "Не удалось изменить сохранение");
+      toast.error(getApiErrorMessage(err) || 'Не удалось изменить сохранение');
     } finally {
       setSaveLoadingId(null);
     }
@@ -265,20 +294,16 @@ const Video = () => {
       likes: formattedLikes,
     };
 
-    setVideos((prev) =>
-      prev.map((item) => (item.id === videoId ? { ...item, ...patch } : item)),
-    );
-    setSelectedVideo((prev) =>
-      prev?.id === videoId ? { ...prev, ...patch } : prev,
-    );
+    setVideos((prev) => prev.map((item) => (item.id === videoId ? { ...item, ...patch } : item)));
+    setSelectedVideo((prev) => (prev?.id === videoId ? { ...prev, ...patch } : prev));
   }, []);
 
   const handleToggleLike = async (e, video) => {
     e.stopPropagation();
 
     if (!isAuthed) {
-      toast.error("Войдите, чтобы поставить лайк");
-      navigate("/auth/login");
+      toast.error('Войдите, чтобы поставить лайк');
+      navigate('/auth/login');
       return;
     }
 
@@ -291,25 +316,17 @@ const Video = () => {
     setLikeLoadingId(videoId);
 
     try {
-      const result = wasLiked
-        ? await videosApi.unlike(videoId)
-        : await videosApi.like(videoId);
+      const result = wasLiked ? await videosApi.unlike(videoId) : await videosApi.like(videoId);
 
       const likesCount = Number(result?.likesCount);
       const isLiked =
-        result?.isLiked === true ||
-        result?.isLikedByMe === true ||
-        result?.liked === true;
+        result?.isLiked === true || result?.isLikedByMe === true || result?.liked === true;
 
-      applyLikeState(
-        videoId,
-        Number.isFinite(likesCount) ? likesCount : optimisticCount,
-        isLiked,
-      );
+      applyLikeState(videoId, Number.isFinite(likesCount) ? likesCount : optimisticCount, isLiked);
     } catch (err) {
-      console.error("[video-like] failed", err);
+      console.error('[video-like] failed', err);
       applyLikeState(videoId, prevCount, wasLiked);
-      toast.error(getApiErrorMessage(err) || "Не удалось изменить лайк");
+      toast.error(getApiErrorMessage(err) || 'Не удалось изменить лайк');
     } finally {
       setLikeLoadingId(null);
     }
@@ -319,19 +336,19 @@ const Video = () => {
     (video) =>
       Boolean(
         isAuthed &&
-          currentUser?.id &&
-          video?.authorId &&
-          String(video.authorId) === String(currentUser.id),
+        currentUser?.id &&
+        video?.authorId &&
+        String(video.authorId) === String(currentUser.id)
       ),
-    [isAuthed, currentUser?.id],
+    [isAuthed, currentUser?.id]
   );
 
   const requestDeleteVideo = (e, video) => {
     e?.stopPropagation?.();
 
     if (!isAuthed) {
-      toast.error("Войдите, чтобы удалить видео");
-      navigate("/auth/login");
+      toast.error('Войдите, чтобы удалить видео');
+      navigate('/auth/login');
       return;
     }
 
@@ -354,11 +371,11 @@ const Video = () => {
       await videosApi.delete(deleteTarget.id);
       setVideos((prev) => prev.filter((item) => item.id !== deleteTarget.id));
       setSelectedVideo((prev) => (prev?.id === deleteTarget.id ? null : prev));
-      toast.success("Видео удалено");
+      toast.success('Видео удалено');
       setDeleteTarget(null);
     } catch (err) {
-      console.error("[video-delete] failed", err);
-      toast.error(getApiErrorMessage(err) || "Не удалось удалить видео");
+      console.error('[video-delete] failed', err);
+      toast.error(getApiErrorMessage(err) || 'Не удалось удалить видео');
     } finally {
       setIsDeletingVideo(false);
     }
@@ -366,21 +383,17 @@ const Video = () => {
 
   return (
     <div className="video">
-      <Header currentPage="video" alwaysVisible />
+      <Header alwaysVisible />
 
       <div className="video__header">
         <h1 className="video__title">
-          {" "}
+          {' '}
           Видео
-          <img
-            className="video__titleIcon"
-            src={profileIcons.videoTitle}
-            alt="Видео иконка"
-          />
+          <img className="video__titleIcon" src={profileIcons.videoTitle} alt="Видео иконка" />
         </h1>
 
         <button type="button" className="video__addBtn" onClick={handleAddClick}>
-          +{"\u00a0"} Добавить видео
+          +{'\u00a0'} Добавить видео
         </button>
       </div>
 
@@ -390,7 +403,7 @@ const Video = () => {
             <button
               key={tab.id}
               type="button"
-              className={`video__tab ${activeTab === tab.id ? "active" : ""}`}
+              className={`video__tab ${activeTab === tab.id ? 'active' : ''}`}
               onClick={() => handleTabClick(tab.id)}
             >
               {tab.label}
@@ -405,12 +418,25 @@ const Video = () => {
             value={searchQuery}
             onChange={(e) => handleSearchChange(e.target.value)}
           />
+
+          {isDesktop && searchQuery && (
+            <button
+              type="button"
+              className="video__clearSearchBtn"
+              aria-label="Очистити пошук"
+              onClick={() => handleSearchChange('')}
+            >
+              <img src={profileIcons.close} alt="" />
+            </button>
+          )}
           <button
             type="button"
-            className={`video__searchBtn ${
-              isSearchOpen && !isDesktop ? "hidden" : ""
-            }`}
-            onClick={() => setIsSearchOpen(true)}
+            className={`video__searchBtn ${(isSearchOpen ?? !isDesktop) ? 'hidden' : ''}`}
+            onClick={() => {
+              if (!isDesktop) {
+                setIsSearchOpen(true);
+              }
+            }}
           >
             <img
               className="video__searchIcon"
@@ -424,11 +450,7 @@ const Video = () => {
       {isSearchOpen && (
         <div className="video__searchOverlay">
           <div className="video__searchBox">
-            <img
-              className="video__searchIconLeft"
-              src={profileIcons.searchVideoPink}
-              alt=""
-            />
+            <img className="video__searchIconLeft" src={profileIcons.searchVideoPink} alt="" />
 
             <input
               className="video__searchInputMobile"
@@ -443,11 +465,7 @@ const Video = () => {
               className="video__searchClose"
               onClick={() => setIsSearchOpen(false)}
             >
-              <img
-                className="video__searchCloseIcon"
-                src={profileIcons.close}
-                alt=""
-              />
+              <img className="video__searchCloseIcon" src={profileIcons.close} alt="" />
             </button>
           </div>
         </div>
@@ -456,37 +474,34 @@ const Video = () => {
       <div className="video__section">
         <div className="video__sectionHeader">
           <h2 className="video__subtitle">{activeTabLabel}</h2>
-          {!showAll && videos.length > 5 && (
+          <div className="video__sectionActions">
             <button
               type="button"
-              className="video__subtitle video__showAll"
-              onClick={() => setShowAll(true)}
+              className={`video__searchMobileBtn ${isSearchOpen ? 'hidden' : ''}`}
+              onClick={() => setIsSearchOpen(true)}
             >
-              Показать все
-              <img
-                className="video__showAllIcon"
-                src={profileIcons.arrowVideo}
-                alt="Стрелочка вправо иконка"
-              />
+              <img src={profileIcons.searchVideoPink} alt="search" />
             </button>
-          )}
-
-          <button
-            type="button"
-            className={`video__searchMobileBtn ${isSearchOpen ? "hidden" : ""}`}
-            onClick={() => setIsSearchOpen(true)}
-          >
-            <img src={profileIcons.searchVideoPink} alt="search" />
-          </button>
+            {!loading && !error && !showAll && videos.length > 5 && (
+              <button
+                type="button"
+                className="video__subtitle video__showAll"
+                onClick={() => setShowAll(true)}
+              >
+                Показать все
+                <img
+                  className="video__showAllIcon"
+                  src={profileIcons.arrowVideo}
+                  alt="Стрелочка вправо иконка"
+                />
+              </button>
+            )}
+          </div>
         </div>
 
-        {loading && (
-          <p className="video__status video__status--loading">Загрузка видео...</p>
-        )}
+        {loading && <p className="video__status video__status--loading">Загрузка видео...</p>}
 
-        {!loading && error && (
-          <p className="video__status video__status--error">{error}</p>
-        )}
+        {!loading && error && <p className="video__status video__status--error">{error}</p>}
 
         {!loading && !error && displayedVideos.length === 0 && (
           <p className="video__status video__status--empty">Видео не найдены</p>
@@ -502,109 +517,97 @@ const Video = () => {
                 tabIndex={0}
                 onClick={() => handlePlayVideo(video)}
                 onKeyDown={(e) => {
-                  if (e.key === "Enter" || e.key === " ") {
+                  if (e.key === 'Enter' || e.key === ' ') {
                     e.preventDefault();
                     handlePlayVideo(video);
                   }
                 }}
               >
-                <VideoCardThumbnail
-                  thumbnailUrl={video.thumbnailUrl}
-                  videoUrl={video.videoUrl}
-                  alt={video.title || video.name}
-                  className="video__preview"
-                />
+                <div className="video-card__media">
+                  <VideoCardThumbnail
+                    thumbnailUrl={video.thumbnailUrl}
+                    videoUrl={video.videoUrl}
+                    alt={video.title || video.name}
+                    className="video__preview"
+                  />
 
-                <div className="video-card__overlay">
-                  {isOwnVideo(video) && (
-                    <button
-                      type="button"
-                      className="video-card__delete"
-                      onClick={(e) => requestDeleteVideo(e, video)}
-                      aria-label="Удалить видео"
-                    >
-                      <img
-                        src={profileIcons.closeBlack}
-                        alt=""
-                        className="video-card__deleteIcon"
-                      />
-                    </button>
-                  )}
-
-                  <button
-                    type="button"
-                    className={`video-card__save ${video.isSavedByMe ? "active" : ""}`}
-                    onClick={(e) => handleToggleSave(e, video)}
-                    disabled={saveLoadingId === video.id}
-                    aria-label={video.isSavedByMe ? "Убрать из сохранённых" : "Сохранить видео"}
-                    aria-pressed={video.isSavedByMe}
-                  >
-                    <img
-                      src={profileIcons.savedPost}
-                      alt=""
-                      className="video-card__saveIcon"
-                    />
-                  </button>
-
-                  <button
-                    type="button"
-                    className="video-card__play"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handlePlayVideo(video);
-                    }}
-                    aria-label="Включить видео"
-                  >
-                    <img
-                      className="video__playIcon"
-                      src={profileIcons.playVideo}
-                      alt=""
-                    />
-                  </button>
-
-                  <div className="video-card__info">
-                    <div className="video-card__meta">
-                      {video.title && (
-                        <p className="video-card__title">{video.title}</p>
-                      )}
-                      <p className="video-card__name">{video.name}</p>
-                      {video.location && (
-                        <div className="video-card__location">
-                          <img
-                            className="video__locationIcon"
-                            src={profileIcons.locationVideo}
-                            alt="Локация Видео иконка"
-                          />
-                          <p className="video__locationText">{video.location}</p>
-                        </div>
-                      )}
-                    </div>
-
-                    <div className="video-card__stats">
+                  <div className="video-card__overlay">
+                    {isOwnVideo(video) && (
                       <button
                         type="button"
-                        className={`video-card__like ${video.isLikedByMe ? "active" : ""}`}
-                        onClick={(e) => handleToggleLike(e, video)}
-                        disabled={likeLoadingId === video.id}
-                        aria-label={video.isLikedByMe ? "Убрать лайк" : "Поставить лайк"}
-                        aria-pressed={video.isLikedByMe}
+                        className="video-card__delete"
+                        onClick={(e) => requestDeleteVideo(e, video)}
+                        aria-label="Удалить видео"
                       >
                         <img
-                          className="video-card__likeIcon"
-                          src={profileIcons.heartVideo}
+                          src={profileIcons.closeBlack}
                           alt=""
+                          className="video-card__deleteIcon"
                         />
-                        <span className="video-card__likeCount">{video.likes}</span>
                       </button>
-                      <span className="video__statsWrapper">
+                    )}
+
+                    <button
+                      type="button"
+                      className={`video-card__save ${video.isSavedByMe ? 'active' : ''}`}
+                      onClick={(e) => handleToggleSave(e, video)}
+                      disabled={saveLoadingId === video.id}
+                      aria-label={video.isSavedByMe ? 'Убрать из сохранённых' : 'Сохранить видео'}
+                      aria-pressed={video.isSavedByMe}
+                    >
+                      <img src={profileIcons.savedPost} alt="" className="video-card__saveIcon" />
+                    </button>
+
+                    <button
+                      type="button"
+                      className="video-card__play"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handlePlayVideo(video);
+                      }}
+                      aria-label="Включить видео"
+                    >
+                      <img className="video__playIcon" src={profileIcons.playVideo} alt="" />
+                    </button>
+                  </div>
+                </div>
+
+                <div className="video-card__info">
+                  <div className="video-card__meta">
+                    {video.title && <p className="video-card__title">{video.title}</p>}
+                    <p className="video-card__name">{video.name}</p>
+                    {video.location && (
+                      <div className="video-card__location">
                         <img
-                          className="video__statsIcon video__statsIcon--views"
-                          src={profileIcons.eyeOff}
-                          alt="Просмотры"
-                        />{" "}
-                        {video.views}
-                      </span>
-                    </div>
+                          className="video__locationIcon"
+                          src={profileIcons.locationVideo}
+                          alt="Локация Видео иконка"
+                        />
+                        <p className="video__locationText">{video.location}</p>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="video-card__stats">
+                    <button
+                      type="button"
+                      className={`video-card__like ${video.isLikedByMe ? 'active' : ''}`}
+                      onClick={(e) => handleToggleLike(e, video)}
+                      disabled={likeLoadingId === video.id}
+                      aria-label={video.isLikedByMe ? 'Убрать лайк' : 'Поставить лайк'}
+                      aria-pressed={video.isLikedByMe}
+                    >
+                      <img className="video-card__likeIcon" src={profileIcons.heartVideo} alt="" />
+                      <span className="video-card__likeCount">{video.likes}</span>
+                    </button>
+                    <span className="video__statsWrapper">
+                      <img
+                        className="video__statsIcon video__statsIcon--views"
+                        src={profileIcons.eyeOff}
+                        alt="Просмотры"
+                      />{' '}
+                      {video.views}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -623,9 +626,24 @@ const Video = () => {
         video={selectedVideo}
         isOpen={Boolean(selectedVideo)}
         onClose={() => setSelectedVideo(null)}
+        onNext={handleNextVideo}
+        onPrev={handlePrevVideo}
+        hasNext={getSelectedVideoIndex() < displayedVideos.length - 1}
+        hasPrev={getSelectedVideoIndex() > 0}
+        isAuthorFollowed={isSelectedAuthorFollowed}
+        onFollowAuthor={handleFollowAuthor}
+        onOpenAuthor={(username) => {
+          if (username) {
+            navigate(`/profile/${encodeURIComponent(username)}`);
+          }
+        }}
         isAuthed={isAuthed}
         currentUserId={currentUser?.id}
         onViewRecorded={handleViewRecorded}
+        onToggleLike={handleToggleLike}
+        onToggleSave={handleToggleSave}
+        likeLoadingId={likeLoadingId}
+        saveLoadingId={saveLoadingId}
         canDelete={Boolean(selectedVideo && isOwnVideo(selectedVideo))}
         onDeleteRequest={() => requestDeleteVideo(null, selectedVideo)}
       />
@@ -637,7 +655,7 @@ const Video = () => {
         confirming={isDeletingVideo}
         title="Удалить это видео?"
         description="Видео будет удалено без возможности восстановления."
-        confirmLabel={isDeletingVideo ? "Удаление…" : "Удалить"}
+        confirmLabel={isDeletingVideo ? 'Удаление…' : 'Удалить'}
         cancelLabel="Отмена"
       />
     </div>
@@ -645,4 +663,3 @@ const Video = () => {
 };
 
 export default Video;
-export { Header };
