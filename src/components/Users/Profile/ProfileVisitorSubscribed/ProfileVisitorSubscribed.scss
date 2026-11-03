@@ -38,6 +38,9 @@ $pvsTextStrong: rgba(0, 0, 0, 0.7);
   &__left {
     min-width: 0;
     display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
   }
 
   &__center {
@@ -62,10 +65,10 @@ $pvsTextStrong: rgba(0, 0, 0, 0.7);
 
   &__avatarWrap {
     position: relative;
-    width: 170px;
-    height: 190px;
-    flex: 0 0 auto;
-    border-radius: 18px;
+    width: 100%;
+    aspect-ratio: 1 / 1;
+
+    border-radius: 50%;
 
     background:
       linear-gradient(#fff, #fff) padding-box,
@@ -83,26 +86,26 @@ $pvsTextStrong: rgba(0, 0, 0, 0.7);
     height: 100%;
 
     object-fit: cover;
-    border-radius: 15px;
+    border-radius: 50%;
   }
 
   &__avatarWrap--hasStories {
-    padding: 1px;
+    padding: 3px;
     overflow: hidden;
-    border-radius: 18px;
+    border-radius: 50%;
     background: linear-gradient(45deg, #ff4fb1, #ff2d55, #ffcc00);
   }
 
   &__avatarWrap--hasStories .profile-visitor-subscribed__avatar {
     border: 1px solid #fff;
-    border-radius: 15px;
+    border-radius: 50%;
   }
 
   &__onlineStatus {
     position: absolute;
 
-    top: -2px;
-    right: -2px;
+    top: 16px;
+    right: 20px;
 
     z-index: 10;
   }
@@ -116,31 +119,24 @@ $pvsTextStrong: rgba(0, 0, 0, 0.7);
     box-sizing: border-box;
 
     border: 2px solid #fff;
-    border-radius: 50%;
   }
 
   &__onlineLabel {
-    position: absolute;
-
-    left: 10px;
-    bottom: 8px;
-
-    z-index: 10;
-
     width: max-content;
-    max-width: calc(100% - 16px);
 
     margin: 0;
-    padding: 2px 4px;
+    padding: 4px 6px;
 
     box-sizing: border-box;
-
-    text-align: left;
 
     background: rgba(0, 0, 0, 0.45);
     border-radius: 6px;
 
     pointer-events: none;
+  }
+
+  &__onlineLabel.is-online {
+    background: transparent;
   }
 
   &__onlineLabel .onlineStatus__label {
@@ -151,6 +147,7 @@ $pvsTextStrong: rgba(0, 0, 0, 0.7);
 
   &__onlineLabel.is-online .onlineStatus__label {
     color: #22c55e;
+    font-weight: 600;
   }
 
   /* ===== Profile information ===== */
@@ -190,6 +187,62 @@ $pvsTextStrong: rgba(0, 0, 0, 0.7);
     font-size: 18px;
     line-height: 1.45;
   }
+
+  .vipCard.profile-visitor-subscribed__friends {
+    margin-top: 18px;
+  }
+
+  &__feed {
+    width: 100%;
+    margin-top: 18px;
+  }
+
+  &__imageViewer {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 40px;
+
+    background: rgba(0, 0, 0, 0.82);
+
+    cursor: pointer;
+  }
+
+  &__imageViewerClose {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+
+    width: 46px;
+    height: 46px;
+
+    display: grid;
+    place-items: center;
+
+    border: 0;
+    border-radius: 50%;
+
+    background: rgba(255, 255, 255, 0.18);
+
+    color: #fff;
+
+    font-size: 28px;
+
+    cursor: pointer;
+  }
+
+  &__imageViewerImg {
+    max-width: 100%;
+    max-height: calc(100vh - 80px);
+    border-radius: 10px;
+
+    box-shadow: 0 10px 45px rgba(0, 0, 0, 0.55);
+  }
 }
 
 /* ====== Right actions ===== */
@@ -197,6 +250,7 @@ $pvsTextStrong: rgba(0, 0, 0, 0.7);
   height: 100%;
   display: flex;
   flex-direction: column;
+  gap: 20px;
   justify-content: space-between;
 }
 
@@ -253,7 +307,7 @@ $pvsTextStrong: rgba(0, 0, 0, 0.7);
   font-weight: 500;
   line-height: 1.2;
 
-  overflow-wrap: anywhere;
+  white-space: nowrap;
 }
 
 .pvs-tools__smallLabel {
@@ -386,9 +440,10 @@ $pvsTextStrong: rgba(0, 0, 0, 0.7);
 }
 
 .pvs-actions__tab.is-locked {
-  opacity: 0.75;
+  opacity: 0.55;
   cursor: not-allowed;
 }
+
 .pvs-actions__tabText {
   font-size: 16px;
   font-weight: 500;
@@ -418,13 +473,21 @@ $pvsTextStrong: rgba(0, 0, 0, 0.7);
       padding: 16px;
     }
 
+    &__left {
+      gap: 8px;
+    }
+
     &__avatarContainer {
       width: 140px;
     }
 
     &__avatarWrap {
-      width: 140px;
-      height: 170px;
+      width: 100%;
+    }
+
+    &__onlineStatus {
+      top: 10px;
+      right: 18px;
     }
 
     &__nickname {
@@ -502,8 +565,12 @@ $pvsTextStrong: rgba(0, 0, 0, 0.7);
     }
 
     &__avatarWrap {
-      width: 110px;
-      height: 130px;
+      width: 100%;
+    }
+
+    &__onlineStatus {
+      top: 8px;
+      right: 14px;
     }
 
     &__onlineStatus .onlineStatus__dot {
@@ -704,7 +771,6 @@ $pvsTextStrong: rgba(0, 0, 0, 0.7);
     &__left {
       grid-column: 1;
       grid-row: 1 / span 2;
-
       width: 100%;
       min-width: 0;
     }
@@ -727,17 +793,22 @@ $pvsTextStrong: rgba(0, 0, 0, 0.7);
 
     &__avatarContainer {
       width: 100%;
-      height: auto;
-
-      align-self: start;
+      min-width: 0;
     }
 
     &__avatarWrap {
+      position: relative;
       width: 100%;
-      height: auto;
-      aspect-ratio: 0.79;
+      aspect-ratio: 1 / 1;
+      border-radius: 50%;
+      overflow: hidden;
+    }
 
-      flex: 0 0 auto;
+    &__onlineStatus {
+      position: absolute;
+      top: 15%;
+      right: 7%;
+      z-index: 10;
     }
 
     &__nameRow {
@@ -795,6 +866,10 @@ $pvsTextStrong: rgba(0, 0, 0, 0.7);
   .pvs-mobile-actions .pvs-actions__vipStatus {
     font-size: 12px;
   }
+
+  .profile-visitor-subscribed__friendsEmpty {
+    font-size: 12px;
+  }
 }
 
 /* =========================
@@ -827,12 +902,13 @@ $pvsTextStrong: rgba(0, 0, 0, 0.7);
       grid-row: 2;
     }
 
-    &__nickname {
-      font-size: 20px;
+    &__onlineStatus {
+      top: 10px;
+      right: 10px;
     }
 
-    &__onlineLabel .onlineStatus__label {
-      font-size: 6px;
+    &__nickname {
+      font-size: 20px;
     }
   }
 
@@ -881,29 +957,52 @@ $pvsTextStrong: rgba(0, 0, 0, 0.7);
    ========================= */
 body.dark,
 html[data-theme='dark'] {
-  .profile-visitor-subscribed__top {
-    border-color: rgba(255, 255, 255, 0.12);
+  .profile-visitor-subscribed {
+    &__top {
+      border-color: rgba(255, 255, 255, 0.12);
 
-    background: linear-gradient(135deg, rgba(45, 34, 58, 0.78), rgba(25, 20, 34, 0.72));
+      background: linear-gradient(135deg, rgba(45, 34, 58, 0.78), rgba(25, 20, 34, 0.72));
 
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28);
+    }
+
+    &__avatarWrap {
+      background:
+        linear-gradient(#1e1b28, #1e1b28) padding-box,
+        $gradient border-box;
+    }
+
+    &__avatarWrap--hasStories {
+      background: linear-gradient(45deg, #ff4fb1, #ff2d55, #ffcc00);
+    }
+
+    &__avatarWrap--hasStories .profile-visitor-subscribed__avatar {
+      background: rgba(255, 255, 255, 0.9);
+    }
+
+    &__fullName,
+    &__location {
+      color: rgba(255, 255, 255, 0.85);
+    }
+
+    .vipCard.profile-visitor-subscribed__friends {
+      border-color: rgba(255, 255, 255, 0.15);
+      background: rgba(20, 10, 30, 0.35);
+
+      .friendsTitle {
+        &__label,
+        &__count {
+          color: rgba(255, 255, 255, 0.9);
+        }
+      }
+    }
+
+    &__feed {
+      .feedEmptyHint {
+        color: rgba(255, 255, 255, 0.9);
+      }
+    }
   }
-
-  .profile-visitor-subscribed__avatarWrap {
-    background:
-      linear-gradient(#1e1b28, #1e1b28) padding-box,
-      $gradient border-box;
-  }
-
-  .profile-visitor-subscribed__avatarWrap--hasStories .profile-visitor-subscribed__avatar {
-    border-color: rgba(255, 255, 255, 0.9);
-  }
-
-  .profile-visitor-subscribed__fullName,
-  .profile-visitor-subscribed__location {
-    color: rgba(255, 255, 255, 0.85);
-  }
-
   .pvs-tools__label,
   .pvs-tools__smallLabel {
     color: rgba(255, 255, 255, 0.9);
@@ -919,7 +1018,6 @@ html[data-theme='dark'] {
 
   .pvs-actions__tab.is-active,
   .pvs-actions__tab--delete {
-    border-color: transparent;
     background: $gradient;
     color: #fff;
   }
@@ -944,173 +1042,26 @@ html[data-theme='dark'] {
 
     color: rgba(255, 255, 255, 0.92);
   }
-}
 
-.profile-visitor-subscribed__followersCount,
-.profile-visitor-subscribed__friendsCountLabel {
-  margin: 6px 0 8px;
+  .profile-visitor-subscribed__friendsEmpty {
+    color: rgba(255, 255, 255, 0.92);
+  }
 
-  color: rgba(0, 0, 0, 0.75);
-
-  font-size: 14px;
-  font-weight: 600;
-}
-
-.profile-visitor-subscribed__friendsCountValue {
-  font-weight: 700;
-}
-
-body.dark .profile-visitor-subscribed__followersCount,
-body.dark .profile-visitor-subscribed__friendsCountLabel,
-html[data-theme='dark'] .profile-visitor-subscribed__followersCount,
-html[data-theme='dark'] .profile-visitor-subscribed__friendsCountLabel {
-  color: rgba(255, 255, 255, 0.7);
-}
-
-.profile-visitor-subscribed__feed {
-  width: 100%;
-  margin-top: 16px;
-}
-
-.profile-visitor-subscribed__friends {
-  margin-top: 18px;
-}
-
-.profile-visitor-subscribed .vipCard {
-  width: 100%;
-
-  padding: 22px 24px 28px;
-
-  border: 1px solid rgba(0, 0, 0, 0.18);
-  border-radius: 18px;
-
-  background: rgba(239, 232, 248, 0.9);
-}
-
-.profile-visitor-subscribed .friendsTitle {
-  margin: 0 0 28px;
-
-  color: rgba(0, 0, 0, 0.82);
-
-  font-size: 20px;
-  font-weight: 400;
-}
-
-.profile-visitor-subscribed .friendsTitle__label {
-  display: inline-block;
-
-  text-decoration: underline;
-  text-decoration-thickness: 1px;
-  text-underline-offset: 3px;
-}
-
-.profile-visitor-subscribed .friendsTitle__count {
-  display: inline-block;
-}
-
-.profile-visitor-subscribed .vipAvatarWrap--clickable {
-  display: block;
-
-  border: none;
-
-  appearance: none;
-  cursor: pointer;
-}
-
-.profile-visitor-subscribed .vipAvatarWrap--clickable:hover {
-  opacity: 0.9;
-}
-
-.profile-visitor-subscribed .showMoreBtn {
-  display: block;
-
-  width: 294px;
-  max-width: 100%;
-  height: 56px;
-
-  margin: 32px auto 0;
-  padding: 0 22px;
-
-  border: 0;
-  border-radius: 999px;
-
-  background: linear-gradient(90deg, #4f6bff 0%, #b05cff 50%, #ff4fb1 100%);
-
-  color: #fff;
-
-  font-size: 18px;
-  font-weight: 500;
-
-  cursor: pointer;
-
-  -webkit-tap-highlight-color: transparent;
-}
-
-.profile-visitor-subscribed__friendsEmpty {
-  margin: 0 0 16px;
-
-  color: rgba(0, 0, 0, 0.6);
-
-  font-family: Montserrat, sans-serif;
-  font-size: 16px;
-  font-weight: 500;
-  line-height: 1.4;
-}
-
-@media (max-width: 768px) {
   .profile-visitor-subscribed .vipFriendNameBtn {
-    display: inline-flex !important;
+    color: rgba(255, 255, 255, 0.88);
   }
 
-  .profile-visitor-subscribed .vipFriendCell {
-    gap: 8px;
+  .profile-visitor-subscribed .postCard,
+  .profile-visitor-subscribed .postActions {
+    border-color: rgba(255, 255, 255, 0.15);
+    background: rgba(20, 10, 30, 0.35);
   }
-}
 
-.profile-visitor-subscribed__imageViewer {
-  position: fixed;
-  inset: 0;
-  z-index: 9999;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  padding: 40px;
-
-  background: rgba(0, 0, 0, 0.82);
-
-  cursor: pointer;
-}
-
-.profile-visitor-subscribed__imageViewerClose {
-  position: absolute;
-  top: 16px;
-  right: 16px;
-
-  width: 46px;
-  height: 46px;
-
-  display: grid;
-  place-items: center;
-
-  border: 0;
-  border-radius: 50%;
-
-  background: rgba(255, 255, 255, 0.18);
-
-  color: #fff;
-
-  font-size: 28px;
-
-  cursor: pointer;
-}
-
-.profile-visitor-subscribed__imageViewerImg {
-  max-width: 100%;
-  max-height: calc(100vh - 80px);
-
-  border-radius: 10px;
-
-  box-shadow: 0 10px 45px rgba(0, 0, 0, 0.55);
+  .profile-visitor-subscribed .postActions {
+    background: rgba(18, 12, 28, 0.92);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    .postActionCount {
+      color: rgba(255, 255, 255, 0.9);
+    }
+  }
 }
