@@ -258,6 +258,55 @@
   flex: 1;
 }
 
+.messagesPage__hiddenHead {
+  padding: 12px 16px 8px;
+}
+
+.messagesPage__hiddenBack {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 4px 0;
+
+  img {
+    width: 18px;
+    height: 18px;
+  }
+}
+
+.messagesPage__hiddenFolder {
+  width: 100%;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+  font: inherit;
+  padding-right: clamp(16px, 4vw, 20px);
+}
+
+.messagesPage__hiddenFolderIcon {
+  background: rgba(123, 77, 255, 0.18);
+  color: #7b4dff;
+
+  svg {
+    width: 26px;
+    height: 26px;
+  }
+}
+
+.messagesPage__hiddenCount {
+  margin-left: auto;
+  color: var(--msg-text-muted);
+  font-size: 13px;
+  font-weight: 600;
+}
+
 .messagesPage__chatRow {
   position: relative;
   display: flex;
@@ -607,8 +656,16 @@
   font: inherit;
   cursor: default;
 
-  &.is-group {
+  &.is-group,
+  &.is-peerProfile {
     cursor: pointer;
+  }
+
+  @media (hover: hover) {
+    &.is-group:hover .messagesPage__chatTitle,
+    &.is-peerProfile:hover .messagesPage__chatTitle {
+      opacity: 0.82;
+    }
   }
 }
 
@@ -715,6 +772,44 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.messagesPage__groupRoom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 16px;
+  border-bottom: 1px solid rgba(150, 120, 200, 0.18);
+  background: rgba(90, 46, 140, 0.08);
+}
+
+.messagesPage__groupRoomCopy {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+
+  strong,
+  span {
+    font-size: 13px;
+  }
+
+  span {
+    opacity: 0.72;
+  }
+}
+
+.messagesPage__groupRoomJoin {
+  flex-shrink: 0;
+  border: none;
+  border-radius: 999px;
+  padding: 8px 14px;
+  background: #5b2d8e;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
 }
 
 .messagesPage__messages {
@@ -1195,6 +1290,15 @@ html[data-theme='dark'] {
 
   .messagesPage__hint--error {
     color: #ff8a8a;
+  }
+
+  .messagesPage__hiddenBack img {
+    filter: brightness(0) invert(1);
+  }
+
+  .messagesPage__hiddenFolderIcon {
+    background: rgba(183, 140, 255, 0.2);
+    color: #e4d2ff;
   }
 
   .messagesPage__chatItem {

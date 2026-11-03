@@ -1521,7 +1521,11 @@
     flex-direction: column;
     align-items: center;
     gap: 8px;
-    margin-top: 16px;
+    margin-top: 12px;
+  }
+
+  .my-gifts-page__sendFooter:not(:has(.my-gifts-page__sendBtn)) {
+    margin-top: 8px;
   }
 
   .my-gifts-page__sendBtn:disabled {

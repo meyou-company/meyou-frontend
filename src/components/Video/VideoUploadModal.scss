@@ -118,6 +118,32 @@
   border-radius: 12px;
 }
 
+.videoUploadModal__progress {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.videoUploadModal__progressTrack {
+  height: 8px;
+  border-radius: 999px;
+  background: rgba(79, 107, 255, 0.16);
+  overflow: hidden;
+}
+
+.videoUploadModal__progressBar {
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #4f6bff, #ff4fb1);
+  transition: width 0.2s ease;
+}
+
+.videoUploadModal__progressLabel {
+  font-size: 13px;
+  font-weight: 600;
+  color: #4c3d62;
+}
+
 .videoUploadModal__submit {
   margin-top: 8px;
   border: 0;

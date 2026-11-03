@@ -9,6 +9,10 @@ import {
   uploadPostMedia,
 } from "../../services/postImageUploadApi";
 import { getApiErrorMessage } from "../../utils/getApiErrorMessage";
+import {
+  getRegularVideoErrorMessage,
+  isRegularVideoFile,
+} from "../../utils/regularVideoUpload.js";
 import "./EditPostModal.scss";
 
 function mediaItemId() {
@@ -30,6 +34,7 @@ export default function EditPostModal({
   const [location, setLocation] = useState("");
   const [existingMedia, setExistingMedia] = useState([]);
   const [newMediaFiles, setNewMediaFiles] = useState([]);
+  const [uploadProgress, setUploadProgress] = useState(null);
 
   useEffect(() => {
     if (!isOpen || !post) return;
@@ -73,7 +78,7 @@ export default function EditPostModal({
     if (!files.length) return;
     const accepted = files.filter((file) => {
       const mime = resolvePostMediaMime(file);
-      return mime.startsWith("image/") || mime.startsWith("video/");
+      return mime.startsWith("image/") || isRegularVideoFile(file);
     });
     if (!accepted.length) {
       toast.error(
@@ -89,7 +94,7 @@ export default function EditPostModal({
         id: mediaItemId(),
         file,
         previewUrl: URL.createObjectURL(file),
-        type: mime.startsWith("video/") ? "video" : "image",
+        type: isRegularVideoFile(file) ? "video" : "image",
       };
     });
     setNewMediaFiles((prev) => [...prev, ...next]);
@@ -133,7 +138,12 @@ export default function EditPostModal({
           if (!item?.file) {
             throw new Error(t('posts.toast.editMediaUploadFileFailed'));
           }
-          const { url, mediaType } = await uploadPostMedia(item.file);
+          const isVideo = isRegularVideoFile(item.file);
+          if (isVideo) setUploadProgress(0);
+          const { url, mediaType } = await uploadPostMedia(item.file, {
+            onProgress: isVideo ? setUploadProgress : undefined,
+          });
+          if (isVideo) setUploadProgress(100);
           media.push({
             url,
             type: mediaType,
@@ -149,8 +159,12 @@ export default function EditPostModal({
       });
     } catch (err) {
       toast.error(
-        getApiErrorMessage(err) || t('posts.toast.editMediaUploadFileFailed')
+        getRegularVideoErrorMessage(err, t) ||
+          getApiErrorMessage(err) ||
+          t('posts.toast.editMediaUploadFileFailed')
       );
+    } finally {
+      setUploadProgress(null);
     }
   };
 
@@ -257,17 +271,23 @@ export default function EditPostModal({
         <input
           ref={fileInputRef}
           type="file"
-          accept="image/jpeg,image/png,image/webp,image/heic,image/heif,image/*,video/mp4,video/quicktime,video/webm,video/*"
+          accept="image/jpeg,image/png,image/webp,image/heic,image/heif,image/*,video/mp4,video/quicktime,video/webm,video/x-m4v,.mp4,.mov,.m4v,video/*"
           multiple
           className="editPostModal__fileInput"
           onChange={onPickMedia}
         />
 
+        {typeof uploadProgress === "number" && (
+          <p className="editPostModal__progress" aria-live="polite">
+            {t("posts.create.uploadingVideo", { percent: uploadProgress })}
+          </p>
+        )}
+
         <div className="editPostModal__footer">
           <button
             type="button"
             className="editPostModal__addMediaBtn"
-            disabled={saving}
+            disabled={saving || uploadProgress != null}
             onClick={() => fileInputRef.current?.click()}
           >
             <img src={profileIcons.live} alt="" aria-hidden="true" />
@@ -276,10 +296,14 @@ export default function EditPostModal({
           <button
             type="button"
             className="editPostModal__saveBtn"
-            disabled={saving}
+            disabled={saving || uploadProgress != null}
             onClick={handleSave}
           >
-            {saving ? t('posts.edit.saving') : t('posts.edit.save')}
+            {typeof uploadProgress === "number"
+              ? t("posts.create.uploadingVideo", { percent: uploadProgress })
+              : saving
+                ? t('posts.edit.saving')
+                : t('posts.edit.save')}
           </button>
         </div>
       </div>

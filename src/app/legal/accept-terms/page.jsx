@@ -23,6 +23,7 @@ export default function LegalAcceptTermsPage() {
   const ui = getLegalUi(i18n.language);
   const navigate = useNavigate();
   const setAuth = useAuthStore.setState;
+  const refreshMe = useAuthStore((state) => state.refreshMe);
   const [accepted, setAccepted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -33,9 +34,13 @@ export default function LegalAcceptTermsPage() {
     try {
       setIsSubmitting(true);
       const response = await profileApi.acceptTerms();
-      const user = response?.user;
-      if (user) {
-        setAuth({ user, isAuthed: true });
+      let user = response?.user ?? response?.data?.user ?? null;
+      if (!user && response?.id) user = response;
+      if (user) setAuth({ user, isAuthed: true });
+      try {
+        user = await refreshMe();
+      } catch (refreshError) {
+        if (!user) throw refreshError;
       }
       navigate(postAuthPath(user), { replace: true });
     } catch (error) {
@@ -43,6 +48,12 @@ export default function LegalAcceptTermsPage() {
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const handleDecline = () => {
+    if (isSubmitting) return;
+    useAuthStore.getState().clearSession();
+    navigate('/auth/login', { replace: true });
   };
 
   return (
@@ -66,13 +77,23 @@ export default function LegalAcceptTermsPage() {
               {' LunMeYo.'}
             </label>
           </div>
-          <button
-            type="submit"
-            className="legalAccept__btn"
-            disabled={!accepted || isSubmitting}
-          >
-            {isSubmitting ? ui.acceptTermsSubmitting : ui.acceptTermsSubmit}
-          </button>
+          <div className="legalAccept__actions">
+            <button
+              type="button"
+              className="legalAccept__btn legalAccept__btn--secondary"
+              disabled={isSubmitting}
+              onClick={handleDecline}
+            >
+              {ui.acceptTermsDecline}
+            </button>
+            <button
+              type="submit"
+              className="legalAccept__btn"
+              disabled={!accepted || isSubmitting}
+            >
+              {isSubmitting ? ui.acceptTermsSubmitting : ui.acceptTermsSubmit}
+            </button>
+          </div>
         </form>
       </div>
     </LegalLayout>

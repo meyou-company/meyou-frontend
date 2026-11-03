@@ -1,4 +1,5 @@
-import { normalizePhone } from './profileFormUtils';
+import { CITY_NAME_MAX_LENGTH, getCityNameIssue } from './cityName.js';
+import { normalizePhone } from './profileFormUtils.js';
 
 const onlyLettersSpaces = (v) => /^[\p{L}\p{M}\s'-]+$/u.test(String(v || '').trim());
 
@@ -84,6 +85,20 @@ function applySharedRules(values, e) {
     e.about = 'aboutMaxLength';
   }
 
+  if (!e.city) {
+    const cityIssue = getCityNameIssue(values.city, { required: false });
+    if (cityIssue) {
+      e.city = cityIssue;
+    }
+  }
+
+  if (values.region) {
+    const region = String(values.region).trim();
+    if (region.length > CITY_NAME_MAX_LENGTH) {
+      e.region = 'regionMaxLength';
+    }
+  }
+
   validateBirthDate(values.birthDate, e);
 
   return e;
@@ -125,4 +140,66 @@ export function translateValidationErrors(errorCodes, t) {
   }
 
   return out;
+}
+
+const CITY_API_MESSAGE_TO_CODE = [
+  { pattern: /^CITY_NAME_TOO_LONG$/i, code: 'cityMaxLength' },
+  { pattern: /^CITY_NAME_INVALID$/i, code: 'cityInvalid' },
+  {
+    pattern: /название города|назва міста|city name/i,
+    code: 'cityInvalid',
+  },
+];
+
+function collectApiMessages(error) {
+  const payload = error?.response?.data ?? error?.data ?? error;
+  const collected = [];
+
+  const push = (value) => {
+    if (typeof value === 'string' && value.trim()) {
+      collected.push(value.trim());
+    } else if (Array.isArray(value)) {
+      value.forEach(push);
+    } else if (value && typeof value === 'object') {
+      push(value.message);
+      push(value.messages);
+      push(value.constraints);
+      if (typeof value.property === 'string' && value.constraints) {
+        Object.values(value.constraints).forEach(push);
+      }
+    }
+  };
+
+  push(payload?.message);
+  push(payload?.details);
+  return collected;
+}
+
+/**
+ * Map API location validation to the matching field only.
+ * City errors never land on country/region, and vice versa.
+ */
+export function locationFieldErrorsFromApi(error) {
+  const fieldErrors = {};
+
+  for (const message of collectApiMessages(error)) {
+    if (/country|країна|страна/i.test(message) && !/city|місто|город/i.test(message)) {
+      fieldErrors.country = 'countryRequired';
+      continue;
+    }
+
+    if (/region|регіон|регион/i.test(message) && !/city|місто|город/i.test(message)) {
+      fieldErrors.region = 'regionMaxLength';
+      continue;
+    }
+
+    const cityMatch = CITY_API_MESSAGE_TO_CODE.find((item) =>
+      item.pattern.test(message),
+    );
+    if (cityMatch) {
+      fieldErrors.city = cityMatch.code;
+    }
+  }
+
+  return fieldErrors;
 }

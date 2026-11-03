@@ -34,6 +34,27 @@
     "messages": "Повідомлення",
     "profile": "Профіль"
   },
+  "friends": {
+    "page": {
+      "title": "Друзі",
+      "searchPlaceholder": "Пошук за імʼям або нікнеймом…",
+      "sections": "Розділи друзів",
+      "tabFriends": "Друзі",
+      "tabFollowers": "Підписники",
+      "tabFollowing": "Підписки",
+      "tabVip": "VIP-друзі",
+      "subscribeBack": "Підписатися у відповідь",
+      "unsubscribe": "Відписатися",
+      "vipBadge": "VIP",
+      "emptyFriends": "У вас поки немає друзів",
+      "emptyFollowers": "Поки немає підписників",
+      "emptyFollowing": "Ви ще ні на кого не підписані",
+      "emptyVip": "Поки немає VIP-друзів",
+      "emptySearch": "Нікого не знайдено за запитом",
+      "loadError": "Не вдалося завантажити список",
+      "actionError": "Не вдалося оновити підписку"
+    }
+  },
   "landing": {
     "tagline": "LunMeYo — сучасна платформа для знайомств, спілкування та безпечних соціальних зв'язків.",
     "features": {
@@ -59,7 +80,8 @@
     "privacyPolicy": "Політика конфіденційності",
     "logout": "Вийти",
     "closeMenu": "Закрити меню",
-    "language": "Мова"
+    "language": "Мова",
+    "suggestions": "Ваші пропозиції"
   },
   "auth": {
     "login": {
@@ -106,7 +128,7 @@
       "emailPlaceholder": "Введіть Email",
       "submit": "Підтвердити",
       "submitting": "Надсилання…",
-      "toastSuccess": "Код відправлено на email",
+      "toastSuccess": "Якщо акаунт існує, код надійде на email. Якщо листа немає — надішліть повторно через хвилину.",
       "errors": {
         "emailRequired": "Введіть E-mail",
         "emailInvalid": "Введіть коректний E-mail",
@@ -138,7 +160,7 @@
     },
     "verifyEmail": {
       "title": "Верифікація",
-      "subtitle": "Код надіслано на email і дійсний 15 хвилин.",
+      "subtitle": "Ми надіслали код підтвердження на вашу електронну пошту. Якщо лист не надійшов, перевірте папку “Спам” або скористайтеся повторним надсиланням.",
       "submit": "Підтвердити",
       "submitting": "Перевірка…",
       "resend": "Надіслати код повторно",
@@ -153,13 +175,13 @@
     },
     "verifyResetCode": {
       "title": "Зміна пароля",
-      "subtitle": "Код надіслано на email і дійсний 15 хвилин.",
+      "subtitle": "Ми надіслали код для зміни пароля на вашу електронну пошту. Якщо лист не надійшов, перевірте папку “Спам” або скористайтеся повторним надсиланням.",
       "submit": "Далі",
       "submitting": "Перевірка…",
       "resend": "Надіслати код повторно",
       "resending": "Надсилання…",
       "toastVerified": "Код підтверджено",
-      "toastResent": "Код надіслано повторно",
+      "toastResent": "Якщо акаунт існує, новий код надійде на email. Якщо листа немає — повторіть через хвилину.",
       "errors": {
         "incomplete": "Введіть код повністю",
         "noEmail": "Немає email. Поверніться назад і введіть email знову.",
@@ -168,8 +190,10 @@
       }
     },
     "verify": {
-      "digitAria": "Цифра {{n}}"
+      "digitAria": "Цифра {{n}}",
+      "resendIn": "Повторно через {{seconds}} с"
     },
+    "icloudDeliveryHint": "Пошта iCloud іноді може доставляти листи із затримкою. Перевірте папку “Спам”. Якщо ви запросили код повторно, використовуйте код із найновішого листа.",
     "google": {
       "loading": "Вхід через Google…",
       "loadingGeneric": "Авторизація…"
@@ -236,7 +260,8 @@
       "showMore": "Показати більше",
       "findFriends": "Знайти друзів",
       "viewFriends": "Переглянути друзів",
-      "empty": "Поки немає друзів",
+      "allContacts": "Усі контакти",
+      "empty": "У вас поки немає друзів",
       "profileOf": "Профіль {{name}}",
       "profileUnavailable": "Профіль недоступний",
       "openProfile": "Відкрити профіль {{name}}"
@@ -323,6 +348,13 @@
       "edit": "Редагувати",
       "delete": "Видалити",
       "save": "Зберегти",
+      "share": "Поширити",
+      "shareText": "Фото користувача {{name}}",
+      "download": "Завантажити",
+      "downloadError": "Не вдалося завантажити фото",
+      "showAll": "Показати всі",
+      "showLess": "Показати менше",
+      "userTitle": "Фото {{name}}",
       "makeProfile": "Зробити фото профілю",
       "updated": "Фото оновлено",
       "updateError": "Не вдалося оновити фото",
@@ -419,6 +451,9 @@
         "maritalStatusRequired": "Оберіть сімейне положення",
         "countryRequired": "Оберіть країну",
         "cityRequired": "Оберіть місто",
+        "cityInvalid": "Введіть коректну назву міста",
+        "cityMaxLength": "Назва міста занадто довга",
+        "regionMaxLength": "Назва регіону занадто довга",
         "interestsRequired": "Оберіть інтереси",
         "hobbiesRequired": "Оберіть хобі",
         "usernameRequired": "Вкажіть нік",
@@ -553,6 +588,11 @@
     },
     "loadMessagesError": "Не вдалося завантажити повідомлення",
     "sendError": "Не вдалося надіслати повідомлення",
+    "sendingStatus": "Відправляється",
+    "sentStatus": "Надіслано",
+    "deliveredStatus": "Доставлено",
+    "seenStatus": "Прочитано",
+    "sendFailedStatus": "Не надіслано",
     "noMessages": "Немає повідомлень",
     "draftLabel": "Чернетка:",
     "draftPreview": "Чернетка: {{text}}",
@@ -630,19 +670,27 @@
       "mute": "Вимкнути звук",
       "unmute": "Увімкнути звук",
       "markUnread": "Позначити як непрочитаний",
+      "markRead": "Позначити як прочитаний",
       "block": "Заблокувати",
       "delete": "Видалити чат",
       "hide": "Приховати чат",
       "pinSuccess": "Чат закріплено",
       "unpinSuccess": "Чат відкріплено",
       "markUnreadSuccess": "Чат позначено як непрочитаний",
+      "markReadSuccess": "Чат позначено як прочитаний",
       "blockConfirm": "Заблокувати цього користувача?",
       "blockSuccess": "Користувача заблоковано",
       "deleteConfirm": "Видалити чат лише для вас? Повідомлення у співрозмовника залишаться.",
       "deleteSuccess": "Чат видалено",
       "hideConfirm": "Приховати цей чат лише для вас? Група залишиться для інших учасників.",
-      "hideSuccess": "Чат приховано"
+      "hideSuccess": "Чат приховано",
+      "unhide": "Показати чат",
+      "unhideSuccess": "Чат повернуто в список"
     },
+    "hiddenChats": "Приховані чати",
+    "hiddenChatsEmpty": "Немає прихованих чатів",
+    "hiddenChatsOpen": "Відкрити приховані чати",
+    "hiddenChatsBack": "До чатів",
     "uploading": "Завантаження…",
     "uploadError": "Не вдалося завантажити",
     "voiceNotSupported": "Запис голосу не підтримується",
@@ -748,6 +796,8 @@
       "connectTimeout": "Час очікування підключення вичерпано",
       "unknown": "Користувач",
       "enableSound": "Натисніть, щоб увімкнути звук дзвінків",
+      "tapToHear": "Натисніть на екран, щоб чути інших учасників",
+      "micFailed": "Не вдалося увімкнути мікрофон",
       "chatMissedAudio": "Пропущений аудіодзвінок",
       "chatMissedVideo": "Пропущений відеодзвінок",
       "chatCancelledAudio": "Скасований аудіодзвінок",
@@ -766,7 +816,27 @@
       "cameraRetry": "Спробувати ще раз",
       "unavailableTitle": "Дзвінок недоступний",
       "vipRequired": "Цей користувач дозволяє повідомлення та дзвінки лише VIP-користувачам.",
-      "subscriptionRequired": "Щоб телефонувати, потрібно підписатися на цей профіль."
+      "subscriptionRequired": "Щоб телефонувати, потрібно підписатися на цей профіль.",
+      "you": "ви",
+      "leaveRoom": "Вийти",
+      "joinRoom": "Приєднатися",
+      "returnToRoom": "Повернутися в кімнату",
+      "backToChat": "Назад до чату",
+      "groupAudioRoom": "🔊 Голосова кімната",
+      "groupVideoRoom": "🎥 Відеокімната",
+      "groupParticipantsNow": "{{count}} учасників зараз",
+      "groupJoinConfirm": "У цій групі вже є активна кімната. Приєднатися?",
+      "groupAudioStarted": "У групі LunMeYo почалася голосова кімната",
+      "groupVideoStarted": "У групі LunMeYo почалася відеокімната",
+      "groupRoomEnded": "Кімната завершилась",
+      "screenShare": "Демонстрація екрана",
+      "stopScreenShare": "Зупинити демонстрацію",
+      "screenShareUnsupported": "Цей браузер не підтримує демонстрацію екрана",
+      "screenShareInsecure": "Для демонстрації екрана потрібне захищене з’єднання (HTTPS)",
+      "screenSharePermissionDenied": "Дозвіл на демонстрацію екрана відхилено",
+      "screenShareNotConnected": "Зачекайте підключення до дзвінка й спробуйте ще раз",
+      "screenShareFailed": "Не вдалося почати демонстрацію екрана",
+      "speaker": "Динамік"
     }
   },
   "notifications": {
@@ -801,7 +871,10 @@
       "postSharedToUser": "{{name}} поділився(-лася) з вами дописом",
       "message": "{{name}} надіслав(-ла) вам повідомлення",
       "system": "Системне сповіщення",
-      "giftReceived": "{{name}} надіслав(-ла) вам подарунок"
+      "giftReceived": "{{name}} надіслав(-ла) вам подарунок",
+      "feedbackReply": "Адміністрація відповіла на ваше звернення",
+      "feedbackReplyBody": "Ви отримали відповідь на свою пропозицію.",
+      "groupCallStarted": "У групі LunMeYo почалася відеокімната"
     },
     "items": {
       "follow": {
@@ -879,7 +952,7 @@
       "emailHint": "Код буде надіслано на цю адресу",
       "submit": "Надіслати код",
       "submitting": "Надсилання…",
-      "toastSent": "Код відправлено на email",
+      "toastSent": "Якщо акаунт існує, код надійде на email. Якщо листа немає — надішліть повторно через хвилину.",
       "backToAccount": "Назад до налаштувань",
       "errors": {
         "emailRequired": "Введіть E-mail",
@@ -984,11 +1057,47 @@
       "all": "Загальні",
       "following": "Підписки",
       "saved": "Збережені"
+    },
+    "upload": {
+      "progress": "Завантаження {{percent}}%",
+      "publish": "Опублікувати",
+      "errors": {
+        "required": "Оберіть відеофайл",
+        "type": "Використовуйте відео MP4, MOV або M4V",
+        "tooLarge": "Відео має бути не більше {{maxMb}} МБ",
+        "network": "Не вдалося завантажити відео. Перевірте з’єднання.",
+        "failed": "Не вдалося завантажити відео",
+        "missingUrl": "Завантаження завершилось, але URL відео відсутній"
+      }
     }
   },
   "stories": {
     "yourStory": "Ваша історія",
-    "closeFriends": "Близькі"
+    "closeFriends": "Близькі",
+    "createTitle": "Доповнити історію",
+    "viewerLabel": "Перегляд історії",
+    "close": "Закрити",
+    "more": "Більше",
+    "views": "Перегляди",
+    "share": "Поширити",
+    "mention": "Позначити",
+    "delete": "Видалити",
+    "deleteConfirm": "Видалити цю історію?",
+    "saveMedia": "Зберегти фото/відео",
+    "addText": "Текст",
+    "textPhotoOnly": "Текст доступний для фото",
+    "done": "Готово",
+    "moveText": "Перемістити текст",
+    "textPlaceholder": "Ваш текст",
+    "fontSize": "Розмір тексту",
+    "textColor": "Колір тексту",
+    "pickColor": "Колір {{color}}",
+    "tools": "Інструменти історії",
+    "music": "Музика",
+    "templates": "Шаблони",
+    "collage": "Колаж",
+    "stickers": "Стікери",
+    "draw": "Малювання"
   },
   "liveNotifications": {
     "started": "{{name}} розпочав(-ла) прямий ефір"
@@ -1006,6 +1115,8 @@
   "errors": {
     "generic": "Сталася помилка. Спробуйте ще раз.",
     "VALIDATION_ERROR": "Перевірте введені дані.",
+    "CITY_NAME_INVALID": "Введіть коректну назву міста",
+    "CITY_NAME_TOO_LONG": "Назва міста занадто довга",
     "UNAUTHORIZED": "Увійдіть у акаунт.",
     "FORBIDDEN": "Недостатньо прав.",
     "NOT_FOUND": "Не знайдено.",
@@ -1015,6 +1126,8 @@
     "EMAIL_ALREADY_VERIFIED": "Email уже підтверджено.",
     "INVALID_VERIFICATION_CODE": "Невірний код верифікації.",
     "VERIFICATION_CODE_EXPIRED": "Термін дії коду минув.",
+    "VERIFICATION_ATTEMPTS_EXCEEDED": "Забагато спроб. Запросіть новий код.",
+    "VERIFICATION_RESEND_COOLDOWN": "Зачекайте {{seconds}} с перед повторним надсиланням коду.",
     "INVALID_RESET_CREDENTIALS": "Невірний email або код.",
     "INVALID_PASSWORD": "Невірний пароль.",
     "AVATAR_INVALID_FORMAT": "Допустимі формати: JPEG, PNG, WebP.",
@@ -1091,6 +1204,7 @@
     "friendsSearch": "Пошук серед друзів",
     "friendsEmpty": "У вас поки немає друзів",
     "needRecipient": "Щоб надіслати подарунок, відкрийте профіль користувача.",
+    "needGift": "Оберіть подарунок, щоб надіслати.",
     "sent": "Подарунок надіслано",
     "testSelectedTitle": "Подарунок вибрано",
     "testSelectedBody": "{{gift}} буде надіслано користувачу {{name}}.",
@@ -1285,6 +1399,7 @@
       "cancel": "Скасувати",
       "publish": "Опублікувати",
       "publishing": "Публікуємо…",
+      "uploadingVideo": "Завантаження відео {{percent}}%",
       "privacy": "Тільки ваші друзі бачать ваше місцезнаходження"
     },
     "edit": {
@@ -1577,5 +1692,84 @@
     "quiet_evenings": "Тихі вечори",
     "kids": "Діти",
     "family": "Сім'я"
+  },
+  "feedback": {
+    "fabLabel": "Ваші пропозиції",
+    "fabAria": "Відкрити форму пропозицій",
+    "title": "Допоможіть нам зробити LunMeYo кращим 💜",
+    "intro": "Ми тестуємо демо-версію LunMeYo. Розкажіть, що вам сподобалося, що було незрозуміло або що ви хотіли б змінити.",
+    "typeLegend": "Тип звернення",
+    "types": {
+      "suggestion": "Є пропозиція",
+      "bug": "Знайшов(-ла) помилку",
+      "unclear": "Щось незрозуміло",
+      "review": "Хочу залишити відгук"
+    },
+    "detailsLabel": "Розкажіть детальніше...",
+    "detailsPlaceholder": "Розкажіть детальніше...",
+    "attach": "📎 Додати скріншот",
+    "removeScreenshot": "Видалити скріншот",
+    "screenshotPreview": "Попередній перегляд скріншота",
+    "submit": "Надіслати",
+    "submitting": "Надсилання…",
+    "success": "Дякуємо! 💜 Ваша думка допомагає нам зробити LunMeYo кращим.",
+    "close": "Закрити",
+    "typeRequired": "Оберіть тип звернення",
+    "messageRequired": "Додайте кілька слів у повідомлення",
+    "screenshotTooBig": "Скріншот має бути до 5 МБ",
+    "screenshotType": "Додайте зображення (JPEG, PNG, WebP, GIF)",
+    "screenshotUploadError": "Не вдалося завантажити скріншот",
+    "unreadAria": "{{count}} непрочитаних відповідей",
+    "status": {
+      "new": "Нові",
+      "inProgress": "В роботі",
+      "answered": "Відповіли",
+      "closed": "Закриті"
+    },
+    "mine": {
+      "title": "Мої звернення",
+      "empty": "Ви ще не надсилали пропозицій.",
+      "hasReply": "Є відповідь 💜"
+    },
+    "thread": {
+      "you": "Ви",
+      "team": "Адміністрація MeYou"
+    }
+  },
+  "admin": {
+    "nav": {
+      "dashboard": "Dashboard",
+      "feedback": "Пропозиції",
+      "reports": "Reports",
+      "users": "Users"
+    },
+    "feedback": {
+      "title": "Пропозиції / Feedback",
+      "subtitle": "Звернення з демо-тестування LunMeYo.",
+      "empty": "Звернень не знайдено",
+      "detailTitle": "Звернення",
+      "thread": "Історія відповідей",
+      "replyLabel": "Відповісти користувачу",
+      "replyPlaceholder": "Напишіть відповідь…",
+      "sendReply": "Надіслати відповідь",
+      "replySent": "Відповідь надіслано користувачу",
+      "statusUpdated": "Статус оновлено",
+      "viewProfile": "Профіль користувача",
+      "next": "Далі",
+      "page": "Сторінка {{page}} / {{totalPages}} · {{total}}",
+      "filters": {
+        "all": "Усі",
+        "allTypes": "Усі типи"
+      },
+      "fields": {
+        "status": "Статус",
+        "user": "Користувач",
+        "type": "Тип",
+        "message": "Повідомлення",
+        "screenshot": "Скріншот",
+        "page": "Сторінка",
+        "date": "Дата"
+      }
+    }
   }
 }

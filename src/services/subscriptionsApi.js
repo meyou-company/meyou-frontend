@@ -6,6 +6,7 @@ import { api } from "./api";
  *   DELETE /subscriptions/:userId
  *   GET    /subscriptions/following
  *   GET    /subscriptions/followers
+ *   GET    /subscriptions/connections?tab=friends|followers|following|vip
  */
 export const subscriptionsApi = {
   /** Підписатися на користувача — POST /subscriptions/:userId */
@@ -34,5 +35,13 @@ export const subscriptionsApi = {
    */
   getFollowers(params = {}) {
     return api.get("/subscriptions/followers", { params });
+  },
+
+  /**
+   * Classified friends-page lists (exclusive tabs, VIP via Follow.isVip).
+   * @param {{ tab?: 'friends'|'followers'|'following'|'vip', take?: number, cursor?: string }} params
+   */
+  getConnections(params = {}) {
+    return api.get("/subscriptions/connections", { params });
   },
 };

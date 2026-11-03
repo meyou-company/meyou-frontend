@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { isPublicPath } from '../constants/publicRoutes';
 import { clearOAuthSessionTokens } from '../services/api';
 import { useAuthStore } from '../zustand/useAuthStore';
+import { hasAcceptedTerms } from '../utils/authTerms';
 
 export default function ProfileGuard({ children }) {
   const { user, isAuthed, isAuthLoading } = useAuthStore();
@@ -34,7 +35,7 @@ export default function ProfileGuard({ children }) {
       user.email_verified === true ||
       Boolean(user.emailVerifiedAt);
 
-    const needsTerms = !user.acceptedTermsAt && !user.accepted_terms_at;
+    const needsTerms = !hasAcceptedTerms(user);
     const isLegalPage = pathname.startsWith('/legal/');
 
     if (needsTerms && !isLegalPage) {

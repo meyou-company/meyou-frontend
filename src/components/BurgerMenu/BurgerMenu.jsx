@@ -10,8 +10,9 @@ import {
   useMenuItems,
 } from '../../hooks/useMenuItems';
 import { useLocaleStore } from '../../zustand/useLocaleStore';
+import { useFeedbackStore } from '../../zustand/useFeedbackStore';
 import './BurgerMenu.scss';
-import { useMemo, useRef } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import UserAvatar from '../UserAvatar/UserAvatar';
@@ -43,6 +44,9 @@ export default function BurgerMenu({
   const logoutItem = useLogoutItem();
   const closeItem = useCloseMenuItem();
   const currentLocale = useLocaleStore((s) => s.locale);
+  const openFeedback = useFeedbackStore((s) => s.open);
+  const feedbackUnreadCount = useFeedbackStore((s) => s.unreadCount);
+  const fetchFeedbackUnreadCount = useFeedbackStore((s) => s.fetchUnreadCount);
 
   const avatarUrl = user?.avatarUrl || user?.avatar || null;
 
@@ -51,6 +55,27 @@ export default function BurgerMenu({
   const displayName = useMemo(() => {
     return [user?.firstName, user?.lastName].filter(Boolean).join(' ') || user?.username || t('common.user');
   }, [user, t]);
+
+  useEffect(() => {
+    if (!isOpen) return undefined;
+    void fetchFeedbackUnreadCount();
+    return undefined;
+  }, [isOpen, fetchFeedbackUnreadCount]);
+
+  useEffect(() => {
+    if (!isOpen) return undefined;
+
+    const html = document.documentElement;
+    const { overflow: prevHtmlOverflow } = html.style;
+    const { overflow: prevBodyOverflow } = document.body.style;
+    html.style.overflow = 'hidden';
+    document.body.style.overflow = 'hidden';
+
+    return () => {
+      html.style.overflow = prevHtmlOverflow;
+      document.body.style.overflow = prevBodyOverflow;
+    };
+  }, [isOpen]);
 
   const handleItemClick = async (id) => {
     if (guestPreviewEnabled && GUEST_PREVIEW_BLOCKED_MENU.has(id)) {
@@ -113,6 +138,12 @@ export default function BurgerMenu({
       return;
     }
 
+    if (id === 'suggestions') {
+      openFeedback({ view: 'list' });
+      onClose();
+      return;
+    }
+
     if (id === 'guest') {
       const next = !guestPreviewEnabled;
       setGuestPreviewEnabled(next);
@@ -170,7 +201,13 @@ export default function BurgerMenu({
   if (!isOpen) return null;
 
   return (
-    <div className="profile-menu-wrap" aria-hidden="false">
+    <div
+      className="profile-menu-wrap"
+      aria-hidden="false"
+      onWheel={(e) => {
+        if (!e.target.closest('.profile-menu__list')) e.preventDefault();
+      }}
+    >
       <div
         className="profile-menu__backdrop"
         onClick={onClose}
@@ -286,6 +323,11 @@ export default function BurgerMenu({
               >
                 <img src={item.icon} alt="" className="profile-menu__icon" />
                 <span className="profile-menu__label">{item.label}</span>
+                {item.id === 'suggestions' && feedbackUnreadCount > 0 ? (
+                  <span className="profile-menu__badge">
+                    {feedbackUnreadCount > 9 ? '9+' : feedbackUnreadCount}
+                  </span>
+                ) : null}
               </button>
             );
           })}

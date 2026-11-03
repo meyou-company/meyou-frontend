@@ -5,6 +5,7 @@ import "./ForgotPasswordForm.scss";
 import { useAuthStore } from "../../../zustand/useAuthStore";
 import { useForceDarkTheme } from "../../../hooks/useForceDarkTheme";
 import { getApiErrorMessage } from "../../../utils/getApiErrorMessage";
+import { isIcloudMailbox } from "../../../utils/icloudEmail";
 import { EMAIL_REGEX } from "../../../utils/validationRegister";
 import BrandLogo from "../../BrandLogo/BrandLogo";
 
@@ -104,6 +105,10 @@ export default function ForgotPasswordForm({ onBack, onSuccess }) {
 
           {touched.email && <p className="authField__hint">{fieldError("email")}</p>}
         </div>
+
+        {isIcloudMailbox(form.email) && (
+          <p className="forgot__icloudHint">{t("auth.icloudDeliveryHint")}</p>
+        )}
 
         {submitError && <div className="forgot__error">{submitError}</div>}
 

@@ -61,9 +61,12 @@ import FeatureGiftsPage from '../app/features/gifts/page';
 import { useBurgerMenuStore } from '../zustand/useBurgerMenuStore';
 import { useLocaleStore } from '../zustand/useLocaleStore';
 import { useThemeStore } from '../zustand/useThemeStore';
+import { useStoriesOverlayStore } from '../zustand/useStoriesOverlayStore';
+import FeedbackWidget from '../components/Feedback/FeedbackWidget';
 import AdminLayout from '../pages/Admin/AdminLayout';
 import AdminDashboardPage from '../pages/Admin/AdminDashboardPage';
 import AdminReportsPage from '../pages/Admin/AdminReportsPage';
+import AdminFeedbackPage from '../pages/Admin/AdminFeedbackPage';
 import AdminUsersPage from '../pages/Admin/AdminUsersPage';
 import Post from '../components/Post/Post';
 import { MessagesSocketProvider } from '../providers/MessagesSocketProvider';
@@ -76,12 +79,15 @@ import { resolveProfileUsername } from '../utils/profileUsername';
 
 /** Глобальне бургер-меню — рендериться один раз, відкривається з будь-якої сторінки */
 function GlobalBurgerMenu() {
+  const storiesOverlayActive = useStoriesOverlayStore((s) => s.isActive);
   const isOpen = useBurgerMenuStore((s) => s.isOpen);
   const close = useBurgerMenuStore((s) => s.close);
   const toggleTheme = useThemeStore((s) => s.toggleTheme);
   const isLanguageSettingsOpen = useLocaleStore((s) => s.isLanguageSettingsOpen);
   const openLanguageSettings = useLocaleStore((s) => s.openLanguageSettings);
   const closeLanguageSettings = useLocaleStore((s) => s.closeLanguageSettings);
+
+  if (storiesOverlayActive) return null;
 
   return (
     <>
@@ -112,6 +118,7 @@ function AppLayout() {
   const isLanding = location.pathname === '/';
   const isAdminRoute = location.pathname.startsWith('/admin');
   const isLiveRoute = location.pathname.startsWith('/live');
+  const storiesOverlayActive = useStoriesOverlayStore((s) => s.isActive);
   /** Нижня навігація (mobile): лише після завершення профілю, не на головній з входом/реєстрацією. */
   const profileComplete = user?.profileCompleted === true;
   const shouldHideBottomNav =
@@ -120,6 +127,7 @@ function AppLayout() {
     isFeatureRoute ||
     isAdminRoute ||
     isLiveRoute ||
+    storiesOverlayActive ||
     hideBottomNavRoutes.has(location.pathname) ||
     !isAuthed ||
     !user ||
@@ -138,6 +146,7 @@ function AppLayout() {
               <Route path="/friends" element={<Friends />} />
               <Route path="/profile" element={<Profile />} />
               <Route path="/profile/photos" element={<ProfilePhotosPage />} />
+              <Route path="/profile/:username/photos" element={<ProfilePhotosPage />} />
               <Route path="/profile/:username" element={<Profile />} />
               <Route path="/profile/:username/friends" element={<ProfileFriendsPage />} />
               <Route path="/vip-chat" element={<VipChat />} />
@@ -180,6 +189,7 @@ function AppLayout() {
 
               <Route path="/admin" element={<AdminLayout />}>
                 <Route index element={<AdminDashboardPage />} />
+                <Route path="feedback" element={<AdminFeedbackPage />} />
                 <Route path="reports" element={<AdminReportsPage />} />
                 <Route path="users" element={<AdminUsersPage />} />
               </Route>
@@ -232,6 +242,7 @@ export default function AppRouter() {
       <UserProfileNavProvider>
         <ProfileGuard>
           <GlobalBurgerMenu />
+          <FeedbackWidget />
           <AppLayout />
         </ProfileGuard>
       </UserProfileNavProvider>

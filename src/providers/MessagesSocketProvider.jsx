@@ -100,17 +100,16 @@ export function MessagesSocketProvider() {
       const conversationId = envelope?.conversationId;
       const senderId = message?.senderId;
 
-      if (senderId && ctx.currentUserId && String(senderId) === String(ctx.currentUserId)) {
+      // CALL_EVENT is a system history row (sender = original caller).
+      // Do not treat it as an optimistic self-message.
+      if (
+        senderId &&
+        ctx.currentUserId &&
+        String(senderId) === String(ctx.currentUserId) &&
+        message?.type !== 'CALL_EVENT'
+      ) {
         return;
       }
-
-      ctx.applyMessageCreated?.({
-        conversationId,
-        unreadCount: envelope?.unreadCount,
-        totalUnreadCount: envelope?.totalUnreadCount,
-      });
-
-      dispatchMessageCreated(envelope);
 
       const isActiveChat =
         ctx.activeConversationId &&
@@ -118,6 +117,16 @@ export function MessagesSocketProvider() {
         String(ctx.activeConversationId) === String(conversationId) &&
         document.visibilityState === 'visible' &&
         ctx.pathname.startsWith('/messages');
+
+      ctx.applyMessageCreated?.({
+        conversationId,
+        unreadCount: envelope?.unreadCount,
+        totalUnreadCount: envelope?.totalUnreadCount,
+        incrementUnread: envelope?.incrementUnread,
+        isActiveVisibleChat: isActiveChat,
+      });
+
+      dispatchMessageCreated(envelope);
 
       if (!isActiveChat) {
         if (ctx.soundEnabled) {

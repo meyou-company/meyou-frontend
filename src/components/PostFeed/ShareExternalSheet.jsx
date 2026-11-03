@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next';
+import { LuDownload } from 'react-icons/lu';
 
 /** Іконки для зовнішнього шеру (круглі, як у TikTok / Instagram). */
 
@@ -82,10 +83,19 @@ export default function ShareExternalSheet({
   onSystemShare,
   systemShareAvailable,
   onOpenUrl,
+  onDownload,
+  downloadLabel,
 }) {
   const { t } = useTranslation();
 
   const items = [
+    onDownload && {
+      id: "download",
+      label: downloadLabel || t('profile.photos.download', { defaultValue: 'Save to device' }),
+      iconClass: "shareExternalIcon--download",
+      icon: <LuDownload aria-hidden="true" />,
+      onClick: onDownload,
+    },
     {
       id: "telegram",
       label: "Telegram",
@@ -128,7 +138,7 @@ export default function ShareExternalSheet({
       icon: <IconCopy />,
       onClick: onCopyLink,
     },
-  ];
+  ].filter(Boolean);
 
   if (systemShareAvailable) {
     items.push({

@@ -16,6 +16,8 @@ const t = (key, vars) => {
     "messenger.calls.chatCancelledAudio": "Скасований аудіодзвінок",
     "messenger.calls.chatIncomingAudio": "Вхідний аудіодзвінок",
     "messenger.calls.chatOutgoingVideo": "Вихідний відеодзвінок",
+    "messenger.calls.videoCall": "Відеодзвінок",
+    "messenger.calls.audioCall": "Аудіодзвінок",
     "messenger.calls.chatEndedDuration": `${vars?.type} · ${vars?.duration}`,
   };
   return map[key] || key;
@@ -67,6 +69,25 @@ describe("call event clock time", () => {
       getCallEventClock(message),
       formatCallClockTime("2026-08-16T12:08:00.000Z"),
     );
+  });
+
+  it("shows group ended call as type plus duration, not 1:1 incoming/outgoing", () => {
+    const message = {
+      senderId: "me",
+      metadata: {
+        callStatus: "ENDED",
+        mediaType: "VIDEO",
+        kind: "GROUP",
+        callerId: "me",
+        durationSec: 754,
+        startedAt: "2026-08-16T12:08:00.000Z",
+      },
+    };
+    assert.equal(
+      formatCallEventLabel(message, t, "me"),
+      "Відеодзвінок · 12:34",
+    );
+    assert.equal(canRedialCallEvent(message), false);
   });
 });
 

@@ -55,7 +55,7 @@ export default function ProfileVisitorPublic({
   const navigate = useNavigate();
   const currentUserId = useAuthStore((state) => state.user?.id || state.user?._id || null);
   const visitorTabs = useProfileTabs({ withLocks: true, user });
-  const [visitorTab, setVisitorTab] = useState('info');
+  const [visitorTab, setVisitorTab] = useState('');
   const [viewImageUrl, setViewImageUrl] = useState(null);
   const touchAvatarUx = useTouchAvatarUx();
   const profileVipVisual = shouldShowProfileVipVisual(user);
@@ -102,6 +102,13 @@ export default function ProfileVisitorPublic({
   const username = user?.username || user?.nick || user?.nickname || user?.login || '';
   const profileUserId = user?.id || user?._id || postsAuthorId;
   const openVisitorTab = (tabId) => {
+    if (tabId === 'photo') {
+      const handle = user?.username || user?.nick || user?.nickname;
+      if (handle) {
+        navigate(`/profile/${encodeURIComponent(String(handle).replace(/^@/, ''))}/photos`);
+      }
+      return;
+    }
     if (tabId === 'video' && profileUserId) {
       navigate(`/video?authorId=${encodeURIComponent(profileUserId)}`);
       return;
@@ -528,12 +535,6 @@ export default function ProfileVisitorPublic({
 
         <ProfileVipMediaPanel
           user={user}
-          kind="photo"
-          isOpen={visitorTab === 'photo'}
-          onGetVip={handleVipClick}
-        />
-        <ProfileVipMediaPanel
-          user={user}
           kind="video"
           isOpen={visitorTab === 'video'}
           onGetVip={handleVipClick}
@@ -585,12 +586,6 @@ export default function ProfileVisitorPublic({
                                 : undefined
                             }
                           >
-                            <img
-                              src={profileIcons.friends}
-                              alt=""
-                              className="vipFriendNameIcon"
-                              aria-hidden="true"
-                            />
                             <span className="vipFriendNameText">{label || handle || '—'}</span>
                           </button>
                         )}

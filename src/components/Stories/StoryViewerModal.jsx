@@ -1,8 +1,18 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import {
+  LuAtSign,
+  LuBan,
+  LuDownload,
+  LuEye,
+  LuEyeOff,
+  LuFlag,
   LuRefreshCw,
+  LuSend,
+  LuThumbsDown,
+  LuThumbsUp,
+  LuTrash2,
   LuX,
 } from "react-icons/lu";
 import { storiesApi } from "../../services/storiesApi";
@@ -26,13 +36,31 @@ import {
   openExternalShareUrl,
 } from "../../utils/externalShareLinks";
 import { encodeStoryMessageMarker } from "../../utils/storyMessagePreview";
-import AppHeader from "../Layout/AppHeader";
+import { useStoriesOverlayLock } from "../../hooks/useStoriesOverlayLock";
 import "./StoryViewerModal.scss";
 import StoryUploadModal from "./StoryUploadModal";
+import { useTranslation } from "react-i18next";
 
 const DEFAULT_DURATION = 10000;
 const IMAGE_DURATION = 10000;
 const MAX_VIDEO_DURATION = 60000;
+const HOLD_PAUSE_MS = 180;
+const STORY_ACTION_ICON = {
+  size: 24,
+  strokeWidth: 2,
+  fill: "none",
+  "aria-hidden": true,
+};
+const STORY_MENU_ICON = {
+  size: 20,
+  strokeWidth: 2,
+  fill: "none",
+  "aria-hidden": true,
+};
+
+function stopStoryGesture(event) {
+  event.stopPropagation();
+}
 const storyViewsCache = new Map();
 const storyViewsRequests = new Map();
 const STORY_SHARE_PROVIDERS = [
@@ -487,7 +515,13 @@ function StoryAnalyticsModal({
         key={getStoryId(story) || index}
         ref={isActive ? activeStoryThumbRef : null}
         className={`storyStatsModal__thumb ${isActive ? "is-active" : ""}`}
-        onClick={() => onSelectStory(index)}
+        onClick={() => {
+          if (isActive) {
+            onClose();
+            return;
+          }
+          onSelectStory(index);
+        }}
         aria-label={`Story ${index + 1}`}
       >
         {mediaType === "video" ? (
@@ -970,6 +1004,13 @@ export default function StoryViewerModal({
   const [blockedUserIds, setBlockedUserIds] = useState(() => new Set());
   const [followingByAuthorId, setFollowingByAuthorId] = useState(() => new Map());
   const [followLoading, setFollowLoading] = useState(false);
+  const [isHoldPaused, setIsHoldPaused] = useState(false);
+  const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
+  const [menuPosition, setMenuPosition] = useState({ top: 0, left: 0, ready: false });
+  const menuButtonRef = useRef(null);
+  const popupRef = useRef(null);
+  const { t } = useTranslation();
+  useStoriesOverlayLock(isOpen);
 
   const isUserBlocked = (userId) =>
     blockedUserIds.has(String(userId ?? ""));
@@ -1014,6 +1055,12 @@ export default function StoryViewerModal({
   const pendingCloseRef = useRef(false);
   const locationPathRef = useRef(null);
   const followingMutationVersionRef = useRef(new Map());
+  const holdRef = useRef({
+    timer: null,
+    holding: false,
+    suppressTap: false,
+    pointerId: null,
+  });
 
   onCloseRef.current = onClose;
   onViewedRef.current = onViewed;
@@ -1079,7 +1126,58 @@ export default function StoryViewerModal({
   const isFollowingAuthor = authorId && followingByAuthorId.has(String(authorId))
     ? followingByAuthorId.get(String(authorId))
     : initialFollowingAuthor;
-  const isStoryPaused = analyticsOpen || Boolean(selectedStatsUser) || isStoryShareOpen;
+  const isStoryPaused =
+    analyticsOpen ||
+    Boolean(selectedStatsUser) ||
+    isStoryShareOpen ||
+    isStoryUploadOpen ||
+    isHoldPaused ||
+    isMenuOpen ||
+    isDeleteConfirmOpen;
+
+  useLayoutEffect(() => {
+    if (!isMenuOpen) {
+      setMenuPosition({ top: 0, left: 0, ready: false });
+      return undefined;
+    }
+
+    const placeMenu = () => {
+      const button = menuButtonRef.current?.getBoundingClientRect();
+      const menu = popupRef.current;
+      if (!button || !menu) return;
+
+      const pad = 8;
+      const width = menu.offsetWidth;
+      const height = menu.offsetHeight;
+      const viewportW = window.innerWidth;
+      const viewportH = window.innerHeight;
+
+      let top = button.bottom + 8;
+      let left = button.right - width;
+
+      if (top + height > viewportH - pad) {
+        top = button.top - height - 8;
+      }
+      if (left + width > viewportW - pad) {
+        left = viewportW - width - pad;
+      }
+      if (left < pad) left = pad;
+      if (top < pad) top = pad;
+      if (top + height > viewportH - pad) {
+        top = Math.max(pad, viewportH - height - pad);
+      }
+
+      setMenuPosition({ top, left, ready: true });
+    };
+
+    placeMenu();
+    window.addEventListener("resize", placeMenu);
+    window.addEventListener("orientationchange", placeMenu);
+    return () => {
+      window.removeEventListener("resize", placeMenu);
+      window.removeEventListener("orientationchange", placeMenu);
+    };
+  }, [isMenuOpen, isOwnStory]);
 
   useEffect(() => {
     if (!isOpen || isOwnStory || !authorId) return undefined;
@@ -1234,6 +1332,101 @@ export default function StoryViewerModal({
 
     requestClose();
   }, [safeGroups, requestClose]);
+
+  const clearHoldTimer = useCallback(() => {
+    if (holdRef.current.timer) {
+      window.clearTimeout(holdRef.current.timer);
+      holdRef.current.timer = null;
+    }
+  }, []);
+
+  const stopHoldPause = useCallback(() => {
+    clearHoldTimer();
+    const wasHolding = holdRef.current.holding;
+    holdRef.current.holding = false;
+    holdRef.current.pointerId = null;
+    if (wasHolding) {
+      holdRef.current.suppressTap = true;
+      setIsHoldPaused(false);
+    }
+    return wasHolding;
+  }, [clearHoldTimer]);
+
+  const isHoldIgnoreTarget = (target) =>
+    Boolean(
+      target?.closest?.(
+        "button, a, input, textarea, select, .storyViewer__actions, .storyViewer__popup, .storyViewer__menuOverlay, .storyBlockConfirm",
+      ),
+    );
+
+  const handleStagePointerDown = (event) => {
+    if (event.pointerType === "mouse" && event.button !== 0) return;
+    if (isHoldIgnoreTarget(event.target)) return;
+
+    holdRef.current.pointerId = event.pointerId;
+    holdRef.current.holding = false;
+    holdRef.current.suppressTap = false;
+    event.currentTarget.setPointerCapture?.(event.pointerId);
+    event.preventDefault();
+    clearHoldTimer();
+    holdRef.current.timer = window.setTimeout(() => {
+      holdRef.current.holding = true;
+      holdRef.current.suppressTap = true;
+      setIsHoldPaused(true);
+    }, HOLD_PAUSE_MS);
+  };
+
+  const handleStagePointerUp = (event) => {
+    if (
+      holdRef.current.pointerId != null &&
+      event.pointerId !== holdRef.current.pointerId
+    ) {
+      return;
+    }
+
+    const suppressTap = holdRef.current.suppressTap;
+    const wasHolding = stopHoldPause();
+    event.currentTarget.releasePointerCapture?.(event.pointerId);
+
+    if (wasHolding || suppressTap) {
+      event.preventDefault();
+      event.stopPropagation();
+      return;
+    }
+
+    if (isHoldIgnoreTarget(event.target)) return;
+
+    const rect = event.currentTarget.getBoundingClientRect();
+    if (event.clientX - rect.left < rect.width / 2) goPrev();
+    else goNext();
+  };
+
+  const handleStagePointerCancel = () => {
+    stopHoldPause();
+  };
+
+  const handleStageClick = (event) => {
+    if (!holdRef.current.suppressTap) return;
+    event.preventDefault();
+    event.stopPropagation();
+    holdRef.current.suppressTap = false;
+  };
+
+  useEffect(() => {
+    const endHold = (event) => {
+      if (holdRef.current.pointerId == null) return;
+      if (event.pointerId !== holdRef.current.pointerId) return;
+      if (!holdRef.current.holding && !holdRef.current.timer) return;
+      stopHoldPause();
+    };
+
+    window.addEventListener("pointerup", endHold);
+    window.addEventListener("pointercancel", endHold);
+    return () => {
+      window.removeEventListener("pointerup", endHold);
+      window.removeEventListener("pointercancel", endHold);
+    };
+  }, [stopHoldPause]);
 
   const goPrev = useCallback(() => {
     setProgress(0);
@@ -1458,14 +1651,18 @@ export default function StoryViewerModal({
 
   useEffect(() => {
     const video = videoRef.current;
-    if (!video || mediaType !== "video") return;
+    const audioNodes = document.querySelectorAll(".storyViewer audio");
 
     if (isStoryPaused) {
-      video.pause();
+      video?.pause?.();
+      audioNodes.forEach((node) => node.pause?.());
       return;
     }
 
-    video.play?.().catch(() => { });
+    if (mediaType === "video") {
+      video?.play?.().catch(() => {});
+    }
+    audioNodes.forEach((node) => node.play?.().catch(() => {}));
   }, [isStoryPaused, mediaType, storyId]);
 
   useEffect(() => {
@@ -1485,7 +1682,13 @@ export default function StoryViewerModal({
     progressStartedRef.current = false;
     setProgress(0);
     setDuration(DEFAULT_DURATION);
-  }, [isOpen, storyId]);
+    setIsHoldPaused(false);
+    clearHoldTimer();
+    holdRef.current.holding = false;
+    holdRef.current.suppressTap = false;
+    holdRef.current.pointerId = null;
+    setIsDeleteConfirmOpen(false);
+  }, [isOpen, storyId, clearHoldTimer]);
 
   useEffect(() => {
     if (!isOpen || !storyId) return;
@@ -1555,7 +1758,11 @@ export default function StoryViewerModal({
   };
 
   const handleSelectStatsStory = (nextStoryIndex) => {
-    if (nextStoryIndex === storyIndex) return;
+    if (nextStoryIndex === storyIndex) {
+      setSelectedStatsUser(null);
+      setAnalyticsOpen(false);
+      return;
+    }
 
     setStoryIndex(nextStoryIndex);
     setProgress(0);
@@ -1889,48 +2096,22 @@ export default function StoryViewerModal({
     Number(storyViewsCount ?? 0),
     Number(analytics?.viewsCount ?? 0),
   );
-  const visibleViewers = storyViewersOnly.length > 0
-    ? storyViewersOnly.slice(0, 3)
-    : viewsCount > 0
-      ? Array.from({ length: Math.min(viewsCount, 3) }, (_, index) => ({
-        id: `viewer-placeholder-${index}`,
-        avatarUrl: profileIcons.userStory,
-      }))
-      : [];
-
   if (!isOpen || !hasStories) return null;
 
   return (
-    <div className="storyViewer" role="dialog" aria-modal="true" aria-label="Перегляд story">
-      <AppHeader
-        onGoProfile={() => {
-          closeStoryOverlays();
-          navigate("/profile");
-        }}
-        onGoExplore={() => {
-          closeStoryOverlays();
-          navigate("/search");
-        }}
-        onGoWallet={() => {
-          closeStoryOverlays();
-          navigate("/wallet");
-        }}
-        onGoVipChat={() => {
-          closeStoryOverlays();
-          navigate("/vip-chat");
-        }}
-        onGoHome={() => {
-          closeStoryOverlays();
-          navigate("/first-page");
-        }}
-      />
-
+    <div className="storyViewer" role="dialog" aria-modal="true" aria-label={t("stories.viewerLabel")}>
       <div className="storyViewer__page">
         <div className="storyViewer__bgDots" aria-hidden="true" />
 
         <div
           className={`storyViewer__card ${isOwnStory ? "storyViewer__card--own" : "storyViewer__card--visitor"
-            }`}
+            }${isHoldPaused ? " is-holding" : ""}`}
+          onPointerDown={handleStagePointerDown}
+          onPointerUp={handleStagePointerUp}
+          onPointerCancel={handleStagePointerCancel}
+          onLostPointerCapture={handleStagePointerCancel}
+          onClick={handleStageClick}
+          onContextMenu={(event) => event.preventDefault()}
         >
           <div className="storyViewer__progress">
             {progressBars.map((value, index) => (
@@ -1962,39 +2143,90 @@ export default function StoryViewerModal({
             </button>
           )}
 
-          {!readOnly ? (
-          <button
-            type="button"
-            className="storyViewer__menu"
-            aria-label="Більше"
-            onClick={() => setIsMenuOpen(prev => !prev)}
-          >
-            ⋮
-          </button>
-          ) : null}
+          <div className="storyViewer__topRight">
+            <button
+              type="button"
+              className="storyViewer__close"
+              aria-label={t("common.close")}
+              title={t("common.close")}
+              onClick={closeStoryOverlays}
+            >
+              <LuX />
+            </button>
+            {!readOnly ? (
+              <button
+                ref={menuButtonRef}
+                type="button"
+                className="storyViewer__menu"
+                aria-label={t("stories.more")}
+                title={t("stories.more")}
+                aria-haspopup="menu"
+                aria-expanded={isMenuOpen}
+                onClick={() => setIsMenuOpen((prev) => !prev)}
+              >
+                ⋮
+              </button>
+            ) : null}
+          </div>
 
           {isMenuOpen && !readOnly && !isOwnStory && (
             <>
               <div
                 className="storyViewer__menuOverlay"
+                onPointerDown={stopStoryGesture}
+                onPointerUp={stopStoryGesture}
                 onClick={() => setIsMenuOpen(false)}
               />
 
-              <div className="storyViewer__popup">
-                <button type="button" onClick={() => handleVisitorMenuAction("mute")}>
-                  Скрыть истории автора
-                </button>
-                <button type="button" onClick={() => handleVisitorMenuAction("interesting")}>
-                  Интересно
-                </button>
-                <button type="button" onClick={() => handleVisitorMenuAction("not-interesting")}>
-                  Не интересно
-                </button>
-                <button type="button" onClick={() => handleVisitorMenuAction("report")}>
-                  Пожаловаться
+              <div
+                ref={popupRef}
+                className={`storyViewer__popup${menuPosition.ready ? " is-ready" : ""}`}
+                style={{ top: menuPosition.top, left: menuPosition.left }}
+                role="menu"
+                onPointerDown={stopStoryGesture}
+                onPointerUp={stopStoryGesture}
+                onClick={stopStoryGesture}
+              >
+                <button
+                  type="button"
+                  className="storyViewer__popupItem"
+                  role="menuitem"
+                  onClick={() => handleVisitorMenuAction("mute")}
+                >
+                  <LuEyeOff {...STORY_MENU_ICON} />
+                  <span>Скрыть истории автора</span>
                 </button>
                 <button
                   type="button"
+                  className="storyViewer__popupItem"
+                  role="menuitem"
+                  onClick={() => handleVisitorMenuAction("interesting")}
+                >
+                  <LuThumbsUp {...STORY_MENU_ICON} />
+                  <span>Интересно</span>
+                </button>
+                <button
+                  type="button"
+                  className="storyViewer__popupItem"
+                  role="menuitem"
+                  onClick={() => handleVisitorMenuAction("not-interesting")}
+                >
+                  <LuThumbsDown {...STORY_MENU_ICON} />
+                  <span>Не интересно</span>
+                </button>
+                <button
+                  type="button"
+                  className="storyViewer__popupItem"
+                  role="menuitem"
+                  onClick={() => handleVisitorMenuAction("report")}
+                >
+                  <LuFlag {...STORY_MENU_ICON} />
+                  <span>Пожаловаться</span>
+                </button>
+                <button
+                  type="button"
+                  className="storyViewer__popupItem"
+                  role="menuitem"
                   onClick={() => {
                     setIsMenuOpen(false);
                     setBlockConfirmUser({
@@ -2003,7 +2235,8 @@ export default function StoryViewerModal({
                     });
                   }}
                 >
-                  Заблокировать
+                  <LuBan {...STORY_MENU_ICON} />
+                  <span>Заблокировать</span>
                 </button>
               </div>
             </>
@@ -2013,60 +2246,71 @@ export default function StoryViewerModal({
             <>
               <div
                 className="storyViewer__menuOverlay"
+                onPointerDown={stopStoryGesture}
+                onPointerUp={stopStoryGesture}
                 onClick={() => setIsMenuOpen(false)}
               />
 
               <div
-                className="storyViewer__popup storyViewer__popup--own"
-                onClick={(e) => e.stopPropagation()}
+                ref={popupRef}
+                className={`storyViewer__popup storyViewer__popup--own${menuPosition.ready ? " is-ready" : ""}`}
+                style={{ top: menuPosition.top, left: menuPosition.left }}
+                role="menu"
+                onPointerDown={stopStoryGesture}
+                onPointerUp={stopStoryGesture}
+                onClick={stopStoryGesture}
               >
                 <button
                   type="button"
-                  className="storyViewer__popupDanger"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-
+                  className="storyViewer__popupItem"
+                  role="menuitem"
+                  onClick={(event) => {
+                    stopStoryGesture(event);
                     handleSaveStoryMedia();
                     setIsMenuOpen(false);
                   }}
                 >
-                  Сохранить фото/видео
+                  <LuDownload {...STORY_MENU_ICON} />
+                  <span>{t("stories.saveMedia")}</span>
                 </button>
-
-                {/* <button type="button">
-                  Изменить настройки конфиденциальности
-                </button> */}
 
                 <button
                   type="button"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-
+                  className="storyViewer__popupItem"
+                  role="menuitem"
+                  onClick={(event) => {
+                    stopStoryGesture(event);
                     setIsMenuOpen(false);
-                    onDeleteStory?.(storyId);
                   }}
                 >
-                  Удалить
+                  <LuAtSign {...STORY_MENU_ICON} />
+                  <span>{t("stories.mention")}</span>
+                </button>
+
+                <div className="storyViewer__popupDivider" role="separator" />
+
+                <button
+                  type="button"
+                  className="storyViewer__popupItem storyViewer__popupItem--danger"
+                  role="menuitem"
+                  onClick={(event) => {
+                    stopStoryGesture(event);
+                    setIsMenuOpen(false);
+                    setIsDeleteConfirmOpen(true);
+                  }}
+                >
+                  <LuTrash2 {...STORY_MENU_ICON} />
+                  <span>{t("stories.delete")}</span>
                 </button>
               </div>
             </>
           )}
 
-          <button
-            type="button"
-            className="storyViewer__tap storyViewer__tap--left"
-            onClick={goPrev}
-            aria-label="Попередня story"
-          />
+          <div className="storyViewer__tap storyViewer__tap--left" aria-hidden="true" />
+          <div className="storyViewer__tap storyViewer__tap--right" aria-hidden="true" />
 
-          <button
-            type="button"
-            className="storyViewer__tap storyViewer__tap--right"
-            onClick={goNext}
-            aria-label="Наступна story"
-          />
+          <div className="storySafeMask storySafeMask--top" aria-hidden="true" />
+          <div className="storySafeMask storySafeMask--bottom" aria-hidden="true" />
 
           <div className={`storyViewer__mediaWrap storyViewer__mediaWrap--${mediaOrientation}`}>
             {mediaType === "video" ? (
@@ -2111,54 +2355,33 @@ export default function StoryViewerModal({
 
         {isOwnStory && !readOnly ? (
           <>
-            <div className="storyViewer__actions">
-              <button type="button" className="storyViewer__action" onClick={handleOpenAnalytics}>
-                <div className="storyViewer__viewers">
-                  {visibleViewers.length > 0 ? (
-                    visibleViewers.map((viewer, index) => (
-                      <img
-                        key={viewer.id || index}
-                        src={viewer.avatarUrl || profileIcons.userStory}
-                        alt=""
-                      />
-                    ))
-                  ) : (
-                    <span className="storyViewer__viewersEmpty">0</span>
-                  )}
-                </div>
-
-                <span>
-                  {storyViewsLoading ? "..." : `${viewsCount} просмотров`}
+            <div
+              className="storyViewer__actions"
+              onPointerDown={(event) => event.stopPropagation()}
+              onPointerUp={(event) => event.stopPropagation()}
+              onClick={(event) => event.stopPropagation()}
+            >
+              <button
+                type="button"
+                className="storyViewer__action"
+                onClick={handleOpenAnalytics}
+                aria-label={t("stories.views")}
+                title={t("stories.views")}
+              >
+                <LuEye {...STORY_ACTION_ICON} />
+                <span className="storyViewer__viewsCount">
+                  {storyViewsLoading ? "…" : viewsCount}
                 </span>
               </button>
-
-              <div className="storyViewer__actionsCenter">
-                <button type="button" className="storyViewer__action" onClick={() => setIsStoryShareOpen(true)}>
-                  <img
-                    src={profileIcons.storyForward}
-                    alt=""
-                    className="storyViewer__actionImg"
-                  />
-                  <span>Поделиться</span>
-                </button>
-
-                <button type="button" className="storyViewer__action">
-                  <span className="storyViewer__actionIcon">@</span>
-                  <span>Отметить</span>
-                </button>
-              </div>
 
               <button
                 type="button"
                 className="storyViewer__action"
-                onClick={() => onDeleteStory?.(storyId)}
+                onClick={() => setIsStoryShareOpen(true)}
+                aria-label={t("stories.share")}
+                title={t("stories.share")}
               >
-                <img
-                  src={profileIcons.storyDelete}
-                  alt=""
-                  className="storyViewer__actionIcon storyViewer__actionIcon--delete"
-                />
-                <span className="text-red-600">Удалить</span>
+                <LuSend {...STORY_ACTION_ICON} />
               </button>
             </div>
             {analyticsOpen ? (
@@ -2213,9 +2436,10 @@ export default function StoryViewerModal({
                 type="button"
                 className="storyViewer__sendBtn storyViewer__shareBtn"
                 onClick={() => setIsStoryShareOpen(true)}
-                aria-label="Поделиться story"
+                aria-label={t("stories.share")}
+                title={t("stories.share")}
               >
-                <img src={profileIcons.storyForward} alt="" />
+                <LuSend {...STORY_ACTION_ICON} />
               </button>
             </div>
 
@@ -2250,6 +2474,36 @@ export default function StoryViewerModal({
       />
       </>
       ) : null}
+
+      {!readOnly && isDeleteConfirmOpen && (
+        <div className="storyBlockConfirm" role="dialog" aria-modal="true" aria-label={t("stories.delete")}>
+          <div
+            className="storyBlockConfirm__backdrop"
+            onClick={() => setIsDeleteConfirmOpen(false)}
+          />
+
+          <div className="storyBlockConfirm__card">
+            <p>{t("stories.deleteConfirm")}</p>
+
+            <div className="storyBlockConfirm__actions">
+              <button type="button" onClick={() => setIsDeleteConfirmOpen(false)}>
+                {t("common.cancel")}
+              </button>
+
+              <button
+                type="button"
+                className="storyBlockConfirm__danger"
+                onClick={() => {
+                  setIsDeleteConfirmOpen(false);
+                  onDeleteStory?.(storyId);
+                }}
+              >
+                {t("stories.delete")}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {!readOnly && blockConfirmUser && (
         <div className="storyBlockConfirm" role="dialog" aria-modal="true">

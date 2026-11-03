@@ -34,6 +34,27 @@
     "messages": "Сообщения",
     "profile": "Профиль"
   },
+  "friends": {
+    "page": {
+      "title": "Друзья",
+      "searchPlaceholder": "Поиск по имени или нику…",
+      "sections": "Разделы друзей",
+      "tabFriends": "Друзья",
+      "tabFollowers": "Подписчики",
+      "tabFollowing": "Подписки",
+      "tabVip": "VIP-друзья",
+      "subscribeBack": "Подписаться в ответ",
+      "unsubscribe": "Отписаться",
+      "vipBadge": "VIP",
+      "emptyFriends": "У вас пока нет друзей",
+      "emptyFollowers": "Пока нет подписчиков",
+      "emptyFollowing": "Вы ещё ни на кого не подписаны",
+      "emptyVip": "Пока нет VIP-друзей",
+      "emptySearch": "Никого не найдено",
+      "loadError": "Не удалось загрузить список",
+      "actionError": "Не удалось обновить подписку"
+    }
+  },
   "landing": {
     "tagline": "LunMeYo — современная платформа для знакомств, общения и безопасных социальных связей.",
     "features": {
@@ -59,7 +80,8 @@
     "privacyPolicy": "Политика конфиденциальности",
     "logout": "Выйти",
     "closeMenu": "Закрыть меню",
-    "language": "Язык"
+    "language": "Язык",
+    "suggestions": "Ваши предложения"
   },
   "auth": {
     "login": {
@@ -102,7 +124,7 @@
       "emailPlaceholder": "Введите Email",
       "submit": "Подтвердить",
       "submitting": "Отправка…",
-      "toastSuccess": "Код отправлен на email",
+      "toastSuccess": "Если аккаунт существует, код придёт на email. Если письма нет — запросите повторно через минуту.",
       "errors": {
         "emailRequired": "Введите E-mail",
         "emailInvalid": "Введите корректный E-mail",
@@ -134,7 +156,7 @@
     },
     "verifyEmail": {
       "title": "Верификация",
-      "subtitle": "Код отправлен на email и действителен 15 минут.",
+      "subtitle": "Мы отправили код подтверждения на вашу электронную почту. Если письмо не пришло, проверьте папку «Спам» или воспользуйтесь повторной отправкой.",
       "submit": "Подтвердить",
       "submitting": "Проверка…",
       "resend": "Отправить код повторно",
@@ -149,13 +171,13 @@
     },
     "verifyResetCode": {
       "title": "Смена пароля",
-      "subtitle": "Код отправлен на email и действителен 15 минут.",
+      "subtitle": "Мы отправили код для смены пароля на вашу электронную почту. Если письмо не пришло, проверьте папку «Спам» или воспользуйтесь повторной отправкой.",
       "submit": "Далее",
       "submitting": "Проверка…",
       "resend": "Отправить код повторно",
       "resending": "Отправка…",
       "toastVerified": "Код подтверждён",
-      "toastResent": "Код отправлен повторно",
+      "toastResent": "Если аккаунт существует, новый код придёт на email. Если письма нет — повторите через минуту.",
       "errors": {
         "incomplete": "Введите код полностью",
         "noEmail": "Нет email. Вернитесь назад и введите email заново.",
@@ -164,8 +186,10 @@
       }
     },
     "verify": {
-      "digitAria": "Цифра {{n}}"
+      "digitAria": "Цифра {{n}}",
+      "resendIn": "Повторно через {{seconds}} с"
     },
+    "icloudDeliveryHint": "Почта iCloud иногда может доставлять письма с задержкой. Проверьте папку «Спам». Если вы запросили код повторно, используйте код из самого нового письма.",
     "google": {
       "loading": "Вход через Google…",
       "loadingGeneric": "Авторизация…"
@@ -232,7 +256,8 @@
       "showMore": "Показать больше",
       "findFriends": "Найти друзей",
       "viewFriends": "Посмотреть друзей",
-      "empty": "Пока нет друзей",
+      "allContacts": "Все контакты",
+      "empty": "У вас пока нет друзей",
       "profileOf": "Профиль {{name}}",
       "profileUnavailable": "Профиль недоступен",
       "openProfile": "Открыть профиль {{name}}"
@@ -391,6 +416,9 @@
         "maritalStatusRequired": "Выберите семейное положение",
         "countryRequired": "Выберите страну",
         "cityRequired": "Выберите город",
+        "cityInvalid": "Введите корректное название города",
+        "cityMaxLength": "Название города слишком длинное",
+        "regionMaxLength": "Название региона слишком длинное",
         "interestsRequired": "Выберите интересы",
         "hobbiesRequired": "Выберите хобби",
         "usernameRequired": "Укажите ник",
@@ -522,6 +550,11 @@
     },
     "loadMessagesError": "Не удалось загрузить сообщения",
     "sendError": "Не удалось отправить сообщение",
+    "sendingStatus": "Отправляется",
+    "sentStatus": "Отправлено",
+    "deliveredStatus": "Доставлено",
+    "seenStatus": "Прочитано",
+    "sendFailedStatus": "Не отправлено",
     "noMessages": "Нет сообщений",
     "draftLabel": "Черновик:",
     "draftPreview": "Черновик: {{text}}",
@@ -599,19 +632,27 @@
       "mute": "Выключить звук",
       "unmute": "Включить звук",
       "markUnread": "Отметить как непрочитанный",
+      "markRead": "Отметить как прочитанный",
       "block": "Заблокировать",
       "delete": "Удалить чат",
       "pinSuccess": "Чат закреплён",
       "unpinSuccess": "Чат откреплён",
       "markUnreadSuccess": "Чат отмечен как непрочитанный",
+      "markReadSuccess": "Чат отмечен как прочитанный",
       "blockConfirm": "Заблокировать этого пользователя?",
       "blockSuccess": "Пользователь заблокирован",
       "deleteConfirm": "Удалить чат только у вас? Сообщения у собеседника останутся.",
       "deleteSuccess": "Чат удалён",
       "hide": "Скрыть чат",
       "hideConfirm": "Скрыть этот чат только для вас? Группа останется у других участников.",
-      "hideSuccess": "Чат скрыт"
+      "hideSuccess": "Чат скрыт",
+      "unhide": "Показать чат",
+      "unhideSuccess": "Чат возвращён в список"
     },
+    "hiddenChats": "Скрытые чаты",
+    "hiddenChatsEmpty": "Нет скрытых чатов",
+    "hiddenChatsOpen": "Открыть скрытые чаты",
+    "hiddenChatsBack": "К чатам",
     "uploading": "Загрузка…",
     "uploadError": "Не удалось загрузить",
     "voiceNotSupported": "Запись голоса не поддерживается",
@@ -716,6 +757,8 @@
       "connectTimeout": "Connection timed out",
       "unknown": "User",
       "enableSound": "Tap to enable call sounds",
+      "tapToHear": "Нажмите на экран, чтобы слышать других участников",
+      "micFailed": "Не удалось включить микрофон",
       "inCall": "In call",
       "chatMissedAudio": "Missed audio call",
       "chatMissedVideo": "Missed video call",
@@ -735,7 +778,27 @@
       "cameraRetry": "Попробовать ещё раз",
       "unavailableTitle": "Звонок недоступен",
       "vipRequired": "Этот пользователь разрешает сообщения и звонки только VIP-пользователям.",
-      "subscriptionRequired": "Чтобы звонить, нужно подписаться на этот профиль."
+      "subscriptionRequired": "Чтобы звонить, нужно подписаться на этот профиль.",
+      "you": "вы",
+      "leaveRoom": "Выйти",
+      "joinRoom": "Присоединиться",
+      "returnToRoom": "Вернуться в комнату",
+      "backToChat": "Назад в чат",
+      "groupAudioRoom": "🔊 Голосовая комната",
+      "groupVideoRoom": "🎥 Видеокомната",
+      "groupParticipantsNow": "{{count}} участников сейчас",
+      "groupJoinConfirm": "В этой группе уже есть активная комната. Присоединиться?",
+      "groupAudioStarted": "В группе LunMeYo началась голосовая комната",
+      "groupVideoStarted": "В группе LunMeYo началась видеокомната",
+      "groupRoomEnded": "Комната завершилась",
+      "screenShare": "Демонстрация экрана",
+      "stopScreenShare": "Остановить демонстрацию",
+      "screenShareUnsupported": "Этот браузер не поддерживает демонстрацию экрана",
+      "screenShareInsecure": "Для демонстрации экрана нужно защищённое соединение (HTTPS)",
+      "screenSharePermissionDenied": "Разрешение на демонстрацию экрана отклонено",
+      "screenShareNotConnected": "Дождитесь подключения к звонку и попробуйте снова",
+      "screenShareFailed": "Не удалось начать демонстрацию экрана",
+      "speaker": "Динамик"
     }
   },
   "notifications": {
@@ -770,7 +833,10 @@
       "postSharedToUser": "{{name}} поделился(-ась) с вами публикацией",
       "message": "{{name}} отправил(-а) вам сообщение",
       "system": "Системное уведомление",
-      "giftReceived": "{{name}} отправил(а) вам подарок"
+      "giftReceived": "{{name}} отправил(а) вам подарок",
+      "feedbackReply": "Администрация ответила на ваше обращение",
+      "feedbackReplyBody": "Вы получили ответ на своё предложение.",
+      "groupCallStarted": "В группе LunMeYo началась видеокомната"
     },
     "items": {
       "follow": {
@@ -848,7 +914,7 @@
       "emailHint": "Код будет отправлен на этот адрес",
       "submit": "Отправить код",
       "submitting": "Отправка…",
-      "toastSent": "Код отправлен на email",
+      "toastSent": "Если аккаунт существует, код придёт на email. Если письма нет — запросите повторно через минуту.",
       "backToAccount": "Назад к настройкам",
       "errors": {
         "emailRequired": "Введите email",
@@ -953,11 +1019,47 @@
       "all": "All",
       "following": "Following",
       "saved": "Saved"
+    },
+    "upload": {
+      "progress": "Загрузка {{percent}}%",
+      "publish": "Опубликовать",
+      "errors": {
+        "required": "Выберите видеофайл",
+        "type": "Используйте видео MP4, MOV или M4V",
+        "tooLarge": "Видео должно быть не больше {{maxMb}} МБ",
+        "network": "Не удалось загрузить видео. Проверьте соединение.",
+        "failed": "Не удалось загрузить видео",
+        "missingUrl": "Загрузка завершилась, но URL видео отсутствует"
+      }
     }
   },
   "stories": {
-    "yourStory": "Your story",
-    "closeFriends": "Close friends"
+    "yourStory": "Ваша история",
+    "closeFriends": "Близкие",
+    "createTitle": "Дополнить историю",
+    "viewerLabel": "Просмотр истории",
+    "close": "Закрыть",
+    "more": "Ещё",
+    "views": "Просмотры",
+    "share": "Поделиться",
+    "mention": "Отметить",
+    "delete": "Удалить",
+    "deleteConfirm": "Удалить эту историю?",
+    "saveMedia": "Сохранить фото/видео",
+    "addText": "Текст",
+    "textPhotoOnly": "Текст доступен для фото",
+    "done": "Готово",
+    "moveText": "Переместить текст",
+    "textPlaceholder": "Ваш текст",
+    "fontSize": "Размер текста",
+    "textColor": "Цвет текста",
+    "pickColor": "Цвет {{color}}",
+    "tools": "Инструменты истории",
+    "music": "Музыка",
+    "templates": "Шаблоны",
+    "collage": "Коллаж",
+    "stickers": "Стикеры",
+    "draw": "Рисование"
   },
   "liveNotifications": {
     "started": "{{name}} начал(-а) прямой эфир"
@@ -975,6 +1077,8 @@
   "errors": {
     "generic": "Произошла ошибка. Попробуйте снова.",
     "VALIDATION_ERROR": "Проверьте введённые данные.",
+    "CITY_NAME_INVALID": "Введите корректное название города",
+    "CITY_NAME_TOO_LONG": "Название города слишком длинное",
     "UNAUTHORIZED": "Войдите в аккаунт.",
     "FORBIDDEN": "Недостаточно прав.",
     "NOT_FOUND": "Не найдено.",
@@ -982,8 +1086,10 @@
     "RATE_LIMITED": "Too many requests. Try again later.",
     "INTERNAL_ERROR": "Internal server error.",
     "EMAIL_ALREADY_VERIFIED": "Email is already verified.",
-    "INVALID_VERIFICATION_CODE": "Invalid verification code.",
-    "VERIFICATION_CODE_EXPIRED": "Verification code has expired.",
+    "INVALID_VERIFICATION_CODE": "Неверный код верификации.",
+    "VERIFICATION_CODE_EXPIRED": "Срок действия кода истёк.",
+    "VERIFICATION_ATTEMPTS_EXCEEDED": "Слишком много попыток. Запросите новый код.",
+    "VERIFICATION_RESEND_COOLDOWN": "Подождите {{seconds}} с перед повторной отправкой кода.",
     "INVALID_RESET_CREDENTIALS": "Invalid email or code.",
     "INVALID_PASSWORD": "Invalid password.",
     "AVATAR_INVALID_FORMAT": "Allowed formats: JPEG, PNG, WebP.",
@@ -1060,6 +1166,7 @@
     "friendsSearch": "Поиск среди друзей",
     "friendsEmpty": "У вас пока нет друзей",
     "needRecipient": "Чтобы отправить подарок, откройте профиль пользователя.",
+    "needGift": "Выберите подарок, чтобы отправить.",
     "sent": "Подарок отправлен",
     "testSelectedTitle": "Подарок выбран",
     "testSelectedBody": "{{gift}} будет отправлен пользователю {{name}}.",
@@ -1254,6 +1361,7 @@
       "cancel": "Отмена",
       "publish": "Опубликовать",
       "publishing": "Публикация…",
+      "uploadingVideo": "Загрузка видео {{percent}}%",
       "privacy": "Только ваши друзья видят ваше местоположение"
     },
     "edit": {
@@ -1546,5 +1654,84 @@
     "quiet_evenings": "Тихие вечера",
     "kids": "Дети",
     "family": "Семья"
+  },
+  "feedback": {
+    "fabLabel": "Ваши предложения",
+    "fabAria": "Открыть форму предложений",
+    "title": "Помогите сделать LunMeYo лучше 💜",
+    "intro": "Мы тестируем демо-версию LunMeYo. Расскажите, что вам понравилось, что было непонятно или что вы хотели бы изменить.",
+    "typeLegend": "Тип обращения",
+    "types": {
+      "suggestion": "Есть предложение",
+      "bug": "Нашёл(-ла) ошибку",
+      "unclear": "Что-то непонятно",
+      "review": "Хочу оставить отзыв"
+    },
+    "detailsLabel": "Расскажите подробнее...",
+    "detailsPlaceholder": "Расскажите подробнее...",
+    "attach": "📎 Добавить скриншот",
+    "removeScreenshot": "Удалить скриншот",
+    "screenshotPreview": "Предпросмотр скриншота",
+    "submit": "Отправить",
+    "submitting": "Отправка…",
+    "success": "Спасибо! 💜 Ваше мнение помогает сделать LunMeYo лучше.",
+    "close": "Закрыть",
+    "typeRequired": "Выберите тип обращения",
+    "messageRequired": "Добавьте несколько слов в сообщение",
+    "screenshotTooBig": "Скриншот должен быть до 5 МБ",
+    "screenshotType": "Добавьте изображение (JPEG, PNG, WebP, GIF)",
+    "screenshotUploadError": "Не удалось загрузить скриншот",
+    "unreadAria": "{{count}} непрочитанных ответов",
+    "status": {
+      "new": "Новые",
+      "inProgress": "В работе",
+      "answered": "Ответили",
+      "closed": "Закрытые"
+    },
+    "mine": {
+      "title": "Мои обращения",
+      "empty": "Вы ещё не отправляли предложения.",
+      "hasReply": "Есть ответ 💜"
+    },
+    "thread": {
+      "you": "Вы",
+      "team": "Администрация MeYou"
+    }
+  },
+  "admin": {
+    "nav": {
+      "dashboard": "Dashboard",
+      "feedback": "Предложения",
+      "reports": "Reports",
+      "users": "Users"
+    },
+    "feedback": {
+      "title": "Предложения / Feedback",
+      "subtitle": "Обращения с демо-тестирования LunMeYo.",
+      "empty": "Обращений не найдено",
+      "detailTitle": "Обращение",
+      "thread": "История ответов",
+      "replyLabel": "Ответить пользователю",
+      "replyPlaceholder": "Напишите ответ…",
+      "sendReply": "Отправить ответ",
+      "replySent": "Ответ отправлен пользователю",
+      "statusUpdated": "Статус обновлён",
+      "viewProfile": "Профиль пользователя",
+      "next": "Далее",
+      "page": "Страница {{page}} / {{totalPages}} · {{total}}",
+      "filters": {
+        "all": "Все",
+        "allTypes": "Все типы"
+      },
+      "fields": {
+        "status": "Статус",
+        "user": "Пользователь",
+        "type": "Тип",
+        "message": "Сообщение",
+        "screenshot": "Скриншот",
+        "page": "Страница",
+        "date": "Дата"
+      }
+    }
   }
 }

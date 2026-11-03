@@ -72,6 +72,7 @@ export default function CreatePostModal({
   onUseCurrentLocation,
   isDetectingLocation = false,
   isPublishing = false,
+  uploadProgress = null,
   onPublish,
   onClose,
   canPublish = false,
@@ -219,7 +220,7 @@ export default function CreatePostModal({
           <input
             ref={postVideoInputRef}
             type="file"
-            accept="video/mp4,video/quicktime,video/webm,video/*"
+            accept="video/mp4,video/quicktime,video/webm,video/x-m4v,.mp4,.mov,.m4v,video/*"
             multiple
             className="createPostModal__fileInput"
             onChange={onVideoSelect}
@@ -341,6 +342,20 @@ export default function CreatePostModal({
             </section>
           )}
 
+          {typeof uploadProgress === 'number' && (
+            <div className="createPostModal__progress" aria-live="polite">
+              <div className="createPostModal__progressTrack">
+                <div
+                  className="createPostModal__progressBar"
+                  style={{ width: `${uploadProgress}%` }}
+                />
+              </div>
+              <span className="createPostModal__progressLabel">
+                {t('posts.create.uploadingVideo', { percent: uploadProgress })}
+              </span>
+            </div>
+          )}
+
           <footer className="createPostModal__footer">
             <button
               type="button"
@@ -356,7 +371,11 @@ export default function CreatePostModal({
               disabled={isPublishing || !canPublish}
               onClick={onPublish}
             >
-              {isPublishing ? t('posts.create.publishing') : t('posts.create.publish')}
+              {isPublishing
+                ? typeof uploadProgress === 'number'
+                  ? t('posts.create.uploadingVideo', { percent: uploadProgress })
+                  : t('posts.create.publishing')
+                : t('posts.create.publish')}
             </button>
           </footer>
 

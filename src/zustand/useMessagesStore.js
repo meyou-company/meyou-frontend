@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { conversationsApi } from '../services/conversationsApi';
 import { resetThrottle, throttledDedupeAsync } from '../utils/throttledDedupeAsync';
+import { applyIncomingUnreadTotal } from '../utils/unreadBadge';
 
 const SOUND_PREF_KEY = 'meyou_messages_sound_enabled';
 const UNREAD_KEY = 'messages:unread-count';
@@ -52,14 +53,19 @@ export const useMessagesStore = create((set, get) => ({
       { force },
     ),
 
-  applyMessageCreated: ({ conversationId, unreadCount, totalUnreadCount }) => {
-    if (typeof totalUnreadCount === 'number') {
-      set({ totalUnreadCount: Math.max(0, totalUnreadCount) });
-    } else if (typeof unreadCount === 'number') {
-      set((state) => ({
-        totalUnreadCount: Math.max(0, state.totalUnreadCount + 1),
-      }));
-    }
+  applyMessageCreated: ({
+    conversationId,
+    totalUnreadCount,
+    incrementUnread,
+    isActiveVisibleChat,
+  }) => {
+    set((state) => ({
+      totalUnreadCount: applyIncomingUnreadTotal(state.totalUnreadCount, {
+        totalUnreadCount,
+        incrementUnread,
+        isActiveVisibleChat,
+      }),
+    }));
     void conversationId;
   },
 

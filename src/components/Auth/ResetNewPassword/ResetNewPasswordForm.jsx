@@ -3,13 +3,16 @@ import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { PASSWORD_REGEX } from "../../../utils/validationRegister";
 import { useForceDarkTheme } from "../../../hooks/useForceDarkTheme";
+import { getApiErrorMessage } from "../../../utils/getApiErrorMessage";
+import { useAuthStore } from "../../../zustand/useAuthStore";
 import BrandLogo from "../../BrandLogo/BrandLogo";
 import "../Login/LoginForm.scss";
 import "./ResetNewPasswordForm.scss";
 
-export default function ResetNewPasswordForm({ onBack, onSuccess }) {
+export default function ResetNewPasswordForm({ onBack, onSuccess, email, code }) {
   useForceDarkTheme();
   const { t } = useTranslation();
+  const resetPassword = useAuthStore((s) => s.resetPassword);
   const [form, setForm] = useState({ password: "", confirmPassword: "" });
   const [touched, setTouched] = useState({ password: false, confirmPassword: false });
   const [show, setShow] = useState({ password: false, confirmPassword: false });
@@ -57,12 +60,24 @@ export default function ResetNewPasswordForm({ onBack, onSuccess }) {
 
     try {
       setIsSubmitting(true);
-      await new Promise((r) => setTimeout(r, 600));
+      const res = await resetPassword({
+        email,
+        code,
+        newPassword: form.password,
+      });
+
+      if (!res?.ok) {
+        const msg =
+          getApiErrorMessage(res?.error) || t("auth.resetPassword.errors.saveFailed");
+        toast.error(msg);
+        setSubmitError(msg);
+        return;
+      }
 
       toast.success(t("auth.resetPassword.toastSuccess"));
       onSuccess?.();
-    } catch {
-      const msg = t("auth.resetPassword.errors.saveFailed");
+    } catch (err) {
+      const msg = getApiErrorMessage(err) || t("auth.resetPassword.errors.saveFailed");
       toast.error(msg);
       setSubmitError(msg);
     } finally {

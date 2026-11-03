@@ -278,6 +278,7 @@ export const LEGAL_UI = {
   acceptTermsTermsLink: 'Умовами використання',
   acceptTermsPrivacyLink: 'Політикою конфіденційності',
   acceptTermsSubmit: 'Продовжити',
+  acceptTermsDecline: 'Відхилити',
   acceptTermsSubmitting: 'Збереження…',
   deleteAccountAction: 'Видалити мій акаунт',
   deleteAccountConfirm:

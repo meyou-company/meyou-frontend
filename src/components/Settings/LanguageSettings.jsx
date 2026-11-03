@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import { SUPPORTED_LOCALES } from '../../i18n/config';
@@ -14,6 +14,19 @@ export default function LanguageSettings({ onClose }) {
   const setUserPatch = useAuthStore((s) => s.setUserPatch);
   const isAuthed = useAuthStore((s) => s.isAuthed);
   const [pending, setPending] = useState(null);
+
+  useEffect(() => {
+    const html = document.documentElement;
+    const { overflow: prevHtmlOverflow } = html.style;
+    const { overflow: prevBodyOverflow } = document.body.style;
+    html.style.overflow = 'hidden';
+    document.body.style.overflow = 'hidden';
+
+    return () => {
+      html.style.overflow = prevHtmlOverflow;
+      document.body.style.overflow = prevBodyOverflow;
+    };
+  }, []);
 
   const handleSelect = async (code) => {
     if (isSaving || pending) return;
@@ -33,7 +46,14 @@ export default function LanguageSettings({ onClose }) {
   };
 
   return (
-    <div className="langSettings__overlay" onClick={onClose} role="presentation">
+    <div
+      className="langSettings__overlay"
+      onClick={onClose}
+      onWheel={(e) => {
+        if (!e.target.closest('.langSettings__modal')) e.preventDefault();
+      }}
+      role="presentation"
+    >
       <div
         className="langSettings__modal"
         onClick={(e) => e.stopPropagation()}

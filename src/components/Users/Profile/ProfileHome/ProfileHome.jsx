@@ -14,12 +14,16 @@ import {
   resolvePostMediaMime,
   uploadPostMedia,
 } from "../../../../services/postImageUploadApi";
+import {
+  getRegularVideoErrorMessage,
+  isRegularVideoFile,
+} from "../../../../utils/regularVideoUpload.js";
 
 import MessagesNavBadge from "../../../Messages/MessagesNavBadge";
 import GiftInboxBadge from "../../../Gifts/GiftInboxBadge";
 import profileIcons from "../../../../constants/profileIcons";
 import { DEFAULT_AVATAR } from "../../../../constants/brand";
-import { getFriendsCountNumber } from "../../../../utils/profileFriends";
+import { getOwnProfileFriendsCount } from "../../../../utils/profileFriends";
 import {
   normalizeFriendListItem,
   getFriendRouteHandle,
@@ -55,13 +59,15 @@ export default function ProfileHome({
   postsAuthorId,
   /** Defer posts/stories fetch until profile shell is painted */
   loadSecondary = true,
-  /** Список з GET /subscriptions/following — для блоку «Друзья» на своєму профілі */
+  /** Список взаємних друзів (GET /subscriptions/connections?tab=friends) для блоку «Друзі» */
   followingList,
+  /** Classified friends count from connections — not following/followers totals. */
+  classifiedFriendsCount,
   /** Відкрити профіль користувача за username (клік по аватару друга) */
   onOpenUser,
-  /** Відкрити сторінку «Друзі та VIP» (Показать больше) */
+  /** Open /friends with all contact tabs */
   onShowMore,
-  /** Відкрити пошук (коли немає друзів — кнопка «Знайти друзів») */
+  /** Open people search to find new users */
   onFindFriends,
   refreshMe,
   onEditProfile,
@@ -84,6 +90,7 @@ export default function ProfileHome({
   const [isComposerOpen, setIsComposerOpen] = useState(false);
   const [locationPanelOpen, setLocationPanelOpen] = useState(false);
   const [isPublishingPost, setIsPublishingPost] = useState(false);
+  const [postVideoUploadProgress, setPostVideoUploadProgress] = useState(null);
   const [cropModalSrc, setCropModalSrc] = useState(null);
   const [isSaving, setIsSaving] = useState(false);
   /** URL фото для перегляду в повному розмірі (null = закрито) */
@@ -225,10 +232,9 @@ export default function ProfileHome({
     ? t('posts.placeholderWithName', { name: composerFirstName })
     : t('posts.placeholder');
 
-  const profileLocation =
-    [user?.city, user?.country].filter(Boolean).join(", ") || "";
+  const profileCity = String(user?.city || "").trim();
+  const profileCountry = String(user?.country || "").trim();
   const bioLine1 = fullNameReal ? `${fullNameReal}.` : "";
-  const bioLine2 = profileLocation ? `${profileLocation}.` : "";
 
   const friends = useMemo(() => {
     if (Array.isArray(followingList) && followingList.length > 0) {
@@ -244,10 +250,10 @@ export default function ProfileHome({
     if (h) onOpenUser?.(h);
   };
   const hasFriends = friends.length > 0;
-  /** Загальна кількість друзів з бекенду (friendsCount: { followers, following } або число); інакше — довжина списку */
-  const apiCount = getFriendsCountNumber(user?.friendsCount ?? user?.friends_count);
-  const displayFriendsCount =
-    typeof apiCount === "number" && apiCount >= 0 ? apiCount : friends.length;
+  const displayFriendsCount = getOwnProfileFriendsCount(
+    classifiedFriendsCount,
+    friends.length,
+  );
 
   const onFileSelect = (e) => {
     const file = e.target.files?.[0];
@@ -264,8 +270,8 @@ export default function ProfileHome({
     const accepted = files.filter((file) => {
       const mime = resolvePostMediaMime(file);
       if (preferKind === "image") return mime.startsWith("image/");
-      if (preferKind === "video") return mime.startsWith("video/");
-      return mime.startsWith("image/") || mime.startsWith("video/");
+      if (preferKind === "video") return isRegularVideoFile(file);
+      return mime.startsWith("image/") || isRegularVideoFile(file);
     });
     if (!accepted.length) {
       toast.error(
@@ -286,7 +292,7 @@ export default function ProfileHome({
         return {
           id: `${file.name}-${file.size}-${file.lastModified}`,
           file,
-          type: mime.startsWith("video/") ? "video" : "image",
+          type: isRegularVideoFile(file) ? "video" : "image",
           previewUrl: URL.createObjectURL(file),
         };
       });
@@ -348,6 +354,7 @@ export default function ProfileHome({
 
     try {
       setIsPublishingPost(true);
+      setPostVideoUploadProgress(null);
 
       // Upload all selected media first. If any file fails — do NOT create the post.
       let media = [];
@@ -371,7 +378,12 @@ export default function ProfileHome({
             size: file.size,
           });
 
-          const { url, mediaType } = await uploadPostMedia(file);
+          const isVideo = isRegularVideoFile(file);
+          if (isVideo) setPostVideoUploadProgress(0);
+          const { url, mediaType } = await uploadPostMedia(file, {
+            onProgress: isVideo ? setPostVideoUploadProgress : undefined,
+          });
+          if (isVideo) setPostVideoUploadProgress(100);
           uploaded.push({
             url,
             type: mediaType,
@@ -441,13 +453,15 @@ export default function ProfileHome({
       });
       const hadMedia = postMediaFiles.length > 0;
       toast.error(
-        hadMedia && details
-          ? `${t('posts.toast.editMediaUploadFileFailed')}: ${details}`
-          : details || t('posts.toast.publishFailed')
+        getRegularVideoErrorMessage(err, t) ||
+          (hadMedia && details
+            ? `${t('posts.toast.editMediaUploadFileFailed')}: ${details}`
+            : details || t('posts.toast.publishFailed'))
       );
       // Keep modal open and preserve text / selected media.
     } finally {
       setIsPublishingPost(false);
+      setPostVideoUploadProgress(null);
     }
   };
 
@@ -560,7 +574,17 @@ export default function ProfileHome({
 
             <div className="profileBioWrap">
               {bioLine1 && <p className="bio bioName">{bioLine1}</p>}
-              {bioLine2 && <p className="bio bioLocation">{bioLine2}</p>}
+              {(profileCity || profileCountry) && (
+                <p className="bio bioLocation">
+                  {profileCity ? (
+                    <span className="bioLocation__city">
+                      {profileCity}{profileCountry ? "," : "."}
+                    </span>
+                  ) : null}
+                  {profileCity && profileCountry ? " " : null}
+                  {profileCountry ? <span className="bioLocation__country">{profileCountry}.</span> : null}
+                </p>
+              )}
             </div>
 
             <div className="profileInfoAside">
@@ -772,90 +796,89 @@ export default function ProfileHome({
 
         {/* ================= VIP / FRIENDS ================= */}
         <section className="vipCard">
-          <div className="friendsTitle">
+          <button
+            type="button"
+            className="friendsTitle"
+            onClick={onShowMore}
+            aria-label={t('profile.friends.titleWithCount', { count: displayFriendsCount })}
+          >
             <span className="friendsTitle__label">{t('profile.friends.title')}</span>{" "}
             <span className="friendsTitle__count">{displayFriendsCount}</span>
-          </div>
+          </button>
 
           {hasFriends ? (
-            <>
-              <div className="vipRow">
-                {friends.slice(0, 7).map((v) => {
-                  const handle = getFriendRouteHandle(v);
-                  const canOpen = Boolean(handle);
-                  const label = getFriendDisplayLabel(v);
-                  return (
-                    <div key={v.id} className="vipItem">
-                      <div className="vipFriendCell">
+            <div className="vipRow">
+              {friends.slice(0, 7).map((v) => {
+                const handle = getFriendRouteHandle(v);
+                const canOpen = Boolean(handle);
+                const label = getFriendDisplayLabel(v);
+                return (
+                  <div key={v.id} className="vipItem">
+                    <div className="vipFriendCell">
+                      <button
+                        type="button"
+                        className="vipAvatarWrap vipAvatarWrap--clickable"
+                        onClick={() => openFriendProfile(v)}
+                        disabled={!canOpen}
+                        aria-label={
+                          canOpen
+                            ? t('profile.friends.profileOf', { name: handle })
+                            : t('profile.friends.profileUnavailable')
+                        }
+                      >
+                        <img
+                          src={v.avatar || "/icon1/image0.png"}
+                          className="vipAvatar"
+                          alt=""
+                        />
+                        <OnlineStatus
+                          userId={v.id}
+                          user={v}
+                          className="onlineStatus--onAvatar onlineDot"
+                        />
+                      </button>
+                      {(label || canOpen) && (
                         <button
                           type="button"
-                          className="vipAvatarWrap vipAvatarWrap--clickable"
+                          className="vipFriendNameBtn"
                           onClick={() => openFriendProfile(v)}
                           disabled={!canOpen}
                           aria-label={
                             canOpen
-                              ? t('profile.friends.profileOf', { name: handle })
-                              : t('profile.friends.profileUnavailable')
+                              ? t('profile.friends.openProfile', { name: handle })
+                              : undefined
                           }
                         >
-                          <img
-                            src={v.avatar || "/icon1/image0.png"}
-                            className="vipAvatar"
-                            alt=""
-                          />
-                          <OnlineStatus
-                            userId={v.id}
-                            user={v}
-                            className="onlineStatus--onAvatar onlineDot"
-                          />
+                          <span className="vipFriendNameText">
+                            {label || handle || "—"}
+                          </span>
                         </button>
-                        {(label || canOpen) && (
-                          <button
-                            type="button"
-                            className="vipFriendNameBtn"
-                            onClick={() => openFriendProfile(v)}
-                            disabled={!canOpen}
-                            aria-label={
-                              canOpen
-                                ? t('profile.friends.openProfile', { name: handle })
-                                : undefined
-                            }
-                          >
-                            <img
-                              src={profileIcons.friends}
-                              alt=""
-                              className="vipFriendNameIcon"
-                              aria-hidden="true"
-                            />
-                            <span className="vipFriendNameText">
-                              {label || handle || "—"}
-                            </span>
-                          </button>
-                        )}
-                      </div>
+                      )}
                     </div>
-                  );
-                })}
-              </div>
-              <button
-                className="showMoreBtn"
-                type="button"
-                onClick={onShowMore}
-              >
-                {t('profile.friends.viewFriends')}
-              </button>
-            </>
-          ) : (
-            <div className="friendsEmpty">
-              <button
-                type="button"
-                className="showMoreBtn"
-                onClick={onFindFriends ?? onShowMore}
-              >
-                {t('profile.friends.findFriends')}
-              </button>
+                  </div>
+                );
+              })}
             </div>
+          ) : (
+            <p className="friendsEmptyMsg">{t('profile.friends.empty')}</p>
           )}
+
+          <div className="friendsActions">
+            <button
+              className="showMoreBtn"
+              type="button"
+              onClick={onShowMore}
+            >
+              {t('profile.friends.allContacts')}
+            </button>
+            <button
+              type="button"
+              className="findFriendsBtn"
+              onClick={onFindFriends}
+            >
+              {t('profile.friends.findFriends')}
+            </button>
+          </div>
         </section>
 
         {/* ================= NEW POST ================= */}
@@ -916,6 +939,7 @@ export default function ProfileHome({
           onUseCurrentLocation={handleUseCurrentLocation}
           isDetectingLocation={isDetectingLocation}
           isPublishing={isPublishingPost}
+          uploadProgress={postVideoUploadProgress}
           onPublish={handlePublishPost}
           onClose={closeComposer}
           canPublish={

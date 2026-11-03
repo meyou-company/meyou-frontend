@@ -1,10 +1,11 @@
 .profilePhotos {
   position: relative;
   isolation: isolate;
-  width: min(100%, 1380px);
+  width: min(100%, 1200px);
   margin: 0 auto;
-  padding: 6px 48px 58px;
+  padding: 18px clamp(24px, 4vw, 56px) 64px;
   color: #121017;
+  overflow-x: clip;
 }
 
 .profilePhotosPage {
@@ -58,7 +59,7 @@
   grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
   column-gap: 26px;
-  margin-bottom: 54px;
+  margin-bottom: 32px;
 }
 
 .profilePhotos__back {
@@ -81,7 +82,7 @@
 
 .profilePhotos__title {
   margin: 0;
-  font-size: 34px;
+  font-size: 28px;
   line-height: 1.1;
   font-weight: 300;
   letter-spacing: 0;
@@ -114,12 +115,14 @@
 .profilePhotos__grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 20px 22px;
+  justify-content: start;
+  gap: 20px;
 }
 
 .profilePhotos__card {
   position: relative;
-  aspect-ratio: 1 / 0.86;
+  width: 100%;
+  aspect-ratio: 1 / 1;
   border-radius: 14px;
   overflow: visible;
   background: #cdcdcd;
@@ -201,16 +204,19 @@
 
 .profilePhotos__menu {
   position: absolute;
-  top: 64px;
-  left: 60%;
+  top: 46px;
+  right: 0;
+  left: auto;
   z-index: 10;
-  padding: 28px 30px;
-  border-radius: 34px;
+  width: min(240px, calc(100vw - 32px));
+  padding: 16px 18px;
+  border: 1px solid rgba(124, 82, 196, 0.32);
+  border-radius: 18px;
   background: #eadcff;
   box-shadow: 0 18px 32px rgba(88, 54, 140, 0.16);
-  transform: translateX(-50%);
+  transform: none;
   display: grid;
-  gap: 25px;
+  gap: 14px;
   white-space: nowrap;
 }
 
@@ -222,9 +228,24 @@
   font: inherit;
   font-size: 15px;
   line-height: 1.1;
-  font-weight: 800;
+  font-weight: 500;
   text-align: left;
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.profilePhotos__menu button img {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 18px;
+  object-fit: contain;
+}
+
+.profilePhotos__showAll,
+.profilePhotosActionSheet {
+  display: none;
 }
 
 .profilePhotos__empty {
@@ -372,8 +393,12 @@
   color: #120b1d;
   font: inherit;
   font-size: 14px;
-  font-weight: 800;
+  font-weight: 500;
   cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
 }
 
 .profilePhotosViewer__actions button:disabled {
@@ -382,7 +407,40 @@
 }
 
 .profilePhotosViewer__actionIcon {
-  display: none;
+  display: block;
+  width: 18px;
+  height: 18px;
+  flex: 0 0 18px;
+  object-fit: contain;
+}
+
+@media (min-width: 768px) {
+  .profilePhotosViewer--visitor .profilePhotosViewer__panel {
+    height: min(760px, calc(100dvh - 150px));
+  }
+
+  .profilePhotosViewer--visitor .profilePhotosViewer__media {
+    position: relative;
+    width: 100%;
+    height: auto;
+    min-height: 0;
+    align-self: stretch;
+    overflow: hidden;
+    box-sizing: border-box;
+  }
+
+  .profilePhotosViewer--visitor .profilePhotosViewer__image {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    min-width: 0;
+    min-height: 0;
+    max-width: none;
+    max-height: none;
+    display: block;
+    object-fit: contain;
+  }
 }
 
 @media (max-width: 1023px) {
@@ -423,14 +481,15 @@
   }
 
   .profilePhotos__grid {
-    gap: 8px;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
   }
 
   .profilePhotos__card {
-    border-radius: 7px;
-    aspect-ratio: 82 / 103;
-    min-width: 82px;
-    min-height: 100px;
+    border-radius: 10px;
+    aspect-ratio: 1 / 1;
+    min-width: 0;
+    min-height: 0;
   }
 
   .profilePhotos__menuBtn {
@@ -451,15 +510,16 @@
 
   .profilePhotos__menu {
     top: 38px;
-    left: 100px;
-    width: 168px;
-    padding: 21px 24px;
-    border-radius: 24px;
-    gap: 19px;
+    right: 0;
+    left: auto;
+    width: 210px;
+    padding: 14px 16px;
+    border-radius: 16px;
+    gap: 12px;
   }
 
   .profilePhotos__menu button {
-    font-size: 10px;
+    font-size: 13px;
   }
 }
 
@@ -773,6 +833,13 @@ html[data-theme="dark"] .profilePhotos__menu button {
   color: rgba(255, 255, 255, 0.94);
 }
 
+body.dark .profilePhotos__menu button img,
+body.dark .profilePhotosViewer__actionIcon,
+html[data-theme="dark"] .profilePhotos__menu button img,
+html[data-theme="dark"] .profilePhotosViewer__actionIcon {
+  filter: brightness(0) invert(1);
+}
+
 body.dark .profilePhotos__empty,
 html[data-theme="dark"] .profilePhotos__empty {
   color: rgba(255, 255, 255, 0.64);
@@ -817,4 +884,149 @@ html[data-theme="dark"] .profilePhotosViewer__nav img {
   html[data-theme="dark"] .profilePhotosViewer__actions button {
     background: rgba(255, 255, 255, 0.08);
   }
+}
+
+@media (max-width: 767px) {
+  .profilePhotos {
+    width: 100%;
+    padding-inline: 16px;
+  }
+
+  .profilePhotos__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    justify-content: stretch;
+    gap: 10px;
+    width: 100%;
+    overflow: visible;
+  }
+
+  .profilePhotos__card {
+    width: 100%;
+    min-width: 0;
+    min-height: 0;
+    aspect-ratio: 1 / 1;
+    border-radius: 10px;
+  }
+
+  .profilePhotos__grid:not(.is-expanded) .profilePhotos__card:nth-child(n + 7) {
+    display: none;
+  }
+
+  .profilePhotos__showAll {
+    width: fit-content;
+    min-height: 38px;
+    margin: 18px auto 0;
+    padding: 8px 18px;
+    border: 1px solid rgba(22, 14, 35, 0.32);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.92);
+    color: #17111f;
+    font: inherit;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    display: block;
+  }
+
+  .profilePhotos__menu--desktop {
+    display: none;
+  }
+
+  .profilePhotosActionSheet {
+    position: fixed;
+    inset: 0;
+    z-index: 10100;
+    display: flex;
+    align-items: flex-end;
+    justify-content: stretch;
+    background: rgba(8, 5, 14, 0.55);
+  }
+
+  .profilePhotosActionSheet__panel {
+    width: 100%;
+    max-height: min(70dvh, 560px);
+    padding: 10px 18px calc(18px + env(safe-area-inset-bottom, 0px));
+    border-radius: 22px 22px 0 0;
+    background: #f3eaff;
+    box-shadow: 0 -18px 42px rgba(31, 18, 52, 0.22);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .profilePhotosActionSheet__handle {
+    width: 42px;
+    height: 4px;
+    margin: 0 auto 10px;
+    border-radius: 999px;
+    background: rgba(33, 23, 48, 0.25);
+    flex: 0 0 auto;
+  }
+
+  .profilePhotosActionSheet__panel button {
+    width: 100%;
+    min-height: 52px;
+    border: 0;
+    border-bottom: 1px solid rgba(69, 46, 99, 0.12);
+    padding: 10px 6px;
+    background: transparent;
+    color: #17111f;
+    font: inherit;
+    font-size: 16px;
+    font-weight: 400;
+    text-align: left;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .profilePhotosActionSheet__panel button:last-child {
+    border-bottom: 0;
+  }
+
+  .profilePhotosActionSheet__panel button:disabled {
+    opacity: 0.55;
+    cursor: wait;
+  }
+
+  .profilePhotosActionSheet__panel button img {
+    width: 22px;
+    height: 22px;
+    flex: 0 0 22px;
+    object-fit: contain;
+  }
+
+  .profilePhotosViewer__actions {
+    grid-template-columns: repeat(auto-fit, minmax(72px, 1fr));
+  }
+
+  .profilePhotosViewer__actions button {
+    font-weight: 400;
+  }
+}
+
+body.dark .profilePhotosActionSheet__panel,
+html[data-theme="dark"] .profilePhotosActionSheet__panel {
+  background: #241d2e;
+  color: rgba(255, 255, 255, 0.94);
+}
+
+body.dark .profilePhotosActionSheet__panel button,
+html[data-theme="dark"] .profilePhotosActionSheet__panel button {
+  color: rgba(255, 255, 255, 0.94);
+  border-bottom-color: rgba(255, 255, 255, 0.12);
+}
+
+body.dark .profilePhotosActionSheet__panel button img,
+html[data-theme="dark"] .profilePhotosActionSheet__panel button img {
+  filter: brightness(0) invert(1);
+}
+
+body.dark .profilePhotos__showAll,
+html[data-theme="dark"] .profilePhotos__showAll {
+  border-color: rgba(255, 255, 255, 0.28);
+  background: rgba(28, 24, 35, 0.94);
+  color: rgba(255, 255, 255, 0.94);
 }

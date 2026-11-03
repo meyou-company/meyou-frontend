@@ -1,11 +1,15 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { restoreOAuthSession } from '../../services/authSession';
+import { readOAuthQueryError, restoreOAuthSession } from '../../services/authSession';
 import { useAuthStore } from '../../zustand/useAuthStore';
 import AuthLoadingScreen from '../../components/Auth/AuthLoadingScreen';
+import { hasAcceptedTerms } from '../../utils/authTerms';
 
 function postAuthPath(user) {
+  if (!hasAcceptedTerms(user)) {
+    return '/legal/accept-terms';
+  }
   if (user?.profileCompleted === false) {
     return '/users/profile/complete';
   }
@@ -21,6 +25,14 @@ export default function AuthCallback() {
     setAuth({ isAuthLoading: true });
 
     (async () => {
+      if (readOAuthQueryError()) {
+        useAuthStore.getState().clearSession();
+        if (!cancelled) {
+          setAuth({ isAuthLoading: false });
+          navigate('/auth/login', { replace: true });
+        }
+        return;
+      }
       try {
         const user = await restoreOAuthSession(setAuth);
         if (cancelled) return;

@@ -19,6 +19,18 @@ export const conversationsApi = {
     return extractList(data);
   },
 
+  async listHidden() {
+    const { data } = await api.get(apiPath('/conversations/hidden'));
+    return extractList(data);
+  },
+
+  async unhideConversation(conversationId) {
+    const { data } = await api.patch(
+      apiPath(`/conversations/${encodeURIComponent(conversationId)}/unhide`),
+    );
+    return data;
+  },
+
   async markConversationRead(conversationId) {
     const { data } = await api.patch(
       apiPath(`/conversations/${encodeURIComponent(conversationId)}/read`),
@@ -159,11 +171,28 @@ export const conversationsApi = {
       typeof payload === 'string'
         ? { text: payload }
         : payload;
-    const { data } = await api.post(
-      apiPath(`/conversations/${encodeURIComponent(conversationId)}/messages`),
-      body,
+    const path = apiPath(
+      `/conversations/${encodeURIComponent(conversationId)}/messages`,
     );
-    return data;
+    try {
+      const { data } = await api.post(path, body);
+      return data;
+    } catch (err) {
+      // Current production API still uses forbidNonWhitelisted and does not
+      // know `clientId`. Retry once without it so a newer frontend can talk
+      // to that API; merge still works by optimistic id.
+      if (
+        body &&
+        typeof body === 'object' &&
+        body.clientId &&
+        err?.response?.status === 400
+      ) {
+        const { clientId: _clientId, ...rest } = body;
+        const { data } = await api.post(path, rest);
+        return data;
+      }
+      throw err;
+    }
   },
 
   async markRead(messageId) {

@@ -25,6 +25,9 @@ const MESSAGE_CODE_HINTS = [
   { pattern: /(verify|підтверд|confirm).*(email|пошт)/i, code: 'EMAIL_NOT_VERIFIED' },
   { pattern: /(blocked|заблокован|suspended)/i, code: 'ACCOUNT_SUSPENDED' },
   { pattern: /(deleted|видален|удален)/i, code: 'ACCOUNT_DELETED' },
+  { pattern: /^CITY_NAME_INVALID$/i, code: 'CITY_NAME_INVALID' },
+  { pattern: /^CITY_NAME_TOO_LONG$/i, code: 'CITY_NAME_TOO_LONG' },
+  { pattern: /название города|назва міста/i, code: 'CITY_NAME_INVALID' },
 ];
 
 function isTechnicalErrorMessage(message) {
@@ -92,9 +95,20 @@ function payloadMentionsPhone(payload) {
   }
 }
 
-function translateErrorCode(code) {
+function translateErrorCode(code, details) {
   const key = `errors.${code}`;
-  if (i18n.exists(key)) return i18n.t(key);
+  if (!i18n.exists(key)) return null;
+  const seconds = Number(details?.retryAfterSeconds);
+  if (Number.isFinite(seconds) && seconds > 0) {
+    return i18n.t(key, { seconds: Math.ceil(seconds) });
+  }
+  return i18n.t(key);
+}
+
+export function getRetryAfterSeconds(error) {
+  const payload = extractErrorPayload(error);
+  const seconds = Number(payload?.details?.retryAfterSeconds);
+  if (Number.isFinite(seconds) && seconds > 0) return Math.ceil(seconds);
   return null;
 }
 
@@ -120,8 +134,14 @@ function resolveErrorCode(payload, error) {
     if (inferred) return inferred;
   }
 
-  if (!code && serverMessage) {
-    code = inferCodeFromMessage(serverMessage);
+  if (serverMessage) {
+    const inferred = inferCodeFromMessage(serverMessage);
+    if (inferred === 'CITY_NAME_INVALID' || inferred === 'CITY_NAME_TOO_LONG') {
+      return inferred;
+    }
+    if (!code) {
+      code = inferred;
+    }
   }
 
   return code || '';
@@ -152,6 +172,11 @@ export function getApiErrorMessage(error, fallbackKey = 'errors.generic') {
   let code = resolveErrorCode(payload, error);
 
   if (code === 'VALIDATION_ERROR') {
+    const inferred = inferCodeFromMessage(serverMessage);
+    if (inferred) {
+      const translated = translateErrorCode(inferred, payload?.details);
+      if (translated) return translated;
+    }
     if (serverMessage && !isTechnicalErrorMessage(serverMessage)) {
       return serverMessage;
     }
@@ -162,13 +187,13 @@ export function getApiErrorMessage(error, fallbackKey = 'errors.generic') {
   if (code === 'CONFLICT' && serverMessage) {
     const inferred = inferCodeFromMessage(serverMessage);
     if (inferred) {
-      const translated = translateErrorCode(inferred);
+      const translated = translateErrorCode(inferred, payload?.details);
       if (translated) return translated;
     }
   }
 
   if (code) {
-    const translated = translateErrorCode(code);
+    const translated = translateErrorCode(code, payload?.details);
     if (translated) return translated;
   }
 

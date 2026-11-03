@@ -34,6 +34,27 @@
     "messages": "Messages",
     "profile": "Profile"
   },
+  "friends": {
+    "page": {
+      "title": "Friends",
+      "searchPlaceholder": "Search by name or username…",
+      "sections": "Friends sections",
+      "tabFriends": "Friends",
+      "tabFollowers": "Followers",
+      "tabFollowing": "Following",
+      "tabVip": "VIP friends",
+      "subscribeBack": "Follow back",
+      "unsubscribe": "Unfollow",
+      "vipBadge": "VIP",
+      "emptyFriends": "You don't have any friends yet",
+      "emptyFollowers": "No followers yet",
+      "emptyFollowing": "You are not following anyone yet",
+      "emptyVip": "No VIP friends yet",
+      "emptySearch": "No one found for this query",
+      "loadError": "Could not load the list",
+      "actionError": "Could not update the subscription"
+    }
+  },
   "landing": {
     "tagline": "LunMeYo is a modern platform for dating, communication, and safe social connections.",
     "features": {
@@ -59,7 +80,8 @@
     "privacyPolicy": "Privacy policy",
     "logout": "Log out",
     "closeMenu": "Close menu",
-    "language": "Language"
+    "language": "Language",
+    "suggestions": "Your suggestions"
   },
   "auth": {
     "login": {
@@ -106,7 +128,7 @@
       "emailPlaceholder": "Enter email",
       "submit": "Confirm",
       "submitting": "Sending…",
-      "toastSuccess": "Code sent to your email",
+      "toastSuccess": "If an account exists, the code will arrive by email. If it does not, request it again in a minute.",
       "errors": {
         "emailRequired": "Enter your email",
         "emailInvalid": "Enter a valid email",
@@ -138,7 +160,7 @@
     },
     "verifyEmail": {
       "title": "Verification",
-      "subtitle": "Code sent to your email. Valid for 15 minutes.",
+      "subtitle": "We sent a confirmation code to your email. If it has not arrived, check Spam or use resend.",
       "submit": "Confirm",
       "submitting": "Verifying…",
       "resend": "Resend code",
@@ -153,13 +175,13 @@
     },
     "verifyResetCode": {
       "title": "Reset password",
-      "subtitle": "Code sent to your email. Valid for 15 minutes.",
+      "subtitle": "We sent a password reset code to your email. If it has not arrived, check Spam or use resend.",
       "submit": "Next",
       "submitting": "Verifying…",
       "resend": "Resend code",
       "resending": "Sending…",
       "toastVerified": "Code confirmed",
-      "toastResent": "Code resent",
+      "toastResent": "If an account exists, a new code will arrive by email. If it does not, try again in a minute.",
       "errors": {
         "incomplete": "Enter the full code",
         "noEmail": "No email. Go back and enter your email again.",
@@ -168,8 +190,10 @@
       }
     },
     "verify": {
-      "digitAria": "Digit {{n}}"
+      "digitAria": "Digit {{n}}",
+      "resendIn": "Resend in {{seconds}}s"
     },
+    "icloudDeliveryHint": "iCloud Mail may sometimes deliver messages with a delay. Check the Spam folder. If you requested the code again, use the code from the newest email.",
     "google": {
       "loading": "Signing in with Google…",
       "loadingGeneric": "Authorizing…"
@@ -236,7 +260,8 @@
       "showMore": "Show more",
       "findFriends": "Find friends",
       "viewFriends": "View friends",
-      "empty": "No friends yet",
+      "allContacts": "All contacts",
+      "empty": "You don't have any friends yet",
       "profileOf": "Profile {{name}}",
       "profileUnavailable": "Profile unavailable",
       "openProfile": "Open profile {{name}}"
@@ -323,6 +348,13 @@
       "edit": "Edit",
       "delete": "Delete",
       "save": "Save",
+      "share": "Share",
+      "shareText": "Photo by {{name}}",
+      "download": "Save to device",
+      "downloadError": "Could not download photo",
+      "showAll": "Show all",
+      "showLess": "Show less",
+      "userTitle": "Photos by {{name}}",
       "makeProfile": "Make profile photo",
       "updated": "Photo updated",
       "updateError": "Could not update photo",
@@ -419,6 +451,9 @@
         "maritalStatusRequired": "Select relationship status",
         "countryRequired": "Select a country",
         "cityRequired": "Select a city",
+        "cityInvalid": "Enter a valid city name",
+        "cityMaxLength": "City name is too long",
+        "regionMaxLength": "Region name is too long",
         "interestsRequired": "Select interests",
         "hobbiesRequired": "Select hobbies",
         "usernameRequired": "Enter a username",
@@ -553,6 +588,11 @@
     },
     "loadMessagesError": "Could not load messages",
     "sendError": "Could not send message",
+    "sendingStatus": "Sending",
+    "sentStatus": "Sent",
+    "deliveredStatus": "Delivered",
+    "seenStatus": "Seen",
+    "sendFailedStatus": "Not sent",
     "noMessages": "No messages",
     "draftLabel": "Draft:",
     "draftPreview": "Draft: {{text}}",
@@ -630,19 +670,27 @@
       "mute": "Mute",
       "unmute": "Unmute",
       "markUnread": "Mark as unread",
+      "markRead": "Mark as read",
       "block": "Block user",
       "delete": "Delete chat",
       "hide": "Hide chat",
       "pinSuccess": "Chat pinned",
       "unpinSuccess": "Chat unpinned",
       "markUnreadSuccess": "Chat marked as unread",
+      "markReadSuccess": "Chat marked as read",
       "blockConfirm": "Block this user?",
       "blockSuccess": "User blocked",
       "deleteConfirm": "Delete this chat for you only? The other person will keep their messages.",
       "deleteSuccess": "Chat deleted",
       "hideConfirm": "Hide this chat for you only? The group will remain for other members.",
-      "hideSuccess": "Chat hidden"
+      "hideSuccess": "Chat hidden",
+      "unhide": "Unhide chat",
+      "unhideSuccess": "Chat restored to the list"
     },
+    "hiddenChats": "Hidden chats",
+    "hiddenChatsEmpty": "No hidden chats",
+    "hiddenChatsOpen": "Open hidden chats",
+    "hiddenChatsBack": "Back to chats",
     "uploading": "Uploading…",
     "uploadError": "Upload failed",
     "voiceNotSupported": "Voice recording is not supported in this browser",
@@ -748,6 +796,8 @@
       "connectTimeout": "Connection timed out",
       "unknown": "User",
       "enableSound": "Tap to enable call sounds",
+      "tapToHear": "Tap the screen to hear other participants",
+      "micFailed": "Could not enable microphone",
       "chatMissedAudio": "Missed audio call",
       "chatMissedVideo": "Missed video call",
       "chatCancelledAudio": "Cancelled audio call",
@@ -766,7 +816,27 @@
       "cameraRetry": "Try again",
       "unavailableTitle": "Call unavailable",
       "vipRequired": "This user allows messages and calls only for VIP members.",
-      "subscriptionRequired": "Subscribe to this profile to place a call."
+      "subscriptionRequired": "Subscribe to this profile to place a call.",
+      "you": "you",
+      "leaveRoom": "Leave",
+      "joinRoom": "Join",
+      "returnToRoom": "Return to room",
+      "backToChat": "Back to chat",
+      "groupAudioRoom": "🔊 Voice room",
+      "groupVideoRoom": "🎥 Video room",
+      "groupParticipantsNow": "{{count}} participants now",
+      "groupJoinConfirm": "This group already has an active room. Join it?",
+      "groupAudioStarted": "A voice room started in the LunMeYo group",
+      "groupVideoStarted": "A video room started in the LunMeYo group",
+      "groupRoomEnded": "The room ended",
+      "screenShare": "Share screen",
+      "stopScreenShare": "Stop sharing",
+      "screenShareUnsupported": "Screen sharing is not supported in this browser",
+      "screenShareInsecure": "Screen sharing needs a secure (HTTPS) connection",
+      "screenSharePermissionDenied": "Screen sharing permission was denied",
+      "screenShareNotConnected": "Wait until you are in the call, then try again",
+      "screenShareFailed": "Could not start screen sharing",
+      "speaker": "Speaker"
     }
   },
   "notifications": {
@@ -801,7 +871,10 @@
       "postSharedToUser": "{{name}} shared a post with you",
       "message": "{{name}} sent you a message",
       "system": "System notification",
-      "giftReceived": "{{name}} sent you a gift"
+      "giftReceived": "{{name}} sent you a gift",
+      "feedbackReply": "The administration replied to your request",
+      "feedbackReplyBody": "You received a reply to your suggestion.",
+      "groupCallStarted": "A video room started in the LunMeYo group"
     },
     "items": {
       "follow": {
@@ -879,7 +952,7 @@
       "emailHint": "The code will be sent to this address",
       "submit": "Send code",
       "submitting": "Sending…",
-      "toastSent": "Code sent to your email",
+      "toastSent": "If an account exists, the code will arrive by email. If it does not, request it again in a minute.",
       "backToAccount": "Back to settings",
       "errors": {
         "emailRequired": "Enter your email",
@@ -984,11 +1057,47 @@
       "all": "All",
       "following": "Following",
       "saved": "Saved"
+    },
+    "upload": {
+      "progress": "Uploading {{percent}}%",
+      "publish": "Publish",
+      "errors": {
+        "required": "Select a video file",
+        "type": "Use an MP4, MOV, or M4V video file",
+        "tooLarge": "Video must be {{maxMb}} MB or smaller",
+        "network": "Could not upload the video. Check your connection.",
+        "failed": "Could not upload the video",
+        "missingUrl": "Upload finished but the video URL is missing"
+      }
     }
   },
   "stories": {
     "yourStory": "Your story",
-    "closeFriends": "Close friends"
+    "closeFriends": "Close friends",
+    "createTitle": "Add to story",
+    "viewerLabel": "Story viewer",
+    "close": "Close",
+    "more": "More",
+    "views": "Views",
+    "share": "Share",
+    "mention": "Mention",
+    "delete": "Delete",
+    "deleteConfirm": "Delete this story?",
+    "saveMedia": "Save photo/video",
+    "addText": "Text",
+    "textPhotoOnly": "Text is available for photos",
+    "done": "Done",
+    "moveText": "Move text",
+    "textPlaceholder": "Your text",
+    "fontSize": "Font size",
+    "textColor": "Text color",
+    "pickColor": "Color {{color}}",
+    "tools": "Story tools",
+    "music": "Music",
+    "templates": "Templates",
+    "collage": "Collage",
+    "stickers": "Stickers",
+    "draw": "Draw"
   },
   "liveNotifications": {
     "started": "{{name}} started a live stream"
@@ -1006,6 +1115,8 @@
   "errors": {
     "generic": "Something went wrong. Please try again.",
     "VALIDATION_ERROR": "Please check the entered data.",
+    "CITY_NAME_INVALID": "Enter a valid city name",
+    "CITY_NAME_TOO_LONG": "City name is too long",
     "UNAUTHORIZED": "Please sign in.",
     "FORBIDDEN": "Not enough permissions.",
     "NOT_FOUND": "Not found.",
@@ -1015,6 +1126,8 @@
     "EMAIL_ALREADY_VERIFIED": "Email is already verified.",
     "INVALID_VERIFICATION_CODE": "Invalid verification code.",
     "VERIFICATION_CODE_EXPIRED": "Verification code has expired.",
+    "VERIFICATION_ATTEMPTS_EXCEEDED": "Too many attempts. Request a new code.",
+    "VERIFICATION_RESEND_COOLDOWN": "Wait {{seconds}} seconds before resending the code.",
     "INVALID_RESET_CREDENTIALS": "Invalid email or code.",
     "INVALID_PASSWORD": "Invalid password.",
     "AVATAR_INVALID_FORMAT": "Allowed formats: JPEG, PNG, WebP.",
@@ -1087,6 +1200,7 @@
     "friendsSearch": "Search friends",
     "friendsEmpty": "You have no friends yet",
     "needRecipient": "Open a user’s profile to send a gift.",
+    "needGift": "Choose a gift to send.",
     "sent": "Gift sent",
     "testSelectedTitle": "Gift selected",
     "testSelectedBody": "{{gift}} will be sent to {{name}}.",
@@ -1281,6 +1395,7 @@
       "cancel": "Cancel",
       "publish": "Publish",
       "publishing": "Publishing…",
+      "uploadingVideo": "Uploading video {{percent}}%",
       "privacy": "Only your friends see your location"
     },
     "edit": {
@@ -1570,5 +1685,84 @@
     "quiet_evenings": "Quiet evenings",
     "kids": "Children",
     "family": "Family"
+  },
+  "feedback": {
+    "fabLabel": "Your suggestions",
+    "fabAria": "Open suggestions form",
+    "title": "Help us make LunMeYo better 💜",
+    "intro": "We are testing the LunMeYo demo. Tell us what you liked, what was unclear, or what you would like to change.",
+    "typeLegend": "Feedback type",
+    "types": {
+      "suggestion": "I have a suggestion",
+      "bug": "I found a bug",
+      "unclear": "Something was unclear",
+      "review": "I want to leave a review"
+    },
+    "detailsLabel": "Tell us more...",
+    "detailsPlaceholder": "Tell us more...",
+    "attach": "📎 Add a screenshot",
+    "removeScreenshot": "Remove screenshot",
+    "screenshotPreview": "Screenshot preview",
+    "submit": "Send",
+    "submitting": "Sending…",
+    "success": "Thank you! 💜 Your feedback helps us make LunMeYo better.",
+    "close": "Close",
+    "typeRequired": "Choose a feedback type",
+    "messageRequired": "Please add a few words",
+    "screenshotTooBig": "Screenshot must be 5MB or less",
+    "screenshotType": "Attach an image (JPEG, PNG, WebP, GIF)",
+    "screenshotUploadError": "Could not upload the screenshot",
+    "unreadAria": "{{count}} unread replies",
+    "status": {
+      "new": "New",
+      "inProgress": "In progress",
+      "answered": "Answered",
+      "closed": "Closed"
+    },
+    "mine": {
+      "title": "My requests",
+      "empty": "You have not sent any suggestions yet.",
+      "hasReply": "New reply 💜"
+    },
+    "thread": {
+      "you": "You",
+      "team": "MeYou Administration"
+    }
+  },
+  "admin": {
+    "nav": {
+      "dashboard": "Dashboard",
+      "feedback": "Feedback",
+      "reports": "Reports",
+      "users": "Users"
+    },
+    "feedback": {
+      "title": "Suggestions / Feedback",
+      "subtitle": "Requests from LunMeYo demo testing.",
+      "empty": "No feedback found",
+      "detailTitle": "Request",
+      "thread": "Reply history",
+      "replyLabel": "Reply to the user",
+      "replyPlaceholder": "Write a reply…",
+      "sendReply": "Send reply",
+      "replySent": "Reply sent to the user",
+      "statusUpdated": "Status updated",
+      "viewProfile": "View profile",
+      "next": "Next",
+      "page": "Page {{page}} / {{totalPages}} · {{total}}",
+      "filters": {
+        "all": "All",
+        "allTypes": "All types"
+      },
+      "fields": {
+        "status": "Status",
+        "user": "User",
+        "type": "Type",
+        "message": "Message",
+        "screenshot": "Screenshot",
+        "page": "Page",
+        "date": "Date"
+      }
+    }
   }
 }

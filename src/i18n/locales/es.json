@@ -34,6 +34,27 @@
     "messages": "Mensajes",
     "profile": "Perfil"
   },
+  "friends": {
+    "page": {
+      "title": "Amigos",
+      "searchPlaceholder": "Buscar por nombre o usuario…",
+      "sections": "Secciones de amigos",
+      "tabFriends": "Amigos",
+      "tabFollowers": "Seguidores",
+      "tabFollowing": "Seguidos",
+      "tabVip": "Amigos VIP",
+      "subscribeBack": "Seguir también",
+      "unsubscribe": "Dejar de seguir",
+      "vipBadge": "VIP",
+      "emptyFriends": "You don't have any friends yet",
+      "emptyFollowers": "Aún no hay seguidores",
+      "emptyFollowing": "Todavía no sigues a nadie",
+      "emptyVip": "Aún no hay amigos VIP",
+      "emptySearch": "No se encontró a nadie",
+      "loadError": "No se pudo cargar la lista",
+      "actionError": "No se pudo actualizar la suscripción"
+    }
+  },
   "landing": {
     "tagline": "LunMeYo es una plataforma moderna para citas, comunicación y conexiones sociales seguras.",
     "features": {
@@ -59,7 +80,8 @@
     "privacyPolicy": "Privacy policy",
     "logout": "Log out",
     "closeMenu": "Close menu",
-    "language": "Language"
+    "language": "Language",
+    "suggestions": "Tus sugerencias"
   },
   "auth": {
     "login": {
@@ -102,7 +124,7 @@
       "emailPlaceholder": "Enter email",
       "submit": "Confirm",
       "submitting": "Sending…",
-      "toastSuccess": "Code sent to your email",
+      "toastSuccess": "If an account exists, the code will arrive by email. If it does not, request it again in a minute.",
       "errors": {
         "emailRequired": "Enter your email",
         "emailInvalid": "Enter a valid email",
@@ -134,7 +156,7 @@
     },
     "verifyEmail": {
       "title": "Verification",
-      "subtitle": "Code sent to your email. Valid for 15 minutes.",
+      "subtitle": "Hemos enviado un código de confirmación a tu correo. Si no llega, revisa Spam o vuelve a enviarlo.",
       "submit": "Confirm",
       "submitting": "Verifying…",
       "resend": "Resend code",
@@ -149,13 +171,13 @@
     },
     "verifyResetCode": {
       "title": "Reset password",
-      "subtitle": "Code sent to your email. Valid for 15 minutes.",
+      "subtitle": "Hemos enviado un código para cambiar la contraseña a tu correo. Si no llega, revisa Spam o vuelve a enviarlo.",
       "submit": "Next",
       "submitting": "Verifying…",
       "resend": "Resend code",
       "resending": "Sending…",
       "toastVerified": "Code confirmed",
-      "toastResent": "Code resent",
+      "toastResent": "If an account exists, a new code will arrive by email. If it does not, try again in a minute.",
       "errors": {
         "incomplete": "Enter the full code",
         "noEmail": "No email. Go back and enter your email again.",
@@ -164,8 +186,10 @@
       }
     },
     "verify": {
-      "digitAria": "Digit {{n}}"
+      "digitAria": "Digit {{n}}",
+      "resendIn": "Reenviar en {{seconds}} s"
     },
+    "icloudDeliveryHint": "El correo de iCloud a veces puede tardar. Revisa la carpeta de spam. Si pediste el código otra vez, usa el del correo más reciente.",
     "google": {
       "loading": "Signing in with Google…",
       "loadingGeneric": "Authorizing…"
@@ -232,7 +256,8 @@
       "showMore": "Show more",
       "findFriends": "Find friends",
       "viewFriends": "View friends",
-      "empty": "No friends yet",
+      "allContacts": "All contacts",
+      "empty": "You don't have any friends yet",
       "profileOf": "Profile {{name}}",
       "profileUnavailable": "Profile unavailable",
       "openProfile": "Open profile {{name}}"
@@ -383,7 +408,10 @@
         "nationalityRequired": "Enter your nationality",
         "maritalStatusRequired": "Select relationship status",
         "countryRequired": "Select a country",
-        "cityRequired": "Select a city",
+        "cityRequired": "Selecciona una ciudad",
+        "cityInvalid": "Introduce un nombre de ciudad válido",
+        "cityMaxLength": "El nombre de la ciudad es demasiado largo",
+        "regionMaxLength": "El nombre de la región es demasiado largo",
         "interestsRequired": "Select interests",
         "hobbiesRequired": "Select hobbies",
         "usernameRequired": "Enter a username",
@@ -501,6 +529,10 @@
     "soundLabel": "🔔 Message sound:",
     "loadChatsError": "Could not load chats",
     "noChats": "No chats yet",
+    "hiddenChats": "Hidden chats",
+    "hiddenChatsEmpty": "No hidden chats",
+    "hiddenChatsOpen": "Open hidden chats",
+    "hiddenChatsBack": "Back to chats",
     "selectChat": "Select a chat on the left or start a conversation from a user profile.",
     "empty": {
       "illustrationAlt": "Select a chat on the left. Interesting conversations, new connections and sincere emotions are waiting for you",
@@ -515,6 +547,11 @@
     },
     "loadMessagesError": "Could not load messages",
     "sendError": "Could not send message",
+    "sendingStatus": "Sending",
+    "sentStatus": "Sent",
+    "deliveredStatus": "Delivered",
+    "seenStatus": "Seen",
+    "sendFailedStatus": "Not sent",
     "noMessages": "No messages",
     "draftLabel": "Borrador:",
     "draftPreview": "Borrador: {{text}}",
@@ -675,6 +712,8 @@
       "connectTimeout": "Connection timed out",
       "unknown": "User",
       "enableSound": "Tap to enable call sounds",
+      "tapToHear": "Tap the screen to hear other participants",
+      "micFailed": "Could not enable microphone",
       "inCall": "In call",
       "chatMissedAudio": "Missed audio call",
       "chatMissedVideo": "Missed video call",
@@ -694,7 +733,27 @@
       "cameraRetry": "Intentar de nuevo",
       "unavailableTitle": "Llamada no disponible",
       "vipRequired": "Este usuario permite mensajes y llamadas solo a miembros VIP.",
-      "subscriptionRequired": "Suscríbete a este perfil para poder llamar."
+      "subscriptionRequired": "Suscríbete a este perfil para poder llamar.",
+      "you": "you",
+      "leaveRoom": "Leave",
+      "joinRoom": "Join",
+      "returnToRoom": "Return to room",
+      "backToChat": "Back to chat",
+      "groupAudioRoom": "🔊 Voice room",
+      "groupVideoRoom": "🎥 Video room",
+      "groupParticipantsNow": "{{count}} participants now",
+      "groupJoinConfirm": "This group already has an active room. Join it?",
+      "groupAudioStarted": "A voice room started in the LunMeYo group",
+      "groupVideoStarted": "A video room started in the LunMeYo group",
+      "groupRoomEnded": "The room ended",
+      "screenShare": "Share screen",
+      "stopScreenShare": "Stop sharing",
+      "screenShareUnsupported": "Screen sharing is not supported in this browser",
+      "screenShareInsecure": "Screen sharing needs a secure (HTTPS) connection",
+      "screenSharePermissionDenied": "Screen sharing permission was denied",
+      "screenShareNotConnected": "Wait until you are in the call, then try again",
+      "screenShareFailed": "Could not start screen sharing",
+      "speaker": "Speaker"
     }
   },
   "notifications": {
@@ -729,7 +788,10 @@
       "postSharedToUser": "{{name}} compartió una publicación contigo",
       "message": "{{name}} te envió un mensaje",
       "system": "Notificación del sistema",
-      "giftReceived": "{{name}} te envió un regalo"
+      "giftReceived": "{{name}} te envió un regalo",
+      "feedbackReply": "La administración respondió a tu solicitud",
+      "feedbackReplyBody": "Recibiste una respuesta a tu sugerencia.",
+      "groupCallStarted": "A video room started in the LunMeYo group"
     },
     "items": {
       "follow": {
@@ -807,7 +869,7 @@
       "emailHint": "The code will be sent to this address",
       "submit": "Send code",
       "submitting": "Sending…",
-      "toastSent": "Code sent to your email",
+      "toastSent": "If an account exists, the code will arrive by email. If it does not, request it again in a minute.",
       "backToAccount": "Back to settings",
       "errors": {
         "emailRequired": "Enter your email",
@@ -912,11 +974,47 @@
       "all": "All",
       "following": "Following",
       "saved": "Saved"
+    },
+    "upload": {
+      "progress": "Subiendo {{percent}}%",
+      "publish": "Publicar",
+      "errors": {
+        "required": "Selecciona un archivo de vídeo",
+        "type": "Usa un vídeo MP4, MOV o M4V",
+        "tooLarge": "El vídeo debe ocupar {{maxMb}} MB o menos",
+        "network": "No se pudo subir el vídeo. Comprueba la conexión.",
+        "failed": "No se pudo subir el vídeo",
+        "missingUrl": "La subida terminó, pero falta la URL del vídeo"
+      }
     }
   },
   "stories": {
-    "yourStory": "Your story",
-    "closeFriends": "Close friends"
+    "yourStory": "Tu historia",
+    "closeFriends": "Amigos cercanos",
+    "createTitle": "Añadir a la historia",
+    "viewerLabel": "Visor de historias",
+    "close": "Cerrar",
+    "more": "Más",
+    "views": "Vistas",
+    "share": "Compartir",
+    "mention": "Mencionar",
+    "delete": "Eliminar",
+    "deleteConfirm": "¿Eliminar esta historia?",
+    "saveMedia": "Guardar foto/vídeo",
+    "addText": "Texto",
+    "textPhotoOnly": "El texto está disponible para fotos",
+    "done": "Listo",
+    "moveText": "Mover texto",
+    "textPlaceholder": "Tu texto",
+    "fontSize": "Tamaño del texto",
+    "textColor": "Color del texto",
+    "pickColor": "Color {{color}}",
+    "tools": "Herramientas de historia",
+    "music": "Música",
+    "templates": "Plantillas",
+    "collage": "Collage",
+    "stickers": "Stickers",
+    "draw": "Dibujar"
   },
   "liveNotifications": {
     "started": "{{name}} inició una transmisión en directo"
@@ -934,6 +1032,8 @@
   "errors": {
     "generic": "Something went wrong. Please try again.",
     "VALIDATION_ERROR": "Please check the entered data.",
+    "CITY_NAME_INVALID": "Introduce un nombre de ciudad válido",
+    "CITY_NAME_TOO_LONG": "El nombre de la ciudad es demasiado largo",
     "UNAUTHORIZED": "Please sign in.",
     "FORBIDDEN": "Not enough permissions.",
     "NOT_FOUND": "Not found.",
@@ -943,6 +1043,8 @@
     "EMAIL_ALREADY_VERIFIED": "Email is already verified.",
     "INVALID_VERIFICATION_CODE": "Invalid verification code.",
     "VERIFICATION_CODE_EXPIRED": "Verification code has expired.",
+    "VERIFICATION_ATTEMPTS_EXCEEDED": "Demasiados intentos. Solicita un código nuevo.",
+    "VERIFICATION_RESEND_COOLDOWN": "Espera {{seconds}} s antes de reenviar el código.",
     "INVALID_RESET_CREDENTIALS": "Invalid email or code.",
     "INVALID_PASSWORD": "Invalid password.",
     "AVATAR_INVALID_FORMAT": "Allowed formats: JPEG, PNG, WebP.",
@@ -1014,6 +1116,7 @@
     "friendsSearch": "Buscar amigos",
     "friendsEmpty": "Aún no tienes amigos",
     "needRecipient": "Abre el perfil de un usuario para enviar un regalo.",
+    "needGift": "Elige un regalo para enviar.",
     "sent": "Regalo enviado",
     "testSelectedTitle": "Regalo seleccionado",
     "testSelectedBody": "{{gift}} se enviará a {{name}}.",
@@ -1208,6 +1311,7 @@
       "cancel": "Cancel",
       "publish": "Publish",
       "publishing": "Publishing…",
+      "uploadingVideo": "Uploading video {{percent}}%",
       "privacy": "Only your friends see your location"
     },
     "edit": {
@@ -1497,5 +1601,84 @@
     "quiet_evenings": "Tardes tranquilas",
     "kids": "Niños",
     "family": "Familia"
+  },
+  "feedback": {
+    "fabLabel": "Tus sugerencias",
+    "fabAria": "Abrir el formulario de sugerencias",
+    "title": "Ayúdanos a mejorar LunMeYo 💜",
+    "intro": "Estamos probando la versión demo de LunMeYo. Cuéntanos qué te gustó, qué no quedó claro o qué te gustaría cambiar.",
+    "typeLegend": "Tipo de comentario",
+    "types": {
+      "suggestion": "Tengo una sugerencia",
+      "bug": "Encontré un error",
+      "unclear": "Algo no quedó claro",
+      "review": "Quiero dejar una reseña"
+    },
+    "detailsLabel": "Cuéntanos más...",
+    "detailsPlaceholder": "Cuéntanos más...",
+    "attach": "📎 Añadir captura",
+    "removeScreenshot": "Quitar captura",
+    "screenshotPreview": "Vista previa de la captura",
+    "submit": "Enviar",
+    "submitting": "Enviando…",
+    "success": "¡Gracias! 💜 Tu opinión nos ayuda a mejorar LunMeYo.",
+    "close": "Cerrar",
+    "typeRequired": "Elige un tipo de comentario",
+    "messageRequired": "Añade unas palabras",
+    "screenshotTooBig": "La captura debe ser de 5 MB o menos",
+    "screenshotType": "Añade una imagen (JPEG, PNG, WebP, GIF)",
+    "screenshotUploadError": "No se pudo subir la captura",
+    "unreadAria": "{{count}} respuestas sin leer",
+    "status": {
+      "new": "Nuevos",
+      "inProgress": "En curso",
+      "answered": "Respondidos",
+      "closed": "Cerrados"
+    },
+    "mine": {
+      "title": "Mis solicitudes",
+      "empty": "Aún no has enviado sugerencias.",
+      "hasReply": "Hay respuesta 💜"
+    },
+    "thread": {
+      "you": "Tú",
+      "team": "Administración de MeYou"
+    }
+  },
+  "admin": {
+    "nav": {
+      "dashboard": "Dashboard",
+      "feedback": "Sugerencias",
+      "reports": "Reports",
+      "users": "Users"
+    },
+    "feedback": {
+      "title": "Sugerencias / Feedback",
+      "subtitle": "Solicitudes de la demo de LunMeYo.",
+      "empty": "No hay feedback",
+      "detailTitle": "Solicitud",
+      "thread": "Historial de respuestas",
+      "replyLabel": "Responder al usuario",
+      "replyPlaceholder": "Escribe una respuesta…",
+      "sendReply": "Enviar respuesta",
+      "replySent": "Respuesta enviada al usuario",
+      "statusUpdated": "Estado actualizado",
+      "viewProfile": "Ver perfil",
+      "next": "Siguiente",
+      "page": "Página {{page}} / {{totalPages}} · {{total}}",
+      "filters": {
+        "all": "Todos",
+        "allTypes": "Todos los tipos"
+      },
+      "fields": {
+        "status": "Estado",
+        "user": "Usuario",
+        "type": "Tipo",
+        "message": "Mensaje",
+        "screenshot": "Captura",
+        "page": "Página",
+        "date": "Fecha"
+      }
+    }
   }
 }

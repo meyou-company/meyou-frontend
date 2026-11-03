@@ -49,6 +49,10 @@ export function normalizeForValidation(v) {
 
     maritalStatus: v.maritalStatus?.value || '',
     country: v.country?.value || '',
+    region:
+      typeof v.region === 'string'
+        ? v.region.trim()
+        : v.region?.value || v.region?.label || '',
     city: v.city?.value || '',
 
     gender: v.gender,

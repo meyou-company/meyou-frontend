@@ -16,6 +16,7 @@ export function useMenuItems() {
       { id: 'policy', icon: profileIcons.privacyBlack, label: t('menu.privacy') },
       { id: 'account', icon: profileIcons.settingsBlack, label: t('menu.accountSettings') },
       { id: 'security', icon: profileIcons.lockBmBlack, label: t('menu.security') },
+      { id: 'suggestions', icon: profileIcons.comment, label: t('menu.suggestions') },
       { id: 'support', icon: profileIcons.helpBlack, label: t('menu.support') },
       { id: 'report', icon: profileIcons.complainBlack, label: t('menu.report') },
       { id: 'about', icon: profileIcons.aboutBlack, label: t('menu.about') },

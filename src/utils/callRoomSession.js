@@ -253,6 +253,7 @@ async function runTeardownCallRoom(room, { callId, reason } = {}) {
   const local = room.localParticipant;
   const cameraPub = local?.getTrackPublication(Track.Source.Camera);
   const micPub = local?.getTrackPublication(Track.Source.Microphone);
+  const screenPub = local?.getTrackPublication(Track.Source.ScreenShare);
   const cameraTrack = cameraPub?.track?.mediaStreamTrack;
   const micTrack = micPub?.track?.mediaStreamTrack;
 
@@ -278,6 +279,11 @@ async function runTeardownCallRoom(room, { callId, reason } = {}) {
       console.warn('CAMERA CLEANUP setMicrophoneEnabled(false) failed', error);
     }
     try {
+      if (screenPub) await local.setScreenShareEnabled(false);
+    } catch (error) {
+      console.warn('CAMERA CLEANUP setScreenShareEnabled(false) failed', error);
+    }
+    try {
       await room.disconnect();
     } catch (error) {
       console.warn('CAMERA CLEANUP disconnect failed', error);
@@ -301,6 +307,27 @@ export function createDefaultCallRoom() {
   return new Room({
     adaptiveStream: true,
     dynacast: true,
+    // pagehide/visibilitychange must not drop the SFU session: a short
+    // tab background or camera-permission prompt would otherwise look like
+    // a leave and used to end the group room for everyone.
+    disconnectOnPageLeave: false,
     audioCaptureDefaults: { autoGainControl: true, echoCancellation: true },
+  });
+}
+
+/** Group grid resizes often; adaptiveStream would unsubscribe cameras mid-layout. */
+export function createGroupCallRoom() {
+  return new Room({
+    adaptiveStream: false,
+    dynacast: true,
+    disconnectOnPageLeave: false,
+    // Mix remote mics in Web Audio so Safari/iOS does not play only one
+    // HTML <audio> element when several people are speaking.
+    webAudioMix: true,
+    audioCaptureDefaults: {
+      autoGainControl: true,
+      echoCancellation: true,
+      noiseSuppression: true,
+    },
   });
 }

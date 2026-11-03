@@ -34,6 +34,28 @@
     "messages": "الرسائل",
     "profile": "الملف الشخصي"
   },
+  "friends": {
+    "page": {
+      "title": "الأصدقاء",
+      "searchPlaceholder": "البحث بالاسم أو اسم المستخدم…",
+      "sections": "أقسام الأصدقاء",
+      "tabFriends": "الأصدقاء",
+      "tabFollowers": "المتابعون",
+      "tabFollowing": "المتابَعون",
+      "tabVip": "أصدقاء VIP",
+      "subscribeBack": "متابعة بالمثل",
+      "unsubscribe": "إلغاء المتابعة",
+      "vipBadge": "VIP",
+      "emptyFriends": "You don't have any friends yet",
+      "emptyFollowers": "لا يوجد متابعون بعد",
+      "emptyFollowing": "أنت لا تتابع أحداً بعد",
+      "emptyVip": "لا يوجد أصدقاء VIP بعد",
+      "emptySearch": "لم يتم العثور على أحد",
+      "loadError": "تعذر تحميل القائمة",
+      "actionError": "تعذر تحديث الاشتراك"
+    }
+  },
+
   "menu": {
     "myProfile": "My profile",
     "edit": "Edit",
@@ -51,7 +73,8 @@
     "privacyPolicy": "Privacy policy",
     "logout": "Log out",
     "closeMenu": "Close menu",
-    "language": "Language"
+    "language": "Language",
+    "suggestions": "اقتراحاتكم"
   },
   "auth": {
     "login": {
@@ -94,7 +117,7 @@
       "emailPlaceholder": "Enter email",
       "submit": "Confirm",
       "submitting": "Sending…",
-      "toastSuccess": "Code sent to your email",
+      "toastSuccess": "If an account exists, the code will arrive by email. If it does not, request it again in a minute.",
       "errors": {
         "emailRequired": "Enter your email",
         "emailInvalid": "Enter a valid email",
@@ -126,7 +149,7 @@
     },
     "verifyEmail": {
       "title": "Verification",
-      "subtitle": "Code sent to your email. Valid for 15 minutes.",
+      "subtitle": "أرسلنا رمز التأكيد إلى بريدك الإلكتروني. إذا لم يصل، تحقق من البريد العشوائي أو أعد الإرسال.",
       "submit": "Confirm",
       "submitting": "Verifying…",
       "resend": "Resend code",
@@ -141,13 +164,13 @@
     },
     "verifyResetCode": {
       "title": "Reset password",
-      "subtitle": "Code sent to your email. Valid for 15 minutes.",
+      "subtitle": "أرسلنا رمز إعادة تعيين كلمة المرور إلى بريدك. إذا لم يصل، تحقق من البريد العشوائي أو أعد الإرسال.",
       "submit": "Next",
       "submitting": "Verifying…",
       "resend": "Resend code",
       "resending": "Sending…",
       "toastVerified": "Code confirmed",
-      "toastResent": "Code resent",
+      "toastResent": "If an account exists, a new code will arrive by email. If it does not, try again in a minute.",
       "errors": {
         "incomplete": "Enter the full code",
         "noEmail": "No email. Go back and enter your email again.",
@@ -156,8 +179,10 @@
       }
     },
     "verify": {
-      "digitAria": "Digit {{n}}"
+      "digitAria": "Digit {{n}}",
+      "resendIn": "إعادة الإرسال خلال {{seconds}} ث"
     },
+    "icloudDeliveryHint": "قد يتأخر بريد iCloud أحيانًا. تحقق من البريد العشوائي. إذا طلبت الرمز مرة أخرى، فاستخدم الرمز من أحدث رسالة.",
     "google": {
       "loading": "Signing in with Google…",
       "loadingGeneric": "Authorizing…"
@@ -224,7 +249,8 @@
       "showMore": "Show more",
       "findFriends": "Find friends",
       "viewFriends": "View friends",
-      "empty": "No friends yet",
+      "allContacts": "All contacts",
+      "empty": "You don't have any friends yet",
       "profileOf": "Profile {{name}}",
       "profileUnavailable": "Profile unavailable",
       "openProfile": "Open profile {{name}}"
@@ -375,7 +401,10 @@
         "nationalityRequired": "Enter your nationality",
         "maritalStatusRequired": "Select relationship status",
         "countryRequired": "Select a country",
-        "cityRequired": "Select a city",
+        "cityRequired": "اختر مدينة",
+        "cityInvalid": "أدخل اسم مدينة صالحًا",
+        "cityMaxLength": "اسم المدينة طويل جدًا",
+        "regionMaxLength": "اسم المنطقة طويل جدًا",
         "interestsRequired": "Select interests",
         "hobbiesRequired": "Select hobbies",
         "usernameRequired": "Enter a username",
@@ -493,6 +522,10 @@
     "soundLabel": "🔔 Message sound:",
     "loadChatsError": "Could not load chats",
     "noChats": "No chats yet",
+    "hiddenChats": "Hidden chats",
+    "hiddenChatsEmpty": "No hidden chats",
+    "hiddenChatsOpen": "Open hidden chats",
+    "hiddenChatsBack": "Back to chats",
     "selectChat": "Select a chat on the left or start a conversation from a user profile.",
     "empty": {
       "illustrationAlt": "Select a chat on the left. Interesting conversations, new connections and sincere emotions are waiting for you",
@@ -507,6 +540,11 @@
     },
     "loadMessagesError": "Could not load messages",
     "sendError": "Could not send message",
+    "sendingStatus": "Sending",
+    "sentStatus": "Sent",
+    "deliveredStatus": "Delivered",
+    "seenStatus": "Seen",
+    "sendFailedStatus": "Not sent",
     "noMessages": "No messages",
     "draftLabel": "مسودة:",
     "draftPreview": "مسودة: {{text}}",
@@ -667,6 +705,8 @@
       "connectTimeout": "Connection timed out",
       "unknown": "User",
       "enableSound": "Tap to enable call sounds",
+      "tapToHear": "Tap the screen to hear other participants",
+      "micFailed": "Could not enable microphone",
       "inCall": "In call",
       "chatMissedAudio": "Missed audio call",
       "chatMissedVideo": "Missed video call",
@@ -686,7 +726,27 @@
       "cameraRetry": "حاول مرة أخرى",
       "unavailableTitle": "المكالمة غير متاحة",
       "vipRequired": "يسمح هذا المستخدم بالرسائل والمكالمات لأعضاء VIP فقط.",
-      "subscriptionRequired": "اشترك في هذا الملف الشخصي لإجراء مكالمة."
+      "subscriptionRequired": "اشترك في هذا الملف الشخصي لإجراء مكالمة.",
+      "you": "you",
+      "leaveRoom": "Leave",
+      "joinRoom": "Join",
+      "returnToRoom": "Return to room",
+      "backToChat": "Back to chat",
+      "groupAudioRoom": "🔊 Voice room",
+      "groupVideoRoom": "🎥 Video room",
+      "groupParticipantsNow": "{{count}} participants now",
+      "groupJoinConfirm": "This group already has an active room. Join it?",
+      "groupAudioStarted": "A voice room started in the LunMeYo group",
+      "groupVideoStarted": "A video room started in the LunMeYo group",
+      "groupRoomEnded": "The room ended",
+      "screenShare": "Share screen",
+      "stopScreenShare": "Stop sharing",
+      "screenShareUnsupported": "Screen sharing is not supported in this browser",
+      "screenShareInsecure": "Screen sharing needs a secure (HTTPS) connection",
+      "screenSharePermissionDenied": "Screen sharing permission was denied",
+      "screenShareNotConnected": "Wait until you are in the call, then try again",
+      "screenShareFailed": "Could not start screen sharing",
+      "speaker": "Speaker"
     }
   },
   "notifications": {
@@ -721,7 +781,10 @@
       "postSharedToUser": "شارك {{name}} منشورًا معك",
       "message": "أرسل {{name}} إليك رسالة",
       "system": "إشعار النظام",
-      "giftReceived": "{{name}} أرسل لك هدية"
+      "giftReceived": "{{name}} أرسل لك هدية",
+      "feedbackReply": "أجابت الإدارة على طلبكم",
+      "feedbackReplyBody": "تلقّيتم ردًا على اقتراحكم.",
+      "groupCallStarted": "A video room started in the LunMeYo group"
     },
     "items": {
       "follow": {
@@ -799,7 +862,7 @@
       "emailHint": "The code will be sent to this address",
       "submit": "Send code",
       "submitting": "Sending…",
-      "toastSent": "Code sent to your email",
+      "toastSent": "If an account exists, the code will arrive by email. If it does not, request it again in a minute.",
       "backToAccount": "Back to settings",
       "errors": {
         "emailRequired": "Enter your email",
@@ -904,15 +967,53 @@
       "all": "All",
       "following": "Following",
       "saved": "Saved"
+    },
+    "upload": {
+      "progress": "جارٍ الرفع {{percent}}٪",
+      "publish": "نشر",
+      "errors": {
+        "required": "اختر ملف فيديو",
+        "type": "استخدم فيديو MP4 أو MOV أو M4V",
+        "tooLarge": "يجب ألا يتجاوز الفيديو {{maxMb}} ميغابايت",
+        "network": "تعذر رفع الفيديو. تحقق من الاتصال.",
+        "failed": "تعذر رفع الفيديو",
+        "missingUrl": "اكتمل الرفع ولكن رابط الفيديو غير موجود"
+      }
     }
   },
   "stories": {
-    "yourStory": "Your story",
-    "closeFriends": "Close friends"
+    "yourStory": "قصتك",
+    "closeFriends": "الأصدقاء المقربون",
+    "createTitle": "أضف إلى القصة",
+    "viewerLabel": "عارض القصص",
+    "close": "إغلاق",
+    "more": "المزيد",
+    "views": "المشاهدات",
+    "share": "مشاركة",
+    "mention": "إشارة",
+    "delete": "حذف",
+    "deleteConfirm": "حذف هذه القصة؟",
+    "saveMedia": "حفظ الصورة/الفيديو",
+    "addText": "نص",
+    "textPhotoOnly": "النص متاح للصور",
+    "done": "تم",
+    "moveText": "نقل النص",
+    "textPlaceholder": "نصك",
+    "fontSize": "حجم النص",
+    "textColor": "لون النص",
+    "pickColor": "اللون {{color}}",
+    "tools": "أدوات القصة",
+    "music": "موسيقى",
+    "templates": "قوالب",
+    "collage": "كولاج",
+    "stickers": "ملصقات",
+    "draw": "رسم"
   },
   "errors": {
     "generic": "حدث خطأ. حاول مرة أخرى.",
     "VALIDATION_ERROR": "Please check the entered data.",
+    "CITY_NAME_INVALID": "أدخل اسم مدينة صالحًا",
+    "CITY_NAME_TOO_LONG": "اسم المدينة طويل جدًا",
     "UNAUTHORIZED": "يرجى تسجيل الدخول.",
     "FORBIDDEN": "Not enough permissions.",
     "NOT_FOUND": "Not found.",
@@ -922,6 +1023,8 @@
     "EMAIL_ALREADY_VERIFIED": "Email is already verified.",
     "INVALID_VERIFICATION_CODE": "Invalid verification code.",
     "VERIFICATION_CODE_EXPIRED": "Verification code has expired.",
+    "VERIFICATION_ATTEMPTS_EXCEEDED": "محاولات كثيرة جدًا. اطلب رمزًا جديدًا.",
+    "VERIFICATION_RESEND_COOLDOWN": "انتظر {{seconds}} ث قبل إعادة إرسال الرمز.",
     "INVALID_RESET_CREDENTIALS": "Invalid email or code.",
     "INVALID_PASSWORD": "Invalid password.",
     "AVATAR_INVALID_FORMAT": "Allowed formats: JPEG, PNG, WebP.",
@@ -993,6 +1096,7 @@
     "friendsSearch": "البحث بين الأصدقاء",
     "friendsEmpty": "ليس لديك أصدقاء بعد",
     "needRecipient": "افتح ملف المستخدم لإرسال هدية.",
+    "needGift": "اختر هدية لإرسالها.",
     "sent": "تم إرسال الهدية",
     "testSelectedTitle": "تم اختيار الهدية",
     "testSelectedBody": "سيتم إرسال {{gift}} إلى {{name}}.",
@@ -1125,6 +1229,7 @@
       "cancel": "Cancel",
       "publish": "Publish",
       "publishing": "Publishing…",
+      "uploadingVideo": "Uploading video {{percent}}%",
       "privacy": "Only your friends see your location"
     },
     "edit": {
@@ -1282,6 +1387,85 @@
       "actionsAria": "Comment actions",
       "edit": "Edit",
       "delete": "Delete"
+    }
+  },
+  "feedback": {
+    "fabLabel": "اقتراحاتكم",
+    "fabAria": "فتح نموذج الاقتراحات",
+    "title": "ساعدونا على تحسين LunMeYo 💜",
+    "intro": "نحن نختبر النسخة التجريبية من LunMeYo. أخبرونا بما أعجبكم، وما كان غير واضح، أو ما تودون تغييره.",
+    "typeLegend": "نوع الملاحظة",
+    "types": {
+      "suggestion": "لدي اقتراح",
+      "bug": "وجدت خطأ",
+      "unclear": "شيء ما كان غير واضح",
+      "review": "أريد ترك تقييم"
+    },
+    "detailsLabel": "أخبرونا بالمزيد...",
+    "detailsPlaceholder": "أخبرونا بالمزيد...",
+    "attach": "📎 إضافة لقطة شاشة",
+    "removeScreenshot": "إزالة لقطة الشاشة",
+    "screenshotPreview": "معاينة لقطة الشاشة",
+    "submit": "إرسال",
+    "submitting": "جارٍ الإرسال…",
+    "success": "شكرًا لكم! 💜 رأيكم يساعدنا على جعل LunMeYo أفضل.",
+    "close": "إغلاق",
+    "typeRequired": "اختر نوع الملاحظة",
+    "messageRequired": "أضف بضع كلمات",
+    "screenshotTooBig": "يجب ألا يتجاوز حجم لقطة الشاشة 5 ميغابايت",
+    "screenshotType": "أرفق صورة (JPEG أو PNG أو WebP أو GIF)",
+    "screenshotUploadError": "تعذر رفع لقطة الشاشة",
+    "unreadAria": "{{count}} ردود غير مقروءة",
+    "status": {
+      "new": "جديدة",
+      "inProgress": "قيد العمل",
+      "answered": "تم الرد",
+      "closed": "مغلقة"
+    },
+    "mine": {
+      "title": "طلباتي",
+      "empty": "لم ترسل أي اقتراحات بعد.",
+      "hasReply": "هناك رد 💜"
+    },
+    "thread": {
+      "you": "أنت",
+      "team": "إدارة MeYou"
+    }
+  },
+  "admin": {
+    "nav": {
+      "dashboard": "Dashboard",
+      "feedback": "الاقتراحات",
+      "reports": "Reports",
+      "users": "Users"
+    },
+    "feedback": {
+      "title": "الاقتراحات / Feedback",
+      "subtitle": "طلبات اختبار النسخة التجريبية من LunMeYo.",
+      "empty": "لا توجد ملاحظات",
+      "detailTitle": "الطلب",
+      "thread": "سجل الردود",
+      "replyLabel": "الرد على المستخدم",
+      "replyPlaceholder": "اكتب ردًا…",
+      "sendReply": "إرسال الرد",
+      "replySent": "تم إرسال الرد إلى المستخدم",
+      "statusUpdated": "تم تحديث الحالة",
+      "viewProfile": "عرض الملف",
+      "next": "التالي",
+      "page": "صفحة {{page}} / {{totalPages}} · {{total}}",
+      "filters": {
+        "all": "الكل",
+        "allTypes": "كل الأنواع"
+      },
+      "fields": {
+        "status": "الحالة",
+        "user": "المستخدم",
+        "type": "النوع",
+        "message": "الرسالة",
+        "screenshot": "لقطة الشاشة",
+        "page": "الصفحة",
+        "date": "التاريخ"
+      }
     }
   }
 }

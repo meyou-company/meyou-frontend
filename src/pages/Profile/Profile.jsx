@@ -16,6 +16,7 @@ import { subscriptionsApi } from "../../services/subscriptionsApi";
 import { conversationsApi } from "../../services/conversationsApi";
 import { getApiErrorMessage } from "../../utils/getApiErrorMessage";
 import { getFriendsFromUser, getFriendsCountNumber, normalizeFriendsApiResponse } from "../../utils/profileFriends";
+import { normalizeConnectionCounts } from "../../utils/connectionTabs";
 import { getViewerIsVipMember, getMessengerWriteDenial } from "../../utils/profileVipUi";
 import { usePresenceStore } from "../../zustand/usePresenceStore";
 import {
@@ -105,6 +106,35 @@ const normalizeProfile = (u) => {
   };
 };
 
+const PROFILE_CACHE_TTL_MS = 2 * 60 * 1000;
+const profileCache = new Map();
+
+const getProfileCacheKey = (username) =>
+  String(username || "").trim().replace(/^@/, "").toLowerCase();
+
+const readCachedProfile = (key) => {
+  if (!key) return null;
+  const cached = profileCache.get(key);
+  if (!cached) return null;
+  if (Date.now() - cached.savedAt > PROFILE_CACHE_TTL_MS) {
+    profileCache.delete(key);
+    return null;
+  }
+  return cached.user;
+};
+
+const writeCachedProfile = (key, profile) => {
+  if (!key || !profile) return;
+  profileCache.set(key, { user: profile, savedAt: Date.now() });
+
+  const canonicalKey = getProfileCacheKey(
+    profile.username || profile.nick || profile.nickname || profile.login,
+  );
+  if (canonicalKey && canonicalKey !== key) {
+    profileCache.set(canonicalKey, { user: profile, savedAt: Date.now() });
+  }
+};
+
 export default function Profile() {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -115,20 +145,40 @@ export default function Profile() {
   const guestPreviewEnabled = useGuestPreviewStore((s) => s.enabled);
   const setGuestPreviewEnabled = useGuestPreviewStore((s) => s.setEnabled);
 
-  const [fetchedUser, setFetchedUser] = useState(null);
-  const [fetchError, setFetchError] = useState(null);
+  const [fetchedProfile, setFetchedProfile] = useState({ key: "", user: null });
+  const [profileFetchError, setProfileFetchError] = useState({ key: "", value: null });
   const [subscriptionLoading, setSubscriptionLoading] = useState(false);
-  /** Список підписок (following) — для блоку «Друзья» на своєму профілі */
+  /** Mutual friends preview for the own-profile «Друзі» card. */
   const [followingList, setFollowingList] = useState([]);
+  const [classifiedFriendsCount, setClassifiedFriendsCount] = useState(null);
   const [secondaryReady, setSecondaryReady] = useState(false);
   const [vipPurchaseModalOpen, setVipPurchaseModalOpen] = useState(false);
   const [chatLockedModalOpen, setChatLockedModalOpen] = useState(false);
   const friendsFetchKeyRef = useRef(null);
 
   const urlUsernameNorm = urlUsername?.trim().replace(/^@/, "") || "";
+  const profileRouteKey = getProfileCacheKey(urlUsernameNorm);
+  const fetchedUser = fetchedProfile.key === profileRouteKey
+    ? fetchedProfile.user
+    : readCachedProfile(profileRouteKey);
+  const fetchError = profileFetchError.key === profileRouteKey
+    ? profileFetchError.value
+    : null;
   const isOwnProfile =
     !urlUsernameNorm ||
     (user && (user.username || user.nick || "").toLowerCase() === urlUsernameNorm.toLowerCase());
+
+  const updateFetchedUser = useCallback((updater) => {
+    if (!profileRouteKey) return;
+    setFetchedProfile((previousProfile) => {
+      const currentUser = previousProfile.key === profileRouteKey
+        ? previousProfile.user
+        : readCachedProfile(profileRouteKey);
+      const nextUser = typeof updater === "function" ? updater(currentUser) : updater;
+      if (nextUser) writeCachedProfile(profileRouteKey, nextUser);
+      return { key: profileRouteKey, user: nextUser };
+    });
+  }, [profileRouteKey]);
 
   /** Guest preview applies only on own profile — disable when navigating away. */
   useEffect(() => {
@@ -137,22 +187,31 @@ export default function Profile() {
     }
   }, [guestPreviewEnabled, isOwnProfile, setGuestPreviewEnabled]);
 
-  /** На своєму профілі завантажуємо список підписок (following) для блоку «Друзья» */
+  /** Own profile Friends card: classified mutual friends, including /profile/:ownUsername. */
   useEffect(() => {
-    if (urlUsername || !user) return;
+    if (!isOwnProfile || !user?.id) {
+      setFollowingList([]);
+      setClassifiedFriendsCount(null);
+      return;
+    }
     let cancelled = false;
     subscriptionsApi
-      .getFollowing({ take: 200 })
+      .getConnections({ tab: "friends", take: 200 })
       .then((res) => {
         const data = res?.data ?? res;
         const items = data?.items ?? [];
-        if (!cancelled) setFollowingList(Array.isArray(items) ? items : []);
+        const counts = normalizeConnectionCounts(data?.counts);
+        if (cancelled) return;
+        setFollowingList(Array.isArray(items) ? items : []);
+        setClassifiedFriendsCount(counts.friends);
       })
       .catch(() => {
-        if (!cancelled) setFollowingList([]);
+        if (cancelled) return;
+        setFollowingList([]);
+        setClassifiedFriendsCount(0);
       });
     return () => { cancelled = true; };
-  }, [urlUsername, user?.id]);
+  }, [isOwnProfile, user?.id]);
 
   useEffect(() => {
     if (!urlUsername) {
@@ -160,12 +219,14 @@ export default function Profile() {
       return;
     }
     if (!urlUsernameNorm) {
-      setFetchError("not_found");
-      setFetchedUser(null);
+      setProfileFetchError({ key: profileRouteKey, value: "not_found" });
+      setFetchedProfile({ key: profileRouteKey, user: null });
       return;
     }
     let cancelled = false;
-    setFetchError(null);
+    const requestKey = profileRouteKey;
+    const cachedProfile = readCachedProfile(requestKey);
+    setProfileFetchError({ key: requestKey, value: null });
 
     const fetchProfile = (username) =>
       usersApi.getByUsername(username).then((res) => {
@@ -184,9 +245,20 @@ export default function Profile() {
               lastSeenAt: f.lastSeenAt,
             })) : []),
           ]);
-          setFetchedUser(data);
+          writeCachedProfile(requestKey, data);
+          setFetchedProfile({ key: requestKey, user: data });
         }
       });
+
+    const handleFetchError = (error) => {
+      if (cancelled) return;
+      const isNotFound = error?.response?.status === 404;
+      if (isNotFound || !cachedProfile) {
+        if (isNotFound) profileCache.delete(requestKey);
+        setProfileFetchError({ key: requestKey, value: isNotFound ? "not_found" : "error" });
+        setFetchedProfile({ key: requestKey, user: null });
+      }
+    };
 
     const firstTry = urlUsernameNorm;
     fetchProfile(firstTry).catch((e) => {
@@ -195,20 +267,16 @@ export default function Profile() {
         const lower = firstTry.toLowerCase();
         if (lower !== firstTry) {
           fetchProfile(lower).catch((err) => {
-            if (!cancelled) {
-              setFetchError(err?.response?.status === 404 ? "not_found" : "error");
-              setFetchedUser(null);
-            }
+            handleFetchError(err);
           });
           return;
         }
       }
-      setFetchError(e?.response?.status === 404 ? "not_found" : "error");
-      setFetchedUser(null);
+      handleFetchError(e);
     });
 
     return () => { cancelled = true; };
-  }, [urlUsernameNorm, urlUsername]);
+  }, [urlUsernameNorm, urlUsername, profileRouteKey]);
 
   /** Підтягуємо friends/following один раз, якщо в профілі лише лічильник без списку */
   useEffect(() => {
@@ -229,7 +297,7 @@ export default function Profile() {
     let cancelled = false;
     const mergeFriendsList = (items) => {
       if (cancelled || !Array.isArray(items) || items.length === 0) return;
-      setFetchedUser((prev) => (prev ? { ...prev, following: items } : null));
+      updateFetchedUser((prev) => (prev ? { ...prev, following: items } : null));
     };
 
     usersApi
@@ -245,7 +313,7 @@ export default function Profile() {
     return () => {
       cancelled = true;
     };
-  }, [urlUsernameNorm, fetchedUser?.id, fetchedUser?.friendsCount, fetchedUser?.friends_count]);
+  }, [urlUsernameNorm, fetchedUser?.id, fetchedUser?.friendsCount, fetchedUser?.friends_count, updateFetchedUser]);
 
   // Редирект делает ProfileGuard в AppRouter, здесь не нужен
   // useEffect(() => {
@@ -296,14 +364,14 @@ export default function Profile() {
     try {
       if (isSubscribed) {
         await subscriptionsApi.unsubscribe(profileUser.id);
-        setFetchedUser((prev) => prev ? { ...prev, subscriptionStatus: { ...prev.subscriptionStatus, isSubscribed: false } } : null);
+        updateFetchedUser((prev) => prev ? { ...prev, subscriptionStatus: { ...prev.subscriptionStatus, isSubscribed: false } } : null);
       } else {
         await subscriptionsApi.subscribe(profileUser.id);
-        setFetchedUser((prev) => prev ? { ...prev, subscriptionStatus: { ...prev.subscriptionStatus, isSubscribed: true } } : null);
+        updateFetchedUser((prev) => prev ? { ...prev, subscriptionStatus: { ...prev.subscriptionStatus, isSubscribed: true } } : null);
       }
       if (!urlUsername && user) {
         refreshMe?.();
-        subscriptionsApi.getFollowing({ take: 50 }).then((res) => {
+        subscriptionsApi.getConnections({ tab: "friends", take: 50 }).then((res) => {
           const data = res?.data ?? res;
           const items = data?.items ?? [];
           setFollowingList(Array.isArray(items) ? items : []);
@@ -314,7 +382,7 @@ export default function Profile() {
     } finally {
       setSubscriptionLoading(false);
     }
-  }, [profileUser?.id, isSubscribed, urlUsername, user, refreshMe]);
+  }, [profileUser?.id, isSubscribed, urlUsername, user, refreshMe, updateFetchedUser]);
 
   // ✅ handlers для Header
   const onSearch = useCallback(() => navigate("/search"), [navigate]);
@@ -422,7 +490,7 @@ export default function Profile() {
   }, [t]);
 
   const loadingOwn = !urlUsername && !user;
-  const loadingPublic = urlUsername && fetchedUser === null && !fetchError;
+  const loadingPublic = Boolean(urlUsername && fetchedUser === null && !fetchError);
 
   if (!urlUsername && !isAuthLoading && !user) return null;
 
@@ -510,6 +578,7 @@ export default function Profile() {
           postsAuthorId={profileUser.id}
           loadSecondary={secondaryReady}
           followingList={followingList}
+          classifiedFriendsCount={classifiedFriendsCount}
           onOpenUser={onOpenUser}
           onShowMore={onShowMore}
           onFindFriends={onFindFriends}
@@ -607,7 +676,7 @@ export default function Profile() {
           </button>
         </div>
       ) : null}
-      <div className={styles.content}>{renderProfileContent()}</div>
+      <div className={styles.content} key={profileUser.id}>{renderProfileContent()}</div>
       <VipAccessInfoModal
         isOpen={chatLockedModalOpen}
         onClose={() => setChatLockedModalOpen(false)}

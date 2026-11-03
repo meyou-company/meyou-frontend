@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useNavigate, useParams } from 'react-router-dom';
+import { LuEyeOff } from 'react-icons/lu';
 import { toast } from 'sonner';
 import {
   MESSAGE_CREATED_EVENT,
@@ -34,15 +35,24 @@ import TypingIndicator from '../../components/Messages/TypingIndicator';
 import OnlineStatus from '../../components/Presence/OnlineStatus';
 import StoryViewerModal from '../../components/Stories/StoryViewerModal';
 import { conversationsApi } from '../../services/conversationsApi';
+import { callsApi } from '../../services/callsApi';
 import { usersApi } from '../../services/usersApi';
 import { usePresenceStore } from '../../zustand/usePresenceStore';
 import { getApiErrorCode, getApiErrorMessage } from '../../utils/getApiErrorMessage';
+import { resolveProfileUsername } from '../../utils/profileUsername';
 import {
   collectSeenOutgoingIds,
   extractSeenTargetIds,
   markOutgoingSeenFromEnvelope,
   mergeSeenMessageIds,
 } from '../../utils/messageReadReceipt';
+import {
+  createClientId,
+  createOptimisticMessage,
+  markOptimisticFailed,
+  mergeMessageRecord,
+  mergeOutgoingMessage,
+} from '../../utils/optimisticChatMessage';
 import {
   conversationMatchesSearch,
   formatConversationClock,
@@ -68,8 +78,9 @@ import {
 import { useMessageActions } from '../../hooks/useMessageActions';
 import { useAuthStore } from '../../zustand/useAuthStore';
 import { useMessagesStore } from '../../zustand/useMessagesStore';
-import { startConversationCall } from '../../providers/CallsProvider';
+import { startConversationCall, joinConversationGroupRoom } from '../../providers/CallsProvider';
 import { useCallsStore } from '../../zustand/useCallsStore';
+import { useGroupRoomsStore } from '../../zustand/useGroupRoomsStore';
 import './MessagesPage.scss';
 
 function getDisplayName(user, fallback) {
@@ -282,12 +293,15 @@ export default function MessagesPage() {
   const fetchTotalUnreadCount = useMessagesStore((s) => s.fetchTotalUnreadCount);
 
   const [conversations, setConversations] = useState([]);
+  const [hiddenConversations, setHiddenConversations] = useState([]);
+  const [sidebarMode, setSidebarMode] = useState('inbox');
   const [messages, setMessages] = useState([]);
   const [loadingList, setLoadingList] = useState(true);
+  const [loadingHidden, setLoadingHidden] = useState(false);
   const [loadingChat, setLoadingChat] = useState(false);
-  const [sending, setSending] = useState(false);
   const [drafts, setDrafts] = useState({});
   const draftsRef = useRef({});
+  const activeConversationIdRef = useRef(conversationId || null);
   const [listError, setListError] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [replyTo, setReplyTo] = useState(null);
@@ -305,11 +319,15 @@ export default function MessagesPage() {
   const [mutedOverrides, setMutedOverrides] = useState({});
   const [storyViewerGroup, setStoryViewerGroup] = useState(null);
   const [chatMenu, setChatMenu] = useState(null);
+  const hiddenIdsRef = useRef(new Set());
+  const manuallyUnreadRef = useRef(new Set());
+  const readInFlightRef = useRef(new Map());
 
   const messagesEndRef = useRef(null);
   const longPressTimerRef = useRef(null);
   const startCallInFlightRef = useRef(false);
   const activeConversationId = conversationId || null;
+  activeConversationIdRef.current = activeConversationId;
 
   useEffect(() => {
     const mobile = window.matchMedia('(max-width: 768px)');
@@ -352,8 +370,11 @@ export default function MessagesPage() {
   }, [currentUserId]);
 
   const activeConversation = useMemo(
-    () => conversations.find((c) => c.id === activeConversationId) ?? null,
-    [conversations, activeConversationId],
+    () =>
+      conversations.find((c) => c.id === activeConversationId) ||
+      hiddenConversations.find((c) => c.id === activeConversationId) ||
+      null,
+    [conversations, hiddenConversations, activeConversationId],
   );
 
   const peerId = activeConversation?.participant?.id;
@@ -369,6 +390,17 @@ export default function MessagesPage() {
       conversationMatchesSearch(chat, q, t, (user, fb) => getDisplayName(user, fb), drafts),
     );
   }, [conversations, drafts, searchQuery, t]);
+
+  const filteredHiddenConversations = useMemo(() => {
+    const q = searchQuery.trim().toLowerCase();
+    if (!q) return hiddenConversations;
+    return hiddenConversations.filter((chat) =>
+      conversationMatchesSearch(chat, q, t, (user, fb) => getDisplayName(user, fb), drafts),
+    );
+  }, [hiddenConversations, drafts, searchQuery, t]);
+
+  const sidebarConversations =
+    sidebarMode === 'hidden' ? filteredHiddenConversations : filteredConversations;
 
   const groupedMessages = useMemo(
     () => groupMessagesWithDates(messages, t),
@@ -426,25 +458,73 @@ export default function MessagesPage() {
     }
   }, []);
 
+  useEffect(() => {
+    hiddenIdsRef.current = new Set(
+      hiddenConversations.map((c) => String(c.id)),
+    );
+  }, [hiddenConversations]);
+
+  const loadHiddenConversations = useCallback(async () => {
+    try {
+      setLoadingHidden(true);
+      const items = await conversationsApi.listHidden();
+      const list = sortConversations(Array.isArray(items) ? items : []);
+      usePresenceStore.getState().hydrateMany(
+        list.map((c) => c.participant).filter(Boolean),
+      );
+      setHiddenConversations(list);
+    } catch (err) {
+      console.error('[messages] hidden list failed', err);
+      setHiddenConversations([]);
+    } finally {
+      setLoadingHidden(false);
+    }
+  }, []);
+
   const markChatRead = useCallback(
-    async (id) => {
+    async (id, { force = false } = {}) => {
       if (!id) return;
-      try {
-        const result = await conversationsApi.markConversationRead(id);
-        if (typeof result?.totalUnreadCount === 'number') {
-          setTotalUnreadCount(result.totalUnreadCount);
+      const key = String(id);
+      if (!force && manuallyUnreadRef.current.has(key)) return;
+      const pending = readInFlightRef.current.get(key);
+      if (pending) return pending;
+
+      const request = (async () => {
+        try {
+          const result = await conversationsApi.markConversationRead(id);
+          manuallyUnreadRef.current.delete(key);
+          if (typeof result?.totalUnreadCount === 'number') {
+            setTotalUnreadCount(result.totalUnreadCount);
+          } else {
+            void fetchTotalUnreadCount(true);
+          }
+          applyConversationRead(result || {});
+          setConversations((prev) =>
+            prev.map((c) =>
+              String(c.id) === key ? { ...c, unreadCount: 0 } : c,
+            ),
+          );
+          setHiddenConversations((prev) =>
+            prev.map((c) =>
+              String(c.id) === key ? { ...c, unreadCount: 0 } : c,
+            ),
+          );
+          return true;
+        } catch (err) {
+          console.error('[messages] mark read failed', err);
+          if (force) throw err;
+          return false;
+        } finally {
+          if (readInFlightRef.current.get(key) === request) {
+            readInFlightRef.current.delete(key);
+          }
         }
-        applyConversationRead(result);
-        setConversations((prev) =>
-          prev.map((c) =>
-            String(c.id) === String(id) ? { ...c, unreadCount: 0 } : c,
-          ),
-        );
-      } catch (err) {
-        console.error('[messages] mark read failed', err);
-      }
+      })();
+
+      readInFlightRef.current.set(key, request);
+      return request;
     },
-    [setTotalUnreadCount, applyConversationRead],
+    [setTotalUnreadCount, applyConversationRead, fetchTotalUnreadCount],
   );
 
   const loadMessages = useCallback(
@@ -483,8 +563,9 @@ export default function MessagesPage() {
   useEffect(() => {
     if (!isAuthed) return;
     loadConversations();
+    loadHiddenConversations();
     fetchTotalUnreadCount();
-  }, [isAuthed, loadConversations, fetchTotalUnreadCount]);
+  }, [isAuthed, loadConversations, loadHiddenConversations, fetchTotalUnreadCount]);
 
   useEffect(() => {
     if (!isAuthed || !activeConversationId || activeConversation) return undefined;
@@ -493,10 +574,20 @@ export default function MessagesPage() {
       .getById(activeConversationId)
       .then((row) => {
         if (cancelled || !row?.id) return;
+        if (row.isHidden) {
+          setHiddenConversations((prev) => {
+            if (prev.some((c) => String(c.id) === String(row.id))) return prev;
+            return sortConversations([row, ...prev]);
+          });
+          return;
+        }
         setConversations((prev) => {
           if (prev.some((c) => String(c.id) === String(row.id))) return prev;
           return sortConversations([row, ...prev]);
         });
+        setHiddenConversations((prev) =>
+          prev.filter((c) => String(c.id) !== String(row.id)),
+        );
       })
       .catch(() => undefined);
     return () => {
@@ -506,6 +597,7 @@ export default function MessagesPage() {
 
   useEffect(() => {
     if (!isAuthed || !activeConversationId) return;
+    manuallyUnreadRef.current.delete(String(activeConversationId));
     setReplyTo(null);
     setShowChatSearch(false);
     setTypingUserIds([]);
@@ -535,8 +627,18 @@ export default function MessagesPage() {
       const idx = prev.findIndex((m) => String(m.id) === String(message.id));
       if (idx >= 0) {
         const next = [...prev];
-        next[idx] = { ...prev[idx], ...message };
+        next[idx] = mergeMessageRecord(prev[idx], message);
         return next;
+      }
+      if (
+        message.clientId &&
+        prev.some((m) => String(m.clientId) === String(message.clientId))
+      ) {
+        return mergeOutgoingMessage(
+          prev,
+          `optimistic-${message.clientId}`,
+          message,
+        );
       }
       return [...prev, message];
     });
@@ -559,15 +661,31 @@ export default function MessagesPage() {
       const convId = envelope?.conversationId;
       if (!message?.id || !convId) return;
 
-      setConversations((prev) => {
-        const next = upsertConversationFromMessage(prev, envelope);
-        if (next === prev) void loadConversations();
-        return next;
-      });
+      if (hiddenIdsRef.current.has(String(convId))) {
+        setHiddenConversations((prev) =>
+          upsertConversationFromMessage(prev, envelope),
+        );
+      } else {
+        setConversations((prev) => {
+          const next = upsertConversationFromMessage(prev, envelope);
+          if (next === prev) void loadConversations();
+          return next;
+        });
+      }
 
       if (matchesActive(convId)) {
         setMessages((prev) => {
           if (prev.some((m) => String(m.id) === String(message.id))) return prev;
+          if (
+            message.clientId &&
+            prev.some((m) => String(m.clientId) === String(message.clientId))
+          ) {
+            return mergeOutgoingMessage(
+              prev,
+              `optimistic-${message.clientId}`,
+              message,
+            );
+          }
           return [...prev, message];
         });
         void markChatRead(convId);
@@ -578,10 +696,16 @@ export default function MessagesPage() {
       const envelope = event?.detail;
       const convId = envelope?.conversationId;
       if (!convId) return;
+      if (manuallyUnreadRef.current.has(String(convId))) return;
       if (typeof envelope.totalUnreadCount === 'number') {
         setTotalUnreadCount(envelope.totalUnreadCount);
       }
       setConversations((prev) =>
+        prev.map((c) =>
+          String(c.id) === String(convId) ? { ...c, unreadCount: 0 } : c,
+        ),
+      );
+      setHiddenConversations((prev) =>
         prev.map((c) =>
           String(c.id) === String(convId) ? { ...c, unreadCount: 0 } : c,
         ),
@@ -597,6 +721,16 @@ export default function MessagesPage() {
       setConversations((prev) => patchConversationLastMessage(prev, convId, message));
 
       if (!matchesActive(convId)) return;
+      if (
+        message.clientId &&
+        currentUserId &&
+        String(message.senderId) === String(currentUserId)
+      ) {
+        setMessages((prev) =>
+          mergeOutgoingMessage(prev, `optimistic-${message.clientId}`, message),
+        );
+        return;
+      }
       appendOrUpdateMessage(message);
     };
 
@@ -768,45 +902,73 @@ export default function MessagesPage() {
   );
 
   const handleSendPayload = async (payload) => {
-    if (!activeConversationId || sending) return;
+    const conversationIdForSend = activeConversationId;
+    if (!conversationIdForSend || !currentUserId) return;
 
     const hasText = Boolean(payload?.text?.trim());
     const hasAttachments = Array.isArray(payload?.attachments) && payload.attachments.length > 0;
     if (!hasText && !hasAttachments) return;
 
-    try {
-      setSending(true);
+    const clientId = createClientId();
+    const replySnapshot = replyTo;
+    const optimistic = createOptimisticMessage({
+      clientId,
+      conversationId: conversationIdForSend,
+      senderId: currentUserId,
+      sender: {
+        id: currentUser?.id,
+        username: currentUser?.username,
+        firstName: currentUser?.firstName,
+        lastName: currentUser?.lastName,
+        avatarUrl: currentUser?.avatarUrl,
+        name: getDisplayName(currentUser, ''),
+      },
+      payload,
+      replyTo: replySnapshot,
+    });
 
-      const body = {
+    appendOrUpdateMessage(optimistic);
+    const patchOptimisticLast = (c) =>
+      String(c.id) === String(conversationIdForSend)
+        ? { ...c, lastMessage: optimistic, updatedAt: optimistic.createdAt }
+        : c;
+    setHiddenConversations((prev) => prev.map(patchOptimisticLast));
+    setConversations((prev) => sortConversations(prev.map(patchOptimisticLast)));
+
+    const nextDrafts = persistConversationDraft(
+      currentUserId,
+      draftsRef.current,
+      conversationIdForSend,
+      '',
+    );
+    draftsRef.current = nextDrafts;
+    setDrafts(nextDrafts);
+    setReplyTo(null);
+
+    void conversationsApi
+      .sendMessage(conversationIdForSend, {
         ...payload,
-        replyToMessageId: replyTo?.id,
-      };
-      const created = await conversationsApi.sendMessage(activeConversationId, body);
-      const nextDrafts = persistConversationDraft(
-        currentUserId,
-        draftsRef.current,
-        activeConversationId,
-        '',
-      );
-      draftsRef.current = nextDrafts;
-      setDrafts(nextDrafts);
-      setReplyTo(null);
-      appendOrUpdateMessage(created);
-      setConversations((prev) =>
-        sortConversations(
-          prev.map((c) =>
-            c.id === activeConversationId
-              ? { ...c, lastMessage: created, updatedAt: created.createdAt }
-              : c,
-          ),
-        ),
-      );
-    } catch (err) {
-      console.error('[messages] send failed', err);
-      toast.error(getApiErrorMessage(err, 'messenger.sendError'));
-    } finally {
-      setSending(false);
-    }
+        replyToMessageId: replySnapshot?.id,
+        clientId,
+      })
+      .then((created) => {
+        if (String(activeConversationIdRef.current) === String(conversationIdForSend)) {
+          setMessages((prev) => mergeOutgoingMessage(prev, optimistic.id, created));
+        }
+        const patchLastMessage = (c) =>
+          String(c.id) === String(conversationIdForSend)
+            ? { ...c, lastMessage: created, updatedAt: created.createdAt }
+            : c;
+        setHiddenConversations((prev) => prev.map(patchLastMessage));
+        setConversations((prev) => sortConversations(prev.map(patchLastMessage)));
+      })
+      .catch((err) => {
+        console.error('[messages] send failed', err);
+        if (String(activeConversationIdRef.current) === String(conversationIdForSend)) {
+          setMessages((prev) => markOptimisticFailed(prev, optimistic.id));
+        }
+        toast.error(getApiErrorMessage(err, 'messenger.sendError'));
+      });
   };
 
   const {
@@ -864,15 +1026,88 @@ export default function MessagesPage() {
   };
 
   const callPhase = useCallsStore((s) => s.phase);
+  const activeCall = useCallsStore((s) => s.call);
   const callBusy = callPhase !== 'idle';
+  const groupRoom = useGroupRoomsStore((s) =>
+    activeConversationId ? s.byConversationId[activeConversationId] : null,
+  );
+  const inThisGroupRoom =
+    isActiveGroup &&
+    callBusy &&
+    activeCall?.kind === 'GROUP' &&
+    String(activeCall?.conversationId) === String(activeConversationId);
+
+  useEffect(() => {
+    if (!isActiveGroup || !activeConversationId) return undefined;
+    let cancelled = false;
+    void callsApi
+      .getConversationActive(activeConversationId)
+      .then((data) => {
+        if (cancelled) return;
+        if (data?.call) useGroupRoomsStore.getState().upsertFromCall(data.call);
+        else useGroupRoomsStore.getState().removeByConversationId(activeConversationId);
+      })
+      .catch(() => {
+        /* ignore */
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [isActiveGroup, activeConversationId]);
 
   const startCall = async (mediaType) => {
-    if (isGroupConversation(activeConversation)) {
-      toast.info(t('messenger.group.callsComingSoon'));
+    if (!activeConversationId || startCallInFlightRef.current) {
       return;
     }
-    if (!activeConversationId || callBusy || startCallInFlightRef.current) {
-      if (callBusy) toast.error(t('messenger.calls.busyLocal'));
+    if (isGroupConversation(activeConversation)) {
+      if (inThisGroupRoom) {
+        useCallsStore.getState().setUiMode('full');
+        return;
+      }
+      if (callBusy) {
+        toast.error(t('messenger.calls.busyLocal'));
+        return;
+      }
+      startCallInFlightRef.current = true;
+      try {
+        const fetched = await callsApi.getConversationActive(activeConversationId);
+        const existingCall = fetched?.call;
+        const existingId = existingCall?.id || groupRoom?.callId;
+        if (existingCall) {
+          useGroupRoomsStore.getState().upsertFromCall(existingCall);
+        }
+        if (existingId) {
+          const ok = window.confirm(t('messenger.calls.groupJoinConfirm'));
+          if (!ok) return;
+          await joinConversationGroupRoom(existingId);
+          return;
+        }
+        await startConversationCall(activeConversationId, mediaType, {
+          group: true,
+        });
+      } catch (err) {
+        if (err?.message === 'CALL_BUSY_LOCAL') {
+          toast.error(t('messenger.calls.busyLocal'));
+          return;
+        }
+        const code = getApiErrorCode(err);
+        if (code === 'CALL_ROOM_ALREADY_ACTIVE') {
+          const existingCall = err?.response?.data?.details?.call;
+          if (existingCall?.id) {
+            useGroupRoomsStore.getState().upsertFromCall(existingCall);
+            const ok = window.confirm(t('messenger.calls.groupJoinConfirm'));
+            if (ok) await joinConversationGroupRoom(existingCall.id);
+          }
+          return;
+        }
+        toast.error(getApiErrorMessage(err) || t('messenger.calls.startFailed'));
+      } finally {
+        startCallInFlightRef.current = false;
+      }
+      return;
+    }
+    if (callBusy) {
+      toast.error(t('messenger.calls.busyLocal'));
       return;
     }
     startCallInFlightRef.current = true;
@@ -894,10 +1129,6 @@ export default function MessagesPage() {
         toast.error(t('messenger.calls.unavailableTitle'), {
           description: t('messenger.calls.subscriptionRequired'),
         });
-        return;
-      }
-      if (code === 'GROUP_CALLS_NOT_AVAILABLE') {
-        toast.info(t('messenger.group.callsComingSoon'));
         return;
       }
       toast.error(getApiErrorMessage(err) || t('messenger.calls.startFailed'));
@@ -994,23 +1225,59 @@ export default function MessagesPage() {
         }
 
         if (actionId === 'unread') {
-          const result = await conversationsApi.markConversationUnread(chatId);
-          setConversations((prev) =>
-            prev.map((c) =>
-              String(c.id) === String(chatId)
-                ? {
-                    ...c,
-                    unreadCount: Math.max(1, result.unreadCount ?? 1),
-                  }
-                : c,
-            ),
-          );
-          if (typeof result.totalUnreadCount === 'number') {
+          const pendingRead = readInFlightRef.current.get(String(chatId));
+          if (pendingRead) await pendingRead;
+          manuallyUnreadRef.current.add(String(chatId));
+          let result;
+          try {
+            result = await conversationsApi.markConversationUnread(chatId);
+          } catch (error) {
+            manuallyUnreadRef.current.delete(String(chatId));
+            throw error;
+          }
+          const unreadCount = Math.max(1, result?.unreadCount ?? 1);
+          const patchUnread = (c) =>
+            String(c.id) === String(chatId) ? { ...c, unreadCount } : c;
+          setHiddenConversations((prev) => prev.map(patchUnread));
+          setConversations((prev) => prev.map(patchUnread));
+          if (typeof result?.totalUnreadCount === 'number') {
             setTotalUnreadCount(result.totalUnreadCount);
           } else {
             void fetchTotalUnreadCount(true);
           }
           toast.success(t('messenger.chatMenu.markUnreadSuccess'));
+          return;
+        }
+
+        if (actionId === 'read') {
+          await markChatRead(chatId, { force: true });
+          toast.success(
+            t('messenger.chatMenu.markReadSuccess', {
+              defaultValue: 'Чат позначено як прочитаний',
+            }),
+          );
+          return;
+        }
+
+        if (actionId === 'unhide') {
+          const result = await conversationsApi.unhideConversation(chatId);
+          const restored = {
+            ...chat,
+            ...(result && typeof result === 'object' ? result : {}),
+            isHidden: false,
+          };
+          setHiddenConversations((prev) => {
+            const next = prev.filter((c) => String(c.id) !== String(chatId));
+            if (next.length === 0) setSidebarMode('inbox');
+            return next;
+          });
+          setConversations((prev) => {
+            if (prev.some((c) => String(c.id) === String(chatId))) {
+              return sortConversations(prev);
+            }
+            return sortConversations([restored, ...prev]);
+          });
+          toast.success(t('messenger.chatMenu.unhideSuccess'));
           return;
         }
 
@@ -1020,6 +1287,9 @@ export default function MessagesPage() {
           if (!ok) return;
           await usersApi.blockUser(peerUserId);
           setConversations((prev) =>
+            prev.filter((c) => String(c.id) !== String(chatId)),
+          );
+          setHiddenConversations((prev) =>
             prev.filter((c) => String(c.id) !== String(chatId)),
           );
           if (String(activeConversationId) === String(chatId)) {
@@ -1042,6 +1312,18 @@ export default function MessagesPage() {
           setConversations((prev) =>
             prev.filter((c) => String(c.id) !== String(chatId)),
           );
+          setHiddenConversations((prev) => {
+            if (prev.some((c) => String(c.id) === String(chatId))) return prev;
+            return sortConversations([
+              {
+                ...chat,
+                isHidden: true,
+                isPinned: false,
+                pinnedAt: null,
+              },
+              ...prev,
+            ]);
+          });
           if (String(activeConversationId) === String(chatId)) {
             navigate('/messages');
           }
@@ -1065,10 +1347,24 @@ export default function MessagesPage() {
       chatMenu,
       fetchTotalUnreadCount,
       navigate,
+      markChatRead,
       setTotalUnreadCount,
       t,
     ],
   );
+
+  const openChatHeaderPeer = useCallback(() => {
+    if (isActiveGroup) {
+      setShowGroupInfo(true);
+      return;
+    }
+    const username = resolveProfileUsername(activeConversation?.participant);
+    if (!username) {
+      toast.error(t('profile.header.profileUnavailable'));
+      return;
+    }
+    navigate(`/profile/${encodeURIComponent(username)}`);
+  }, [activeConversation?.participant, isActiveGroup, navigate, t]);
 
   if (isAuthLoading || !isAuthed) return null;
 
@@ -1141,18 +1437,64 @@ export default function MessagesPage() {
             <aside
               className={`messagesPage__sidebar${showChatOnMobile ? ' is-hidden-mobile' : ''}`}
             >
-              {loadingList && (
+              {sidebarMode === 'hidden' ? (
+                <div className="messagesPage__hiddenHead">
+                  <button
+                    type="button"
+                    className="messagesPage__hiddenBack"
+                    onClick={() => setSidebarMode('inbox')}
+                    aria-label={t('messenger.hiddenChatsBack')}
+                  >
+                    <img src={profileIcons.arrowLeftBlack} alt="" />
+                    <span>{t('messenger.hiddenChats')}</span>
+                  </button>
+                </div>
+              ) : null}
+              {(sidebarMode === 'hidden' ? loadingHidden : loadingList) && (
                 <p className="messagesPage__hint">{t('common.loading')}</p>
               )}
-              {!loadingList && listError && (
+              {sidebarMode === 'inbox' && !loadingList && listError && (
                 <p className="messagesPage__hint messagesPage__hint--error">{listError}</p>
               )}
-              {!loadingList && !listError && filteredConversations.length === 0 && (
+              {sidebarMode === 'inbox' &&
+                !loadingList &&
+                !listError &&
+                filteredConversations.length === 0 &&
+                hiddenConversations.length === 0 && (
                 <p className="messagesPage__hint">{t('messenger.noChats')}</p>
+              )}
+              {sidebarMode === 'hidden' &&
+                !loadingHidden &&
+                filteredHiddenConversations.length === 0 && (
+                <p className="messagesPage__hint">{t('messenger.hiddenChatsEmpty')}</p>
               )}
 
               <ul className="messagesPage__chatList">
-                {filteredConversations.map((chat) => {
+                {sidebarMode === 'inbox' && hiddenConversations.length > 0 ? (
+                  <li className="messagesPage__chatRow">
+                    <button
+                      type="button"
+                      className="messagesPage__chatItem messagesPage__hiddenFolder"
+                      onClick={() => setSidebarMode('hidden')}
+                      aria-label={t('messenger.hiddenChatsOpen')}
+                    >
+                      <div className="messagesPage__chatAvatar messagesPage__hiddenFolderIcon">
+                        <LuEyeOff aria-hidden="true" />
+                      </div>
+                      <div className="messagesPage__chatMeta">
+                        <div className="messagesPage__chatTop">
+                          <span className="messagesPage__chatName">
+                            {t('messenger.hiddenChats')}
+                          </span>
+                          <span className="messagesPage__hiddenCount">
+                            {hiddenConversations.length}
+                          </span>
+                        </div>
+                      </div>
+                    </button>
+                  </li>
+                ) : null}
+                {sidebarConversations.map((chat) => {
                   const isActive = chat.id === activeConversationId;
                   const isGroup = isGroupConversation(chat);
                   const name = isGroup
@@ -1328,13 +1670,12 @@ export default function MessagesPage() {
                     <div className="messagesPage__chatHeadPeer">
                       <button
                         type="button"
-                        className={`messagesPage__chatHeadButton${isActiveGroup ? ' is-group' : ''}`}
-                        onClick={() => {
-                          if (isActiveGroup) setShowGroupInfo(true);
-                        }}
-                        disabled={!isActiveGroup}
+                        className={`messagesPage__chatHeadButton${isActiveGroup ? ' is-group' : ' is-peerProfile'}`}
+                        onClick={openChatHeaderPeer}
                         aria-label={
-                          isActiveGroup ? t('messenger.group.info') : undefined
+                          isActiveGroup
+                            ? t('messenger.group.info')
+                            : t('profile.header.openProfile', { name: chatTitle })
                         }
                       >
                       <div className="messagesPage__chatHeadAvatar" aria-hidden="true">
@@ -1382,17 +1723,9 @@ export default function MessagesPage() {
                         type="button"
                         className="messagesPage__chatAction"
                         onClick={() => void startCall('AUDIO')}
-                        disabled={callBusy || isActiveGroup}
-                        aria-label={
-                          isActiveGroup
-                            ? t('messenger.group.callsComingSoon')
-                            : t('messenger.calls.audioCall')
-                        }
-                        title={
-                          isActiveGroup
-                            ? t('messenger.group.callsComingSoon')
-                            : t('messenger.calls.audioCall')
-                        }
+                        disabled={callBusy && !inThisGroupRoom}
+                        aria-label={t('messenger.calls.audioCall')}
+                        title={t('messenger.calls.audioCall')}
                       >
                         📞
                       </button>
@@ -1400,17 +1733,9 @@ export default function MessagesPage() {
                         type="button"
                         className="messagesPage__chatAction"
                         onClick={() => void startCall('VIDEO')}
-                        disabled={callBusy || isActiveGroup}
-                        aria-label={
-                          isActiveGroup
-                            ? t('messenger.group.callsComingSoon')
-                            : t('messenger.calls.videoCall')
-                        }
-                        title={
-                          isActiveGroup
-                            ? t('messenger.group.callsComingSoon')
-                            : t('messenger.calls.videoCall')
-                        }
+                        disabled={callBusy && !inThisGroupRoom}
+                        aria-label={t('messenger.calls.videoCall')}
+                        title={t('messenger.calls.videoCall')}
                       >
                         🎥
                       </button>
@@ -1432,6 +1757,53 @@ export default function MessagesPage() {
                       </button>
                     </div>
                   </header>
+
+                  {isActiveGroup && groupRoom ? (
+                    <div className="messagesPage__groupRoom">
+                      <div className="messagesPage__groupRoomCopy">
+                        <strong>
+                          {groupRoom.mediaType === 'VIDEO'
+                            ? t('messenger.calls.groupVideoRoom')
+                            : t('messenger.calls.groupAudioRoom')}
+                        </strong>
+                        <span>
+                          {t('messenger.calls.groupParticipantsNow', {
+                            count: groupRoom.participantCount || 0,
+                          })}
+                        </span>
+                      </div>
+                      {inThisGroupRoom ? (
+                        <button
+                          type="button"
+                          className="messagesPage__groupRoomJoin"
+                          onClick={() => useCallsStore.getState().setUiMode('full')}
+                        >
+                          {t('messenger.calls.returnToRoom')}
+                        </button>
+                      ) : (
+                        <button
+                          type="button"
+                          className="messagesPage__groupRoomJoin"
+                          onClick={() => {
+                            if (callBusy) {
+                              toast.error(t('messenger.calls.busyLocal'));
+                              return;
+                            }
+                            void joinConversationGroupRoom(groupRoom.callId).catch(
+                              (err) => {
+                                toast.error(
+                                  getApiErrorMessage(err) ||
+                                    t('messenger.calls.startFailed'),
+                                );
+                              },
+                            );
+                          }}
+                        >
+                          {t('messenger.calls.joinRoom')}
+                        </button>
+                      )}
+                    </div>
+                  ) : null}
 
                   {showChatSearch ? (
                     <MessageSearchPanel
@@ -1540,6 +1912,7 @@ export default function MessagesPage() {
                             hideReadReceipt={isActiveGroup}
                             highlight={String(msg.id) === String(highlightMessageId)}
                             onOpenMenu={(message, rect, bubbleTimeLabel, isMineBubble) => {
+                              if (message?.pending) return;
                               setMenuState({
                                 message,
                                 anchorRect: rect,
@@ -1581,7 +1954,6 @@ export default function MessagesPage() {
                     value={getConversationDraft(drafts, activeConversationId)}
                     onChange={handleDraftChange}
                     onSendPayload={handleSendPayload}
-                    sending={sending}
                     replyTo={replyTo}
                     onCancelReply={() => setReplyTo(null)}
                     conversationId={activeConversationId}
@@ -1611,6 +1983,10 @@ export default function MessagesPage() {
         isPinned={Boolean(chatMenu?.chat?.isPinned || chatMenu?.chat?.pinnedAt)}
         isMuted={isConversationMuted(chatMenu?.chat)}
         isGroup={isGroupConversation(chatMenu?.chat)}
+        isHidden={Boolean(
+          chatMenu?.chat?.isHidden || sidebarMode === 'hidden',
+        )}
+        isUnread={Number(chatMenu?.chat?.unreadCount) > 0}
         onClose={() => setChatMenu(null)}
         onAction={handleChatMenuAction}
       />

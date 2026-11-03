@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { formatTime } from '../../utils/utils';
 import { getNotificationDate } from '../../utils/getNotificationDate';
 import { useFollowingStore } from '../../zustand/useFollowingStore';
+import { useFeedbackStore } from '../../zustand/useFeedbackStore';
 
 export default function NotificationItem({ item, onRead }) {
   const navigate = useNavigate();
@@ -20,6 +21,13 @@ export default function NotificationItem({ item, onRead }) {
 
   const handleClick = () => {
     if (!item.readAt) onRead(item.id);
+    if (item.target?.type === 'feedback') {
+      useFeedbackStore.getState().open(
+        item.target.feedbackId
+          ? { feedbackId: item.target.feedbackId }
+          : { view: 'list' },
+      );
+    }
     const navigationOptions = item.target.type === 'live'
       ? {
           state: {
@@ -63,6 +71,12 @@ export default function NotificationItem({ item, onRead }) {
         name: actorName,
         defaultValue: `${actorName} started a live stream`,
       })
+    : item.type === 'groupCallStarted'
+      ? t(
+          item.metadata?.mediaType === 'AUDIO'
+            ? 'messenger.calls.groupAudioStarted'
+            : 'messenger.calls.groupVideoStarted',
+        )
     : t(`notifications.messages.${item.type}`, {
         name: `${actorName} `,
       });
@@ -85,7 +99,13 @@ export default function NotificationItem({ item, onRead }) {
             </p>
           </div>
 
-          {item.previewText && <p className="notification__comment">“{item.previewText}”</p>}
+          {item.type === 'feedbackReply' ? (
+            <p className="notification__comment">
+              {t('notifications.messages.feedbackReplyBody')}
+            </p>
+          ) : item.previewText ? (
+            <p className="notification__comment">“{item.previewText}”</p>
+          ) : null}
 
           <span className="notification__time">{formatTime(getNotificationDate(item), t)}</span>
         </div>
@@ -138,6 +158,11 @@ function buildLink(item) {
 
     case 'gifts':
       return '/my-gifts';
+
+    case 'feedback':
+      return item.target.feedbackId
+        ? `/first-page?feedback=${encodeURIComponent(item.target.feedbackId)}`
+        : '/first-page';
 
     default:
       return '/notifications';

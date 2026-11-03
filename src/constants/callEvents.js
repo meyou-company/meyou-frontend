@@ -14,4 +14,8 @@ export const CALL_SOCKET_EVENTS = [
   'call.ended',
   'call.busy',
   'call.missed',
+  'call.room_started',
+  'call.participant_joined',
+  'call.participant_left',
+  'call.room_ended',
 ];

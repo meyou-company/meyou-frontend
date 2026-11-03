@@ -116,3 +116,11 @@ export function readOAuthQueryTokens() {
     refreshToken: params.get('refresh_token'),
   };
 }
+
+export function readOAuthQueryError() {
+  if (typeof window === 'undefined' || window.location.search.length <= 1) {
+    return null;
+  }
+  const params = new URLSearchParams(window.location.search);
+  return params.get('error') || params.get('error_code') || null;
+}

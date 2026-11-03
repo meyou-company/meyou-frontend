@@ -34,6 +34,27 @@
     "messages": "Mesajlar",
     "profile": "Profil"
   },
+  "friends": {
+    "page": {
+      "title": "Arkadaşlar",
+      "searchPlaceholder": "İsim veya kullanıcı adına göre ara…",
+      "sections": "Arkadaş bölümleri",
+      "tabFriends": "Arkadaşlar",
+      "tabFollowers": "Takipçiler",
+      "tabFollowing": "Takip edilenler",
+      "tabVip": "VIP arkadaşlar",
+      "subscribeBack": "Geri takip et",
+      "unsubscribe": "Takipten çık",
+      "vipBadge": "VIP",
+      "emptyFriends": "You don't have any friends yet",
+      "emptyFollowers": "Henüz takipçi yok",
+      "emptyFollowing": "Henüz kimseyi takip etmiyorsunuz",
+      "emptyVip": "Henüz VIP arkadaş yok",
+      "emptySearch": "Bu arama için kimse bulunamadı",
+      "loadError": "Liste yüklenemedi",
+      "actionError": "Abonelik güncellenemedi"
+    }
+  },
   "landing": {
     "tagline": "LunMeYo, tanisma, iletisim ve guvenli sosyal baglantilar icin modern bir platformdur.",
     "features": {
@@ -59,7 +80,8 @@
     "privacyPolicy": "Privacy policy",
     "logout": "Log out",
     "closeMenu": "Close menu",
-    "language": "Language"
+    "language": "Language",
+    "suggestions": "Önerileriniz"
   },
   "auth": {
     "login": {
@@ -102,7 +124,7 @@
       "emailPlaceholder": "Enter email",
       "submit": "Confirm",
       "submitting": "Sending…",
-      "toastSuccess": "Code sent to your email",
+      "toastSuccess": "If an account exists, the code will arrive by email. If it does not, request it again in a minute.",
       "errors": {
         "emailRequired": "Enter your email",
         "emailInvalid": "Enter a valid email",
@@ -134,7 +156,7 @@
     },
     "verifyEmail": {
       "title": "Verification",
-      "subtitle": "Code sent to your email. Valid for 15 minutes.",
+      "subtitle": "E-postanıza bir doğrulama kodu gönderdik. Gelmezse Spam klasörünü kontrol edin veya kodu yeniden gönderin.",
       "submit": "Confirm",
       "submitting": "Verifying…",
       "resend": "Resend code",
@@ -149,13 +171,13 @@
     },
     "verifyResetCode": {
       "title": "Reset password",
-      "subtitle": "Code sent to your email. Valid for 15 minutes.",
+      "subtitle": "E-postanıza bir şifre sıfırlama kodu gönderdik. Gelmezse Spam klasörünü kontrol edin veya kodu yeniden gönderin.",
       "submit": "Next",
       "submitting": "Verifying…",
       "resend": "Resend code",
       "resending": "Sending…",
       "toastVerified": "Code confirmed",
-      "toastResent": "Code resent",
+      "toastResent": "If an account exists, a new code will arrive by email. If it does not, try again in a minute.",
       "errors": {
         "incomplete": "Enter the full code",
         "noEmail": "No email. Go back and enter your email again.",
@@ -164,8 +186,10 @@
       }
     },
     "verify": {
-      "digitAria": "Digit {{n}}"
+      "digitAria": "Digit {{n}}",
+      "resendIn": "{{seconds}} sn sonra tekrar gönder"
     },
+    "icloudDeliveryHint": "iCloud e-postası bazen gecikmeli gelebilir. Spam klasörünü kontrol edin. Kodu yeniden istediyseniz, en yeni e-postadaki kodu kullanın.",
     "google": {
       "loading": "Signing in with Google…",
       "loadingGeneric": "Authorizing…"
@@ -232,7 +256,8 @@
       "showMore": "Show more",
       "findFriends": "Find friends",
       "viewFriends": "View friends",
-      "empty": "No friends yet",
+      "allContacts": "All contacts",
+      "empty": "You don't have any friends yet",
       "profileOf": "Profile {{name}}",
       "profileUnavailable": "Profile unavailable",
       "openProfile": "Open profile {{name}}"
@@ -383,7 +408,10 @@
         "nationalityRequired": "Enter your nationality",
         "maritalStatusRequired": "Select relationship status",
         "countryRequired": "Select a country",
-        "cityRequired": "Select a city",
+        "cityRequired": "Bir şehir seçin",
+        "cityInvalid": "Geçerli bir şehir adı girin",
+        "cityMaxLength": "Şehir adı çok uzun",
+        "regionMaxLength": "Bölge adı çok uzun",
         "interestsRequired": "Select interests",
         "hobbiesRequired": "Select hobbies",
         "usernameRequired": "Enter a username",
@@ -501,6 +529,10 @@
     "soundLabel": "🔔 Message sound:",
     "loadChatsError": "Could not load chats",
     "noChats": "No chats yet",
+    "hiddenChats": "Hidden chats",
+    "hiddenChatsEmpty": "No hidden chats",
+    "hiddenChatsOpen": "Open hidden chats",
+    "hiddenChatsBack": "Back to chats",
     "selectChat": "Select a chat on the left or start a conversation from a user profile.",
     "empty": {
       "illustrationAlt": "Select a chat on the left. Interesting conversations, new connections and sincere emotions are waiting for you",
@@ -515,6 +547,11 @@
     },
     "loadMessagesError": "Could not load messages",
     "sendError": "Could not send message",
+    "sendingStatus": "Sending",
+    "sentStatus": "Sent",
+    "deliveredStatus": "Delivered",
+    "seenStatus": "Seen",
+    "sendFailedStatus": "Not sent",
     "noMessages": "No messages",
     "draftLabel": "Taslak:",
     "draftPreview": "Taslak: {{text}}",
@@ -675,6 +712,8 @@
       "connectTimeout": "Connection timed out",
       "unknown": "User",
       "enableSound": "Tap to enable call sounds",
+      "tapToHear": "Tap the screen to hear other participants",
+      "micFailed": "Could not enable microphone",
       "inCall": "In call",
       "chatMissedAudio": "Missed audio call",
       "chatMissedVideo": "Missed video call",
@@ -694,7 +733,27 @@
       "cameraRetry": "Tekrar dene",
       "unavailableTitle": "Arama kullanılamıyor",
       "vipRequired": "Bu kullanıcı mesajlara ve aramalara yalnızca VIP üyeler için izin veriyor.",
-      "subscriptionRequired": "Arama yapmak için bu profile abone olmanız gerekir."
+      "subscriptionRequired": "Arama yapmak için bu profile abone olmanız gerekir.",
+      "you": "you",
+      "leaveRoom": "Leave",
+      "joinRoom": "Join",
+      "returnToRoom": "Return to room",
+      "backToChat": "Back to chat",
+      "groupAudioRoom": "🔊 Voice room",
+      "groupVideoRoom": "🎥 Video room",
+      "groupParticipantsNow": "{{count}} participants now",
+      "groupJoinConfirm": "This group already has an active room. Join it?",
+      "groupAudioStarted": "A voice room started in the LunMeYo group",
+      "groupVideoStarted": "A video room started in the LunMeYo group",
+      "groupRoomEnded": "The room ended",
+      "screenShare": "Share screen",
+      "stopScreenShare": "Stop sharing",
+      "screenShareUnsupported": "Screen sharing is not supported in this browser",
+      "screenShareInsecure": "Screen sharing needs a secure (HTTPS) connection",
+      "screenSharePermissionDenied": "Screen sharing permission was denied",
+      "screenShareNotConnected": "Wait until you are in the call, then try again",
+      "screenShareFailed": "Could not start screen sharing",
+      "speaker": "Speaker"
     }
   },
   "notifications": {
@@ -729,7 +788,10 @@
       "postSharedToUser": "{{name}} sizinle bir gönderi paylaştı",
       "message": "{{name}} size bir mesaj gönderdi",
       "system": "Sistem bildirimi",
-      "giftReceived": "{{name}} size bir hediye gönderdi"
+      "giftReceived": "{{name}} size bir hediye gönderdi",
+      "feedbackReply": "Yönetim talebinize yanıt verdi",
+      "feedbackReplyBody": "Önerinize bir yanıt aldınız.",
+      "groupCallStarted": "A video room started in the LunMeYo group"
     },
     "items": {
       "follow": {
@@ -807,7 +869,7 @@
       "emailHint": "The code will be sent to this address",
       "submit": "Send code",
       "submitting": "Sending…",
-      "toastSent": "Code sent to your email",
+      "toastSent": "If an account exists, the code will arrive by email. If it does not, request it again in a minute.",
       "backToAccount": "Back to settings",
       "errors": {
         "emailRequired": "Enter your email",
@@ -912,11 +974,47 @@
       "all": "All",
       "following": "Following",
       "saved": "Saved"
+    },
+    "upload": {
+      "progress": "Yükleniyor {{percent}}%",
+      "publish": "Yayınla",
+      "errors": {
+        "required": "Bir video dosyası seçin",
+        "type": "MP4, MOV veya M4V videosu kullanın",
+        "tooLarge": "Video {{maxMb}} MB veya daha küçük olmalıdır",
+        "network": "Video yüklenemedi. Bağlantınızı kontrol edin.",
+        "failed": "Video yüklenemedi",
+        "missingUrl": "Yükleme bitti ancak video URL’si yok"
+      }
     }
   },
   "stories": {
-    "yourStory": "Your story",
-    "closeFriends": "Close friends"
+    "yourStory": "Hikâyeniz",
+    "closeFriends": "Yakın arkadaşlar",
+    "createTitle": "Hikâyeye ekle",
+    "viewerLabel": "Hikâye görüntüleyici",
+    "close": "Kapat",
+    "more": "Daha fazla",
+    "views": "Görüntüleme",
+    "share": "Paylaş",
+    "mention": "Etiketle",
+    "delete": "Sil",
+    "deleteConfirm": "Bu hikâye silinsin mi?",
+    "saveMedia": "Fotoğrafı/videoyu kaydet",
+    "addText": "Metin",
+    "textPhotoOnly": "Metin yalnızca fotoğraflarda kullanılabilir",
+    "done": "Tamam",
+    "moveText": "Metni taşı",
+    "textPlaceholder": "Metniniz",
+    "fontSize": "Yazı boyutu",
+    "textColor": "Metin rengi",
+    "pickColor": "Renk {{color}}",
+    "tools": "Hikâye araçları",
+    "music": "Müzik",
+    "templates": "Şablonlar",
+    "collage": "Kolaj",
+    "stickers": "Çıkartmalar",
+    "draw": "Çiz"
   },
   "liveNotifications": {
     "started": "{{name}} canlı yayın başlattı"
@@ -934,6 +1032,8 @@
   "errors": {
     "generic": "Something went wrong. Please try again.",
     "VALIDATION_ERROR": "Please check the entered data.",
+    "CITY_NAME_INVALID": "Geçerli bir şehir adı girin",
+    "CITY_NAME_TOO_LONG": "Şehir adı çok uzun",
     "UNAUTHORIZED": "Please sign in.",
     "FORBIDDEN": "Not enough permissions.",
     "NOT_FOUND": "Not found.",
@@ -943,6 +1043,8 @@
     "EMAIL_ALREADY_VERIFIED": "Email is already verified.",
     "INVALID_VERIFICATION_CODE": "Invalid verification code.",
     "VERIFICATION_CODE_EXPIRED": "Verification code has expired.",
+    "VERIFICATION_ATTEMPTS_EXCEEDED": "Çok fazla deneme. Yeni bir kod isteyin.",
+    "VERIFICATION_RESEND_COOLDOWN": "Kodu tekrar göndermeden önce {{seconds}} sn bekleyin.",
     "INVALID_RESET_CREDENTIALS": "Invalid email or code.",
     "INVALID_PASSWORD": "Invalid password.",
     "AVATAR_INVALID_FORMAT": "Allowed formats: JPEG, PNG, WebP.",
@@ -1014,6 +1116,7 @@
     "friendsSearch": "Arkadaşlarda ara",
     "friendsEmpty": "Henüz arkadaşınız yok",
     "needRecipient": "Hediye göndermek için bir kullanıcının profilini açın.",
+    "needGift": "Göndermek için bir hediye seçin.",
     "sent": "Hediye gönderildi",
     "testSelectedTitle": "Hediye seçildi",
     "testSelectedBody": "{{gift}}, {{name}} adlı kullanıcıya gönderilecek.",
@@ -1208,6 +1311,7 @@
       "cancel": "Cancel",
       "publish": "Publish",
       "publishing": "Publishing…",
+      "uploadingVideo": "Uploading video {{percent}}%",
       "privacy": "Only your friends see your location"
     },
     "edit": {
@@ -1497,5 +1601,84 @@
     "quiet_evenings": "Sessiz akşamlar",
     "kids": "Çocuklar",
     "family": "Aile"
+  },
+  "feedback": {
+    "fabLabel": "Önerileriniz",
+    "fabAria": "Öneri formunu aç",
+    "title": "LunMeYo’yu birlikte geliştirelim 💜",
+    "intro": "LunMeYo demosunu test ediyoruz. Neyi beğendiğinizi, neyin belirsiz olduğunu veya neyi değiştirmek istediğinizi anlatın.",
+    "typeLegend": "Geri bildirim türü",
+    "types": {
+      "suggestion": "Bir önerim var",
+      "bug": "Hata buldum",
+      "unclear": "Bir şey belirsizdi",
+      "review": "Yorum bırakmak istiyorum"
+    },
+    "detailsLabel": "Daha fazla anlatın...",
+    "detailsPlaceholder": "Daha fazla anlatın...",
+    "attach": "📎 Ekran görüntüsü ekle",
+    "removeScreenshot": "Ekran görüntüsünü kaldır",
+    "screenshotPreview": "Ekran görüntüsü önizlemesi",
+    "submit": "Gönder",
+    "submitting": "Gönderiliyor…",
+    "success": "Teşekkürler! 💜 Görüşünüz LunMeYo’yu geliştirmemize yardımcı oluyor.",
+    "close": "Kapat",
+    "typeRequired": "Bir geri bildirim türü seçin",
+    "messageRequired": "Lütfen birkaç kelime ekleyin",
+    "screenshotTooBig": "Ekran görüntüsü 5 MB veya daha küçük olmalı",
+    "screenshotType": "Bir görsel ekleyin (JPEG, PNG, WebP, GIF)",
+    "screenshotUploadError": "Ekran görüntüsü yüklenemedi",
+    "unreadAria": "{{count}} okunmamış yanıt",
+    "status": {
+      "new": "Yeni",
+      "inProgress": "Devam ediyor",
+      "answered": "Yanıtlandı",
+      "closed": "Kapatıldı"
+    },
+    "mine": {
+      "title": "Taleplerim",
+      "empty": "Henüz öneri göndermediniz.",
+      "hasReply": "Yanıt var 💜"
+    },
+    "thread": {
+      "you": "Siz",
+      "team": "MeYou Yönetimi"
+    }
+  },
+  "admin": {
+    "nav": {
+      "dashboard": "Dashboard",
+      "feedback": "Öneriler",
+      "reports": "Reports",
+      "users": "Users"
+    },
+    "feedback": {
+      "title": "Öneriler / Feedback",
+      "subtitle": "LunMeYo demo testinden gelen talepler.",
+      "empty": "Geri bildirim bulunamadı",
+      "detailTitle": "Talep",
+      "thread": "Yanıt geçmişi",
+      "replyLabel": "Kullanıcıya yanıtla",
+      "replyPlaceholder": "Yanıt yazın…",
+      "sendReply": "Yanıtı gönder",
+      "replySent": "Yanıt kullanıcıya gönderildi",
+      "statusUpdated": "Durum güncellendi",
+      "viewProfile": "Profili gör",
+      "next": "İleri",
+      "page": "Sayfa {{page}} / {{totalPages}} · {{total}}",
+      "filters": {
+        "all": "Tümü",
+        "allTypes": "Tüm türler"
+      },
+      "fields": {
+        "status": "Durum",
+        "user": "Kullanıcı",
+        "type": "Tür",
+        "message": "Mesaj",
+        "screenshot": "Ekran görüntüsü",
+        "page": "Sayfa",
+        "date": "Tarih"
+      }
+    }
   }
 }

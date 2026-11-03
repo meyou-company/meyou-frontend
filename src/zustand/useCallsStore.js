@@ -19,6 +19,7 @@ export const useCallsStore = create((set, get) => ({
   connectionStatus: 'idle',
   micEnabled: true,
   cameraEnabled: false,
+  uiMode: 'full',
 
   reset: () =>
     set({
@@ -31,6 +32,7 @@ export const useCallsStore = create((set, get) => ({
       connectionStatus: 'idle',
       micEnabled: true,
       cameraEnabled: false,
+      uiMode: 'full',
     }),
 
   setOutgoing: ({ call, media, mediaType }) =>
@@ -44,6 +46,7 @@ export const useCallsStore = create((set, get) => ({
       connectionStatus: 'connecting',
       micEnabled: true,
       cameraEnabled: (mediaType || call?.mediaType) === 'VIDEO',
+      uiMode: 'full',
     }),
 
   setIncoming: ({ call }) =>
@@ -57,6 +60,7 @@ export const useCallsStore = create((set, get) => ({
       connectionStatus: 'idle',
       micEnabled: true,
       cameraEnabled: call?.mediaType === 'VIDEO',
+      uiMode: 'full',
     }),
 
   setConnecting: ({ call, media, role } = {}) =>
@@ -135,6 +139,8 @@ export const useCallsStore = create((set, get) => ({
 
   setCameraEnabled: (cameraEnabled) =>
     set({ cameraEnabled: Boolean(cameraEnabled) }),
+
+  setUiMode: (uiMode) => set({ uiMode: uiMode === 'mini' ? 'mini' : 'full' }),
 
   applyRemoteCallUpdate: (call) => {
     if (!call?.id) return;

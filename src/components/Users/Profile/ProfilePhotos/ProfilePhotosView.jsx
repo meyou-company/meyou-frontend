@@ -1,16 +1,19 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
 import AvatarCropModal from "../../../AvatarCropModal/AvatarCropModal";
 import CreatePostModal from "../../../PostFeed/CreatePostModal";
+import SharePostModal from "../../../PostFeed/SharePostModal";
 import { authApi } from "../../../../services/auth";
 import { postsApi } from "../../../../services/postsApi";
+import { conversationsApi } from "../../../../services/conversationsApi";
 import { uploadPostImage } from "../../../../services/postImageUploadApi";
 import { cropImageToFile } from "../../../../utils/cropImageToFile";
 import { getApiErrorMessage } from "../../../../utils/getApiErrorMessage";
 import { mapApiPostToFeedItem } from "../../../../utils/mapApiPostToFeedItem";
+import { downloadPhoto } from "../../../../utils/photoViewerActions";
 import profileIcons from '../../../../constants/profileIcons';
 import { getOwnerVipEnabled } from '../../../../utils/profileVipUi';
 import { DEFAULT_AVATAR } from "../../../../constants/brand";
@@ -85,6 +88,7 @@ export default function ProfilePhotosView({
   user,
   onBack,
   refreshMe,
+  isOwner = true,
 }) {
   const { t } = useTranslation();
   const photoInputRef = useRef(null);
@@ -106,6 +110,8 @@ export default function ProfilePhotosView({
   const [photoActionLoading, setPhotoActionLoading] = useState(false);
   const [hiddenAvatarUrl, setHiddenAvatarUrl] = useState(null);
   const [uploadVisibility, setUploadVisibility] = useState("PUBLIC");
+  const [showAllMobile, setShowAllMobile] = useState(false);
+  const [sharePhoto, setSharePhoto] = useState(null);
 
   const avatarUrl = user?.avatarUrl || user?.avatar || "";
   const visibleAvatarUrl = avatarUrl && avatarUrl !== hiddenAvatarUrl ? avatarUrl : "";
@@ -121,8 +127,9 @@ export default function ProfilePhotosView({
     viewerIndex !== null && photos.length > 0
       ? photos[Math.min(Math.max(viewerIndex, 0), photos.length - 1)]
       : null;
+  const openMenuPhoto = photos.find((photo) => photo.id === openMenuId) || null;
 
-  const loadPhotos = async () => {
+  const loadPhotos = useCallback(async () => {
     if (!authorId) {
       setPhotos([]);
       setLoading(false);
@@ -158,11 +165,21 @@ export default function ProfilePhotosView({
     } finally {
       setLoading(false);
     }
-  };
+  }, [
+    authorId,
+    t,
+    user?.avatarCreatedAt,
+    user?.avatarUpdatedAt,
+    user?.avatar_created_at,
+    user?.avatar_updated_at,
+    user?.createdAt,
+    user?.updatedAt,
+    visibleAvatarUrl,
+  ]);
 
   useEffect(() => {
     loadPhotos();
-  }, [authorId, visibleAvatarUrl, user?.updatedAt]);
+  }, [loadPhotos]);
 
   useEffect(() => {
     return () => {
@@ -238,11 +255,8 @@ export default function ProfilePhotosView({
     }
   };
 
-  const openAddPhoto = () => {
-    photoInputRef.current?.click();
-  };
-
   const openCrop = (photo) => {
+    if (!isOwner) return;
     setOpenMenuId(null);
     setViewerIndex(null);
     setCropTarget(photo);
@@ -292,6 +306,7 @@ export default function ProfilePhotosView({
   };
 
   const handleDelete = async (photo) => {
+    if (!isOwner) return;
     setOpenMenuId(null);
 
     try {
@@ -321,31 +336,29 @@ export default function ProfilePhotosView({
     }
   };
 
-  const handleSavePhoto = async (photo) => {
-    setOpenMenuId(null);
+  const handleDownloadPhoto = async (photo) => {
+    if (!photo?.url) return;
     try {
       setPhotoActionLoading(true);
-      const response = await fetch(photo.url);
-      if (!response.ok) throw new Error("Photo download failed");
-      const blob = await response.blob();
-      const objectUrl = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = objectUrl;
-      link.download = photo.type === "avatar" ? "lunmeyo-profile-photo.jpg" : "lunmeyo-photo.jpg";
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-      URL.revokeObjectURL(objectUrl);
+      await downloadPhoto(
+        photo.url,
+        photo.type === "avatar" ? "lunmeyo-profile-photo.jpg" : "lunmeyo-photo.jpg",
+      );
     } catch (err) {
       console.error("[profile photos] save failed", err);
-      window.open(photo.url, "_blank", "noopener,noreferrer");
+      toast.error(t("profile.photos.downloadError", { defaultValue: "Не удалось скачать фото" }));
     } finally {
       setPhotoActionLoading(false);
     }
   };
 
+  const openSharePhoto = (photo) => {
+    setOpenMenuId(null);
+    setSharePhoto(photo);
+  };
+
   const handleSetVisibility = async (photo, visibility) => {
-    if (!photo?.postId || photo.type === "avatar") return;
+    if (!isOwner || !photo?.postId || photo.type === "avatar") return;
     setOpenMenuId(null);
     try {
       setPhotoActionLoading(true);
@@ -364,6 +377,7 @@ export default function ProfilePhotosView({
   };
 
   const handleMakeProfilePhoto = async (photo) => {
+    if (!isOwner) return;
     setOpenMenuId(null);
     try {
       setPhotoActionLoading(true);
@@ -396,6 +410,7 @@ export default function ProfilePhotosView({
     viewerTouchStartRef.current = touch
       ? { x: touch.clientX, y: touch.clientY }
       : null;
+  };
 
   useEffect(() => {
     if (!selectedPhoto) return undefined;
@@ -410,7 +425,20 @@ export default function ProfilePhotosView({
       document.documentElement.style.overflow = previousHtmlOverflow;
     };
   }, [selectedPhoto]);
-  };
+
+  useEffect(() => {
+    if (!openMenuId || !window.matchMedia("(max-width: 767px)").matches) return undefined;
+
+    const previousBodyOverflow = document.body.style.overflow;
+    const previousHtmlOverflow = document.documentElement.style.overflow;
+    document.body.style.overflow = "hidden";
+    document.documentElement.style.overflow = "hidden";
+
+    return () => {
+      document.body.style.overflow = previousBodyOverflow;
+      document.documentElement.style.overflow = previousHtmlOverflow;
+    };
+  }, [openMenuId]);
 
   const handleViewerTouchEnd = (event) => {
     const start = viewerTouchStartRef.current;
@@ -425,6 +453,73 @@ export default function ProfilePhotosView({
     if (deltaY < 0) showNextPhoto();
     else showPreviousPhoto();
   };
+
+  const getPhotoActions = (photo) => [
+    isOwner && {
+      id: "edit",
+      label: t("profile.photos.edit", { defaultValue: "Редактировать" }),
+      icon: profileIcons.pencilBlack,
+      onClick: () => openCrop(photo),
+    },
+    isOwner && {
+      id: "delete",
+      label: t("profile.photos.delete", { defaultValue: "Удалить" }),
+      icon: profileIcons.storyDelete,
+      onClick: () => handleDelete(photo),
+    },
+    {
+      id: "share",
+      label: t("profile.photos.share", { defaultValue: "Поделиться" }),
+      icon: profileIcons.savedShareBlack,
+      onClick: () => openSharePhoto(photo),
+    },
+    isOwner && {
+      id: "profile",
+      label: t("profile.photos.makeProfile", { defaultValue: "Сделать фото профиля" }),
+      icon: profileIcons.profileBlack,
+      onClick: () => handleMakeProfilePhoto(photo),
+    },
+    isOwner && ownerVipEnabled && photo.type !== "avatar" && {
+      id: "visibility",
+      label: photo.visibility === "VIP"
+        ? t("profile.photos.makePublic", { defaultValue: "Зробити публічним" })
+        : t("profile.photos.makeVipOnly", { defaultValue: "Лише для VIP" }),
+      icon: profileIcons.lockBlack,
+      onClick: () => handleSetVisibility(photo, photo.visibility === "VIP" ? "PUBLIC" : "VIP"),
+    },
+  ].filter(Boolean);
+
+  const sharePost = sharePhoto?.postId && sharePhoto?.post
+    ? mapApiPostToFeedItem(sharePhoto.post)
+    : null;
+
+  const handleSendSharedPhoto = async ({ postId, recipientUserIds, message, shareUrl }) => {
+    if (postId) {
+      return postsApi.send(postId, { recipientUserIds, message });
+    }
+
+    if (!shareUrl || !Array.isArray(recipientUserIds) || recipientUserIds.length === 0) {
+      throw new Error(t("posts.toast.sendFailed"));
+    }
+
+    await Promise.all(recipientUserIds.map(async (recipientUserId) => {
+      const conversation = await conversationsApi.create(recipientUserId);
+      const conversationId = conversation?.id || conversation?._id;
+      if (!conversationId) throw new Error(t("posts.toast.sendFailed"));
+
+      await conversationsApi.sendMessage(conversationId, {
+        type: "IMAGE",
+        text: message || undefined,
+        attachments: [{
+          url: shareUrl,
+          mimeType: "image/jpeg",
+          fileName: "profile-photo",
+        }],
+      });
+    }));
+  };
+
+  const handleRepostSharedPost = (post) => postsApi.repost(post?.id);
 
   return (
     <main className="profilePhotos">
@@ -447,12 +542,17 @@ export default function ProfilePhotosView({
           <img src={profileIcons.arrowLeftBlack} alt="" />
         </button>
         <h1 className="profilePhotos__title">
-          {t("profile.photos.title", { defaultValue: "Мои фото" })}
+          {isOwner
+            ? t("profile.photos.title", { defaultValue: "Мои фото" })
+            : t("profile.photos.userTitle", {
+                name: authorName,
+                defaultValue: `Фото ${authorName}`,
+              })}
         </h1>
       </div>
 
       <section
-        className={`profilePhotos__grid${photos.length === 0 ? " profilePhotos__grid--empty" : ""}`}
+        className={`profilePhotos__grid${photos.length === 0 ? " profilePhotos__grid--empty" : ""}${showAllMobile ? " is-expanded" : ""}`}
         aria-label={t("profile.photos.title", { defaultValue: "Мои фото" })}
         aria-busy={loading}
       >
@@ -484,38 +584,19 @@ export default function ProfilePhotosView({
               </button>
 
               {openMenuId === photo.id ? (
-                <div className="profilePhotos__menu" role="menu">
-                  <button type="button" role="menuitem" onClick={() => openCrop(photo)}>
-                    {t("profile.photos.edit", { defaultValue: "Редактировать" })}
-                  </button>
-                  <button type="button" role="menuitem" onClick={() => handleDelete(photo)}>
-                    {t("profile.photos.delete", { defaultValue: "Удалить" })}
-                  </button>
-                  <button type="button" role="menuitem" onClick={() => handleSavePhoto(photo)}>
-                    {t("profile.photos.save", { defaultValue: "Сохранить" })}
-                  </button>
-                  <button type="button" role="menuitem" onClick={() => handleMakeProfilePhoto(photo)}>
-                    {t("profile.photos.makeProfile", { defaultValue: "Сделать фото профиля" })}
-                  </button>
-                  {ownerVipEnabled && photo.type !== "avatar" ? (
-                    photo.visibility === "VIP" ? (
-                      <button
-                        type="button"
-                        role="menuitem"
-                        onClick={() => handleSetVisibility(photo, "PUBLIC")}
-                      >
-                        {t("profile.photos.makePublic", { defaultValue: "Зробити публічним" })}
-                      </button>
-                    ) : (
-                      <button
-                        type="button"
-                        role="menuitem"
-                        onClick={() => handleSetVisibility(photo, "VIP")}
-                      >
-                        {t("profile.photos.makeVipOnly", { defaultValue: "Лише для VIP" })}
-                      </button>
-                    )
-                  ) : null}
+                <div className="profilePhotos__menu profilePhotos__menu--desktop" role="menu">
+                  {getPhotoActions(photo).map((action) => (
+                    <button
+                      key={action.id}
+                      type="button"
+                      role="menuitem"
+                      onClick={action.onClick}
+                      disabled={photoActionLoading}
+                    >
+                      <img src={action.icon} alt="" aria-hidden="true" />
+                      <span>{action.label}</span>
+                    </button>
+                  ))}
                 </div>
               ) : null}
             </article>
@@ -530,6 +611,48 @@ export default function ProfilePhotosView({
           </p>
         )}
       </section>
+
+      {photos.length > 6 ? (
+        <button
+          type="button"
+          className="profilePhotos__showAll"
+          onClick={() => setShowAllMobile((current) => !current)}
+        >
+          {showAllMobile
+            ? t("profile.photos.showLess", { defaultValue: "Показать меньше" })
+            : t("profile.photos.showAll", { defaultValue: "Показать все" })}
+        </button>
+      ) : null}
+
+      {openMenuPhoto ? createPortal(
+        <div
+          className="profilePhotosActionSheet"
+          role="presentation"
+          onClick={() => setOpenMenuId(null)}
+        >
+          <section
+            className="profilePhotosActionSheet__panel"
+            role="menu"
+            aria-label={t("profile.more")}
+            onClick={(event) => event.stopPropagation()}
+          >
+            <span className="profilePhotosActionSheet__handle" aria-hidden="true" />
+            {getPhotoActions(openMenuPhoto).map((action) => (
+              <button
+                key={action.id}
+                type="button"
+                role="menuitem"
+                onClick={action.onClick}
+                disabled={photoActionLoading}
+              >
+                <img src={action.icon} alt="" aria-hidden="true" />
+                <span>{action.label}</span>
+              </button>
+            ))}
+          </section>
+        </div>,
+        document.body,
+      ) : null}
 
       {cropTarget ? (
         <AvatarCropModal
@@ -568,7 +691,7 @@ export default function ProfilePhotosView({
 
       {selectedPhoto ? createPortal(
         <div
-          className="profilePhotosViewer"
+          className={`profilePhotosViewer${isOwner ? "" : " profilePhotosViewer--visitor"}`}
           role="dialog"
           aria-modal="true"
           aria-label={t("profile.viewPhotoFull")}
@@ -622,23 +745,29 @@ export default function ProfilePhotosView({
             ) : null}
 
             <div className="profilePhotosViewer__actions">
+              {isOwner ? (
               <button type="button" onClick={() => openCrop(selectedPhoto)} disabled={photoActionLoading}>
                 <img src={profileIcons.pencilBlack} alt="" className="profilePhotosViewer__actionIcon" aria-hidden="true" />
                 <span>{t("profile.photos.edit", { defaultValue: "Редактировать" })}</span>
               </button>
+              ) : null}
+              {isOwner ? (
               <button type="button" onClick={() => handleDelete(selectedPhoto)} disabled={photoActionLoading}>
                 <img src={profileIcons.storyDelete} alt="" className="profilePhotosViewer__actionIcon" aria-hidden="true" />
                 <span>{t("profile.photos.delete", { defaultValue: "Удалить" })}</span>
               </button>
-              <button type="button" onClick={() => handleSavePhoto(selectedPhoto)} disabled={photoActionLoading}>
-                <img src={profileIcons.saved} alt="" className="profilePhotosViewer__actionIcon" aria-hidden="true" />
-                <span>{t("profile.photos.save", { defaultValue: "Сохранить" })}</span>
+              ) : null}
+              <button type="button" onClick={() => openSharePhoto(selectedPhoto)} disabled={photoActionLoading}>
+                <img src={profileIcons.savedShareBlack} alt="" className="profilePhotosViewer__actionIcon" aria-hidden="true" />
+                <span>{t("profile.photos.share", { defaultValue: "Поделиться" })}</span>
               </button>
+              {isOwner ? (
               <button type="button" onClick={() => handleMakeProfilePhoto(selectedPhoto)} disabled={photoActionLoading}>
                 <img src={profileIcons.profileBlack} alt="" className="profilePhotosViewer__actionIcon" aria-hidden="true" />
                 <span>{t("profile.photos.makeProfile", { defaultValue: "Сделать фото профиля" })}</span>
               </button>
-              {ownerVipEnabled && selectedPhoto.type !== "avatar" ? (
+              ) : null}
+              {isOwner && ownerVipEnabled && selectedPhoto.type !== "avatar" ? (
                 <button
                   type="button"
                   className="profilePhotosViewer__visibilityAction"
@@ -650,6 +779,7 @@ export default function ProfilePhotosView({
                   }
                   disabled={photoActionLoading}
                 >
+                  <img src={profileIcons.lockBlack} alt="" className="profilePhotosViewer__actionIcon" aria-hidden="true" />
                   {selectedPhoto.visibility === "VIP"
                     ? t("profile.photos.makePublic", { defaultValue: "Зробити публічним" })
                     : t("profile.photos.makeVipOnly", { defaultValue: "Лише для VIP" })}
@@ -660,6 +790,22 @@ export default function ProfilePhotosView({
         </div>,
         document.body,
       ) : null}
+
+      <SharePostModal
+        post={sharePost}
+        isOpen={Boolean(sharePhoto)}
+        onClose={() => setSharePhoto(null)}
+        onSendToUsers={handleSendSharedPhoto}
+        onRepostToFeed={sharePost ? handleRepostSharedPost : undefined}
+        isReposted={sharePost?.viewerState?.isReposted === true}
+        shareUrl={sharePost ? undefined : sharePhoto?.url}
+        shareText={t("profile.photos.shareText", {
+          name: authorName,
+          defaultValue: `Фото ${authorName}`,
+        })}
+        onDownload={() => handleDownloadPhoto(sharePhoto)}
+        downloadLabel={t("profile.photos.download", { defaultValue: "Сохранить на устройство" })}
+      />
     </main>
   );
 }

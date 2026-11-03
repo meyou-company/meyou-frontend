@@ -4,6 +4,7 @@ import { useLocation } from 'react-router-dom';
 import { toast } from 'sonner';
 
 import ActiveCallOverlay from '../components/Calls/ActiveCallOverlay';
+import GroupCallOverlay from '../components/Calls/GroupCallOverlay';
 import IncomingCallModal from '../components/Calls/IncomingCallModal';
 import OutgoingCallScreen from '../components/Calls/OutgoingCallScreen';
 import { CALL_SOCKET_EVENTS } from '../constants/callEvents';
@@ -16,6 +17,7 @@ import { getApiErrorMessage } from '../utils/getApiErrorMessage';
 import { clearSharedCallRoom } from '../utils/callRoomSession';
 import { useAuthStore } from '../zustand/useAuthStore';
 import { useCallsStore } from '../zustand/useCallsStore';
+import { useGroupRoomsStore } from '../zustand/useGroupRoomsStore';
 import '../components/Calls/Calls.scss';
 
 function envelopeToCall(envelope) {
@@ -23,15 +25,23 @@ function envelopeToCall(envelope) {
   return {
     id: envelope.callId,
     conversationId: envelope.conversationId,
+    kind: envelope.kind || 'DIRECT',
     callerId: envelope.caller?.id,
-    calleeId: envelope.callee?.id,
+    calleeId: envelope.callee?.id ?? null,
     caller: envelope.caller,
     callee: envelope.callee,
     mediaType: envelope.mediaType,
     status: envelope.status,
     createdAt: envelope.createdAt,
     endReason: envelope.endReason ?? null,
+    participants: envelope.participants || [],
+    participantCount: envelope.participantCount,
+    conversationName: envelope.conversationName || null,
   };
+}
+
+function isGroupCall(call) {
+  return call?.kind === 'GROUP';
 }
 
 /**
@@ -53,6 +63,7 @@ export function CallsProvider() {
   const connectionStatus = useCallsStore((s) => s.connectionStatus);
   const micEnabled = useCallsStore((s) => s.micEnabled);
   const cameraEnabled = useCallsStore((s) => s.cameraEnabled);
+  const uiMode = useCallsStore((s) => s.uiMode);
   const error = useCallsStore((s) => s.error);
 
   const endingRef = useRef(false);
@@ -100,6 +111,7 @@ export function CallsProvider() {
     try {
       if (action === 'cancel') await callsApi.cancel(callId);
       else if (action === 'reject') await callsApi.reject(callId);
+      else if (action === 'leave') await callsApi.leave(callId);
       else await callsApi.end(callId);
     } catch (e) {
       console.warn('[calls] hangup failed', e);
@@ -137,6 +149,9 @@ export function CallsProvider() {
         }
 
         if (active.status === 'ACTIVE' && data.media?.token) {
+          if (isGroupCall(active)) {
+            useGroupRoomsStore.getState().upsertFromCall(active);
+          }
           useCallsStore.getState().setActive({
             call: active,
             media: data.media,
@@ -162,6 +177,7 @@ export function CallsProvider() {
 
     const onIncoming = (envelope) => {
       console.log('[CALL EVENT]', 'call.incoming', envelope);
+      if (envelope?.kind === 'GROUP') return;
       const next = envelopeToCall(envelope);
       if (!next) {
         console.warn('[CALL EVENT] call.incoming ignored: bad payload');
@@ -244,6 +260,30 @@ export function CallsProvider() {
       void clearCall();
     };
 
+    const onGroupRoomEvent = (envelope) => {
+      const event = envelope?.event;
+      if (!envelope?.callId) return;
+      if (event === 'call.room_ended') {
+        useGroupRoomsStore.getState().removeByCallId(envelope.callId);
+        const state = useCallsStore.getState();
+        if (state.call?.id === envelope.callId) {
+          if (!endingRef.current) void playEnded();
+          toast(t('messenger.calls.groupRoomEnded'));
+          void clearCall();
+        }
+        return;
+      }
+      useGroupRoomsStore.getState().upsertFromEnvelope(envelope);
+      const state = useCallsStore.getState();
+      if (state.call?.id === envelope.callId) {
+        useCallsStore.getState().applyRemoteCallUpdate(envelopeToCall(envelope));
+      }
+      if (event === 'call.room_started' && envelope.caller?.id !== user?.id) {
+        const isVideo = envelope.mediaType === 'VIDEO';
+        toast(t(isVideo ? 'messenger.calls.groupVideoStarted' : 'messenger.calls.groupAudioStarted'));
+      }
+    };
+
     const handlers = {
       'call.incoming': onIncoming,
       'call.accepted': onAccepted,
@@ -252,6 +292,10 @@ export function CallsProvider() {
       'call.ended': onTerminal,
       'call.busy': onTerminal,
       'call.missed': onTerminal,
+      'call.room_started': onGroupRoomEvent,
+      'call.participant_joined': onGroupRoomEvent,
+      'call.participant_left': onGroupRoomEvent,
+      'call.room_ended': onGroupRoomEvent,
     };
 
     for (const event of CALL_SOCKET_EVENTS) {
@@ -289,7 +333,8 @@ export function CallsProvider() {
       } else if (state.phase === 'incoming') {
         void callsApi.reject(id);
       } else if (state.phase === 'active' || state.phase === 'connecting') {
-        void callsApi.end(id);
+        if (isGroupCall(state.call)) void callsApi.leave(id);
+        else void callsApi.end(id);
       }
     };
 
@@ -349,12 +394,13 @@ export function CallsProvider() {
     void hangupRemote(callId, 'cancel');
   };
   const handleEnd = () => {
-    const callId = call?.id || useCallsStore.getState().call?.id;
+    const current = useCallsStore.getState().call;
+    const callId = current?.id;
     console.log('[CALL UI] end click', { callId, phase });
     if (!callId) return;
     stopRinging();
     void playEnded();
-    void hangupRemote(callId, 'end');
+    void hangupRemote(callId, isGroupCall(current) ? 'leave' : 'end');
   };
 
   const unlockHint = needsUnlock ? (
@@ -393,6 +439,37 @@ export function CallsProvider() {
           mediaType={mediaType}
           connectionStatus={connectionStatus}
           onCancel={handleCancel}
+        />
+      </>
+    );
+  }
+
+  if (
+    (phase === 'connecting' || phase === 'active' || phase === 'error') &&
+    call &&
+    media?.token &&
+    isGroupCall(call)
+  ) {
+    return (
+      <>
+        {unlockHint}
+        <GroupCallOverlay
+          call={call}
+          media={media}
+          mediaType={mediaType}
+          localUserId={user?.id}
+          micEnabled={micEnabled}
+          cameraEnabled={cameraEnabled}
+          compact={uiMode === 'mini'}
+          onMicChange={(v) => useCallsStore.getState().setMicEnabled(v)}
+          onCameraChange={(v) => useCallsStore.getState().setCameraEnabled(v)}
+          onConnectionStatus={(s) =>
+            useCallsStore.getState().setConnectionStatus(s)
+          }
+          onLeave={handleEnd}
+          onMinimize={() => useCallsStore.getState().setUiMode('mini')}
+          onExpand={() => useCallsStore.getState().setUiMode('full')}
+          onFatalError={(msg) => useCallsStore.getState().setError(msg)}
         />
       </>
     );
@@ -452,17 +529,44 @@ export function CallsProvider() {
 }
 
 /** Start a call from chat UI. */
-export async function startConversationCall(conversationId, mediaType) {
+export async function startConversationCall(conversationId, mediaType, options = {}) {
   const state = useCallsStore.getState();
   if (state.phase !== 'idle') {
     throw new Error('CALL_BUSY_LOCAL');
   }
 
   const data = await callsApi.start(conversationId, { mediaType });
+  if (options.group || data.call?.kind === 'GROUP') {
+    useGroupRoomsStore.getState().upsertFromCall(data.call);
+    useCallsStore.getState().setActive({
+      call: data.call,
+      media: data.media,
+      role: 'participant',
+    });
+    useCallsStore.getState().setUiMode('full');
+    return data;
+  }
+
   useCallsStore.getState().setOutgoing({
     call: data.call,
     media: data.media,
     mediaType: data.call?.mediaType || mediaType,
   });
+  return data;
+}
+
+export async function joinConversationGroupRoom(callId) {
+  const state = useCallsStore.getState();
+  if (state.phase !== 'idle' && state.call?.id !== callId) {
+    throw new Error('CALL_BUSY_LOCAL');
+  }
+  const data = await callsApi.join(callId);
+  useGroupRoomsStore.getState().upsertFromCall(data.call);
+  useCallsStore.getState().setActive({
+    call: data.call,
+    media: data.media,
+    role: 'participant',
+  });
+  useCallsStore.getState().setUiMode('full');
   return data;
 }

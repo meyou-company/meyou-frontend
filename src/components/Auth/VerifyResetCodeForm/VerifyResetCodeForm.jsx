@@ -3,7 +3,10 @@ import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { useAuthStore } from "../../../zustand/useAuthStore";
 import { useForceDarkTheme } from "../../../hooks/useForceDarkTheme";
-import { getApiErrorMessage } from "../../../utils/getApiErrorMessage";
+import { useResendCooldown } from "../../../hooks/useResendCooldown";
+import { RESEND_COOLDOWN_SECONDS } from "../../../constants/verificationCode";
+import { getApiErrorMessage, getRetryAfterSeconds } from "../../../utils/getApiErrorMessage";
+import { isIcloudMailbox } from "../../../utils/icloudEmail";
 import BrandLogo from "../../BrandLogo/BrandLogo";
 import "../VerifyResetCodeForm/VerifyResetCodeForm.scss";
 
@@ -14,6 +17,8 @@ export default function VerifyResetCodeForm({ onBack, onSuccess, email }) {
   const { t } = useTranslation();
   const verifyResetCode = useAuthStore((s) => s.verifyResetCode);
   const forgotPassword = useAuthStore((s) => s.forgotPassword);
+  const { secondsLeft, isCoolingDown, start, tryStartRequest, endRequest } =
+    useResendCooldown();
 
   const [code, setCode] = useState(Array(CODE_LEN).fill(""));
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -24,6 +29,7 @@ export default function VerifyResetCodeForm({ onBack, onSuccess, email }) {
 
   const isComplete = useMemo(() => code.every((c) => c.trim() !== ""), [code]);
   const codeValue = useMemo(() => code.join(""), [code]);
+  const showIcloudHint = isIcloudMailbox(email);
 
   const focusIndex = (idx) => {
     const el = inputsRef.current?.[idx];
@@ -118,11 +124,14 @@ export default function VerifyResetCodeForm({ onBack, onSuccess, email }) {
   };
 
   const resend = async () => {
+    if (!tryStartRequest()) return;
+
     setSubmitError("");
     setCode(Array(CODE_LEN).fill(""));
     focusIndex(0);
 
     if (!email) {
+      endRequest();
       setSubmitError(t("auth.verifyResetCode.errors.noEmail"));
       return;
     }
@@ -132,18 +141,24 @@ export default function VerifyResetCodeForm({ onBack, onSuccess, email }) {
       const res = await forgotPassword(email);
 
       if (res && !res?.ok) {
+        const wait = getRetryAfterSeconds(res?.error);
+        if (wait) start(wait);
         const msg = getApiErrorMessage(res?.error) || t("auth.verifyResetCode.errors.resendFailed");
         toast.error(msg);
         setSubmitError(msg);
       } else if (res?.ok) {
+        start(RESEND_COOLDOWN_SECONDS);
         toast.success(t("auth.verifyResetCode.toastResent"));
       }
     } catch (e) {
+      const wait = getRetryAfterSeconds(e);
+      if (wait) start(wait);
       const msg = getApiErrorMessage(e) || t("auth.verifyResetCode.errors.resendFailed");
       toast.error(msg);
       setSubmitError(msg);
     } finally {
       setIsResending(false);
+      endRequest();
     }
   };
 
@@ -158,7 +173,12 @@ export default function VerifyResetCodeForm({ onBack, onSuccess, email }) {
       </div>
 
       <h1 className="verify__title">{t("auth.verifyResetCode.title")}</h1>
-      <p className="verify__subtitle">{t("auth.verifyResetCode.subtitle")}</p>
+      <p className="verify__subtitle">
+        {t("auth.verifyResetCode.subtitle")}
+      </p>
+      {showIcloudHint && (
+        <p className="verify__icloudHint">{t("auth.icloudDeliveryHint")}</p>
+      )}
 
       <form className="verify__form" onSubmit={onSubmit} noValidate>
         <div className="verifyCode" onPaste={handlePaste}>
@@ -193,9 +213,13 @@ export default function VerifyResetCodeForm({ onBack, onSuccess, email }) {
           type="button"
           className="btn-gradient verify__btnResend"
           onClick={resend}
-          disabled={isResending}
+          disabled={isResending || isCoolingDown}
         >
-          {isResending ? t("auth.verifyResetCode.resending") : t("auth.verifyResetCode.resend")}
+          {isResending
+            ? t("auth.verifyResetCode.resending")
+            : isCoolingDown
+              ? t("auth.verify.resendIn", { seconds: secondsLeft })
+              : t("auth.verifyResetCode.resend")}
         </button>
 
         <input type="hidden" name="code" value={codeValue} readOnly />

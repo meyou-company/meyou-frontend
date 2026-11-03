@@ -194,6 +194,44 @@ html[data-theme='dark'] {
   color: #fff;
 }
 
+.msgBubble.is-pending {
+  opacity: 0.78;
+}
+
+.msgBubble.is-failed {
+  outline: 1px solid rgba(255, 90, 90, 0.7);
+}
+
+.msgBubble__sending {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 12px;
+  height: 12px;
+}
+
+.msgBubble__sendingClock {
+  width: 9px;
+  height: 9px;
+  border: 1.5px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: msgBubbleSendingSpin 0.8s linear infinite;
+}
+
+.msgBubble__sendFailed {
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1;
+  color: #ff6b6b;
+}
+
+@keyframes msgBubbleSendingSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 .msgBubbleRow.is-highlight .msgBubble {
   outline: 2px solid #ff4db8;
   outline-offset: 2px;

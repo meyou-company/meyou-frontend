@@ -2,6 +2,8 @@ import { useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 import { toast } from 'sonner';
 
+import { i18n } from '../i18n';
+
 import { isPublicPath } from '../constants/publicRoutes';
 import {
   mapNotification,
@@ -12,6 +14,7 @@ import { getSessionAccessToken } from '../services/api';
 import { useAuthStore } from '../zustand/useAuthStore';
 import { useGiftInboxStore } from '../zustand/useGiftInboxStore';
 import { useNotificationsStore } from '../zustand/useNotificationsStore';
+import { useFeedbackStore } from '../zustand/useFeedbackStore';
 
 export function NotificationsSocketProvider() {
   const location = useLocation();
@@ -103,6 +106,28 @@ export function NotificationsSocketProvider() {
             },
           });
         }
+        return;
+      }
+
+      if (notification.type === 'FEEDBACK_REPLY') {
+        void useFeedbackStore.getState().fetchUnreadCount();
+        const feedbackId = notification.metadata?.feedbackId;
+        toast(i18n.t('notifications.messages.feedbackReply'), {
+          description: i18n.t('notifications.messages.feedbackReplyBody'),
+          action: {
+            label: i18n.t('feedback.fabLabel'),
+            onClick: () => {
+              useFeedbackStore.getState().open(
+                feedbackId ? { feedbackId } : { view: 'list' },
+              );
+            },
+          },
+        });
+        return;
+      }
+
+      if (notification.type === 'GROUP_CALL_STARTED') {
+        toast(i18n.t('notifications.messages.groupCallStarted'));
         return;
       }
 

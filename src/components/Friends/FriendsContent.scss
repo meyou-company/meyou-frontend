@@ -1,5 +1,5 @@
 /* =========================
-   FriendsContent — сторінка «Показать больше»: пошук + Усі VIP / Друзі
+   FriendsContent — сторінка «Друзі»: пошук + Друзі / Підписники / Підписки / VIP-друзі
    ========================= */
 
 .friends-content {
@@ -99,16 +99,24 @@ body.dark .friends-content__search {
 
 .friends-content__tabs {
   display: flex;
-  gap: 12px;
+  gap: 8px;
   margin-bottom: 20px;
   flex-shrink: 0;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 .friends-content__tab {
-  flex: 1;
+  flex: 1 0 auto;
+  min-width: max-content;
   height: 44px;
-  padding: 0 16px;
-  font-size: 15px;
+  padding: 0 14px;
+  font-size: 14px;
   font-weight: 600;
   border: 1px solid rgba(0, 0, 0, 0.15);
   border-radius: 10px;
@@ -117,6 +125,11 @@ body.dark .friends-content__search {
   color: inherit;
   -webkit-tap-highlight-color: transparent;
   transition: background 0.2s, border-color 0.2s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  white-space: nowrap;
 
   &:hover {
     background: rgba(255, 79, 177, 0.08);
@@ -185,10 +198,37 @@ body.dark .friends-content__empty {
   gap: 8px;
 }
 
+.friends-content__tabCount {
+  font-weight: 500;
+  opacity: 0.72;
+  font-variant-numeric: tabular-nums;
+}
+
+.friends-content__tabActive .friends-content__tabCount {
+  opacity: 0.92;
+}
+
+.friends-content__actionError {
+  margin: 0 0 12px;
+  text-align: center;
+  color: #c0392b;
+  font-size: 14px;
+}
+
+body.dark .friends-content__actionError {
+  color: #ff8a80;
+}
+
 .friends-content__item {
   border-radius: 12px;
   overflow: hidden;
   background: var(--card-bg, rgba(0, 0, 0, 0.03));
+}
+
+.friends-content__row {
+  display: flex;
+  align-items: center;
+  min-width: 0;
 }
 
 body.dark .friends-content__item {
@@ -196,7 +236,9 @@ body.dark .friends-content__item {
 }
 
 .friends-content__userBtn {
-  width: 100%;
+  flex: 1;
+  min-width: 0;
+  width: auto;
   display: flex;
   align-items: center;
   gap: 14px;
@@ -319,6 +361,58 @@ body.dark .friends-content__chevron {
   opacity: 0.5;
 }
 
+.friends-content__action {
+  flex-shrink: 0;
+  margin: 0 12px 0 0;
+  height: 32px;
+  padding: 0 12px;
+  border-radius: 16px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  max-width: 42%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.friends-content__action--subscribe {
+  border: 0;
+  background: linear-gradient(135deg, #ff4fb1, #4f6bff);
+  color: #fff;
+}
+
+.friends-content__action--unsubscribe {
+  border: 1px solid rgba(0, 0, 0, 0.18);
+  background: transparent;
+  color: inherit;
+}
+
+.friends-content__action:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+body.dark .friends-content__action--unsubscribe {
+  border-color: rgba(255, 255, 255, 0.22);
+}
+
+.friends-content__vipBadge {
+  flex-shrink: 0;
+  margin: 0 12px 0 0;
+  height: 28px;
+  padding: 0 10px;
+  border-radius: 14px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  display: inline-flex;
+  align-items: center;
+  background: linear-gradient(135deg, #ff4fb1, #4f6bff);
+  color: #fff;
+}
+
 .friends-content__username {
   font-size: 14px;
   color: rgba(0, 0, 0, 0.5);
@@ -364,14 +458,20 @@ body.dark .friends-content__username {
   }
 
   .friends-content__tabs {
-    gap: 10px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
     margin-bottom: 18px;
+    overflow-x: visible;
   }
 
   .friends-content__tab {
+    flex: none;
+    min-width: 0;
+    width: 100%;
     height: 42px;
-    padding: 0 14px;
-    font-size: 14px;
+    padding: 0 10px;
+    font-size: 13px;
   }
 
   .friends-content__avatarWrap {

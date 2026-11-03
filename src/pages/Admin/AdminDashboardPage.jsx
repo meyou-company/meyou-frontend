@@ -8,6 +8,7 @@ import { getApiErrorMessage } from '../../utils/getApiErrorMessage';
 export default function AdminDashboardPage() {
   const navigate = useNavigate();
   const [overview, setOverview] = useState(null);
+  const [feedbackOverview, setFeedbackOverview] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -16,8 +17,14 @@ export default function AdminDashboardPage() {
     (async () => {
       try {
         setLoading(true);
-        const data = await adminApi.getReportsOverview();
-        if (!cancelled) setOverview(data);
+        const [reports, feedback] = await Promise.all([
+          adminApi.getReportsOverview(),
+          adminApi.getFeedbackOverview().catch(() => null),
+        ]);
+        if (!cancelled) {
+          setOverview(reports);
+          setFeedbackOverview(feedback);
+        }
       } catch (error) {
         if (!cancelled) {
           toast.error(getApiErrorMessage(error) || 'Не вдалося завантажити огляд');
@@ -66,15 +73,28 @@ export default function AdminDashboardPage() {
               <strong>{overview?.messageReports?.pending ?? 0}</strong>
               <span>Message reports pending</span>
             </article>
+            <article className="adminCard">
+              <strong>{feedbackOverview?.new ?? 0}</strong>
+              <span>New feedback</span>
+            </article>
           </div>
 
-          <button
-            type="button"
-            className="adminBtn adminBtn--primary"
-            onClick={() => navigate('/admin/reports')}
-          >
-            Open user reports
-          </button>
+          <div className="adminToolbar">
+            <button
+              type="button"
+              className="adminBtn adminBtn--primary"
+              onClick={() => navigate('/admin/feedback')}
+            >
+              Open feedback
+            </button>
+            <button
+              type="button"
+              className="adminBtn"
+              onClick={() => navigate('/admin/reports')}
+            >
+              Open user reports
+            </button>
+          </div>
         </>
       )}
     </section>

@@ -572,10 +572,24 @@
 }
 
 .friendsTitle {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+  margin: 0 0 28px;
+  padding: 0;
+  border: 0;
+  background: transparent;
   font-size: 20px;
   font-weight: 400;
   color: rgba(0, 0, 0, 0.82);
-  margin: 0 0 28px;
+  cursor: pointer;
+  text-align: left;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.friendsTitle:hover .friendsTitle__label,
+.friendsTitle:focus-visible .friendsTitle__label {
+  opacity: 0.78;
 }
 
 .friendsTitle__label {
@@ -589,7 +603,7 @@
   display: inline-block;
 }
 
-/* Друг у vipRow: перехід на /profile/:username з аватара, іконки друзів або підпису */
+/* Друг у vipRow: перехід на /profile/:username з аватара або підпису */
 .vipFriendCell {
   display: flex;
   flex-direction: column;
@@ -625,13 +639,6 @@
   opacity: 0.55;
 }
 
-.vipFriendNameIcon {
-  width: 18px;
-  height: 18px;
-  object-fit: contain;
-  flex-shrink: 0;
-}
-
 .vipFriendNameText {
   overflow: hidden;
   text-overflow: ellipsis;
@@ -665,28 +672,50 @@
   justify-content: center;
 }
 
-.showMoreBtn {
-  margin: 14px auto 0;
-  display: block;
-  width: 415px;
-  max-width: 100%;
-  height: 80px;
-  padding: 0 22px;
+.friendsEmptyMsg {
+  margin: 0 0 8px;
+  font-size: 15px;
+  line-height: 1.4;
+  color: rgba(0, 0, 0, 0.62);
+}
+
+.friendsActions {
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  justify-content: flex-start;
+  gap: 12px;
+  margin-top: 14px;
+  width: min(100%, 360px);
+}
+
+.showMoreBtn,
+.findFriendsBtn {
+  flex: 1 1 0;
+  width: auto;
+  min-width: 0;
+  max-width: none;
+  margin: 0;
+  height: 48px;
+  padding: 0 16px;
   border-radius: 240px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.showMoreBtn {
   border: 0;
   background: linear-gradient(90deg, #4f6bff 0%, #b05cff 50%, #ff4fb1 100%);
   color: #fff;
-  font-size: 22px;
-  font-weight: 700;
-  opacity: 1;
-  cursor: pointer;
 }
 
 .findFriendsBtn {
-  width: 100%;
-  height: 70px;
-  max-width: 380px;
-  margin-top: 8px;
+  border: 1px solid rgba(79, 107, 255, 0.35);
+  background: rgba(255, 255, 255, 0.72);
+  color: rgba(0, 0, 0, 0.78);
+  font-weight: 600;
 }
 
 .newPostHead {
@@ -1682,10 +1711,12 @@ body.dark .profile-home .vipTitle,
 body.dark .profile-home .friendsTitle,
 body.dark .profile-home .friendsTitle__label,
 body.dark .profile-home .friendsTitle__count,
+body.dark .profile-home .friendsEmptyMsg,
 body.dark .profile-home .newPostTitle,
 html[data-theme='dark'] .profile-home .friendsTitle,
 html[data-theme='dark'] .profile-home .friendsTitle__label,
-html[data-theme='dark'] .profile-home .friendsTitle__count {
+html[data-theme='dark'] .profile-home .friendsTitle__count,
+html[data-theme='dark'] .profile-home .friendsEmptyMsg {
   color: rgba(255, 255, 255, 0.9);
 }
 
@@ -2306,7 +2337,7 @@ html[data-theme='dark'] .profile-home .postActionCount {
     flex-wrap: nowrap;
     align-items: center;
     overflow-x: auto;
-    gap: 12px;
+    gap: 8px;
     padding-bottom: 6px;
     -webkit-overflow-scrolling: touch;
     scroll-snap-type: x mandatory;
@@ -2348,10 +2379,15 @@ html[data-theme='dark'] .profile-home .postActionCount {
     border-width: 2px;
   }
 
-  .showMoreBtn {
-    height: 35px;
+  .friendsActions {
+    gap: 8px;
+  }
+
+  .showMoreBtn,
+  .findFriendsBtn {
+    height: 40px;
     font-size: 12px;
-    padding: 0 18px;
+    padding: 0 10px;
   }
 
   .newPostTitle {
@@ -2809,10 +2845,15 @@ html[data-theme='dark'] .profile-home .postActionCount {
     margin: 10px 0;
   }
 
-  .showMoreBtn {
-    height: 28px;
+  .friendsActions {
+    gap: 8px;
+  }
+
+  .showMoreBtn,
+  .findFriendsBtn {
+    height: 36px;
     font-size: 11px;
-    padding: 0 14px;
+    padding: 0 8px;
   }
 
   .newPostTitle {
@@ -3233,12 +3274,11 @@ html[data-theme='dark'] .profile-home .postActionCount {
     flex: 0 0 126px;
   }
 
-  .showMoreBtn {
-    display: block;
-    margin-top: 12px;
-    height: 52px;
-    padding: 0 24px;
-    font-size: 18px;
+  .showMoreBtn,
+  .findFriendsBtn {
+    height: 48px;
+    padding: 0 12px;
+    font-size: 14px;
   }
 
   .profileRight__stack {

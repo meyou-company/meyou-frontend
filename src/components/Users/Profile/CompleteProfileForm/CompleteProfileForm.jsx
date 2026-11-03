@@ -24,6 +24,7 @@ import { useLocationSystem } from '../../../../hooks/useLocationSystem';
 import {
   validateCompleteProfile,
   translateValidationErrors,
+  locationFieldErrorsFromApi,
 } from '../../../../utils/validationProfile';
 import { normalizeForValidation, toCompleteProfilePayload } from '../../../../utils/profilePayload';
 import { cropImageToFile } from '../../../../utils/cropImageToFile';
@@ -328,10 +329,23 @@ export default function CompleteProfileForm({ onBack, onSave }) {
         /* ignore */
       }
       const isPhoneConflict = rawCode === 'CONFLICT' && Boolean(payloadPhone);
+      const locationCodes = locationFieldErrorsFromApi(err);
+      const locationMessages = translateValidationErrors(locationCodes, t);
+      if (Object.keys(locationCodes).length > 0) {
+        setErrors((prev) => ({ ...prev, ...locationMessages }));
+        setTouched((prev) => ({
+          ...prev,
+          ...Object.fromEntries(Object.keys(locationCodes).map((key) => [key, true])),
+        }));
+      }
       const code = isPhoneConflict ? 'PHONE_ALREADY_EXISTS' : rawCode;
       const msg = isPhoneConflict
         ? t('errors.PHONE_ALREADY_EXISTS')
-        : getApiErrorMessage(err) || t('profile.completeForm.errors.saveError');
+        : locationMessages.city ||
+          locationMessages.country ||
+          locationMessages.region ||
+          getApiErrorMessage(err) ||
+          t('profile.completeForm.errors.saveError');
       let suggestions = getApiErrorSuggestions(err);
 
       setSubmitError(msg);
