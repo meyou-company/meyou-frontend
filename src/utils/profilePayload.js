@@ -1,3 +1,4 @@
+import { normalizePersonName } from './personName.js';
 import { normalizePhone } from './profileFormUtils';
 
 /** Перевірка формату YYYY-MM-DD та віку 18–100 */
@@ -75,8 +76,8 @@ export function toEditProfilePayload(v) {
   const languages = mapSelectToStrings(v.languages, 20);
 
   const payload = {
-    firstName: v.firstName?.trim(),
-    lastName: v.lastName?.trim(),
+    firstName: normalizePersonName(v.firstName || ''),
+    lastName: normalizePersonName(v.lastName || ''),
 
     birthDate: birthDate ? `${birthDate}T00:00:00.000Z` : undefined,
     phone: normalizePhone(v.phone),
@@ -128,8 +129,8 @@ export function toCompleteProfilePayload(v) {
       : v.gender?.value || undefined;
 
   const payload = {
-    firstName: v.firstName?.trim(),
-    lastName: v.lastName?.trim(),
+    firstName: normalizePersonName(v.firstName || ''),
+    lastName: normalizePersonName(v.lastName || ''),
 
     birthDate: birthDate ? `${birthDate}T00:00:00.000Z` : undefined,
     phone: normalizePhone(v.phone),

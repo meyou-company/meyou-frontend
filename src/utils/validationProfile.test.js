@@ -98,6 +98,79 @@ describe('locationFieldErrorsFromApi', () => {
   });
 });
 
+describe('validateCompleteProfile person names', () => {
+  it('accepts international first and last names', () => {
+    const names = [
+      ['Anička', 'Nováková'],
+      ['Jiří', 'Dvořák'],
+      ['François', "O'Connor"],
+      ['Олександра', 'Шевченко'],
+      ['محمد', 'علي'],
+    ];
+
+    for (const [firstName, lastName] of names) {
+      const errors = validateCompleteProfile(
+        completeValues({ firstName, lastName }),
+      );
+      assert.equal(errors.firstName, undefined, firstName);
+      assert.equal(errors.lastName, undefined, lastName);
+    }
+  });
+
+  it('accepts ASCII and typographic apostrophes', () => {
+    const ascii = validateCompleteProfile(
+      completeValues({ lastName: "O'Connor" }),
+    );
+    const typographic = validateCompleteProfile(
+      completeValues({ lastName: 'O\u2019Connor' }),
+    );
+    assert.equal(ascii.lastName, undefined);
+    assert.equal(typographic.lastName, undefined);
+  });
+
+  it('uses the shared 2–32 length rule on complete and edit', () => {
+    assert.equal(
+      validateCompleteProfile(completeValues({ firstName: 'A' })).firstName,
+      'firstNameMin',
+    );
+    assert.equal(
+      validateEditProfile({ firstName: 'A'.repeat(33) }).firstName,
+      'firstNameMax',
+    );
+    assert.equal(
+      validateEditProfile({ firstName: 'A'.repeat(32) }).firstName,
+      undefined,
+    );
+  });
+
+  it('does not change city, nationality, or username rules', () => {
+    const okCity = validateCompleteProfile(completeValues({ city: "Xi'an" }));
+    assert.equal(okCity.city, undefined);
+
+    const badNationality = validateCompleteProfile(
+      completeValues({ nationality: 'Ukrainian123' }),
+    );
+    assert.equal(badNationality.nationality, 'nationalityLettersOnly');
+    assert.equal(badNationality.firstName, undefined);
+
+    const badUsername = validateCompleteProfile(
+      completeValues({ username: 'Анна' }),
+    );
+    assert.equal(badUsername.username, 'usernameFormat');
+    assert.equal(badUsername.firstName, undefined);
+  });
+
+  it('rejects HTML in firstName on complete and edit', () => {
+    const complete = validateCompleteProfile(
+      completeValues({ firstName: '<script>Anna</script>' }),
+    );
+    assert.equal(complete.firstName, 'firstNameLettersOnly');
+
+    const edit = validateEditProfile({ firstName: 'Anička1' });
+    assert.equal(edit.firstName, 'firstNameLettersOnly');
+  });
+});
+
 describe('Ukrainian city validation copy', () => {
   it('does not use Russian wording', () => {
     const cityInvalid = uk.profile.editForm.validation.cityInvalid;

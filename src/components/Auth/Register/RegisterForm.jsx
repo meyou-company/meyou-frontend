@@ -11,6 +11,7 @@ import {
   isEmptyErrors,
 } from "../../../utils/validationRegister";
 import { getApiErrorMessage } from "../../../utils/getApiErrorMessage";
+import { normalizePersonName } from "../../../utils/personName";
 import LanguageSwitcher from "../../LanguageSwitcher/LanguageSwitcher";
 import BrandLogo from "../../BrandLogo/BrandLogo";
 import "./RegisterForm.scss";
@@ -104,7 +105,7 @@ export default function RegisterForm({ onBack, onGoLogin, onSuccess }) {
     }
 
     const payload = {
-      firstName: form.firstName.trim(),
+      firstName: normalizePersonName(form.firstName),
       email: form.email.trim(),
       password: form.password,
       confirmPassword: form.confirmPassword,

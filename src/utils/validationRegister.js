@@ -1,4 +1,10 @@
-const NAME_REGEX = /^[a-zA-Zа-яА-ЯёЁіІїЇєЄ' -]{2,}$/;
+import {
+  isValidPersonName,
+  normalizePersonName,
+  PERSON_NAME_MAX_LENGTH,
+  PERSON_NAME_MIN_LENGTH,
+} from './personName.js';
+
 export const EMAIL_REGEX =
   /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
@@ -11,7 +17,7 @@ export const PASSWORD_HINT = '';
 export const validateRegister = (form) => {
   const errors = {};
 
-  const firstName = (form.firstName || '').trim();
+  const firstName = normalizePersonName(form.firstName || '');
   const email = (form.email || '').trim();
   const password = form.password || '';
   const confirmPassword = form.confirmPassword || '';
@@ -19,11 +25,11 @@ export const validateRegister = (form) => {
 
   if (!firstName) {
     errors.firstName = 'firstNameRequired';
-  } else if (firstName.length < 2) {
+  } else if (firstName.length < PERSON_NAME_MIN_LENGTH) {
     errors.firstName = 'firstNameMin';
-  } else if (firstName.length > 32) {
+  } else if (firstName.length > PERSON_NAME_MAX_LENGTH) {
     errors.firstName = 'firstNameMax';
-  } else if (!NAME_REGEX.test(firstName)) {
+  } else if (!isValidPersonName(firstName)) {
     errors.firstName = 'firstNameFormat';
   }
 

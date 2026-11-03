@@ -27,6 +27,7 @@ const MESSAGE_CODE_HINTS = [
   { pattern: /(deleted|видален|удален)/i, code: 'ACCOUNT_DELETED' },
   { pattern: /^CITY_NAME_INVALID$/i, code: 'CITY_NAME_INVALID' },
   { pattern: /^CITY_NAME_TOO_LONG$/i, code: 'CITY_NAME_TOO_LONG' },
+  { pattern: /^PERSON_NAME_INVALID$/i, code: 'PERSON_NAME_INVALID' },
   { pattern: /название города|назва міста/i, code: 'CITY_NAME_INVALID' },
 ];
 

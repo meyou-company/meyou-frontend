@@ -1,4 +1,10 @@
 import { CITY_NAME_MAX_LENGTH, getCityNameIssue } from './cityName.js';
+import {
+  isValidPersonName,
+  normalizePersonName,
+  PERSON_NAME_MAX_LENGTH,
+  PERSON_NAME_MIN_LENGTH,
+} from './personName.js';
 import { normalizePhone } from './profileFormUtils.js';
 
 const onlyLettersSpaces = (v) => /^[\p{L}\p{M}\s'-]+$/u.test(String(v || '').trim());
@@ -43,14 +49,34 @@ function validateBirthDate(value, errors) {
   }
 }
 
-function applySharedRules(values, e) {
-  if (values.firstName && !onlyLettersSpaces(values.firstName)) {
-    e.firstName = 'firstNameLettersOnly';
+function applyPersonNameRules(value, errors, field, codes) {
+  if (!value) return;
+  const name = normalizePersonName(value);
+  if (!name) return;
+  if (name.length < PERSON_NAME_MIN_LENGTH) {
+    errors[field] = codes.min;
+    return;
   }
+  if (name.length > PERSON_NAME_MAX_LENGTH) {
+    errors[field] = codes.max;
+    return;
+  }
+  if (!isValidPersonName(name)) {
+    errors[field] = codes.format;
+  }
+}
 
-  if (values.lastName && !onlyLettersSpaces(values.lastName)) {
-    e.lastName = 'lastNameLettersOnly';
-  }
+function applySharedRules(values, e) {
+  applyPersonNameRules(values.firstName, e, 'firstName', {
+    format: 'firstNameLettersOnly',
+    min: 'firstNameMin',
+    max: 'firstNameMax',
+  });
+  applyPersonNameRules(values.lastName, e, 'lastName', {
+    format: 'lastNameLettersOnly',
+    min: 'lastNameMin',
+    max: 'lastNameMax',
+  });
 
   if (values.nationality && !onlyLettersSpaces(values.nationality)) {
     e.nationality = 'nationalityLettersOnly';
