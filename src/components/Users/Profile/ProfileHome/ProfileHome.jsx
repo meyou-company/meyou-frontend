@@ -7,6 +7,8 @@ import { toast } from "sonner";
 import AvatarCropModal from "../../../AvatarCropModal/AvatarCropModal";
 import { cropImageToFile } from "../../../../utils/cropImageToFile";
 import { AVATAR_OUTPUT_SIZE } from "../../../../utils/avatarCrop";
+import { getPostPublishFailureToast } from "../../../../utils/postPublishError";
+import { isPostFullTextTooLong } from "../../../../utils/postText";
 import { authApi } from "../../../../services/auth";
 import { postsApi } from "../../../../services/postsApi";
 import { storiesApi } from "../../../../services/storiesApi";
@@ -353,6 +355,12 @@ export default function ProfileHome({
       return;
     }
 
+    if (isPostFullTextTooLong(newPostText)) {
+      toast.error(t('posts.validation.tooLong'));
+      return;
+    }
+
+    let publishPhase = "upload";
     try {
       setIsPublishingPost(true);
       setPostVideoUploadProgress(null);
@@ -394,6 +402,7 @@ export default function ProfileHome({
         media = uploaded;
       }
 
+      publishPhase = "create";
       const locationName = postLocation.trim();
       const created = await postsApi.create({
         fullText: trimmedText || "\u200B",
@@ -452,12 +461,13 @@ export default function ProfileHome({
           size: item?.file?.size,
         })),
       });
-      const hadMedia = postMediaFiles.length > 0;
       toast.error(
-        getRegularVideoErrorMessage(err, t) ||
-          (hadMedia && details
-            ? `${t('posts.toast.editMediaUploadFileFailed')}: ${details}`
-            : details || t('posts.toast.publishFailed'))
+        getPostPublishFailureToast({
+          phase: publishPhase,
+          details,
+          videoMessage: getRegularVideoErrorMessage(err, t),
+          t,
+        })
       );
       // Keep modal open and preserve text / selected media.
     } finally {
@@ -947,7 +957,8 @@ export default function ProfileHome({
           onPublish={handlePublishPost}
           onClose={closeComposer}
           canPublish={
-            Boolean(newPostText.trim()) || postMediaFiles.length > 0
+            (Boolean(newPostText.trim()) || postMediaFiles.length > 0) &&
+            !isPostFullTextTooLong(newPostText)
           }
         />
       )}

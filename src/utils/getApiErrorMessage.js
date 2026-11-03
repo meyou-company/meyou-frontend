@@ -28,6 +28,7 @@ const MESSAGE_CODE_HINTS = [
   { pattern: /^CITY_NAME_INVALID$/i, code: 'CITY_NAME_INVALID' },
   { pattern: /^CITY_NAME_TOO_LONG$/i, code: 'CITY_NAME_TOO_LONG' },
   { pattern: /^PERSON_NAME_INVALID$/i, code: 'PERSON_NAME_INVALID' },
+  { pattern: /^POST_FULL_TEXT_TOO_LONG$/i, code: 'POST_FULL_TEXT_TOO_LONG' },
   { pattern: /название города|назва міста/i, code: 'CITY_NAME_INVALID' },
 ];
 

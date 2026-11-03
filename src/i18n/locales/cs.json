@@ -1047,6 +1047,7 @@
     "CITY_NAME_INVALID": "Zadejte platný název města",
     "CITY_NAME_TOO_LONG": "Název města je příliš dlouhý",
     "PERSON_NAME_INVALID": "Zadejte platné jméno",
+    "POST_FULL_TEXT_TOO_LONG": "Příspěvek může mít maximálně 5 000 znaků",
     "UNAUTHORIZED": "Please sign in.",
     "FORBIDDEN": "Not enough permissions.",
     "NOT_FOUND": "Not found.",
@@ -1391,9 +1392,12 @@
       "systemAria": "System share menu",
       "listAria": "Share outside app"
     },
+    "readMore": "Číst dál",
+    "collapse": "Sbalit",
     "validation": {
       "emptyContent": "Add text or media",
       "emptyTextOrPhoto": "Add text or a photo",
+      "tooLong": "Příspěvek může mít maximálně 5 000 znaků",
       "selectRecipients": "Select recipients"
     },
     "toast": {

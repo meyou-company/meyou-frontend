@@ -86,6 +86,32 @@
   top: 8px;
 }
 
+.editPostModal__charRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  margin: -4px 0 12px;
+}
+
+.editPostModal__charCount {
+  font-size: 12px;
+  font-weight: 600;
+  color: #65676b;
+}
+
+.editPostModal__charCount.is-over,
+.editPostModal__charError {
+  color: #c0266a;
+}
+
+.editPostModal__charError {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 600;
+}
+
 .editPostModal__locationLabel {
   display: block;
   margin-bottom: 12px;
@@ -226,4 +252,16 @@ html[data-theme="dark"] .editPostModal__locationInput {
   &::placeholder {
     color: rgba(255, 255, 255, 0.45);
   }
+}
+
+body.dark .editPostModal__charCount,
+html[data-theme="dark"] .editPostModal__charCount {
+  color: rgba(255, 255, 255, 0.62);
+}
+
+body.dark .editPostModal__charCount.is-over,
+body.dark .editPostModal__charError,
+html[data-theme="dark"] .editPostModal__charCount.is-over,
+html[data-theme="dark"] .editPostModal__charError {
+  color: #fb7185;
 }
