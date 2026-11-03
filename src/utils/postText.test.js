@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import {
+  clipPostChars,
   countPostChars,
   formatPostCharCounter,
   getPostTextPreview,
@@ -9,6 +10,8 @@ import {
   POST_SHORT_TEXT_MAX,
   shouldExpandPostText,
 } from "./postText.js";
+
+const COMPLEX_EMOJI = ["❤️", "🫶🏻", "👨‍👩‍👧‍👦", "🇺🇦"];
 
 describe("countPostChars", () => {
   it("uses Unicode code points so emoji match the backend limit", () => {
@@ -39,6 +42,32 @@ describe("feed preview / expand", () => {
     const preview = getPostTextPreview(text);
     assert.match(preview, /\n\n/);
     assert.equal(countPostChars(preview), 200);
+  });
+
+  for (const emoji of COMPLEX_EMOJI) {
+    it(`does not split ${emoji} at the 200-character preview boundary`, () => {
+      const text = `${"a".repeat(199)}${emoji} more`;
+      const preview = getPostTextPreview(text);
+      assert.equal(preview, "a".repeat(199));
+      assert.equal(preview.includes(emoji), false);
+      assert.equal(shouldExpandPostText(text), true);
+    });
+
+    it(`keeps a leading ${emoji} in the preview`, () => {
+      const text = `${emoji}${"b".repeat(200)}`;
+      const preview = getPostTextPreview(text);
+      assert.equal(preview.startsWith(emoji), true);
+      assert.ok(countPostChars(preview) <= POST_SHORT_TEXT_MAX);
+    });
+  }
+
+  it("counts complex emoji as multiple code points toward the 5000 limit", () => {
+    assert.equal(countPostChars("❤️"), 2);
+    assert.equal(countPostChars("🫶🏻"), 2);
+    assert.equal(countPostChars("👨‍👩‍👧‍👦"), 7);
+    assert.equal(countPostChars("🇺🇦"), 2);
+    assert.equal(isPostFullTextTooLong("❤️".repeat(2500)), false);
+    assert.equal(isPostFullTextTooLong("❤️".repeat(2501)), true);
   });
 });
 

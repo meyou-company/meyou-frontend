@@ -6,10 +6,83 @@ export function countPostChars(text) {
   return Array.from(text ?? "").length;
 }
 
+/**
+ * Clip to at most `max` Unicode code points without splitting a grapheme
+ * (ZWJ families, flags, skin tones, emoji + VS16). May be shorter than `max`.
+ */
 export function clipPostChars(text, max) {
+  const value = text ?? "";
+  if (max <= 0) return "";
+  if (countPostChars(value) <= max) return value;
+
+  let out = "";
+  let used = 0;
+  for (const grapheme of graphemesOf(value)) {
+    const size = countPostChars(grapheme);
+    if (used + size > max) break;
+    out += grapheme;
+    used += size;
+  }
+  return out;
+}
+
+function graphemesOf(text) {
+  const value = text ?? "";
+  if (typeof Intl !== "undefined" && typeof Intl.Segmenter === "function") {
+    return Array.from(
+      new Intl.Segmenter("en", { granularity: "grapheme" }).segment(value),
+      (part) => part.segment,
+    );
+  }
+  return graphemesFallback(value);
+}
+
+function graphemesFallback(text) {
   const chars = Array.from(text ?? "");
-  if (chars.length <= max) return text ?? "";
-  return chars.slice(0, Math.max(0, max)).join("");
+  const clusters = [];
+  const isRegionalIndicator = (char) => /^\p{Regional_Indicator}$/u.test(char);
+  const isModifier = (char) =>
+    char === "\uFE0F" ||
+    char === "\uFE0E" ||
+    /^\p{M}$/u.test(char) ||
+    /^\p{Variation_Selector}$/u.test(char) ||
+    /^\p{Emoji_Modifier}$/u.test(char);
+
+  let i = 0;
+  while (i < chars.length) {
+    let cluster = chars[i];
+    i += 1;
+    if (
+      isRegionalIndicator(cluster) &&
+      i < chars.length &&
+      isRegionalIndicator(chars[i])
+    ) {
+      cluster += chars[i];
+      i += 1;
+      clusters.push(cluster);
+      continue;
+    }
+    while (i < chars.length) {
+      const next = chars[i];
+      if (next === "\u200D" && i + 1 < chars.length) {
+        cluster += next + chars[i + 1];
+        i += 2;
+        while (i < chars.length && isModifier(chars[i])) {
+          cluster += chars[i];
+          i += 1;
+        }
+        continue;
+      }
+      if (isModifier(next)) {
+        cluster += next;
+        i += 1;
+        continue;
+      }
+      break;
+    }
+    clusters.push(cluster);
+  }
+  return clusters;
 }
 
 export function isPostFullTextTooLong(text) {
