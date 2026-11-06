@@ -1048,6 +1048,9 @@
     "CITY_NAME_TOO_LONG": "Le nom de la ville est trop long",
     "PERSON_NAME_INVALID": "Saisissez un nom valide",
     "POST_FULL_TEXT_TOO_LONG": "Une publication peut contenir 5 000 caractères au maximum",
+    "LUNA_MESSAGE_EMPTY": "Saisis un message pour Lun",
+    "LUNA_MESSAGE_TOO_LONG": "Le message est trop long",
+    "LUNA_APPEARANCE_REQUIRED": "Choisis l’apparence de Lun pour discuter",
     "UNAUTHORIZED": "Please sign in.",
     "FORBIDDEN": "Not enough permissions.",
     "NOT_FOUND": "Not found.",
@@ -1697,5 +1700,39 @@
         "date": "Date"
       }
     }
+  },
+  "luna": {
+    "fabLabel": "Demande à Lun",
+    "fabAria": "Ouvrir l’assistant Lun",
+    "name": "Lun",
+    "subtitle": "Assistant IA",
+    "demoBanner": "Mode démo — ces réponses ne viennent pas d’une IA connectée.",
+    "pickerTitle": "Choisis ton Lun",
+    "pickerStart": "Commencer à discuter",
+    "moonTitle": "Lun lunaire",
+    "moonHint": "Un personnage lunaire doux",
+    "robotTitle": "Lun robot",
+    "robotHint": "Notre robot néon",
+    "changeLook": "Changer l’apparence de Lun",
+    "emptyHello": "Salut, je suis Lun. Comment puis-je aider ?",
+    "prompts": {
+      "site": "Aide-moi avec le site",
+      "caption": "Écris une légende photo",
+      "translate": "Traduis un message",
+      "chat": "Discutons simplement"
+    },
+    "promptMessages": {
+      "site": "Aide-moi avec LunMeYo — que puis-je y faire ?",
+      "caption": "Écris une légende pour une photo",
+      "translate": "Aide-moi à traduire un message",
+      "chat": "Discutons simplement"
+    },
+    "placeholder": "Écrire à Lun",
+    "send": "Envoyer",
+    "thinking": "Lun réfléchit…",
+    "pauseAnimation": "Arrêter l’animation",
+    "error": "Impossible d’obtenir une réponse",
+    "retry": "Réessayer",
+    "close": "Fermer"
   }
 }

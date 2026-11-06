@@ -1048,6 +1048,9 @@
     "CITY_NAME_TOO_LONG": "Şehir adı çok uzun",
     "PERSON_NAME_INVALID": "Geçerli bir ad girin",
     "POST_FULL_TEXT_TOO_LONG": "Gönderi en fazla 5 000 karakter olabilir",
+    "LUNA_MESSAGE_EMPTY": "Lun için bir mesaj yaz",
+    "LUNA_MESSAGE_TOO_LONG": "Mesaj çok uzun",
+    "LUNA_APPEARANCE_REQUIRED": "Sohbete başlamak için Lun görünümünü seç",
     "UNAUTHORIZED": "Please sign in.",
     "FORBIDDEN": "Not enough permissions.",
     "NOT_FOUND": "Not found.",
@@ -1697,5 +1700,39 @@
         "date": "Tarih"
       }
     }
+  },
+  "luna": {
+    "fabLabel": "Lun’a sor",
+    "fabAria": "Lun asistanını aç",
+    "name": "Lun",
+    "subtitle": "Yapay zekâ asistanı",
+    "demoBanner": "Demo modu — yanıtlar bağlı bir yapay zekâdan gelmiyor.",
+    "pickerTitle": "Lun’unu seç",
+    "pickerStart": "Sohbete başla",
+    "moonTitle": "Ay Lun",
+    "moonHint": "Yumuşak bir ay karakteri",
+    "robotTitle": "Lun robot",
+    "robotHint": "Neon robotumuz",
+    "changeLook": "Lun’un görünümünü değiştir",
+    "emptyHello": "Merhaba, ben Lun. Nasıl yardımcı olabilirim?",
+    "prompts": {
+      "site": "Site konusunda yardım et",
+      "caption": "Fotoğraf alt yazısı yaz",
+      "translate": "Bir mesajı çevir",
+      "chat": "Sadece sohbet edelim"
+    },
+    "promptMessages": {
+      "site": "LunMeYo hakkında yardım et — burada neler yapabilirim?",
+      "caption": "Bir fotoğraf için alt yazı yaz",
+      "translate": "Bir mesajı çevirmeme yardım et",
+      "chat": "Sadece sohbet edelim"
+    },
+    "placeholder": "Lun’a yaz",
+    "send": "Gönder",
+    "thinking": "Lun düşünüyor…",
+    "pauseAnimation": "Animasyonu durdur",
+    "error": "Yanıt alınamadı",
+    "retry": "Yeniden dene",
+    "close": "Kapat"
   }
 }

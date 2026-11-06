@@ -1048,6 +1048,9 @@
     "CITY_NAME_TOO_LONG": "Název města je příliš dlouhý",
     "PERSON_NAME_INVALID": "Zadejte platné jméno",
     "POST_FULL_TEXT_TOO_LONG": "Příspěvek může mít maximálně 5 000 znaků",
+    "LUNA_MESSAGE_EMPTY": "Napiš Lunovi zprávu",
+    "LUNA_MESSAGE_TOO_LONG": "Zpráva je příliš dlouhá",
+    "LUNA_APPEARANCE_REQUIRED": "Než začneš, vyber vzhled Luna",
     "UNAUTHORIZED": "Please sign in.",
     "FORBIDDEN": "Not enough permissions.",
     "NOT_FOUND": "Not found.",
@@ -1700,5 +1703,39 @@
         "date": "Datum"
       }
     }
+  },
+  "luna": {
+    "fabLabel": "Zeptej se Luna",
+    "fabAria": "Otevřít asistenta Luna",
+    "name": "Lun",
+    "subtitle": "AI asistent",
+    "demoBanner": "Režim ukázky — odpovědi nepocházejí z připojeného AI.",
+    "pickerTitle": "Vyber si svého Luna",
+    "pickerStart": "Začít konverzaci",
+    "moonTitle": "Měsíční Lun",
+    "moonHint": "Jemná měsíční postava",
+    "robotTitle": "Lun robot",
+    "robotHint": "Náš neonový robot",
+    "changeLook": "Změnit vzhled Luna",
+    "emptyHello": "Ahoj, jsem Lun. Jak mohu pomoct?",
+    "prompts": {
+      "site": "Pomoz se stránkou",
+      "caption": "Vymysli popisek k fotce",
+      "translate": "Přelož zprávu",
+      "chat": "Jen si popovídejme"
+    },
+    "promptMessages": {
+      "site": "Pomož mi s LunMeYo — co tady můžu dělat?",
+      "caption": "Vymysli popisek k fotce",
+      "translate": "Pomož mi přeložit zprávu",
+      "chat": "Jen si popovídejme"
+    },
+    "placeholder": "Napiš Lunovi",
+    "send": "Odeslat",
+    "thinking": "Lun přemýšlí…",
+    "pauseAnimation": "Pozastavit animaci",
+    "error": "Odpověď se nepodařilo získat",
+    "retry": "Zkusit znovu",
+    "close": "Zavřít"
   }
 }

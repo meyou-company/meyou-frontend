@@ -29,6 +29,9 @@ const MESSAGE_CODE_HINTS = [
   { pattern: /^CITY_NAME_TOO_LONG$/i, code: 'CITY_NAME_TOO_LONG' },
   { pattern: /^PERSON_NAME_INVALID$/i, code: 'PERSON_NAME_INVALID' },
   { pattern: /^POST_FULL_TEXT_TOO_LONG$/i, code: 'POST_FULL_TEXT_TOO_LONG' },
+  { pattern: /^LUNA_MESSAGE_EMPTY$/i, code: 'LUNA_MESSAGE_EMPTY' },
+  { pattern: /^LUNA_MESSAGE_TOO_LONG$/i, code: 'LUNA_MESSAGE_TOO_LONG' },
+  { pattern: /^LUNA_APPEARANCE_REQUIRED$/i, code: 'LUNA_APPEARANCE_REQUIRED' },
   { pattern: /название города|назва міста/i, code: 'CITY_NAME_INVALID' },
 ];
 
