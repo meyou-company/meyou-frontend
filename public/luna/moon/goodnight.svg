@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 96">
+  
+  <circle cx="40" cy="40" r="36" fill="#F4E9C8"/>
+  <circle cx="32" cy="36" r="3.2" fill="#3A2A18"/>
+  <circle cx="48" cy="36" r="3.2" fill="#3A2A18"/>
+
+  <rect x="8" y="72" width="64" height="20" rx="10" fill="#8FB3FF"/>
+  <text x="40" y="86" text-anchor="middle" font-size="11" font-family="Montserrat,sans-serif" fill="#1B1030">Zz</text>
+</svg>

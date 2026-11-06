@@ -1131,6 +1131,9 @@
     "CITY_NAME_TOO_LONG": "City name is too long",
     "PERSON_NAME_INVALID": "Enter a valid name",
     "POST_FULL_TEXT_TOO_LONG": "A post can be at most 5 000 characters",
+    "LUNA_MESSAGE_EMPTY": "Enter a message for Lun",
+    "LUNA_MESSAGE_TOO_LONG": "Message is too long",
+    "LUNA_APPEARANCE_REQUIRED": "Choose a Lun look to start chatting",
     "UNAUTHORIZED": "Please sign in.",
     "FORBIDDEN": "Not enough permissions.",
     "NOT_FOUND": "Not found.",
@@ -1781,5 +1784,39 @@
         "date": "Date"
       }
     }
+  },
+  "luna": {
+    "fabLabel": "Ask Lun",
+    "fabAria": "Open Lun assistant",
+    "name": "Lun",
+    "subtitle": "AI assistant",
+    "demoBanner": "Demo mode — these replies are not from a live AI model.",
+    "pickerTitle": "Choose your Lun",
+    "pickerStart": "Start chatting",
+    "moonTitle": "Moon Lun",
+    "moonHint": "A soft lunar character",
+    "robotTitle": "Lun robot",
+    "robotHint": "Our neon robot",
+    "changeLook": "Change Lun’s look",
+    "emptyHello": "Hi, I’m Lun. How can I help?",
+    "prompts": {
+      "site": "Help with the site",
+      "caption": "Write a photo caption",
+      "translate": "Translate a message",
+      "chat": "Just chat"
+    },
+    "promptMessages": {
+      "site": "Help me with LunMeYo — what can I do here?",
+      "caption": "Help me write a caption for a photo",
+      "translate": "Help me translate a message",
+      "chat": "Let’s just talk"
+    },
+    "placeholder": "Message Lun",
+    "send": "Send",
+    "thinking": "Lun is thinking…",
+    "pauseAnimation": "Pause animation",
+    "error": "Couldn’t get a reply",
+    "retry": "Try again",
+    "close": "Close"
   }
 }

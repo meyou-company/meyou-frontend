@@ -1028,6 +1028,9 @@
     "CITY_NAME_TOO_LONG": "اسم المدينة طويل جدًا",
     "PERSON_NAME_INVALID": "أدخل اسمًا صالحًا",
     "POST_FULL_TEXT_TOO_LONG": "يمكن أن يحتوي المنشور على 5 000 حرف كحد أقصى",
+    "LUNA_MESSAGE_EMPTY": "أدخل رسالة للون",
+    "LUNA_MESSAGE_TOO_LONG": "الرسالة طويلة جداً",
+    "LUNA_APPEARANCE_REQUIRED": "اختر مظهر لون لبدء المحادثة",
     "UNAUTHORIZED": "يرجى تسجيل الدخول.",
     "FORBIDDEN": "Not enough permissions.",
     "NOT_FOUND": "Not found.",
@@ -1484,5 +1487,39 @@
         "date": "التاريخ"
       }
     }
+  },
+  "luna": {
+    "fabLabel": "اسأل لون",
+    "fabAria": "فتح مساعد لون",
+    "name": "لون",
+    "subtitle": "مساعد ذكاء اصطناعي",
+    "demoBanner": "وضع تجريبي — الردود ليست من نموذج ذكاء اصطناعي متصل.",
+    "pickerTitle": "اختر لون الخاص بك",
+    "pickerStart": "ابدأ المحادثة",
+    "moonTitle": "لون القمري",
+    "moonHint": "شخصية قمرية هادئة",
+    "robotTitle": "لون الروبوت",
+    "robotHint": "روبوتنا النيوني",
+    "changeLook": "تغيير مظهر لون",
+    "emptyHello": "مرحباً، أنا لون. كيف أساعدك؟",
+    "prompts": {
+      "site": "ساعدني في الموقع",
+      "caption": "اكتب وصفاً لصورة",
+      "translate": "ترجم رسالة",
+      "chat": "لنتحدث فقط"
+    },
+    "promptMessages": {
+      "site": "ساعدني في LunMeYo — ماذا يمكنني أن أفعل هنا؟",
+      "caption": "اكتب وصفاً لصورة",
+      "translate": "ساعدني في ترجمة رسالة",
+      "chat": "لنتحدث فقط"
+    },
+    "placeholder": "اكتب إلى لون",
+    "send": "إرسال",
+    "thinking": "لون يفكر…",
+    "pauseAnimation": "إيقاف الحركة",
+    "error": "تعذر الحصول على رد",
+    "retry": "حاول مرة أخرى",
+    "close": "إغلاق"
   }
 }

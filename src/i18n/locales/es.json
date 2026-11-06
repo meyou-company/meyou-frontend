@@ -1048,6 +1048,9 @@
     "CITY_NAME_TOO_LONG": "El nombre de la ciudad es demasiado largo",
     "PERSON_NAME_INVALID": "Introduce un nombre válido",
     "POST_FULL_TEXT_TOO_LONG": "La publicación puede tener un máximo de 5 000 caracteres",
+    "LUNA_MESSAGE_EMPTY": "Escribe un mensaje para Lun",
+    "LUNA_MESSAGE_TOO_LONG": "El mensaje es demasiado largo",
+    "LUNA_APPEARANCE_REQUIRED": "Elige el aspecto de Lun para chatear",
     "UNAUTHORIZED": "Please sign in.",
     "FORBIDDEN": "Not enough permissions.",
     "NOT_FOUND": "Not found.",
@@ -1697,5 +1700,39 @@
         "date": "Fecha"
       }
     }
+  },
+  "luna": {
+    "fabLabel": "Pregunta a Lun",
+    "fabAria": "Abrir el asistente Lun",
+    "name": "Lun",
+    "subtitle": "Asistente de IA",
+    "demoBanner": "Modo demo: estas respuestas no vienen de una IA conectada.",
+    "pickerTitle": "Elige a tu Lun",
+    "pickerStart": "Empezar a hablar",
+    "moonTitle": "Lun lunar",
+    "moonHint": "Un personaje lunar suave",
+    "robotTitle": "Lun robot",
+    "robotHint": "Nuestro robot neón",
+    "changeLook": "Cambiar el aspecto de Lun",
+    "emptyHello": "Hola, soy Lun. ¿En qué te ayudo?",
+    "prompts": {
+      "site": "Ayuda con el sitio",
+      "caption": "Inventa un pie de foto",
+      "translate": "Traduce un mensaje",
+      "chat": "Hablemos un rato"
+    },
+    "promptMessages": {
+      "site": "Ayúdame con LunMeYo: ¿qué puedo hacer aquí?",
+      "caption": "Inventa un pie de foto",
+      "translate": "Ayúdame a traducir un mensaje",
+      "chat": "Hablemos un rato"
+    },
+    "placeholder": "Escribe a Lun",
+    "send": "Enviar",
+    "thinking": "Lun está pensando…",
+    "pauseAnimation": "Pausar animación",
+    "error": "No se pudo obtener una respuesta",
+    "retry": "Reintentar",
+    "close": "Cerrar"
   }
 }

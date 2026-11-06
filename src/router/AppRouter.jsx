@@ -63,6 +63,7 @@ import { useLocaleStore } from '../zustand/useLocaleStore';
 import { useThemeStore } from '../zustand/useThemeStore';
 import { useStoriesOverlayStore } from '../zustand/useStoriesOverlayStore';
 import FeedbackWidget from '../components/Feedback/FeedbackWidget';
+import LunaWidget from '../components/Luna/LunaWidget';
 import AdminLayout from '../pages/Admin/AdminLayout';
 import AdminDashboardPage from '../pages/Admin/AdminDashboardPage';
 import AdminReportsPage from '../pages/Admin/AdminReportsPage';
@@ -243,6 +244,7 @@ export default function AppRouter() {
         <ProfileGuard>
           <GlobalBurgerMenu />
           <FeedbackWidget />
+          <LunaWidget />
           <AppLayout />
         </ProfileGuard>
       </UserProfileNavProvider>
