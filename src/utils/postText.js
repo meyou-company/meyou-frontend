@@ -1,4 +1,4 @@
-/** Must match meyou-api `countPostChars` / `POST_*` (Unicode code points). */
+/** Must match lunmeyo-api `countPostChars` / `POST_*` (Unicode code points). */
 export const POST_SHORT_TEXT_MAX = 200;
 export const POST_FULL_TEXT_MAX = 5000;
 

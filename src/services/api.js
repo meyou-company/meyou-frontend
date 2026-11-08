@@ -3,7 +3,7 @@ import { logApiError, logApiRequest, logApiResponse } from "../utils/apiRequestL
 
 /**
  * `VITE_API_URL` задає базу під глобальний префікс `/api` на Nest.
- * Prod (рекомендовано): абсолютний URL https://meyou-api.onrender.com/api — запити напряму на Render (CORS + credentials).
+ * Prod (рекомендовано): абсолютний URL https://meyou-api.onrender.com/api — запити напряму на Render-сервіс lunmeyo-api (CORS + credentials).
  * Альтернатива: порожньо або `/api` — тоді на Vercel спрацює rewrite з vercel.json (той же хост під `/api/...`).
  */
 function resolveApiBaseUrl() {
@@ -14,7 +14,7 @@ function resolveApiBaseUrl() {
     const absolute = /^https?:\/\//i.test(raw);
     if (!absolute && import.meta.env.PROD) {
       console.warn(
-        `[meyou-frontend] VITE_API_URL is relative (${raw}). With Vercel, vercel.json must rewrite /api → API host. Recommended: absolute https://YOUR-API.onrender.com/api`,
+        `[lunmeyo-frontend] VITE_API_URL is relative (${raw}). With Vercel, vercel.json must rewrite /api → API host. Recommended: absolute https://meyou-api.onrender.com/api`,
       );
     }
     return raw;
@@ -23,7 +23,7 @@ function resolveApiBaseUrl() {
     return "/api";
   }
   console.error(
-    "[meyou-frontend] VITE_API_URL is unset in production. Defaulting to /api — ensure vercel.json proxies /api to meyou-api on Render.",
+    "[lunmeyo-frontend] VITE_API_URL is unset in production. Defaulting to /api — ensure vercel.json proxies /api to lunmeyo-api on Render (https://meyou-api.onrender.com).",
   );
   return "/api";
 }
