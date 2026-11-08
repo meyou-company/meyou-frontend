@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import { usersApi } from '../../../services/usersApi';
@@ -9,6 +9,13 @@ export default function ReportUserModal({ isOpen, userId, onClose }) {
   const { t } = useTranslation();
   const [reason, setReason] = useState('');
   const [submitting, setSubmitting] = useState(false);
+
+  useEffect(() => {
+    if (isOpen) {
+      setReason('');
+      setSubmitting(false);
+    }
+  }, [isOpen, userId]);
 
   if (!isOpen || !userId) return null;
 

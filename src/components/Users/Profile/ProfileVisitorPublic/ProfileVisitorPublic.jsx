@@ -477,7 +477,10 @@ export default function ProfileVisitorPublic({
                       type="button"
                       className="ph-visitor-mobileMenu__item"
                       role="menuitem"
-                      onClick={onBlock}
+                      onClick={() => {
+                        setIsMobileMenuOpen(false);
+                        onBlock?.();
+                      }}
                       aria-label={t('profile.visitor.block')}
                     >
                       <img
