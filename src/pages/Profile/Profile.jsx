@@ -9,6 +9,7 @@ import ProfileVisitorSubscribed from "../../components/Users/Profile/ProfileVisi
 import ProfileVisitorVip from "../../components/Users/Profile/ProfileVisitorVip/ProfileVisitorVip";
 import { applyPublicAudienceFields } from "../../components/Users/Profile/ProfileInfoPanel/profileInfoHelpers";
 import VipAccessInfoModal from "../../components/Users/Profile/VipAccessInfoModal/VipAccessInfoModal";
+import ReportUserModal from "../../components/Users/Profile/ReportUserModal";
 import { useAuthStore } from "../../zustand/useAuthStore";
 import { useGuestPreviewStore } from "../../zustand/useGuestPreviewStore";
 import { usersApi } from "../../services/usersApi";
@@ -154,6 +155,8 @@ export default function Profile() {
   const [secondaryReady, setSecondaryReady] = useState(false);
   const [vipPurchaseModalOpen, setVipPurchaseModalOpen] = useState(false);
   const [chatLockedModalOpen, setChatLockedModalOpen] = useState(false);
+  const [reportModalOpen, setReportModalOpen] = useState(false);
+  const [blockSubmitting, setBlockSubmitting] = useState(false);
   const friendsFetchKeyRef = useRef(null);
 
   const urlUsernameNorm = urlUsername?.trim().replace(/^@/, "") || "";
@@ -462,8 +465,31 @@ export default function Profile() {
       state: { receiverName: name },
     });
   }, [navigate, profileUser]);
-  const onReport = useCallback(() => { }, []);
-  const onBlock = useCallback(() => { }, []);
+  const onReport = useCallback(() => {
+    if (!profileUser?.id) return;
+    setReportModalOpen(true);
+  }, [profileUser?.id]);
+
+  const onBlock = useCallback(async () => {
+    const userId = profileUser?.id;
+    if (!userId || blockSubmitting) return;
+    const ok = window.confirm(t('messenger.chatMenu.blockConfirm'));
+    if (!ok) return;
+    try {
+      setBlockSubmitting(true);
+      await usersApi.blockUser(userId);
+      toast.success(t('messenger.chatMenu.blockSuccess'));
+      navigate('/settings/blocked');
+    } catch (err) {
+      toast.error(getApiErrorMessage(err, 'errors.generic'));
+    } finally {
+      setBlockSubmitting(false);
+    }
+  }, [blockSubmitting, navigate, profileUser?.id, t]);
+
+  useEffect(() => {
+    setReportModalOpen(false);
+  }, [profileUser?.id]);
 
   const isGuestPreview = Boolean(isOwnProfile && guestPreviewEnabled);
 
@@ -687,6 +713,11 @@ export default function Profile() {
         isOpen={vipPurchaseModalOpen}
         onClose={() => setVipPurchaseModalOpen(false)}
         variant="purchase"
+      />
+      <ReportUserModal
+        isOpen={reportModalOpen}
+        userId={profileUser.id}
+        onClose={() => setReportModalOpen(false)}
       />
     </div>
   );
