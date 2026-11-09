@@ -6,31 +6,8 @@ import SettingsPageShell from '../../components/Settings/SettingsPageShell';
 import '../../components/Settings/SettingsPageShell.scss';
 import { usersApi } from '../../services/usersApi';
 import { getApiErrorMessage } from '../../utils/getApiErrorMessage';
+import { normalizeBlockedUsers } from '../../utils/blockedUsers';
 import './BlockedUsersPage.scss';
-
-function extractBlockedUsers(response) {
-  if (!response) return [];
-  if (Array.isArray(response)) return response;
-  if (Array.isArray(response.users)) return response.users;
-  if (Array.isArray(response.blockedUsers)) return response.blockedUsers;
-  if (Array.isArray(response.items)) return response.items;
-  if (Array.isArray(response.data?.users)) return response.data.users;
-  if (Array.isArray(response.data?.blockedUsers)) return response.data.blockedUsers;
-  if (Array.isArray(response.data?.items)) return response.data.items;
-  if (Array.isArray(response.data)) return response.data;
-  return [];
-}
-
-function getBlockedUserId(user) {
-  return (
-    user?.id ||
-    user?._id ||
-    user?.blockedUser?.id ||
-    user?.blockedUserId ||
-    user?.userId ||
-    null
-  );
-}
 
 function getDisplayName(user) {
   const full = `${user?.firstName || ''} ${user?.lastName || ''}`.trim();
@@ -63,10 +40,7 @@ export default function BlockedUsersPage() {
     setError(null);
     try {
       const response = await usersApi.getBlockedUsers();
-      const list = extractBlockedUsers(response)
-        .map((item) => item?.blockedUser || item?.user || item?.blocked || item)
-        .filter((item) => getBlockedUserId(item));
-      setUsers(list);
+      setUsers(normalizeBlockedUsers(response));
     } catch (err) {
       console.error('[blocked-users] load failed', err?.response?.data || err);
       setUsers([]);
@@ -81,14 +55,14 @@ export default function BlockedUsersPage() {
   }, [loadBlockedUsers]);
 
   const handleUnblock = async (user) => {
-    const userId = getBlockedUserId(user);
+    const userId = user.id;
     if (!userId || unblockingId) return;
 
     setUnblockingId(String(userId));
     try {
       await usersApi.unblockUser(userId);
       setUsers((prev) =>
-        prev.filter((item) => String(getBlockedUserId(item)) !== String(userId)),
+        prev.filter((item) => String(item.id) !== String(userId)),
       );
       toast.success(t('settings.blocked.unblocked'));
     } catch (err) {
@@ -135,7 +109,7 @@ export default function BlockedUsersPage() {
       {!loading && !error && users.length > 0 ? (
         <ul className="blocked-users-page__list settings-card">
           {users.map((user) => {
-            const userId = getBlockedUserId(user);
+            const userId = user.id;
             const name = getDisplayName(user) || t('settings.blocked.unknownUser');
             const username = getUsername(user);
             const avatarUrl = getAvatarUrl(user);

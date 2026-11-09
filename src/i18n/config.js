@@ -1,7 +1,7 @@
 /** Shared locale config for web and future React Native / Expo. */
 export const SUPPORTED_LOCALES = ['uk', 'en', 'ru', 'cs', 'fr', 'es', 'tr'];
 
-export const DEFAULT_LOCALE = 'uk';
+export const DEFAULT_LOCALE = 'en';
 
 export const RTL_LOCALES = new Set();
 

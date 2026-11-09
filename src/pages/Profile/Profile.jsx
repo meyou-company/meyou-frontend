@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useCallback, useState, useRef } from "react";
+import { createPortal } from "react-dom";
 import { useNavigate, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
@@ -10,6 +11,7 @@ import ProfileVisitorVip from "../../components/Users/Profile/ProfileVisitorVip/
 import { applyPublicAudienceFields } from "../../components/Users/Profile/ProfileInfoPanel/profileInfoHelpers";
 import VipAccessInfoModal from "../../components/Users/Profile/VipAccessInfoModal/VipAccessInfoModal";
 import ReportUserModal from "../../components/Users/Profile/ReportUserModal";
+import DeletePostConfirmDialog from "../../components/PostFeed/DeletePostConfirmDialog";
 import { useAuthStore } from "../../zustand/useAuthStore";
 import { useGuestPreviewStore } from "../../zustand/useGuestPreviewStore";
 import { usersApi } from "../../services/usersApi";
@@ -157,6 +159,7 @@ export default function Profile() {
   const [chatLockedModalOpen, setChatLockedModalOpen] = useState(false);
   const [reportModalOpen, setReportModalOpen] = useState(false);
   const [blockSubmitting, setBlockSubmitting] = useState(false);
+  const [blockTargetId, setBlockTargetId] = useState(null);
   const friendsFetchKeyRef = useRef(null);
 
   const urlUsernameNorm = urlUsername?.trim().replace(/^@/, "") || "";
@@ -465,30 +468,48 @@ export default function Profile() {
       state: { receiverName: name },
     });
   }, [navigate, profileUser]);
-  const onReport = useCallback(() => {
-    if (!profileUser?.id) return;
-    setReportModalOpen(true);
-  }, [profileUser?.id]);
+  const canModerateProfile = useCallback(() => {
+    if (!profileUser?.id || isOwnProfile) return false;
+    if (useAuthStore.getState().isAuthed) return true;
+    navigate("/auth/login", {
+      state: { redirectTo: `/profile/${encodeURIComponent(profileUser.username || profileUser.id)}` },
+    });
+    return false;
+  }, [isOwnProfile, navigate, profileUser?.id, profileUser?.username]);
 
-  const onBlock = useCallback(async () => {
-    const userId = profileUser?.id;
-    if (!userId || blockSubmitting) return;
-    const ok = window.confirm(t('messenger.chatMenu.blockConfirm'));
-    if (!ok) return;
+  const onReport = useCallback(() => {
+    if (!canModerateProfile()) return;
+    setReportModalOpen(true);
+  }, [canModerateProfile]);
+
+  const onBlock = useCallback(() => {
+    if (!blockSubmitting && canModerateProfile()) {
+      setBlockTargetId(profileUser.id);
+    }
+  }, [blockSubmitting, canModerateProfile, profileUser?.id]);
+
+  const confirmBlock = useCallback(async () => {
+    const userId = blockTargetId;
+    if (!userId || userId !== profileUser?.id || blockSubmitting || !canModerateProfile()) return;
     try {
       setBlockSubmitting(true);
       await usersApi.blockUser(userId);
+      for (const [key, cached] of profileCache) {
+        if (String(cached.user?.id) === String(userId)) profileCache.delete(key);
+      }
       toast.success(t('messenger.chatMenu.blockSuccess'));
+      setBlockTargetId(null);
       navigate('/settings/blocked');
     } catch (err) {
       toast.error(getApiErrorMessage(err, 'errors.generic'));
     } finally {
       setBlockSubmitting(false);
     }
-  }, [blockSubmitting, navigate, profileUser?.id, t]);
+  }, [blockSubmitting, blockTargetId, canModerateProfile, navigate, profileUser?.id, t]);
 
   useEffect(() => {
     setReportModalOpen(false);
+    setBlockTargetId(null);
   }, [profileUser?.id]);
 
   const isGuestPreview = Boolean(isOwnProfile && guestPreviewEnabled);
@@ -628,6 +649,7 @@ export default function Profile() {
           onWriteMessage={onWriteMessage}
           onGifts={onGifts}
           onReport={onReport}
+          onBlock={onBlock}
           onShowMoreFriends={onShowMoreFriendFriends}
           onOpenUser={onOpenUser}
           followingList={profileUser?.friends}
@@ -649,6 +671,7 @@ export default function Profile() {
           onWriteMessage={onWriteMessage}
           onGifts={onGifts}
           onReport={onReport}
+          onBlock={onBlock}
           onShowMoreFriends={onShowMoreFriendFriends}
           onOpenUser={onOpenUser}
         />
@@ -719,6 +742,19 @@ export default function Profile() {
         userId={profileUser.id}
         onClose={() => setReportModalOpen(false)}
       />
+      {blockTargetId === profileUser.id && createPortal(
+        <DeletePostConfirmDialog
+          isOpen
+          title={t('messenger.chatMenu.blockConfirm')}
+          description={profileUser.username ? `@${profileUser.username.replace(/^@/, '')}` : ''}
+          confirmLabel={t(blockSubmitting ? 'common.loading' : 'profile.visitor.block')}
+          cancelLabel={t('common.cancel')}
+          confirming={blockSubmitting}
+          onCancel={() => { if (!blockSubmitting) setBlockTargetId(null); }}
+          onConfirm={confirmBlock}
+        />,
+        document.body,
+      )}
     </div>
   );
 }

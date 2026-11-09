@@ -276,6 +276,8 @@ export const LEGAL_UI = {
   acceptTermsCheckbox:
     'Я приймаю Умови використання та Політику конфіденційності LunMeYo',
   acceptTermsTermsLink: 'Умовами використання',
+  acceptTermsPrefix: 'Я приймаю',
+  acceptTermsConnector: 'та',
   acceptTermsPrivacyLink: 'Політикою конфіденційності',
   acceptTermsSubmit: 'Продовжити',
   acceptTermsDecline: 'Відхилити',

@@ -43,6 +43,7 @@ export default function ProfileVisitorSubscribed({
   onWriteMessage,
   onGifts,
   onReport,
+  onBlock,
   onShowMoreFriends,
   onOpenUser,
   onViewPhoto: onViewPhotoExternal,
@@ -318,7 +319,7 @@ export default function ProfileVisitorSubscribed({
         {/* RIGHT — CHAT / GIFTS / REPORT / VIP */}
         <div className="profile-visitor-subscribed__right">
           <div className="pvs-top-right">
-            <div className="pvs-tools__row">
+            <div className={`pvs-tools__row${onBlock ? ' pvs-tools__row--moderation' : ''}`}>
               {/* MESSAGE */}
               <button
                 type="button"
@@ -380,6 +381,14 @@ export default function ProfileVisitorSubscribed({
 
                 <span className="pvs-tools__smallLabel">{t('profile.visitor.report')}</span>
               </button>
+              {onBlock && (
+                <button type="button" className="pvs-tools__small" onClick={onBlock}>
+                  <div className="pvs-tools__smallIconWrap">
+                    <img src={profileIcons.storyBlock} alt="" className="pvs-tools__smallIcon" />
+                  </div>
+                  <span className="pvs-tools__smallLabel">{t('profile.visitor.block')}</span>
+                </button>
+              )}
             </div>
 
             {/* VIP — DESKTOP ONLY */}

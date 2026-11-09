@@ -261,6 +261,10 @@ $pvsTextStrong: rgba(0, 0, 0, 0.7);
   gap: 10px;
 }
 
+.pvs-tools__row--moderation {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
 .pvs-tools__vip,
 .pvs-tools__small {
   width: 100%;

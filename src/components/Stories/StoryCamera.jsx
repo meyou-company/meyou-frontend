@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from "react-i18next";
 import {
   LuCamera,
   LuRefreshCw,
@@ -30,12 +31,13 @@ function canvasToBlob(canvas, type = 'image/jpeg', quality = 0.92) {
   return new Promise((resolve, reject) => {
     canvas.toBlob((blob) => {
       if (blob) resolve(blob);
-      else reject(new Error('Не вдалося створити фото'));
+      else reject(new Error('Could not encode camera frame'));
     }, type, quality);
   });
 }
 
 export default function StoryCamera({ onClose, onCapture }) {
+  const { t } = useTranslation();
   const videoRef = useRef(null);
   const filtersRef = useRef(null);
   const filterDragRef = useRef(null);
@@ -99,7 +101,7 @@ export default function StoryCamera({ onClose, onCapture }) {
       faceBusyRef.current = false;
       faceRegionsRef.current = null;
       worker.terminate();
-      if (!failedOnce) toast.error('Не вдалося завантажити Beauty. Спробуйте вибрати його ще раз.');
+      if (!failedOnce) toast.error(t("storyCamera.beautyError"));
       failedOnce = true;
     };
     worker.onmessage = ({ data }) => {
@@ -130,7 +132,7 @@ export default function StoryCamera({ onClose, onCapture }) {
       faceBusyRef.current = false;
       faceRegionsRef.current = null;
     };
-  }, [filterId]);
+  }, [filterId, t]);
 
   useEffect(() => {
     faceRegionsRef.current = null;
@@ -184,7 +186,7 @@ export default function StoryCamera({ onClose, onCapture }) {
         setIsReady(true);
       } catch (error) {
         console.error('[story-camera] camera failed', error);
-        toast.error('Не вдалося відкрити камеру. Перевірте дозвіл у браузері.');
+        toast.error(t("storyCamera.cameraError"));
         if (!cancelled) onCloseRef.current?.();
       }
     };
@@ -194,7 +196,7 @@ export default function StoryCamera({ onClose, onCapture }) {
       cancelled = true;
       stopCamera();
     };
-  }, [facingMode, stopCamera]);
+  }, [facingMode, stopCamera, t]);
 
   useEffect(() => {
     const draw = () => {
@@ -270,8 +272,8 @@ export default function StoryCamera({ onClose, onCapture }) {
         lastModified: Date.now(),
       });
       onCapture?.(file, { filterBaked: true });
-    } catch (error) {
-      toast.error(error?.message || 'Не вдалося зробити фото');
+    } catch {
+      toast.error(t("storyCamera.photoError"));
     }
   };
 
@@ -285,11 +287,11 @@ export default function StoryCamera({ onClose, onCapture }) {
     const canvas = canvasRef.current;
     if (!canvas || !isReady || isRecording) return;
     if (!canvas.captureStream) {
-      toast.error('Запис обробленого відео не підтримується цим браузером');
+      toast.error(t("storyCamera.filteredVideoUnsupported"));
       return;
     }
     if (typeof MediaRecorder === 'undefined') {
-      toast.error('Запис відео не підтримується цим браузером');
+      toast.error(t("storyCamera.videoUnsupported"));
       return;
     }
 
@@ -306,7 +308,7 @@ export default function StoryCamera({ onClose, onCapture }) {
       recorder.ondataavailable = (event) => {
         if (event.data?.size) chunksRef.current.push(event.data);
       };
-      recorder.onerror = () => toast.error('Не вдалося записати відео');
+      recorder.onerror = () => toast.error(t("storyCamera.videoError"));
       recorder.onstop = () => {
         clearInterval(timerRef.current);
         const type = recorder.mimeType || mimeType || 'video/webm';
@@ -338,7 +340,7 @@ export default function StoryCamera({ onClose, onCapture }) {
       }, 250);
     } catch (error) {
       console.error('[story-camera] recording failed', error);
-      toast.error('Не вдалося почати запис відео');
+      toast.error(t("storyCamera.startVideoError"));
     }
   };
 
@@ -351,10 +353,10 @@ export default function StoryCamera({ onClose, onCapture }) {
   return (
     <div className="storyCamera">
       <video ref={videoRef} className="storyCamera__source" playsInline muted />
-      <canvas ref={canvasRef} className="storyCamera__preview" aria-label="Попередній перегляд камери" />
+      <canvas ref={canvasRef} className="storyCamera__preview" aria-label={t("storyCamera.preview")} />
 
       <div className="storyCamera__topBar">
-        <button type="button" className="storyCamera__roundBtn" onClick={handleClose} aria-label="Закрити камеру">
+        <button type="button" className="storyCamera__roundBtn" onClick={handleClose} aria-label={t("storyCamera.close")}>
           <LuX />
         </button>
         {isRecording ? <span className="storyCamera__timer">00:{String(recordingSeconds).padStart(2, '0')}</span> : null}
@@ -363,7 +365,7 @@ export default function StoryCamera({ onClose, onCapture }) {
           className="storyCamera__roundBtn"
           onClick={() => setFacingMode((value) => (value === 'user' ? 'environment' : 'user'))}
           disabled={isRecording}
-          aria-label="Перемкнути камеру"
+          aria-label={t("storyCamera.switch")}
         >
           <LuRefreshCw />
         </button>
@@ -376,7 +378,7 @@ export default function StoryCamera({ onClose, onCapture }) {
               ref={filtersRef}
               className="storyCamera__filters"
               role="listbox"
-              aria-label="Фільтри"
+              aria-label={t("storyCamera.filters")}
               onPointerDown={(event) => {
                 if (event.pointerType !== 'mouse' || event.button !== 0) return;
                 suppressFilterClickRef.current = false;
@@ -424,7 +426,7 @@ export default function StoryCamera({ onClose, onCapture }) {
               ))}
             </div>
             <label className="storyCamera__intensity">
-              <span>Інтенсивність</span>
+              <span>{t("storyCamera.intensity")}</span>
               <input
                 type="range"
                 min="0"
@@ -446,14 +448,14 @@ export default function StoryCamera({ onClose, onCapture }) {
             disabled={isRecording}
           >
             <LuSlidersHorizontal />
-            <span>Фільтри</span>
+            <span>{t("storyCamera.filters")}</span>
           </button>
           <button
             type="button"
             className="storyCamera__shutter"
             onClick={capturePhoto}
             disabled={!isReady || isRecording}
-            aria-label="Зробити фото"
+            aria-label={t("storyCamera.photo")}
           >
             <LuCamera />
           </button>
@@ -462,7 +464,7 @@ export default function StoryCamera({ onClose, onCapture }) {
             className={`storyCamera__record${isRecording ? ' is-recording' : ''}`}
             onClick={isRecording ? finishRecording : startRecording}
             disabled={!isReady}
-            aria-label={isRecording ? 'Зупинити запис' : 'Записати відео'}
+            aria-label={isRecording ? t("storyCamera.stopVideo") : t("storyCamera.recordVideo")}
           >
             {isRecording ? <LuSquare /> : <LuVideo />}
           </button>

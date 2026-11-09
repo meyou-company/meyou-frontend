@@ -34,7 +34,7 @@ const Video = () => {
     e.stopPropagation();
 
     if (!isAuthed) {
-      toast.error('Увійдіть, щоб підписатися на користувача');
+      toast.error(t("videoUi.signInToFollow"));
       navigate('/auth/login');
       return;
     }
@@ -116,7 +116,7 @@ const Video = () => {
     const timer = setTimeout(async () => {
       if (AUTH_REQUIRED_TABS.has(activeTab) && !isAuthed) {
         setVideos([]);
-        setError('Войдите, чтобы просматривать эту вкладку');
+        setError(t("videoUi.signInToView"));
         setLoading(false);
         return;
       }
@@ -152,7 +152,7 @@ const Video = () => {
 
         console.error('[video-feed] failed', err);
         setVideos([]);
-        setError(getApiErrorMessage(err) || 'Не удалось загрузить видео');
+        setError(getApiErrorMessage(err) || t("videoUi.loadError"));
       } finally {
         if (reqId === lastReqId.current) setLoading(false);
       }
@@ -175,7 +175,7 @@ const Video = () => {
 
   const handleAddClick = () => {
     if (!isAuthed) {
-      toast.error('Войдите, чтобы добавить видео');
+      toast.error(t("videoUi.signInToAdd"));
       navigate('/auth/login');
       return;
     }
@@ -184,7 +184,7 @@ const Video = () => {
 
   const handleTabClick = (tabId) => {
     if (AUTH_REQUIRED_TABS.has(tabId) && !isAuthed) {
-      toast.error('Войдите, чтобы просматривать эту вкладку');
+      toast.error(t("videoUi.signInToView"));
       navigate('/auth/login');
       return;
     }
@@ -202,7 +202,7 @@ const Video = () => {
 
   const handlePlayVideo = (video) => {
     if (!video?.videoUrl) {
-      toast.error('Ссылка на видео недоступна');
+      toast.error(t("videoUi.unavailable"));
       return;
     }
     setSelectedVideo(video);
@@ -246,7 +246,7 @@ const Video = () => {
     e.stopPropagation();
 
     if (!isAuthed) {
-      toast.error('Войдите, чтобы сохранить видео');
+      toast.error(t("videoUi.signInToSave"));
       navigate('/auth/login');
       return;
     }
@@ -266,10 +266,10 @@ const Video = () => {
     try {
       if (wasSaved) {
         await videosApi.unsave(videoId);
-        toast.success('Видео удалено из сохранённых');
+        toast.success(t("videoUi.unsaved"));
       } else {
         await videosApi.save(videoId);
-        toast.success('Видео сохранено');
+        toast.success(t("videoUi.saved"));
       }
     } catch (err) {
       console.error('[video-save] failed', err);
@@ -280,7 +280,7 @@ const Video = () => {
           prev.map((item) => (item.id === videoId ? { ...item, isSavedByMe: wasSaved } : item))
         );
       }
-      toast.error(getApiErrorMessage(err) || 'Не удалось изменить сохранение');
+      toast.error(getApiErrorMessage(err) || t("videoUi.saveError"));
     } finally {
       setSaveLoadingId(null);
     }
@@ -302,7 +302,7 @@ const Video = () => {
     e.stopPropagation();
 
     if (!isAuthed) {
-      toast.error('Войдите, чтобы поставить лайк');
+      toast.error(t("videoUi.signInToLike"));
       navigate('/auth/login');
       return;
     }
@@ -326,7 +326,7 @@ const Video = () => {
     } catch (err) {
       console.error('[video-like] failed', err);
       applyLikeState(videoId, prevCount, wasLiked);
-      toast.error(getApiErrorMessage(err) || 'Не удалось изменить лайк');
+      toast.error(getApiErrorMessage(err) || t("videoUi.likeError"));
     } finally {
       setLikeLoadingId(null);
     }
@@ -347,7 +347,7 @@ const Video = () => {
     e?.stopPropagation?.();
 
     if (!isAuthed) {
-      toast.error('Войдите, чтобы удалить видео');
+      toast.error(t("videoUi.signInToDelete"));
       navigate('/auth/login');
       return;
     }
@@ -371,11 +371,11 @@ const Video = () => {
       await videosApi.delete(deleteTarget.id);
       setVideos((prev) => prev.filter((item) => item.id !== deleteTarget.id));
       setSelectedVideo((prev) => (prev?.id === deleteTarget.id ? null : prev));
-      toast.success('Видео удалено');
+      toast.success(t("videoUi.deleted"));
       setDeleteTarget(null);
     } catch (err) {
       console.error('[video-delete] failed', err);
-      toast.error(getApiErrorMessage(err) || 'Не удалось удалить видео');
+      toast.error(getApiErrorMessage(err) || t("videoUi.deleteError"));
     } finally {
       setIsDeletingVideo(false);
     }
@@ -388,12 +388,12 @@ const Video = () => {
       <div className="video__header">
         <h1 className="video__title">
           {' '}
-          Видео
-          <img className="video__titleIcon" src={profileIcons.videoTitle} alt="Видео иконка" />
+          {t("videoUi.title")}
+          <img className="video__titleIcon" src={profileIcons.videoTitle} alt="" />
         </h1>
 
         <button type="button" className="video__addBtn" onClick={handleAddClick}>
-          +{'\u00a0'} Добавить видео
+          +{'\u00a0'} {t("videoUi.add")}
         </button>
       </div>
 
@@ -414,7 +414,7 @@ const Video = () => {
         <div className="video__search">
           <input
             className="video__searchInput"
-            placeholder="Поиск видео"
+            placeholder={t("videoUi.search")}
             value={searchQuery}
             onChange={(e) => handleSearchChange(e.target.value)}
           />
@@ -423,7 +423,7 @@ const Video = () => {
             <button
               type="button"
               className="video__clearSearchBtn"
-              aria-label="Очистити пошук"
+              aria-label={t("videoUi.clearSearch")}
               onClick={() => handleSearchChange('')}
             >
               <img src={profileIcons.close} alt="" />
@@ -441,7 +441,7 @@ const Video = () => {
             <img
               className="video__searchIcon"
               src={profileIcons.searchVideo}
-              alt="Поиск видео иконка"
+              alt=""
             />
           </button>
         </div>
@@ -454,7 +454,7 @@ const Video = () => {
 
             <input
               className="video__searchInputMobile"
-              placeholder="Я ищу..."
+              placeholder={t("common.search")}
               autoFocus
               value={searchQuery}
               onChange={(e) => handleSearchChange(e.target.value)}
@@ -488,23 +488,23 @@ const Video = () => {
                 className="video__subtitle video__showAll"
                 onClick={() => setShowAll(true)}
               >
-                Показать все
+                {t("videoUi.all")}
                 <img
                   className="video__showAllIcon"
                   src={profileIcons.arrowVideo}
-                  alt="Стрелочка вправо иконка"
+                  alt=""
                 />
               </button>
             )}
           </div>
         </div>
 
-        {loading && <p className="video__status video__status--loading">Загрузка видео...</p>}
+        {loading && <p className="video__status video__status--loading">{t("videoUi.loading")}</p>}
 
         {!loading && error && <p className="video__status video__status--error">{error}</p>}
 
         {!loading && !error && displayedVideos.length === 0 && (
-          <p className="video__status video__status--empty">Видео не найдены</p>
+          <p className="video__status video__status--empty">{t("videoUi.empty")}</p>
         )}
 
         {!loading && !error && displayedVideos.length > 0 && (
@@ -537,7 +537,7 @@ const Video = () => {
                         type="button"
                         className="video-card__delete"
                         onClick={(e) => requestDeleteVideo(e, video)}
-                        aria-label="Удалить видео"
+                        aria-label={t("videoUi.delete")}
                       >
                         <img
                           src={profileIcons.closeBlack}
@@ -552,7 +552,7 @@ const Video = () => {
                       className={`video-card__save ${video.isSavedByMe ? 'active' : ''}`}
                       onClick={(e) => handleToggleSave(e, video)}
                       disabled={saveLoadingId === video.id}
-                      aria-label={video.isSavedByMe ? 'Убрать из сохранённых' : 'Сохранить видео'}
+                      aria-label={video.isSavedByMe ? t("videoUi.unsave") : t("videoUi.save")}
                       aria-pressed={video.isSavedByMe}
                     >
                       <img src={profileIcons.savedPost} alt="" className="video-card__saveIcon" />
@@ -565,7 +565,7 @@ const Video = () => {
                         e.stopPropagation();
                         handlePlayVideo(video);
                       }}
-                      aria-label="Включить видео"
+                      aria-label={t("videoUi.play")}
                     >
                       <img className="video__playIcon" src={profileIcons.playVideo} alt="" />
                     </button>
@@ -581,7 +581,7 @@ const Video = () => {
                         <img
                           className="video__locationIcon"
                           src={profileIcons.locationVideo}
-                          alt="Локация Видео иконка"
+                          alt=""
                         />
                         <p className="video__locationText">{video.location}</p>
                       </div>
@@ -594,7 +594,7 @@ const Video = () => {
                       className={`video-card__like ${video.isLikedByMe ? 'active' : ''}`}
                       onClick={(e) => handleToggleLike(e, video)}
                       disabled={likeLoadingId === video.id}
-                      aria-label={video.isLikedByMe ? 'Убрать лайк' : 'Поставить лайк'}
+                      aria-label={video.isLikedByMe ? t("videoUi.unlike") : t("videoUi.like")}
                       aria-pressed={video.isLikedByMe}
                     >
                       <img className="video-card__likeIcon" src={profileIcons.heartVideo} alt="" />
@@ -604,7 +604,7 @@ const Video = () => {
                       <img
                         className="video__statsIcon video__statsIcon--views"
                         src={profileIcons.eyeOff}
-                        alt="Просмотры"
+                        alt={t("videoUi.views")}
                       />{' '}
                       {video.views}
                     </span>
@@ -653,10 +653,10 @@ const Video = () => {
         onCancel={handleCancelDeleteVideo}
         onConfirm={handleConfirmDeleteVideo}
         confirming={isDeletingVideo}
-        title="Удалить это видео?"
-        description="Видео будет удалено без возможности восстановления."
-        confirmLabel={isDeletingVideo ? 'Удаление…' : 'Удалить'}
-        cancelLabel="Отмена"
+        title={t("videoUi.deleteTitle")}
+        description={t("videoUi.deleteDescription")}
+        confirmLabel={isDeletingVideo ? t("videoUi.deleting") : t("videoUi.deleteAction")}
+        cancelLabel={t("common.cancel")}
       />
     </div>
   );

@@ -24,6 +24,7 @@ export default function ProfileVisitorVip({
   onWriteMessage,
   onGifts,
   onReport,
+  onBlock,
   onShowMoreFriends,
   onOpenUser,
   followingList,
@@ -144,8 +145,14 @@ export default function ProfileVisitorVip({
           label: t('profile.visitor.report'),
           onClick: onReport,
         },
+        {
+          id: "block",
+          icon: profileIcons.storyBlock,
+          label: t('profile.visitor.block'),
+          onClick: onBlock,
+        },
       ].filter((a) => a.onClick),
-    [t, onWriteMessage, onVipChat, onGifts, onReport],
+    [t, onWriteMessage, onVipChat, onGifts, onReport, onBlock],
   );
 
   return (

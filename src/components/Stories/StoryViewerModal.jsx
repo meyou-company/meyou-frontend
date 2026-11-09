@@ -40,6 +40,7 @@ import { useStoriesOverlayLock } from "../../hooks/useStoriesOverlayLock";
 import "./StoryViewerModal.scss";
 import StoryUploadModal from "./StoryUploadModal";
 import { useTranslation } from "react-i18next";
+import { i18n } from "../../i18n";
 
 const DEFAULT_DURATION = 10000;
 const IMAGE_DURATION = 10000;
@@ -153,11 +154,12 @@ function getStoryTimeLabel(story) {
   const diffMin = Math.floor(diffMs / 60000);
   const diffHours = Math.floor(diffMin / 60);
 
-  if (diffMin < 1) return "только что";
-  if (diffMin < 60) return `${diffMin} мин.`;
-  if (diffHours < 24) return `${diffHours} ч.`;
+  const relativeTime = new Intl.RelativeTimeFormat(i18n.language, { numeric: "auto", style: "short" });
+  if (diffMin < 1) return relativeTime.format(0, "second");
+  if (diffMin < 60) return relativeTime.format(-diffMin, "minute");
+  if (diffHours < 24) return relativeTime.format(-diffHours, "hour");
 
-  return "24 ч.";
+  return relativeTime.format(-24, "hour");
 }
 
 function normalizeStoryViewUser(item) {
@@ -538,7 +540,7 @@ function StoryAnalyticsModal({
       <div className="storyStatsModal__dots" aria-hidden="true" />
       <header className="storyStatsModal__header">
         <BrandWordmark className="storyStatsModal__brand" />
-        <button type="button" className="storyStatsModal__close" onClick={onClose} aria-label="Закрыть">
+        <button type="button" className="storyStatsModal__close" onClick={onClose} aria-label={i18n.t("common.close")}>
           <LuX aria-hidden="true" />
         </button>
       </header>
@@ -547,7 +549,7 @@ function StoryAnalyticsModal({
         {safeStories.map((_, index) => renderStoryThumb(index))}
         <button type="button" className="storyStatsModal__add" onClick={onAddStory}>
           <img src={profileIcons.storyAdd} alt="" aria-hidden="true" />
-          <span>Добавить</span>
+          <span>{i18n.t("storyViewerUi.add")}</span>
         </button>
       </div>
 
@@ -560,7 +562,7 @@ function StoryAnalyticsModal({
           aria-selected={activeTab === "views"}
         >
           <img src={profileIcons.storyViews} alt="" aria-hidden="true" />
-          Просмотры
+          {i18n.t("storyViewerUi.views")}
         </button>
         <button
           type="button"
@@ -570,22 +572,22 @@ function StoryAnalyticsModal({
           aria-selected={activeTab === "stats"}
         >
           <img src={profileIcons.storyAnalytics} alt="" aria-hidden="true" />
-          Статистика
+          {i18n.t("storyViewerUi.analytics")}
         </button>
       </div>
 
       {activeTab === "views" ? (
         <section className="storyStatsModal__views">
           <div className="storyStatsModal__viewsHead">
-            <h3>Просмотрели: <b>{viewsCount}</b></h3>
+            <h3>{i18n.t("storyViewerUi.viewed")} <b>{viewsCount}</b></h3>
             <button type="button" onClick={onRefresh} disabled={analyticsLoading}>
               <LuRefreshCw aria-hidden="true" />
-              Обновить
+              {i18n.t("storyViewerUi.refresh")}
             </button>
           </div>
 
           {analyticsLoading ? (
-            <p className="storyStatsModal__hint">Загрузка...</p>
+            <p className="storyStatsModal__hint">{i18n.t("common.loading")}</p>
           ) : (
             <div className="storyStatsModal__viewerList">
               {viewersList.map((viewer, index) => {
@@ -612,7 +614,7 @@ function StoryAnalyticsModal({
                   >
                     <img src={viewer.avatarUrl || profileIcons.userStory} alt="" />
                     <span className="storyStatsModal__viewerName">{getUserDisplayName(viewer)}</span>
-                    {viewer.isFollower ? <span className="storyStatsModal__online" aria-label="Подписчик" /> : null}
+                    {viewer.isFollower ? <span className="storyStatsModal__online" aria-label={i18n.t("storyViewerUi.follower")} /> : null}
                     <div className="storyStatsModal__viewerReactions" aria-hidden="true">
                       {visibleReactions.slice(0, 3).map((type, reactionIndex) => {
                         const icon = getReactionIcon(type);
@@ -635,28 +637,28 @@ function StoryAnalyticsModal({
                     </div>         </button>
                 );
               })}
-              {viewersList.length === 0 ? <p className="storyStatsModal__hint">Пока нет просмотров</p> : null}
+              {viewersList.length === 0 ? <p className="storyStatsModal__hint">{i18n.t("storyViewerUi.noViews")}</p> : null}
             </div>
           )}
         </section>
       ) : (
         <section className="storyStatsModal__summary">
           <div className="storyStatsModal__summaryRow">
-            <span>Просмотрели:</span>
+            <span>{i18n.t("storyViewerUi.viewed")}</span>
             <div className="storyStatsModal__summaryWrap">
               <strong>{viewsCount}</strong>
               {/* <small>Все пользователи</small> */}
             </div>
           </div>
           <div className="storyStatsModal__summaryRow">
-            <span>Поделились:</span>
+            <span>{i18n.t("storyViewerUi.shared")}</span>
             <div className="storyStatsModal__summaryWrap">
               <strong>{sharesCount}</strong>
               {/* <small>Все пользователи</small> */}
             </div>
           </div>
           <div className="storyStatsModal__summaryRow">
-            <span>Реакции:</span>
+            <span>{i18n.t("storyViewerUi.reactions")}</span>
             <div className="storyStatsModal__summaryWrap">
               <strong>{reactionsCount}</strong>
               {/* <small>Все пользователи</small> */}
@@ -686,38 +688,38 @@ function StoryStatsUserSheet({ user,
         type="button"
         className="storyStatsUserSheet__backdrop"
         onClick={onClose}
-        aria-label="Закрыть действия пользователя"
+        aria-label={i18n.t("storyViewerUi.closeActions")}
       />
       <div className="storyStatsUserSheet" role="dialog" aria-modal="true" aria-label={name}>
         <div className="storyStatsUserSheet__person">
           <img src={user.avatarUrl || profileIcons.userStory} alt="" />
           <div>
             <strong>{name}</strong>
-            <span>{getUserUsername(user) || (user.isFollower ? "Ваш подписчик" : "Пользователь")}</span>
+            <span>{getUserUsername(user) || (user.isFollower ? i18n.t("storyViewerUi.yourFollower") : i18n.t("common.user"))}</span>
           </div>
         </div>
 
         <button type="button" onClick={onMessage}>
           <img src={profileIcons.storyChat} alt="" />
-          Написать сообщение {name}
+          {i18n.t("storyViewerUi.writeTo", { name })}
         </button>
         <button type="button" onClick={onProfile}>
           <img src={profileIcons.storyViewerProfile} alt="" />
-          Посмотреть профиль
+          {i18n.t("storyViewerUi.viewProfile")}
         </button>
         <button type="button" onClick={onReport}>
           <img src={profileIcons.complainBlack} alt="" />
-          Пожаловаться
+          {i18n.t("live.report")}
         </button>
         {isBlocked ? (
           <button type="button" onClick={onUnblock}>
             <img src={profileIcons.storyBlock} alt="" />
-            Разблокировать
+            {i18n.t("live.unblock")}
           </button>
         ) : (
           <button type="button" onClick={onBlock}>
             <img src={profileIcons.storyBlock} alt="" />
-            Заблокировать
+            {i18n.t("live.block")}
           </button>
         )}
       </div>
@@ -857,11 +859,11 @@ function StoryShareModal({ isOpen, story, onClose }) {
           attachments,
         });
       }));
-      toast.success("Story отправлена");
+      toast.success(i18n.t("storyViewerUi.sent"));
       onClose?.();
     } catch (error) {
       console.error("[story-share] failed", error);
-      toast.error(getApiErrorMessage(error) || "Не удалось отправить story");
+      toast.error(getApiErrorMessage(error) || i18n.t("storyViewerUi.sendError"));
     } finally {
       setSending(false);
     }
@@ -870,9 +872,9 @@ function StoryShareModal({ isOpen, story, onClose }) {
   const handleCopyLink = async () => {
     try {
       await navigator.clipboard.writeText(storyUrl);
-      toast.success("Ссылка скопирована");
+      toast.success(i18n.t("storyViewerUi.linkCopied"));
     } catch {
-      toast.error("Не удалось скопировать ссылку");
+      toast.error(i18n.t("storyViewerUi.copyError"));
     }
   };
 
@@ -906,11 +908,11 @@ function StoryShareModal({ isOpen, story, onClose }) {
           className="storyShareModal__search"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="Поиск"
+          placeholder={i18n.t("common.search")}
         />
         <div className="storyShareModal__list">
-          {loading ? <p>Загрузка...</p> : null}
-          {!loading && visibleUsers.length === 0 ? <p className="storyShareModal_noUsers">Нет пользователей</p> : null}
+          {loading ? <p>{i18n.t("common.loading")}</p> : null}
+          {!loading && visibleUsers.length === 0 ? <p className="storyShareModal_noUsers">{i18n.t("storyViewerUi.noUsers")}</p> : null}
           {visibleUsers.map((user) => {
             const isSelected = selected.has(user.id);
             return (
@@ -934,7 +936,7 @@ function StoryShareModal({ isOpen, story, onClose }) {
           rows={2}
           value={message}
           onChange={(e) => setMessage(e.target.value)}
-          placeholder="Сообщение"
+          placeholder={i18n.t("storyViewerUi.message")}
         />
         <button
           type="button"
@@ -942,7 +944,7 @@ function StoryShareModal({ isOpen, story, onClose }) {
           disabled={selectedUsers.length === 0 || sending}
           onClick={handleSend}
         >
-          {sending ? "Отправка..." : "Отправить"}
+          {sending ? i18n.t("live.sending") : i18n.t("common.send")}
         </button>
         <div className="storyShareModal__social" aria-label="Share story">
           {STORY_SHARE_PROVIDERS.map((provider) => (
@@ -1263,7 +1265,7 @@ export default function StoryViewerModal({
       });
       onFollowingChange?.(authorId, previous);
       console.error("[story-follow] failed", error?.response?.data || error);
-      toast.error("Не удалось обновить подписку");
+      toast.error(i18n.t("storyViewerUi.followError"));
     } finally {
       setFollowLoading(false);
     }
@@ -1718,7 +1720,7 @@ export default function StoryViewerModal({
       });
     } catch (error) {
       console.error("[story-analytics] failed", error);
-      toast.error("Не удалось загрузить аналитику story");
+      toast.error(i18n.t("storyViewerUi.analyticsError"));
     } finally {
       setAnalyticsLoading(false);
     }
@@ -1817,7 +1819,7 @@ export default function StoryViewerModal({
       }
     } catch (error) {
       console.error("[story-stats-message] failed", error);
-      toast.error(getApiErrorMessage(error) || "Не удалось открыть чат");
+      toast.error(getApiErrorMessage(error) || i18n.t("storyViewerUi.chatError"));
     }
   };
 
@@ -1825,7 +1827,7 @@ export default function StoryViewerModal({
     const userId = selectedStatsUser?.id;
 
     if (isUserBlocked(userId)) {
-      toast.info("Сначала разблокируйте пользователя");
+      toast.info(i18n.t("storyViewerUi.unblockFirst"));
       return;
     }
 
@@ -1843,7 +1845,7 @@ export default function StoryViewerModal({
   };
 
   const handleStatsUserReport = () => {
-    toast.info("Жалоба на пользователя пока недоступна на backend");
+    toast.info(i18n.t("storyViewerUi.reportUnavailable"));
   };
 
   // const handleStatsUserReport = async () => {
@@ -1890,10 +1892,10 @@ export default function StoryViewerModal({
         return next;
       });
 
-      toast.success("Користувача розблоковано");
+      toast.success(i18n.t("storyViewerUi.unblocked"));
     } catch (error) {
       console.error("[story-unblock-user] failed", error?.response?.data || error);
-      toast.error(error?.response?.data?.message || "Не вдалося розблокувати користувача");
+      toast.error(error?.response?.data?.message || i18n.t("storyViewerUi.unblockError"));
     }
   };
 
@@ -1925,7 +1927,7 @@ export default function StoryViewerModal({
       scheduleAfterRender(() =>
         onReactionChangeRef.current?.(storyId, previousReaction),
       );
-      toast.error(getApiErrorMessage(error) || "Не удалось сохранить реакцию");
+      toast.error(getApiErrorMessage(error) || i18n.t("storyViewerUi.reactionError"));
     } finally {
       setIsReactionSaving(false);
     }
@@ -1944,9 +1946,9 @@ export default function StoryViewerModal({
 
       setReplyText("");
 
-      toast.success("Ответ отправлен");
+      toast.success(i18n.t("storyViewerUi.replySent"));
     } catch (error) {
-      toast.error(getApiErrorMessage(error) || "Не удалось отправить ответ");
+      toast.error(getApiErrorMessage(error) || i18n.t("storyViewerUi.replyError"));
       console.error("[story-reply] failed", error);
     } finally {
       setIsReplySending(false);
@@ -1970,11 +1972,11 @@ export default function StoryViewerModal({
 
       if (blockConfirmUser?.source === "analytics") {
         setBlockConfirmUser(null);
-        toast.success("Користувача заблоковано");
+        toast.success(i18n.t("storyViewerUi.blocked"));
         return;
       }
 
-      toast.success("Користувача заблоковано");
+      toast.success(i18n.t("storyViewerUi.blocked"));
 
       setBlockConfirmUser(null);
       setIsMenuOpen(false);
@@ -1986,7 +1988,7 @@ export default function StoryViewerModal({
       requestClose();
     } catch (error) {
       console.error("[story-block-user] failed", error);
-      toast.error("Не вдалося заблокувати користувача");
+      toast.error(i18n.t("storyViewerUi.blockError"));
     }
   };
 
@@ -1998,7 +2000,7 @@ export default function StoryViewerModal({
       if (action === "mute") {
         if (!authorId) return;
         await storiesApi.muteAuthor(authorId);
-        toast.success("Stories автора скрыты");
+        toast.success(i18n.t("storyViewerUi.hidden"));
         setIsMenuOpen(false);
         requestClose();
         return;
@@ -2006,32 +2008,32 @@ export default function StoryViewerModal({
 
       if (action === "interesting") {
         await storiesApi.markInteresting(storyId);
-        toast.success("Спасибо за отметку");
+        toast.success(i18n.t("storyViewerUi.feedback"));
       }
 
       if (action === "not-interesting") {
         await storiesApi.markNotInteresting(storyId);
-        toast.success("Будем показывать меньше похожих stories");
+        toast.success(i18n.t("storyViewerUi.lessLikeThis"));
       }
 
       if (action === "report") {
-        const reason = window.prompt("Причина жалобы");
+        const reason = window.prompt(i18n.t("storyViewerUi.reportReason"));
 
         if (!reason?.trim()) return;
 
         if (reason.trim().length < 3) {
-          toast.error("Причина жалобы должна быть длиннее");
+          toast.error(i18n.t("storyViewerUi.reasonTooShort"));
           return;
         }
 
         await storiesApi.reportStory(storyId, reason.trim());
-        toast.success("Жалобу отправлено");
+        toast.success(i18n.t("live.reportSent"));
       }
 
       setIsMenuOpen(false);
     } catch (error) {
       console.error("[story-menu-action] failed", error?.response?.data || error);
-      toast.error(error?.response?.data?.message || "Не удалось выполнить действие");
+      toast.error(error?.response?.data?.message || i18n.t("storyViewerUi.actionError"));
     }
   };
 
@@ -2139,7 +2141,7 @@ export default function StoryViewerModal({
               onClick={handleToggleFollowAuthor}
               disabled={!authorId || followLoading}
             >
-              {isFollowingAuthor ? "Отписаться" : "Подписаться"}
+              {isFollowingAuthor ? i18n.t("storyViewerUi.unfollow") : i18n.t("storyViewerUi.follow")}
             </button>
           )}
 
@@ -2194,7 +2196,7 @@ export default function StoryViewerModal({
                   onClick={() => handleVisitorMenuAction("mute")}
                 >
                   <LuEyeOff {...STORY_MENU_ICON} />
-                  <span>Скрыть истории автора</span>
+                  <span>{i18n.t("storyViewerUi.hide")}</span>
                 </button>
                 <button
                   type="button"
@@ -2203,7 +2205,7 @@ export default function StoryViewerModal({
                   onClick={() => handleVisitorMenuAction("interesting")}
                 >
                   <LuThumbsUp {...STORY_MENU_ICON} />
-                  <span>Интересно</span>
+                  <span>{i18n.t("storyViewerUi.interested")}</span>
                 </button>
                 <button
                   type="button"
@@ -2212,7 +2214,7 @@ export default function StoryViewerModal({
                   onClick={() => handleVisitorMenuAction("not-interesting")}
                 >
                   <LuThumbsDown {...STORY_MENU_ICON} />
-                  <span>Не интересно</span>
+                  <span>{i18n.t("storyViewerUi.notInterested")}</span>
                 </button>
                 <button
                   type="button"
@@ -2221,7 +2223,7 @@ export default function StoryViewerModal({
                   onClick={() => handleVisitorMenuAction("report")}
                 >
                   <LuFlag {...STORY_MENU_ICON} />
-                  <span>Пожаловаться</span>
+                  <span>{i18n.t("live.report")}</span>
                 </button>
                 <button
                   type="button"
@@ -2236,7 +2238,7 @@ export default function StoryViewerModal({
                   }}
                 >
                   <LuBan {...STORY_MENU_ICON} />
-                  <span>Заблокировать</span>
+                  <span>{i18n.t("live.block")}</span>
                 </button>
               </div>
             </>
@@ -2421,7 +2423,7 @@ export default function StoryViewerModal({
               <input
                 type="text"
                 className="storyViewer__messageInput"
-                placeholder="Отправить сообщение"
+                placeholder={i18n.t("storyViewerUi.reply")}
                 value={replyText}
                 onChange={(e) => setReplyText(e.target.value)}
                 onKeyDown={(e) => {
@@ -2513,11 +2515,11 @@ export default function StoryViewerModal({
           />
 
           <div className="storyBlockConfirm__card">
-            <p>Ви впевнені, що хочете заблокувати цього користувача?</p>
+            <p>{i18n.t("storyViewerUi.confirmBlock")}</p>
 
             <div className="storyBlockConfirm__actions">
               <button type="button" onClick={() => setBlockConfirmUser(null)}>
-                Скасувати
+                {i18n.t("common.cancel")}
               </button>
 
               <button
@@ -2525,7 +2527,7 @@ export default function StoryViewerModal({
                 className="storyBlockConfirm__danger"
                 onClick={handleConfirmBlockUser}
               >
-                Заблокувати
+                {i18n.t("live.block")}
               </button>
             </div>
           </div>

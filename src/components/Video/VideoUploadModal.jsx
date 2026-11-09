@@ -105,11 +105,11 @@ export default function VideoUploadModal({ isOpen, onClose, onCreated }) {
         setLocationText(label);
         setAddLocationEnabled(true);
       } else {
-        toast.error("Не удалось определить локацию. Введите вручную.");
+        toast.error(t("videoUi.locationError"));
       }
     } catch (err) {
       console.error("[video-upload] geolocation failed", err);
-      toast.error("Доступ к геолокации запрещён. Введите локацию вручную.");
+      toast.error(t("videoUi.locationDenied"));
     } finally {
       setIsDetectingLocation(false);
     }
@@ -142,7 +142,7 @@ export default function VideoUploadModal({ isOpen, onClose, onCreated }) {
     if (!file) return;
 
     if (!file.type?.startsWith("image/")) {
-      toast.error("Превью должно быть изображением");
+      toast.error(t("videoUi.imageRequired"));
       return;
     }
 
@@ -156,16 +156,16 @@ export default function VideoUploadModal({ isOpen, onClose, onCreated }) {
 
     const trimmedTitle = title.trim();
     if (!trimmedTitle) {
-      toast.error("Введите название видео");
+      toast.error(t("videoUi.enterTitle"));
       return;
     }
     if (trimmedTitle.length > 15) {
-      toast.error("Название — не более 15 символов");
+      toast.error(t("videoUi.titleTooLong"));
       return;
     }
 
     if (!videoFile) {
-      toast.error("Выберите видеофайл");
+      toast.error(t("videoUi.chooseFile"));
       return;
     }
 
@@ -218,7 +218,7 @@ export default function VideoUploadModal({ isOpen, onClose, onCreated }) {
 
       const created = await videosApi.create(payload);
 
-      toast.success("Видео добавлено");
+      toast.success(t("videoUi.added"));
       onCreated?.(created);
       handleClose();
     } catch (err) {
@@ -239,18 +239,18 @@ export default function VideoUploadModal({ isOpen, onClose, onCreated }) {
       className="videoUploadModal"
       role="dialog"
       aria-modal="true"
-      aria-label="Добавить видео"
+      aria-label={t("videoUi.add")}
     >
       <div className="videoUploadModal__backdrop" onClick={handleClose} />
 
       <div className="videoUploadModal__panel">
         <div className="videoUploadModal__head">
-          <h2 className="videoUploadModal__title">Добавить видео</h2>
+          <h2 className="videoUploadModal__title">{t("videoUi.add")}</h2>
           <button
             type="button"
             className="videoUploadModal__close"
             onClick={handleClose}
-            aria-label="Закрыть"
+            aria-label={t("common.close")}
           >
             <img src={profileIcons.close} alt="" />
           </button>
@@ -258,24 +258,24 @@ export default function VideoUploadModal({ isOpen, onClose, onCreated }) {
 
         <form className="videoUploadModal__form" onSubmit={handleSubmit}>
           <label className="videoUploadModal__field">
-            <span className="videoUploadModal__label">Название *</span>
+            <span className="videoUploadModal__label">{t("videoUi.titleRequired")}</span>
             <input
               className="videoUploadModal__input"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="Название видео (до 15 символов)"
+              placeholder={t("videoUi.titlePlaceholder")}
               maxLength={15}
               disabled={isPublishing}
             />
           </label>
 
           <label className="videoUploadModal__field">
-            <span className="videoUploadModal__label">Описание</span>
+            <span className="videoUploadModal__label">{t("videoUi.description")}</span>
             <textarea
               className="videoUploadModal__textarea"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="Краткое описание (до 50 символов)"
+              placeholder={t("videoUi.descriptionPlaceholder")}
               rows={2}
               maxLength={50}
               disabled={isPublishing}
@@ -291,7 +291,7 @@ export default function VideoUploadModal({ isOpen, onClose, onCreated }) {
                 onChange={handleLocationToggle}
                 disabled={isPublishing}
               />
-              <span className="videoUploadModal__switchLabel">Добавить локацию</span>
+              <span className="videoUploadModal__switchLabel">{t("videoUi.addLocation")}</span>
             </label>
 
             {addLocationEnabled && (
@@ -300,7 +300,7 @@ export default function VideoUploadModal({ isOpen, onClose, onCreated }) {
                   className="videoUploadModal__input"
                   value={locationText}
                   onChange={(e) => setLocationText(e.target.value)}
-                  placeholder="Город, страна"
+                  placeholder={t("videoUi.locationPlaceholder")}
                   maxLength={200}
                   disabled={isPublishing || isDetectingLocation}
                 />
@@ -310,7 +310,7 @@ export default function VideoUploadModal({ isOpen, onClose, onCreated }) {
                   onClick={handleDetectLocation}
                   disabled={isPublishing || isDetectingLocation}
                 >
-                  {isDetectingLocation ? "Определяем..." : "Определить мою локацию"}
+                  {isDetectingLocation ? t("videoUi.detectingLocation") : t("videoUi.detectLocation")}
                 </button>
               </div>
             )}
@@ -349,7 +349,7 @@ export default function VideoUploadModal({ isOpen, onClose, onCreated }) {
           ) : null}
 
           <div className="videoUploadModal__field">
-            <span className="videoUploadModal__label">Видео *</span>
+            <span className="videoUploadModal__label">{t("videoUi.videoRequired")}</span>
             <input
               ref={videoInputRef}
               type="file"
@@ -364,7 +364,7 @@ export default function VideoUploadModal({ isOpen, onClose, onCreated }) {
               onClick={() => videoInputRef.current?.click()}
               disabled={isPublishing}
             >
-              {videoFile ? "Заменить видео" : "Выбрать видео"}
+              {videoFile ? t("videoUi.replaceVideo") : t("videoUi.chooseVideo")}
             </button>
             {videoPreviewUrl && (
               <video
@@ -377,7 +377,7 @@ export default function VideoUploadModal({ isOpen, onClose, onCreated }) {
           </div>
 
           <div className="videoUploadModal__field">
-            <span className="videoUploadModal__label">Обложка (необязательно)</span>
+            <span className="videoUploadModal__label">{t("videoUi.cover")}</span>
             <input
               ref={thumbnailInputRef}
               type="file"
@@ -392,7 +392,7 @@ export default function VideoUploadModal({ isOpen, onClose, onCreated }) {
               onClick={() => thumbnailInputRef.current?.click()}
               disabled={isPublishing}
             >
-              {thumbnailFile ? "Заменить превью" : "Выбрать превью"}
+              {thumbnailFile ? t("videoUi.replaceCover") : t("videoUi.chooseCover")}
             </button>
             {thumbnailPreviewUrl && (
               <img

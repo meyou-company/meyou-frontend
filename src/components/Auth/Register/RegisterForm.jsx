@@ -110,7 +110,7 @@ export default function RegisterForm({ onBack, onGoLogin, onSuccess }) {
       password: form.password,
       confirmPassword: form.confirmPassword,
       acceptedTerms: true,
-      language: (i18n.language || 'uk').split('-')[0].toLowerCase(),
+      language: (i18n.language || 'en').split('-')[0].toLowerCase(),
     };
 
     setIsSubmitting(true);

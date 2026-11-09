@@ -517,7 +517,7 @@ export default function FirstPageView({
         <section className="first-page-stories w-full border-b-[0.1px] border-t-[0.1px] border-gray-900">
           <div className="mx-auto w-full max-w-[1340px] pt-4 md:pt-[23px] md:pb-[19px] xl:pt-4 xl:pb-[13px]">
             <h2 className="first-page-stories__title mb-1 md:mb-2 xl:mb-4 px-[10px] md:px-[41px] lg:px-9 min-[1440px]:px-[66px]">
-              Истории
+              {t("profile.tabs.stories")}
             </h2>
 
             <div className="flex gap-3 md:gap-[23px] xl:gap-10 overflow-x-auto pb-2 md:pb-0 snap-x snap-mandatory snap-center scrollbarHide pl-[10px] pr-[10px] md:pl-[41px] md:pr-[41px] lg:pl-9 lg:pr-9 min-[1440px]:pl-[66px] min-[1440px]:pr-[66px]">

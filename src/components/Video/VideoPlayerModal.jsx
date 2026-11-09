@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { useEffect, useRef, useState } from 'react';
 import profileIcons from '../../constants/profileIcons';
 import { useVideoViewRegistration } from '../../hooks/useVideoViewRegistration';
@@ -25,6 +26,7 @@ export default function VideoPlayerModal({
   canDelete = false,
   onDeleteRequest,
 }) {
+  const { t } = useTranslation();
   const videoRef = useRef(null);
   const [posterUrl, setPosterUrl] = useState(undefined);
   const [isMobileVideo, setIsMobileVideo] = useState(
@@ -146,7 +148,7 @@ export default function VideoPlayerModal({
       className="videoPlayerModal"
       role="dialog"
       aria-modal="true"
-      aria-label={video.title || 'Видео'}
+      aria-label={video.title || t("videoUi.title")}
     >
       <div className="videoPlayerModal__backdrop" onClick={onClose} />
 
@@ -157,7 +159,7 @@ export default function VideoPlayerModal({
       >
         <div className="videoPlayerModal__head">
           <div className="videoPlayerModal__meta">
-            <h2 className="videoPlayerModal__title">{video.title || video.name || 'Видео'}</h2>
+            <h2 className="videoPlayerModal__title">{video.title || video.name || t("videoUi.title")}</h2>
             {video.name && video.title && (
               <div className="videoPlayerModal__authorRow">
                 <p className="videoPlayerModal__author">{video.name}</p>
@@ -166,9 +168,9 @@ export default function VideoPlayerModal({
                     type="button"
                     className="videoPlayerModal__follow--text"
                     onClick={(e) => onFollowAuthor?.(e, video)}
-                    aria-label="Підписатися на автора"
+                    aria-label={t("videoUi.followAuthor")}
                   >
-                    Підписатись
+                    {t("videoUi.follow")}
                   </button>
                 )}
               </div>
@@ -181,9 +183,9 @@ export default function VideoPlayerModal({
                 type="button"
                 className="videoPlayerModal__delete"
                 onClick={onDeleteRequest}
-                aria-label="Удалить видео"
+                aria-label={t("videoUi.delete")}
               >
-                Удалить
+                {t("videoUi.deleteAction")}
               </button>
             )}
 
@@ -191,7 +193,7 @@ export default function VideoPlayerModal({
               type="button"
               className="videoPlayerModal__close"
               onClick={onClose}
-              aria-label="Закрыть"
+              aria-label={t("common.close")}
             >
               <img src={profileIcons.close} alt="" />
             </button>
@@ -201,11 +203,11 @@ export default function VideoPlayerModal({
           type="button"
           className="videoPlayerModal__back"
           onClick={onClose}
-          aria-label="Повернутися до відео"
+          aria-label={t("videoUi.backToVideo")}
         >
           <img
             className="videoPlayerModal__back-icon"
-            alt="Назад"
+            alt={t("common.back")}
             src="/icon-black/arrow-left.svg"
           ></img>
         </button>
@@ -226,9 +228,9 @@ export default function VideoPlayerModal({
                 type="button"
                 className="videoPlayerModal__follow--text"
                 onClick={(e) => onFollowAuthor?.(e, video)}
-                aria-label="Підписатися на автора"
+                aria-label={t("videoUi.followAuthor")}
               >
-                Підписатись
+                {t("videoUi.follow")}
               </button>
             )}
           </div>
@@ -243,7 +245,7 @@ export default function VideoPlayerModal({
               type="button"
               className="videoPlayerModal__authorAvatar"
               onClick={() => onOpenAuthor?.(video.authorUsername)}
-              aria-label="Відкрити профіль автора"
+              aria-label={t("videoUi.openAuthor")}
               disabled={!video.authorUsername}
             >
               {video.avatarUrl ? (
@@ -258,7 +260,7 @@ export default function VideoPlayerModal({
                 type="button"
                 className="videoPlayerModal__follow--cicle"
                 onClick={(e) => onFollowAuthor?.(e, video)}
-                aria-label="Підписатися на автора"
+                aria-label={t("videoUi.followAuthor")}
               >
                 +
               </button>
@@ -269,7 +271,7 @@ export default function VideoPlayerModal({
             className={`videoPlayerModal__action ${video.isLikedByMe ? 'active' : ''}`}
             onClick={(e) => onToggleLike?.(e, video)}
             disabled={likeLoadingId === video.id}
-            aria-label={video.isLikedByMe ? 'Убрать лайк' : 'Поставить лайк'}
+            aria-label={video.isLikedByMe ? t("videoUi.unlike") : t("videoUi.like")}
             aria-pressed={video.isLikedByMe}
           >
             <img src={profileIcons.heartVideo} alt="" />
@@ -281,7 +283,7 @@ export default function VideoPlayerModal({
             className={`videoPlayerModal__action ${video.isSavedByMe ? 'active' : ''}`}
             onClick={(e) => onToggleSave?.(e, video)}
             disabled={saveLoadingId === video.id}
-            aria-label={video.isSavedByMe ? 'Убрать из сохранённых' : 'Сохранить видео'}
+            aria-label={video.isSavedByMe ? t("videoUi.unsave") : t("videoUi.save")}
             aria-pressed={video.isSavedByMe}
           >
             <img src={profileIcons.savedPost} alt="" />

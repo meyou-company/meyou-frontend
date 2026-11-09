@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { changeLanguage, i18n } from '../i18n';
 import {
   DEFAULT_LOCALE,
-  detectBrowserLocale,
+  isSupportedLocale,
   normalizeLocale,
   readStoredLocale,
   writeStoredLocale,
@@ -10,8 +10,8 @@ import {
 import { profileApi } from '../services/profileApi';
 
 export function resolveInitialLocale(userLanguage) {
-  if (userLanguage) return normalizeLocale(userLanguage);
-  return readStoredLocale() || detectBrowserLocale() || DEFAULT_LOCALE;
+  if (isSupportedLocale(userLanguage)) return normalizeLocale(userLanguage);
+  return readStoredLocale() || DEFAULT_LOCALE;
 }
 
 export const useLocaleStore = create((set, get) => ({
