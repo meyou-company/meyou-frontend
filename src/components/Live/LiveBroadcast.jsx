@@ -1,3 +1,4 @@
+import { i18n } from "../../i18n";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
@@ -50,7 +51,7 @@ function getDisplayName(user) {
     user?.displayName ||
     [user?.firstName, user?.lastName].filter(Boolean).join(" ") ||
     user?.username ||
-    "Пользователь"
+    i18n.t("common.user")
   );
 }
 
@@ -296,8 +297,8 @@ function formatEndedPeriod(stream, locale) {
 
   if (Number.isNaN(startedAt.getTime()) || Number.isNaN(endedAt.getTime())) {
     return capitalizedDate
-      ? `${capitalizedDate} · трансляция окончена`
-      : "Трансляция окончена";
+      ? `${capitalizedDate} · ${i18n.t("live.endedFallback")}`
+      : i18n.t("live.endedFallback");
   }
 
   const timeFormatter = new Intl.DateTimeFormat(locale, {
@@ -307,13 +308,16 @@ function formatEndedPeriod(stream, locale) {
   return `${capitalizedDate} · ${timeFormatter.format(startedAt)}–${timeFormatter.format(endedAt)}`;
 }
 
-function formatDuration(durationSec) {
+function formatDuration(durationSec, locale) {
   const totalMinutes = Math.max(0, Math.round((Number(durationSec) || 0) / 60));
   const hours = Math.floor(totalMinutes / 60);
   const minutes = totalMinutes % 60;
-  if (hours > 0 && minutes > 0) return `${hours} ч ${minutes} мин`;
-  if (hours > 0) return `${hours} ч`;
-  return `${Math.max(1, minutes)} мин`;
+  const hoursFormatter = new Intl.NumberFormat(locale, { style: "unit", unit: "hour" });
+  const minutesFormatter = new Intl.NumberFormat(locale, { style: "unit", unit: "minute" });
+  return [
+    hours > 0 ? hoursFormatter.format(hours) : null,
+    minutes > 0 || !hours ? minutesFormatter.format(Math.max(1, minutes)) : null,
+  ].filter(Boolean).join(" ");
 }
 
 function extractBlockedUserIds(payload) {
@@ -378,6 +382,7 @@ export default function LiveBroadcast() {
   const [isEnded, setIsEnded] = useState(false);
   const [isPlaying, setIsPlaying] = useState(Boolean(liveId));
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const closeSettings = useCallback(() => setIsSettingsOpen(false), []);
   const [isMuted, setIsMuted] = useState(false);
   const [isStarting, setIsStarting] = useState(false);
   const [isEnding, setIsEnding] = useState(false);
@@ -441,7 +446,7 @@ export default function LiveBroadcast() {
         getDisplayName(source) ||
         stream?.hostName ||
         stream?.authorName ||
-        "Пользователь",
+        i18n.t("common.user"),
       username:
         source.username ||
         source.nick ||
@@ -988,7 +993,7 @@ export default function LiveBroadcast() {
       let target = stream;
       const createScheduledStream = async () => normalizeStream(
   await liveStreamsApi.create({
-    title: "Прямой эфир",
+    title: i18n.t("live.title"),
   }),
 );
 
@@ -1039,7 +1044,7 @@ export default function LiveBroadcast() {
         replace: true,
         state: { mode: "owner" },
       });
-      toast.success("Прямой эфир запущен");
+      toast.success(i18n.t("live.started"));
     } catch (error) {
       console.error("[live-stream-start] failed", error);
       if (startedStreamId) {
@@ -1225,7 +1230,7 @@ export default function LiveBroadcast() {
       setIsEnded(true);
       setIsPlaying(false);
       setIsSettingsOpen(false);
-      toast.success("Эфир завершён");
+      toast.success(i18n.t("live.ended"));
     } catch (error) {
       toast.error(getLiveErrorMessage(error));
     } finally {
@@ -1377,7 +1382,7 @@ export default function LiveBroadcast() {
       if (action === "block") {
         await usersApi.blockUser(userId);
         setBlockedUserIds((current) => new Set(current).add(String(userId)));
-        toast.success(`${message.authorName} заблокирован`);
+        toast.success(i18n.t("live.blocked", { name: message.authorName }));
       } else if (action === "unblock") {
         await usersApi.unblockUser(userId);
         setBlockedUserIds((current) => {
@@ -1385,10 +1390,10 @@ export default function LiveBroadcast() {
           next.delete(String(userId));
           return next;
         });
-        toast.success(`${message.authorName} разблокирован`);
+        toast.success(i18n.t("live.unblocked", { name: message.authorName }));
       } else if (action === "report") {
         await usersApi.reportUser(userId, "LIVE_STREAM_CHAT");
-        toast.success("Жалоба отправлена");
+        toast.success(i18n.t("live.reportSent"));
       }
     } catch (error) {
       toast.error(getApiErrorMessage(error, "errors.generic"));
@@ -1403,10 +1408,10 @@ export default function LiveBroadcast() {
     try {
       if (pickerMode === "tag") {
         await liveStreamsApi.tagUsers(stream.id, userIds);
-        toast.success("Пользователи отмечены");
+        toast.success(i18n.t("live.peopleTagged"));
       } else {
         await liveStreamsApi.share(stream.id, userIds);
-        toast.success("Эфир отправлен в сообщения");
+        toast.success(i18n.t("live.streamSent"));
       }
       setPickerMode(null);
     } catch (error) {
@@ -1421,7 +1426,7 @@ export default function LiveBroadcast() {
       const shared = await liveStreamsApi.share(activeId, []);
       const link = shared?.link || shared?.url || `${window.location.origin}/live/${activeId}`;
       await navigator.clipboard.writeText(link);
-      toast.success("Ссылка на эфир скопирована");
+      toast.success(i18n.t("live.linkCopied"));
     } catch (error) {
       toast.error(getApiErrorMessage(error, "errors.generic"));
     }
@@ -1456,8 +1461,8 @@ export default function LiveBroadcast() {
       liveNavGuardRef.current = false;
       const confirmed = window.confirm(
         isOwnerRef.current
-          ? "Завершить прямой эфир и выйти?"
-          : "Выйти из прямого эфира?",
+          ? i18n.t("live.confirmEnd")
+          : i18n.t("live.confirmLeave"),
       );
       if (!confirmed) {
         window.history.pushState({ meyouLiveStay: true }, "");
@@ -1508,7 +1513,7 @@ export default function LiveBroadcast() {
       await liveKit.switchCamera();
     } catch (error) {
       console.error("[live-camera-switch] failed", error);
-      toast.error("Не удалось переключить камеру");
+      toast.error(i18n.t("live.cameraSwitchError"));
     }
   };
 
@@ -1522,14 +1527,14 @@ export default function LiveBroadcast() {
 
       <div className="livePage__content">
         <div className="livePage__headingRow">
-          <h1>{stream?.title || "Прямой эфир"}</h1>
+          <h1>{stream?.title || i18n.t("live.title")}</h1>
         </div>
 
-        {isLoading ? <div className="livePage__state">Загрузка эфира...</div> : null}
+        {isLoading ? <div className="livePage__state">{i18n.t("live.loading")}</div> : null}
         {!isLoading && loadError ? (
           <div className="livePage__state livePage__state--error">
             <p>{loadError}</p>
-            <button type="button" onClick={handleBack}>Вернуться</button>
+            <button type="button" onClick={handleBack}>{i18n.t("common.back")}</button>
           </div>
         ) : null}
 
@@ -1541,7 +1546,7 @@ export default function LiveBroadcast() {
               host={host}
               elapsed={elapsed}
               endedPeriodLabel={formatEndedPeriod(stream, locale)}
-              endedDurationLabel={formatDuration(getStreamDurationSec(stream) || elapsed)}
+              endedDurationLabel={formatDuration(getStreamDurationSec(stream) || elapsed, locale)}
               isEnded={isEnded}
               isPlaying={isPlaying}
               isSettingsOpen={isSettingsOpen}
@@ -1554,10 +1559,11 @@ export default function LiveBroadcast() {
               viewerCount={formatCompactCount(viewerCount)}
               likesCount={formatCompactCount(likesCount)}
               onToggleSettings={() => setIsSettingsOpen((current) => !current)}
+              onCloseSettings={closeSettings}
               onToggleMuted={handleToggleMuted}
               onStartCamera={handleStartBroadcast}
               onSwitchCamera={handleSwitchCamera}
-              onShare={() => stream?.id ? setPickerMode("share") : toast.info("Сначала запустите эфир")}
+              onShare={() => stream?.id ? setPickerMode("share") : toast.info(i18n.t("live.startFirst"))}
               onReact={handleReact}
               isChatOpen={isChatOpen}
               onToggleChat={handleToggleChat}

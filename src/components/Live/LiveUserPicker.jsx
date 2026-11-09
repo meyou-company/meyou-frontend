@@ -1,3 +1,5 @@
+import { i18n } from "../../i18n";
+import { useTranslation } from "react-i18next";
 import { useEffect, useMemo, useState } from "react";
 import { subscriptionsApi } from "../../services/subscriptionsApi";
 import { usersApi } from "../../services/usersApi";
@@ -24,7 +26,7 @@ function getUserName(user) {
     user?.displayName ||
     [user?.firstName, user?.lastName].filter(Boolean).join(" ") ||
     user?.username ||
-    "Пользователь"
+    i18n.t("common.user")
   );
 }
 
@@ -35,6 +37,7 @@ export default function LiveUserPicker({
   onConfirm,
   onCopyLink,
 }) {
+  const { t } = useTranslation();
   const [query, setQuery] = useState("");
   const [suggestions, setSuggestions] = useState([]);
   const [results, setResults] = useState([]);
@@ -127,12 +130,12 @@ export default function LiveUserPicker({
         className="liveUserPicker__dialog"
         role="dialog"
         aria-modal="true"
-        aria-label={mode === "tag" ? "Отметить людей" : "Поделиться эфиром"}
+        aria-label={mode === "tag" ? t("live.tagPeople") : t("live.shareStream")}
         onClick={(event) => event.stopPropagation()}
       >
         <div className="liveUserPicker__header">
-          <h2>{mode === "tag" ? "Отметить людей" : "Поделиться"}</h2>
-          <button type="button" onClick={onClose} aria-label="Закрыть">×</button>
+          <h2>{mode === "tag" ? t("live.tagPeople") : t("live.shareAction")}</h2>
+          <button type="button" onClick={onClose} aria-label={t("common.close")}>×</button>
         </div>
 
         <input
@@ -140,14 +143,14 @@ export default function LiveUserPicker({
           className="liveUserPicker__search"
           value={query}
           onChange={(event) => setQuery(event.target.value)}
-          placeholder="Поиск"
+          placeholder={t("common.search")}
           autoFocus
         />
 
         <div className="liveUserPicker__list">
-          {loading ? <p className="liveUserPicker__empty">Загрузка...</p> : null}
+          {loading ? <p className="liveUserPicker__empty">{t("common.loading")}</p> : null}
           {!loading && visibleUsers.length === 0 ? (
-            <p className="liveUserPicker__empty">Пользователи не найдены</p>
+            <p className="liveUserPicker__empty">{t("live.noUsers")}</p>
           ) : null}
           {visibleUsers.map((user) => {
             const id = getUserId(user);
@@ -173,7 +176,7 @@ export default function LiveUserPicker({
         <div className="liveUserPicker__actions">
           {mode === "share" && onCopyLink ? (
             <button type="button" className="liveUserPicker__copy" onClick={onCopyLink}>
-              Скопировать ссылку
+              {t("live.copyLink")}
             </button>
           ) : null}
           <button
@@ -183,10 +186,10 @@ export default function LiveUserPicker({
             disabled={!selectedUsers.length || submitting}
           >
             {submitting
-              ? "Отправка..."
+              ? t("live.sending")
               : mode === "tag"
-                ? "Отметить"
-                : "Отправить"}
+                ? t("live.tag")
+                : t("common.send")}
           </button>
         </div>
       </div>

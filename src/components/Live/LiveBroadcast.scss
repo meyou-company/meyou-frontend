@@ -363,6 +363,12 @@
   display: none;
 }
 
+.liveStage__settingsBackdrop {
+  position: absolute;
+  inset: 0;
+  z-index: 7;
+}
+
 .liveStage__settingsPanel {
   position: absolute;
   top: 58px;
@@ -548,6 +554,14 @@
     font-size: 17px;
     font-weight: 500;
   }
+}
+
+.liveStage__homeLink {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 8px;
+  text-decoration: none;
 }
 
 .liveStage__bottom {

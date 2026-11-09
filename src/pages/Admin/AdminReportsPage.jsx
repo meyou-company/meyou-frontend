@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
@@ -18,6 +19,7 @@ const STATUS_FILTERS = [
 ];
 
 function ReportDetailModal({ report, onClose, onUpdated }) {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [saving, setSaving] = useState(false);
 
@@ -30,7 +32,7 @@ function ReportDetailModal({ report, onClose, onUpdated }) {
       onUpdated?.(updated);
       onClose?.();
     } catch (error) {
-      toast.error(getApiErrorMessage(error) || 'Не вдалося оновити статус');
+      toast.error(getApiErrorMessage(error) || t('adminAudit.updateError'));
     } finally {
       setSaving(false);
     }
@@ -121,6 +123,7 @@ function ReportDetailModal({ report, onClose, onUpdated }) {
 }
 
 export default function AdminReportsPage() {
+  const { t } = useTranslation();
   const [statusFilter, setStatusFilter] = useState('OPEN');
   const [usernameQuery, setUsernameQuery] = useState('');
   const [searchInput, setSearchInput] = useState('');
@@ -148,7 +151,7 @@ export default function AdminReportsPage() {
       setItems(Array.isArray(data?.items) ? data.items : []);
       setTotal(Number(data?.total ?? 0));
     } catch (error) {
-      toast.error(getApiErrorMessage(error) || 'Не вдалося завантажити скарги');
+      toast.error(getApiErrorMessage(error) || t('adminAudit.loadReportsError'));
       setItems([]);
       setTotal(0);
     } finally {
@@ -178,7 +181,7 @@ export default function AdminReportsPage() {
       const fresh = await adminApi.getUserReport(report.id);
       setSelectedReport(fresh);
     } catch (error) {
-      toast.error(getApiErrorMessage(error) || 'Не вдалося відкрити скаргу');
+      toast.error(getApiErrorMessage(error) || t('adminAudit.openReportError'));
     }
   };
 
@@ -220,9 +223,9 @@ export default function AdminReportsPage() {
 
       <div className="adminTableWrap">
         {loading ? (
-          <div className="adminEmpty">Завантаження…</div>
+          <div className="adminEmpty">{t('common.loading')}</div>
         ) : items.length === 0 ? (
-          <div className="adminEmpty">Скарг не знайдено</div>
+          <div className="adminEmpty">{t('adminAudit.noReports')}</div>
         ) : (
           <table className="adminTable">
             <thead>

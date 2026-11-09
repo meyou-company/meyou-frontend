@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import { usersApi } from '../../../services/usersApi';
@@ -37,7 +38,7 @@ export default function ReportUserModal({ isOpen, userId, onClose }) {
     }
   };
 
-  return (
+  return createPortal(
     <div className="msgModalOverlay" role="presentation" onClick={onClose}>
       <form
         className="msgModal msgModal--report"
@@ -74,6 +75,7 @@ export default function ReportUserModal({ isOpen, userId, onClose }) {
           {t('messenger.report.submit')}
         </button>
       </form>
-    </div>
+    </div>,
+    document.body,
   );
 }

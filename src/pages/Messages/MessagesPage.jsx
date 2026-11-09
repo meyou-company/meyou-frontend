@@ -1360,7 +1360,7 @@ export default function MessagesPage() {
     }
     const username = resolveProfileUsername(activeConversation?.participant);
     if (!username) {
-      toast.error(t('profile.header.profileUnavailable'));
+      toast.error(t('profile.friends.profileUnavailable'));
       return;
     }
     navigate(`/profile/${encodeURIComponent(username)}`);
@@ -1675,7 +1675,7 @@ export default function MessagesPage() {
                         aria-label={
                           isActiveGroup
                             ? t('messenger.group.info')
-                            : t('profile.header.openProfile', { name: chatTitle })
+                            : t('profile.friends.openProfile', { name: chatTitle })
                         }
                       >
                       <div className="messagesPage__chatHeadAvatar" aria-hidden="true">

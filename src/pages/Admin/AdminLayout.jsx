@@ -57,7 +57,7 @@ export default function AdminLayout() {
   if (isAuthLoading) {
     return (
       <div className="adminShell adminShell--loading">
-        <p>Завантаження…</p>
+        <p>{t('common.loading')}</p>
       </div>
     );
   }

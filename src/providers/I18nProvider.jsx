@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { I18nextProvider } from 'react-i18next';
 import { i18n } from '../i18n';
-import { normalizeLocale } from '../i18n/config';
+import { isSupportedLocale, normalizeLocale } from '../i18n/config';
 import { useAuthStore } from '../zustand/useAuthStore';
 import { useLocaleStore } from '../zustand/useLocaleStore';
 
@@ -22,7 +22,7 @@ export function I18nProvider({ children }) {
 
   useEffect(() => {
     if (isAuthLoading) return;
-    if (!userLanguage) return;
+    if (!isSupportedLocale(userLanguage)) return;
 
     const normalized = normalizeLocale(userLanguage);
     if (lastSyncedRef.current === normalized) return;

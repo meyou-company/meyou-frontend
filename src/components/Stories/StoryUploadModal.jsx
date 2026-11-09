@@ -1,3 +1,4 @@
+import { i18n } from "../../i18n";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
@@ -14,11 +15,11 @@ import StoryCamera from "./StoryCamera";
 import "./StoryUploadModal.scss";
 
 const STORY_VISIBILITY_OPTIONS = [
-  { value: "FOLLOWERS", label: "Подписчики" },
-  { value: "FRIENDS", label: "Друзья" },
+  { value: "FOLLOWERS", label: "storyUpload.followers" },
+  { value: "FRIENDS", label: "storyUpload.friends" },
   // { value: "CLOSE_FRIENDS", label: "Близкие друзья" },
-  { value: "PUBLIC", label: "Все" },
-  { value: "ONLY_ME", label: "Только я" },
+  { value: "PUBLIC", label: "storyUpload.everyone" },
+  { value: "ONLY_ME", label: "storyUpload.onlyMe" },
 ];
 
 const STORY_PUBLISH_PHASE = {
@@ -34,14 +35,14 @@ const STORY_CAPTION_MAX_LENGTH = 25;
 function getPublishPhaseLabel(phase, isVideo) {
   if (phase === STORY_PUBLISH_PHASE.UPLOADING) {
     return isVideo
-      ? "Завантаження відео..."
-      : "Завантаження фото...";
+      ? i18n.t("storyUpload.uploadingVideo")
+      : i18n.t("storyUpload.uploadingPhoto");
   }
 
   if (phase === STORY_PUBLISH_PHASE.PROCESSING) {
     return isVideo
-      ? "Відео обробляється..."
-      : "Публікація...";
+      ? i18n.t("storyUpload.processingVideo")
+      : i18n.t("storyUpload.publishing");
   }
 
   return "";
@@ -52,18 +53,18 @@ function getStoryCreateErrorMessage(error) {
   const normalized = raw.toLowerCase();
 
   if (normalized.includes("50") || normalized.includes("24 hours") || error?.response?.status === 429) {
-    return "Вы достигли лимита: максимум 50 stories за 24 часа.";
+    return i18n.t("storyUpload.dailyLimit");
   }
 
   if (normalized.includes("100 active") || normalized.includes("active stories")) {
-    return "Вы достигли лимита: максимум 100 активных stories одновременно.";
+    return i18n.t("storyUpload.activeLimit");
   }
 
   if (normalized.includes("60 seconds") || normalized.includes("60 секунд")) {
-    return "Видео для story должно быть не длиннее 60 секунд.";
+    return i18n.t("storyUpload.videoLimit");
   }
 
-  return raw || "Не удалось опубликовать story";
+  return raw || i18n.t("storyUpload.publishError");
 }
 
 export default function StoryUploadModal({ isOpen, onClose, onCreated }) {
@@ -208,7 +209,7 @@ export default function StoryUploadModal({ isOpen, onClose, onCreated }) {
     const isVideo = file.type?.startsWith("video/");
 
     if (!isImage && !isVideo) {
-      toast.error("Можна завантажити тільки фото або відео");
+      toast.error(t("storyUpload.mediaOnly"));
       return;
     }
 
@@ -296,12 +297,12 @@ export default function StoryUploadModal({ isOpen, onClose, onCreated }) {
 
   const handlePublish = async () => {
     if (!fileItem?.file) {
-      toast.error("Спочатку виберіть фото або відео");
+      toast.error(t("storyUpload.chooseMediaFirst"));
       return;
     }
 
     if (fileItem.type === "video" && !fileItem.durationSec) {
-      toast.error("Не удалось определить длительность видео");
+      toast.error(t("storyUpload.durationError"));
       return;
     }
 
@@ -356,7 +357,7 @@ export default function StoryUploadModal({ isOpen, onClose, onCreated }) {
             : undefined,
       });
 
-      toast.success("Story опубліковано");
+      toast.success(t("storyUpload.published"));
       onCreated?.(created);
       handleClose();
     } catch (e) {
@@ -390,7 +391,7 @@ export default function StoryUploadModal({ isOpen, onClose, onCreated }) {
             </p>
             {fileItem?.type === "video" && fileItem.durationSec > 60 && (
               <p className="storyUploadModal__publishHint">
-                Довгі відео автоматично обрізаються до 60 секунд
+                {t("storyUpload.trimNotice")}
               </p>
             )}
           </div>
@@ -407,7 +408,7 @@ export default function StoryUploadModal({ isOpen, onClose, onCreated }) {
                   type="button"
                   className="storyUploadModal__close"
                   onClick={handleClose}
-                  aria-label="Закрити"
+                  aria-label={t("common.close")}
                 >
                   <img
                     src={profileIcons.close}
@@ -421,7 +422,7 @@ export default function StoryUploadModal({ isOpen, onClose, onCreated }) {
                 <button
                   type="button"
                   className="storyUploadModal__settings"
-                  aria-label="Настройки"
+                  aria-label={t("storyUpload.settings")}
                 >
                   <img
                     src={profileIcons.storySettings}
@@ -475,7 +476,7 @@ export default function StoryUploadModal({ isOpen, onClose, onCreated }) {
 
               <div className="storyUploadModal__galleryHead">
                 <button type="button" className="storyUploadModal__galleryTitle">
-                  Галерея
+                  {t("storyUpload.gallery")}
                   <img
                     src={profileIcons.arrowLeftFilledBlack}
                     className="storyUploadModal__galleryArrowIcon"
@@ -489,7 +490,7 @@ export default function StoryUploadModal({ isOpen, onClose, onCreated }) {
                   onClick={() => inputRef.current?.click()}
                   disabled={isPublishing}
                 >
-                  Выбрать
+                  {t("storyUpload.select")}
                   <span className="storyUploadModal__selectIcon">
                     <img src={profileIcons.storyGallery} alt="" />
                   </span>
@@ -519,7 +520,7 @@ export default function StoryUploadModal({ isOpen, onClose, onCreated }) {
                     type="button"
                     className="storyUploadModal__editorBack"
                     onClick={handleBackToPicker}
-                    aria-label="Назад"
+                    aria-label={t("common.back")}
                   >
                     <img src={profileIcons.storyBack} alt="" />
                   </button>
@@ -630,7 +631,7 @@ export default function StoryUploadModal({ isOpen, onClose, onCreated }) {
                     className="storyUploadModal__caption"
                     value={text}
                     onChange={(e) => setText(e.target.value.slice(0, STORY_CAPTION_MAX_LENGTH))}
-                    placeholder="Добавьте подпись..."
+                    placeholder={t("storyUpload.caption")}
                     rows={1}
                     maxLength={STORY_CAPTION_MAX_LENGTH}
                     disabled={isPublishing}
@@ -647,7 +648,7 @@ export default function StoryUploadModal({ isOpen, onClose, onCreated }) {
                   <span className="storyUploadModal__audienceAvatar">
                     <img src={currentUserAvatar} alt="" />
                   </span>
-                  <span>Ваша история</span>
+                  <span>{t("storyUpload.yourStory")}</span>
                 </button>
 
                 <div
@@ -663,13 +664,13 @@ export default function StoryUploadModal({ isOpen, onClose, onCreated }) {
                     <span className="storyUploadModal__closeFriendsIcon">
                       <img src={profileIcons.storyVisibility || profileIcons.storyCloseFriends} alt="" />
                     </span>
-                    <span>Видимость</span>
+                    <span>{t("storyUpload.visibility")}</span>
                   </button>
 
                   {isVisibilityOpen && (
                     <div className="storyUploadModal__visibilityMenu">
                       <p className="storyUploadModal__visibilityTitle">
-                        👁️ Кто может видеть эту сторис:
+                        {t("storyUpload.whoCanView")}
                       </p>
 
                       {STORY_VISIBILITY_OPTIONS.map((option) => (
@@ -685,7 +686,7 @@ export default function StoryUploadModal({ isOpen, onClose, onCreated }) {
                           <span className="storyUploadModal__visibilityRadio">
                             {visibility === option.value ? "✓" : ""}
                           </span>
-                          <span>{option.label}</span>
+                          <span>{t(option.label)}</span>
                         </button>
                       ))}
                     </div>
@@ -697,7 +698,7 @@ export default function StoryUploadModal({ isOpen, onClose, onCreated }) {
                   className="storyUploadModal__nextBtn"
                   onClick={handlePublish}
                   disabled={isPublishing}
-                  aria-label="Опубликовать"
+                  aria-label={t("storyUpload.publish")}
                 >
                   {isPublishing ? "..." : <img
                     src={profileIcons.storyArrowFilled}
@@ -718,7 +719,7 @@ export default function StoryUploadModal({ isOpen, onClose, onCreated }) {
                 <span className="storyUploadModal__pickFileIcon">
                   <img src={profileIcons.storyGallery} alt="" />
                 </span>
-                <span>Вибрати фото або відео</span>
+                <span>{t("storyUpload.chooseMedia")}</span>
               </button>
               <button
                 type="button"
@@ -729,7 +730,7 @@ export default function StoryUploadModal({ isOpen, onClose, onCreated }) {
                 <span className="storyUploadModal__pickFileIcon">
                   <img src={profileIcons.storyCamera} alt="" />
                 </span>
-                <span>Відкрити камеру</span>
+                <span>{t("storyUpload.openCamera")}</span>
               </button>
             </div>
           )}

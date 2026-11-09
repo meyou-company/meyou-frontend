@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { forwardRef, useEffect, useMemo, useRef, useState } from "react";
 import { REACTIONS } from "./LiveStage";
 import profileIcons from "../../constants/profileIcons";
@@ -23,6 +24,7 @@ const LiveChat = forwardRef(function LiveChat(
   },
   ref,
 ) {
+  const { t } = useTranslation();
   const [value, setValue] = useState("");
   const [menuMessageId, setMenuMessageId] = useState(null);
   const [menuPosition, setMenuPosition] = useState(null);
@@ -124,13 +126,13 @@ const LiveChat = forwardRef(function LiveChat(
       className={`liveChat__message ${pinnedIds.has(message.id) || message.isPinned ? "liveChat__message--pinned" : ""}`}
     >
       {(pinnedIds.has(message.id) || message.isPinned) && (
-        <span className="liveChat__pin" aria-label="Закреплено">📌</span>
+        <span className="liveChat__pin" aria-label={t("live.pinned")}>📌</span>
       )}
       <button
         type="button"
         className="liveChat__avatarButton"
         onClick={() => onOpenProfile?.(message)}
-        aria-label={`Открыть профиль ${message.authorName}`}
+        aria-label={t("live.openProfile", { name: message.authorName })}
       >
         <img src={message.avatar} alt="" />
       </button>
@@ -164,7 +166,7 @@ const LiveChat = forwardRef(function LiveChat(
               });
               setMenuMessageId(message.id);
             }}
-            aria-label="Действия с сообщением"
+            aria-label={t("live.messageActions")}
             aria-expanded={menuMessageId === message.id}
           >
             ⋮
@@ -184,8 +186,8 @@ const LiveChat = forwardRef(function LiveChat(
                     }}
                   >
                     {blockedUserIds?.has(String(message.authorId))
-                      ? "Разблокировать"
-                      : "Заблокировать"}
+                      ? t("live.unblock")
+                      : t("live.block")}
                   </button>
                   <button
                     type="button"
@@ -195,7 +197,7 @@ const LiveChat = forwardRef(function LiveChat(
                       setMenuMessageId(null);
                     }}
                   >
-                    Пожаловаться
+                    {t("live.report")}
                   </button>
                 </>
               )}
@@ -203,14 +205,14 @@ const LiveChat = forwardRef(function LiveChat(
                 onPin(message);
                 setMenuMessageId(null);
               }}>
-                {pinnedIds.has(message.id) || message.isPinned ? "Открепить" : "Закрепить"}
+                {pinnedIds.has(message.id) || message.isPinned ? t("live.unpin") : t("live.pin")}
               </button>
-              <button type="button" onClick={() => handleReply(message)}>Ответить</button>
+              <button type="button" onClick={() => handleReply(message)}>{t("live.reply")}</button>
               <button type="button" onClick={() => {
                 onDelete(message);
                 setMenuMessageId(null);
               }}>
-                Удалить
+                {t("live.delete")}
               </button>
             </div>
           )}
@@ -223,7 +225,7 @@ const LiveChat = forwardRef(function LiveChat(
     <section className="liveChat" ref={ref}>
       <header className="liveChat__header">
         <img className="liveChat__headerIcon" src={profileIcons.liveChat} alt="" />
-        <h2>Чат</h2>
+        <h2>{t("live.chat")}</h2>
       </header>
 
       {groupedMessages.pinned.length > 0 && (
@@ -244,7 +246,7 @@ const LiveChat = forwardRef(function LiveChat(
             onClick={handleLoadOlder}
             disabled={isLoadingOlderMessages}
           >
-            {isLoadingOlderMessages ? "Загрузка..." : "Показать предыдущие комментарии"}
+            {isLoadingOlderMessages ? t("common.loading") : t("live.olderComments")}
           </button>
         )}
         {groupedMessages.regular.map(renderMessage)}
@@ -257,15 +259,15 @@ const LiveChat = forwardRef(function LiveChat(
             ref={inputRef}
             value={value}
             onChange={(event) => setValue(event.target.value)}
-            placeholder={isEnded ? "Эфир завершён" : "Написать сообщение"}
+            placeholder={isEnded ? t("live.ended") : t("live.writeMessage")}
             maxLength={300}
             disabled={isEnded}
-            aria-label="Сообщение в чат"
+            aria-label={t("live.chatMessage")}
           />
           <button
             type="submit"
             disabled={!value.trim() || isEnded}
-            aria-label="Отправить сообщение"
+            aria-label={t("live.sendMessage")}
           >
             <img src={profileIcons.liveSend} alt="" />
           </button>
@@ -278,7 +280,7 @@ const LiveChat = forwardRef(function LiveChat(
                 key={reaction.value}
                 type="button"
                 onClick={() => handleInsertReaction(reaction)}
-                aria-label={`Добавить реакцию ${reaction.label} в сообщение`}
+                aria-label={t("live.messageReaction", { reaction: t(reaction.label) })}
               >
                 {reaction.icon
                   ? <img src={reaction.icon} alt="" />

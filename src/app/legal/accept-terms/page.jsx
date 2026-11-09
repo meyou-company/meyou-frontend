@@ -70,9 +70,9 @@ export default function LegalAcceptTermsPage() {
               onChange={(e) => setAccepted(e.target.checked)}
             />
             <label htmlFor="legal-accept-terms">
-              Я приймаю{' '}
+              {ui.acceptTermsPrefix}{' '}
               <Link to="/legal/terms">{ui.acceptTermsTermsLink}</Link>
-              {' та '}
+              {' '}{ui.acceptTermsConnector}{' '}
               <Link to="/legal/privacy">{ui.acceptTermsPrivacyLink}</Link>
               {' LunMeYo.'}
             </label>

@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
@@ -6,6 +7,7 @@ import { adminApi } from '../../services/adminApi';
 import { getApiErrorMessage } from '../../utils/getApiErrorMessage';
 
 export default function AdminDashboardPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [overview, setOverview] = useState(null);
   const [feedbackOverview, setFeedbackOverview] = useState(null);
@@ -27,7 +29,7 @@ export default function AdminDashboardPage() {
         }
       } catch (error) {
         if (!cancelled) {
-          toast.error(getApiErrorMessage(error) || 'Не вдалося завантажити огляд');
+          toast.error(getApiErrorMessage(error) || t('adminAudit.overviewError'));
         }
       } finally {
         if (!cancelled) setLoading(false);
@@ -45,11 +47,11 @@ export default function AdminDashboardPage() {
     <section className="adminPage">
       <header className="adminPage__header">
         <h1>Dashboard</h1>
-        <p>Огляд черги модерації {BRAND_NAME}.</p>
+        <p>{t('adminAudit.overview', { brand: BRAND_NAME })}</p>
       </header>
 
       {loading ? (
-        <p>Завантаження…</p>
+        <p>{t('common.loading')}</p>
       ) : (
         <>
           <div className="adminCards">

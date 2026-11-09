@@ -5,11 +5,11 @@ import "./index.css";
 import "./styles/rtl.css";
 import App from "./App.jsx";
 import { initI18n } from "./i18n";
-import { readStoredLocale, detectBrowserLocale } from "./i18n/config";
+import { readStoredLocale } from "./i18n/config";
 import { useThemeStore } from "./zustand/useThemeStore";
 
 useThemeStore.getState().initTheme();
-initI18n(readStoredLocale() || detectBrowserLocale());
+initI18n(readStoredLocale() ?? undefined);
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>

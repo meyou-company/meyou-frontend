@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { useNavItems } from "../../hooks/useNavItems";
 import { useBurgerMenu } from "../../hooks/useBurgerMenu";
@@ -7,6 +8,7 @@ import profileIcons from "../../constants/profileIcons";
 import MessagesNavBadge from "../Messages/MessagesNavBadge";
 
 export default function LiveHeader({ isOwner = false }) {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const navItems = useNavItems();
   const { open } = useBurgerMenu();
@@ -16,7 +18,7 @@ export default function LiveHeader({ isOwner = false }) {
       ? {
           ...item,
           key: "live",
-          label: "Прямой эфир",
+          label: t("live.title"),
           icon: "liveNav",
           path: "/live",
         }
@@ -29,7 +31,7 @@ export default function LiveHeader({ isOwner = false }) {
     <>
       {!isOwner && (
         <header className="liveHeader liveHeader--desktop">
-          <nav className="liveHeader__nav" aria-label="Основная навигация">
+          <nav className="liveHeader__nav" aria-label={t("live.mainNavigation")}>
             {desktopItems.map((item) => (
               <button
                 key={item.key}
@@ -53,7 +55,7 @@ export default function LiveHeader({ isOwner = false }) {
           type="button"
           className="liveHeader__compactButton liveHeader__compactButton--home"
           onClick={() => navigate("/first-page")}
-          aria-label="Главная"
+          aria-label={t("nav.home")}
         >
           <img src={profileIcons.home} alt="" />
         </button>
@@ -71,7 +73,7 @@ export default function LiveHeader({ isOwner = false }) {
           type="button"
           className="liveHeader__compactButton liveHeader__compactButton--menu"
           onClick={open}
-          aria-label="Меню"
+          aria-label={t("live.menu")}
         >
           <img src={profileIcons.menu} alt="" />
         </button>
