@@ -289,7 +289,7 @@ function LunaThread({ paused }) {
         ) : null}
         {error ? (
           <button type="button" className="lunaRetry" onClick={() => void retry()}>
-            {getApiErrorMessage(error, t) || t("luna.error")}
+            {getApiErrorMessage(error, "luna.error")}
           </button>
         ) : null}
       </div>

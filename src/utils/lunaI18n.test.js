@@ -21,12 +21,17 @@ const lunaKeys = [
   "placeholder",
   "thinking",
   "pauseAnimation",
+  "error",
   "retry",
 ];
 const errorKeys = [
   "LUNA_MESSAGE_EMPTY",
   "LUNA_MESSAGE_TOO_LONG",
   "LUNA_APPEARANCE_REQUIRED",
+  "LUNA_DAILY_LIMIT",
+  "LUNA_MONTHLY_LIMIT",
+  "LUNA_BUDGET_EXCEEDED",
+  "LUNA_BUSY",
 ];
 
 describe("luna i18n", () => {

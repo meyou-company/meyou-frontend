@@ -32,6 +32,10 @@ const MESSAGE_CODE_HINTS = [
   { pattern: /^LUNA_MESSAGE_EMPTY$/i, code: 'LUNA_MESSAGE_EMPTY' },
   { pattern: /^LUNA_MESSAGE_TOO_LONG$/i, code: 'LUNA_MESSAGE_TOO_LONG' },
   { pattern: /^LUNA_APPEARANCE_REQUIRED$/i, code: 'LUNA_APPEARANCE_REQUIRED' },
+  { pattern: /^LUNA_DAILY_LIMIT$/i, code: 'LUNA_DAILY_LIMIT' },
+  { pattern: /^LUNA_MONTHLY_LIMIT$/i, code: 'LUNA_MONTHLY_LIMIT' },
+  { pattern: /^LUNA_BUDGET_EXCEEDED$/i, code: 'LUNA_BUDGET_EXCEEDED' },
+  { pattern: /^LUNA_BUSY$/i, code: 'LUNA_BUSY' },
   { pattern: /название города|назва міста/i, code: 'CITY_NAME_INVALID' },
 ];
 
