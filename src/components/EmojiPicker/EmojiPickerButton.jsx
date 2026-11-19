@@ -11,15 +11,15 @@ import EmojiPicker, { Theme } from "emoji-picker-react";
 import { useThemeStore } from "../../zustand/useThemeStore";
 import { insertEmojiAtCursor } from "../../utils/insertEmojiAtCursor";
 import { toLunmeyoToken } from "../../utils/lunmeyoToken";
+import {
+  MOBILE_MAX,
+  TAB_BAR_HEIGHT,
+  Z_INDEX_PICKER,
+  computeDesktopPosition,
+  computeMobilePosition,
+} from "../../utils/emojiPickerPosition";
 import LunmeyoPickerPanel from "../Lunmeyo/LunmeyoPickerPanel";
 import "./EmojiPickerButton.scss";
-
-const MOBILE_MAX = 768;
-const DESKTOP_WIDTH = 320;
-const DESKTOP_MAX_HEIGHT = 360;
-const GAP = 8;
-const VIEWPORT_PAD = 12;
-const Z_INDEX_PICKER = 10050;
 
 function useMobilePicker() {
   const [isMobile, setIsMobile] = useState(() => {
@@ -50,56 +50,9 @@ function getPortalRoot() {
   return root;
 }
 
-function computeDesktopPosition(triggerRect) {
-  const vw = window.innerWidth;
-  const vh = window.innerHeight;
-  const width = Math.min(DESKTOP_WIDTH, vw - VIEWPORT_PAD * 2);
-  const height = Math.min(DESKTOP_MAX_HEIGHT, vh - VIEWPORT_PAD * 2);
-
-  const spaceAbove = triggerRect.top - VIEWPORT_PAD;
-  const spaceBelow = vh - triggerRect.bottom - VIEWPORT_PAD;
-
-  let placement = "above";
-  if (spaceAbove >= height + GAP) {
-    placement = "above";
-  } else if (spaceBelow >= height + GAP) {
-    placement = "below";
-  } else {
-    placement = spaceBelow > spaceAbove ? "below" : "above";
-  }
-
-  let top =
-    placement === "above"
-      ? triggerRect.top - height - GAP
-      : triggerRect.bottom + GAP;
-
-  top = Math.max(VIEWPORT_PAD, Math.min(top, vh - height - VIEWPORT_PAD));
-
-  let left = triggerRect.right - width;
-  left = Math.max(VIEWPORT_PAD, Math.min(left, vw - width - VIEWPORT_PAD));
-
-  return { top, left, width, height, placement };
-}
-
-function getMobilePickerLayout() {
-  const vv = window.visualViewport;
-  const vw = Math.round(vv?.width ?? window.innerWidth);
-  const vh = Math.round(vv?.height ?? window.innerHeight);
-  const keyboardInset = Math.max(
-    0,
-    Math.round(
-      window.innerHeight - (vv ? vv.height + vv.offsetTop : window.innerHeight),
-    ),
-  );
-  const height = Math.min(Math.max(220, Math.floor(vh * 0.42)), 360);
-  return { width: vw, height, bottom: keyboardInset };
-}
-
 /**
- * Кнопка 😊 + popup emoji-picker-react.
- * layout="post" — responsive portal (mobile bottom sheet, desktop біля кнопки).
- * layout="messenger" — те саме на mobile, anchored над полем на desktop.
- * layout="anchored" (default) — popup над полем вводу.
+ * Shared 😊 picker for chats, comments, posts, Live, and Luna.
+ * Always portals to document.body so parent overflow cannot clip it.
  */
 export default function EmojiPickerButton({
   inputRef,
@@ -109,8 +62,8 @@ export default function EmojiPickerButton({
   pickerClassName = "",
   ariaLabel = "Додати емодзі",
   variant = "default",
-  layout = "anchored",
-  popoverContainerRef,
+  layout: _layout = "anchored",
+  popoverContainerRef: _popoverContainerRef,
   closeOnSelect = false,
   enableLunmeyo = true,
   onSelectLunmeyo,
@@ -118,57 +71,66 @@ export default function EmojiPickerButton({
   const [open, setOpen] = useState(false);
   const [tab, setTab] = useState("emoji");
   const { t } = useTranslation();
-  const [desktopCoords, setDesktopCoords] = useState({
+  const [coords, setCoords] = useState({
     top: 0,
     left: 0,
-    width: DESKTOP_WIDTH,
-    height: DESKTOP_MAX_HEIGHT,
+    width: 380,
+    height: 480,
     placement: "above",
+    bottom: 0,
   });
-  const [mobileLayout, setMobileLayout] = useState(() =>
-    typeof window === "undefined"
-      ? { width: 320, height: 280, bottom: 0 }
-      : getMobilePickerLayout(),
-  );
   const [positionReady, setPositionReady] = useState(false);
 
   const wrapRef = useRef(null);
   const popoverRef = useRef(null);
   const pendingSelection = useRef(null);
   const isMobile = useMobilePicker();
-  const usesPortalLayout =
-    layout === "post" || (layout === "messenger" && isMobile);
-  const usesAnchoredLayout =
-    layout === "anchored" || (layout === "messenger" && !isMobile);
 
   const effectiveTheme = useThemeStore((s) => s.effectiveTheme);
   const pickerTheme = effectiveTheme === "dark" ? Theme.DARK : Theme.LIGHT;
 
   const updatePosition = useCallback(() => {
-    if (!usesPortalLayout) return;
+    const trigger = wrapRef.current?.querySelector(".emoji-picker-btn__trigger");
+    const rect = trigger?.getBoundingClientRect() ?? {
+      top: window.innerHeight - 72,
+      bottom: window.innerHeight - 28,
+      left: window.innerWidth - 72,
+      right: window.innerWidth - 28,
+      width: 44,
+      height: 44,
+    };
     if (isMobile) {
-      setMobileLayout(getMobilePickerLayout());
+      const mobile = computeMobilePosition(rect, {
+        innerWidth: window.innerWidth,
+        innerHeight: window.innerHeight,
+        visualViewport: window.visualViewport,
+      });
+      setCoords((prev) => ({ ...prev, ...mobile, placement: "above" }));
       return;
     }
-    const trigger = wrapRef.current?.querySelector(".emoji-picker-btn__trigger");
-    if (!trigger) return;
-    setDesktopCoords(computeDesktopPosition(trigger.getBoundingClientRect()));
-  }, [isMobile, usesPortalLayout]);
+    setCoords(
+      computeDesktopPosition(rect, {
+        vw: window.innerWidth,
+        vh: window.innerHeight,
+      }),
+    );
+  }, [isMobile]);
 
   useLayoutEffect(() => {
-    if (!open || !usesPortalLayout) {
+    if (!open) {
       setPositionReady(false);
       return;
     }
     updatePosition();
-    requestAnimationFrame(() => {
+    const frame = requestAnimationFrame(() => {
       updatePosition();
       setPositionReady(true);
     });
-  }, [open, updatePosition, usesPortalLayout]);
+    return () => cancelAnimationFrame(frame);
+  }, [open, updatePosition]);
 
   useEffect(() => {
-    if (!open || !usesPortalLayout) return;
+    if (!open) return;
     const onReposition = () => updatePosition();
     window.addEventListener("resize", onReposition);
     window.addEventListener("scroll", onReposition, true);
@@ -180,7 +142,7 @@ export default function EmojiPickerButton({
       window.visualViewport?.removeEventListener("resize", onReposition);
       window.visualViewport?.removeEventListener("scroll", onReposition);
     };
-  }, [open, updatePosition, usesPortalLayout]);
+  }, [open, updatePosition]);
 
   useLayoutEffect(() => {
     if (pendingSelection.current == null) return;
@@ -197,13 +159,13 @@ export default function EmojiPickerButton({
   }, [value, inputRef]);
 
   useEffect(() => {
-    if (!open || !usesPortalLayout || !isMobile) return;
+    if (!open || !isMobile) return;
     const prevOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     return () => {
       document.body.style.overflow = prevOverflow;
     };
-  }, [open, isMobile, usesPortalLayout]);
+  }, [open, isMobile]);
 
   useEffect(() => {
     if (!open) return;
@@ -215,28 +177,16 @@ export default function EmojiPickerButton({
       if (popoverRef.current?.contains(e.target)) return;
       setOpen(false);
     };
-
-    if (usesPortalLayout) {
-      document.addEventListener("keydown", onEscape);
-      const timer = window.setTimeout(() => {
-        document.addEventListener("click", onOutsideClick, true);
-      }, 0);
-      return () => {
-        window.clearTimeout(timer);
-        document.removeEventListener("keydown", onEscape);
-        document.removeEventListener("click", onOutsideClick, true);
-      };
-    }
-
-    document.addEventListener("mousedown", onOutsideClick);
-    document.addEventListener("touchstart", onOutsideClick, { passive: true });
     document.addEventListener("keydown", onEscape);
+    const timer = window.setTimeout(() => {
+      document.addEventListener("pointerdown", onOutsideClick, true);
+    }, 0);
     return () => {
-      document.removeEventListener("mousedown", onOutsideClick);
-      document.removeEventListener("touchstart", onOutsideClick);
+      window.clearTimeout(timer);
       document.removeEventListener("keydown", onEscape);
+      document.removeEventListener("pointerdown", onOutsideClick, true);
     };
-  }, [open, usesPortalLayout]);
+  }, [open]);
 
   const handleEmojiClick = useCallback(
     (emojiData) => {
@@ -279,26 +229,17 @@ export default function EmojiPickerButton({
   const closePicker = useCallback(() => setOpen(false), []);
 
   const toggleOpen = (e) => {
-    if (usesPortalLayout) {
-      e.preventDefault();
-      e.stopPropagation();
-    }
+    e.preventDefault();
+    e.stopPropagation();
     setOpen((prev) => !prev);
   };
 
   const isInline = variant === "inline";
-  const anchorsToInputWrapper = Boolean(popoverContainerRef);
-
-  const pickerWidth = usesPortalLayout
-    ? isMobile
-      ? mobileLayout.width
-      : desktopCoords.width
-    : 300;
-  const pickerHeight = usesPortalLayout
-    ? isMobile
-      ? mobileLayout.height
-      : desktopCoords.height
-    : 360;
+  const pickerWidth = coords.width;
+  const pickerHeight = coords.height;
+  const emojiHeight = enableLunmeyo
+    ? Math.max(220, pickerHeight - TAB_BAR_HEIGHT)
+    : pickerHeight;
 
   const pickerBody = (
     <div className={`emoji-picker-btn__body${enableLunmeyo ? " has-lunmeyo" : ""}`}>
@@ -345,14 +286,14 @@ export default function EmojiPickerButton({
           searchPlaceholder="Пошук…"
           previewConfig={{ showPreview: false }}
           width={pickerWidth}
-          height={enableLunmeyo ? Math.max(220, pickerHeight - 44) : pickerHeight}
+          height={emojiHeight}
         />
       )}
     </div>
   );
 
-  const postPortalContent =
-    usesPortalLayout && open && getPortalRoot()
+  const portalContent =
+    open && getPortalRoot()
       ? createPortal(
           <>
             {isMobile ? (
@@ -379,20 +320,18 @@ export default function EmojiPickerButton({
                 isMobile
                   ? {
                       zIndex: Z_INDEX_PICKER,
-                      height: mobileLayout.height,
-                      maxHeight: mobileLayout.height,
-                      bottom: mobileLayout.bottom,
-                      paddingBottom:
-                        mobileLayout.bottom > 0
-                          ? 0
-                          : "env(safe-area-inset-bottom, 0px)",
+                      width: "100%",
+                      height: coords.height,
+                      maxHeight: coords.height,
+                      bottom: coords.bottom,
                     }
                   : {
                       position: "fixed",
-                      top: desktopCoords.top,
-                      left: desktopCoords.left,
-                      width: desktopCoords.width,
-                      maxHeight: desktopCoords.height,
+                      top: coords.top,
+                      left: coords.left,
+                      width: coords.width,
+                      height: coords.height,
+                      maxHeight: coords.height,
                       zIndex: Z_INDEX_PICKER,
                     }
               }
@@ -408,27 +347,6 @@ export default function EmojiPickerButton({
           getPortalRoot(),
         )
       : null;
-
-  const anchoredPopoverNode =
-    usesAnchoredLayout && open ? (
-      <div
-        ref={popoverRef}
-        className={[
-          "emoji-picker-btn__popover",
-          anchorsToInputWrapper ? "emoji-picker-btn__popover--inputWrapper" : "",
-          pickerClassName,
-        ]
-          .filter(Boolean)
-          .join(" ")}
-        role="dialog"
-        aria-label="Вибір емодзі"
-        onMouseDown={(e) => e.stopPropagation()}
-      >
-        {pickerBody}
-      </div>
-    ) : null;
-
-  const anchoredPortalTarget = popoverContainerRef?.current ?? null;
 
   return (
     <div
@@ -453,13 +371,7 @@ export default function EmojiPickerButton({
           😊
         </span>
       </button>
-
-      {usesPortalLayout
-        ? postPortalContent
-        : anchoredPopoverNode &&
-          (anchoredPortalTarget
-            ? createPortal(anchoredPopoverNode, anchoredPortalTarget)
-            : anchoredPopoverNode)}
+      {portalContent}
     </div>
   );
 }
