@@ -1035,7 +1035,8 @@ html[data-theme='dark'] {
     background: rgba(55, 45, 68, 0.9);
   }
 
-  .pvs-actions__tabLock {
+  .pvs-actions__tabLock,
+  .pvs-tools__smallIcon--block {
     filter: invert(1);
   }
 

@@ -384,7 +384,11 @@ export default function ProfileVisitorSubscribed({
               {onBlock && (
                 <button type="button" className="pvs-tools__small" onClick={onBlock}>
                   <div className="pvs-tools__smallIconWrap">
-                    <img src={profileIcons.storyBlock} alt="" className="pvs-tools__smallIcon" />
+                    <img
+                      src={profileIcons.storyBlock}
+                      alt=""
+                      className="pvs-tools__smallIcon pvs-tools__smallIcon--block"
+                    />
                   </div>
                   <span className="pvs-tools__smallLabel">{t('profile.visitor.block')}</span>
                 </button>
