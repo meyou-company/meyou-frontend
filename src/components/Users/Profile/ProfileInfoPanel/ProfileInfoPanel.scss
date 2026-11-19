@@ -681,3 +681,29 @@
     color: #fff;
   }
 }
+.statCard--vip {
+  transition:
+    opacity 0.2s ease,
+    filter 0.2s ease;
+
+  img {
+    transition: filter 0.2s ease;
+  }
+
+  &.is-active {
+    img {
+      filter: brightness(0) saturate(100%) invert(68%) sepia(75%) saturate(650%) hue-rotate(5deg)
+        brightness(105%);
+    }
+  }
+
+  &.is-inactive {
+    opacity: 0.55;
+    filter: grayscale(0.7);
+
+    img {
+      filter: grayscale(1);
+      opacity: 0.45;
+    }
+  }
+}
