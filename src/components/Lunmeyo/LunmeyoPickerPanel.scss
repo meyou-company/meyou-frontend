@@ -1,6 +1,7 @@
 .lunmeyoPicker {
   display: flex;
   flex-direction: column;
+  flex: 1;
   height: 100%;
   min-height: 0;
   background: inherit;
@@ -35,8 +36,9 @@
   gap: 6px;
   padding: 8px 10px 12px;
   overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
   min-height: 220px;
-  max-height: 320px;
+  flex: 1;
 }
 
 .lunmeyoPicker__empty {

@@ -33,6 +33,61 @@ describe("lunmeyo tokens", () => {
     ]);
   });
 
+  it("does not leak tokens into rendered text parts", () => {
+    const parts = splitLunmeyoText("hey ::lunmeyo:lun-love-anim::");
+    assert.deepEqual(parts, [
+      { type: "text", value: "hey " },
+      { type: "sticker", id: "lun-love-anim" },
+    ]);
+    assert.equal(
+      parts.some((part) => String(part.value || "").includes("::lunmeyo:")),
+      false,
+    );
+  });
+
+  it("matches the API allowlist so chat metadata will not 400", () => {
+    const apiIds = [
+      "lun-blush",
+      "lun-book",
+      "lun-clumsy",
+      "lun-coffee",
+      "lun-coffee-anim",
+      "lun-cool",
+      "lun-gift",
+      "lun-happy",
+      "lun-headphones",
+      "lun-heart",
+      "lun-heart-eyes",
+      "lun-idea",
+      "lun-joy",
+      "lun-kiss",
+      "lun-laptop",
+      "lun-laugh",
+      "lun-love",
+      "lun-love-anim",
+      "lun-meditate",
+      "lun-meditation",
+      "lun-night",
+      "lun-ok",
+      "lun-oops",
+      "lun-party",
+      "lun-peace",
+      "lun-shield",
+      "lun-sleep",
+      "lun-sleep-anim",
+      "lun-smirk",
+      "lun-spin",
+      "lun-star",
+      "lun-thumbs-up",
+      "lun-typing",
+      "lun-wave",
+      "lun-wink",
+      "lun-working",
+      "round-hello",
+    ];
+    assert.deepEqual([...LUNMEYO_ALLOWED_IDS].sort(), [...apiIds].sort());
+  });
+
   it("keeps png and animation ids unique", () => {
     assert.equal(LUNMEYO_ALLOWED_IDS.has("lun-coffee"), true);
     assert.equal(LUNMEYO_ALLOWED_IDS.has("lun-coffee-anim"), true);

@@ -115,8 +115,9 @@
   max-width: none !important;
   max-height: 45vh;
   border-radius: 18px 18px 0 0;
-  overflow-y: auto;
-  overflow-x: hidden;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
   z-index: 10050;
   transform: none !important;
   box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.18);
@@ -208,6 +209,15 @@ html[data-theme="dark"] .emoji-picker-btn--inline .emoji-picker-btn__trigger {
 .emoji-picker-btn__body.has-lunmeyo {
   height: 100%;
   min-height: 280px;
+  flex: 1;
+}
+
+.emoji-picker-btn__popover--mobile .emoji-picker-btn__body.has-lunmeyo {
+  min-height: 0;
+}
+
+.emoji-picker-btn__popover--mobile .lunmeyoPicker__grid {
+  min-height: 0;
 }
 
 .emoji-picker-btn__tabs {

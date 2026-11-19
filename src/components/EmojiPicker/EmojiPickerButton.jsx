@@ -81,11 +81,18 @@ function computeDesktopPosition(triggerRect) {
   return { top, left, width, height, placement };
 }
 
-function getMobilePickerSize() {
-  const vw = window.innerWidth;
-  const vh = window.innerHeight;
-  const maxHeight = Math.floor(vh * 0.45);
-  return { width: vw, height: maxHeight };
+function getMobilePickerLayout() {
+  const vv = window.visualViewport;
+  const vw = Math.round(vv?.width ?? window.innerWidth);
+  const vh = Math.round(vv?.height ?? window.innerHeight);
+  const keyboardInset = Math.max(
+    0,
+    Math.round(
+      window.innerHeight - (vv ? vv.height + vv.offsetTop : window.innerHeight),
+    ),
+  );
+  const height = Math.min(Math.max(220, Math.floor(vh * 0.42)), 360);
+  return { width: vw, height, bottom: keyboardInset };
 }
 
 /**
@@ -118,7 +125,11 @@ export default function EmojiPickerButton({
     height: DESKTOP_MAX_HEIGHT,
     placement: "above",
   });
-  const [mobileSize, setMobileSize] = useState(() => getMobilePickerSize());
+  const [mobileLayout, setMobileLayout] = useState(() =>
+    typeof window === "undefined"
+      ? { width: 320, height: 280, bottom: 0 }
+      : getMobilePickerLayout(),
+  );
   const [positionReady, setPositionReady] = useState(false);
 
   const wrapRef = useRef(null);
@@ -136,7 +147,7 @@ export default function EmojiPickerButton({
   const updatePosition = useCallback(() => {
     if (!usesPortalLayout) return;
     if (isMobile) {
-      setMobileSize(getMobilePickerSize());
+      setMobileLayout(getMobilePickerLayout());
       return;
     }
     const trigger = wrapRef.current?.querySelector(".emoji-picker-btn__trigger");
@@ -161,9 +172,13 @@ export default function EmojiPickerButton({
     const onReposition = () => updatePosition();
     window.addEventListener("resize", onReposition);
     window.addEventListener("scroll", onReposition, true);
+    window.visualViewport?.addEventListener("resize", onReposition);
+    window.visualViewport?.addEventListener("scroll", onReposition);
     return () => {
       window.removeEventListener("resize", onReposition);
       window.removeEventListener("scroll", onReposition, true);
+      window.visualViewport?.removeEventListener("resize", onReposition);
+      window.visualViewport?.removeEventListener("scroll", onReposition);
     };
   }, [open, updatePosition, usesPortalLayout]);
 
@@ -276,12 +291,12 @@ export default function EmojiPickerButton({
 
   const pickerWidth = usesPortalLayout
     ? isMobile
-      ? mobileSize.width
+      ? mobileLayout.width
       : desktopCoords.width
     : 300;
   const pickerHeight = usesPortalLayout
     ? isMobile
-      ? mobileSize.height
+      ? mobileLayout.height
       : desktopCoords.height
     : 360;
 
@@ -362,7 +377,16 @@ export default function EmojiPickerButton({
                 .join(" ")}
               style={
                 isMobile
-                  ? { zIndex: Z_INDEX_PICKER }
+                  ? {
+                      zIndex: Z_INDEX_PICKER,
+                      height: mobileLayout.height,
+                      maxHeight: mobileLayout.height,
+                      bottom: mobileLayout.bottom,
+                      paddingBottom:
+                        mobileLayout.bottom > 0
+                          ? 0
+                          : "env(safe-area-inset-bottom, 0px)",
+                    }
                   : {
                       position: "fixed",
                       top: desktopCoords.top,
