@@ -676,6 +676,16 @@
   }
 }
 
+@media (min-width: 1025px) {
+  .lunaPanel {
+    flex: 0 0 40vw;
+    width: 40vw;
+    max-width: none;
+    height: calc(100dvh - var(--luna-keyboard, 0px));
+    max-height: calc(100dvh - var(--luna-keyboard, 0px));
+  }
+}
+
 @media (max-width: 768px) {
   .lunaOverlay {
     align-items: stretch;
