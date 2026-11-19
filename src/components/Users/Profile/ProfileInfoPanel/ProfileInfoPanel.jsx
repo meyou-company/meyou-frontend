@@ -225,9 +225,7 @@ export default function ProfileInfoPanel({
     }
   };
 
-  const apiFriendsCount = getFriendsCountNumber(
-    user?.friendsCount ?? user?.friends_count,
-  );
+  const apiFriendsCount = getFriendsCountNumber(user?.friendsCount ?? user?.friends_count);
   const friendsListLength = Array.isArray(user?.friends) ? user.friends.length : 0;
   const friendsCount =
     typeof friendsCountProp === 'number' && friendsCountProp >= 0
@@ -252,101 +250,101 @@ export default function ProfileInfoPanel({
     onCancel: cancelEdit,
   });
 
+  const isVipActive = user?.vipEnabled;
+
   return (
     <div className={`infoPanel ${isOpen ? 'isOpen' : ''}`} id={id}>
       {(editable || (visibility.about !== false && aboutText)) && (
-      <ProfileInfoSection
-        title={t('profile.info.title')}
-        icon={profileIcons.profileInfoUser}
-        {...sectionProps('about')}
-        onSave={() =>
-          saveSection(() => ({
-            about: draft.about?.trim() || '',
-            profileVisibility: { about: draft.visibilityAbout !== false },
-          }))
-        }
-        editContent={
-          <>
-            <textarea
-              className="infoField infoField--textarea"
-              value={draft.about || ''}
-              onChange={(e) => setDraft((d) => ({ ...d, about: e.target.value }))}
-              rows={4}
-              maxLength={2000}
-            />
-            <VisibilityTable
-              rows={[
-                {
-                  key: 'about',
-                  label: t('profile.info.title'),
-                  value: draft.about?.trim() || t('profile.notSpecified'),
-                },
-              ]}
-              visibility={{ about: draft.visibilityAbout !== false }}
-              onChange={(_, value) => setDraft((d) => ({ ...d, visibilityAbout: value }))}
-            />
-          </>
-        }
-      >
-        {aboutText ? (
-          <p className="infoSection__body infoSection__text">{aboutText}</p>
-        ) : null}
-      </ProfileInfoSection>
+        <ProfileInfoSection
+          title={t('profile.info.title')}
+          icon={profileIcons.profileInfoUser}
+          {...sectionProps('about')}
+          onSave={() =>
+            saveSection(() => ({
+              about: draft.about?.trim() || '',
+              profileVisibility: { about: draft.visibilityAbout !== false },
+            }))
+          }
+          editContent={
+            <>
+              <textarea
+                className="infoField infoField--textarea"
+                value={draft.about || ''}
+                onChange={(e) => setDraft((d) => ({ ...d, about: e.target.value }))}
+                rows={4}
+                maxLength={2000}
+              />
+              <VisibilityTable
+                rows={[
+                  {
+                    key: 'about',
+                    label: t('profile.info.title'),
+                    value: draft.about?.trim() || t('profile.notSpecified'),
+                  },
+                ]}
+                visibility={{ about: draft.visibilityAbout !== false }}
+                onChange={(_, value) => setDraft((d) => ({ ...d, visibilityAbout: value }))}
+              />
+            </>
+          }
+        >
+          {aboutText ? <p className="infoSection__body infoSection__text">{aboutText}</p> : null}
+        </ProfileInfoSection>
       )}
 
       {(editable || visibility.interests !== false) && (
-      <ProfileInfoSection
-        title={t('profile.info.interests')}
-        icon={profileIcons.profileInfoStar}
-        {...sectionProps('interests')}
-        onSave={() =>
-          saveSection(() => ({
-            interests: (draft.interests || []).map((item) => item.value),
-            profileVisibility: {
-              interests: draft.visibilityInterests !== false,
-            },
-          }))
-        }
-        editContent={
-          <>
-            <MultiSelect
-              value={draft.interests || []}
-              onChange={(val) => setDraft((d) => ({ ...d, interests: val }))}
-              options={interestOptions}
-              placeholder={t('profile.editForm.fields.interests')}
-              maxItemsNote={t('profile.editForm.maxItemsNote', { max: 10 })}
-            />
-            <VisibilityTable
-              rows={[
-                {
-                  key: 'interests',
-                  label: t('profile.info.interests'),
-                  value:
-                    (draft.interests || []).map((item) => item.label).join(', ') ||
-                    t('profile.info.noInterests'),
-                },
-              ]}
-              visibility={{ interests: draft.visibilityInterests !== false }}
-              onChange={(_, value) => setDraft((d) => ({ ...d, visibilityInterests: value }))}
-            />
-          </>
-        }
-      >
-        <div className="infoSection__body chips">
-          {interestLabels.length ? (
-            interestLabels.map((item) => (
-              <span key={item} className="chip">
-                {item}
-              </span>
-            ))
-          ) : (
-            <span className="chip">{t('profile.info.noInterests')}</span>
-          )}
-          {interestLabels.length > 4 ? (
-            <span className="chip">+{interestLabels.length - 4}</span>
-          ) : null}
-        </div>
-      </ProfileInfoSection>
+        <ProfileInfoSection
+          title={t('profile.info.interests')}
+          icon={profileIcons.profileInfoStar}
+          {...sectionProps('interests')}
+          onSave={() =>
+            saveSection(() => ({
+              interests: (draft.interests || []).map((item) => item.value),
+              profileVisibility: {
+                interests: draft.visibilityInterests !== false,
+              },
+            }))
+          }
+          editContent={
+            <>
+              <MultiSelect
+                value={draft.interests || []}
+                onChange={(val) => setDraft((d) => ({ ...d, interests: val }))}
+                options={interestOptions}
+                placeholder={t('profile.editForm.fields.interests')}
+                maxItemsNote={t('profile.editForm.maxItemsNote', { max: 10 })}
+              />
+              <VisibilityTable
+                rows={[
+                  {
+                    key: 'interests',
+                    label: t('profile.info.interests'),
+                    value:
+                      (draft.interests || []).map((item) => item.label).join(', ') ||
+                      t('profile.info.noInterests'),
+                  },
+                ]}
+                visibility={{ interests: draft.visibilityInterests !== false }}
+                onChange={(_, value) => setDraft((d) => ({ ...d, visibilityInterests: value }))}
+              />
+            </>
+          }
+        >
+          <div className="infoSection__body chips">
+            {interestLabels.length ? (
+              interestLabels.map((item) => (
+                <span key={item} className="chip">
+                  {item}
+                </span>
+              ))
+            ) : (
+              <span className="chip">{t('profile.info.noInterests')}</span>
+            )}
+            {interestLabels.length > 4 ? (
+              <span className="chip">+{interestLabels.length - 4}</span>
+            ) : null}
+          </div>
+        </ProfileInfoSection>
       )}
 
       <ProfileInfoSection
@@ -502,71 +500,71 @@ export default function ProfileInfoPanel({
       </ProfileInfoSection>
 
       {(editable || visibility.location !== false) && (
-      <ProfileInfoSection
-        title={t('profile.info.location')}
-        icon={profileIcons.profileInfoLocation}
-        className="grid gridBlock"
-        {...sectionProps('location')}
-        onSave={() =>
-          saveSection(() => ({
-            country: draft.country?.value || '',
-            city: draft.city?.value || '',
-            profileVisibility: {
-              location: draft.visibilityLocation !== false,
-            },
-          }))
-        }
-        editContent={
-          <div className="infoEditGrid">
-            <label className="infoField">
+        <ProfileInfoSection
+          title={t('profile.info.location')}
+          icon={profileIcons.profileInfoLocation}
+          className="grid gridBlock"
+          {...sectionProps('location')}
+          onSave={() =>
+            saveSection(() => ({
+              country: draft.country?.value || '',
+              city: draft.city?.value || '',
+              profileVisibility: {
+                location: draft.visibilityLocation !== false,
+              },
+            }))
+          }
+          editContent={
+            <div className="infoEditGrid">
+              <label className="infoField">
+                <span>{t('profile.info.country')}</span>
+                <Select
+                  classNamePrefix="rs"
+                  placeholder={t('profile.editForm.fields.country')}
+                  value={draft.country}
+                  options={countries}
+                  onChange={(opt) => setDraft((d) => ({ ...d, country: opt, city: null }))}
+                />
+              </label>
+              <label className="infoField">
+                <span>{t('profile.info.city')}</span>
+                <Select
+                  classNamePrefix="rs"
+                  placeholder={t('profile.editForm.fields.city')}
+                  value={draft.city}
+                  options={cities}
+                  isDisabled={!draft.country}
+                  isLoading={citiesLoading}
+                  onChange={(opt) => setDraft((d) => ({ ...d, city: opt }))}
+                />
+              </label>
+              <VisibilityTable
+                rows={[
+                  {
+                    key: 'location',
+                    label: t('profile.info.location'),
+                    value:
+                      [draft.city?.label, draft.country?.label].filter(Boolean).join(', ') ||
+                      t('profile.notSpecified'),
+                  },
+                ]}
+                visibility={{ location: draft.visibilityLocation !== false }}
+                onChange={(_, value) => setDraft((d) => ({ ...d, visibilityLocation: value }))}
+              />
+            </div>
+          }
+        >
+          <div className="infoSection__body">
+            <div className="gridRow">
               <span>{t('profile.info.country')}</span>
-              <Select
-                classNamePrefix="rs"
-                placeholder={t('profile.editForm.fields.country')}
-                value={draft.country}
-                options={countries}
-                onChange={(opt) => setDraft((d) => ({ ...d, country: opt, city: null }))}
-              />
-            </label>
-            <label className="infoField">
+              <span>{user?.country || t('profile.notSpecified')}</span>
+            </div>
+            <div className="gridRow">
               <span>{t('profile.info.city')}</span>
-              <Select
-                classNamePrefix="rs"
-                placeholder={t('profile.editForm.fields.city')}
-                value={draft.city}
-                options={cities}
-                isDisabled={!draft.country}
-                isLoading={citiesLoading}
-                onChange={(opt) => setDraft((d) => ({ ...d, city: opt }))}
-              />
-            </label>
-            <VisibilityTable
-              rows={[
-                {
-                  key: 'location',
-                  label: t('profile.info.location'),
-                  value:
-                    [draft.city?.label, draft.country?.label].filter(Boolean).join(', ') ||
-                    t('profile.notSpecified'),
-                },
-              ]}
-              visibility={{ location: draft.visibilityLocation !== false }}
-              onChange={(_, value) => setDraft((d) => ({ ...d, visibilityLocation: value }))}
-            />
+              <span>{user?.city || t('profile.notSpecified')}</span>
+            </div>
           </div>
-        }
-      >
-        <div className="infoSection__body">
-          <div className="gridRow">
-            <span>{t('profile.info.country')}</span>
-            <span>{user?.country || t('profile.notSpecified')}</span>
-          </div>
-          <div className="gridRow">
-            <span>{t('profile.info.city')}</span>
-            <span>{user?.city || t('profile.notSpecified')}</span>
-          </div>
-        </div>
-      </ProfileInfoSection>
+        </ProfileInfoSection>
       )}
 
       <ProfileInfoSection
@@ -581,7 +579,7 @@ export default function ProfileInfoPanel({
             <p className="statText">{friendsCount}</p>
             <p className="statText">{t('profile.info.friendsStat')}</p>
           </div>
-          <div className="statCard">
+          <div className={`statCard statCard--vip ${isVipActive ? 'is-active' : 'is-inactive'}`}>
             <img src={profileIcons.profileInfoVip} alt="" />
             <span className="statText">{t('profile.info.vipStatus')}</span>
             <p className="statText">{t('profile.info.status')}</p>
