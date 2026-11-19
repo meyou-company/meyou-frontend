@@ -1409,7 +1409,16 @@
     "ACCOUNT_DELETED": "This account has been deleted.",
     "GIFTS_PAYMENT_NOT_AVAILABLE": "Gift payments are not available yet.",
     "GIFTS_INVALID_GIFT_ID": "Unknown gift.",
-    "CANNOT_SEND_GIFT_TO_SELF": "You cannot send a gift to yourself."
+    "CANNOT_SEND_GIFT_TO_SELF": "You cannot send a gift to yourself.",
+    "LUNA_DAILY_LIMIT": "Lun’s daily message limit has been reached. Try again tomorrow.",
+    "LUNA_MONTHLY_LIMIT": "Lun’s monthly message limit has been reached.",
+    "LUNA_BUDGET_EXCEEDED": "Lun is temporarily unavailable because the platform AI budget for this month is used up.",
+    "LUNA_BUSY": "Lun is already answering. Please wait a moment.",
+    "LUNA_MEDIA_UNAVAILABLE": "Photos and voice need a live AI connection.",
+    "LUNA_IMAGE_INVALID": "Use a JPEG, PNG, or WebP photo up to 4 MB.",
+    "LUNA_IMAGE_TOO_LARGE": "That photo is too large. Use a file up to 4 MB.",
+    "LUNA_AUDIO_INVALID": "Could not use that recording. Check the microphone permission and try again.",
+    "LUNA_AUDIO_TOO_LONG": "Voice notes can be at most 60 seconds."
   },
   "gifts": {
     "title": "Gifts",
@@ -2051,6 +2060,13 @@
     "pauseAnimation": "Pause animation",
     "error": "Couldn’t get a reply",
     "retry": "Try again",
-    "close": "Close"
+    "close": "Close",
+    "attachPhoto": "Attach a photo",
+    "removePhoto": "Remove photo",
+    "recordVoice": "Voice message",
+    "stopRecording": "Stop",
+    "cancelRecording": "Cancel",
+    "recording": "Recording",
+    "transcribing": "Turning speech into text…"
   }
 }

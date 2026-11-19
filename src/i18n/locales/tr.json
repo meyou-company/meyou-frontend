@@ -1092,7 +1092,16 @@
     "VIP_CHAT_ACCESS_REQUIRED": "Messages require VIP access to this profile.",
     "GIFTS_PAYMENT_NOT_AVAILABLE": "Hediye ödemeleri henüz kullanılamıyor.",
     "GIFTS_INVALID_GIFT_ID": "Bilinmeyen hediye.",
-    "CANNOT_SEND_GIFT_TO_SELF": "Kendinize hediye gönderemezsiniz."
+    "CANNOT_SEND_GIFT_TO_SELF": "Kendinize hediye gönderemezsiniz.",
+    "LUNA_DAILY_LIMIT": "Lun günlük mesaj sınırına ulaşıldı. Yarın tekrar dene.",
+    "LUNA_MONTHLY_LIMIT": "Lun aylık mesaj sınırına ulaşıldı.",
+    "LUNA_BUDGET_EXCEEDED": "Lun geçici olarak kullanılamıyor: platformun bu ayki yapay zeka bütçesi doldu.",
+    "LUNA_BUSY": "Lun zaten yanıtlıyor. Lütfen biraz bekle.",
+    "LUNA_MEDIA_UNAVAILABLE": "Fotoğraf ve ses için bağlı bir yapay zekâ gerekir.",
+    "LUNA_IMAGE_INVALID": "En fazla 4 MB JPEG, PNG veya WebP gönder.",
+    "LUNA_IMAGE_TOO_LARGE": "Fotoğraf çok büyük. Azami 4 MB.",
+    "LUNA_AUDIO_INVALID": "Kayıt kullanılamadı. Mikrofon iznini kontrol et.",
+    "LUNA_AUDIO_TOO_LONG": "Sesli mesaj en fazla 60 saniye olabilir."
   },
   "gifts": {
     "title": "Hediyeler",
@@ -1733,6 +1742,13 @@
     "pauseAnimation": "Animasyonu durdur",
     "error": "Yanıt alınamadı",
     "retry": "Yeniden dene",
-    "close": "Kapat"
+    "close": "Kapat",
+    "attachPhoto": "Fotoğraf ekle",
+    "removePhoto": "Fotoğrafı kaldır",
+    "recordVoice": "Sesli mesaj",
+    "stopRecording": "Durdur",
+    "cancelRecording": "İptal",
+    "recording": "Kayıt",
+    "transcribing": "Ses yazıya dönüştürülüyor…"
   }
 }

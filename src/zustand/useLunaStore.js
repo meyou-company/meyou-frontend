@@ -16,6 +16,7 @@ export const useLunaStore = create((set, get) => ({
   error: null,
   lastNonce: null,
   lastText: null,
+  lastImage: null,
   greetingPlayed: false,
 
   open() {
@@ -61,9 +62,9 @@ export const useLunaStore = create((set, get) => ({
       throw error;
     }
   },
-  async send(text) {
+  async send(text, imageFile) {
     const trimmed = String(text ?? "").trim();
-    if (!trimmed || get().sending) return;
+    if ((!trimmed && !imageFile) || get().sending) return;
     const clientNonce = nonce();
     const optimistic = {
       id: `tmp-${clientNonce}`,
@@ -71,6 +72,8 @@ export const useLunaStore = create((set, get) => ({
       text: trimmed,
       stickerId: null,
       appearance: get().appearance,
+      imageUrl: imageFile ? URL.createObjectURL(imageFile) : null,
+      inputKind: imageFile ? "IMAGE" : "TEXT",
       createdAt: new Date().toISOString(),
       pending: true,
     };
@@ -79,10 +82,15 @@ export const useLunaStore = create((set, get) => ({
       error: null,
       lastNonce: clientNonce,
       lastText: trimmed,
+      lastImage: imageFile || null,
       messages: [...get().messages, optimistic],
     });
     try {
-      const result = await lunaApi.sendMessage({ text: trimmed, clientNonce });
+      const result = await lunaApi.sendMessage({
+        text: trimmed,
+        clientNonce,
+        imageFile,
+      });
       set((state) => {
         const withoutTemp = state.messages.filter((m) => m.id !== optimistic.id);
         const next = [...withoutTemp];
@@ -105,8 +113,8 @@ export const useLunaStore = create((set, get) => ({
     }
   },
   async retry() {
-    const { lastText, lastNonce, messages } = get();
-    if (!lastText || !lastNonce) return;
+    const { lastText, lastNonce, lastImage, messages } = get();
+    if ((!lastText && !lastImage) || !lastNonce) return;
     set({
       sending: true,
       error: null,
@@ -118,6 +126,7 @@ export const useLunaStore = create((set, get) => ({
       const result = await lunaApi.sendMessage({
         text: lastText,
         clientNonce: lastNonce,
+        imageFile: lastImage || undefined,
       });
       set((state) => {
         const cleaned = state.messages.filter((m) => !m.failed && !m.pending);

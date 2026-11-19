@@ -1092,7 +1092,16 @@
     "VIP_CHAT_ACCESS_REQUIRED": "Messages require VIP access to this profile.",
     "GIFTS_PAYMENT_NOT_AVAILABLE": "Platby za dárky zatím nejsou dostupné.",
     "GIFTS_INVALID_GIFT_ID": "Neznámý dárek.",
-    "CANNOT_SEND_GIFT_TO_SELF": "Nemůžete poslat dárek sami sobě."
+    "CANNOT_SEND_GIFT_TO_SELF": "Nemůžete poslat dárek sami sobě.",
+    "LUNA_DAILY_LIMIT": "Denní limit zpráv Luny je vyčerpaný. Zkus to zítra.",
+    "LUNA_MONTHLY_LIMIT": "Měsíční limit zpráv Luny je vyčerpaný.",
+    "LUNA_BUDGET_EXCEEDED": "Luna je dočasně nedostupná: měsíční AI rozpočet platformy je vyčerpaný.",
+    "LUNA_BUSY": "Luna právě odpovídá. Počkej chvilku.",
+    "LUNA_MEDIA_UNAVAILABLE": "Fotky a hlas vyžadují zapojenou AI.",
+    "LUNA_IMAGE_INVALID": "Pošlete JPEG, PNG nebo WebP do 4 MB.",
+    "LUNA_IMAGE_TOO_LARGE": "Fotka je moc velká. Maximum 4 MB.",
+    "LUNA_AUDIO_INVALID": "Nahrávku nelze použít. Zkontrolujte oprávnění mikrofonu.",
+    "LUNA_AUDIO_TOO_LONG": "Hlasová zpráva může trvat nejvýše 60 sekund."
   },
   "gifts": {
     "title": "Dárky",
@@ -1736,6 +1745,13 @@
     "pauseAnimation": "Pozastavit animaci",
     "error": "Odpověď se nepodařilo získat",
     "retry": "Zkusit znovu",
-    "close": "Zavřít"
+    "close": "Zavřít",
+    "attachPhoto": "Přiložit fotku",
+    "removePhoto": "Odebrat fotku",
+    "recordVoice": "Hlasová zpráva",
+    "stopRecording": "Stop",
+    "cancelRecording": "Zrušit",
+    "recording": "Nahrávám",
+    "transcribing": "Převádím hlas na text…"
   }
 }

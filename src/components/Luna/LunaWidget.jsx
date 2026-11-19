@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useTranslation } from "react-i18next";
 import { useLocation } from "react-router-dom";
+import { LuMic, LuPaperclip, LuSend, LuSquare, LuX } from "react-icons/lu";
 import EmojiPickerButton from "../EmojiPicker/EmojiPickerButton";
 import { useImmersiveHidden } from "../../hooks/useImmersiveHidden";
 import { useAuthStore } from "../../zustand/useAuthStore";
@@ -16,12 +17,17 @@ import {
   prefersReducedMotion,
 } from "../../utils/lunaAssets";
 import { getApiErrorMessage } from "../../utils/getApiErrorMessage";
+import { lunaMarkdownToHtml } from "../../utils/lunaMarkdown";
+import { lunaApi } from "../../services/lunaApi";
 import "./LunaWidget.scss";
 
 const FAB_HELLO_KEY = "lunmeyo.luna.fabHello";
 const GREET_KEY = "lunmeyo.luna.chatHello";
 const PAUSE_KEY = "lunmeyo.luna.pauseAnim";
 const MOBILE_MQ = "(max-width: 768px)";
+const LUNA_MAX_IMAGE_BYTES = 4 * 1024 * 1024;
+const LUNA_MAX_AUDIO_MS = 60_000;
+const LUNA_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"];
 
 function useShowLunaFab() {
   const location = useLocation();
@@ -169,6 +175,26 @@ function LunaPicker({ onPicked }) {
   );
 }
 
+function LunaMessageBody({ msg }) {
+  const html = lunaMarkdownToHtml(msg.text || "");
+  if (!msg.imageUrl && !html) return null;
+  return (
+    <div
+      className={`lunaBubble lunaBubble--${msg.role}${msg.failed ? " is-failed" : ""}`}
+    >
+      {msg.imageUrl ? (
+        <img className="lunaBubble__photo" src={msg.imageUrl} alt="" />
+      ) : null}
+      {html ? (
+        <div
+          className="lunaBubble__md"
+          dangerouslySetInnerHTML={{ __html: html }}
+        />
+      ) : null}
+    </div>
+  );
+}
+
 function LunaThread({ paused }) {
   const { t } = useTranslation();
   const appearance = useChosenAppearance();
@@ -182,8 +208,35 @@ function LunaThread({ paused }) {
   const userId = useAuthStore((s) => s.user?.id);
   const scrollerRef = useRef(null);
   const textareaRef = useRef(null);
+  const photoRef = useRef(null);
+  const recorderRef = useRef(null);
+  const chunksRef = useRef([]);
+  const recordTimerRef = useRef(null);
   const [text, setText] = useState("");
+  const [photo, setPhoto] = useState(null);
+  const [photoUrl, setPhotoUrl] = useState("");
+  const [recording, setRecording] = useState(false);
+  const [recordMs, setRecordMs] = useState(0);
+  const recordMsRef = useRef(0);
+  const cancelledRef = useRef(false);
+  const [transcribing, setTranscribing] = useState(false);
+  const [mobile, setMobile] = useState(
+    () => typeof window !== "undefined" && window.matchMedia(MOBILE_MQ).matches,
+  );
   const reduce = prefersReducedMotion() || paused;
+
+  useEffect(() => {
+    const mq = window.matchMedia(MOBILE_MQ);
+    const onChange = () => setMobile(mq.matches);
+    mq.addEventListener("change", onChange);
+    return () => mq.removeEventListener("change", onChange);
+  }, []);
+
+  const growField = useCallback((el) => {
+    if (!el) return;
+    el.style.height = "auto";
+    el.style.height = `${Math.min(el.scrollHeight, 160)}px`;
+  }, []);
 
   const showIntro = messages.length === 0;
   const greetOnce = useMemo(() => {
@@ -220,10 +273,114 @@ function LunaThread({ paused }) {
   const greetingSrc = !reduce && greetOnce ? lunaGreetingSrc(appearance) : null;
   const thinkSrc = !reduce ? lunaThinkSrc(appearance) : null;
 
+  const clearPhoto = () => {
+    if (photoUrl) URL.revokeObjectURL(photoUrl);
+    setPhoto(null);
+    setPhotoUrl("");
+    if (photoRef.current) photoRef.current.value = "";
+  };
+
+  const stopRecorder = () => {
+    try {
+      recorderRef.current?.stop();
+    } catch {
+      /* already stopped */
+    }
+    recorderRef.current = null;
+    if (recordTimerRef.current) {
+      window.clearInterval(recordTimerRef.current);
+      recordTimerRef.current = null;
+    }
+    setRecording(false);
+  };
+
   const submit = () => {
     const next = text;
+    const file = photo;
+    if (!next.trim() && !file) return;
     setText("");
-    void send(next);
+    clearPhoto();
+    if (textareaRef.current) {
+      textareaRef.current.style.height = "auto";
+    }
+    void send(next, file);
+  };
+
+  const onPickPhoto = (event) => {
+    const file = event.target.files?.[0];
+    event.target.value = "";
+    if (!file) return;
+    if (!LUNA_IMAGE_TYPES.includes(file.type) || file.size > LUNA_MAX_IMAGE_BYTES) {
+      useLunaStore.setState({ error: { response: { data: { code: "LUNA_IMAGE_INVALID" } } } });
+      return;
+    }
+    if (photoUrl) URL.revokeObjectURL(photoUrl);
+    setPhoto(file);
+    setPhotoUrl(URL.createObjectURL(file));
+  };
+
+  const startRecording = async () => {
+    if (recording || transcribing || sending) return;
+    if (!navigator.mediaDevices?.getUserMedia || typeof MediaRecorder === "undefined") {
+      useLunaStore.setState({ error: { response: { data: { code: "LUNA_AUDIO_INVALID" } } } });
+      return;
+    }
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const mime = MediaRecorder.isTypeSupported("audio/webm") ? "audio/webm" : "";
+      const recorder = mime ? new MediaRecorder(stream, { mimeType: mime }) : new MediaRecorder(stream);
+      chunksRef.current = [];
+      recorder.ondataavailable = (ev) => {
+        if (ev.data?.size) chunksRef.current.push(ev.data);
+      };
+      recorder.onstop = async () => {
+        stream.getTracks().forEach((track) => track.stop());
+        if (cancelledRef.current) {
+          cancelledRef.current = false;
+          chunksRef.current = [];
+          setRecordMs(0);
+          recordMsRef.current = 0;
+          return;
+        }
+        const blob = new Blob(chunksRef.current, { type: recorder.mimeType || "audio/webm" });
+        const seconds = Math.max(1, Math.round(recordMsRef.current / 1000) || 1);
+        if (!blob.size) return;
+        setTranscribing(true);
+        try {
+          const file = new File([blob], `luna-voice.${blob.type.includes("ogg") ? "ogg" : "webm"}`, {
+            type: blob.type || "audio/webm",
+          });
+          const result = await lunaApi.transcribe({
+            audioFile: file,
+            durationSeconds: Math.min(60, seconds),
+          });
+          if (result?.text) {
+            setText((prev) => (prev ? `${prev} ${result.text}` : result.text));
+            requestAnimationFrame(() => growField(textareaRef.current));
+          }
+        } catch (error) {
+          useLunaStore.setState({ error });
+        } finally {
+          setTranscribing(false);
+          setRecordMs(0);
+        }
+      };
+      cancelledRef.current = false;
+      recorderRef.current = recorder;
+      recorder.start();
+      setRecording(true);
+      recordMsRef.current = 0;
+      setRecordMs(0);
+      const started = Date.now();
+      recordTimerRef.current = window.setInterval(() => {
+        const elapsed = Date.now() - started;
+        recordMsRef.current = elapsed;
+        setRecordMs(elapsed);
+        if (elapsed >= LUNA_MAX_AUDIO_MS) stopRecorder();
+      }, 200);
+    } catch {
+      useLunaStore.setState({ error: { response: { data: { code: "LUNA_AUDIO_INVALID" } } } });
+    }
   };
 
   return (
@@ -264,15 +421,7 @@ function LunaThread({ paused }) {
                   className="lunaSticker"
                 />
               ) : null}
-              {msg.text ? (
-                <div
-                  className={`lunaBubble lunaBubble--${msg.role}${
-                    msg.failed ? " is-failed" : ""
-                  }`}
-                >
-                  {msg.text}
-                </div>
-              ) : null}
+              <LunaMessageBody msg={msg} />
               {msg.failed ? (
                 <button type="button" className="lunaRetry" onClick={() => void retry()}>
                   {t("luna.retry")}
@@ -289,10 +438,45 @@ function LunaThread({ paused }) {
         ) : null}
         {error ? (
           <button type="button" className="lunaRetry" onClick={() => void retry()}>
-            {getApiErrorMessage(error, t) || t("luna.error")}
+            {getApiErrorMessage(error, "luna.error")}
           </button>
         ) : null}
       </div>
+      {photoUrl ? (
+        <div className="lunaPreview">
+          <img src={photoUrl} alt="" />
+          <button type="button" onClick={clearPhoto} aria-label={t("luna.removePhoto")}>
+            <LuX size={18} />
+          </button>
+        </div>
+      ) : null}
+      {recording || transcribing ? (
+        <div className="lunaRecordBar" aria-live="polite">
+          {transcribing ? (
+            <span>{t("luna.transcribing")}</span>
+          ) : (
+            <>
+              <span className="lunaRecordBar__dot" />
+              <span>
+                {t("luna.recording")} {Math.floor(recordMs / 1000)}s
+              </span>
+              <button type="button" onClick={stopRecorder}>
+                <LuSquare size={14} /> {t("luna.stopRecording")}
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  cancelledRef.current = true;
+                  chunksRef.current = [];
+                  stopRecorder();
+                }}
+              >
+                {t("luna.cancelRecording")}
+              </button>
+            </>
+          )}
+        </div>
+      ) : null}
       <form
         className="lunaComposer"
         onSubmit={(event) => {
@@ -300,17 +484,48 @@ function LunaThread({ paused }) {
           submit();
         }}
       >
+        <input
+          ref={photoRef}
+          type="file"
+          accept="image/jpeg,image/png,image/webp"
+          hidden
+          onChange={onPickPhoto}
+        />
+        <button
+          type="button"
+          className="lunaComposer__icon"
+          aria-label={t("luna.attachPhoto")}
+          disabled={sending || recording || transcribing}
+          onClick={() => photoRef.current?.click()}
+        >
+          <LuPaperclip size={20} />
+        </button>
+        <button
+          type="button"
+          className={`lunaComposer__icon${recording ? " is-on" : ""}`}
+          aria-label={t("luna.recordVoice")}
+          disabled={sending || transcribing}
+          onClick={() => (recording ? stopRecorder() : void startRecording())}
+        >
+          <LuMic size={20} />
+        </button>
         <EmojiPickerButton
           inputRef={textareaRef}
           value={text}
-          onChange={setText}
+          onChange={(value) => {
+            setText(value);
+            requestAnimationFrame(() => growField(textareaRef.current));
+          }}
           layout="messenger"
           ariaLabel={t("posts.create.addEmoji")}
         />
         <textarea
           ref={textareaRef}
           value={text}
-          onChange={(event) => setText(event.target.value)}
+          onChange={(event) => {
+            setText(event.target.value);
+            growField(event.target);
+          }}
           onKeyDown={(event) => {
             if (event.key === "Enter" && !event.shiftKey) {
               event.preventDefault();
@@ -321,8 +536,13 @@ function LunaThread({ paused }) {
           rows={1}
           maxLength={2000}
         />
-        <button className="lunaComposer__send" type="submit" disabled={sending || !text.trim()}>
-          {t("luna.send")}
+        <button
+          className={`lunaComposer__send${mobile ? " lunaComposer__send--icon" : ""}`}
+          type="submit"
+          disabled={sending || transcribing || recording || (!text.trim() && !photo)}
+          aria-label={t("luna.send")}
+        >
+          {mobile ? <LuSend size={18} /> : t("luna.send")}
         </button>
       </form>
     </>
@@ -405,7 +625,7 @@ function LunaPanel({ onClose }) {
             </div>
           ) : null}
           <button type="button" className="lunaPanel__iconBtn" onClick={onClose} aria-label={t("luna.close")}>
-            ×
+            <LuX size={22} />
           </button>
         </header>
         {demo ? <p className="lunaDemo">{t("luna.demoBanner")}</p> : null}

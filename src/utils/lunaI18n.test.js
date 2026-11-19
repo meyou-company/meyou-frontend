@@ -21,12 +21,29 @@ const lunaKeys = [
   "placeholder",
   "thinking",
   "pauseAnimation",
+  "error",
   "retry",
+  "attachPhoto",
+  "removePhoto",
+  "recordVoice",
+  "stopRecording",
+  "cancelRecording",
+  "recording",
+  "transcribing",
 ];
 const errorKeys = [
   "LUNA_MESSAGE_EMPTY",
   "LUNA_MESSAGE_TOO_LONG",
   "LUNA_APPEARANCE_REQUIRED",
+  "LUNA_DAILY_LIMIT",
+  "LUNA_MONTHLY_LIMIT",
+  "LUNA_BUDGET_EXCEEDED",
+  "LUNA_BUSY",
+  "LUNA_MEDIA_UNAVAILABLE",
+  "LUNA_IMAGE_INVALID",
+  "LUNA_IMAGE_TOO_LARGE",
+  "LUNA_AUDIO_INVALID",
+  "LUNA_AUDIO_TOO_LONG",
 ];
 
 describe("luna i18n", () => {

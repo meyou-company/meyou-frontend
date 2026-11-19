@@ -82,6 +82,7 @@
   display: flex;
   align-items: center;
   gap: 10px;
+  flex-shrink: 0;
   padding: 12px 12px 10px;
   border-bottom: 1px solid rgba(80, 36, 140, 0.12);
   padding-top: max(12px, env(safe-area-inset-top));
@@ -116,12 +117,17 @@
 .lunaPanel__menu {
   border: 0;
   background: transparent;
-  width: 36px;
-  height: 36px;
-  border-radius: 10px;
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  min-height: 44px;
+  border-radius: 12px;
   font-size: 18px;
   cursor: pointer;
   color: inherit;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .lunaPanel__menuWrap {
@@ -152,6 +158,7 @@
 
 .lunaDemo {
   margin: 0;
+  flex-shrink: 0;
   padding: 8px 14px;
   font-size: 12px;
   background: #fff3c4;
@@ -160,6 +167,7 @@
 
 .lunaMessages {
   flex: 1;
+  min-height: 0;
   overflow: auto;
   overscroll-behavior: contain;
   padding: 12px 14px 8px;
@@ -184,12 +192,62 @@
 }
 
 .lunaBubble {
-  max-width: 88%;
+  max-width: min(88%, 32rem);
   padding: 8px 12px;
   border-radius: 16px;
   font-size: 14px;
-  line-height: 1.4;
-  white-space: pre-wrap;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.lunaBubble__photo {
+  display: block;
+  max-width: 100%;
+  max-height: 220px;
+  border-radius: 12px;
+  margin-bottom: 8px;
+  object-fit: cover;
+}
+
+.lunaBubble__md {
+  overflow-wrap: anywhere;
+}
+
+.lunaBubble__md p,
+.lunaBubble__md ul,
+.lunaBubble__md ol,
+.lunaBubble__md pre {
+  margin: 0 0 0.55em;
+}
+
+.lunaBubble__md p:last-child,
+.lunaBubble__md ul:last-child,
+.lunaBubble__md ol:last-child,
+.lunaBubble__md pre:last-child {
+  margin-bottom: 0;
+}
+
+.lunaBubble__md ul,
+.lunaBubble__md ol {
+  padding-left: 1.2em;
+}
+
+.lunaBubble__md pre {
+  overflow-x: auto;
+  padding: 8px;
+  border-radius: 8px;
+  background: rgba(43, 27, 61, 0.08);
+}
+
+.lunaBubble__md code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.92em;
+}
+
+.lunaBubble__md a {
+  color: inherit;
+  text-decoration: underline;
 }
 
 .lunaBubble--user {
@@ -208,7 +266,7 @@
 }
 
 .lunaSticker {
-  width: 88px;
+  width: 72px;
   height: auto;
   align-self: flex-start;
   object-fit: contain;
@@ -216,8 +274,8 @@
 
 .lunaGreet {
   align-self: center;
-  width: 112px;
-  height: 112px;
+  width: 96px;
+  height: 96px;
   object-fit: contain;
   animation: lunaSlideIn 0.9s ease-out 1;
 }
@@ -247,39 +305,112 @@
   font-size: 13px;
 }
 
+.lunaPreview,
+.lunaRecordBar {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-top: 1px solid rgba(80, 36, 140, 0.08);
+}
+
+.lunaPreview img {
+  height: 56px;
+  width: 56px;
+  object-fit: cover;
+  border-radius: 10px;
+}
+
+.lunaPreview button,
+.lunaRecordBar button {
+  border: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  min-height: 36px;
+}
+
+.lunaRecordBar__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #e11d48;
+  animation: lunaRecordPulse 1s ease-in-out infinite;
+}
+
 .lunaComposer {
   display: flex;
-  gap: 8px;
+  gap: 6px;
   align-items: flex-end;
-  padding: 10px 12px calc(10px + env(safe-area-inset-bottom));
+  flex-shrink: 0;
+  padding: 8px 10px calc(10px + env(safe-area-inset-bottom));
   border-top: 1px solid rgba(80, 36, 140, 0.12);
+  padding-bottom: calc(10px + env(safe-area-inset-bottom) + var(--luna-keyboard, 0px) * 0);
+}
+
+.lunaComposer__icon {
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.lunaComposer__icon.is-on {
+  color: #e11d48;
 }
 
 .lunaComposer textarea {
   flex: 1;
   resize: none;
-  min-height: 40px;
-  max-height: 120px;
-  border-radius: 12px;
+  min-height: 44px;
+  max-height: 160px;
+  border-radius: 16px;
   border: 1px solid rgba(80, 36, 140, 0.18);
   padding: 10px 12px;
   font: inherit;
   font-size: 16px;
+  line-height: 1.35;
+  overflow-y: auto;
 }
 
 .lunaComposer__send {
+  flex-shrink: 0;
   border: 0;
   background: #8f68dc;
   color: #fff;
   border-radius: 12px;
   min-width: 44px;
-  height: 40px;
+  min-height: 44px;
+  padding: 0 12px;
   cursor: pointer;
   font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.lunaComposer__send:disabled {
+.lunaComposer__send--icon {
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border-radius: 50%;
+}
+
+.lunaComposer__send:disabled,
+.lunaComposer__icon:disabled {
   opacity: 0.5;
+}
+
+@keyframes lunaRecordPulse {
+  50% { opacity: 0.35; }
 }
 
 .lunaPicker {
@@ -364,6 +495,27 @@
     height: calc(100dvh - var(--luna-keyboard, 0px));
     max-height: calc(100dvh - var(--luna-keyboard, 0px));
   }
+
+  .lunaBubble {
+    max-width: 92%;
+    font-size: 15px;
+  }
+
+  .lunaSticker {
+    width: 56px;
+  }
+
+  .lunaComposer {
+    gap: 4px;
+    padding-left: 8px;
+    padding-right: 8px;
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+  .lunaPanel {
+    width: min(440px, 100%);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -408,7 +560,16 @@ html[data-theme="dark"] .lunaPicker__card,
 body.dark .lunaPrompts button,
 html[data-theme="dark"] .lunaPrompts button,
 body.dark .lunaComposer textarea,
-html[data-theme="dark"] .lunaComposer textarea {
+html[data-theme="dark"] .lunaComposer textarea,
+body.dark .lunaPreview,
+html[data-theme="dark"] .lunaPreview,
+body.dark .lunaRecordBar,
+html[data-theme="dark"] .lunaRecordBar {
   background: #2a1850;
   color: #f6efff;
+}
+
+body.dark .lunaBubble__md pre,
+html[data-theme="dark"] .lunaBubble__md pre {
+  background: rgba(255, 255, 255, 0.08);
 }
