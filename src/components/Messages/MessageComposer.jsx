@@ -19,6 +19,8 @@ import {
   pinScrollerToBottom,
   shouldSendOnEnter,
 } from '../../utils/composerTextarea';
+import { getLunmeyoItemFromMessage } from '../../constants/lunmeyoCatalog';
+import { toLunmeyoToken } from '../../utils/lunmeyoToken';
 import './MessageComposer.scss';
 
 function createPendingAttachment(file) {
@@ -168,6 +170,23 @@ export default function MessageComposer({
     [onChange, emitTyping],
   );
 
+  const handleLunmeyoSelect = useCallback(
+    async (item) => {
+      if (!item?.id || busy) return;
+      stopTyping();
+      try {
+        await onSendPayload?.({
+          type: 'TEXT',
+          text: toLunmeyoToken(item.id),
+          metadata: { lunmeyoStickerId: item.id },
+        });
+      } catch (err) {
+        toast.error(getApiErrorMessage(err, 'messenger.uploadError'));
+      }
+    },
+    [busy, onSendPayload, stopTyping],
+  );
+
   const handleFileSelect = (source) => (e) => {
     const files = e.target.files;
     if (files?.length) {
@@ -228,7 +247,11 @@ export default function MessageComposer({
         <div className="msgComposer__replyPreview">
           <div className="msgComposer__replyMeta">
             <span className="msgComposer__replyLabel">{t('messenger.youReplied')}</span>
-            <p className="msgComposer__replyText">{replyTo.text || t('messenger.attachmentPreview')}</p>
+            <p className="msgComposer__replyText">
+              {getLunmeyoItemFromMessage(replyTo)
+                ? t('lunmeyo.sticker')
+                : replyTo.text || t('messenger.attachmentPreview')}
+            </p>
           </div>
           <button
             type="button"
@@ -268,6 +291,7 @@ export default function MessageComposer({
               inputRef={inputRef}
               value={value ?? ''}
               onChange={handleEmojiChange}
+              onSelectLunmeyo={handleLunmeyoSelect}
               variant="inline"
               layout="messenger"
               popoverContainerRef={inputWrapRef}

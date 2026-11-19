@@ -10,6 +10,7 @@ import { i18n } from '../../i18n';
 import CommentComposer from './CommentComposer';
 import CommentActionMenu from './CommentActionMenu';
 import CommentLikeButton from './CommentLikeButton';
+import LunmeyoRichText from '../Lunmeyo/LunmeyoRichText';
 import './PostCommentsSection.scss';
 import './CommentActionMenu.scss';
 import './CommentLikeButton.scss';
@@ -142,7 +143,9 @@ function CommentBubble({
             </button>
           </div>
         ) : (
-          <p className="postCommentsSection__text">{comment.content}</p>
+          <p className="postCommentsSection__text">
+            <LunmeyoRichText text={comment.content} />
+          </p>
         )}
       </div>
       {!isEditing && (

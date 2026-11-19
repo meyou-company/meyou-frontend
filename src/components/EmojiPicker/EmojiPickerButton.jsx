@@ -6,9 +6,12 @@ import {
   useState,
 } from "react";
 import { createPortal } from "react-dom";
+import { useTranslation } from "react-i18next";
 import EmojiPicker, { Theme } from "emoji-picker-react";
 import { useThemeStore } from "../../zustand/useThemeStore";
 import { insertEmojiAtCursor } from "../../utils/insertEmojiAtCursor";
+import { toLunmeyoToken } from "../../utils/lunmeyoToken";
+import LunmeyoPickerPanel from "../Lunmeyo/LunmeyoPickerPanel";
 import "./EmojiPickerButton.scss";
 
 const MOBILE_MAX = 768;
@@ -102,8 +105,12 @@ export default function EmojiPickerButton({
   layout = "anchored",
   popoverContainerRef,
   closeOnSelect = false,
+  enableLunmeyo = true,
+  onSelectLunmeyo,
 }) {
   const [open, setOpen] = useState(false);
+  const [tab, setTab] = useState("emoji");
+  const { t } = useTranslation();
   const [desktopCoords, setDesktopCoords] = useState({
     top: 0,
     left: 0,
@@ -232,6 +239,28 @@ export default function EmojiPickerButton({
     [value, onChange, inputRef, closeOnSelect],
   );
 
+  const handleLunmeyoSelect = useCallback(
+    (item) => {
+      if (!item?.id) return;
+      if (typeof onSelectLunmeyo === "function") {
+        onSelectLunmeyo(item);
+        setOpen(false);
+        return;
+      }
+      if (typeof onChange !== "function") return;
+      const token = toLunmeyoToken(item.id);
+      const { nextValue, selectionStart } = insertEmojiAtCursor(
+        value,
+        token,
+        inputRef?.current,
+      );
+      pendingSelection.current = selectionStart;
+      onChange(nextValue);
+      if (closeOnSelect) setOpen(false);
+    },
+    [onSelectLunmeyo, onChange, value, inputRef, closeOnSelect],
+  );
+
   const closePicker = useCallback(() => setOpen(false), []);
 
   const toggleOpen = (e) => {
@@ -255,6 +284,57 @@ export default function EmojiPickerButton({
       ? mobileSize.height
       : desktopCoords.height
     : 360;
+
+  const pickerBody = (
+    <div className={`emoji-picker-btn__body${enableLunmeyo ? " has-lunmeyo" : ""}`}>
+      {enableLunmeyo ? (
+        <div className="emoji-picker-btn__tabs" role="tablist">
+          <button
+            type="button"
+            role="tab"
+            className={tab === "emoji" ? "is-on" : ""}
+            aria-selected={tab === "emoji"}
+            onClick={() => setTab("emoji")}
+          >
+            {t("lunmeyo.tabs.emoji")}
+          </button>
+          <button
+            type="button"
+            role="tab"
+            className={tab === "stickers" ? "is-on" : ""}
+            aria-selected={tab === "stickers"}
+            onClick={() => setTab("stickers")}
+          >
+            {t("lunmeyo.tabs.stickers")}
+          </button>
+          <button
+            type="button"
+            role="tab"
+            className={tab === "anims" ? "is-on" : ""}
+            aria-selected={tab === "anims"}
+            onClick={() => setTab("anims")}
+          >
+            {t("lunmeyo.tabs.animations")}
+          </button>
+        </div>
+      ) : null}
+      {tab === "stickers" && enableLunmeyo ? (
+        <LunmeyoPickerPanel type="png" onSelect={handleLunmeyoSelect} />
+      ) : tab === "anims" && enableLunmeyo ? (
+        <LunmeyoPickerPanel type="mp4" onSelect={handleLunmeyoSelect} />
+      ) : (
+        <EmojiPicker
+          onEmojiClick={handleEmojiClick}
+          theme={pickerTheme}
+          lazyLoadEmojis
+          searchPlaceholder="Пошук…"
+          previewConfig={{ showPreview: false }}
+          width={pickerWidth}
+          height={enableLunmeyo ? Math.max(220, pickerHeight - 44) : pickerHeight}
+        />
+      )}
+    </div>
+  );
 
   const postPortalContent =
     usesPortalLayout && open && getPortalRoot()
@@ -298,15 +378,7 @@ export default function EmojiPickerButton({
               onMouseDown={(e) => e.stopPropagation()}
               onClick={(e) => e.stopPropagation()}
             >
-              <EmojiPicker
-                onEmojiClick={handleEmojiClick}
-                theme={pickerTheme}
-                lazyLoadEmojis
-                searchPlaceholder="Пошук…"
-                previewConfig={{ showPreview: false }}
-                width={pickerWidth}
-                height={pickerHeight}
-              />
+              {pickerBody}
             </div>
           </>,
           getPortalRoot(),
@@ -328,15 +400,7 @@ export default function EmojiPickerButton({
         aria-label="Вибір емодзі"
         onMouseDown={(e) => e.stopPropagation()}
       >
-        <EmojiPicker
-          onEmojiClick={handleEmojiClick}
-          theme={pickerTheme}
-          lazyLoadEmojis
-          searchPlaceholder="Пошук…"
-          previewConfig={{ showPreview: false }}
-          width={pickerWidth}
-          height={pickerHeight}
-        />
+        {pickerBody}
       </div>
     ) : null;
 

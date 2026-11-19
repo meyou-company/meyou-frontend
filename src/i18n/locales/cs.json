@@ -1754,5 +1754,20 @@
     "cancelRecording": "Zrušit",
     "recording": "Nahrávám",
     "transcribing": "Převádím hlas na text…"
+  },
+  "lunmeyo": {
+    "tabs": {
+      "emoji": "Emoji",
+      "stickers": "Samolepky",
+      "animations": "Animace"
+    },
+    "charactersLabel": "Postava",
+    "characters": {
+      "lun": "Lun",
+      "round": "Kulatý"
+    },
+    "sticker": "Samolepka",
+    "animation": "Animace",
+    "empty": "Zatím nic není"
   }
 }

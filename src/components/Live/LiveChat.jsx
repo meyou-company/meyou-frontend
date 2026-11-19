@@ -2,6 +2,8 @@ import { useTranslation } from "react-i18next";
 import { forwardRef, useEffect, useMemo, useRef, useState } from "react";
 import { REACTIONS } from "./LiveStage";
 import profileIcons from "../../constants/profileIcons";
+import EmojiPickerButton from "../EmojiPicker/EmojiPickerButton";
+import LunmeyoRichText from "../Lunmeyo/LunmeyoRichText";
 
 const LiveChat = forwardRef(function LiveChat(
   {
@@ -144,7 +146,7 @@ const LiveChat = forwardRef(function LiveChat(
         >
           {message.authorName}
         </button>
-        <p>{message.text}</p>
+        <p><LunmeyoRichText text={message.text} /></p>
       </div>
 
       {isOwner && (
@@ -264,6 +266,17 @@ const LiveChat = forwardRef(function LiveChat(
             disabled={isEnded}
             aria-label={t("live.chatMessage")}
           />
+          {!isEnded ? (
+            <EmojiPickerButton
+              inputRef={inputRef}
+              value={value}
+              onChange={(next) => setValue(String(next).slice(0, 300))}
+              variant="inline"
+              layout="post"
+              className="liveChat__emoji"
+              ariaLabel={t("posts.create.addEmoji")}
+            />
+          ) : null}
           <button
             type="submit"
             disabled={!value.trim() || isEnded}

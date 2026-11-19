@@ -2076,5 +2076,20 @@
     "cancelRecording": "Скасувати",
     "recording": "Запис",
     "transcribing": "Розпізнаю голос…"
+  },
+  "lunmeyo": {
+    "tabs": {
+      "emoji": "Емодзі",
+      "stickers": "Стікери",
+      "animations": "Анімації"
+    },
+    "charactersLabel": "Персонаж",
+    "characters": {
+      "lun": "Лун",
+      "round": "Круглий"
+    },
+    "sticker": "Стікер",
+    "animation": "Анімація",
+    "empty": "Поки що порожньо"
   }
 }

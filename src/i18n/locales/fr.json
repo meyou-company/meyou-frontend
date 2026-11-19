@@ -1751,5 +1751,20 @@
     "cancelRecording": "Annuler",
     "recording": "Enregistrement",
     "transcribing": "Conversion de la voix en texte…"
+  },
+  "lunmeyo": {
+    "tabs": {
+      "emoji": "Emoji",
+      "stickers": "Stickers",
+      "animations": "Animations"
+    },
+    "charactersLabel": "Personnage",
+    "characters": {
+      "lun": "Lun",
+      "round": "Rond"
+    },
+    "sticker": "Sticker",
+    "animation": "Animation",
+    "empty": "Rien pour le moment"
   }
 }

@@ -198,3 +198,49 @@ html[data-theme="dark"] .emoji-picker-btn--inline .emoji-picker-btn__trigger {
   background: transparent;
   border-color: transparent;
 }
+
+.emoji-picker-btn__body {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.emoji-picker-btn__body.has-lunmeyo {
+  height: 100%;
+  min-height: 280px;
+}
+
+.emoji-picker-btn__tabs {
+  display: flex;
+  gap: 4px;
+  padding: 8px 8px 0;
+  flex-shrink: 0;
+}
+
+.emoji-picker-btn__tabs button {
+  flex: 1;
+  border: 0;
+  background: transparent;
+  color: #65676b;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 8px 4px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.emoji-picker-btn__tabs button.is-on {
+  background: rgba(139, 92, 246, 0.14);
+  color: #6d28d9;
+}
+
+body.dark .emoji-picker-btn__tabs button,
+html[data-theme="dark"] .emoji-picker-btn__tabs button {
+  color: #b0b3b8;
+}
+
+body.dark .emoji-picker-btn__tabs button.is-on,
+html[data-theme="dark"] .emoji-picker-btn__tabs button.is-on {
+  background: rgba(167, 139, 250, 0.18);
+  color: #ddd6fe;
+}

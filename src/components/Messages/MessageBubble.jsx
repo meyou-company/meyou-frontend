@@ -4,6 +4,12 @@ import { getMyReactionEmoji } from '../../constants/messageReactions';
 import { isMessageSeenByPeer } from '../../utils/messageReadReceipt';
 import { isEmojiOnlyMessage, splitMessageTextWithEmoji } from '../../utils/messageTextDisplay';
 import { getStoryMessageText, getStoryReplyPreview } from '../../utils/storyMessagePreview';
+import { getLunmeyoItemFromMessage } from '../../constants/lunmeyoCatalog';
+import {
+  isStandaloneLunmeyoMessage,
+  splitLunmeyoText,
+} from '../../utils/lunmeyoToken';
+import LunmeyoMedia from '../Lunmeyo/LunmeyoMedia';
 import MessageAttachments from './MessageAttachments';
 import MessageReactionBar from './MessageReactionBar';
 import './MessageBubble.scss';
@@ -48,8 +54,41 @@ function ReadReceipt({ isSeen, pending, sendFailed, hideChecks, deliveryStatus, 
   );
 }
 
+function renderEmojiText(text, keyPrefix = 'e') {
+  const parts = splitMessageTextWithEmoji(text);
+  const hasEmoji = parts.some((part) => part.type === 'emoji');
+  if (!hasEmoji) return text;
+  return parts.map((part, index) =>
+    part.type === 'emoji' ? (
+      <span key={`${keyPrefix}-${index}-${part.value}`} className="msgBubble__emoji">
+        {part.value}
+      </span>
+    ) : (
+      part.value
+    ),
+  );
+}
+
 function MessageText({ text }) {
   if (!text) return null;
+
+  const lunmeyoParts = splitLunmeyoText(text);
+  const hasLunmeyo = lunmeyoParts.some((part) => part.type === 'sticker');
+  if (hasLunmeyo) {
+    return (
+      <p className="msgBubble__text">
+        {lunmeyoParts.map((part, index) =>
+          part.type === 'sticker' ? (
+            <span key={`${part.id}-${index}`} className="lunmeyoRichText__sticker">
+              <LunmeyoMedia itemId={part.id} size="inline" />
+            </span>
+          ) : (
+            <span key={`t-${index}`}>{renderEmojiText(part.value, `t${index}`)}</span>
+          ),
+        )}
+      </p>
+    );
+  }
 
   const emojiOnly = isEmojiOnlyMessage(text);
   const className = `msgBubble__text${emojiOnly ? ' msgBubble__text--emojiOnly' : ''}`;
@@ -58,26 +97,7 @@ function MessageText({ text }) {
     return <p className={className}>{text}</p>;
   }
 
-  const parts = splitMessageTextWithEmoji(text);
-  const hasEmoji = parts.some((part) => part.type === 'emoji');
-
-  if (!hasEmoji) {
-    return <p className={className}>{text}</p>;
-  }
-
-  return (
-    <p className={className}>
-      {parts.map((part, index) =>
-        part.type === 'emoji' ? (
-          <span key={`${index}-${part.value}`} className="msgBubble__emoji">
-            {part.value}
-          </span>
-        ) : (
-          part.value
-        ),
-      )}
-    </p>
-  );
+  return <p className={className}>{renderEmojiText(text)}</p>;
 }
 
 function aggregateReactions(reactions = []) {
@@ -190,6 +210,10 @@ export default function MessageBubble({
   const storyPreview = getStoryReplyPreview(message);
   const displayText = getStoryMessageText(message);
   const deletedForEveryone = message.deletedForEveryone === true;
+  const lunmeyoItem = !deletedForEveryone && !storyPreview
+    ? getLunmeyoItemFromMessage(message)
+    : null;
+  const stickerOnly = Boolean(lunmeyoItem) && isStandaloneLunmeyoMessage(message);
   const myReaction = getMyReactionEmoji(message.reactions, currentUserId);
   const reactionSummary = aggregateReactions(message.reactions || []);
   const isSeenByPeer = isMessageSeenByPeer(message, seenMessageIds);
@@ -238,9 +262,12 @@ export default function MessageBubble({
 
   const peerInitial = peerName.charAt(0).toUpperCase() || '?';
 
+  const replySticker = replyTo ? getLunmeyoItemFromMessage(replyTo) : null;
   const replyLabel = replyTo?.deleted
     ? t('messenger.deletedMessage')
-    : replyTo?.text || t('messenger.attachmentPreview');
+    : replySticker
+      ? t(replySticker.nameKey, { defaultValue: t('lunmeyo.sticker') })
+      : replyTo?.text || t('messenger.attachmentPreview');
 
   const canShowReactionBar = !isMine && !deletedForEveryone;
 
@@ -310,7 +337,7 @@ export default function MessageBubble({
           ) : null}
 
           <div
-            className={`msgBubble${isMine ? ' msgBubble--mine' : ' msgBubble--theirs'}${message.pending ? ' is-pending' : ''}${message.sendFailed ? ' is-failed' : ''}`}
+            className={`msgBubble${isMine ? ' msgBubble--mine' : ' msgBubble--theirs'}${stickerOnly ? ' msgBubble--sticker' : ''}${message.pending ? ' is-pending' : ''}${message.sendFailed ? ' is-failed' : ''}`}
             onClick={handleBubbleClick}
             onMouseDown={startLongPress}
             onMouseUp={clearLongPress}
@@ -356,7 +383,11 @@ export default function MessageBubble({
                   messageType={message.type}
                 />
               ) : null}
-              {displayText ? <MessageText text={displayText} /> : null}
+              {stickerOnly ? (
+                <LunmeyoMedia item={lunmeyoItem} size="message" />
+              ) : displayText ? (
+                <MessageText text={displayText} />
+              ) : null}
             </>
           )}
 

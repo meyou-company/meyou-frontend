@@ -12,6 +12,7 @@ import {
 import { findCommentInTree, updateCommentInTree } from '../../utils/commentTree';
 import { getPostMediaItems } from '../../utils/postMedia';
 import CommentLikeButton from '../PostFeed/CommentLikeButton';
+import LunmeyoRichText from '../Lunmeyo/LunmeyoRichText';
 import {
   applyCommentLikeToggle,
   mergeCommentLikeResponse,
@@ -199,7 +200,9 @@ function CommentCard({ comment, onToggleLike, onMissingId, likingId, onProfile }
           </div>
         </div>
 
-        <p className="comments__text">{comment.content}</p>
+        <p className="comments__text">
+          <LunmeyoRichText text={comment.content} />
+        </p>
 
         <div className="comments__actions">
           <button type="button" className="comments__replyBtn">

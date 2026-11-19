@@ -452,6 +452,7 @@ function LunaThread({ paused }) {
         requestAnimationFrame(() => growField(textareaRef.current));
       }}
       layout="messenger"
+      enableLunmeyo={false}
       ariaLabel={t("posts.create.addEmoji")}
     />
   );

@@ -2011,5 +2011,20 @@
     "cancelRecording": "Отмена",
     "recording": "Запись",
     "transcribing": "Распознаю голос…"
+  },
+  "lunmeyo": {
+    "tabs": {
+      "emoji": "Эмодзи",
+      "stickers": "Стикеры",
+      "animations": "Анимации"
+    },
+    "charactersLabel": "Персонаж",
+    "characters": {
+      "lun": "Лун",
+      "round": "Круглый"
+    },
+    "sticker": "Стикер",
+    "animation": "Анимация",
+    "empty": "Пока пусто"
   }
 }

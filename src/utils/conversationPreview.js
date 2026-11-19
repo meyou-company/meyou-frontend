@@ -1,6 +1,10 @@
 import { getStoryMessageText, getStoryReplyPreview } from './storyMessagePreview';
 import { formatCallEventLabel } from './callEventMessage';
 import { formatDraftListPreview, getConversationDraft, isNonEmptyDraft } from './messageDrafts';
+import {
+  isStandaloneLunmeyoMessage,
+  replaceLunmeyoTokensForPreview,
+} from './lunmeyoToken';
 
 export function isGroupConversation(chat) {
   return String(chat?.type || '').toUpperCase() === 'GROUP';
@@ -66,8 +70,14 @@ export function getConversationLastMessagePreview(lastMessage, t, viewerId) {
       : t('messenger.storyReply', { defaultValue: 'Story reply' });
   }
 
+  if (isStandaloneLunmeyoMessage(lastMessage)) {
+    return t('lunmeyo.sticker');
+  }
+
   const text = getStoryMessageText(lastMessage).trim();
-  if (text) return text;
+  if (text) {
+    return replaceLunmeyoTokensForPreview(text, t('lunmeyo.sticker')) || text;
+  }
 
   if (lastMessage.forwardedFrom) {
     return t('messenger.forwarded');

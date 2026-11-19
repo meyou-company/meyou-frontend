@@ -1,0 +1,75 @@
+.lunmeyoPicker {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  background: inherit;
+}
+
+.lunmeyoPicker__chars {
+  display: flex;
+  gap: 8px;
+  padding: 8px 10px 4px;
+  flex-shrink: 0;
+}
+
+.lunmeyoPicker__chars button {
+  border: 0;
+  border-radius: 999px;
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  background: rgba(127, 90, 240, 0.12);
+  color: inherit;
+  cursor: pointer;
+}
+
+.lunmeyoPicker__chars button.is-on {
+  background: #7c3aed;
+  color: #fff;
+}
+
+.lunmeyoPicker__grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 6px;
+  padding: 8px 10px 12px;
+  overflow-y: auto;
+  min-height: 220px;
+  max-height: 320px;
+}
+
+.lunmeyoPicker__empty {
+  grid-column: 1 / -1;
+  margin: 24px 8px;
+  text-align: center;
+  font-size: 13px;
+  color: #65676b;
+}
+
+.lunmeyoPicker__cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  border: 0;
+  border-radius: 12px;
+  background: transparent;
+  cursor: pointer;
+}
+
+.lunmeyoPicker__cell .lunmeyoMedia {
+  pointer-events: none;
+}
+
+.lunmeyoPicker__cell:hover,
+.lunmeyoPicker__cell:focus-visible {
+  background: rgba(124, 58, 237, 0.12);
+  outline: none;
+}
+
+body.dark .lunmeyoPicker__chars button,
+html[data-theme="dark"] .lunmeyoPicker__chars button {
+  background: rgba(196, 181, 253, 0.16);
+  color: #f5f3ff;
+}
