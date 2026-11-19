@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useTranslation } from "react-i18next";
 import { useLocation } from "react-router-dom";
-import { LuMic, LuPaperclip, LuSend, LuSquare, LuX } from "react-icons/lu";
+import { LuMic, LuPaperclip, LuPlus, LuSend, LuSquare, LuX } from "react-icons/lu";
 import EmojiPickerButton from "../EmojiPicker/EmojiPickerButton";
 import { useImmersiveHidden } from "../../hooks/useImmersiveHidden";
 import { useAuthStore } from "../../zustand/useAuthStore";
@@ -28,6 +28,8 @@ const MOBILE_MQ = "(max-width: 768px)";
 const LUNA_MAX_IMAGE_BYTES = 4 * 1024 * 1024;
 const LUNA_MAX_AUDIO_MS = 60_000;
 const LUNA_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"];
+const LUNA_TEXTAREA_MAX_PX = 132;
+const LUNA_STICK_THRESHOLD_PX = 80;
 
 function useShowLunaFab() {
   const location = useLocation();
@@ -207,8 +209,10 @@ function LunaThread({ paused }) {
   const markGreetingPlayed = useLunaStore((s) => s.markGreetingPlayed);
   const userId = useAuthStore((s) => s.user?.id);
   const scrollerRef = useRef(null);
+  const stickToBottomRef = useRef(true);
   const textareaRef = useRef(null);
   const photoRef = useRef(null);
+  const moreRef = useRef(null);
   const recorderRef = useRef(null);
   const chunksRef = useRef([]);
   const recordTimerRef = useRef(null);
@@ -220,6 +224,7 @@ function LunaThread({ paused }) {
   const recordMsRef = useRef(0);
   const cancelledRef = useRef(false);
   const [transcribing, setTranscribing] = useState(false);
+  const [moreOpen, setMoreOpen] = useState(false);
   const [mobile, setMobile] = useState(
     () => typeof window !== "undefined" && window.matchMedia(MOBILE_MQ).matches,
   );
@@ -227,15 +232,35 @@ function LunaThread({ paused }) {
 
   useEffect(() => {
     const mq = window.matchMedia(MOBILE_MQ);
-    const onChange = () => setMobile(mq.matches);
+    const onChange = () => {
+      setMobile(mq.matches);
+      if (!mq.matches) setMoreOpen(false);
+    };
     mq.addEventListener("change", onChange);
     return () => mq.removeEventListener("change", onChange);
   }, []);
 
+  useEffect(() => {
+    if (!moreOpen) return undefined;
+    const onPointer = (event) => {
+      const target = event.target;
+      if (!(target instanceof Node)) return;
+      if (moreRef.current?.contains(target)) return;
+      if (document.getElementById("emoji-picker-portal-root")?.contains(target)) return;
+      setMoreOpen(false);
+    };
+    document.addEventListener("mousedown", onPointer);
+    document.addEventListener("touchstart", onPointer);
+    return () => {
+      document.removeEventListener("mousedown", onPointer);
+      document.removeEventListener("touchstart", onPointer);
+    };
+  }, [moreOpen]);
+
   const growField = useCallback((el) => {
     if (!el) return;
     el.style.height = "auto";
-    el.style.height = `${Math.min(el.scrollHeight, 160)}px`;
+    el.style.height = `${Math.min(el.scrollHeight, LUNA_TEXTAREA_MAX_PX)}px`;
   }, []);
 
   const showIntro = messages.length === 0;
@@ -260,7 +285,9 @@ function LunaThread({ paused }) {
   }, [showIntro, greetOnce, reduce, userId, markGreetingPlayed]);
 
   useEffect(() => {
-    scrollerRef.current?.scrollTo({ top: scrollerRef.current.scrollHeight });
+    const el = scrollerRef.current;
+    if (!el || !stickToBottomRef.current) return;
+    el.scrollTop = el.scrollHeight;
   }, [messages, sending]);
 
   const prompts = [
@@ -298,6 +325,8 @@ function LunaThread({ paused }) {
     const next = text;
     const file = photo;
     if (!next.trim() && !file) return;
+    stickToBottomRef.current = true;
+    setMoreOpen(false);
     setText("");
     clearPhoto();
     if (textareaRef.current) {
@@ -383,9 +412,61 @@ function LunaThread({ paused }) {
     }
   };
 
+  const toolsBusy = sending || recording || transcribing;
+  const attachButton = (
+    <button
+      type="button"
+      className="lunaComposer__icon"
+      aria-label={t("luna.attachPhoto")}
+      disabled={toolsBusy}
+      onClick={() => {
+        setMoreOpen(false);
+        photoRef.current?.click();
+      }}
+    >
+      <LuPaperclip size={20} />
+    </button>
+  );
+  const micButton = (
+    <button
+      type="button"
+      className={`lunaComposer__icon${recording ? " is-on" : ""}`}
+      aria-label={t("luna.recordVoice")}
+      disabled={sending || transcribing}
+      onClick={() => {
+        setMoreOpen(false);
+        if (recording) stopRecorder();
+        else void startRecording();
+      }}
+    >
+      <LuMic size={20} />
+    </button>
+  );
+  const emojiButton = (
+    <EmojiPickerButton
+      className={`lunaComposer__emoji${toolsBusy ? " is-disabled" : ""}`}
+      inputRef={textareaRef}
+      value={text}
+      onChange={(value) => {
+        setText(value);
+        requestAnimationFrame(() => growField(textareaRef.current));
+      }}
+      layout="messenger"
+      ariaLabel={t("posts.create.addEmoji")}
+    />
+  );
+
   return (
     <>
-      <div className="lunaMessages" ref={scrollerRef}>
+      <div
+        className="lunaMessages"
+        ref={scrollerRef}
+        onScroll={(event) => {
+          const el = event.currentTarget;
+          stickToBottomRef.current =
+            el.scrollHeight - el.scrollTop - el.clientHeight < LUNA_STICK_THRESHOLD_PX;
+        }}
+      >
         {showIntro ? (
           <div className="lunaEmpty">
             {greetingSrc ? (
@@ -478,7 +559,7 @@ function LunaThread({ paused }) {
         </div>
       ) : null}
       <form
-        className="lunaComposer"
+        className={`lunaComposer${mobile ? " lunaComposer--mobile" : ""}`}
         onSubmit={(event) => {
           event.preventDefault();
           submit();
@@ -491,58 +572,57 @@ function LunaThread({ paused }) {
           hidden
           onChange={onPickPhoto}
         />
+        {mobile ? (
+          <div className="lunaComposer__more" ref={moreRef}>
+            <button
+              type="button"
+              className={`lunaComposer__icon${moreOpen ? " is-open" : ""}`}
+              aria-label={t("luna.moreActions")}
+              aria-expanded={moreOpen}
+              disabled={toolsBusy}
+              onClick={() => setMoreOpen((open) => !open)}
+            >
+              <LuPlus size={22} />
+            </button>
+            <div className={`lunaComposer__moreMenu${moreOpen ? " is-open" : ""}`}>
+              {attachButton}
+              {emojiButton}
+            </div>
+          </div>
+        ) : (
+          <>
+            {attachButton}
+            {micButton}
+            {emojiButton}
+          </>
+        )}
+        <div className="lunaComposer__field">
+          <textarea
+            ref={textareaRef}
+            value={text}
+            onChange={(event) => {
+              setText(event.target.value);
+              growField(event.target);
+            }}
+            onKeyDown={(event) => {
+              if (event.key === "Enter" && !event.shiftKey) {
+                event.preventDefault();
+                submit();
+              }
+            }}
+            placeholder={t("luna.placeholder")}
+            rows={1}
+            maxLength={2000}
+          />
+        </div>
+        {mobile ? micButton : null}
         <button
-          type="button"
-          className="lunaComposer__icon"
-          aria-label={t("luna.attachPhoto")}
-          disabled={sending || recording || transcribing}
-          onClick={() => photoRef.current?.click()}
-        >
-          <LuPaperclip size={20} />
-        </button>
-        <button
-          type="button"
-          className={`lunaComposer__icon${recording ? " is-on" : ""}`}
-          aria-label={t("luna.recordVoice")}
-          disabled={sending || transcribing}
-          onClick={() => (recording ? stopRecorder() : void startRecording())}
-        >
-          <LuMic size={20} />
-        </button>
-        <EmojiPickerButton
-          inputRef={textareaRef}
-          value={text}
-          onChange={(value) => {
-            setText(value);
-            requestAnimationFrame(() => growField(textareaRef.current));
-          }}
-          layout="messenger"
-          ariaLabel={t("posts.create.addEmoji")}
-        />
-        <textarea
-          ref={textareaRef}
-          value={text}
-          onChange={(event) => {
-            setText(event.target.value);
-            growField(event.target);
-          }}
-          onKeyDown={(event) => {
-            if (event.key === "Enter" && !event.shiftKey) {
-              event.preventDefault();
-              submit();
-            }
-          }}
-          placeholder={t("luna.placeholder")}
-          rows={1}
-          maxLength={2000}
-        />
-        <button
-          className={`lunaComposer__send${mobile ? " lunaComposer__send--icon" : ""}`}
+          className="lunaComposer__send"
           type="submit"
           disabled={sending || transcribing || recording || (!text.trim() && !photo)}
           aria-label={t("luna.send")}
         >
-          {mobile ? <LuSend size={18} /> : t("luna.send")}
+          <LuSend size={18} />
         </button>
       </form>
     </>

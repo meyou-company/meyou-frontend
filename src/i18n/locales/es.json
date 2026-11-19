@@ -1743,6 +1743,7 @@
     "error": "No se pudo obtener una respuesta",
     "retry": "Reintentar",
     "close": "Cerrar",
+    "moreActions": "Más acciones",
     "attachPhoto": "Adjuntar foto",
     "removePhoto": "Quitar foto",
     "recordVoice": "Mensaje de voz",

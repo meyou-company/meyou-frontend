@@ -1746,6 +1746,7 @@
     "error": "Odpověď se nepodařilo získat",
     "retry": "Zkusit znovu",
     "close": "Zavřít",
+    "moreActions": "Další akce",
     "attachPhoto": "Přiložit fotku",
     "removePhoto": "Odebrat fotku",
     "recordVoice": "Hlasová zpráva",
