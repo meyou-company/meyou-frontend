@@ -23,6 +23,7 @@ const lunaKeys = [
   "pauseAnimation",
   "error",
   "retry",
+  "moreActions",
   "attachPhoto",
   "removePhoto",
   "recordVoice",

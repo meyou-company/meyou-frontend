@@ -1743,6 +1743,7 @@
     "error": "Yanıt alınamadı",
     "retry": "Yeniden dene",
     "close": "Kapat",
+    "moreActions": "Diğer işlemler",
     "attachPhoto": "Fotoğraf ekle",
     "removePhoto": "Fotoğrafı kaldır",
     "recordVoice": "Sesli mesaj",

@@ -1743,6 +1743,7 @@
     "error": "Impossible d’obtenir une réponse",
     "retry": "Réessayer",
     "close": "Fermer",
+    "moreActions": "Autres actions",
     "attachPhoto": "Joindre une photo",
     "removePhoto": "Retirer la photo",
     "recordVoice": "Message vocal",
