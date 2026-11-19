@@ -1101,7 +1101,8 @@
     "LUNA_IMAGE_INVALID": "Pošlete JPEG, PNG nebo WebP do 4 MB.",
     "LUNA_IMAGE_TOO_LARGE": "Fotka je moc velká. Maximum 4 MB.",
     "LUNA_AUDIO_INVALID": "Nahrávku nelze použít. Zkontrolujte oprávnění mikrofonu.",
-    "LUNA_AUDIO_TOO_LONG": "Hlasová zpráva může trvat nejvýše 60 sekund."
+    "LUNA_AUDIO_TOO_LONG": "Hlasová zpráva může trvat nejvýše 60 sekund.",
+    "LUNA_CONVERSATION_NOT_FOUND": "Tento chat Luny se nenašel."
   },
   "gifts": {
     "title": "Dárky",
@@ -1753,7 +1754,27 @@
     "stopRecording": "Stop",
     "cancelRecording": "Zrušit",
     "recording": "Nahrávám",
-    "transcribing": "Převádím hlas na text…"
+    "transcribing": "Převádím hlas na text…",
+    "newChat": "Nový chat",
+    "history": "Historie chatů",
+    "search": "Hledat v chatu",
+    "searchPlaceholder": "Hledat zprávy",
+    "searchEmpty": "Žádné odpovídající zprávy",
+    "untitled": "Nový chat",
+    "clearChat": "Vymazat tento chat",
+    "clearChatTitle": "Vymazat tento rozhovor?",
+    "clearChatBody": "Lun zapomene, o čem jste tady mluvili. Tuto akci nelze vrátit zpět.",
+    "clearChatConfirm": "Vymazat",
+    "deleteChat": "Smazat chat",
+    "deleteChatTitle": "Smazat tento rozhovor?",
+    "deleteChatBody": "Zprávy budou odstraněny. Tuto akci nelze vrátit zpět.",
+    "deleteChatConfirm": "Smazat",
+    "newChatDraftTitle": "Začít nový rozhovor?",
+    "newChatDraftBody": "Napsaný text se neodešle.",
+    "newChatConfirm": "Nový chat",
+    "cancel": "Zrušit",
+    "historyEmpty": "Zatím žádné další chaty",
+    "confirming": "Čekejte…"
   },
   "lunmeyo": {
     "tabs": {

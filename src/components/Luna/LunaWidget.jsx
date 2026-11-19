@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useTranslation } from "react-i18next";
 import { useLocation } from "react-router-dom";
-import { LuMic, LuPaperclip, LuPlus, LuSend, LuSquare, LuX } from "react-icons/lu";
+import { LuMic, LuPaperclip, LuPlus, LuSearch, LuSend, LuSquare, LuTrash2, LuX } from "react-icons/lu";
 import EmojiPickerButton from "../EmojiPicker/EmojiPickerButton";
 import { useImmersiveHidden } from "../../hooks/useImmersiveHidden";
 import { useAuthStore } from "../../zustand/useAuthStore";
@@ -19,6 +19,10 @@ import {
 import { getApiErrorMessage } from "../../utils/getApiErrorMessage";
 import { lunaMarkdownToHtml } from "../../utils/lunaMarkdown";
 import { lunaApi } from "../../services/lunaApi";
+import {
+  bindLunaTabSync,
+  conversationDisplayTitle,
+} from "../../utils/lunaConversations";
 import "./LunaWidget.scss";
 
 const FAB_HELLO_KEY = "lunmeyo.luna.fabHello";
@@ -207,6 +211,9 @@ function LunaThread({ paused }) {
   const retry = useLunaStore((s) => s.retry);
   const greetingPlayed = useLunaStore((s) => s.greetingPlayed);
   const markGreetingPlayed = useLunaStore((s) => s.markGreetingPlayed);
+  const setDraft = useLunaStore((s) => s.setDraft);
+  const draftEpoch = useLunaStore((s) => s.draftEpoch);
+  const highlightMessageId = useLunaStore((s) => s.highlightMessageId);
   const userId = useAuthStore((s) => s.user?.id);
   const scrollerRef = useRef(null);
   const stickToBottomRef = useRef(true);
@@ -289,6 +296,28 @@ function LunaThread({ paused }) {
     if (!el || !stickToBottomRef.current) return;
     el.scrollTop = el.scrollHeight;
   }, [messages, sending]);
+
+  useEffect(() => {
+    setText("");
+    setPhoto(null);
+    setPhotoUrl((url) => {
+      if (url) URL.revokeObjectURL(url);
+      return "";
+    });
+    setDraft("", false);
+  }, [draftEpoch, setDraft]);
+
+  useEffect(() => {
+    setDraft(text, Boolean(photo));
+  }, [text, photo, setDraft]);
+
+  useEffect(() => {
+    if (!highlightMessageId || !scrollerRef.current) return;
+    const el = scrollerRef.current.querySelector(
+      `[data-luna-msg="${highlightMessageId}"]`,
+    );
+    el?.scrollIntoView({ block: "center" });
+  }, [highlightMessageId, messages]);
 
   const prompts = [
     ["site", t("luna.promptMessages.site")],
@@ -493,7 +522,10 @@ function LunaThread({ paused }) {
           messages.map((msg) => (
             <div
               key={msg.id}
-              className={`lunaTurn lunaTurn--${msg.role}${msg.failed ? " is-failed" : ""}`}
+              data-luna-msg={msg.id}
+              className={`lunaTurn lunaTurn--${msg.role}${msg.failed ? " is-failed" : ""}${
+                highlightMessageId === msg.id ? " is-highlight" : ""
+              }`}
             >
               {msg.role === "assistant" ? (
                 <LunaSticker
@@ -629,13 +661,182 @@ function LunaThread({ paused }) {
   );
 }
 
+function LunaConfirm({ confirm, busy, onCancel, onConfirm }) {
+  const { t } = useTranslation();
+  if (!confirm) return null;
+  const copy = {
+    clear: {
+      title: t("luna.clearChatTitle"),
+      body: t("luna.clearChatBody"),
+      action: t("luna.clearChatConfirm"),
+    },
+    delete: {
+      title: t("luna.deleteChatTitle"),
+      body: t("luna.deleteChatBody"),
+      action: t("luna.deleteChatConfirm"),
+    },
+    newChat: {
+      title: t("luna.newChatDraftTitle"),
+      body: t("luna.newChatDraftBody"),
+      action: t("luna.newChatConfirm"),
+    },
+  }[confirm.kind];
+  if (!copy) return null;
+  return (
+    <div className="lunaConfirm" role="presentation" onClick={onCancel}>
+      <div
+        className="lunaConfirm__card"
+        role="alertdialog"
+        aria-modal="true"
+        aria-labelledby="luna-confirm-title"
+        aria-describedby="luna-confirm-body"
+        onClick={(event) => event.stopPropagation()}
+      >
+        <p id="luna-confirm-title" className="lunaConfirm__title">
+          {copy.title}
+        </p>
+        <p id="luna-confirm-body" className="lunaConfirm__body">
+          {copy.body}
+        </p>
+        <div className="lunaConfirm__actions">
+          <button type="button" onClick={onCancel} disabled={busy}>
+            {t("luna.cancel")}
+          </button>
+          <button
+            type="button"
+            className="lunaConfirm__danger"
+            onClick={onConfirm}
+            disabled={busy}
+          >
+            {busy ? t("luna.confirming") : copy.action}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function LunaHistorySheet() {
+  const { t } = useTranslation();
+  const conversations = useLunaStore((s) => s.conversations);
+  const conversationId = useLunaStore((s) => s.conversationId);
+  const openConversation = useLunaStore((s) => s.openConversation);
+  const requestDelete = useLunaStore((s) => s.requestDelete);
+  const setSheet = useLunaStore((s) => s.setSheet);
+  const untitled = t("luna.untitled");
+
+  return (
+    <div className="lunaSheet" role="dialog" aria-label={t("luna.history")}>
+      <div className="lunaSheet__head">
+        <strong>{t("luna.history")}</strong>
+        <button type="button" onClick={() => setSheet(null)} aria-label={t("luna.close")}>
+          <LuX size={18} />
+        </button>
+      </div>
+      {conversations.length === 0 ? (
+        <p className="lunaSheet__empty">{t("luna.historyEmpty")}</p>
+      ) : (
+        <ul className="lunaSheet__list">
+          {conversations.map((item) => (
+            <li
+              key={item.id}
+              className={item.id === conversationId ? "is-active" : undefined}
+            >
+              <button
+                type="button"
+                className="lunaSheet__item"
+                onClick={() => void openConversation(item.id)}
+              >
+                <span>{conversationDisplayTitle(item, untitled)}</span>
+                <small>
+                  {item.updatedAt
+                    ? new Date(item.updatedAt).toLocaleString()
+                    : ""}
+                </small>
+              </button>
+              <button
+                type="button"
+                className="lunaSheet__delete"
+                aria-label={t("luna.deleteChat")}
+                onClick={() => requestDelete(item.id)}
+              >
+                <LuTrash2 size={16} />
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
+
+function LunaSearchSheet() {
+  const { t } = useTranslation();
+  const searchQuery = useLunaStore((s) => s.searchQuery);
+  const searchResults = useLunaStore((s) => s.searchResults);
+  const searching = useLunaStore((s) => s.searching);
+  const search = useLunaStore((s) => s.search);
+  const jumpToMessage = useLunaStore((s) => s.jumpToMessage);
+  const setSheet = useLunaStore((s) => s.setSheet);
+
+  return (
+    <div className="lunaSheet" role="dialog" aria-label={t("luna.search")}>
+      <div className="lunaSheet__head">
+        <strong>
+          <LuSearch size={16} /> {t("luna.search")}
+        </strong>
+        <button type="button" onClick={() => setSheet(null)} aria-label={t("luna.close")}>
+          <LuX size={18} />
+        </button>
+      </div>
+      <input
+        className="lunaSheet__search"
+        value={searchQuery}
+        onChange={(event) => void search(event.target.value)}
+        placeholder={t("luna.searchPlaceholder")}
+        autoFocus
+      />
+      {searching ? <p className="lunaSheet__empty">{t("common.loading")}</p> : null}
+      {!searching && searchQuery.trim() && searchResults.length === 0 ? (
+        <p className="lunaSheet__empty">{t("luna.searchEmpty")}</p>
+      ) : null}
+      <ul className="lunaSheet__list">
+        {searchResults.map((msg) => (
+          <li key={msg.id}>
+            <button
+              type="button"
+              className="lunaSheet__item"
+              onClick={() => jumpToMessage(msg.id)}
+            >
+              <span>{msg.text || t("luna.attachPhoto")}</span>
+            </button>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
 function LunaPanel({ onClose }) {
   const { t } = useTranslation();
   const appearance = useChosenAppearance();
   const demo = useLunaStore((s) => s.demo);
   const loading = useLunaStore((s) => s.loading);
+  const mutating = useLunaStore((s) => s.mutating);
+  const supportsConversations = useLunaStore((s) => s.supportsConversations);
+  const sheet = useLunaStore((s) => s.sheet);
+  const confirm = useLunaStore((s) => s.confirm);
+  const setSheet = useLunaStore((s) => s.setSheet);
+  const requestNewChat = useLunaStore((s) => s.requestNewChat);
+  const requestClear = useLunaStore((s) => s.requestClear);
+  const cancelConfirm = useLunaStore((s) => s.cancelConfirm);
+  const createConversation = useLunaStore((s) => s.createConversation);
+  const clearConversation = useLunaStore((s) => s.clearConversation);
+  const deleteConversation = useLunaStore((s) => s.deleteConversation);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [menuPos, setMenuPos] = useState(null);
   const [changing, setChanging] = useState(false);
+  const menuBtnRef = useRef(null);
   const [paused, setPaused] = useState(() => {
     try {
       return sessionStorage.getItem(PAUSE_KEY) === "1";
@@ -647,6 +848,122 @@ function LunaPanel({ onClose }) {
 
   const reduce = prefersReducedMotion() || paused;
   const showPause = !reduce;
+
+  const openMenu = () => {
+    const rect = menuBtnRef.current?.getBoundingClientRect();
+    if (rect) {
+      setMenuPos({ top: rect.bottom + 6, right: window.innerWidth - rect.right });
+    }
+    setMenuOpen((open) => !open);
+  };
+
+  useEffect(() => {
+    if (!menuOpen) return undefined;
+    const onPointer = (event) => {
+      const target = event.target;
+      if (!(target instanceof Node)) return;
+      if (menuBtnRef.current?.contains(target)) return;
+      if (document.getElementById("luna-menu-portal")?.contains(target)) return;
+      setMenuOpen(false);
+    };
+    document.addEventListener("mousedown", onPointer);
+    document.addEventListener("touchstart", onPointer);
+    return () => {
+      document.removeEventListener("mousedown", onPointer);
+      document.removeEventListener("touchstart", onPointer);
+    };
+  }, [menuOpen]);
+
+  const menu = menuOpen
+    ? createPortal(
+        <div
+          id="luna-menu-portal"
+          className="lunaPanel__menuList"
+          role="menu"
+          style={
+            menuPos
+              ? { position: "fixed", top: menuPos.top, right: menuPos.right, zIndex: 11050 }
+              : undefined
+          }
+        >
+          {supportsConversations ? (
+            <>
+              <button
+                type="button"
+                onClick={() => {
+                  setMenuOpen(false);
+                  requestNewChat();
+                }}
+              >
+                {t("luna.newChat")}
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setMenuOpen(false);
+                  setSheet("history");
+                }}
+              >
+                {t("luna.history")}
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setMenuOpen(false);
+                  setSheet("search");
+                }}
+              >
+                {t("luna.search")}
+              </button>
+            </>
+          ) : null}
+          <button
+            type="button"
+            onClick={() => {
+              setMenuOpen(false);
+              setChanging(true);
+            }}
+          >
+            {t("luna.changeLook")}
+          </button>
+          {supportsConversations ? (
+            <button
+              type="button"
+              onClick={() => {
+                setMenuOpen(false);
+                requestClear();
+              }}
+            >
+              {t("luna.clearChat")}
+            </button>
+          ) : null}
+          {showPause ? (
+            <button
+              type="button"
+              onClick={() => {
+                setPaused(true);
+                setMenuOpen(false);
+                try {
+                  sessionStorage.setItem(PAUSE_KEY, "1");
+                } catch {
+                  /* ignore */
+                }
+              }}
+            >
+              {t("luna.pauseAnimation")}
+            </button>
+          ) : null}
+        </div>,
+        document.body,
+      )
+    : null;
+
+  const onConfirm = () => {
+    if (!confirm) return;
+    if (confirm.kind === "clear") void clearConversation();
+    else if (confirm.kind === "delete") void deleteConversation(confirm.conversationId);
+    else if (confirm.kind === "newChat") void createConversation();
+  };
 
   return (
     <div className="lunaOverlay" onClick={onClose} role="presentation">
@@ -665,43 +982,16 @@ function LunaPanel({ onClose }) {
           {appearance ? (
             <div className="lunaPanel__menuWrap">
               <button
+                ref={menuBtnRef}
                 type="button"
                 className="lunaPanel__menu"
                 aria-haspopup="menu"
                 aria-expanded={menuOpen}
-                onClick={() => setMenuOpen((open) => !open)}
+                onClick={openMenu}
               >
                 ···
               </button>
-              {menuOpen ? (
-                <div className="lunaPanel__menuList" role="menu">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setMenuOpen(false);
-                      setChanging(true);
-                    }}
-                  >
-                    {t("luna.changeLook")}
-                  </button>
-                  {showPause ? (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setPaused(true);
-                        setMenuOpen(false);
-                        try {
-                          sessionStorage.setItem(PAUSE_KEY, "1");
-                        } catch {
-                          /* ignore */
-                        }
-                      }}
-                    >
-                      {t("luna.pauseAnimation")}
-                    </button>
-                  ) : null}
-                </div>
-              ) : null}
+              {menu}
             </div>
           ) : null}
           <button type="button" className="lunaPanel__iconBtn" onClick={onClose} aria-label={t("luna.close")}>
@@ -715,6 +1005,14 @@ function LunaPanel({ onClose }) {
         ) : (
           <LunaThread paused={paused} />
         )}
+        {sheet === "history" ? <LunaHistorySheet /> : null}
+        {sheet === "search" ? <LunaSearchSheet /> : null}
+        <LunaConfirm
+          confirm={confirm}
+          busy={mutating}
+          onCancel={cancelConfirm}
+          onConfirm={onConfirm}
+        />
       </aside>
     </div>
   );
@@ -736,6 +1034,8 @@ export default function LunaWidget() {
   useEffect(() => {
     if (showFab) void load();
   }, [showFab, load]);
+
+  useEffect(() => bindLunaTabSync(() => useLunaStore.getState()), []);
 
   useEffect(() => {
     if (!isOpen) return undefined;

@@ -1354,7 +1354,8 @@
     "LUNA_IMAGE_INVALID": "Отправьте JPEG, PNG или WebP до 4 МБ.",
     "LUNA_IMAGE_TOO_LARGE": "Фото слишком большое. Максимум 4 МБ.",
     "LUNA_AUDIO_INVALID": "Не удалось использовать запись. Проверьте доступ к микрофону.",
-    "LUNA_AUDIO_TOO_LONG": "Голосовое сообщение — не длиннее 60 секунд."
+    "LUNA_AUDIO_TOO_LONG": "Голосовое сообщение — не длиннее 60 секунд.",
+    "LUNA_CONVERSATION_NOT_FOUND": "Этот чат Луна не найден."
   },
   "gifts": {
     "title": "Подарки",
@@ -2010,7 +2011,27 @@
     "stopRecording": "Стоп",
     "cancelRecording": "Отмена",
     "recording": "Запись",
-    "transcribing": "Распознаю голос…"
+    "transcribing": "Распознаю голос…",
+    "newChat": "Новый чат",
+    "history": "История чатов",
+    "search": "Поиск в чате",
+    "searchPlaceholder": "Искать сообщения",
+    "searchEmpty": "Ничего не найдено",
+    "untitled": "Новый чат",
+    "clearChat": "Очистить этот чат",
+    "clearChatTitle": "Очистить этот чат?",
+    "clearChatBody": "Лун забудет, о чём вы говорили здесь. Это нельзя отменить.",
+    "clearChatConfirm": "Очистить",
+    "deleteChat": "Удалить чат",
+    "deleteChatTitle": "Удалить этот чат?",
+    "deleteChatBody": "Сообщения будут удалены. Это нельзя отменить.",
+    "deleteChatConfirm": "Удалить",
+    "newChatDraftTitle": "Начать новый чат?",
+    "newChatDraftBody": "Введённый текст не будет отправлен.",
+    "newChatConfirm": "Новый чат",
+    "cancel": "Отмена",
+    "historyEmpty": "Других чатов пока нет",
+    "confirming": "Подождите…"
   },
   "lunmeyo": {
     "tabs": {

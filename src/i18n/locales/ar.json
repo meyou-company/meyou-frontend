@@ -1080,7 +1080,8 @@
     "LUNA_IMAGE_INVALID": "أرسل صورة JPEG أو PNG أو WebP حتى 4 ميجابايت.",
     "LUNA_IMAGE_TOO_LARGE": "الصورة كبيرة جداً. الحد 4 ميجابايت.",
     "LUNA_AUDIO_INVALID": "تعذر استخدام التسجيل. تحقق من إذن الميكروفون.",
-    "LUNA_AUDIO_TOO_LONG": "الرسالة الصوتية حتى 60 ثانية."
+    "LUNA_AUDIO_TOO_LONG": "الرسالة الصوتية حتى 60 ثانية.",
+    "LUNA_CONVERSATION_NOT_FOUND": "لم يتم العثور على محادثة لون هذه."
   },
   "gifts": {
     "title": "الهدايا",
@@ -1536,7 +1537,27 @@
     "stopRecording": "إيقاف",
     "cancelRecording": "إلغاء",
     "recording": "تسجيل",
-    "transcribing": "تحويل الصوت إلى نص…"
+    "transcribing": "تحويل الصوت إلى نص…",
+    "newChat": "محادثة جديدة",
+    "history": "سجل المحادثات",
+    "search": "بحث في هذه المحادثة",
+    "searchPlaceholder": "ابحث في الرسائل",
+    "searchEmpty": "لا توجد رسائل مطابقة",
+    "untitled": "محادثة جديدة",
+    "clearChat": "مسح هذه المحادثة",
+    "clearChatTitle": "مسح هذه المحادثة؟",
+    "clearChatBody": "ستنسى لون ما تحدثتم عنه هنا. لا يمكن التراجع عن ذلك.",
+    "clearChatConfirm": "مسح",
+    "deleteChat": "حذف المحادثة",
+    "deleteChatTitle": "حذف هذه المحادثة؟",
+    "deleteChatBody": "ستُحذف الرسائل. لا يمكن التراجع عن ذلك.",
+    "deleteChatConfirm": "حذف",
+    "newChatDraftTitle": "بدء محادثة جديدة؟",
+    "newChatDraftBody": "لن يُرسل النص الذي كتبته.",
+    "newChatConfirm": "محادثة جديدة",
+    "cancel": "إلغاء",
+    "historyEmpty": "لا توجد محادثات أخرى بعد",
+    "confirming": "يرجى الانتظار…"
   },
   "lunmeyo": {
     "tabs": {
