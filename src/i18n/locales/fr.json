@@ -1765,6 +1765,7 @@
     },
     "sticker": "Sticker",
     "animation": "Animation",
-    "empty": "Rien pour le moment"
+    "empty": "Rien pour le moment",
+    "removeSticker": "Retirer le sticker"
   }
 }

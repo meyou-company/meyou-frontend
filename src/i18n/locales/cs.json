@@ -1768,6 +1768,7 @@
     },
     "sticker": "Samolepka",
     "animation": "Animace",
-    "empty": "Zatím nic není"
+    "empty": "Zatím nic není",
+    "removeSticker": "Odebrat samolepku"
   }
 }

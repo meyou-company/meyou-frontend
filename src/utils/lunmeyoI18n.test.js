@@ -16,6 +16,7 @@ const keys = [
   ["sticker"],
   ["animation"],
   ["empty"],
+  ["removeSticker"],
 ];
 
 function readKey(obj, path) {

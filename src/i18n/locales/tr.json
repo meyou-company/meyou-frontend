@@ -1765,6 +1765,7 @@
     },
     "sticker": "Çıkartma",
     "animation": "Animasyon",
-    "empty": "Henüz bir şey yok"
+    "empty": "Henüz bir şey yok",
+    "removeSticker": "Çıkartmayı kaldır"
   }
 }

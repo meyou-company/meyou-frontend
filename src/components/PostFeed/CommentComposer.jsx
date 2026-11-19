@@ -1,6 +1,13 @@
 import { useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import EmojiPickerButton from '../EmojiPicker/EmojiPickerButton';
+import LunmeyoDraftChips from '../Lunmeyo/LunmeyoDraftChips';
+import {
+  addLunmeyoComposerSticker,
+  parseLunmeyoComposer,
+  removeLunmeyoComposerSticker,
+  replaceLunmeyoComposerDisplay,
+} from '../../utils/lunmeyoComposer';
 
 export default function CommentComposer({
   value,
@@ -14,6 +21,7 @@ export default function CommentComposer({
 }) {
   const { t } = useTranslation();
   const inputRef = useRef(null);
+  const { displayText, stickerIds } = parseLunmeyoComposer(value);
   const draftTrimmed = (value ?? '').trim();
   const canSend = draftTrimmed.length > 0;
 
@@ -43,12 +51,16 @@ export default function CommentComposer({
 
   return (
     <div className={rootClass}>
+      <LunmeyoDraftChips
+        stickerIds={stickerIds}
+        onRemove={(index) => onChange?.(removeLunmeyoComposerSticker(value, index))}
+      />
       <div className="commentComposer__inputWrapper commentInputWrapper">
         <textarea
           ref={inputRef}
           className="postCommentsSection__input commentComposer__input"
-          value={value ?? ''}
-          onChange={(e) => onChange?.(e.target.value)}
+          value={displayText}
+          onChange={(e) => onChange?.(replaceLunmeyoComposerDisplay(value, e.target.value))}
           onKeyDown={handleKeyDown}
           rows={1}
           placeholder={resolvedPlaceholder}
@@ -57,8 +69,9 @@ export default function CommentComposer({
         <div className="postCommentsSection__inputActions commentComposer__actions">
           <EmojiPickerButton
             inputRef={inputRef}
-            value={value ?? ''}
-            onChange={onChange}
+            value={displayText}
+            onChange={(next) => onChange?.(replaceLunmeyoComposerDisplay(value, next))}
+            onSelectLunmeyo={(item) => onChange?.(addLunmeyoComposerSticker(value, item.id))}
             variant="inline"
             layout="post"
             ariaLabel={t('comments.addEmoji')}

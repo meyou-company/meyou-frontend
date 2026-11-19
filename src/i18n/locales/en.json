@@ -2083,6 +2083,7 @@
     },
     "sticker": "Sticker",
     "animation": "Animation",
-    "empty": "Nothing here yet"
+    "empty": "Nothing here yet",
+    "removeSticker": "Remove sticker"
   }
 }

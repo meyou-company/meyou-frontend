@@ -2,6 +2,13 @@ import { useCallback, useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import profileIcons from "../../constants/profileIcons";
 import EmojiPickerButton from "../EmojiPicker/EmojiPickerButton";
+import LunmeyoDraftChips from "../Lunmeyo/LunmeyoDraftChips";
+import {
+  addLunmeyoComposerSticker,
+  parseLunmeyoComposer,
+  removeLunmeyoComposerSticker,
+  replaceLunmeyoComposerDisplay,
+} from "../../utils/lunmeyoComposer";
 import {
   countPostChars,
   formatPostCharCounter,
@@ -121,12 +128,21 @@ export default function CreatePostModal({
   const overLimit = isPostFullTextTooLong(text);
   const publishEnabled = canPublish && !overLimit;
 
+  const { displayText, stickerIds } = parseLunmeyoComposer(text);
+
   const handleTextChange = useCallback(
     (next) => {
       onTextChange(next);
       requestAnimationFrame(() => syncComposerTextareaHeight(textareaRef?.current));
     },
     [onTextChange, textareaRef]
+  );
+
+  const handleDisplayChange = useCallback(
+    (nextDisplay) => {
+      handleTextChange(replaceLunmeyoComposerDisplay(text, nextDisplay));
+    },
+    [handleTextChange, text]
   );
 
   return (
@@ -173,21 +189,30 @@ export default function CreatePostModal({
             <textarea
               ref={textareaRef}
               className="createPostModal__textarea"
-              value={text}
-              onChange={(e) => handleTextChange(e.target.value)}
+              value={displayText}
+              onChange={(e) => handleDisplayChange(e.target.value)}
               placeholder={resolvedPlaceholder}
               rows={3}
               aria-labelledby="create-post-title"
             />
             <EmojiPickerButton
               inputRef={textareaRef}
-              value={text}
-              onChange={handleTextChange}
+              value={displayText}
+              onChange={handleDisplayChange}
+              onSelectLunmeyo={(item) =>
+                handleTextChange(addLunmeyoComposerSticker(text, item.id))
+              }
               layout="post"
               className="createPostModal__emojiBtn"
               ariaLabel={t('posts.create.addEmoji')}
             />
           </div>
+          <LunmeyoDraftChips
+            stickerIds={stickerIds}
+            onRemove={(index) =>
+              handleTextChange(removeLunmeyoComposerSticker(text, index))
+            }
+          />
           <div className="createPostModal__charRow">
             <span
               className={`createPostModal__charCount${overLimit ? " is-over" : ""}`}
