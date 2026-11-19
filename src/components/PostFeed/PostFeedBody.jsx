@@ -7,6 +7,8 @@ import {
   getPostTextPreview,
   shouldExpandPostText,
 } from "../../utils/postText";
+import { clipLunmeyoSafe } from "../../utils/lunmeyoToken";
+import LunmeyoRichText from "../Lunmeyo/LunmeyoRichText";
 import "./PostFeedBody.scss";
 import "./RepostUi.scss";
 
@@ -21,11 +23,13 @@ export function PostExpandableText({ text, className = "postText" }) {
   if (!raw.trim()) return null;
 
   const canExpand = shouldExpandPostText(raw);
-  const shown = !canExpand || expanded ? raw : getPostTextPreview(raw);
+  const shown = !canExpand || expanded ? raw : clipLunmeyoSafe(getPostTextPreview(raw));
 
   return (
     <div className="postTextExpand">
-      <p className={className}>{shown}</p>
+      <p className={className}>
+        <LunmeyoRichText text={shown} />
+      </p>
       {canExpand ? (
         <button
           type="button"

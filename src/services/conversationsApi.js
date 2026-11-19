@@ -1,4 +1,5 @@
 import { api, apiPath } from './api';
+import { sendMessageBodyForLegacyApi } from '../utils/sendMessageLegacyBody';
 
 function extractList(payload) {
   if (!payload) return [];
@@ -178,18 +179,15 @@ export const conversationsApi = {
       const { data } = await api.post(path, body);
       return data;
     } catch (err) {
-      // Current production API still uses forbidNonWhitelisted and does not
-      // know `clientId`. Retry once without it so a newer frontend can talk
-      // to that API; merge still works by optimistic id.
-      if (
-        body &&
-        typeof body === 'object' &&
-        body.clientId &&
-        err?.response?.status === 400
-      ) {
-        const { clientId: _clientId, ...rest } = body;
-        const { data } = await api.post(path, rest);
-        return data;
+      // Production still uses forbidNonWhitelisted. A newer frontend may send
+      // `clientId` and `metadata` before that API is deployed. Retry once
+      // without those fields; sticker IDs remain in `text` as ::lunmeyo:id::.
+      if (err?.response?.status === 400) {
+        const legacyBody = sendMessageBodyForLegacyApi(body);
+        if (legacyBody) {
+          const { data } = await api.post(path, legacyBody);
+          return data;
+        }
       }
       throw err;
     }

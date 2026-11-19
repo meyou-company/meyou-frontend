@@ -107,6 +107,24 @@ html[data-theme='dark'] {
   color: #fff;
 }
 
+.msgBubble--sticker {
+  background: transparent;
+  box-shadow: none;
+  padding: 2px 4px 4px;
+}
+
+.msgBubble--theirs.msgBubble--sticker,
+.msgBubble--mine.msgBubble--sticker {
+  background: transparent;
+  color: inherit;
+}
+
+.msgBubble--mine.msgBubble--sticker .msgBubble__time,
+.msgBubble--mine.msgBubble--sticker .msgBubble__checks,
+.msgBubble--mine.msgBubble--sticker .msgBubble__edited {
+  color: #65676b;
+}
+
 .msgBubble__reply {
   margin-bottom: 8px;
   padding: 8px 10px;

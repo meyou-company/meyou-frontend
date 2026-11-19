@@ -2,6 +2,18 @@ import { useTranslation } from "react-i18next";
 import { forwardRef, useEffect, useMemo, useRef, useState } from "react";
 import { REACTIONS } from "./LiveStage";
 import profileIcons from "../../constants/profileIcons";
+import EmojiPickerButton from "../EmojiPicker/EmojiPickerButton";
+import LunmeyoDraftChips from "../Lunmeyo/LunmeyoDraftChips";
+import LunmeyoRichText from "../Lunmeyo/LunmeyoRichText";
+import {
+  addLunmeyoComposerSticker,
+  clampLunmeyoComposer,
+  parseLunmeyoComposer,
+  removeLunmeyoComposerSticker,
+  replaceLunmeyoComposerDisplay,
+} from "../../utils/lunmeyoComposer";
+
+const LIVE_DRAFT_MAX = 300;
 
 const LiveChat = forwardRef(function LiveChat(
   {
@@ -116,8 +128,24 @@ const LiveChat = forwardRef(function LiveChat(
   };
 
   const handleInsertReaction = (reaction) => {
-    setValue((current) => `${current}${reaction.value}`.slice(0, 300));
+    setValue((current) => {
+      const { displayText: draft } = parseLunmeyoComposer(current);
+      return clampLunmeyoComposer(
+        replaceLunmeyoComposerDisplay(current, `${draft}${reaction.value}`),
+        LIVE_DRAFT_MAX,
+      );
+    });
     window.requestAnimationFrame(() => inputRef.current?.focus());
+  };
+
+  const { displayText, stickerIds } = parseLunmeyoComposer(value);
+  const commitLiveDisplay = (nextDisplay) => {
+    setValue(
+      clampLunmeyoComposer(
+        replaceLunmeyoComposerDisplay(value, nextDisplay),
+        LIVE_DRAFT_MAX,
+      ),
+    );
   };
 
   const renderMessage = (message) => (
@@ -144,7 +172,7 @@ const LiveChat = forwardRef(function LiveChat(
         >
           {message.authorName}
         </button>
-        <p>{message.text}</p>
+        <p><LunmeyoRichText text={message.text} /></p>
       </div>
 
       {isOwner && (
@@ -253,17 +281,44 @@ const LiveChat = forwardRef(function LiveChat(
       </div>
 
       <footer className="liveChat__footer">
+        {!isEnded ? (
+          <LunmeyoDraftChips
+            stickerIds={stickerIds}
+            onRemove={(index) =>
+              setValue(removeLunmeyoComposerSticker(value, index))
+            }
+          />
+        ) : null}
         <form className="liveChat__composer" onSubmit={handleSubmit}>
           <img src={currentUser.avatar} alt="" />
           <input
             ref={inputRef}
-            value={value}
-            onChange={(event) => setValue(event.target.value)}
+            value={displayText}
+            onChange={(event) => commitLiveDisplay(event.target.value)}
             placeholder={isEnded ? t("live.ended") : t("live.writeMessage")}
-            maxLength={300}
+            maxLength={LIVE_DRAFT_MAX}
             disabled={isEnded}
             aria-label={t("live.chatMessage")}
           />
+          {!isEnded ? (
+            <EmojiPickerButton
+              inputRef={inputRef}
+              value={displayText}
+              onChange={commitLiveDisplay}
+              onSelectLunmeyo={(item) =>
+                setValue(
+                  clampLunmeyoComposer(
+                    addLunmeyoComposerSticker(value, item.id),
+                    LIVE_DRAFT_MAX,
+                  ),
+                )
+              }
+              variant="inline"
+              layout="post"
+              className="liveChat__emoji"
+              ariaLabel={t("posts.create.addEmoji")}
+            />
+          ) : null}
           <button
             type="submit"
             disabled={!value.trim() || isEnded}

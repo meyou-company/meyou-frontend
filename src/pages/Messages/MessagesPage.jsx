@@ -907,7 +907,8 @@ export default function MessagesPage() {
 
     const hasText = Boolean(payload?.text?.trim());
     const hasAttachments = Array.isArray(payload?.attachments) && payload.attachments.length > 0;
-    if (!hasText && !hasAttachments) return;
+    const hasLunmeyo = Boolean(payload?.metadata?.lunmeyoStickerId);
+    if (!hasText && !hasAttachments && !hasLunmeyo) return;
 
     const clientId = createClientId();
     const replySnapshot = replyTo;

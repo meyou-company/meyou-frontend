@@ -22,6 +22,20 @@ describe('optimistic chat messages', () => {
     assert.equal(isOptimisticMessageId('server-id'), false);
   });
 
+  it('keeps LUNMEYO sticker metadata on the optimistic row', () => {
+    const optimistic = createOptimisticMessage({
+      clientId: 'sticker',
+      conversationId: 'conv-1',
+      senderId: 'me',
+      payload: {
+        type: 'TEXT',
+        text: '::lunmeyo:lun-happy::',
+        metadata: { lunmeyoStickerId: 'lun-happy' },
+      },
+    });
+    assert.deepEqual(optimistic.metadata, { lunmeyoStickerId: 'lun-happy' });
+  });
+
   it('replaces the optimistic row with the persisted message and drops duplicates', () => {
     const optimistic = createOptimisticMessage({
       clientId: 'abc',

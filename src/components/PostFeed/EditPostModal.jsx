@@ -2,6 +2,13 @@ import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import EmojiPickerButton from "../EmojiPicker/EmojiPickerButton";
+import LunmeyoDraftChips from "../Lunmeyo/LunmeyoDraftChips";
+import {
+  addLunmeyoComposerSticker,
+  parseLunmeyoComposer,
+  removeLunmeyoComposerSticker,
+  replaceLunmeyoComposerDisplay,
+} from "../../utils/lunmeyoComposer";
 import profileIcons from "../../constants/profileIcons";
 import {
   isPostImageUploadEnabled,
@@ -178,6 +185,8 @@ export default function EditPostModal({
     }
   };
 
+  const { displayText, stickerIds } = parseLunmeyoComposer(text);
+
   return (
     <div
       className="editPostModalOverlay"
@@ -213,20 +222,25 @@ export default function EditPostModal({
           <textarea
             ref={textareaRef}
             className="editPostModal__textarea"
-            value={text}
-            onChange={(e) => setText(e.target.value)}
+            value={displayText}
+            onChange={(e) => setText(replaceLunmeyoComposerDisplay(text, e.target.value))}
             placeholder={t('posts.edit.textPlaceholder')}
             rows={4}
           />
           <EmojiPickerButton
             inputRef={textareaRef}
-            value={text}
-            onChange={setText}
+            value={displayText}
+            onChange={(next) => setText(replaceLunmeyoComposerDisplay(text, next))}
+            onSelectLunmeyo={(item) => setText(addLunmeyoComposerSticker(text, item.id))}
             layout="post"
             className="editPostModal__emojiBtn"
             ariaLabel={t('posts.edit.addEmoji')}
           />
         </div>
+        <LunmeyoDraftChips
+          stickerIds={stickerIds}
+          onRemove={(index) => setText(removeLunmeyoComposerSticker(text, index))}
+        />
         <div className="editPostModal__charRow">
           <span
             className={`editPostModal__charCount${isPostFullTextTooLong(text) ? " is-over" : ""}`}

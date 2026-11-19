@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 
 import { formatTime } from '../../utils/utils';
 import { getNotificationDate } from '../../utils/getNotificationDate';
+import { replaceLunmeyoTokensForPreview } from '../../utils/lunmeyoToken';
 import { useFollowingStore } from '../../zustand/useFollowingStore';
 import { useFeedbackStore } from '../../zustand/useFeedbackStore';
 
@@ -104,7 +105,9 @@ export default function NotificationItem({ item, onRead }) {
               {t('notifications.messages.feedbackReplyBody')}
             </p>
           ) : item.previewText ? (
-            <p className="notification__comment">“{item.previewText}”</p>
+            <p className="notification__comment">
+              “{replaceLunmeyoTokensForPreview(item.previewText, t('lunmeyo.sticker')) || item.previewText}”
+            </p>
           ) : null}
 
           <span className="notification__time">{formatTime(getNotificationDate(item), t)}</span>

@@ -1537,5 +1537,21 @@
     "cancelRecording": "إلغاء",
     "recording": "تسجيل",
     "transcribing": "تحويل الصوت إلى نص…"
+  },
+  "lunmeyo": {
+    "tabs": {
+      "emoji": "إيموجي",
+      "stickers": "ملصقات",
+      "animations": "رسوم متحركة"
+    },
+    "charactersLabel": "الشخصية",
+    "characters": {
+      "lun": "لون",
+      "round": "المستدير"
+    },
+    "sticker": "ملصق",
+    "animation": "رسم متحرك",
+    "empty": "لا يوجد شيء بعد",
+    "removeSticker": "إزالة الملصق"
   }
 }

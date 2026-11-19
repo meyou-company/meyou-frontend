@@ -1,0 +1,43 @@
+.lunmeyoMedia {
+  display: block;
+  object-fit: contain;
+  background: transparent;
+  border: 0;
+}
+
+.lunmeyoMedia--picker {
+  width: 64px;
+  height: 64px;
+}
+
+.lunmeyoMedia--inline {
+  width: 72px;
+  height: 72px;
+  vertical-align: middle;
+}
+
+.lunmeyoMedia--message.lunmeyoMedia--png {
+  width: 132px;
+  height: 132px;
+}
+
+.lunmeyoMedia--picker.lunmeyoMedia--mp4,
+.lunmeyoMedia--inline.lunmeyoMedia--mp4 {
+  border-radius: 12px;
+}
+
+.lunmeyoMedia--message.lunmeyoMedia--mp4 {
+  width: 172px;
+  height: 172px;
+  border-radius: 16px;
+}
+
+.lunmeyoRichText {
+  display: inline;
+}
+
+.lunmeyoRichText__sticker {
+  display: inline-block;
+  margin: 0 2px;
+  vertical-align: middle;
+}

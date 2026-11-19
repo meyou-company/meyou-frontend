@@ -6,9 +6,12 @@ import {
   useState,
 } from "react";
 import { createPortal } from "react-dom";
+import { useTranslation } from "react-i18next";
 import EmojiPicker, { Theme } from "emoji-picker-react";
 import { useThemeStore } from "../../zustand/useThemeStore";
 import { insertEmojiAtCursor } from "../../utils/insertEmojiAtCursor";
+import { toLunmeyoToken } from "../../utils/lunmeyoToken";
+import LunmeyoPickerPanel from "../Lunmeyo/LunmeyoPickerPanel";
 import "./EmojiPickerButton.scss";
 
 const MOBILE_MAX = 768;
@@ -78,11 +81,18 @@ function computeDesktopPosition(triggerRect) {
   return { top, left, width, height, placement };
 }
 
-function getMobilePickerSize() {
-  const vw = window.innerWidth;
-  const vh = window.innerHeight;
-  const maxHeight = Math.floor(vh * 0.45);
-  return { width: vw, height: maxHeight };
+function getMobilePickerLayout() {
+  const vv = window.visualViewport;
+  const vw = Math.round(vv?.width ?? window.innerWidth);
+  const vh = Math.round(vv?.height ?? window.innerHeight);
+  const keyboardInset = Math.max(
+    0,
+    Math.round(
+      window.innerHeight - (vv ? vv.height + vv.offsetTop : window.innerHeight),
+    ),
+  );
+  const height = Math.min(Math.max(220, Math.floor(vh * 0.42)), 360);
+  return { width: vw, height, bottom: keyboardInset };
 }
 
 /**
@@ -102,8 +112,12 @@ export default function EmojiPickerButton({
   layout = "anchored",
   popoverContainerRef,
   closeOnSelect = false,
+  enableLunmeyo = true,
+  onSelectLunmeyo,
 }) {
   const [open, setOpen] = useState(false);
+  const [tab, setTab] = useState("emoji");
+  const { t } = useTranslation();
   const [desktopCoords, setDesktopCoords] = useState({
     top: 0,
     left: 0,
@@ -111,7 +125,11 @@ export default function EmojiPickerButton({
     height: DESKTOP_MAX_HEIGHT,
     placement: "above",
   });
-  const [mobileSize, setMobileSize] = useState(() => getMobilePickerSize());
+  const [mobileLayout, setMobileLayout] = useState(() =>
+    typeof window === "undefined"
+      ? { width: 320, height: 280, bottom: 0 }
+      : getMobilePickerLayout(),
+  );
   const [positionReady, setPositionReady] = useState(false);
 
   const wrapRef = useRef(null);
@@ -129,7 +147,7 @@ export default function EmojiPickerButton({
   const updatePosition = useCallback(() => {
     if (!usesPortalLayout) return;
     if (isMobile) {
-      setMobileSize(getMobilePickerSize());
+      setMobileLayout(getMobilePickerLayout());
       return;
     }
     const trigger = wrapRef.current?.querySelector(".emoji-picker-btn__trigger");
@@ -154,9 +172,13 @@ export default function EmojiPickerButton({
     const onReposition = () => updatePosition();
     window.addEventListener("resize", onReposition);
     window.addEventListener("scroll", onReposition, true);
+    window.visualViewport?.addEventListener("resize", onReposition);
+    window.visualViewport?.addEventListener("scroll", onReposition);
     return () => {
       window.removeEventListener("resize", onReposition);
       window.removeEventListener("scroll", onReposition, true);
+      window.visualViewport?.removeEventListener("resize", onReposition);
+      window.visualViewport?.removeEventListener("scroll", onReposition);
     };
   }, [open, updatePosition, usesPortalLayout]);
 
@@ -232,6 +254,28 @@ export default function EmojiPickerButton({
     [value, onChange, inputRef, closeOnSelect],
   );
 
+  const handleLunmeyoSelect = useCallback(
+    (item) => {
+      if (!item?.id) return;
+      if (typeof onSelectLunmeyo === "function") {
+        onSelectLunmeyo(item);
+        setOpen(false);
+        return;
+      }
+      if (typeof onChange !== "function") return;
+      const token = toLunmeyoToken(item.id);
+      const { nextValue, selectionStart } = insertEmojiAtCursor(
+        value,
+        token,
+        inputRef?.current,
+      );
+      pendingSelection.current = selectionStart;
+      onChange(nextValue);
+      if (closeOnSelect) setOpen(false);
+    },
+    [onSelectLunmeyo, onChange, value, inputRef, closeOnSelect],
+  );
+
   const closePicker = useCallback(() => setOpen(false), []);
 
   const toggleOpen = (e) => {
@@ -247,14 +291,65 @@ export default function EmojiPickerButton({
 
   const pickerWidth = usesPortalLayout
     ? isMobile
-      ? mobileSize.width
+      ? mobileLayout.width
       : desktopCoords.width
     : 300;
   const pickerHeight = usesPortalLayout
     ? isMobile
-      ? mobileSize.height
+      ? mobileLayout.height
       : desktopCoords.height
     : 360;
+
+  const pickerBody = (
+    <div className={`emoji-picker-btn__body${enableLunmeyo ? " has-lunmeyo" : ""}`}>
+      {enableLunmeyo ? (
+        <div className="emoji-picker-btn__tabs" role="tablist">
+          <button
+            type="button"
+            role="tab"
+            className={tab === "emoji" ? "is-on" : ""}
+            aria-selected={tab === "emoji"}
+            onClick={() => setTab("emoji")}
+          >
+            {t("lunmeyo.tabs.emoji")}
+          </button>
+          <button
+            type="button"
+            role="tab"
+            className={tab === "stickers" ? "is-on" : ""}
+            aria-selected={tab === "stickers"}
+            onClick={() => setTab("stickers")}
+          >
+            {t("lunmeyo.tabs.stickers")}
+          </button>
+          <button
+            type="button"
+            role="tab"
+            className={tab === "anims" ? "is-on" : ""}
+            aria-selected={tab === "anims"}
+            onClick={() => setTab("anims")}
+          >
+            {t("lunmeyo.tabs.animations")}
+          </button>
+        </div>
+      ) : null}
+      {tab === "stickers" && enableLunmeyo ? (
+        <LunmeyoPickerPanel type="png" onSelect={handleLunmeyoSelect} />
+      ) : tab === "anims" && enableLunmeyo ? (
+        <LunmeyoPickerPanel type="mp4" onSelect={handleLunmeyoSelect} />
+      ) : (
+        <EmojiPicker
+          onEmojiClick={handleEmojiClick}
+          theme={pickerTheme}
+          lazyLoadEmojis
+          searchPlaceholder="Пошук…"
+          previewConfig={{ showPreview: false }}
+          width={pickerWidth}
+          height={enableLunmeyo ? Math.max(220, pickerHeight - 44) : pickerHeight}
+        />
+      )}
+    </div>
+  );
 
   const postPortalContent =
     usesPortalLayout && open && getPortalRoot()
@@ -282,7 +377,16 @@ export default function EmojiPickerButton({
                 .join(" ")}
               style={
                 isMobile
-                  ? { zIndex: Z_INDEX_PICKER }
+                  ? {
+                      zIndex: Z_INDEX_PICKER,
+                      height: mobileLayout.height,
+                      maxHeight: mobileLayout.height,
+                      bottom: mobileLayout.bottom,
+                      paddingBottom:
+                        mobileLayout.bottom > 0
+                          ? 0
+                          : "env(safe-area-inset-bottom, 0px)",
+                    }
                   : {
                       position: "fixed",
                       top: desktopCoords.top,
@@ -298,15 +402,7 @@ export default function EmojiPickerButton({
               onMouseDown={(e) => e.stopPropagation()}
               onClick={(e) => e.stopPropagation()}
             >
-              <EmojiPicker
-                onEmojiClick={handleEmojiClick}
-                theme={pickerTheme}
-                lazyLoadEmojis
-                searchPlaceholder="Пошук…"
-                previewConfig={{ showPreview: false }}
-                width={pickerWidth}
-                height={pickerHeight}
-              />
+              {pickerBody}
             </div>
           </>,
           getPortalRoot(),
@@ -328,15 +424,7 @@ export default function EmojiPickerButton({
         aria-label="Вибір емодзі"
         onMouseDown={(e) => e.stopPropagation()}
       >
-        <EmojiPicker
-          onEmojiClick={handleEmojiClick}
-          theme={pickerTheme}
-          lazyLoadEmojis
-          searchPlaceholder="Пошук…"
-          previewConfig={{ showPreview: false }}
-          width={pickerWidth}
-          height={pickerHeight}
-        />
+        {pickerBody}
       </div>
     ) : null;
 

@@ -920,7 +920,7 @@
 .liveChat__composer {
   height: 52px;
   display: grid;
-  grid-template-columns: 38px minmax(0, 1fr) 36px;
+  grid-template-columns: 38px minmax(0, 1fr) 36px 36px;
   align-items: center;
   gap: 8px;
   padding: 6px;
@@ -966,6 +966,18 @@
       cursor: default;
     }
   }
+}
+
+.liveChat__composer .liveChat__emoji,
+.liveChat__composer .emoji-picker-btn {
+  width: auto;
+  height: auto;
+}
+
+.liveChat__composer .emoji-picker-btn__trigger {
+  width: 32px;
+  height: 32px;
+  font-size: 18px;
 }
 
 .liveChat__quickReactions {
@@ -1392,7 +1404,7 @@
     width: 100%;
     min-height: 52px;
     height: auto;
-    grid-template-columns: 40px minmax(0, 1fr) 44px;
+    grid-template-columns: 40px minmax(0, 1fr) 44px 44px;
     gap: 10px;
     padding: 6px 8px;
 

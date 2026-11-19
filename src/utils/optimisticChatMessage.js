@@ -48,7 +48,7 @@ export function createOptimisticMessage({
     senderId,
     type: payload?.type || 'TEXT',
     text: payload?.text || '',
-    metadata: null,
+    metadata: payload?.metadata ?? null,
     replyToMessageId: replyTo?.id ?? null,
     replyTo: replyTo
       ? {

@@ -1751,5 +1751,21 @@
     "cancelRecording": "İptal",
     "recording": "Kayıt",
     "transcribing": "Ses yazıya dönüştürülüyor…"
+  },
+  "lunmeyo": {
+    "tabs": {
+      "emoji": "Emoji",
+      "stickers": "Çıkartmalar",
+      "animations": "Animasyonlar"
+    },
+    "charactersLabel": "Karakter",
+    "characters": {
+      "lun": "Lun",
+      "round": "Yuvarlak"
+    },
+    "sticker": "Çıkartma",
+    "animation": "Animasyon",
+    "empty": "Henüz bir şey yok",
+    "removeSticker": "Çıkartmayı kaldır"
   }
 }
