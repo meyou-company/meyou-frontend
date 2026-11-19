@@ -1418,7 +1418,8 @@
     "LUNA_IMAGE_INVALID": "Use a JPEG, PNG, or WebP photo up to 4 MB.",
     "LUNA_IMAGE_TOO_LARGE": "That photo is too large. Use a file up to 4 MB.",
     "LUNA_AUDIO_INVALID": "Could not use that recording. Check the microphone permission and try again.",
-    "LUNA_AUDIO_TOO_LONG": "Voice notes can be at most 60 seconds."
+    "LUNA_AUDIO_TOO_LONG": "Voice notes can be at most 60 seconds.",
+    "LUNA_CONVERSATION_NOT_FOUND": "This Lun conversation was not found."
   },
   "gifts": {
     "title": "Gifts",
@@ -2068,7 +2069,27 @@
     "stopRecording": "Stop",
     "cancelRecording": "Cancel",
     "recording": "Recording",
-    "transcribing": "Turning speech into text…"
+    "transcribing": "Turning speech into text…",
+    "newChat": "New chat",
+    "history": "Chat history",
+    "search": "Search this chat",
+    "searchPlaceholder": "Search messages",
+    "searchEmpty": "No matching messages",
+    "untitled": "New chat",
+    "clearChat": "Clear this chat",
+    "clearChatTitle": "Clear this conversation?",
+    "clearChatBody": "Lun will forget what you talked about here. This cannot be undone.",
+    "clearChatConfirm": "Clear",
+    "deleteChat": "Delete chat",
+    "deleteChatTitle": "Delete this conversation?",
+    "deleteChatBody": "The messages will be removed. This cannot be undone.",
+    "deleteChatConfirm": "Delete",
+    "newChatDraftTitle": "Start a new conversation?",
+    "newChatDraftBody": "The text you typed will not be sent.",
+    "newChatConfirm": "Start new chat",
+    "cancel": "Cancel",
+    "historyEmpty": "No other chats yet",
+    "confirming": "Working…"
   },
   "lunmeyo": {
     "tabs": {

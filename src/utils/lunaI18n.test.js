@@ -31,6 +31,26 @@ const lunaKeys = [
   "cancelRecording",
   "recording",
   "transcribing",
+  "newChat",
+  "history",
+  "search",
+  "searchPlaceholder",
+  "searchEmpty",
+  "untitled",
+  "clearChat",
+  "clearChatTitle",
+  "clearChatBody",
+  "clearChatConfirm",
+  "deleteChat",
+  "deleteChatTitle",
+  "deleteChatBody",
+  "deleteChatConfirm",
+  "newChatDraftTitle",
+  "newChatDraftBody",
+  "newChatConfirm",
+  "cancel",
+  "historyEmpty",
+  "confirming",
 ];
 const errorKeys = [
   "LUNA_MESSAGE_EMPTY",
@@ -45,6 +65,7 @@ const errorKeys = [
   "LUNA_IMAGE_TOO_LARGE",
   "LUNA_AUDIO_INVALID",
   "LUNA_AUDIO_TOO_LONG",
+  "LUNA_CONVERSATION_NOT_FOUND",
 ];
 
 describe("luna i18n", () => {

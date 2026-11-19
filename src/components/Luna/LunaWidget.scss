@@ -69,6 +69,7 @@
 }
 
 .lunaPanel {
+  position: relative;
   --luna-bg: #1c1230;
   --luna-bg-soft: #26183f;
   --luna-line: rgba(196, 164, 255, 0.16);
@@ -189,6 +190,169 @@
 
 .lunaPanel__menuList button:hover {
   background: rgba(170, 121, 244, 0.16);
+}
+
+.lunaTurn.is-highlight .lunaBubble {
+  outline: 2px solid var(--luna-accent);
+}
+
+.lunaSheet {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  top: 64px;
+  z-index: 6;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  background: var(--luna-bg);
+  border-top: 1px solid var(--luna-line);
+}
+
+.lunaSheet__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 10px 12px;
+  flex-shrink: 0;
+}
+
+.lunaSheet__head strong {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.lunaSheet__head button,
+.lunaSheet__delete {
+  border: 0;
+  background: transparent;
+  color: inherit;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.lunaSheet__head button:hover,
+.lunaSheet__delete:hover {
+  background: rgba(170, 121, 244, 0.16);
+}
+
+.lunaSheet__search {
+  margin: 0 12px 8px;
+  border: 1px solid var(--luna-line);
+  border-radius: 12px;
+  background: var(--luna-bg-soft);
+  color: inherit;
+  padding: 10px 12px;
+}
+
+.lunaSheet__empty {
+  margin: 12px;
+  color: var(--luna-muted);
+}
+
+.lunaSheet__list {
+  list-style: none;
+  margin: 0;
+  padding: 0 8px 16px;
+  overflow: auto;
+  min-height: 0;
+}
+
+.lunaSheet__list li {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  border-radius: 12px;
+}
+
+.lunaSheet__list li.is-active {
+  background: rgba(170, 121, 244, 0.16);
+}
+
+.lunaSheet__item {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  text-align: left;
+  padding: 10px 8px;
+  border-radius: 12px;
+  cursor: pointer;
+}
+
+.lunaSheet__item span,
+.lunaSheet__item small {
+  display: block;
+}
+
+.lunaSheet__item span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.lunaSheet__item small {
+  color: var(--luna-muted);
+  font-size: 11px;
+  margin-top: 2px;
+}
+
+.lunaConfirm {
+  position: absolute;
+  inset: 0;
+  z-index: 8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(8, 4, 16, 0.55);
+}
+
+.lunaConfirm__card {
+  width: min(100%, 340px);
+  border-radius: 16px;
+  padding: 18px 16px 14px;
+  background: #2a1b46;
+  border: 1px solid var(--luna-line);
+  box-shadow: 0 16px 40px rgba(8, 4, 16, 0.45);
+}
+
+.lunaConfirm__title {
+  margin: 0 0 8px;
+  font-weight: 700;
+}
+
+.lunaConfirm__body {
+  margin: 0 0 16px;
+  color: var(--luna-muted);
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.lunaConfirm__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.lunaConfirm__actions button {
+  border: 0;
+  border-radius: 10px;
+  padding: 8px 12px;
+  cursor: pointer;
+  background: transparent;
+  color: inherit;
+}
+
+.lunaConfirm__danger {
+  background: #a21c4b !important;
+  color: #fff !important;
 }
 
 .lunaDemo {

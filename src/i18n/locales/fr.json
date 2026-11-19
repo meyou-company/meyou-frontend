@@ -1101,7 +1101,8 @@
     "LUNA_IMAGE_INVALID": "Envoyez un JPEG, PNG ou WebP de 4 Mo maximum.",
     "LUNA_IMAGE_TOO_LARGE": "Photo trop lourde. Maximum 4 Mo.",
     "LUNA_AUDIO_INVALID": "Enregistrement inutilisable. Vérifiez le micro.",
-    "LUNA_AUDIO_TOO_LONG": "Les messages vocaux durent 60 secondes maximum."
+    "LUNA_AUDIO_TOO_LONG": "Les messages vocaux durent 60 secondes maximum.",
+    "LUNA_CONVERSATION_NOT_FOUND": "Cette conversation Lun est introuvable."
   },
   "gifts": {
     "title": "Cadeaux",
@@ -1750,7 +1751,27 @@
     "stopRecording": "Stop",
     "cancelRecording": "Annuler",
     "recording": "Enregistrement",
-    "transcribing": "Conversion de la voix en texte…"
+    "transcribing": "Conversion de la voix en texte…",
+    "newChat": "Nouvelle discussion",
+    "history": "Historique",
+    "search": "Rechercher dans la discussion",
+    "searchPlaceholder": "Rechercher des messages",
+    "searchEmpty": "Aucun message trouvé",
+    "untitled": "Nouvelle discussion",
+    "clearChat": "Effacer cette discussion",
+    "clearChatTitle": "Effacer cette conversation ?",
+    "clearChatBody": "Lun oubliera ce dont vous avez parlé ici. Cette action est irréversible.",
+    "clearChatConfirm": "Effacer",
+    "deleteChat": "Supprimer la discussion",
+    "deleteChatTitle": "Supprimer cette conversation ?",
+    "deleteChatBody": "Les messages seront supprimés. Cette action est irréversible.",
+    "deleteChatConfirm": "Supprimer",
+    "newChatDraftTitle": "Commencer une nouvelle conversation ?",
+    "newChatDraftBody": "Le texte saisi ne sera pas envoyé.",
+    "newChatConfirm": "Nouvelle discussion",
+    "cancel": "Annuler",
+    "historyEmpty": "Pas encore d’autres discussions",
+    "confirming": "Patientez…"
   },
   "lunmeyo": {
     "tabs": {

@@ -1101,7 +1101,8 @@
     "LUNA_IMAGE_INVALID": "En fazla 4 MB JPEG, PNG veya WebP gönder.",
     "LUNA_IMAGE_TOO_LARGE": "Fotoğraf çok büyük. Azami 4 MB.",
     "LUNA_AUDIO_INVALID": "Kayıt kullanılamadı. Mikrofon iznini kontrol et.",
-    "LUNA_AUDIO_TOO_LONG": "Sesli mesaj en fazla 60 saniye olabilir."
+    "LUNA_AUDIO_TOO_LONG": "Sesli mesaj en fazla 60 saniye olabilir.",
+    "LUNA_CONVERSATION_NOT_FOUND": "Bu Lun sohbeti bulunamadı."
   },
   "gifts": {
     "title": "Hediyeler",
@@ -1750,7 +1751,27 @@
     "stopRecording": "Durdur",
     "cancelRecording": "İptal",
     "recording": "Kayıt",
-    "transcribing": "Ses yazıya dönüştürülüyor…"
+    "transcribing": "Ses yazıya dönüştürülüyor…",
+    "newChat": "Yeni sohbet",
+    "history": "Sohbet geçmişi",
+    "search": "Bu sohbette ara",
+    "searchPlaceholder": "Mesaj ara",
+    "searchEmpty": "Eşleşen mesaj yok",
+    "untitled": "Yeni sohbet",
+    "clearChat": "Bu sohbeti temizle",
+    "clearChatTitle": "Bu sohbet temizlensin mi?",
+    "clearChatBody": "Lun burada konuştuklarınızı unutacak. Bu işlem geri alınamaz.",
+    "clearChatConfirm": "Temizle",
+    "deleteChat": "Sohbeti sil",
+    "deleteChatTitle": "Bu sohbet silinsin mi?",
+    "deleteChatBody": "Mesajlar kaldırılacak. Bu işlem geri alınamaz.",
+    "deleteChatConfirm": "Sil",
+    "newChatDraftTitle": "Yeni bir sohbet başlatılsın mı?",
+    "newChatDraftBody": "Yazdığın metin gönderilmeyecek.",
+    "newChatConfirm": "Yeni sohbet",
+    "cancel": "İptal",
+    "historyEmpty": "Henüz başka sohbet yok",
+    "confirming": "Lütfen bekle…"
   },
   "lunmeyo": {
     "tabs": {

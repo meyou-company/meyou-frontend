@@ -41,6 +41,7 @@ const MESSAGE_CODE_HINTS = [
   { pattern: /^LUNA_IMAGE_TOO_LARGE$/i, code: 'LUNA_IMAGE_TOO_LARGE' },
   { pattern: /^LUNA_AUDIO_INVALID$/i, code: 'LUNA_AUDIO_INVALID' },
   { pattern: /^LUNA_AUDIO_TOO_LONG$/i, code: 'LUNA_AUDIO_TOO_LONG' },
+  { pattern: /^LUNA_CONVERSATION_NOT_FOUND$/i, code: 'LUNA_CONVERSATION_NOT_FOUND' },
   { pattern: /название города|назва міста/i, code: 'CITY_NAME_INVALID' },
 ];
 

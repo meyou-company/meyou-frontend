@@ -1418,7 +1418,8 @@
     "LUNA_IMAGE_INVALID": "Надішліть JPEG, PNG або WebP до 4 МБ.",
     "LUNA_IMAGE_TOO_LARGE": "Фото завелике. Максимум 4 МБ.",
     "LUNA_AUDIO_INVALID": "Не вдалося використати запис. Перевірте дозвіл мікрофона.",
-    "LUNA_AUDIO_TOO_LONG": "Голосове повідомлення може тривати до 60 секунд."
+    "LUNA_AUDIO_TOO_LONG": "Голосове повідомлення може тривати до 60 секунд.",
+    "LUNA_CONVERSATION_NOT_FOUND": "Цю розмову Луна не знайдено."
   },
   "gifts": {
     "title": "Подарунки",
@@ -2075,7 +2076,27 @@
     "stopRecording": "Стоп",
     "cancelRecording": "Скасувати",
     "recording": "Запис",
-    "transcribing": "Розпізнаю голос…"
+    "transcribing": "Розпізнаю голос…",
+    "newChat": "Нова розмова",
+    "history": "Історія розмов",
+    "search": "Пошук у розмові",
+    "searchPlaceholder": "Шукати повідомлення",
+    "searchEmpty": "Нічого не знайдено",
+    "untitled": "Нова розмова",
+    "clearChat": "Очистити цю розмову",
+    "clearChatTitle": "Очистити цю розмову?",
+    "clearChatBody": "Лун забуде, про що ви говорили тут. Цю дію не можна скасувати.",
+    "clearChatConfirm": "Очистити",
+    "deleteChat": "Видалити розмову",
+    "deleteChatTitle": "Видалити цю розмову?",
+    "deleteChatBody": "Повідомлення буде видалено. Цю дію не можна скасувати.",
+    "deleteChatConfirm": "Видалити",
+    "newChatDraftTitle": "Почати нову розмову?",
+    "newChatDraftBody": "Введений текст не буде надіслано.",
+    "newChatConfirm": "Нова розмова",
+    "cancel": "Скасувати",
+    "historyEmpty": "Інших розмов ще немає",
+    "confirming": "Зачекайте…"
   },
   "lunmeyo": {
     "tabs": {
