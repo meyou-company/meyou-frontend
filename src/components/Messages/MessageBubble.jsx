@@ -80,7 +80,7 @@ function MessageText({ text }) {
         {lunmeyoParts.map((part, index) =>
           part.type === 'sticker' ? (
             <span key={`${part.id}-${index}`} className="lunmeyoRichText__sticker">
-              <LunmeyoMedia itemId={part.id} size="inline" />
+              <LunmeyoMedia itemId={part.id} size="message" />
             </span>
           ) : (
             <span key={`t-${index}`}>{renderEmojiText(part.value, `t${index}`)}</span>

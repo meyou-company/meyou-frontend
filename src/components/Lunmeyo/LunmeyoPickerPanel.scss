@@ -10,17 +10,18 @@
 .lunmeyoPicker__chars {
   display: flex;
   gap: 8px;
-  padding: 8px 10px 4px;
+  padding: 10px 12px 6px;
   flex-shrink: 0;
 }
 
 .lunmeyoPicker__chars button {
   border: 0;
   border-radius: 999px;
-  padding: 6px 12px;
-  font-size: 12px;
+  min-height: 36px;
+  padding: 6px 14px;
+  font-size: 13px;
   font-weight: 600;
-  background: rgba(127, 90, 240, 0.12);
+  background: rgba(124, 58, 237, 0.12);
   color: inherit;
   cursor: pointer;
 }
@@ -32,13 +33,22 @@
 
 .lunmeyoPicker__grid {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 6px;
-  padding: 8px 10px 12px;
+  gap: 10px;
+  padding: 8px 12px 16px;
   overflow-y: auto;
+  overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
-  min-height: 220px;
+  min-height: 0;
   flex: 1;
+}
+
+.lunmeyoPicker--png .lunmeyoPicker__grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.lunmeyoPicker--mp4 .lunmeyoPicker__grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
 }
 
 .lunmeyoPicker__empty {
@@ -53,11 +63,18 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 4px;
+  min-width: 0;
+  min-height: 88px;
+  padding: 8px;
   border: 0;
-  border-radius: 12px;
-  background: transparent;
+  border-radius: 16px;
+  background: rgba(124, 58, 237, 0.04);
   cursor: pointer;
+}
+
+.lunmeyoPicker--mp4 .lunmeyoPicker__cell {
+  min-height: 120px;
+  padding: 10px;
 }
 
 .lunmeyoPicker__cell .lunmeyoMedia {
@@ -74,4 +91,30 @@ body.dark .lunmeyoPicker__chars button,
 html[data-theme="dark"] .lunmeyoPicker__chars button {
   background: rgba(196, 181, 253, 0.16);
   color: #f5f3ff;
+}
+
+body.dark .lunmeyoPicker__chars button.is-on,
+html[data-theme="dark"] .lunmeyoPicker__chars button.is-on {
+  background: #a78bfa;
+  color: #1c1230;
+}
+
+body.dark .lunmeyoPicker__cell,
+html[data-theme="dark"] .lunmeyoPicker__cell {
+  background: rgba(196, 181, 253, 0.08);
+}
+
+body.dark .lunmeyoPicker__empty,
+html[data-theme="dark"] .lunmeyoPicker__empty {
+  color: #b0b3b8;
+}
+
+@media (max-width: 768px) {
+  .lunmeyoPicker--png .lunmeyoPicker__grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .lunmeyoPicker--mp4 .lunmeyoPicker__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }

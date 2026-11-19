@@ -48,7 +48,6 @@ export default function MessageComposer({
   const cameraInputRef = useRef(null);
   const fileInputRef = useRef(null);
   const inputRef = useRef(null);
-  const inputWrapRef = useRef(null);
   const [recording, setRecording] = useState(false);
   const [uploadingFile, setUploadingFile] = useState(false);
   const [pendingAttachments, setPendingAttachments] = useState([]);
@@ -271,7 +270,7 @@ export default function MessageComposer({
       />
 
       <div className="msgComposer__row">
-        <div ref={inputWrapRef} className="msgComposer__inputWrap">
+        <div className="msgComposer__inputWrap">
           <textarea
             ref={inputRef}
             className="msgComposer__input"
@@ -293,9 +292,6 @@ export default function MessageComposer({
               onChange={handleEmojiChange}
               onSelectLunmeyo={handleLunmeyoSelect}
               variant="inline"
-              layout="messenger"
-              popoverContainerRef={inputWrapRef}
-              pickerClassName="emojiPickerPopup"
               closeOnSelect
               className="msgComposer__emojiBtn"
               ariaLabel={t('messenger.composer.addEmoji')}

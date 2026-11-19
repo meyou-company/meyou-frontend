@@ -16,7 +16,7 @@ export default function LunmeyoPickerPanel({ type, onSelect }) {
   );
 
   return (
-    <div className="lunmeyoPicker">
+    <div className={`lunmeyoPicker lunmeyoPicker--${type}`}>
       <div className="lunmeyoPicker__chars" role="tablist" aria-label={t("lunmeyo.charactersLabel")}>
         <button
           type="button"
