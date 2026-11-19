@@ -55,7 +55,6 @@
       "actionError": "تعذر تحديث الاشتراك"
     }
   },
-
   "menu": {
     "myProfile": "My profile",
     "edit": "Edit",
@@ -1072,7 +1071,16 @@
     "VIP_CHAT_ACCESS_REQUIRED": "Messages require VIP access to this profile.",
     "GIFTS_PAYMENT_NOT_AVAILABLE": "دفع الهدايا غير متاح بعد.",
     "GIFTS_INVALID_GIFT_ID": "هدية غير معروفة.",
-    "CANNOT_SEND_GIFT_TO_SELF": "لا يمكنك إرسال هدية لنفسك."
+    "CANNOT_SEND_GIFT_TO_SELF": "لا يمكنك إرسال هدية لنفسك.",
+    "LUNA_DAILY_LIMIT": "تم بلوغ الحد اليومي لرسائل لون. حاول غداً.",
+    "LUNA_MONTHLY_LIMIT": "تم بلوغ الحد الشهري لرسائل لون.",
+    "LUNA_BUDGET_EXCEEDED": "لون غير متاحة مؤقتاً لأن ميزانية الذكاء الاصطناعي للمنصة لهذا الشهر استُنفدت.",
+    "LUNA_BUSY": "لون تجيب الآن. انتظر لحظة.",
+    "LUNA_MEDIA_UNAVAILABLE": "الصور والصوت يحتاجان إلى ذكاء اصطناعي متصل.",
+    "LUNA_IMAGE_INVALID": "أرسل صورة JPEG أو PNG أو WebP حتى 4 ميجابايت.",
+    "LUNA_IMAGE_TOO_LARGE": "الصورة كبيرة جداً. الحد 4 ميجابايت.",
+    "LUNA_AUDIO_INVALID": "تعذر استخدام التسجيل. تحقق من إذن الميكروفون.",
+    "LUNA_AUDIO_TOO_LONG": "الرسالة الصوتية حتى 60 ثانية."
   },
   "gifts": {
     "title": "الهدايا",
@@ -1520,6 +1528,13 @@
     "pauseAnimation": "إيقاف الحركة",
     "error": "تعذر الحصول على رد",
     "retry": "حاول مرة أخرى",
-    "close": "إغلاق"
+    "close": "إغلاق",
+    "attachPhoto": "إرفاق صورة",
+    "removePhoto": "إزالة الصورة",
+    "recordVoice": "رسالة صوتية",
+    "stopRecording": "إيقاف",
+    "cancelRecording": "إلغاء",
+    "recording": "تسجيل",
+    "transcribing": "تحويل الصوت إلى نص…"
   }
 }

@@ -1092,7 +1092,16 @@
     "VIP_CHAT_ACCESS_REQUIRED": "Messages require VIP access to this profile.",
     "GIFTS_PAYMENT_NOT_AVAILABLE": "Les paiements de cadeaux ne sont pas encore disponibles.",
     "GIFTS_INVALID_GIFT_ID": "Cadeau inconnu.",
-    "CANNOT_SEND_GIFT_TO_SELF": "Vous ne pouvez pas vous envoyer un cadeau."
+    "CANNOT_SEND_GIFT_TO_SELF": "Vous ne pouvez pas vous envoyer un cadeau.",
+    "LUNA_DAILY_LIMIT": "La limite quotidienne de messages de Lun est atteinte. Réessaie demain.",
+    "LUNA_MONTHLY_LIMIT": "La limite mensuelle de messages de Lun est atteinte.",
+    "LUNA_BUDGET_EXCEEDED": "Lun est temporairement indisponible : le budget IA de la plateforme pour ce mois est épuisé.",
+    "LUNA_BUSY": "Lun est déjà en train de répondre. Patiente un instant.",
+    "LUNA_MEDIA_UNAVAILABLE": "Les photos et la voix nécessitent une IA connectée.",
+    "LUNA_IMAGE_INVALID": "Envoyez un JPEG, PNG ou WebP de 4 Mo maximum.",
+    "LUNA_IMAGE_TOO_LARGE": "Photo trop lourde. Maximum 4 Mo.",
+    "LUNA_AUDIO_INVALID": "Enregistrement inutilisable. Vérifiez le micro.",
+    "LUNA_AUDIO_TOO_LONG": "Les messages vocaux durent 60 secondes maximum."
   },
   "gifts": {
     "title": "Cadeaux",
@@ -1733,6 +1742,13 @@
     "pauseAnimation": "Arrêter l’animation",
     "error": "Impossible d’obtenir une réponse",
     "retry": "Réessayer",
-    "close": "Fermer"
+    "close": "Fermer",
+    "attachPhoto": "Joindre une photo",
+    "removePhoto": "Retirer la photo",
+    "recordVoice": "Message vocal",
+    "stopRecording": "Stop",
+    "cancelRecording": "Annuler",
+    "recording": "Enregistrement",
+    "transcribing": "Conversion de la voix en texte…"
   }
 }
