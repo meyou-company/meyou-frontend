@@ -2,7 +2,20 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useTranslation } from "react-i18next";
 import { useLocation } from "react-router-dom";
-import { LuMic, LuPaperclip, LuPlus, LuSearch, LuSend, LuSquare, LuTrash2, LuX } from "react-icons/lu";
+import {
+  LuHistory,
+  LuMessageSquarePlus,
+  LuMic,
+  LuPalette,
+  LuPaperclip,
+  LuPause,
+  LuPlus,
+  LuSearch,
+  LuSend,
+  LuSquare,
+  LuTrash2,
+  LuX,
+} from "react-icons/lu";
 import EmojiPickerButton from "../EmojiPicker/EmojiPickerButton";
 import { useImmersiveHidden } from "../../hooks/useImmersiveHidden";
 import { useAuthStore } from "../../zustand/useAuthStore";
@@ -23,6 +36,7 @@ import {
   bindLunaTabSync,
   conversationDisplayTitle,
 } from "../../utils/lunaConversations";
+import { placeLunaMenu } from "../../utils/lunaMenu";
 import "./LunaWidget.scss";
 
 const FAB_HELLO_KEY = "lunmeyo.luna.fabHello";
@@ -837,6 +851,7 @@ function LunaPanel({ onClose }) {
   const [menuPos, setMenuPos] = useState(null);
   const [changing, setChanging] = useState(false);
   const menuBtnRef = useRef(null);
+  const menuRef = useRef(null);
   const [paused, setPaused] = useState(() => {
     try {
       return sessionStorage.getItem(PAUSE_KEY) === "1";
@@ -849,109 +864,171 @@ function LunaPanel({ onClose }) {
   const reduce = prefersReducedMotion() || paused;
   const showPause = !reduce;
 
-  const openMenu = () => {
+  const closeMenu = useCallback(() => setMenuOpen(false), []);
+
+  const positionMenu = useCallback(() => {
     const rect = menuBtnRef.current?.getBoundingClientRect();
-    if (rect) {
-      setMenuPos({ top: rect.bottom + 6, right: window.innerWidth - rect.right });
-    }
-    setMenuOpen((open) => !open);
-  };
+    if (!rect) return;
+    const height = menuRef.current?.offsetHeight || 280;
+    setMenuPos(
+      placeLunaMenu(rect, {
+        width: window.innerWidth,
+        height: window.innerHeight,
+      }, { height }),
+    );
+  }, []);
+
+  const toggleMenu = () => setMenuOpen((open) => !open);
 
   useEffect(() => {
     if (!menuOpen) return undefined;
+    positionMenu();
     const onPointer = (event) => {
       const target = event.target;
       if (!(target instanceof Node)) return;
       if (menuBtnRef.current?.contains(target)) return;
-      if (document.getElementById("luna-menu-portal")?.contains(target)) return;
-      setMenuOpen(false);
+      if (menuRef.current?.contains(target)) return;
+      closeMenu();
     };
+    const onKey = (event) => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        closeMenu();
+        menuBtnRef.current?.focus();
+        return;
+      }
+      if (event.key !== "ArrowDown" && event.key !== "ArrowUp" && event.key !== "Home" && event.key !== "End") {
+        return;
+      }
+      const items = [...(menuRef.current?.querySelectorAll('[role="menuitem"]') ?? [])];
+      if (!items.length) return;
+      event.preventDefault();
+      const current = items.indexOf(document.activeElement);
+      let next = 0;
+      if (event.key === "ArrowDown") next = current < 0 ? 0 : (current + 1) % items.length;
+      if (event.key === "ArrowUp") next = current < 0 ? items.length - 1 : (current - 1 + items.length) % items.length;
+      if (event.key === "End") next = items.length - 1;
+      items[next]?.focus();
+    };
+    const onReposition = () => positionMenu();
     document.addEventListener("mousedown", onPointer);
     document.addEventListener("touchstart", onPointer);
+    window.addEventListener("keydown", onKey, true);
+    window.addEventListener("resize", onReposition);
+    window.addEventListener("scroll", onReposition, true);
+    requestAnimationFrame(() => {
+      menuRef.current?.querySelector('[role="menuitem"]')?.focus();
+      positionMenu();
+    });
     return () => {
       document.removeEventListener("mousedown", onPointer);
       document.removeEventListener("touchstart", onPointer);
+      window.removeEventListener("keydown", onKey, true);
+      window.removeEventListener("resize", onReposition);
+      window.removeEventListener("scroll", onReposition, true);
     };
-  }, [menuOpen]);
+  }, [menuOpen, closeMenu, positionMenu]);
+
+  const runMenuAction = (action) => {
+    closeMenu();
+    action();
+  };
 
   const menu = menuOpen
     ? createPortal(
         <div
           id="luna-menu-portal"
-          className="lunaPanel__menuList"
+          ref={menuRef}
+          className="lunaMenu"
           role="menu"
+          aria-label={t("luna.moreActions")}
           style={
             menuPos
-              ? { position: "fixed", top: menuPos.top, right: menuPos.right, zIndex: 11050 }
-              : undefined
+              ? {
+                  position: "fixed",
+                  top: menuPos.top,
+                  left: menuPos.left,
+                  width: menuPos.width,
+                  maxHeight: menuPos.maxHeight,
+                  zIndex: 11050,
+                }
+              : { position: "fixed", visibility: "hidden" }
           }
         >
           {supportsConversations ? (
             <>
               <button
                 type="button"
-                onClick={() => {
-                  setMenuOpen(false);
-                  requestNewChat();
-                }}
+                role="menuitem"
+                className="lunaMenu__item"
+                onClick={() => runMenuAction(requestNewChat)}
               >
-                {t("luna.newChat")}
+                <LuMessageSquarePlus size={18} className="lunaMenu__icon" aria-hidden="true" />
+                <span className="lunaMenu__label">{t("luna.newChat")}</span>
               </button>
               <button
                 type="button"
-                onClick={() => {
-                  setMenuOpen(false);
-                  setSheet("history");
-                }}
+                role="menuitem"
+                className="lunaMenu__item"
+                onClick={() => runMenuAction(() => setSheet("history"))}
               >
-                {t("luna.history")}
+                <LuHistory size={18} className="lunaMenu__icon" aria-hidden="true" />
+                <span className="lunaMenu__label">{t("luna.history")}</span>
               </button>
               <button
                 type="button"
-                onClick={() => {
-                  setMenuOpen(false);
-                  setSheet("search");
-                }}
+                role="menuitem"
+                className="lunaMenu__item"
+                onClick={() => runMenuAction(() => setSheet("search"))}
               >
-                {t("luna.search")}
+                <LuSearch size={18} className="lunaMenu__icon" aria-hidden="true" />
+                <span className="lunaMenu__label">{t("luna.search")}</span>
               </button>
             </>
           ) : null}
           <button
             type="button"
-            onClick={() => {
-              setMenuOpen(false);
-              setChanging(true);
-            }}
+            role="menuitem"
+            className="lunaMenu__item"
+            onClick={() => runMenuAction(() => setChanging(true))}
           >
-            {t("luna.changeLook")}
+            <LuPalette size={18} className="lunaMenu__icon" aria-hidden="true" />
+            <span className="lunaMenu__label">{t("luna.changeLook")}</span>
           </button>
-          {supportsConversations ? (
-            <button
-              type="button"
-              onClick={() => {
-                setMenuOpen(false);
-                requestClear();
-              }}
-            >
-              {t("luna.clearChat")}
-            </button>
-          ) : null}
           {showPause ? (
             <button
               type="button"
-              onClick={() => {
-                setPaused(true);
-                setMenuOpen(false);
-                try {
-                  sessionStorage.setItem(PAUSE_KEY, "1");
-                } catch {
-                  /* ignore */
-                }
-              }}
+              role="menuitem"
+              className="lunaMenu__item"
+              onClick={() =>
+                runMenuAction(() => {
+                  setPaused(true);
+                  try {
+                    sessionStorage.setItem(PAUSE_KEY, "1");
+                  } catch {
+                    /* ignore */
+                  }
+                })
+              }
             >
-              {t("luna.pauseAnimation")}
+              <LuPause size={18} className="lunaMenu__icon" aria-hidden="true" />
+              <span className="lunaMenu__label">{t("luna.pauseAnimation")}</span>
             </button>
+          ) : null}
+          {supportsConversations ? (
+            <>
+              <div className="lunaMenu__sep" role="separator" />
+              <button
+                type="button"
+                role="menuitem"
+                className="lunaMenu__item lunaMenu__item--danger"
+                onClick={() => runMenuAction(requestClear)}
+              >
+                <LuTrash2 size={18} className="lunaMenu__icon" aria-hidden="true" />
+                <span className="lunaMenu__label">{t("luna.clearChat")}</span>
+              </button>
+            </>
           ) : null}
         </div>,
         document.body,
@@ -987,7 +1064,8 @@ function LunaPanel({ onClose }) {
                 className="lunaPanel__menu"
                 aria-haspopup="menu"
                 aria-expanded={menuOpen}
-                onClick={openMenu}
+                aria-controls="luna-menu-portal"
+                onClick={toggleMenu}
               >
                 ···
               </button>
