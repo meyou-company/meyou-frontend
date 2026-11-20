@@ -52,6 +52,20 @@ export async function ensureAccessTokenInStore(setAuth, user, accessToken) {
   }
 }
 
+/** Read oauth_code once and remove from address bar immediately (SEC-001). */
+export function takeOAuthCodeFromQuery() {
+  if (typeof window === 'undefined' || window.location.search.length <= 1) {
+    return null;
+  }
+  const params = new URLSearchParams(window.location.search);
+  const code = params.get('oauth_code')?.trim() || null;
+  if (code && typeof window.history?.replaceState === 'function') {
+    const path = window.location.pathname || '/auth/google/success';
+    window.history.replaceState({}, document.title, path);
+  }
+  return code;
+}
+
 export function readOAuthCodeFromQuery() {
   if (typeof window === 'undefined' || window.location.search.length <= 1) {
     return null;
@@ -60,34 +74,13 @@ export function readOAuthCodeFromQuery() {
   return params.get('oauth_code')?.trim() || null;
 }
 
-/** @deprecated Legacy redirect; remove after backend deploy window. */
-export function readLegacyOAuthTokensFromQuery() {
-  if (typeof window === 'undefined' || window.location.search.length <= 1) {
-    return { accessToken: null, refreshToken: null };
-  }
-  const params = new URLSearchParams(window.location.search);
-  return {
-    accessToken: params.get('access_token'),
-    refreshToken: params.get('refresh_token'),
-  };
-}
-
 async function resolveOAuthAccessToken() {
-  const oauthCode = readOAuthCodeFromQuery();
+  const oauthCode = takeOAuthCodeFromQuery();
   if (oauthCode) {
     const data = await authApi.exchangeOAuthCode(oauthCode);
     const access = pickAccessToken(data);
     if (access) persistOAuthSessionTokens(access);
     return access;
-  }
-
-  const legacy = readLegacyOAuthTokensFromQuery();
-  if (legacy.accessToken) {
-    console.warn(
-      '[auth] Deprecated OAuth tokens in URL — deploy backend with oauth_code flow',
-    );
-    persistOAuthSessionTokens(legacy.accessToken);
-    return legacy.accessToken;
   }
 
   return getSessionAccessToken();

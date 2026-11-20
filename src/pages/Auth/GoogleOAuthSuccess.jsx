@@ -43,7 +43,6 @@ export default function GoogleOAuthSuccess() {
       try {
         const user = await restoreOAuthSession(setAuth);
         if (cancelled) return;
-        window.history.replaceState({}, document.title, '/auth/google/success');
         navigate(postAuthPath(user), { replace: true });
       } catch (err) {
         console.error('[google oauth] session failed:', err?.response?.data ?? err?.message);
