@@ -20,8 +20,8 @@ function postAuthPath(user) {
 }
 
 /**
- * Після редіректу з Google: бекенд веде на
- * `/auth/google/success?access_token=…&refresh_token=…` (+ httpOnly cookies на API host).
+ * Після Google: бекенд редіректить на
+ * `/auth/google/success?oauth_code=<uuid>`; токени — через POST /auth/oauth/exchange + cookies.
  */
 export default function GoogleOAuthSuccess() {
   const navigate = useNavigate();

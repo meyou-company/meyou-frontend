@@ -1,6 +1,5 @@
 import {
   getSessionAccessToken,
-  getSessionRefreshToken,
   persistOAuthSessionTokens,
 } from './api';
 import { authApi } from './auth';
@@ -10,7 +9,7 @@ export function pickAccessToken(source) {
   return source?.accessToken ?? source?.access_token ?? null;
 }
 
-/** Зберегти user + accessToken у Zustand і sessionStorage. Без JWT — не позначати сесію автентифікованою. */
+/** Зберегти user + accessToken у Zustand. Refresh — лише httpOnly cookie. */
 export function applyAuthFromSession(setAuth, user, accessToken) {
   if (!user) {
     setAuth({ user: null, token: null, isAuthed: false });
@@ -53,47 +52,76 @@ export async function ensureAccessTokenInStore(setAuth, user, accessToken) {
   }
 }
 
-/** Production flow: /users/me → (401) /auth/refresh → /users/me + token у store. */
+export function readOAuthCodeFromQuery() {
+  if (typeof window === 'undefined' || window.location.search.length <= 1) {
+    return null;
+  }
+  const params = new URLSearchParams(window.location.search);
+  return params.get('oauth_code')?.trim() || null;
+}
+
+/** @deprecated Legacy redirect; remove after backend deploy window. */
+export function readLegacyOAuthTokensFromQuery() {
+  if (typeof window === 'undefined' || window.location.search.length <= 1) {
+    return { accessToken: null, refreshToken: null };
+  }
+  const params = new URLSearchParams(window.location.search);
+  return {
+    accessToken: params.get('access_token'),
+    refreshToken: params.get('refresh_token'),
+  };
+}
+
+async function resolveOAuthAccessToken() {
+  const oauthCode = readOAuthCodeFromQuery();
+  if (oauthCode) {
+    const data = await authApi.exchangeOAuthCode(oauthCode);
+    const access = pickAccessToken(data);
+    if (access) persistOAuthSessionTokens(access);
+    return access;
+  }
+
+  const legacy = readLegacyOAuthTokensFromQuery();
+  if (legacy.accessToken) {
+    console.warn(
+      '[auth] Deprecated OAuth tokens in URL — deploy backend with oauth_code flow',
+    );
+    persistOAuthSessionTokens(legacy.accessToken);
+    return legacy.accessToken;
+  }
+
+  return getSessionAccessToken();
+}
+
+/** Production flow: exchange oauth_code → /users/me → (fallback) /auth/refresh → /users/me. */
 export async function restoreOAuthSession(setAuth) {
   clearFirstPageFeedCache();
 
-  let accessFromQuery = null;
-  let refreshFromQuery = null;
-
-  if (typeof window !== 'undefined' && window.location.search.length > 1) {
-    const params = new URLSearchParams(window.location.search);
-    accessFromQuery = params.get('access_token');
-    refreshFromQuery = params.get('refresh_token');
-    if (accessFromQuery || refreshFromQuery) {
-      persistOAuthSessionTokens(
-        accessFromQuery ?? undefined,
-        refreshFromQuery ?? undefined,
-      );
-    }
+  let queryAccess = null;
+  try {
+    queryAccess = await resolveOAuthAccessToken();
+  } catch (exchangeErr) {
+    console.error(
+      '[auth] oauth exchange failed:',
+      exchangeErr?.response?.data ?? exchangeErr?.message,
+    );
+    throw exchangeErr;
   }
 
-  const queryAccess = accessFromQuery ?? getSessionAccessToken();
-
-  // JWT з query/sessionStorage одразу в Zustand (до async /users/me).
   if (queryAccess) {
     setAuth({ token: queryAccess });
   }
 
   try {
-    const user = await authApi.me();
+    const user = await authApi.me({ force: true });
     const token = await ensureAccessTokenInStore(setAuth, user, queryAccess);
     if (!token) {
       throw new Error('Session restored without access token');
     }
     return user;
   } catch (meErr) {
-    const refreshToken = refreshFromQuery ?? getSessionRefreshToken();
-    if (!refreshToken && !queryAccess) {
-      throw meErr;
-    }
-
     const refreshData = await authApi.refresh();
-    const user = await authApi.me();
+    const user = await authApi.me({ force: true });
     const token = await ensureAccessTokenInStore(
       setAuth,
       user,
@@ -106,21 +134,10 @@ export async function restoreOAuthSession(setAuth) {
   }
 }
 
-export function readOAuthQueryTokens() {
-  if (typeof window === 'undefined' || window.location.search.length <= 1) {
-    return { accessToken: null, refreshToken: null };
-  }
-  const params = new URLSearchParams(window.location.search);
-  return {
-    accessToken: params.get('access_token'),
-    refreshToken: params.get('refresh_token'),
-  };
-}
-
 export function readOAuthQueryError() {
   if (typeof window === 'undefined' || window.location.search.length <= 1) {
     return null;
   }
   const params = new URLSearchParams(window.location.search);
-  return params.get('error') || params.get('error_code') || null;
+  return params.get('error') || params.get('error_code') || params.get('oauth_error') || null;
 }
