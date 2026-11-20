@@ -4,7 +4,6 @@ import {
   clearOAuthSessionTokens,
   clearSessionAccessToken,
   getSessionAccessToken,
-  getSessionRefreshToken,
   persistOAuthSessionTokens,
 } from '../services/api';
 import { authApi } from '../services/auth';
@@ -150,11 +149,6 @@ export const useAuthStore = create((set) => ({
           }
         }
 
-        if (!getSessionRefreshToken()) {
-          setGuestSession(set);
-          return;
-        }
-
         try {
           const refreshData = await authApi.refresh();
           const user = await authApi.me({ force: true });
@@ -205,7 +199,7 @@ export const useAuthStore = create((set) => ({
       const res = await authApi.login(payload);
       const user = await loadMeWithRetry(3, 250);
       const accessToken = pickAccessToken(res);
-      persistOAuthSessionTokens(accessToken, res?.refreshToken ?? res?.refresh_token);
+      persistOAuthSessionTokens(accessToken);
       useGuestPreviewStore.getState().setEnabled(false);
       set({ user, token: accessToken, isAuthed: true });
       markInitDone();
@@ -223,10 +217,7 @@ export const useAuthStore = create((set) => ({
     try {
       const res = await authApi.register(payload);
       const accessToken = pickAccessToken(res);
-      persistOAuthSessionTokens(
-        accessToken,
-        res?.refreshToken ?? res?.refresh_token,
-      );
+      persistOAuthSessionTokens(accessToken);
       disconnectSocket();
       resetInitState();
       set({ user: null, token: accessToken, isAuthed: false });
@@ -320,10 +311,6 @@ export const useAuthStore = create((set) => ({
       const status = e?.response?.status;
       if (status === 401) {
         clearSessionAccessToken();
-        if (!getSessionRefreshToken()) {
-          clearAuthSession(set);
-          throw e;
-        }
         try {
           const refreshData = await authApi.refresh();
           const user = await authApi.me({ force: true });
@@ -360,11 +347,4 @@ if (typeof window !== 'undefined') {
     useAuthStore.getState().clearSession();
   });
 
-  window.addEventListener('meyou:oauth-access-token', (event) => {
-    const accessToken = event?.detail?.accessToken;
-    if (!accessToken) return;
-    const state = useAuthStore.getState();
-    if (state.token === accessToken) return;
-    useAuthStore.setState({ token: accessToken });
-  });
 }

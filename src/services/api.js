@@ -51,12 +51,16 @@ const SESSION_ACCESS_KEY = "meyou_session_access_token";
 const SESSION_REFRESH_KEY = "meyou_session_refresh_token";
 export const AUTH_ACCESS_TOKEN_UPDATED_EVENT = "meyou:access-token-updated";
 
-/** Bearer для cross-origin або dev (порт фронту ≠ API), доповнює httpOnly cookies після OAuth. */
-export function persistOAuthSessionTokens(accessToken, refreshToken) {
+/**
+ * Persist access JWT for Bearer + Socket.IO (cross-origin).
+ * Refresh JWT stays in httpOnly cookie only (SEC-003).
+ */
+export function persistOAuthSessionTokens(accessToken, _ignoredRefresh) {
+  void _ignoredRefresh;
   try {
+    sessionStorage.removeItem(SESSION_REFRESH_KEY);
     const previousAccessToken = sessionStorage.getItem(SESSION_ACCESS_KEY);
     if (accessToken) sessionStorage.setItem(SESSION_ACCESS_KEY, accessToken);
-    if (refreshToken) sessionStorage.setItem(SESSION_REFRESH_KEY, refreshToken);
     if (
       accessToken &&
       accessToken !== previousAccessToken &&
@@ -122,33 +126,18 @@ function readSessionRefresh() {
 function persistTokensFromResponseBody(data) {
   if (!data || typeof data !== "object") return;
   const access = data.accessToken ?? data.access_token;
-  const refresh = data.refreshToken ?? data.refresh_token;
-  persistOAuthSessionTokens(access, refresh);
+  persistOAuthSessionTokens(access);
 }
 
-/**
- * Одразу при завантаженні бандлу: забрати токени з query до React useEffect —
- * щоб паралельний init() уже міг зробити /users/me з Authorization.
- */
-function bootstrapOAuthQueryTokens() {
-  if (typeof window === "undefined") return;
-  const path = window.location.pathname.replace(/\/$/, "") || "/";
-  if (path !== "/auth/google/success" && path !== "/auth/callback") return;
-  const q = window.location.search;
-  if (!q) return;
-  const params = new URLSearchParams(q);
-  const access = params.get("access_token");
-  const refresh = params.get("refresh_token");
-  if (!access && !refresh) return;
-  persistOAuthSessionTokens(access ?? undefined, refresh ?? undefined);
-  if (typeof window !== 'undefined' && access) {
-    window.dispatchEvent(
-      new CustomEvent('meyou:oauth-access-token', { detail: { accessToken: access } }),
-    );
+function stripLegacyRefreshFromSessionStorage() {
+  try {
+    sessionStorage.removeItem(SESSION_REFRESH_KEY);
+  } catch {
+    /* ignore */
   }
 }
 
-bootstrapOAuthQueryTokens();
+stripLegacyRefreshFromSessionStorage();
 
 export const api = axios.create({
   baseURL: resolvedApiBaseUrl,
@@ -169,12 +158,7 @@ api.interceptors.request.use((config) => {
   config.__apiLogId = logApiRequest(config);
 
   if (!config.headers?.Authorization) {
-    if (isRefreshEndpoint(config)) {
-      const rt = readSessionRefresh();
-      if (rt) {
-        config.headers.Authorization = `Bearer ${rt}`;
-      }
-    } else {
+    if (!isRefreshEndpoint(config)) {
       const at = readSessionAccess();
       if (at) {
         config.headers.Authorization = `Bearer ${at}`;
@@ -200,7 +184,8 @@ api.interceptors.response.use(
     if (
       (String(url).includes('/auth/refresh') ||
         String(url).includes('/auth/login') ||
-        String(url).includes('/auth/register')) &&
+        String(url).includes('/auth/register') ||
+        String(url).includes('/auth/oauth/exchange')) &&
       res.config?.method === 'post'
     ) {
       persistTokensFromResponseBody(res.data);
@@ -216,17 +201,6 @@ api.interceptors.response.use(
     }
 
     if (err.response?.status === 401 && !original?._retry) {
-      const url = String(original?.url ?? "");
-      const isAuthSessionEndpoint =
-        url.includes("/users/me") || url.includes("/auth/refresh");
-      const hadBearer = Boolean(original?.headers?.Authorization);
-      const hasRefresh = Boolean(readSessionRefresh());
-
-      // Guest probes on /users/me or /auth/refresh: don't chain another refresh.
-      if (isAuthSessionEndpoint && !hadBearer && !hasRefresh) {
-        return Promise.reject(err);
-      }
-
       original._retry = true;
 
       if (isRefreshing) {

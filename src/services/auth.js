@@ -20,6 +20,16 @@ export const authApi = {
     return data;
   },
 
+  /** One-time Google OAuth code → access token (+ refresh in httpOnly cookie). */
+  async exchangeOAuthCode(code) {
+    const { data } = await api.post(
+      "/auth/oauth/exchange",
+      { code },
+      { skipAuth: true },
+    );
+    return data;
+  },
+
   async logout() {
     await api.post("/auth/logout");
   },
