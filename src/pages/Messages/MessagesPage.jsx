@@ -37,6 +37,13 @@ import StoryViewerModal from '../../components/Stories/StoryViewerModal';
 import { conversationsApi } from '../../services/conversationsApi';
 import { mergeConversationPages } from '../../utils/conversationListPage';
 import {
+  beginMessagesPagePerfSession,
+  bumpMessagesPageMountRequest,
+  flushMessagesPagePerfReport,
+  noteFirstConversationsRendered,
+  noteMessagesAuthReady,
+} from '../../utils/messagesPagePerfDiag';
+import {
   mergeInboxHeadRefresh,
   reconcileThreadWithLatestPage,
   MESSENGER_INITIAL_MESSAGE_LIMIT,
@@ -469,6 +476,17 @@ export default function MessagesPage() {
   }, [activeConversationId, setActiveConversationId]);
 
   useEffect(() => {
+    beginMessagesPagePerfSession();
+    return () => flushMessagesPagePerfReport('unmount');
+  }, []);
+
+  useEffect(() => {
+    if (!isAuthLoading && isAuthed) {
+      noteMessagesAuthReady();
+    }
+  }, [isAuthLoading, isAuthed]);
+
+  useEffect(() => {
     if (isAuthLoading) return;
     if (!isAuthed) {
       navigate('/auth/login', {
@@ -517,6 +535,7 @@ export default function MessagesPage() {
           const next = sortConversations(mergeInboxHeadRefresh(prev, list));
           const snap = useMessengerCacheStore.getState().getInboxSnapshot();
           persistInboxCache(next, snap.listHasMore, snap.listNextCursor);
+          noteFirstConversationsRendered(next.length);
           return next;
         });
         return list;
@@ -535,6 +554,7 @@ export default function MessagesPage() {
           ? sortConversations(mergeConversationPages(prev, list))
           : list;
         persistInboxCache(next, nextHasMore, nextCursor);
+        noteFirstConversationsRendered(next.length);
         return next;
       });
       return list;
@@ -1011,12 +1031,15 @@ export default function MessagesPage() {
       setListHasMore(snap.listHasMore);
       setListNextCursor(snap.listNextCursor);
       setLoadingList(false);
+      noteFirstConversationsRendered(snap.conversations.length);
       void loadConversations({ background: true });
     } else {
       void loadConversations();
     }
     const defer = window.setTimeout(() => {
+      bumpMessagesPageMountRequest();
       loadHiddenConversations();
+      bumpMessagesPageMountRequest();
       fetchTotalUnreadCount();
     }, 0);
     return () => window.clearTimeout(defer);

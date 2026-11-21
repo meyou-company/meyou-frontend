@@ -1,5 +1,9 @@
 import { api, apiPath } from './api';
 import { sendMessageBodyForLegacyApi } from '../utils/sendMessageLegacyBody';
+import {
+  noteConversationListFetchEnd,
+  noteConversationListFetchStart,
+} from '../utils/messagesPagePerfDiag';
 
 function extractList(payload) {
   if (!payload) return [];
@@ -21,9 +25,15 @@ export const conversationsApi = {
     if (cursor) params.cursor = cursor;
     if (q && String(q).trim()) params.q = String(q).trim();
     const paginated = Object.keys(params).length > 0;
-    const { data } = await api.get(apiPath('/conversations'), {
-      params: paginated ? params : undefined,
-    });
+    noteConversationListFetchStart();
+    let data;
+    try {
+      ({ data } = await api.get(apiPath('/conversations'), {
+        params: paginated ? params : undefined,
+      }));
+    } finally {
+      noteConversationListFetchEnd();
+    }
     const items = extractList(data);
     if (!paginated && data?.hasMore == null && !data?.nextCursor) {
       return items;
