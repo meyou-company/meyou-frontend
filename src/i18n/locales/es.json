@@ -213,7 +213,7 @@
     },
     "mfa": {
       "title": "Two-factor authentication",
-      "subtitle": "Introduce el código de 6 dígitos de tu app de autenticación para terminar el inicio de sesión.",
+      "subtitle": "Introduce el código de 6 dígitos de tu app para terminar de iniciar sesión en tu cuenta.",
       "methodLabel": "Verification method",
       "methodTotp": "Código del autenticador",
       "methodBackup": "Backup code",
@@ -234,7 +234,8 @@
         "attemptsExceeded": "Demasiados intentos. Vuelve a iniciar sesión."
       },
       "totpHint": "Los códigos se renuevan cada 30 segundos en la app.",
-      "backupHint": "Introduce uno de tus códigos de respaldo de un solo uso."
+      "backupHint": "Introduce uno de tus códigos de respaldo de un solo uso.",
+      "troubleSignIn": "¿Problemas para entrar?"
     }
   },
   "profile": {
@@ -1020,7 +1021,14 @@
             "hideManualKey": "Ocultar clave secreta",
             "copySecret": "Copiar clave",
             "secretCopied": "Clave secreta copiada"
-          }
+          },
+          "enabledStatusTitle": "2FA activada",
+          "enabledStatusDesc": "Tu cuenta está protegida con una app de autenticación.",
+          "backupCountShort": "{{count}} sin usar",
+          "manageTitle": "Gestión de autenticación",
+          "showInstructions": "Ver instrucciones de configuración",
+          "showInstructionsDesc": "Cómo funcionan la app y los códigos de respaldo",
+          "instructionsReadOnly": "Solo informativo. Un nuevo QR solo está disponible al configurar 2FA de nuevo."
         },
         "sessions": {
           "title": "Active sessions",

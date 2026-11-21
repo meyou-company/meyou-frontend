@@ -13,6 +13,7 @@ import {
   clearMfaChallenge,
   readMfaChallenge,
 } from '../../utils/mfaChallengeStorage';
+import { LuClock } from 'react-icons/lu';
 import BrandLogo from '../../components/BrandLogo/BrandLogo';
 import MfaCodeField from '../../components/Auth/MfaCodeField';
 import { hasAcceptedTerms } from '../../utils/authTerms';
@@ -174,15 +175,27 @@ export default function MfaVerifyPage() {
             <MethodTabs method={method} onChange={onMethodChange} t={t} disabled={submitting} />
 
             <MfaCodeField
-              label={method === 'totp' ? t('auth.mfa.totpLabel') : t('auth.mfa.backupLabel')}
-              hint={method === 'totp' ? t('auth.mfa.totpHint') : t('auth.mfa.backupHint')}
+              label={method === 'backup' ? t('auth.mfa.backupLabel') : undefined}
               error={fieldError}
               value={code}
               onChange={setCode}
               mode={method === 'totp' ? 'totp' : 'backup'}
+              variant={method === 'totp' ? 'cells' : 'single'}
               disabled={submitting}
               autoFocus
             />
+
+            {method === 'totp' && !fieldError ? (
+              <p className="mfa-verify__timer-hint">
+                <LuClock className="mfa-verify__timer-icon" aria-hidden />
+                {t('auth.mfa.totpHint')}
+              </p>
+            ) : null}
+            {method === 'backup' && !fieldError ? (
+              <p className="mfa-verify__timer-hint mfa-verify__timer-hint--plain">
+                {t('auth.mfa.backupHint')}
+              </p>
+            ) : null}
 
             <button
               type="submit"
@@ -190,6 +203,10 @@ export default function MfaVerifyPage() {
               disabled={submitting}
             >
               {submitting ? t('auth.mfa.verifying') : t('auth.mfa.verify')}
+            </button>
+
+            <button type="button" className="mfa-verify__help-link" onClick={goLogin}>
+              {t('auth.mfa.troubleSignIn')}
             </button>
           </form>
         </div>
