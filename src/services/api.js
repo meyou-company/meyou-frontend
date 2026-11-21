@@ -1,5 +1,9 @@
 import axios from "axios";
 import { logApiError, logApiRequest, logApiResponse } from "../utils/apiRequestLog";
+import {
+  dedupedSessionRefresh,
+  withRefreshParallelRetry,
+} from "./sessionRefresh";
 
 /**
  * `VITE_API_URL` задає базу під глобальний префікс `/api` на Nest.
@@ -145,6 +149,15 @@ export const api = axios.create({
   timeout: Number(import.meta.env.VITE_API_TIMEOUT_MS) || 25000,
 });
 
+/** Credentialed session refresh with dedupe + REFRESH_PARALLEL retries (SEC-004). */
+export function postSessionRefresh() {
+  return dedupedSessionRefresh(() =>
+    withRefreshParallelRetry(() =>
+      api.post("/auth/refresh", null, { skipAuth: true }),
+    ),
+  );
+}
+
 const isRefreshEndpoint = (config) => {
   const url = config?.url ?? "";
   const base = config?.baseURL ?? "";
@@ -215,25 +228,7 @@ api.interceptors.response.use(
       isRefreshing = true;
 
       try {
-        let refreshRes;
-        try {
-          refreshRes = await api.post("/auth/refresh", null, {
-            skipAuth: true,
-          });
-        } catch (firstRefreshErr) {
-          const code = firstRefreshErr?.response?.data?.code;
-          if (
-            firstRefreshErr?.response?.status === 409 &&
-            code === "REFRESH_PARALLEL"
-          ) {
-            await new Promise((r) => setTimeout(r, 150));
-            refreshRes = await api.post("/auth/refresh", null, {
-              skipAuth: true,
-            });
-          } else {
-            throw firstRefreshErr;
-          }
-        }
+        const refreshRes = await postSessionRefresh();
         persistTokensFromResponseBody(refreshRes?.data);
         resolveQueue(null, true);
         return api(original);

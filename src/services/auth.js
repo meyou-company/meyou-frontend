@@ -1,4 +1,4 @@
-import { api } from "./api";
+import { api, postSessionRefresh } from "./api";
 import { dedupeAsync } from "../utils/dedupeAsync";
 
 const ME_DEDUPE_KEY = "auth:me";
@@ -16,7 +16,7 @@ export const authApi = {
   },
 
   async refresh() {
-    const { data } = await api.post("/auth/refresh");
+    const { data } = await postSessionRefresh();
     return data;
   },
 

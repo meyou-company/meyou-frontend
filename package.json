@@ -11,7 +11,8 @@
     "format": "prettier . --write",
     "format:check": "prettier . --check",
     "test": "vitest run",
-    "test:auth-session": "vitest run src/services/authSession.test.js"
+    "test:auth-session": "vitest run src/services/authSession.test.js",
+    "test:session-refresh": "vitest run src/services/sessionRefresh.test.js src/services/authRefresh.test.js"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
