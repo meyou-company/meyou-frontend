@@ -15,9 +15,24 @@ export const conversationsApi = {
     return data;
   },
 
-  async list() {
-    const { data } = await api.get(apiPath('/conversations'));
-    return extractList(data);
+  async list({ limit, cursor, q } = {}) {
+    const params = {};
+    if (limit != null) params.limit = limit;
+    if (cursor) params.cursor = cursor;
+    if (q && String(q).trim()) params.q = String(q).trim();
+    const paginated = Object.keys(params).length > 0;
+    const { data } = await api.get(apiPath('/conversations'), {
+      params: paginated ? params : undefined,
+    });
+    const items = extractList(data);
+    if (!paginated && data?.hasMore == null && !data?.nextCursor) {
+      return items;
+    }
+    return {
+      items,
+      nextCursor: data?.nextCursor ?? null,
+      hasMore: Boolean(data?.hasMore),
+    };
   },
 
   async listHidden() {

@@ -35,6 +35,7 @@ import TypingIndicator from '../../components/Messages/TypingIndicator';
 import OnlineStatus from '../../components/Presence/OnlineStatus';
 import StoryViewerModal from '../../components/Stories/StoryViewerModal';
 import { conversationsApi } from '../../services/conversationsApi';
+import { mergeConversationPages } from '../../utils/conversationListPage';
 import { callsApi } from '../../services/callsApi';
 import { usersApi } from '../../services/usersApi';
 import { usePresenceStore } from '../../zustand/usePresenceStore';
@@ -88,6 +89,7 @@ import { useGroupRoomsStore } from '../../zustand/useGroupRoomsStore';
 import './MessagesPage.scss';
 
 const MESSAGES_PAGE_SIZE = 40;
+const CONVERSATION_LIST_PAGE_SIZE = 10;
 
 function getDisplayName(user, fallback) {
   if (!user) return fallback;
@@ -303,6 +305,11 @@ export default function MessagesPage() {
   const [sidebarMode, setSidebarMode] = useState('inbox');
   const [messages, setMessages] = useState([]);
   const [loadingList, setLoadingList] = useState(true);
+  const [loadingMoreList, setLoadingMoreList] = useState(false);
+  const [listHasMore, setListHasMore] = useState(false);
+  const [listNextCursor, setListNextCursor] = useState(null);
+  const [serverSearchActive, setServerSearchActive] = useState(false);
+  const [isMobileListViewport, setIsMobileListViewport] = useState(false);
   const [loadingHidden, setLoadingHidden] = useState(false);
   const [loadingChat, setLoadingChat] = useState(false);
   const [loadingOlder, setLoadingOlder] = useState(false);
@@ -333,6 +340,10 @@ export default function MessagesPage() {
 
   const messagesEndRef = useRef(null);
   const messagesScrollRef = useRef(null);
+  const chatListScrollRef = useRef(null);
+  const listLoadMoreSentinelRef = useRef(null);
+  const listLoadInFlightRef = useRef(false);
+  const listSearchGenRef = useRef(0);
   const olderCursorRef = useRef(null);
   const chatLoadGenRef = useRef(0);
   const stickToBottomRef = useRef(true);
@@ -340,6 +351,14 @@ export default function MessagesPage() {
   const startCallInFlightRef = useRef(false);
   const activeConversationId = conversationId || null;
   activeConversationIdRef.current = activeConversationId;
+
+  useEffect(() => {
+    const mobile = window.matchMedia('(max-width: 768px)');
+    const syncMobile = () => setIsMobileListViewport(mobile.matches);
+    syncMobile();
+    mobile.addEventListener('change', syncMobile);
+    return () => mobile.removeEventListener('change', syncMobile);
+  }, []);
 
   useEffect(() => {
     const mobile = window.matchMedia('(max-width: 768px)');
@@ -397,11 +416,11 @@ export default function MessagesPage() {
 
   const filteredConversations = useMemo(() => {
     const q = searchQuery.trim().toLowerCase();
-    if (!q) return conversations;
+    if (!q || serverSearchActive) return conversations;
     return conversations.filter((chat) =>
       conversationMatchesSearch(chat, q, t, (user, fb) => getDisplayName(user, fb), drafts),
     );
-  }, [conversations, drafts, searchQuery, t]);
+  }, [conversations, drafts, searchQuery, serverSearchActive, t]);
 
   const filteredHiddenConversations = useMemo(() => {
     const q = searchQuery.trim().toLowerCase();
@@ -451,24 +470,118 @@ export default function MessagesPage() {
     }
   }, [isAuthLoading, isAuthed, navigate, activeConversationId]);
 
-  const loadConversations = useCallback(async () => {
+  const applyConversationListPage = useCallback((result, { append = false } = {}) => {
+    const items = Array.isArray(result?.items)
+      ? result.items
+      : Array.isArray(result)
+        ? result
+        : [];
+    const list = sortConversations(items);
+    usePresenceStore.getState().hydrateMany(
+      list.map((c) => c.participant).filter(Boolean),
+    );
+    setConversations((prev) =>
+      append ? sortConversations(mergeConversationPages(prev, list)) : list,
+    );
+    if (result && typeof result === 'object' && !Array.isArray(result)) {
+      setListHasMore(Boolean(result.hasMore));
+      setListNextCursor(result.nextCursor ?? null);
+    } else {
+      setListHasMore(false);
+      setListNextCursor(null);
+    }
+    return list;
+  }, []);
+
+  const loadConversations = useCallback(async ({ listGen } = {}) => {
+    if (listLoadInFlightRef.current) return;
+    listLoadInFlightRef.current = true;
     try {
       setLoadingList(true);
       setListError('');
-      const items = await conversationsApi.list();
-      const list = sortConversations(Array.isArray(items) ? items : []);
-      usePresenceStore.getState().hydrateMany(
-        list.map((c) => c.participant).filter(Boolean),
-      );
-      setConversations(list);
+      const result = await conversationsApi.list({
+        limit: CONVERSATION_LIST_PAGE_SIZE,
+      });
+      if (listGen != null && listGen !== listSearchGenRef.current) return;
+      applyConversationListPage(result);
     } catch (err) {
       console.error('[messages] list failed', err);
       setListError(getApiErrorMessage(err, 'messenger.loadChatsError'));
       setConversations([]);
+      setListHasMore(false);
+      setListNextCursor(null);
     } finally {
       setLoadingList(false);
+      listLoadInFlightRef.current = false;
     }
-  }, []);
+  }, [applyConversationListPage]);
+
+  const loadMoreConversations = useCallback(async () => {
+    if (
+      !listHasMore ||
+      !listNextCursor ||
+      loadingMoreList ||
+      loadingList ||
+      listLoadInFlightRef.current
+    ) {
+      return;
+    }
+    listLoadInFlightRef.current = true;
+    try {
+      setLoadingMoreList(true);
+      const q = searchQuery.trim();
+      const result = await conversationsApi.list({
+        limit: CONVERSATION_LIST_PAGE_SIZE,
+        cursor: listNextCursor,
+        ...(serverSearchActive && q.length >= 2 ? { q } : {}),
+      });
+      applyConversationListPage(result, { append: true });
+    } catch (err) {
+      console.error('[messages] list page failed', err);
+    } finally {
+      setLoadingMoreList(false);
+      listLoadInFlightRef.current = false;
+    }
+  }, [
+    applyConversationListPage,
+    listHasMore,
+    listNextCursor,
+    loadingList,
+    loadingMoreList,
+    searchQuery,
+    serverSearchActive,
+  ]);
+
+  const searchConversationsServer = useCallback(
+    async (query, listGen) => {
+      const q = query.trim();
+      if (q.length < 2) {
+        setServerSearchActive(false);
+        void loadConversations({ listGen });
+        return;
+      }
+      if (listLoadInFlightRef.current) return;
+      listLoadInFlightRef.current = true;
+      try {
+        setLoadingList(true);
+        setListError('');
+        const result = await conversationsApi.list({
+          limit: CONVERSATION_LIST_PAGE_SIZE,
+          q,
+        });
+        if (listGen != null && listGen !== listSearchGenRef.current) return;
+        setServerSearchActive(true);
+        applyConversationListPage(result);
+      } catch (err) {
+        console.error('[messages] search list failed', err);
+        setListError(getApiErrorMessage(err, 'messenger.loadChatsError'));
+      } finally {
+        setLoadingList(false);
+        listLoadInFlightRef.current = false;
+      }
+    },
+    [applyConversationListPage, loadConversations],
+  );
 
   useEffect(() => {
     hiddenIdsRef.current = new Set(
@@ -632,9 +745,67 @@ export default function MessagesPage() {
   useEffect(() => {
     if (!isAuthed) return;
     loadConversations();
-    loadHiddenConversations();
-    fetchTotalUnreadCount();
+    const defer = window.setTimeout(() => {
+      loadHiddenConversations();
+      fetchTotalUnreadCount();
+    }, 0);
+    return () => window.clearTimeout(defer);
   }, [isAuthed, loadConversations, loadHiddenConversations, fetchTotalUnreadCount]);
+
+  useEffect(() => {
+    const q = searchQuery.trim();
+    if (sidebarMode !== 'inbox') return undefined;
+    const listGen = ++listSearchGenRef.current;
+    const timer = window.setTimeout(() => {
+      if (q.length >= 2) {
+        void searchConversationsServer(q, listGen);
+      } else if (serverSearchActive || q.length === 0) {
+        setServerSearchActive(false);
+        if (q.length === 0) void loadConversations({ listGen });
+      }
+    }, 320);
+    return () => window.clearTimeout(timer);
+  }, [
+    searchQuery,
+    sidebarMode,
+    searchConversationsServer,
+    serverSearchActive,
+    loadConversations,
+  ]);
+
+  useEffect(() => {
+    if (
+      !isMobileListViewport ||
+      !listHasMore ||
+      sidebarMode !== 'inbox' ||
+      serverSearchActive ||
+      searchQuery.trim().length >= 2
+    ) {
+      return undefined;
+    }
+    const root = chatListScrollRef.current;
+    const target = listLoadMoreSentinelRef.current;
+    if (!root || !target) return undefined;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((e) => e.isIntersecting)) {
+          void loadMoreConversations();
+        }
+      },
+      { root, rootMargin: '96px 0px', threshold: 0 },
+    );
+    observer.observe(target);
+    return () => observer.disconnect();
+  }, [
+    isMobileListViewport,
+    listHasMore,
+    sidebarMode,
+    serverSearchActive,
+    searchQuery,
+    loadMoreConversations,
+    conversations.length,
+  ]);
 
   useEffect(() => {
     if (!isAuthed || !activeConversationId || activeConversation) return undefined;
@@ -764,7 +935,19 @@ export default function MessagesPage() {
       } else {
         setConversations((prev) => {
           const next = upsertConversationFromMessage(prev, envelope);
-          if (next === prev) void loadConversations();
+          if (next === prev) {
+            void conversationsApi.getById(convId).then((row) => {
+              if (!row?.id) return;
+              setConversations((current) =>
+                sortConversations(
+                  mergeConversationPages(
+                    [{ ...row, lastMessage: message, updatedAt: message.createdAt }],
+                    current,
+                  ),
+                ),
+              );
+            });
+          }
           return next;
         });
       }
@@ -848,7 +1031,18 @@ export default function MessagesPage() {
         setConversations((prev) => {
           const chat = prev.find((c) => String(c.id) === String(convId));
           if (String(chat?.lastMessage?.id) === String(envelope.messageId)) {
-            void loadConversations();
+            void conversationsApi.getById(convId).then((row) => {
+              if (!row?.id) return;
+              setConversations((current) => {
+                const i = current.findIndex(
+                  (c) => String(c.id) === String(convId),
+                );
+                if (i < 0) return current;
+                const next = [...current];
+                next[i] = { ...next[i], ...row };
+                return sortConversations(next);
+              });
+            });
           }
           return prev;
         });
@@ -1549,7 +1743,9 @@ export default function MessagesPage() {
                   </button>
                 </div>
               ) : null}
-              {(sidebarMode === 'hidden' ? loadingHidden : loadingList) && (
+              {(sidebarMode === 'hidden'
+                ? loadingHidden
+                : loadingList && conversations.length === 0) && (
                 <p className="messagesPage__hint">{t('common.loading')}</p>
               )}
               {sidebarMode === 'inbox' && !loadingList && listError && (
@@ -1568,7 +1764,20 @@ export default function MessagesPage() {
                 <p className="messagesPage__hint">{t('messenger.hiddenChatsEmpty')}</p>
               )}
 
-              <ul className="messagesPage__chatList">
+              <ul className="messagesPage__chatList" ref={chatListScrollRef}>
+                {sidebarMode === 'inbox' &&
+                loadingList &&
+                conversations.length === 0
+                  ? Array.from({ length: 4 }, (_, i) => (
+                      <li
+                        key={`chat-skel-${i}`}
+                        className="messagesPage__chatRow messagesPage__chatRow--skeleton"
+                        aria-hidden="true"
+                      >
+                        <div className="messagesPage__chatSkeleton" />
+                      </li>
+                    ))
+                  : null}
                 {sidebarMode === 'inbox' && hiddenConversations.length > 0 ? (
                   <li className="messagesPage__chatRow">
                     <button
@@ -1707,7 +1916,35 @@ export default function MessagesPage() {
                     </li>
                   );
                 })}
+                {sidebarMode === 'inbox' && listHasMore ? (
+                  <li
+                    ref={listLoadMoreSentinelRef}
+                    className="messagesPage__listSentinel"
+                    aria-hidden="true"
+                  />
+                ) : null}
+                {sidebarMode === 'inbox' && loadingMoreList ? (
+                  <li className="messagesPage__chatRow messagesPage__chatRow--skeleton" aria-hidden="true">
+                    <div className="messagesPage__chatSkeleton messagesPage__chatSkeleton--short" />
+                  </li>
+                ) : null}
               </ul>
+              {sidebarMode === 'inbox' &&
+              !isMobileListViewport &&
+              listHasMore &&
+              !serverSearchActive &&
+              searchQuery.trim().length < 2 ? (
+                <button
+                  type="button"
+                  className="messagesPage__listLoadMore"
+                  disabled={loadingMoreList}
+                  onClick={() => void loadMoreConversations()}
+                >
+                  {loadingMoreList
+                    ? t('messenger.loadingMoreChats')
+                    : t('messenger.showMoreChats')}
+                </button>
+              ) : null}
             </aside>
 
             <section
