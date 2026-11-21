@@ -567,6 +567,8 @@
     "soundLabel": "🔔 Message sound:",
     "loadChatsError": "Could not load chats",
     "noChats": "No chats yet",
+    "showMoreChats": "Show more",
+    "loadingMoreChats": "Loading…",
     "hiddenChats": "Hidden chats",
     "hiddenChatsEmpty": "No hidden chats",
     "hiddenChatsOpen": "Open hidden chats",

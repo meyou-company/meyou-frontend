@@ -343,6 +343,7 @@ export default function MessagesPage() {
   const chatListScrollRef = useRef(null);
   const listLoadMoreSentinelRef = useRef(null);
   const listLoadInFlightRef = useRef(false);
+  const listSearchGenRef = useRef(0);
   const olderCursorRef = useRef(null);
   const chatLoadGenRef = useRef(0);
   const stickToBottomRef = useRef(true);
@@ -492,7 +493,7 @@ export default function MessagesPage() {
     return list;
   }, []);
 
-  const loadConversations = useCallback(async () => {
+  const loadConversations = useCallback(async ({ listGen } = {}) => {
     if (listLoadInFlightRef.current) return;
     listLoadInFlightRef.current = true;
     try {
@@ -501,6 +502,7 @@ export default function MessagesPage() {
       const result = await conversationsApi.list({
         limit: CONVERSATION_LIST_PAGE_SIZE,
       });
+      if (listGen != null && listGen !== listSearchGenRef.current) return;
       applyConversationListPage(result);
     } catch (err) {
       console.error('[messages] list failed', err);
@@ -551,11 +553,11 @@ export default function MessagesPage() {
   ]);
 
   const searchConversationsServer = useCallback(
-    async (query) => {
+    async (query, listGen) => {
       const q = query.trim();
       if (q.length < 2) {
         setServerSearchActive(false);
-        void loadConversations();
+        void loadConversations({ listGen });
         return;
       }
       if (listLoadInFlightRef.current) return;
@@ -567,6 +569,7 @@ export default function MessagesPage() {
           limit: CONVERSATION_LIST_PAGE_SIZE,
           q,
         });
+        if (listGen != null && listGen !== listSearchGenRef.current) return;
         setServerSearchActive(true);
         applyConversationListPage(result);
       } catch (err) {
@@ -752,12 +755,13 @@ export default function MessagesPage() {
   useEffect(() => {
     const q = searchQuery.trim();
     if (sidebarMode !== 'inbox') return undefined;
+    const listGen = ++listSearchGenRef.current;
     const timer = window.setTimeout(() => {
       if (q.length >= 2) {
-        void searchConversationsServer(q);
+        void searchConversationsServer(q, listGen);
       } else if (serverSearchActive || q.length === 0) {
         setServerSearchActive(false);
-        if (q.length === 0) void loadConversations();
+        if (q.length === 0) void loadConversations({ listGen });
       }
     }, 320);
     return () => window.clearTimeout(timer);
@@ -1027,7 +1031,18 @@ export default function MessagesPage() {
         setConversations((prev) => {
           const chat = prev.find((c) => String(c.id) === String(convId));
           if (String(chat?.lastMessage?.id) === String(envelope.messageId)) {
-            void loadConversations();
+            void conversationsApi.getById(convId).then((row) => {
+              if (!row?.id) return;
+              setConversations((current) => {
+                const i = current.findIndex(
+                  (c) => String(c.id) === String(convId),
+                );
+                if (i < 0) return current;
+                const next = [...current];
+                next[i] = { ...next[i], ...row };
+                return sortConversations(next);
+              });
+            });
           }
           return prev;
         });
