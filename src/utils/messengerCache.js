@@ -1,4 +1,4 @@
-import { mergeMessageHistory } from './messageHistory';
+import { mergeMessageHistory, messageSortKey } from './messageHistory';
 
 export const MESSENGER_THREAD_CACHE_MAX = 10;
 export const MESSENGER_MESSAGES_CACHE_MAX = 200;
@@ -73,9 +73,29 @@ export function mergeInboxHeadRefresh(prevConversations, freshItems) {
 
 /**
  * Merge latest server page into cached thread without dropping scrolled-up history.
+ * @deprecated Prefer reconcileThreadWithLatestPage for background sync (authoritative tail).
  */
 export function mergeThreadWithLatestPage(cachedMessages, latestPageItems) {
   return mergeMessageHistory(cachedMessages || [], latestPageItems || []);
+}
+
+/**
+ * Background sync: server latest page is authoritative for the "tail" window.
+ * Older scrolled-up prefix is kept; deletes-for-me / omitted server rows drop from tail.
+ */
+export function reconcileThreadWithLatestPage(cachedMessages, latestPageItems) {
+  const cached = Array.isArray(cachedMessages) ? cachedMessages : [];
+  const latest = Array.isArray(latestPageItems) ? latestPageItems : [];
+  if (!latest.length) return [];
+  const oldestLatest = latest[0];
+  const oldestKey = messageSortKey(oldestLatest);
+  const prefix = cached.filter((m) => {
+    const key = messageSortKey(m);
+    if (key[0] < oldestKey[0]) return true;
+    if (key[0] > oldestKey[0]) return false;
+    return key[1].localeCompare(oldestKey[1]) < 0;
+  });
+  return mergeMessageHistory(prefix, latest);
 }
 
 export function createEmptyInboxCache() {

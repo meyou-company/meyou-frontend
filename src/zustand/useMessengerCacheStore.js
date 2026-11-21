@@ -64,6 +64,27 @@ export const useMessengerCacheStore = create((set, get) => ({
     return threadCache.get(conversationId);
   },
 
+  getBoundUserId: () => get().cacheUserId,
+
+  updateThreadMessages: (conversationId, updater) => {
+    if (!conversationId) return;
+    const key = String(conversationId);
+    const row = threadCache.get(key);
+    if (!row) return;
+    const base = row.messages || [];
+    const next =
+      typeof updater === 'function'
+        ? updater(base)
+        : Array.isArray(updater)
+          ? updater
+          : base;
+    threadCache.set(key, {
+      ...row,
+      messages: trimThreadMessages(next),
+      syncedAt: Date.now(),
+    });
+  },
+
   saveThread: (conversationId, payload) => {
     if (!conversationId) return;
     threadCache.set(String(conversationId), {

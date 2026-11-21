@@ -3,6 +3,7 @@ import {
   MessengerThreadCache,
   mergeInboxHeadRefresh,
   mergeThreadWithLatestPage,
+  reconcileThreadWithLatestPage,
   trimThreadMessages,
 } from './messengerCache';
 
@@ -35,6 +36,37 @@ describe('messengerCache', () => {
     const merged = mergeInboxHeadRefresh(prev, fresh);
     expect(merged.map((c) => c.id)).toEqual(['1', '2']);
     expect(merged[0].updatedAt).toBe('2025-01-03');
+  });
+
+  it('reconcile drops tail rows omitted by server (delete-for-me)', () => {
+    const cached = [
+      { id: '1', createdAt: '2024-01-01T00:00:00.000Z' },
+      { id: '2', createdAt: '2024-01-02T00:00:00.000Z' },
+      { id: '3', createdAt: '2024-01-03T00:00:00.000Z' },
+    ];
+    const latest = [
+      { id: '2', createdAt: '2024-01-02T00:00:00.000Z' },
+      { id: '3', createdAt: '2024-01-03T00:00:00.000Z', text: 'ok' },
+    ];
+    expect(reconcileThreadWithLatestPage(cached, latest).map((m) => m.id)).toEqual([
+      '1',
+      '2',
+      '3',
+    ]);
+    const tailOnly = [
+      { id: '2', createdAt: '2024-01-02T00:00:00.000Z' },
+      { id: '3', createdAt: '2024-01-03T00:00:00.000Z' },
+    ];
+    expect(
+      reconcileThreadWithLatestPage(tailOnly, [
+        { id: '2', createdAt: '2024-01-02T00:00:00.000Z' },
+      ]).map((m) => m.id),
+    ).toEqual(['2']);
+  });
+
+  it('reconcile empty latest clears visible history', () => {
+    const cached = [{ id: '1', createdAt: '2024-01-01T00:00:00.000Z' }];
+    expect(reconcileThreadWithLatestPage(cached, [])).toEqual([]);
   });
 
   it('merges thread sync without duplicates', () => {
