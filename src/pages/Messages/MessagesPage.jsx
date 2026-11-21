@@ -36,6 +36,12 @@ import OnlineStatus from '../../components/Presence/OnlineStatus';
 import StoryViewerModal from '../../components/Stories/StoryViewerModal';
 import { conversationsApi } from '../../services/conversationsApi';
 import { mergeConversationPages } from '../../utils/conversationListPage';
+import {
+  mergeInboxHeadRefresh,
+  reconcileThreadWithLatestPage,
+  MESSENGER_INITIAL_MESSAGE_LIMIT,
+} from '../../utils/messengerCache';
+import { useMessengerCacheStore } from '../../zustand/useMessengerCacheStore';
 import { callsApi } from '../../services/callsApi';
 import { usersApi } from '../../services/usersApi';
 import { usePresenceStore } from '../../zustand/usePresenceStore';
@@ -88,7 +94,7 @@ import { useCallsStore } from '../../zustand/useCallsStore';
 import { useGroupRoomsStore } from '../../zustand/useGroupRoomsStore';
 import './MessagesPage.scss';
 
-const MESSAGES_PAGE_SIZE = 40;
+const MESSAGES_PAGE_SIZE = MESSENGER_INITIAL_MESSAGE_LIMIT;
 const CONVERSATION_LIST_PAGE_SIZE = 10;
 
 function getDisplayName(user, fallback) {
@@ -344,8 +350,11 @@ export default function MessagesPage() {
   const listLoadMoreSentinelRef = useRef(null);
   const listLoadInFlightRef = useRef(false);
   const listSearchGenRef = useRef(0);
+  const messagesRef = useRef([]);
+  const hasMoreOlderRef = useRef(false);
   const olderCursorRef = useRef(null);
   const chatLoadGenRef = useRef(0);
+  const bgSyncInflightRef = useRef(new Map());
   const stickToBottomRef = useRef(true);
   const longPressTimerRef = useRef(null);
   const startCallInFlightRef = useRef(false);
@@ -470,51 +479,102 @@ export default function MessagesPage() {
     }
   }, [isAuthLoading, isAuthed, navigate, activeConversationId]);
 
-  const applyConversationListPage = useCallback((result, { append = false } = {}) => {
-    const items = Array.isArray(result?.items)
-      ? result.items
-      : Array.isArray(result)
-        ? result
-        : [];
-    const list = sortConversations(items);
-    usePresenceStore.getState().hydrateMany(
-      list.map((c) => c.participant).filter(Boolean),
-    );
-    setConversations((prev) =>
-      append ? sortConversations(mergeConversationPages(prev, list)) : list,
-    );
-    if (result && typeof result === 'object' && !Array.isArray(result)) {
-      setListHasMore(Boolean(result.hasMore));
-      setListNextCursor(result.nextCursor ?? null);
-    } else {
-      setListHasMore(false);
-      setListNextCursor(null);
-    }
-    return list;
-  }, []);
-
-  const loadConversations = useCallback(async ({ listGen } = {}) => {
-    if (listLoadInFlightRef.current) return;
-    listLoadInFlightRef.current = true;
-    try {
-      setLoadingList(true);
-      setListError('');
-      const result = await conversationsApi.list({
-        limit: CONVERSATION_LIST_PAGE_SIZE,
+  const persistInboxCache = useCallback(
+    (conversationsList, hasMore, nextCursor) => {
+      if (!currentUserId) return;
+      useMessengerCacheStore.getState().setInboxSnapshot({
+        conversations: conversationsList,
+        listHasMore: hasMore,
+        listNextCursor: nextCursor,
       });
-      if (listGen != null && listGen !== listSearchGenRef.current) return;
-      applyConversationListPage(result);
-    } catch (err) {
-      console.error('[messages] list failed', err);
-      setListError(getApiErrorMessage(err, 'messenger.loadChatsError'));
-      setConversations([]);
-      setListHasMore(false);
-      setListNextCursor(null);
-    } finally {
-      setLoadingList(false);
-      listLoadInFlightRef.current = false;
-    }
-  }, [applyConversationListPage]);
+    },
+    [currentUserId],
+  );
+
+  const applyConversationListPage = useCallback(
+    (result, { append = false, backgroundHead = false } = {}) => {
+      const items = Array.isArray(result?.items)
+        ? result.items
+        : Array.isArray(result)
+          ? result
+          : [];
+      const list = sortConversations(items);
+      usePresenceStore.getState().hydrateMany(
+        list.map((c) => c.participant).filter(Boolean),
+      );
+      let nextHasMore = false;
+      let nextCursor = null;
+      if (result && typeof result === 'object' && !Array.isArray(result)) {
+        nextHasMore = Boolean(result.hasMore);
+        nextCursor = result.nextCursor ?? null;
+      }
+
+      if (backgroundHead) {
+        setConversations((prev) => {
+          const next = sortConversations(mergeInboxHeadRefresh(prev, list));
+          const snap = useMessengerCacheStore.getState().getInboxSnapshot();
+          persistInboxCache(next, snap.listHasMore, snap.listNextCursor);
+          return next;
+        });
+        return list;
+      }
+
+      if (append) {
+        setListHasMore(nextHasMore);
+        setListNextCursor(nextCursor);
+      } else {
+        setListHasMore(nextHasMore);
+        setListNextCursor(nextCursor);
+      }
+
+      setConversations((prev) => {
+        const next = append
+          ? sortConversations(mergeConversationPages(prev, list))
+          : list;
+        persistInboxCache(next, nextHasMore, nextCursor);
+        return next;
+      });
+      return list;
+    },
+    [persistInboxCache],
+  );
+
+  const loadConversations = useCallback(
+    async ({ listGen, background = false } = {}) => {
+      if (listLoadInFlightRef.current) return;
+      listLoadInFlightRef.current = true;
+      const hadInboxCache =
+        (useMessengerCacheStore.getState().getInboxSnapshot().conversations
+          ?.length ?? 0) > 0;
+      try {
+        if (!background) setLoadingList(true);
+        setListError('');
+        const result = await conversationsApi.list({
+          limit: CONVERSATION_LIST_PAGE_SIZE,
+        });
+        if (listGen != null && listGen !== listSearchGenRef.current) return;
+        if (background) {
+          applyConversationListPage(result, { backgroundHead: true });
+        } else {
+          applyConversationListPage(result);
+        }
+      } catch (err) {
+        console.error('[messages] list failed', err);
+        if (!background) {
+          setListError(getApiErrorMessage(err, 'messenger.loadChatsError'));
+          if (!hadInboxCache) {
+            setConversations([]);
+            setListHasMore(false);
+            setListNextCursor(null);
+          }
+        }
+      } finally {
+        if (!background) setLoadingList(false);
+        listLoadInFlightRef.current = false;
+      }
+    },
+    [applyConversationListPage],
+  );
 
   const loadMoreConversations = useCallback(async () => {
     if (
@@ -668,8 +728,129 @@ export default function MessagesPage() {
     [setTotalUnreadCount, applyConversationRead, fetchTotalUnreadCount],
   );
 
+  const isMessengerCacheBound = useCallback(() => {
+    const uid = useAuthStore.getState().user?.id;
+    if (!uid) return false;
+    return (
+      String(uid) === String(useMessengerCacheStore.getState().getBoundUserId())
+    );
+  }, []);
+
+  const saveThreadCache = useCallback(
+    (conversationId, payload) => {
+      if (!conversationId || !isMessengerCacheBound()) return;
+      useMessengerCacheStore.getState().saveThread(conversationId, payload);
+    },
+    [isMessengerCacheBound],
+  );
+
+  const patchCachedThreadMessages = useCallback(
+    (conversationId, updater) => {
+      if (!conversationId || !isMessengerCacheBound()) return;
+      useMessengerCacheStore.getState().updateThreadMessages(conversationId, updater);
+    },
+    [isMessengerCacheBound],
+  );
+
+  const handleConversationAccessLost = useCallback(
+    (lostConversationId) => {
+      if (!lostConversationId) return;
+      const id = String(lostConversationId);
+      useMessengerCacheStore.getState().removeThread(id);
+      useMessengerCacheStore.getState().patchInboxConversations((prev) =>
+        prev.filter((c) => String(c.id) !== id),
+      );
+      setConversations((prev) => prev.filter((c) => String(c.id) !== id));
+      setHiddenConversations((prev) => prev.filter((c) => String(c.id) !== id));
+      if (String(activeConversationIdRef.current) === id) {
+        setMessages([]);
+        setHasMoreOlder(false);
+        olderCursorRef.current = null;
+        setSeenMessageIds(new Set());
+        navigate('/messages');
+      }
+    },
+    [navigate],
+  );
+
+  const loadOlderMessagesRef = useRef(async () => {});
+
+  const maybeFillViewportWithOlder = useCallback(() => {
+    const el = messagesScrollRef.current;
+    if (!el || loadingOlder || loadingChat) return;
+    if (!hasMoreOlderRef.current) return;
+    if (el.scrollHeight > el.clientHeight + 12) return;
+    void loadOlderMessagesRef.current();
+  }, [loadingOlder, loadingChat]);
+
+  const syncMessagesInBackground = useCallback(
+    async (id, gen) => {
+      const key = String(id);
+      const inflight = bgSyncInflightRef.current.get(key);
+      if (inflight) return inflight;
+
+      const request = (async () => {
+        try {
+          const result = await conversationsApi.getMessages(id, {
+            limit: MESSAGES_PAGE_SIZE,
+          });
+          if (gen !== chatLoadGenRef.current || !isMessengerCacheBound()) return;
+          const pageItems = result.items || [];
+          let mergedSnapshot = [];
+          setMessages((prev) => {
+            const merged = reconcileThreadWithLatestPage(prev, pageItems);
+            mergedSnapshot = merged;
+            saveThreadCache(id, {
+              messages: merged,
+              hasMoreOlder: Boolean(result.hasMoreOlder),
+              olderCursor: result.before ?? olderCursorRef.current,
+            });
+            return merged;
+          });
+          setHasMoreOlder(Boolean(result.hasMoreOlder));
+          olderCursorRef.current = result.before ?? olderCursorRef.current;
+          const uid = useAuthStore.getState().user?.id;
+          setSeenMessageIds(collectSeenOutgoingIds(mergedSnapshot, uid));
+          const newest = mergedSnapshot.length
+            ? mergedSnapshot[mergedSnapshot.length - 1]?.id
+            : undefined;
+          void markChatRead(id, {
+            readUpToMessageId: newest,
+            chatGeneration: gen,
+          });
+          requestAnimationFrame(() => {
+            if (gen === chatLoadGenRef.current) maybeFillViewportWithOlder();
+          });
+        } catch (err) {
+          if (gen !== chatLoadGenRef.current) return;
+          const status = err?.response?.status;
+          if (status === 403 || status === 404) {
+            handleConversationAccessLost(id);
+            return;
+          }
+          console.error('[messages] background sync failed', err);
+        } finally {
+          if (bgSyncInflightRef.current.get(key) === request) {
+            bgSyncInflightRef.current.delete(key);
+          }
+        }
+      })();
+
+      bgSyncInflightRef.current.set(key, request);
+      return request;
+    },
+    [
+      currentUserId,
+      handleConversationAccessLost,
+      isMessengerCacheBound,
+      markChatRead,
+      maybeFillViewportWithOlder,
+      saveThreadCache,
+    ],
+  );
+
   const loadMessages = useCallback(
-    async (id) => {
+    async (id, { gen: passedGen } = {}) => {
       if (!id) {
         setMessages([]);
         setHasMoreOlder(false);
@@ -677,26 +858,40 @@ export default function MessagesPage() {
         setSeenMessageIds(new Set());
         return;
       }
-      const gen = ++chatLoadGenRef.current;
+      const gen = passedGen ?? ++chatLoadGenRef.current;
       try {
         setLoadingChat(true);
         stickToBottomRef.current = true;
         const result = await conversationsApi.getMessages(id, {
           limit: MESSAGES_PAGE_SIZE,
         });
-        if (gen !== chatLoadGenRef.current) return;
+        if (gen !== chatLoadGenRef.current || !isMessengerCacheBound()) return;
         const items = result.items || [];
         setMessages(items);
         setHasMoreOlder(Boolean(result.hasMoreOlder));
         olderCursorRef.current = result.before ?? null;
-        setSeenMessageIds(collectSeenOutgoingIds(items, currentUserId));
+        const uid = useAuthStore.getState().user?.id;
+        setSeenMessageIds(collectSeenOutgoingIds(items, uid));
+        saveThreadCache(id, {
+          messages: items,
+          hasMoreOlder: Boolean(result.hasMoreOlder),
+          olderCursor: result.before ?? null,
+        });
         const newest = items.length ? items[items.length - 1]?.id : undefined;
         void markChatRead(id, {
           readUpToMessageId: newest,
           chatGeneration: gen,
         });
+        requestAnimationFrame(() => {
+          if (gen === chatLoadGenRef.current) maybeFillViewportWithOlder();
+        });
       } catch (err) {
         if (gen !== chatLoadGenRef.current) return;
+        const status = err?.response?.status;
+        if (status === 403 || status === 404) {
+          handleConversationAccessLost(id);
+          return;
+        }
         console.error('[messages] chat failed', err);
         toast.error(getApiErrorMessage(err, 'messenger.loadMessagesError'));
         setMessages([]);
@@ -707,7 +902,13 @@ export default function MessagesPage() {
         if (gen === chatLoadGenRef.current) setLoadingChat(false);
       }
     },
-    [currentUserId, markChatRead],
+    [
+      handleConversationAccessLost,
+      isMessengerCacheBound,
+      markChatRead,
+      maybeFillViewportWithOlder,
+      saveThreadCache,
+    ],
   );
 
   const loadOlderMessages = useCallback(async () => {
@@ -725,8 +926,17 @@ export default function MessagesPage() {
         before,
         limit: MESSAGES_PAGE_SIZE,
       });
-      if (gen !== chatLoadGenRef.current) return;
-      setMessages((prev) => mergeMessageHistory(prev, result.items || []));
+      if (gen !== chatLoadGenRef.current || !isMessengerCacheBound()) return;
+      let merged = [];
+      setMessages((prev) => {
+        merged = mergeMessageHistory(prev, result.items || []);
+        saveThreadCache(id, {
+          messages: merged,
+          hasMoreOlder: Boolean(result.hasMoreOlder),
+          olderCursor: result.before ?? null,
+        });
+        return merged;
+      });
       setHasMoreOlder(Boolean(result.hasMoreOlder));
       olderCursorRef.current = result.before ?? null;
       requestAnimationFrame(() => {
@@ -740,17 +950,56 @@ export default function MessagesPage() {
     } finally {
       if (gen === chatLoadGenRef.current) setLoadingOlder(false);
     }
-  }, [hasMoreOlder, loadingOlder, loadingChat]);
+  }, [hasMoreOlder, loadingOlder, loadingChat, isMessengerCacheBound, saveThreadCache]);
+
+  loadOlderMessagesRef.current = loadOlderMessages;
 
   useEffect(() => {
-    if (!isAuthed) return;
-    loadConversations();
+    messagesRef.current = messages;
+  }, [messages]);
+
+  useEffect(() => {
+    hasMoreOlderRef.current = hasMoreOlder;
+  }, [hasMoreOlder]);
+
+  useEffect(() => {
+    if (!currentUserId || serverSearchActive || sidebarMode !== 'inbox') return;
+    persistInboxCache(conversations, listHasMore, listNextCursor);
+  }, [
+    conversations,
+    listHasMore,
+    listNextCursor,
+    currentUserId,
+    serverSearchActive,
+    sidebarMode,
+    persistInboxCache,
+  ]);
+
+  useEffect(() => {
+    if (!isAuthed || !currentUserId) return;
+    useMessengerCacheStore.getState().bindUser(currentUserId);
+    const snap = useMessengerCacheStore.getState().getInboxSnapshot();
+    if (snap.conversations.length > 0) {
+      setConversations(sortConversations(snap.conversations));
+      setListHasMore(snap.listHasMore);
+      setListNextCursor(snap.listNextCursor);
+      setLoadingList(false);
+      void loadConversations({ background: true });
+    } else {
+      void loadConversations();
+    }
     const defer = window.setTimeout(() => {
       loadHiddenConversations();
       fetchTotalUnreadCount();
     }, 0);
     return () => window.clearTimeout(defer);
-  }, [isAuthed, loadConversations, loadHiddenConversations, fetchTotalUnreadCount]);
+  }, [
+    isAuthed,
+    currentUserId,
+    loadConversations,
+    loadHiddenConversations,
+    fetchTotalUnreadCount,
+  ]);
 
   useEffect(() => {
     const q = searchQuery.trim();
@@ -837,19 +1086,59 @@ export default function MessagesPage() {
 
   useEffect(() => {
     if (!isAuthed || !activeConversationId) return;
-    manuallyUnreadRef.current.delete(String(activeConversationId));
+    const openingId = activeConversationId;
+    manuallyUnreadRef.current.delete(String(openingId));
     setReplyTo(null);
     setShowChatSearch(false);
     setTypingUserIds([]);
     setShowGroupInfo(false);
     setPinnedMessageId(null);
-    setSeenMessageIds(new Set());
     setHighlightMessageId(null);
-    setHasMoreOlder(false);
-    olderCursorRef.current = null;
-    setMessages([]);
-    loadMessages(activeConversationId);
-  }, [isAuthed, activeConversationId, loadMessages]);
+
+    const gen = ++chatLoadGenRef.current;
+    const cached = currentUserId
+      ? useMessengerCacheStore.getState().getThread(openingId)
+      : null;
+
+    if (cached?.messages?.length) {
+      setMessages(cached.messages);
+      setHasMoreOlder(Boolean(cached.hasMoreOlder));
+      olderCursorRef.current = cached.olderCursor ?? null;
+      setSeenMessageIds(
+        collectSeenOutgoingIds(cached.messages, currentUserId),
+      );
+      setLoadingChat(false);
+      stickToBottomRef.current = true;
+      requestAnimationFrame(() => {
+        if (gen !== chatLoadGenRef.current) return;
+        messagesEndRef.current?.scrollIntoView({ behavior: 'auto' });
+        maybeFillViewportWithOlder();
+      });
+      void syncMessagesInBackground(openingId, gen);
+    } else {
+      setHasMoreOlder(false);
+      olderCursorRef.current = null;
+      setSeenMessageIds(new Set());
+      setMessages([]);
+      void loadMessages(openingId, { gen });
+    }
+
+    return () => {
+      if (!currentUserId || !openingId) return;
+      useMessengerCacheStore.getState().saveThread(openingId, {
+        messages: messagesRef.current,
+        hasMoreOlder: hasMoreOlderRef.current,
+        olderCursor: olderCursorRef.current,
+      });
+    };
+  }, [
+    isAuthed,
+    activeConversationId,
+    currentUserId,
+    loadMessages,
+    syncMessagesInBackground,
+    maybeFillViewportWithOlder,
+  ]);
 
   useEffect(() => {
     const el = messagesScrollRef.current;
@@ -1001,6 +1290,22 @@ export default function MessagesPage() {
 
       setConversations((prev) => patchConversationLastMessage(prev, convId, message));
 
+      patchCachedThreadMessages(convId, (prev) => {
+        const idx = prev.findIndex((m) => String(m.id) === String(message.id));
+        if (idx >= 0) {
+          const next = [...prev];
+          next[idx] = mergeMessageRecord(prev[idx], message);
+          return next;
+        }
+        if (
+          message.clientId &&
+          prev.some((m) => String(m.clientId) === String(message.clientId))
+        ) {
+          return mergeOutgoingMessage(prev, `optimistic-${message.clientId}`, message);
+        }
+        return mergeMessageHistory(prev, [message]);
+      });
+
       if (!matchesActive(convId)) return;
       if (
         message.clientId &&
@@ -1023,11 +1328,23 @@ export default function MessagesPage() {
       const message = envelope?.message;
       if (message?.deletedForEveryone) {
         setConversations((prev) => patchConversationLastMessage(prev, convId, message));
+        patchCachedThreadMessages(convId, (prev) => {
+          const idx = prev.findIndex((m) => String(m.id) === String(message.id));
+          if (idx >= 0) {
+            const next = [...prev];
+            next[idx] = mergeMessageRecord(prev[idx], message);
+            return next;
+          }
+          return mergeMessageHistory(prev, [message]);
+        });
         if (matchesActive(convId)) appendOrUpdateMessage(message);
         return;
       }
 
       if (envelope?.messageId) {
+        patchCachedThreadMessages(convId, (prev) =>
+          prev.filter((m) => String(m.id) !== String(envelope.messageId)),
+        );
         setConversations((prev) => {
           const chat = prev.find((c) => String(c.id) === String(convId));
           if (String(chat?.lastMessage?.id) === String(envelope.messageId)) {
@@ -1078,15 +1395,21 @@ export default function MessagesPage() {
 
     const onReactionAdded = (event) => {
       const envelope = event?.detail;
-      if (!matchesActive(envelope?.conversationId)) return;
-      if (!envelope?.messageId || !envelope?.reaction) return;
+      const convId = envelope?.conversationId;
+      if (!convId || !envelope?.messageId || !envelope?.reaction) return;
+      patchCachedThreadMessages(convId, (prev) => applyReactionAdded(prev, envelope));
+      if (!matchesActive(convId)) return;
       setMessages((prev) => applyReactionAdded(prev, envelope));
     };
 
     const onReactionRemoved = (event) => {
       const envelope = event?.detail;
-      if (!matchesActive(envelope?.conversationId)) return;
-      if (!envelope?.messageId) return;
+      const convId = envelope?.conversationId;
+      if (!convId || !envelope?.messageId) return;
+      patchCachedThreadMessages(convId, (prev) =>
+        applyReactionRemoved(prev, envelope, currentUserId),
+      );
+      if (!matchesActive(convId)) return;
       setMessages((prev) => applyReactionRemoved(prev, envelope, currentUserId));
     };
 
@@ -1129,6 +1452,10 @@ export default function MessagesPage() {
     const onConversationDeleted = (event) => {
       const convId = event?.detail?.conversationId;
       if (!convId) return;
+      useMessengerCacheStore.getState().removeThread(convId);
+      useMessengerCacheStore.getState().patchInboxConversations((prev) =>
+        prev.filter((c) => String(c.id) !== String(convId)),
+      );
       setConversations((prev) =>
         prev.filter((c) => String(c.id) !== String(convId)),
       );
@@ -1175,7 +1502,29 @@ export default function MessagesPage() {
     loadConversations,
     markChatRead,
     navigate,
+    patchCachedThreadMessages,
     setTotalUnreadCount,
+  ]);
+
+  useEffect(() => {
+    if (!isAuthed || !currentUserId) return undefined;
+    const onVisible = () => {
+      if (document.visibilityState !== 'visible') return;
+      if (!isMessengerCacheBound()) return;
+      void loadConversations({ background: true });
+      const activeId = activeConversationIdRef.current;
+      if (activeId) {
+        void syncMessagesInBackground(activeId, chatLoadGenRef.current);
+      }
+    };
+    document.addEventListener('visibilitychange', onVisible);
+    return () => document.removeEventListener('visibilitychange', onVisible);
+  }, [
+    isAuthed,
+    currentUserId,
+    isMessengerCacheBound,
+    loadConversations,
+    syncMessagesInBackground,
   ]);
 
   const handleDraftChange = useCallback(
