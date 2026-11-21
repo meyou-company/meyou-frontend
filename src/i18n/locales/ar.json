@@ -1025,6 +1025,10 @@
         "sessions": {
           "title": "Active sessions",
           "desc": "Devices where you are signed in"
+        },
+        "securityLog": {
+          "title": "سجل الأمان",
+          "desc": "أحداث تسجيل الدخول والحماية الأخيرة"
         }
       },
       "logoutAll": "Log out on all devices",
@@ -1050,6 +1054,28 @@
         "loginAlerts": "Email alerts for new devices",
         "alertsEnabled": "Login alerts enabled",
         "alertsDisabled": "Login alerts disabled"
+      },
+      "securityLog": {
+        "loading": "جارٍ تحميل سجل الأمان…",
+        "loadingMore": "جارٍ التحميل…",
+        "loadMore": "عرض المزيد",
+        "empty": "لا توجد أحداث أمان بعد",
+        "loadError": "تعذّر تحميل سجل الأمان",
+        "unknownDevice": "جهاز غير معروف",
+        "unknownTime": "وقت غير معروف",
+        "countryApprox": "البلد (تقريبي): {{country}}",
+        "retentionNote": "تُحفظ الأحداث لمدة 90 يومًا. لا نخزّن كلمات المرور أو الرموز أو عناوين IP الكاملة.",
+        "types": {
+          "loginSuccess": "تسجيل دخول ناجح",
+          "loginFailed": "محاولة دخول فاشلة",
+          "mfaEnabled": "تم تفعيل المصادقة الثنائية",
+          "mfaDisabled": "تم إيقاف المصادقة الثنائية",
+          "passwordChanged": "تم تغيير كلمة المرور",
+          "logoutAll": "تسجيل الخروج من جميع الأجهزة",
+          "sessionRevoked": "انتهت الجلسة",
+          "mfaRateLimited": "تم تقييد محاولات MFA",
+          "unknown": "حدث أمان"
+        }
       },
       "deleteAccount": {
         "dangerZoneTitle": "Danger zone",

@@ -1033,6 +1033,10 @@
         "sessions": {
           "title": "Active sessions",
           "desc": "Devices where you are signed in"
+        },
+        "securityLog": {
+          "title": "Journal de sécurité",
+          "desc": "Événements récents de connexion et de protection"
         }
       },
       "logoutAll": "Log out on all devices",
@@ -1058,6 +1062,28 @@
         "loginAlerts": "Email alerts for new devices",
         "alertsEnabled": "Login alerts enabled",
         "alertsDisabled": "Login alerts disabled"
+      },
+      "securityLog": {
+        "loading": "Chargement du journal de sécurité…",
+        "loadingMore": "Chargement…",
+        "loadMore": "Voir plus",
+        "empty": "Aucun événement de sécurité pour le moment",
+        "loadError": "Impossible de charger le journal de sécurité",
+        "unknownDevice": "Appareil inconnu",
+        "unknownTime": "Heure inconnue",
+        "countryApprox": "Pays (approx.) : {{country}}",
+        "retentionNote": "Les événements sont conservés 90 jours. Aucun mot de passe, code ni adresse IP complète n’est stocké.",
+        "types": {
+          "loginSuccess": "Connexion réussie",
+          "loginFailed": "Échec de connexion",
+          "mfaEnabled": "2FA activée",
+          "mfaDisabled": "2FA désactivée",
+          "passwordChanged": "Mot de passe modifié",
+          "logoutAll": "Déconnexion sur tous les appareils",
+          "sessionRevoked": "Session terminée",
+          "mfaRateLimited": "Tentatives MFA limitées",
+          "unknown": "Événement de sécurité"
+        }
       },
       "deleteAccount": {
         "dangerZoneTitle": "Danger zone",

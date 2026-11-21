@@ -1033,6 +1033,10 @@
         "sessions": {
           "title": "Active sessions",
           "desc": "Devices where you are signed in"
+        },
+        "securityLog": {
+          "title": "Güvenlik günlüğü",
+          "desc": "Son oturum açma ve koruma olayları"
         }
       },
       "logoutAll": "Log out on all devices",
@@ -1058,6 +1062,28 @@
         "loginAlerts": "Email alerts for new devices",
         "alertsEnabled": "Login alerts enabled",
         "alertsDisabled": "Login alerts disabled"
+      },
+      "securityLog": {
+        "loading": "Güvenlik günlüğü yükleniyor…",
+        "loadingMore": "Yükleniyor…",
+        "loadMore": "Daha fazla göster",
+        "empty": "Henüz güvenlik olayı yok",
+        "loadError": "Güvenlik günlüğü yüklenemedi",
+        "unknownDevice": "Bilinmeyen cihaz",
+        "unknownTime": "Bilinmeyen saat",
+        "countryApprox": "Ülke (yaklaşık): {{country}}",
+        "retentionNote": "Olaylar 90 gün saklanır. Parola, kod ve tam IP adresi kaydedilmez.",
+        "types": {
+          "loginSuccess": "Başarılı oturum açma",
+          "loginFailed": "Başarısız oturum açma",
+          "mfaEnabled": "2FA etkin",
+          "mfaDisabled": "2FA devre dışı",
+          "passwordChanged": "Parola değiştirildi",
+          "logoutAll": "Tüm cihazlardan çıkış",
+          "sessionRevoked": "Oturum sonlandırıldı",
+          "mfaRateLimited": "MFA denemeleri sınırlandı",
+          "unknown": "Güvenlik olayı"
+        }
       },
       "deleteAccount": {
         "dangerZoneTitle": "Danger zone",

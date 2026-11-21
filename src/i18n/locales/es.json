@@ -1033,6 +1033,10 @@
         "sessions": {
           "title": "Active sessions",
           "desc": "Devices where you are signed in"
+        },
+        "securityLog": {
+          "title": "Registro de seguridad",
+          "desc": "Eventos recientes de inicio de sesión y protección"
         }
       },
       "logoutAll": "Log out on all devices",
@@ -1058,6 +1062,28 @@
         "loginAlerts": "Email alerts for new devices",
         "alertsEnabled": "Login alerts enabled",
         "alertsDisabled": "Login alerts disabled"
+      },
+      "securityLog": {
+        "loading": "Cargando registro de seguridad…",
+        "loadingMore": "Cargando…",
+        "loadMore": "Ver más",
+        "empty": "Aún no hay eventos de seguridad",
+        "loadError": "No se pudo cargar el registro de seguridad",
+        "unknownDevice": "Dispositivo desconocido",
+        "unknownTime": "Hora desconocida",
+        "countryApprox": "País (aprox.): {{country}}",
+        "retentionNote": "Los eventos se conservan 90 días. No guardamos contraseñas, códigos ni direcciones IP completas.",
+        "types": {
+          "loginSuccess": "Inicio de sesión correcto",
+          "loginFailed": "Intento de inicio fallido",
+          "mfaEnabled": "2FA activado",
+          "mfaDisabled": "2FA desactivado",
+          "passwordChanged": "Contraseña cambiada",
+          "logoutAll": "Sesión cerrada en todos los dispositivos",
+          "sessionRevoked": "Sesión finalizada",
+          "mfaRateLimited": "Intentos MFA limitados",
+          "unknown": "Evento de seguridad"
+        }
       },
       "deleteAccount": {
         "dangerZoneTitle": "Danger zone",

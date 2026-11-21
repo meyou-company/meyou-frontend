@@ -1349,6 +1349,10 @@
         "sessions": {
           "title": "Active sessions",
           "desc": "Devices where you are signed in"
+        },
+        "securityLog": {
+          "title": "Security log",
+          "desc": "Recent sign-in and protection events"
         }
       },
       "logoutAll": "Log out on all devices",
@@ -1374,6 +1378,28 @@
         "loginAlerts": "Email alerts for new devices",
         "alertsEnabled": "Login alerts enabled",
         "alertsDisabled": "Login alerts disabled"
+      },
+      "securityLog": {
+        "loading": "Loading security log…",
+        "loadingMore": "Loading…",
+        "loadMore": "Load more",
+        "empty": "No security events yet",
+        "loadError": "Could not load security log",
+        "unknownDevice": "Unknown device",
+        "unknownTime": "Unknown time",
+        "countryApprox": "Country (approx.): {{country}}",
+        "retentionNote": "Events are kept for 90 days. Passwords, codes, and full IP addresses are not stored.",
+        "types": {
+          "loginSuccess": "Successful sign-in",
+          "loginFailed": "Failed sign-in",
+          "mfaEnabled": "2FA enabled",
+          "mfaDisabled": "2FA disabled",
+          "passwordChanged": "Password changed",
+          "logoutAll": "Signed out everywhere",
+          "sessionRevoked": "Session ended",
+          "mfaRateLimited": "MFA attempts limited",
+          "unknown": "Security event"
+        }
       },
       "deleteAccount": {
         "dangerZoneTitle": "Danger zone",
