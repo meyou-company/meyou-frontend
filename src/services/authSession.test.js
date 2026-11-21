@@ -1,4 +1,11 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+
+const setChatMediaDeliveryScope = vi.hoisted(() => vi.fn());
+
+vi.mock("../utils/chatMediaDeliveryCache.js", () => ({
+  setChatMediaDeliveryScope,
+}));
+
 import {
   applyAuthFromSession,
   pickAccessToken,
@@ -27,6 +34,13 @@ describe("authSession security helpers", () => {
       token: "jwt.access",
       isAuthed: true,
     });
+    expect(setChatMediaDeliveryScope).toHaveBeenCalledWith("1");
+  });
+
+  it("applyAuthFromSession clears delivery scope when user is null", () => {
+    const setAuth = vi.fn();
+    applyAuthFromSession(setAuth, null, null);
+    expect(setChatMediaDeliveryScope).toHaveBeenCalledWith("");
   });
 });
 

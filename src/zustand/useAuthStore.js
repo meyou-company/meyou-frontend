@@ -20,6 +20,10 @@ import { shouldRunAuthBootstrap } from '../constants/publicRoutes';
 import { saveMfaChallenge } from '../utils/mfaChallengeStorage';
 import { clearAllPostFeedCaches, clearFirstPageFeedCache } from '../utils/feedCache';
 import { clearAllPostLikeOverrides } from '../utils/postLikePersistence';
+import {
+  clearChatMediaDeliveryCache,
+  setChatMediaDeliveryScope,
+} from '../utils/chatMediaDeliveryCache';
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -48,6 +52,8 @@ function clearAuthSession(set) {
   clearOAuthSessionTokens();
   clearAllPostFeedCaches();
   clearAllPostLikeOverrides();
+  clearChatMediaDeliveryCache();
+  setChatMediaDeliveryScope('');
   try {
     if (typeof window !== 'undefined') {
       window.localStorage.removeItem('current-user-avatar');
@@ -203,6 +209,7 @@ export const useAuthStore = create((set) => ({
       const accessToken = pickAccessToken(loginPayload);
       persistOAuthSessionTokens(accessToken);
       useGuestPreviewStore.getState().setEnabled(false);
+      setChatMediaDeliveryScope(user?.id ?? '');
       set({ user, token: accessToken, isAuthed: true });
       markInitDone();
       return { ok: true, user };
@@ -229,6 +236,7 @@ export const useAuthStore = create((set) => ({
       const accessToken = pickAccessToken(res);
       persistOAuthSessionTokens(accessToken);
       useGuestPreviewStore.getState().setEnabled(false);
+      setChatMediaDeliveryScope(user?.id ?? '');
       set({ user, token: accessToken, isAuthed: true });
       markInitDone();
       return { ok: true };

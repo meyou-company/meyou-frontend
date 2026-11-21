@@ -54,6 +54,7 @@ export default function MediaViewerModal({ isOpen, media, onClose }) {
             controls
             autoPlay
             playsInline
+            onError={media.onMediaError}
           />
         ) : (
           <img
@@ -61,6 +62,7 @@ export default function MediaViewerModal({ isOpen, media, onClose }) {
             src={media.url}
             alt={media.fileName || t('messenger.attachmentPreview')}
             draggable={false}
+            onError={media.onMediaError}
           />
         )}
       </div>
