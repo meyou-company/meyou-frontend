@@ -4,6 +4,12 @@ import {
   dedupedSessionRefresh,
   withRefreshParallelRetry,
 } from "./sessionRefresh";
+import {
+  clearStoredSessionId,
+  getClientDeviceId,
+  getStoredSessionId,
+  persistSessionId,
+} from "../utils/clientDeviceId";
 
 /**
  * `VITE_API_URL` задає базу під глобальний префікс `/api` на Nest.
@@ -83,6 +89,7 @@ export function clearOAuthSessionTokens() {
   try {
     sessionStorage.removeItem(SESSION_ACCESS_KEY);
     sessionStorage.removeItem(SESSION_REFRESH_KEY);
+    clearStoredSessionId();
   } catch (_) {
     /* ignore */
   }
@@ -169,6 +176,13 @@ const isRefreshEndpoint = (config) => {
 
 api.interceptors.request.use((config) => {
   config.__apiLogId = logApiRequest(config);
+  const headers = config.headers ?? {};
+  headers["X-Lunmeyo-Device-Id"] = getClientDeviceId();
+  const sid = getStoredSessionId();
+  if (sid) {
+    headers["X-Lunmeyo-Session-Id"] = sid;
+  }
+  config.headers = headers;
 
   if (!config.headers?.Authorization) {
     if (!isRefreshEndpoint(config)) {
@@ -202,6 +216,9 @@ api.interceptors.response.use(
       res.config?.method === 'post'
     ) {
       persistTokensFromResponseBody(res.data);
+      if (res.data?.sessionId) {
+        persistSessionId(res.data.sessionId);
+      }
     }
     return res;
   },
