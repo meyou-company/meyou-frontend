@@ -11,7 +11,7 @@ import {
   uploadMessageMedia,
 } from '../../services/messageMediaUploadApi';
 import { resolveFileMime } from '../../utils/messageAttachmentMedia';
-import { getApiErrorMessage } from '../../utils/getApiErrorMessage';
+import { getMediaUploadErrorMessage } from '../../utils/getApiErrorMessage';
 import MessageComposerAttachmentPreview from './MessageComposerAttachmentPreview';
 import {
   fitComposerTextarea,
@@ -141,7 +141,7 @@ export default function MessageComposer({
       resetPendingAttachments();
     } catch (err) {
       if (text) onChange?.(text);
-      toast.error(getApiErrorMessage(err, 'messenger.uploadError'));
+      toast.error(getMediaUploadErrorMessage(err, 'messenger.uploadError'));
     } finally {
       setUploadingFile(false);
     }
@@ -180,7 +180,7 @@ export default function MessageComposer({
           metadata: { lunmeyoStickerId: item.id },
         });
       } catch (err) {
-        toast.error(getApiErrorMessage(err, 'messenger.uploadError'));
+        toast.error(getMediaUploadErrorMessage(err, 'messenger.uploadError'));
       }
     },
     [busy, onSendPayload, stopTyping],

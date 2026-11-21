@@ -5,7 +5,7 @@ import { conversationsApi } from '../../services/conversationsApi';
 import { subscriptionsApi } from '../../services/subscriptionsApi';
 import { usersApi } from '../../services/usersApi';
 import { uploadMessageMedia } from '../../services/messageMediaUploadApi';
-import { getApiErrorMessage } from '../../utils/getApiErrorMessage';
+import { getApiErrorMessage, getMediaUploadErrorMessage } from '../../utils/getApiErrorMessage';
 import { getMemberDisplayName } from '../../utils/conversationPreview';
 import GroupAvatar from './GroupAvatar';
 import './CreateGroupModal.scss';
@@ -132,7 +132,7 @@ export default function CreateGroupModal({ isOpen, currentUserId, onClose, onCre
       const url = await uploadMessageMedia(file);
       setAvatarUrl(url);
     } catch (err) {
-      toast.error(getApiErrorMessage(err, 'messenger.uploadError'));
+      toast.error(getMediaUploadErrorMessage(err, 'messenger.uploadError'));
     } finally {
       setUploading(false);
     }
