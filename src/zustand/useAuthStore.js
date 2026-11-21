@@ -15,6 +15,7 @@ import {
 import { passwordApi } from '../services/passwordApi';
 import { disconnectSocket } from '../services/socket';
 import { useMessagesStore } from './useMessagesStore';
+import { useMessengerCacheStore } from './useMessengerCacheStore';
 import { useGuestPreviewStore } from './useGuestPreviewStore';
 import { shouldRunAuthBootstrap } from '../constants/publicRoutes';
 import { saveMfaChallenge } from '../utils/mfaChallengeStorage';
@@ -62,6 +63,7 @@ function clearAuthSession(set) {
     /* ignore */
   }
   useMessagesStore.getState().reset();
+  useMessengerCacheStore.getState().reset();
   useGuestPreviewStore.getState().setEnabled(false);
   resetInitState();
   set({ user: null, token: null, isAuthed: false });
