@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import profileIcons from '../../constants/profileIcons';
 import DeleteAccountConfirmModal from '../../components/Settings/DeleteAccountConfirmModal';
+import { authApi } from '../../services/auth';
 import { profileApi } from '../../services/profileApi';
 import { useAuthStore } from '../../zustand/useAuthStore';
 import { useNotificationsStore } from '../../zustand/useNotificationsStore';
@@ -58,12 +59,14 @@ export default function SecuritySettingsPage() {
   const handleLogoutAll = async () => {
     if (!window.confirm(t('settings.security.logoutAllConfirm'))) return;
     try {
-      await logout();
+      await authApi.logoutAll();
+      clearSession();
       resetNotifications();
       toast.success(t('settings.security.logoutAllSuccess'));
       navigate('/auth/login', { replace: true });
     } catch (err) {
-      console.error('Logout error:', err);
+      console.error('Logout all error:', err);
+      toast.error(getApiErrorMessage(err));
     }
   };
 
