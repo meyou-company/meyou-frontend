@@ -5,13 +5,18 @@ import { toast } from 'sonner';
 import { authApi } from '../../services/auth';
 import { useAuthStore } from '../../zustand/useAuthStore';
 import { useForceDarkTheme } from '../../hooks/useForceDarkTheme';
-import { getApiErrorMessage } from '../../utils/getApiErrorMessage';
+import {
+  getApiErrorCode,
+  getApiErrorMessage,
+} from '../../utils/getApiErrorMessage';
 import {
   clearMfaChallenge,
   readMfaChallenge,
 } from '../../utils/mfaChallengeStorage';
 import BrandLogo from '../../components/BrandLogo/BrandLogo';
+import MfaCodeField from '../../components/Auth/MfaCodeField';
 import { hasAcceptedTerms } from '../../utils/authTerms';
+import '../../components/Auth/Login/LoginForm.scss';
 import './MfaVerifyPage.scss';
 
 function postAuthPath(user) {
@@ -25,14 +30,29 @@ function postAuthPath(user) {
   return '/profile';
 }
 
-function MethodTabs({ method, onChange, t }) {
+function resolveMfaErrorMessage(err, t) {
+  const code = getApiErrorCode(err);
+  if (code === 'MFA_CHALLENGE_EXPIRED') {
+    return t('auth.mfa.errors.challengeExpired');
+  }
+  if (code === 'MFA_INVALID_CODE' || code === 'MFA_TOTP_REPLAY') {
+    return t('auth.mfa.errors.invalidCode');
+  }
+  if (code === 'MFA_ATTEMPTS_EXCEEDED') {
+    return t('auth.mfa.errors.attemptsExceeded');
+  }
+  return getApiErrorMessage(err) || t('auth.mfa.errors.failed');
+}
+
+function MethodTabs({ method, onChange, t, disabled }) {
   return (
-    <div className="mfa-method" role="tablist" aria-label={t('auth.mfa.methodLabel')}>
+    <div className="mfa-verify__tabs" role="tablist" aria-label={t('auth.mfa.methodLabel')}>
       <button
         type="button"
         role="tab"
         aria-selected={method === 'totp'}
-        className={`mfa-method__btn ${method === 'totp' ? 'mfa-method__btn--active' : ''}`}
+        disabled={disabled}
+        className={`mfa-verify__tab ${method === 'totp' ? 'mfa-verify__tab--active' : ''}`}
         onClick={() => onChange('totp')}
       >
         {t('auth.mfa.methodTotp')}
@@ -41,7 +61,8 @@ function MethodTabs({ method, onChange, t }) {
         type="button"
         role="tab"
         aria-selected={method === 'backup'}
-        className={`mfa-method__btn ${method === 'backup' ? 'mfa-method__btn--active' : ''}`}
+        disabled={disabled}
+        className={`mfa-verify__tab ${method === 'backup' ? 'mfa-verify__tab--active' : ''}`}
         onClick={() => onChange('backup')}
       >
         {t('auth.mfa.methodBackup')}
@@ -58,6 +79,7 @@ export default function MfaVerifyPage() {
   const [method, setMethod] = useState('totp');
   const [code, setCode] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [fieldError, setFieldError] = useState('');
 
   const challenge = readMfaChallenge();
 
@@ -68,14 +90,18 @@ export default function MfaVerifyPage() {
 
   const onSubmit = async (e) => {
     e.preventDefault();
+    setFieldError('');
     if (!challenge) {
-      toast.error(t('auth.mfa.errors.challengeExpired'));
-      goLogin();
+      setFieldError(t('auth.mfa.errors.challengeExpired'));
       return;
     }
     const trimmed = code.replace(/\s+/g, '');
     if (!trimmed) {
-      toast.error(t('auth.mfa.errors.codeRequired'));
+      setFieldError(t('auth.mfa.errors.codeRequired'));
+      return;
+    }
+  if (method === 'totp' && trimmed.length < 6) {
+      setFieldError(t('auth.mfa.errors.codeTooShort'));
       return;
     }
     try {
@@ -93,27 +119,39 @@ export default function MfaVerifyPage() {
       toast.success(t('auth.mfa.success'));
       navigate(postAuthPath(result.user), { replace: true });
     } catch (err) {
-      toast.error(getApiErrorMessage(err) || t('auth.mfa.errors.failed'));
+      const msg = resolveMfaErrorMessage(err, t);
+      setFieldError(msg);
+      if (getApiErrorCode(err) === 'MFA_CHALLENGE_EXPIRED') {
+        toast.error(msg);
+      }
     } finally {
       setSubmitting(false);
     }
   };
 
+  const onMethodChange = (next) => {
+    setMethod(next);
+    setCode('');
+    setFieldError('');
+  };
+
   if (!challenge) {
     return (
-      <section className="auth auth--mfa">
-        <div className="auth__card">
-          <p>{t('auth.mfa.errors.challengeExpired')}</p>
-          <button type="button" className="auth__primary" onClick={goLogin}>
-            {t('auth.mfa.backToLogin')}
-          </button>
+      <section className="auth auth--login auth--mfa">
+        <div className="mfa-verify__shell">
+          <form className="mfa-verify__card" onSubmit={(ev) => ev.preventDefault()}>
+            <p className="mfa-verify__expired">{t('auth.mfa.errors.challengeExpired')}</p>
+            <button type="button" className="btn-gradient btn-gradient--auth-primary mfa-verify__submit" onClick={goLogin}>
+              {t('auth.mfa.backToLogin')}
+            </button>
+          </form>
         </div>
       </section>
     );
   }
 
   return (
-    <section className="auth auth--mfa">
+    <section className="auth auth--login auth--mfa">
       <button
         type="button"
         className="back-arrow"
@@ -122,31 +160,40 @@ export default function MfaVerifyPage() {
       >
         <img src="/icon1/Vector.png" alt="" aria-hidden className="back-arrow__icon" />
       </button>
-      <div className="auth__brand">
-        <BrandLogo />
+
+      <div className="mfa-verify__shell">
+        <div className="auth__logoCard mfa-verify__logo" aria-hidden="true">
+          <BrandLogo className="auth__logoImg" decorative />
+        </div>
+
+        <div className="mfa-verify__card">
+          <h1 className="mfa-verify__title">{t('auth.mfa.title')}</h1>
+          <p className="mfa-verify__lead">{t('auth.mfa.subtitle')}</p>
+
+          <form className="mfa-verify__form" onSubmit={onSubmit}>
+            <MethodTabs method={method} onChange={onMethodChange} t={t} disabled={submitting} />
+
+            <MfaCodeField
+              label={method === 'totp' ? t('auth.mfa.totpLabel') : t('auth.mfa.backupLabel')}
+              hint={method === 'totp' ? t('auth.mfa.totpHint') : t('auth.mfa.backupHint')}
+              error={fieldError}
+              value={code}
+              onChange={setCode}
+              mode={method === 'totp' ? 'totp' : 'backup'}
+              disabled={submitting}
+              autoFocus
+            />
+
+            <button
+              type="submit"
+              className="btn-gradient btn-gradient--auth-primary mfa-verify__submit"
+              disabled={submitting}
+            >
+              {submitting ? t('auth.mfa.verifying') : t('auth.mfa.verify')}
+            </button>
+          </form>
+        </div>
       </div>
-      <h1 className="auth__title">{t('auth.mfa.title')}</h1>
-      <p className="auth__subtitle">{t('auth.mfa.subtitle')}</p>
-      <form className="auth__form" onSubmit={onSubmit}>
-        <MethodTabs method={method} onChange={setMethod} t={t} />
-        <label className="auth__label" htmlFor="mfa-code">
-          {method === 'totp' ? t('auth.mfa.totpLabel') : t('auth.mfa.backupLabel')}
-        </label>
-        <input
-          id="mfa-code"
-          className="auth__input"
-          inputMode={method === 'totp' ? 'numeric' : 'text'}
-          autoComplete="one-time-code"
-          value={code}
-          onChange={(ev) => setCode(ev.target.value)}
-          placeholder={
-            method === 'totp' ? t('auth.mfa.totpPlaceholder') : t('auth.mfa.backupPlaceholder')
-          }
-        />
-        <button type="submit" className="auth__primary" disabled={submitting}>
-          {submitting ? t('auth.mfa.verifying') : t('auth.mfa.verify')}
-        </button>
-      </form>
     </section>
   );
 }

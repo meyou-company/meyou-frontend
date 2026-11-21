@@ -420,23 +420,28 @@
     },
     "mfa": {
       "title": "Two-factor authentication",
-      "subtitle": "Enter the code from your authenticator app or a backup code.",
+      "subtitle": "Введите 6-значный код из приложения-аутентификатора, чтобы завершить вход.",
       "methodLabel": "Verification method",
-      "methodTotp": "Authenticator",
+      "methodTotp": "Код аутентификатора",
       "methodBackup": "Backup code",
       "totpLabel": "6-digit code",
       "backupLabel": "Backup code",
       "totpPlaceholder": "000000",
       "backupPlaceholder": "XXXX-XXXX",
-      "verify": "Verify and continue",
+      "verify": "Подтвердить и войти",
       "verifying": "Verifying…",
-      "success": "Verified successfully",
+      "success": "Вход выполнен",
       "backToLogin": "Back to sign in",
       "errors": {
         "challengeExpired": "This sign-in step expired. Please sign in again.",
         "codeRequired": "Enter a verification code",
-        "failed": "Verification failed"
-      }
+        "failed": "Verification failed",
+        "codeTooShort": "Введите все 6 цифр кода",
+        "invalidCode": "Неверный или просроченный код. Попробуйте снова или используйте резервный код.",
+        "attemptsExceeded": "Слишком много попыток. Войдите снова, чтобы продолжить."
+      },
+      "totpHint": "Коды в приложении обновляются каждые 30 секунд.",
+      "backupHint": "Введите одноразовый резервный код."
     }
   },
   "profile": {
@@ -1214,7 +1219,7 @@
           "pageTitle": "Two-factor authentication",
           "pageSubtitle": "Authenticator app (TOTP)",
           "loading": "Loading…",
-          "intro": "Use Google Authenticator, Microsoft Authenticator, or any TOTP app. You will receive 10 one-time backup codes.",
+          "intro": "Защитите аккаунт кодами из приложения-аутентификатора. Вы получите 10 резервных кодов.",
           "enrollmentOff": "New 2FA enrollment is temporarily unavailable. If you already use 2FA, sign-in still requires your code.",
           "startSetup": "Set up authenticator",
           "scanHint": "Scan this QR code with your authenticator app, then enter the first 6-digit code.",
@@ -1238,7 +1243,36 @@
           "codePlaceholder": "Verification code",
           "passwordPlaceholder": "Account password (if you use one)",
           "disableButton": "Disable 2FA",
-          "disableConfirm": "Disable two-factor authentication for this account?"
+          "disableConfirm": "Disable two-factor authentication for this account?",
+          "confirming": "Включение…",
+          "disabledBadge": "2FA выключена",
+          "backupSectionTitle": "Резервные коды",
+          "backupSectionDesc": "Используйте резервный код, если нет доступа к аутентификатору.",
+          "copyBackupCodes": "Скопировать все коды",
+          "backupCopied": "Резервные коды скопированы",
+          "copyFailed": "Не удалось скопировать",
+          "disableIntro": "Для входа понадобится только пароль. Рекомендуем оставить 2FA включённой.",
+          "disableOpen": "Отключить 2FA…",
+          "errors": {
+            "codeTooShort": "Введите все 6 цифр",
+            "confirmFailed": "Не удалось включить 2FA. Проверьте код."
+          },
+          "onboarding": {
+            "step1Title": "Установите приложение-аутентификатор",
+            "step1Body": "Установите Google Authenticator или Microsoft Authenticator. Приложение будет создавать одноразовые 6-значные коды для входа.",
+            "step2Title": "Отсканируйте QR-код",
+            "step2Body": "Откройте приложение, нажмите + или «Добавить аккаунт» и выберите сканирование QR. Сканируйте код именно в приложении.",
+            "step3Title": "Подтвердите подключение",
+            "step3Body": "Введите 6-значный код из приложения.",
+            "step4Title": "Сохраните резервные коды",
+            "step4Body": "Резервные коды помогут войти, если телефон недоступен. Храните их в надёжном месте.",
+            "googleAuth": "Google Authenticator",
+            "msAuth": "Microsoft Authenticator",
+            "showManualKey": "Не можете сканировать QR? Введите секретный ключ",
+            "hideManualKey": "Скрыть секретный ключ",
+            "copySecret": "Скопировать ключ",
+            "secretCopied": "Секретный ключ скопирован"
+          }
         },
         "sessions": {
           "title": "Активные сессии",

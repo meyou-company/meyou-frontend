@@ -205,23 +205,28 @@
     },
     "mfa": {
       "title": "Two-factor authentication",
-      "subtitle": "Enter the code from your authenticator app or a backup code.",
+      "subtitle": "أدخل الرمز المكوّن من 6 أرقام من تطبيق المصادقة لإكمال تسجيل الدخول.",
       "methodLabel": "Verification method",
-      "methodTotp": "Authenticator",
+      "methodTotp": "رمز المصادقة",
       "methodBackup": "Backup code",
       "totpLabel": "6-digit code",
       "backupLabel": "Backup code",
       "totpPlaceholder": "000000",
       "backupPlaceholder": "XXXX-XXXX",
-      "verify": "Verify and continue",
+      "verify": "تأكيد وتسجيل الدخول",
       "verifying": "Verifying…",
-      "success": "Verified successfully",
+      "success": "تم تسجيل الدخول بنجاح",
       "backToLogin": "Back to sign in",
       "errors": {
         "challengeExpired": "This sign-in step expired. Please sign in again.",
         "codeRequired": "Enter a verification code",
-        "failed": "Verification failed"
-      }
+        "failed": "Verification failed",
+        "codeTooShort": "أدخل الأرقام الستة كاملة",
+        "invalidCode": "رمز غير صحيح أو منتهٍ. حاول مرة أخرى أو استخدم رمزًا احتياطيًا.",
+        "attemptsExceeded": "محاولات كثيرة جدًا. سجّل الدخول مرة أخرى للمتابعة."
+      },
+      "totpHint": "تتجدد الرموز في التطبيق كل 30 ثانية.",
+      "backupHint": "أدخل أحد رموز النسخ الاحتياطي لمرة واحدة."
     }
   },
   "profile": {
@@ -954,7 +959,7 @@
           "pageTitle": "Two-factor authentication",
           "pageSubtitle": "Authenticator app (TOTP)",
           "loading": "Loading…",
-          "intro": "Use Google Authenticator, Microsoft Authenticator, or any TOTP app. You will receive 10 one-time backup codes.",
+          "intro": "احمِ حسابك برموز من تطبيق المصادقة. ستحصل على 10 رموز احتياطية.",
           "enrollmentOff": "New 2FA enrollment is temporarily unavailable. If you already use 2FA, sign-in still requires your code.",
           "startSetup": "Set up authenticator",
           "scanHint": "Scan this QR code with your authenticator app, then enter the first 6-digit code.",
@@ -978,7 +983,36 @@
           "codePlaceholder": "Verification code",
           "passwordPlaceholder": "Account password (if you use one)",
           "disableButton": "Disable 2FA",
-          "disableConfirm": "Disable two-factor authentication for this account?"
+          "disableConfirm": "Disable two-factor authentication for this account?",
+          "confirming": "جارٍ التفعيل…",
+          "disabledBadge": "المصادقة الثنائية متوقفة",
+          "backupSectionTitle": "رموز النسخ الاحتياطي",
+          "backupSectionDesc": "استخدم رمزًا احتياطيًا إذا لم تتمكن من الوصول إلى التطبيق.",
+          "copyBackupCodes": "نسخ كل الرموز",
+          "backupCopied": "تم نسخ الرموز الاحتياطية",
+          "copyFailed": "تعذّر النسخ",
+          "disableIntro": "ستحتاج فقط إلى كلمة المرور لتسجيل الدخول. نوصي بإبقاء المصادقة الثنائية مفعّلة.",
+          "disableOpen": "إيقاف المصادقة الثنائية…",
+          "errors": {
+            "codeTooShort": "أدخل الأرقام الستة",
+            "confirmFailed": "تعذّر تفعيل المصادقة الثنائية. تحقق من الرمز."
+          },
+          "onboarding": {
+            "step1Title": "ثبّت تطبيق المصادقة",
+            "step1Body": "ثبّت Google Authenticator أو Microsoft Authenticator. سيُنشئ التطبيق رموزًا من 6 أرقام لمرة واحدة.",
+            "step2Title": "امسح رمز QR",
+            "step2Body": "افتح التطبيق، اضغط + أو «إضافة حساب» واختر مسح QR. امسح الرمز من داخل التطبيق فقط.",
+            "step3Title": "أكمل الإعداد",
+            "step3Body": "أدخل الرمز المكوّن من 6 أرقام الظاهر في التطبيق.",
+            "step4Title": "احفظ الرموز الاحتياطية",
+            "step4Body": "تساعدك الرموز الاحتياطية عند فقدان الهاتف. احفظها في مكان آمن.",
+            "googleAuth": "Google Authenticator",
+            "msAuth": "Microsoft Authenticator",
+            "showManualKey": "لا يمكن مسح QR؟ أدخل المفتاح السري",
+            "hideManualKey": "إخفاء المفتاح السري",
+            "copySecret": "نسخ المفتاح",
+            "secretCopied": "تم نسخ المفتاح السري"
+          }
         },
         "sessions": {
           "title": "Active sessions",
