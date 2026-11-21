@@ -4,6 +4,7 @@ import {
 } from './api';
 import { authApi } from './auth';
 import { clearFirstPageFeedCache } from '../utils/feedCache';
+import { setChatMediaDeliveryScope } from '../utils/chatMediaDeliveryCache';
 import { saveMfaChallenge } from '../utils/mfaChallengeStorage';
 
 export function pickAccessToken(source) {
@@ -13,6 +14,7 @@ export function pickAccessToken(source) {
 /** Зберегти user + accessToken у Zustand. Refresh — лише httpOnly cookie. */
 export function applyAuthFromSession(setAuth, user, accessToken) {
   if (!user) {
+    setChatMediaDeliveryScope('');
     setAuth({ user: null, token: null, isAuthed: false });
     return null;
   }
@@ -23,6 +25,7 @@ export function applyAuthFromSession(setAuth, user, accessToken) {
   }
 
   persistOAuthSessionTokens(token);
+  setChatMediaDeliveryScope(user.id ?? '');
 
   setAuth({
     user,

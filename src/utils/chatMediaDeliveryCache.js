@@ -21,12 +21,40 @@ const cache = new Map();
 const listeners = new Map();
 let refreshTimer = null;
 let evictionOrder = [];
+/** Bumped on logout / account switch so cached delivery URLs never leak across users. */
+let deliveryScope = '';
 
-export function makeChatDeliveryCacheKey(conversationId, attachmentId) {
-  return `${conversationId}|${attachmentId}`;
+export function getChatMediaDeliveryScope() {
+  return deliveryScope;
 }
 
-export function clearChatMediaDeliveryCache() {
+/**
+ * Call when auth user identity changes (login, logout, switch account).
+ * Clears in-memory delivery cache for the previous scope.
+ */
+export function setChatMediaDeliveryScope(scope) {
+  const next = String(scope ?? '');
+  if (next === deliveryScope) return;
+  deliveryScope = next;
+  clearChatMediaDeliveryCacheInternal();
+}
+
+export function makeChatDeliveryCacheKey(conversationId, attachmentId) {
+  const scope = deliveryScope ? `${deliveryScope}|` : '';
+  return `${scope}${conversationId}|${attachmentId}`;
+}
+
+/** @param {string} key */
+function parseDeliveryCacheKey(key) {
+  const parts = key.split('|');
+  if (parts.length < 2) return null;
+  return {
+    conversationId: parts[parts.length - 2],
+    attachmentId: parts[parts.length - 1],
+  };
+}
+
+function clearChatMediaDeliveryCacheInternal() {
   cache.clear();
   listeners.clear();
   evictionOrder = [];
@@ -34,6 +62,11 @@ export function clearChatMediaDeliveryCache() {
     clearTimeout(refreshTimer);
     refreshTimer = null;
   }
+}
+
+export function clearChatMediaDeliveryCache() {
+  deliveryScope = '';
+  clearChatMediaDeliveryCacheInternal();
 }
 
 function evictIfNeeded() {
@@ -98,8 +131,9 @@ function scheduleGlobalRefresh() {
         entry.refreshAt != null &&
         entry.refreshAt <= Date.now()
       ) {
-        const [conversationId, attachmentId] = key.split('|');
-        if (conversationId && attachmentId) {
+        const parsed = parseDeliveryCacheKey(key);
+        if (parsed?.conversationId && parsed.attachmentId) {
+          const { conversationId, attachmentId } = parsed;
           void loadChatAttachmentDelivery(conversationId, attachmentId, {
             force: true,
             reason: 'scheduled',
@@ -216,7 +250,54 @@ export function subscribeChatDelivery(conversationId, attachmentId, listener) {
   };
 }
 
-/** Test helper: number of scheduled refresh listeners. */
+/** @internal tests only */
 export function __testGetCacheSize() {
   return cache.size;
+}
+
+/** @internal tests only */
+export function __testHasRefreshTimer() {
+  return refreshTimer != null;
+}
+
+/** @internal tests only */
+export function __testListenerCount() {
+  let n = 0;
+  for (const set of listeners.values()) n += set.size;
+  return n;
+}
+
+/** @internal tests only — run scheduled refresh callback (fake timers). */
+export function __testRunRefreshTimer() {
+  if (!refreshTimer) return false;
+  const fn = refreshTimer;
+  clearTimeout(refreshTimer);
+  refreshTimer = null;
+  if (typeof fn === 'function') fn();
+  return true;
+}
+
+/** @internal tests only — force refresh of expired cache rows (no timer drain). */
+export async function __testRefreshExpiredEntries() {
+  const jobs = [];
+  for (const [key, entry] of cache.entries()) {
+    if (
+      entry.status === 'ready' &&
+      entry.cdnEnforcesExpiry &&
+      entry.refreshAt != null &&
+      entry.refreshAt <= Date.now()
+    ) {
+      const parsed = parseDeliveryCacheKey(key);
+      if (parsed?.conversationId && parsed.attachmentId) {
+        jobs.push(
+          loadChatAttachmentDelivery(parsed.conversationId, parsed.attachmentId, {
+            force: true,
+            reason: 'scheduled',
+          }),
+        );
+      }
+    }
+  }
+  await Promise.all(jobs);
+  scheduleGlobalRefresh();
 }
