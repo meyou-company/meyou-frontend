@@ -215,9 +215,25 @@ api.interceptors.response.use(
       isRefreshing = true;
 
       try {
-        const refreshRes = await api.post("/auth/refresh", null, {
-          skipAuth: true,
-        });
+        let refreshRes;
+        try {
+          refreshRes = await api.post("/auth/refresh", null, {
+            skipAuth: true,
+          });
+        } catch (firstRefreshErr) {
+          const code = firstRefreshErr?.response?.data?.code;
+          if (
+            firstRefreshErr?.response?.status === 409 &&
+            code === "REFRESH_PARALLEL"
+          ) {
+            await new Promise((r) => setTimeout(r, 150));
+            refreshRes = await api.post("/auth/refresh", null, {
+              skipAuth: true,
+            });
+          } else {
+            throw firstRefreshErr;
+          }
+        }
         persistTokensFromResponseBody(refreshRes?.data);
         resolveQueue(null, true);
         return api(original);
