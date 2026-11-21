@@ -36,6 +36,11 @@ import OnlineStatus from '../../components/Presence/OnlineStatus';
 import StoryViewerModal from '../../components/Stories/StoryViewerModal';
 import { conversationsApi } from '../../services/conversationsApi';
 import { mergeConversationPages } from '../../utils/conversationListPage';
+import { shouldFetchInboxAfterSearchClear } from '../../utils/inboxListLoadScheduling';
+import {
+  createInboxSecondaryLoadScheduler,
+  shouldScheduleInboxSecondaryLoads,
+} from '../../utils/inboxSecondaryLoadScheduler';
 import {
   mergeInboxHeadRefresh,
   reconcileThreadWithLatestPage,
@@ -98,6 +103,7 @@ const MESSAGES_PAGE_SIZE = MESSENGER_INITIAL_MESSAGE_LIMIT;
 const CONVERSATION_LIST_PAGE_SIZE = 10;
 /** Min gap between visibility-triggered inbox/chat resync (avoids pool storms). */
 const VISIBILITY_RESYNC_MIN_MS = 45_000;
+const INBOX_SECONDARY_LOAD_DELAY_MS = 400;
 
 function getDisplayName(user, fallback) {
   if (!user) return fallback;
@@ -351,6 +357,8 @@ export default function MessagesPage() {
   const chatListScrollRef = useRef(null);
   const listLoadMoreSentinelRef = useRef(null);
   const listLoadInFlightRef = useRef(false);
+  const inboxPrimaryListSettledRef = useRef(false);
+  const inboxSecondarySchedulerRef = useRef(null);
   const listSearchGenRef = useRef(0);
   const messagesRef = useRef([]);
   const hasMoreOlderRef = useRef(false);
@@ -542,6 +550,34 @@ export default function MessagesPage() {
     [persistInboxCache],
   );
 
+  const loadHiddenConversationsRef = useRef(async () => {});
+
+  useEffect(() => {
+    inboxSecondarySchedulerRef.current = createInboxSecondaryLoadScheduler(
+      () => {
+        void loadHiddenConversationsRef.current();
+        void fetchTotalUnreadCount();
+      },
+      INBOX_SECONDARY_LOAD_DELAY_MS,
+    );
+    return () => {
+      inboxSecondarySchedulerRef.current?.cancel();
+      inboxSecondarySchedulerRef.current = null;
+    };
+  }, [fetchTotalUnreadCount]);
+
+  const scheduleInboxSecondaryLoads = useCallback((background) => {
+    const decision = shouldScheduleInboxSecondaryLoads({
+      background: Boolean(background),
+      primarySettled: inboxPrimaryListSettledRef.current,
+    });
+    if (!decision.schedule) return;
+    if (decision.markSettled) {
+      inboxPrimaryListSettledRef.current = true;
+    }
+    inboxSecondarySchedulerRef.current?.schedule();
+  }, []);
+
   const loadConversations = useCallback(
     async ({ listGen, background = false } = {}) => {
       if (listLoadInFlightRef.current) return;
@@ -574,9 +610,10 @@ export default function MessagesPage() {
       } finally {
         if (!background) setLoadingList(false);
         listLoadInFlightRef.current = false;
+        scheduleInboxSecondaryLoads(background);
       }
     },
-    [applyConversationListPage],
+    [applyConversationListPage, scheduleInboxSecondaryLoads],
   );
 
   const loadMoreConversations = useCallback(async () => {
@@ -668,6 +705,8 @@ export default function MessagesPage() {
       setLoadingHidden(false);
     }
   }, []);
+
+  loadHiddenConversationsRef.current = loadHiddenConversations;
 
   const markChatRead = useCallback(
     async (id, { force = false, readUpToMessageId, chatGeneration } = {}) => {
@@ -1004,6 +1043,7 @@ export default function MessagesPage() {
 
   useEffect(() => {
     if (!isAuthed || !currentUserId) return;
+    inboxPrimaryListSettledRef.current = false;
     useMessengerCacheStore.getState().bindUser(currentUserId);
     const snap = useMessengerCacheStore.getState().getInboxSnapshot();
     if (snap.conversations.length > 0) {
@@ -1015,18 +1055,11 @@ export default function MessagesPage() {
     } else {
       void loadConversations();
     }
-    const defer = window.setTimeout(() => {
-      loadHiddenConversations();
-      fetchTotalUnreadCount();
-    }, 0);
-    return () => window.clearTimeout(defer);
-  }, [
-    isAuthed,
-    currentUserId,
-    loadConversations,
-    loadHiddenConversations,
-    fetchTotalUnreadCount,
-  ]);
+    return () => {
+      inboxSecondarySchedulerRef.current?.cancel();
+      inboxPrimaryListSettledRef.current = false;
+    };
+  }, [isAuthed, currentUserId, loadConversations]);
 
   useEffect(() => {
     const q = searchQuery.trim();
@@ -1035,9 +1068,9 @@ export default function MessagesPage() {
     const timer = window.setTimeout(() => {
       if (q.length >= 2) {
         void searchConversationsServer(q, listGen);
-      } else if (serverSearchActive || q.length === 0) {
+      } else if (shouldFetchInboxAfterSearchClear(serverSearchActive, q)) {
         setServerSearchActive(false);
-        if (q.length === 0) void loadConversations({ listGen });
+        void loadConversations({ listGen });
       }
     }, 320);
     return () => window.clearTimeout(timer);
