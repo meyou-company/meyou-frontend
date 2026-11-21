@@ -5,6 +5,46 @@
   margin-bottom: 6px;
 }
 
+.msgAttachments__placeholder {
+  width: 120px;
+  height: 88px;
+  border-radius: 12px;
+  background: var(--msg-attachments-placeholder-bg, rgba(120, 120, 140, 0.15));
+  animation: msgAttachmentsPulse 1.2s ease-in-out infinite;
+}
+
+.msgAttachments__deliveryError {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-width: 280px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  font-size: 13px;
+  background: var(--msg-attachments-error-bg, rgba(200, 60, 60, 0.12));
+  color: var(--msg-attachments-error-fg, inherit);
+}
+
+.msgAttachments__deliveryRetry {
+  align-self: flex-start;
+  padding: 4px 10px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 12px;
+  background: var(--msg-attachments-retry-bg, rgba(0, 0, 0, 0.08));
+}
+
+@keyframes msgAttachmentsPulse {
+  0%,
+  100% {
+    opacity: 0.55;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
 .msgAttachments__imageBtn {
   display: block;
   padding: 0;

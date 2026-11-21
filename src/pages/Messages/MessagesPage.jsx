@@ -1907,6 +1907,7 @@ export default function MessagesPage() {
                             message={msg}
                             isMine={isMine}
                             currentUserId={currentUserId}
+                            conversationId={activeConversationId}
                             peerAvatarUrl={senderAvatar}
                             peerName={senderName}
                             showSenderName={isActiveGroup}

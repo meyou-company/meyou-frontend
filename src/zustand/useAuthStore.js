@@ -20,6 +20,7 @@ import { shouldRunAuthBootstrap } from '../constants/publicRoutes';
 import { saveMfaChallenge } from '../utils/mfaChallengeStorage';
 import { clearAllPostFeedCaches, clearFirstPageFeedCache } from '../utils/feedCache';
 import { clearAllPostLikeOverrides } from '../utils/postLikePersistence';
+import { clearChatMediaDeliveryCache } from '../utils/chatMediaDeliveryCache';
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -48,6 +49,7 @@ function clearAuthSession(set) {
   clearOAuthSessionTokens();
   clearAllPostFeedCaches();
   clearAllPostLikeOverrides();
+  clearChatMediaDeliveryCache();
   try {
     if (typeof window !== 'undefined') {
       window.localStorage.removeItem('current-user-avatar');

@@ -190,6 +190,7 @@ export default function MessageBubble({
   message,
   isMine,
   currentUserId,
+  conversationId,
   peerAvatarUrl,
   peerName = '',
   showSenderName = false,
@@ -381,6 +382,7 @@ export default function MessageBubble({
                   attachments={message.attachments}
                   isMine={isMine}
                   messageType={message.type}
+                  conversationId={conversationId || message.conversationId}
                 />
               ) : null}
               {stickerOnly ? (
