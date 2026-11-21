@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import { authApi } from '../../services/auth';
 import { getApiErrorMessage } from '../../utils/getApiErrorMessage';
+import { formatSessionCountryLabel } from '../../utils/formatSessionCountry';
 import './ActiveSessionsPanel.scss';
 
 function formatRelative(dateStr, t) {
@@ -22,7 +23,8 @@ function formatRelative(dateStr, t) {
 }
 
 export default function ActiveSessionsPanel() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const uiLocale = i18n.resolvedLanguage || i18n.language;
   const [sessions, setSessions] = useState([]);
   const [loginAlerts, setLoginAlerts] = useState(true);
   const [loading, setLoading] = useState(true);
@@ -119,11 +121,7 @@ export default function ActiveSessionsPanel() {
                   ) : null}
                 </span>
                 <span className="active-sessions__desc">
-                  {s.countryCode
-                    ? t('settings.security.sessions.country', {
-                        code: s.countryCode,
-                      })
-                    : t('settings.security.sessions.countryUnknown')}
+                  {formatSessionCountryLabel(s.countryCode, uiLocale, t)}
                   {' · '}
                   {formatRelative(s.lastSeenAt, t)}
                 </span>

@@ -108,3 +108,8 @@
 [data-theme='dark'] .active-sessions__item {
   border-top-color: rgba(255, 255, 255, 0.08);
 }
+
+[data-theme='dark'] .active-sessions__badge {
+  background: rgba(107, 92, 224, 0.22);
+  color: #c4baff;
+}
