@@ -31,8 +31,14 @@ export default function ActiveSessionsPanel() {
   const load = useCallback(async () => {
     try {
       setLoading(true);
-      const list = await authApi.listSessions();
+      const [list, me] = await Promise.all([
+        authApi.listSessions(),
+        authApi.me({ force: true }),
+      ]);
       setSessions(Array.isArray(list) ? list : []);
+      if (typeof me?.loginAlertsEnabled === 'boolean') {
+        setLoginAlerts(me.loginAlertsEnabled);
+      }
     } catch (err) {
       toast.error(
         getApiErrorMessage(err) || t('settings.security.sessions.loadError'),
