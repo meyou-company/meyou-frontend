@@ -10,10 +10,6 @@ import {
   clearMfaChallenge,
   readMfaChallenge,
 } from '../../utils/mfaChallengeStorage';
-import {
-  applyAuthFromSession,
-  pickAccessToken,
-} from '../../services/authSession';
 import BrandLogo from '../../components/BrandLogo/BrandLogo';
 import { hasAcceptedTerms } from '../../utils/authTerms';
 import './MfaVerifyPage.scss';
@@ -58,6 +54,7 @@ export default function MfaVerifyPage() {
   useForceDarkTheme();
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const completeMfaLogin = useAuthStore((s) => s.completeMfaLogin);
   const [method, setMethod] = useState('totp');
   const [code, setCode] = useState('');
   const [submitting, setSubmitting] = useState(false);
@@ -89,11 +86,12 @@ export default function MfaVerifyPage() {
         method,
       });
       clearMfaChallenge();
-      const user = data.user ?? (await authApi.me({ force: true }));
-      const token = pickAccessToken(data);
-      applyAuthFromSession(useAuthStore.setState, user, token);
+      const result = await completeMfaLogin(data);
+      if (!result?.ok) {
+        throw result?.error ?? new Error('MFA session failed');
+      }
       toast.success(t('auth.mfa.success'));
-      navigate(postAuthPath(user), { replace: true });
+      navigate(postAuthPath(result.user), { replace: true });
     } catch (err) {
       toast.error(getApiErrorMessage(err) || t('auth.mfa.errors.failed'));
     } finally {

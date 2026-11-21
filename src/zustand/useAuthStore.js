@@ -193,6 +193,26 @@ export const useAuthStore = create((set) => ({
     return initInFlight;
   },
 
+  /** After POST /auth/mfa/verify — full session (SEC-006). */
+  completeMfaLogin: async (loginPayload) => {
+    clearFirstPageFeedCache();
+    set({ isAuthLoading: true });
+    try {
+      const user =
+        loginPayload.user ?? (await loadMeWithRetry(3, 250));
+      const accessToken = pickAccessToken(loginPayload);
+      persistOAuthSessionTokens(accessToken);
+      useGuestPreviewStore.getState().setEnabled(false);
+      set({ user, token: accessToken, isAuthed: true });
+      markInitDone();
+      return { ok: true, user };
+    } catch (e) {
+      return { ok: false, error: e };
+    } finally {
+      set({ isAuthLoading: false });
+    }
+  },
+
   login: async (payload) => {
     clearFirstPageFeedCache();
     set({ isAuthLoading: true });
