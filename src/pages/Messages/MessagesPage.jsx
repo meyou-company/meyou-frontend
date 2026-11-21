@@ -38,6 +38,10 @@ import { conversationsApi } from '../../services/conversationsApi';
 import { mergeConversationPages } from '../../utils/conversationListPage';
 import { shouldFetchInboxAfterSearchClear } from '../../utils/inboxListLoadScheduling';
 import {
+  createInboxSecondaryLoadScheduler,
+  shouldScheduleInboxSecondaryLoads,
+} from '../../utils/inboxSecondaryLoadScheduler';
+import {
   mergeInboxHeadRefresh,
   reconcileThreadWithLatestPage,
   MESSENGER_INITIAL_MESSAGE_LIMIT,
@@ -353,7 +357,8 @@ export default function MessagesPage() {
   const chatListScrollRef = useRef(null);
   const listLoadMoreSentinelRef = useRef(null);
   const listLoadInFlightRef = useRef(false);
-  const inboxSecondaryLoadTimerRef = useRef(null);
+  const inboxPrimaryListSettledRef = useRef(false);
+  const inboxSecondarySchedulerRef = useRef(null);
   const listSearchGenRef = useRef(0);
   const messagesRef = useRef([]);
   const hasMoreOlderRef = useRef(false);
@@ -547,16 +552,31 @@ export default function MessagesPage() {
 
   const loadHiddenConversationsRef = useRef(async () => {});
 
-  const scheduleInboxSecondaryLoads = useCallback(() => {
-    if (inboxSecondaryLoadTimerRef.current) {
-      window.clearTimeout(inboxSecondaryLoadTimerRef.current);
-    }
-    inboxSecondaryLoadTimerRef.current = window.setTimeout(() => {
-      inboxSecondaryLoadTimerRef.current = null;
-      void loadHiddenConversationsRef.current();
-      void fetchTotalUnreadCount();
-    }, INBOX_SECONDARY_LOAD_DELAY_MS);
+  useEffect(() => {
+    inboxSecondarySchedulerRef.current = createInboxSecondaryLoadScheduler(
+      () => {
+        void loadHiddenConversationsRef.current();
+        void fetchTotalUnreadCount();
+      },
+      INBOX_SECONDARY_LOAD_DELAY_MS,
+    );
+    return () => {
+      inboxSecondarySchedulerRef.current?.cancel();
+      inboxSecondarySchedulerRef.current = null;
+    };
   }, [fetchTotalUnreadCount]);
+
+  const scheduleInboxSecondaryLoads = useCallback((background) => {
+    const decision = shouldScheduleInboxSecondaryLoads({
+      background: Boolean(background),
+      primarySettled: inboxPrimaryListSettledRef.current,
+    });
+    if (!decision.schedule) return;
+    if (decision.markSettled) {
+      inboxPrimaryListSettledRef.current = true;
+    }
+    inboxSecondarySchedulerRef.current?.schedule();
+  }, []);
 
   const loadConversations = useCallback(
     async ({ listGen, background = false } = {}) => {
@@ -590,7 +610,7 @@ export default function MessagesPage() {
       } finally {
         if (!background) setLoadingList(false);
         listLoadInFlightRef.current = false;
-        scheduleInboxSecondaryLoads();
+        scheduleInboxSecondaryLoads(background);
       }
     },
     [applyConversationListPage, scheduleInboxSecondaryLoads],
@@ -1023,6 +1043,7 @@ export default function MessagesPage() {
 
   useEffect(() => {
     if (!isAuthed || !currentUserId) return;
+    inboxPrimaryListSettledRef.current = false;
     useMessengerCacheStore.getState().bindUser(currentUserId);
     const snap = useMessengerCacheStore.getState().getInboxSnapshot();
     if (snap.conversations.length > 0) {
@@ -1035,10 +1056,8 @@ export default function MessagesPage() {
       void loadConversations();
     }
     return () => {
-      if (inboxSecondaryLoadTimerRef.current) {
-        window.clearTimeout(inboxSecondaryLoadTimerRef.current);
-        inboxSecondaryLoadTimerRef.current = null;
-      }
+      inboxSecondarySchedulerRef.current?.cancel();
+      inboxPrimaryListSettledRef.current = false;
     };
   }, [isAuthed, currentUserId, loadConversations]);
 
