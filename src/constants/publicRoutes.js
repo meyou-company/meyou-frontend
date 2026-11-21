@@ -11,6 +11,7 @@ export const PUBLIC_PATHS = [
   '/auth/reset/verify-code',
   '/auth/reset/new-password',
   '/auth/verify-email',
+  '/auth/mfa',
   '/legal/privacy',
   '/legal/terms',
   '/legal/community-guidelines',

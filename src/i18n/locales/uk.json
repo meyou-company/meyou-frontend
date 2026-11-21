@@ -431,6 +431,26 @@
       "loading": "Вхід через Google…",
       "loadingGeneric": "Авторизація…"
     },
+    "mfa": {
+      "title": "Двофакторна автентифікація",
+      "subtitle": "Введіть код із автентифікатора або резервний код.",
+      "methodLabel": "Спосіб перевірки",
+      "methodTotp": "Автентифікатор",
+      "methodBackup": "Резервний код",
+      "totpLabel": "6-значний код",
+      "backupLabel": "Резервний код",
+      "totpPlaceholder": "000000",
+      "backupPlaceholder": "XXXX-XXXX",
+      "verify": "Підтвердити та продовжити",
+      "verifying": "Перевірка…",
+      "success": "Успішно підтверджено",
+      "backToLogin": "Повернутися до входу",
+      "errors": {
+        "challengeExpired": "Крок входу прострочено. Увійдіть знову.",
+        "codeRequired": "Введіть код",
+        "failed": "Перевірку не пройдено"
+      }
+    },
     "validation": {
       "firstNameRequired": "Введіть імʼя",
       "firstNameMin": "Імʼя має містити мінімум 2 символи",
@@ -1255,7 +1275,34 @@
         "twoFactor": {
           "title": "Двофакторна автентифікація",
           "desc": "Додатковий захист при вході",
-          "comingSoon": "Незабаром"
+          "pageTitle": "Двофакторна автентифікація",
+          "pageSubtitle": "Застосунок-автентифікатор (TOTP)",
+          "loading": "Завантаження…",
+          "intro": "Google Authenticator, Microsoft Authenticator або інший TOTP. Ви отримаєте 10 одноразових резервних кодів.",
+          "enrollmentOff": "Нове підключення 2FA тимчасово недоступне. Якщо 2FA уже увімкнена, код все одно потрібен для входу.",
+          "startSetup": "Налаштувати автентифікатор",
+          "scanHint": "Відскануйте QR-код у застосунку, потім введіть перший 6-значний код.",
+          "confirmLabel": "Код підтвердження",
+          "confirmPlaceholder": "6 цифр",
+          "confirmButton": "Увімкнути 2FA",
+          "enabledToast": "Двофакторну автентифікацію увімкнено",
+          "disabledToast": "Двофакторну автентифікацію вимкнено",
+          "backupTitle": "Збережіть резервні коди",
+          "backupOnce": "Зберігайте їх у надійному місці. Вони показуються лише один раз.",
+          "backupDone": "Я зберіг коди",
+          "enabledBadge": "2FA увімкнено",
+          "backupRemaining": "Невикористаних резервних кодів: {{count}}",
+          "regenerate": "Створити нові резервні коди",
+          "regenerateConfirm": "Попередні резервні коди перестануть діяти. Продовжити?",
+          "regeneratePrompt": "Введіть поточний 6-значний код з автентифікатора",
+          "regeneratedToast": "Нові резервні коди створено",
+          "disableTitle": "Вимкнути двофакторну автентифікацію",
+          "methodTotp": "Код з автентифікатора",
+          "methodBackup": "Резервний код",
+          "codePlaceholder": "Код підтвердження",
+          "passwordPlaceholder": "Пароль облікового запису (якщо є)",
+          "disableButton": "Вимкнути 2FA",
+          "disableConfirm": "Вимкнути 2FA для цього облікового запису?"
         },
         "sessions": {
           "title": "Активні сесії",

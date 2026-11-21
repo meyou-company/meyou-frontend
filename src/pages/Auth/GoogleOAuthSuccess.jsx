@@ -41,9 +41,13 @@ export default function GoogleOAuthSuccess() {
         return;
       }
       try {
-        const user = await restoreOAuthSession(setAuth);
+        const session = await restoreOAuthSession(setAuth);
         if (cancelled) return;
-        navigate(postAuthPath(user), { replace: true });
+        if (session?.mfaRequired) {
+          navigate('/auth/mfa', { replace: true });
+          return;
+        }
+        navigate(postAuthPath(session), { replace: true });
       } catch (err) {
         console.error('[google oauth] session failed:', err?.response?.data ?? err?.message);
         if (cancelled) return;

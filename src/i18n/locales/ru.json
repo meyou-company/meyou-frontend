@@ -417,6 +417,26 @@
       "confirmRequired": "Подтвердите пароль",
       "confirmMismatch": "Пароли не совпадают",
       "acceptPolicy": "Необходимо принять условия и политику конфиденциальности"
+    },
+    "mfa": {
+      "title": "Two-factor authentication",
+      "subtitle": "Enter the code from your authenticator app or a backup code.",
+      "methodLabel": "Verification method",
+      "methodTotp": "Authenticator",
+      "methodBackup": "Backup code",
+      "totpLabel": "6-digit code",
+      "backupLabel": "Backup code",
+      "totpPlaceholder": "000000",
+      "backupPlaceholder": "XXXX-XXXX",
+      "verify": "Verify and continue",
+      "verifying": "Verifying…",
+      "success": "Verified successfully",
+      "backToLogin": "Back to sign in",
+      "errors": {
+        "challengeExpired": "This sign-in step expired. Please sign in again.",
+        "codeRequired": "Enter a verification code",
+        "failed": "Verification failed"
+      }
     }
   },
   "profile": {
@@ -1189,9 +1209,36 @@
           "desc": "Обновить пароль через email-код"
         },
         "twoFactor": {
-          "title": "Двухфакторная аутентификация",
-          "desc": "Дополнительная защита при входе",
-          "comingSoon": "Скоро"
+          "title": "Two-factor authentication",
+          "desc": "Extra protection when signing in",
+          "pageTitle": "Two-factor authentication",
+          "pageSubtitle": "Authenticator app (TOTP)",
+          "loading": "Loading…",
+          "intro": "Use Google Authenticator, Microsoft Authenticator, or any TOTP app. You will receive 10 one-time backup codes.",
+          "enrollmentOff": "New 2FA enrollment is temporarily unavailable. If you already use 2FA, sign-in still requires your code.",
+          "startSetup": "Set up authenticator",
+          "scanHint": "Scan this QR code with your authenticator app, then enter the first 6-digit code.",
+          "confirmLabel": "Confirmation code",
+          "confirmPlaceholder": "6-digit code",
+          "confirmButton": "Enable 2FA",
+          "enabledToast": "Two-factor authentication enabled",
+          "disabledToast": "Two-factor authentication disabled",
+          "backupTitle": "Save your backup codes",
+          "backupOnce": "Store these codes in a safe place. They are shown only once.",
+          "backupDone": "I saved my codes",
+          "enabledBadge": "2FA is on",
+          "backupRemaining": "{{count}} unused backup codes",
+          "regenerate": "Generate new backup codes",
+          "regenerateConfirm": "This invalidates all previous backup codes. Continue?",
+          "regeneratePrompt": "Enter your current 6-digit authenticator code",
+          "regeneratedToast": "New backup codes generated",
+          "disableTitle": "Disable two-factor authentication",
+          "methodTotp": "Authenticator code",
+          "methodBackup": "Backup code",
+          "codePlaceholder": "Verification code",
+          "passwordPlaceholder": "Account password (if you use one)",
+          "disableButton": "Disable 2FA",
+          "disableConfirm": "Disable two-factor authentication for this account?"
         },
         "sessions": {
           "title": "Активные сессии",

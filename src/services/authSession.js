@@ -4,6 +4,7 @@ import {
 } from './api';
 import { authApi } from './auth';
 import { clearFirstPageFeedCache } from '../utils/feedCache';
+import { saveMfaChallenge } from '../utils/mfaChallengeStorage';
 
 export function pickAccessToken(source) {
   return source?.accessToken ?? source?.access_token ?? null;
@@ -78,6 +79,13 @@ async function resolveOAuthAccessToken() {
   const oauthCode = takeOAuthCodeFromQuery();
   if (oauthCode) {
     const data = await authApi.exchangeOAuthCode(oauthCode);
+    if (data?.mfaRequired && data.challengeToken) {
+      saveMfaChallenge({
+        challengeToken: data.challengeToken,
+        expiresInSec: data.expiresInSec,
+      });
+      return { mfaRequired: true };
+    }
     const access = pickAccessToken(data);
     if (access) persistOAuthSessionTokens(access);
     return access;
@@ -93,6 +101,9 @@ export async function restoreOAuthSession(setAuth) {
   let queryAccess = null;
   try {
     queryAccess = await resolveOAuthAccessToken();
+    if (queryAccess && typeof queryAccess === 'object' && queryAccess.mfaRequired) {
+      return { mfaRequired: true };
+    }
   } catch (exchangeErr) {
     console.error(
       '[auth] oauth exchange failed:',

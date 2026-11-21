@@ -110,8 +110,7 @@ export default function SecuritySettingsPage() {
         <SettingsNavRow
           label={t('settings.security.items.twoFactor.title')}
           desc={t('settings.security.items.twoFactor.desc')}
-          badge={t('settings.security.items.twoFactor.comingSoon')}
-          disabled
+          onClick={() => navigate('/settings/security/two-factor')}
         />
         <SettingsNavRow
           label={t('settings.security.items.sessions.title')}

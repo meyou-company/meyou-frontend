@@ -17,6 +17,7 @@ import { disconnectSocket } from '../services/socket';
 import { useMessagesStore } from './useMessagesStore';
 import { useGuestPreviewStore } from './useGuestPreviewStore';
 import { shouldRunAuthBootstrap } from '../constants/publicRoutes';
+import { saveMfaChallenge } from '../utils/mfaChallengeStorage';
 import { clearAllPostFeedCaches, clearFirstPageFeedCache } from '../utils/feedCache';
 import { clearAllPostLikeOverrides } from '../utils/postLikePersistence';
 
@@ -197,6 +198,13 @@ export const useAuthStore = create((set) => ({
     set({ isAuthLoading: true });
     try {
       const res = await authApi.login(payload);
+      if (res?.mfaRequired && res.challengeToken) {
+        saveMfaChallenge({
+          challengeToken: res.challengeToken,
+          expiresInSec: res.expiresInSec,
+        });
+        return { ok: true, mfaRequired: true };
+      }
       const user = await loadMeWithRetry(3, 250);
       const accessToken = pickAccessToken(res);
       persistOAuthSessionTokens(accessToken);
