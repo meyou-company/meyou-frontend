@@ -36,6 +36,7 @@ import OnlineStatus from '../../components/Presence/OnlineStatus';
 import StoryViewerModal from '../../components/Stories/StoryViewerModal';
 import { conversationsApi } from '../../services/conversationsApi';
 import { mergeConversationPages } from '../../utils/conversationListPage';
+import { shouldFetchInboxAfterSearchClear } from '../../utils/inboxListLoadScheduling';
 import {
   mergeInboxHeadRefresh,
   reconcileThreadWithLatestPage,
@@ -98,6 +99,7 @@ const MESSAGES_PAGE_SIZE = MESSENGER_INITIAL_MESSAGE_LIMIT;
 const CONVERSATION_LIST_PAGE_SIZE = 10;
 /** Min gap between visibility-triggered inbox/chat resync (avoids pool storms). */
 const VISIBILITY_RESYNC_MIN_MS = 45_000;
+const INBOX_SECONDARY_LOAD_DELAY_MS = 400;
 
 function getDisplayName(user, fallback) {
   if (!user) return fallback;
@@ -351,6 +353,7 @@ export default function MessagesPage() {
   const chatListScrollRef = useRef(null);
   const listLoadMoreSentinelRef = useRef(null);
   const listLoadInFlightRef = useRef(false);
+  const inboxSecondaryLoadTimerRef = useRef(null);
   const listSearchGenRef = useRef(0);
   const messagesRef = useRef([]);
   const hasMoreOlderRef = useRef(false);
@@ -542,6 +545,19 @@ export default function MessagesPage() {
     [persistInboxCache],
   );
 
+  const loadHiddenConversationsRef = useRef(async () => {});
+
+  const scheduleInboxSecondaryLoads = useCallback(() => {
+    if (inboxSecondaryLoadTimerRef.current) {
+      window.clearTimeout(inboxSecondaryLoadTimerRef.current);
+    }
+    inboxSecondaryLoadTimerRef.current = window.setTimeout(() => {
+      inboxSecondaryLoadTimerRef.current = null;
+      void loadHiddenConversationsRef.current();
+      void fetchTotalUnreadCount();
+    }, INBOX_SECONDARY_LOAD_DELAY_MS);
+  }, [fetchTotalUnreadCount]);
+
   const loadConversations = useCallback(
     async ({ listGen, background = false } = {}) => {
       if (listLoadInFlightRef.current) return;
@@ -574,9 +590,10 @@ export default function MessagesPage() {
       } finally {
         if (!background) setLoadingList(false);
         listLoadInFlightRef.current = false;
+        scheduleInboxSecondaryLoads();
       }
     },
-    [applyConversationListPage],
+    [applyConversationListPage, scheduleInboxSecondaryLoads],
   );
 
   const loadMoreConversations = useCallback(async () => {
@@ -668,6 +685,8 @@ export default function MessagesPage() {
       setLoadingHidden(false);
     }
   }, []);
+
+  loadHiddenConversationsRef.current = loadHiddenConversations;
 
   const markChatRead = useCallback(
     async (id, { force = false, readUpToMessageId, chatGeneration } = {}) => {
@@ -1015,18 +1034,13 @@ export default function MessagesPage() {
     } else {
       void loadConversations();
     }
-    const defer = window.setTimeout(() => {
-      loadHiddenConversations();
-      fetchTotalUnreadCount();
-    }, 0);
-    return () => window.clearTimeout(defer);
-  }, [
-    isAuthed,
-    currentUserId,
-    loadConversations,
-    loadHiddenConversations,
-    fetchTotalUnreadCount,
-  ]);
+    return () => {
+      if (inboxSecondaryLoadTimerRef.current) {
+        window.clearTimeout(inboxSecondaryLoadTimerRef.current);
+        inboxSecondaryLoadTimerRef.current = null;
+      }
+    };
+  }, [isAuthed, currentUserId, loadConversations]);
 
   useEffect(() => {
     const q = searchQuery.trim();
@@ -1035,9 +1049,9 @@ export default function MessagesPage() {
     const timer = window.setTimeout(() => {
       if (q.length >= 2) {
         void searchConversationsServer(q, listGen);
-      } else if (serverSearchActive || q.length === 0) {
+      } else if (shouldFetchInboxAfterSearchClear(serverSearchActive, q)) {
         setServerSearchActive(false);
-        if (q.length === 0) void loadConversations({ listGen });
+        void loadConversations({ listGen });
       }
     }, 320);
     return () => window.clearTimeout(timer);
