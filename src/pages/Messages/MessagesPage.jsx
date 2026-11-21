@@ -494,7 +494,7 @@ export default function MessagesPage() {
   }, []);
 
   const markChatRead = useCallback(
-    async (id, { force = false } = {}) => {
+    async (id, { force = false, readUpToMessageId, chatGeneration } = {}) => {
       if (!id) return;
       const key = String(id);
       if (!force && manuallyUnreadRef.current.has(key)) return;
@@ -503,22 +503,38 @@ export default function MessagesPage() {
 
       const request = (async () => {
         try {
-          const result = await conversationsApi.markConversationRead(id);
+          const result = await conversationsApi.markConversationRead(id, {
+            readUpToMessageId,
+          });
+          if (
+            chatGeneration != null &&
+            chatGeneration !== chatLoadGenRef.current
+          ) {
+            return false;
+          }
           manuallyUnreadRef.current.delete(key);
           if (typeof result?.totalUnreadCount === 'number') {
             setTotalUnreadCount(result.totalUnreadCount);
-          } else {
+          } else if (result?.changed !== false) {
             void fetchTotalUnreadCount(true);
           }
           applyConversationRead(result || {});
+          const unreadForConv =
+            typeof result?.unreadCount === 'number'
+              ? Math.max(0, result.unreadCount)
+              : 0;
           setConversations((prev) =>
             prev.map((c) =>
-              String(c.id) === key ? { ...c, unreadCount: 0 } : c,
+              String(c.id) === key
+                ? { ...c, unreadCount: unreadForConv }
+                : c,
             ),
           );
           setHiddenConversations((prev) =>
             prev.map((c) =>
-              String(c.id) === key ? { ...c, unreadCount: 0 } : c,
+              String(c.id) === key
+                ? { ...c, unreadCount: unreadForConv }
+                : c,
             ),
           );
           return true;
@@ -561,14 +577,11 @@ export default function MessagesPage() {
         setHasMoreOlder(Boolean(result.hasMoreOlder));
         olderCursorRef.current = result.before ?? null;
         setSeenMessageIds(collectSeenOutgoingIds(items, currentUserId));
-        if (typeof result.totalUnreadCount === 'number') {
-          setTotalUnreadCount(result.totalUnreadCount);
-        }
-        setConversations((prev) =>
-          prev.map((c) =>
-            String(c.id) === String(id) ? { ...c, unreadCount: 0 } : c,
-          ),
-        );
+        const newest = items.length ? items[items.length - 1]?.id : undefined;
+        void markChatRead(id, {
+          readUpToMessageId: newest,
+          chatGeneration: gen,
+        });
       } catch (err) {
         if (gen !== chatLoadGenRef.current) return;
         console.error('[messages] chat failed', err);
@@ -581,7 +594,7 @@ export default function MessagesPage() {
         if (gen === chatLoadGenRef.current) setLoadingChat(false);
       }
     },
-    [currentUserId, setTotalUnreadCount],
+    [currentUserId, markChatRead],
   );
 
   const loadOlderMessages = useCallback(async () => {
@@ -665,8 +678,7 @@ export default function MessagesPage() {
     olderCursorRef.current = null;
     setMessages([]);
     loadMessages(activeConversationId);
-    void markChatRead(activeConversationId);
-  }, [isAuthed, activeConversationId, loadMessages, markChatRead]);
+  }, [isAuthed, activeConversationId, loadMessages]);
 
   useEffect(() => {
     const el = messagesScrollRef.current;
@@ -774,7 +786,7 @@ export default function MessagesPage() {
           }
           return mergeMessageHistory(prev, [message]);
         });
-        void markChatRead(convId);
+        void markChatRead(convId, { readUpToMessageId: message.id });
       }
     };
 
