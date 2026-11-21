@@ -10,7 +10,6 @@ import {
   __testHasRefreshTimer,
   __testListenerCount,
   __testRefreshExpiredEntries,
-  __testRunRefreshTimer,
   clearChatMediaDeliveryCache,
   getChatDeliveryCacheEntry,
   loadChatAttachmentDelivery,
