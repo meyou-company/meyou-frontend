@@ -1035,8 +1035,8 @@
           "desc": "Devices where you are signed in"
         },
         "securityLog": {
-          "title": "Security log",
-          "desc": "Recent sign-in and protection events"
+          "title": "Registro de seguridad",
+          "desc": "Eventos recientes de inicio de sesión y protección"
         }
       },
       "logoutAll": "Log out on all devices",
@@ -1064,25 +1064,25 @@
         "alertsDisabled": "Login alerts disabled"
       },
       "securityLog": {
-        "loading": "Loading security log…",
-        "loadingMore": "Loading…",
-        "loadMore": "Load more",
-        "empty": "No security events yet",
-        "loadError": "Could not load security log",
-        "unknownDevice": "Unknown device",
-        "unknownTime": "Unknown time",
-        "countryApprox": "Country (approx.): {{country}}",
-        "retentionNote": "Events are kept for 90 days. Passwords, codes, and full IP addresses are not stored.",
+        "loading": "Cargando registro de seguridad…",
+        "loadingMore": "Cargando…",
+        "loadMore": "Ver más",
+        "empty": "Aún no hay eventos de seguridad",
+        "loadError": "No se pudo cargar el registro de seguridad",
+        "unknownDevice": "Dispositivo desconocido",
+        "unknownTime": "Hora desconocida",
+        "countryApprox": "País (aprox.): {{country}}",
+        "retentionNote": "Los eventos se conservan 90 días. No guardamos contraseñas, códigos ni direcciones IP completas.",
         "types": {
-          "loginSuccess": "Successful sign-in",
-          "loginFailed": "Failed sign-in",
-          "mfaEnabled": "2FA enabled",
-          "mfaDisabled": "2FA disabled",
-          "passwordChanged": "Password changed",
-          "logoutAll": "Signed out everywhere",
-          "sessionRevoked": "Session ended",
-          "mfaRateLimited": "MFA attempts limited",
-          "unknown": "Security event"
+          "loginSuccess": "Inicio de sesión correcto",
+          "loginFailed": "Intento de inicio fallido",
+          "mfaEnabled": "2FA activado",
+          "mfaDisabled": "2FA desactivado",
+          "passwordChanged": "Contraseña cambiada",
+          "logoutAll": "Sesión cerrada en todos los dispositivos",
+          "sessionRevoked": "Sesión finalizada",
+          "mfaRateLimited": "Intentos MFA limitados",
+          "unknown": "Evento de seguridad"
         }
       },
       "deleteAccount": {

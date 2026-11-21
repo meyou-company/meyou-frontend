@@ -1035,8 +1035,8 @@
           "desc": "Devices where you are signed in"
         },
         "securityLog": {
-          "title": "Security log",
-          "desc": "Recent sign-in and protection events"
+          "title": "Bezpečnostní deník",
+          "desc": "Nedávné události přihlášení a ochrany"
         }
       },
       "logoutAll": "Log out on all devices",
@@ -1064,25 +1064,25 @@
         "alertsDisabled": "Login alerts disabled"
       },
       "securityLog": {
-        "loading": "Loading security log…",
-        "loadingMore": "Loading…",
-        "loadMore": "Load more",
-        "empty": "No security events yet",
-        "loadError": "Could not load security log",
-        "unknownDevice": "Unknown device",
-        "unknownTime": "Unknown time",
-        "countryApprox": "Country (approx.): {{country}}",
-        "retentionNote": "Events are kept for 90 days. Passwords, codes, and full IP addresses are not stored.",
+        "loading": "Načítání bezpečnostního deníku…",
+        "loadingMore": "Načítání…",
+        "loadMore": "Zobrazit další",
+        "empty": "Zatím žádné bezpečnostní události",
+        "loadError": "Bezpečnostní deník se nepodařilo načíst",
+        "unknownDevice": "Neznámé zařízení",
+        "unknownTime": "Neznámý čas",
+        "countryApprox": "Země (přibližně): {{country}}",
+        "retentionNote": "Události uchováváme 90 dní. Hesla, kódy ani celé IP adresy neukládáme.",
         "types": {
-          "loginSuccess": "Successful sign-in",
-          "loginFailed": "Failed sign-in",
-          "mfaEnabled": "2FA enabled",
-          "mfaDisabled": "2FA disabled",
-          "passwordChanged": "Password changed",
-          "logoutAll": "Signed out everywhere",
-          "sessionRevoked": "Session ended",
-          "mfaRateLimited": "MFA attempts limited",
-          "unknown": "Security event"
+          "loginSuccess": "Úspěšné přihlášení",
+          "loginFailed": "Neúspěšné přihlášení",
+          "mfaEnabled": "2FA zapnuto",
+          "mfaDisabled": "2FA vypnuto",
+          "passwordChanged": "Heslo změněno",
+          "logoutAll": "Odhlášení na všech zařízeních",
+          "sessionRevoked": "Relace ukončena",
+          "mfaRateLimited": "Omezení pokusů MFA",
+          "unknown": "Bezpečnostní událost"
         }
       },
       "deleteAccount": {
