@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import { authApi } from '../../services/auth';
 import { getApiErrorMessage } from '../../utils/getApiErrorMessage';
-import { formatSessionCountryLabel } from '../../utils/formatSessionCountry';
+import { formatRegionDisplayName } from '../../utils/formatSessionCountry';
 import './SecurityEventLogPanel.scss';
 
 const EVENT_I18N_KEY = {
@@ -86,8 +86,8 @@ export default function SecurityEventLogPanel() {
       <ul className="security-event-log__list">
         {items.map((ev) => {
           const typeKey = EVENT_I18N_KEY[ev.type] ?? 'unknown';
-          const country = ev.countryCode
-            ? formatSessionCountryLabel(ev.countryCode, uiLocale, t)
+          const countryName = ev.countryCode
+            ? formatRegionDisplayName(ev.countryCode, uiLocale)
             : null;
           return (
             <li key={ev.id} className="security-event-log__item">
@@ -101,10 +101,10 @@ export default function SecurityEventLogPanel() {
               </div>
               <p className="security-event-log__meta">
                 {deviceLine(ev, t)}
-                {country ? (
+                {countryName ? (
                   <span className="security-event-log__country">
                     {t('settings.security.securityLog.countryApprox', {
-                      country,
+                      country: countryName,
                     })}
                   </span>
                 ) : null}
