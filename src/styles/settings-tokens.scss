@@ -1,0 +1,49 @@
+/* LUNMEYO settings surfaces — scoped to `.settings-page` (not global app chrome). */
+
+.settings-page {
+  --settings-max-width: 720px;
+  --settings-accent: #6b5ce0;
+  --settings-accent-gradient: linear-gradient(90deg, #ff4fb1, #4f6bff);
+  --settings-radius-card: 16px;
+  --settings-radius-control: 12px;
+  --settings-success: #1bbf62;
+  --settings-danger: #c94b5f;
+  --settings-danger-soft: rgba(201, 75, 95, 0.12);
+}
+
+html[data-theme='light'] .settings-page {
+  --settings-bg: linear-gradient(160deg, #f4effa 0%, #eae1f4 48%, #f4effa 100%);
+  --settings-surface: #ffffff;
+  --settings-surface-muted: rgba(255, 255, 255, 0.92);
+  --settings-text: #281a3d;
+  --settings-text-secondary: #665a76;
+  --settings-border: #ded3e9;
+  --settings-border-soft: rgba(0, 0, 0, 0.06);
+  --settings-hover: rgba(107, 92, 224, 0.08);
+  --settings-back-bg: rgba(255, 255, 255, 0.85);
+  --settings-input-bg: #ffffff;
+  --settings-input-border: rgba(40, 26, 61, 0.14);
+  --settings-muted-bg: #eae1f4;
+  --settings-icon-filter: none;
+  --settings-shadow: 0 8px 28px rgba(40, 26, 61, 0.08);
+}
+
+html[data-theme='dark'] .settings-page,
+body.dark .settings-page {
+  --settings-bg: linear-gradient(135deg, #10071f 0%, #29113d 52%, #11081e 100%);
+  --settings-surface: #281a3d;
+  --settings-surface-muted: #1b1030;
+  --settings-text: #f8f5ff;
+  --settings-text-secondary: #c4b8d6;
+  --settings-border: #49315f;
+  --settings-border-soft: rgba(255, 255, 255, 0.08);
+  --settings-hover: rgba(139, 124, 255, 0.14);
+  --settings-back-bg: rgba(40, 26, 61, 0.85);
+  --settings-input-bg: #1b1030;
+  --settings-input-border: #49315f;
+  --settings-muted-bg: #1b1030;
+  --settings-icon-filter: brightness(0) invert(1);
+  --settings-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
+  --settings-accent: #8b7cff;
+  --settings-danger: #ff8a96;
+}

@@ -2,7 +2,7 @@
   position: fixed;
   inset: 0;
   z-index: 1000001;
-  background: rgba(0, 0, 0, 0.45);
+  background: rgba(16, 7, 31, 0.45);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -19,10 +19,12 @@
   overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
   touch-action: pan-y;
-  background: #f4fdff;
+  background: #ffffff;
+  border: 1px solid #ded3e9;
   border-radius: 16px;
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.18);
+  box-shadow: 0 12px 40px rgba(40, 26, 61, 0.15);
   padding: 20px;
+  color: #281a3d;
 }
 
 .langSettings__header {
@@ -42,14 +44,15 @@
 .langSettings__close {
   border: 0;
   background: transparent;
-  font-size: 18px;
+  font-size: 22px;
   cursor: pointer;
   line-height: 1;
+  color: #281a3d;
 }
 
 .langSettings__subtitle {
   margin: 0 0 16px;
-  color: rgba(0, 0, 0, 0.6);
+  color: #665a76;
   font-size: 14px;
 }
 
@@ -70,15 +73,21 @@
   gap: 12px;
   padding: 12px 14px;
   border-radius: 12px;
-  border: 1px solid rgba(0, 0, 0, 0.08);
-  background: #fff;
+  border: 1px solid #ded3e9;
+  background: #f4effa;
   cursor: pointer;
   font-size: 15px;
   text-align: start;
+  color: #281a3d;
+  transition: background 0.15s ease, border-color 0.15s ease;
+
+  &:hover {
+    background: rgba(107, 92, 224, 0.1);
+  }
 
   &.is-active {
-    border-color: #4f6bff;
-    background: rgba(79, 107, 255, 0.08);
+    border-color: #6b5ce0;
+    background: rgba(107, 92, 224, 0.14);
     font-weight: 600;
   }
 
@@ -89,7 +98,7 @@
 }
 
 .langSettings__check {
-  color: #4f6bff;
+  color: #6b5ce0;
   font-weight: 700;
 }
 
@@ -98,39 +107,49 @@ body.locale-ar .langSettings__option {
   text-align: start;
 }
 
-body.dark .langSettings__modal,
-html[data-theme='dark'] .langSettings__modal {
-  background: #1a1f2b;
-  color: #fff;
+html[data-theme='dark'] .langSettings__overlay,
+body.dark .langSettings__overlay {
+  background: rgba(0, 0, 0, 0.62);
 }
 
-body.dark .langSettings__header h2,
+html[data-theme='dark'] .langSettings__modal,
+body.dark .langSettings__modal {
+  background: #281a3d;
+  border-color: #49315f;
+  color: #f8f5ff;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.5);
+}
+
 html[data-theme='dark'] .langSettings__header h2,
-body.dark .langSettings__close,
-html[data-theme='dark'] .langSettings__close {
-  color: #fff;
+html[data-theme='dark'] .langSettings__close,
+body.dark .langSettings__header h2,
+body.dark .langSettings__close {
+  color: #f8f5ff;
 }
 
-body.dark .langSettings__subtitle,
-html[data-theme='dark'] .langSettings__subtitle {
-  color: rgba(255, 255, 255, 0.68);
+html[data-theme='dark'] .langSettings__subtitle,
+body.dark .langSettings__subtitle {
+  color: #c4b8d6;
 }
 
-body.dark .langSettings__option,
-html[data-theme='dark'] .langSettings__option {
-  background: rgba(255, 255, 255, 0.06);
-  border-color: rgba(255, 255, 255, 0.12);
-  color: #fff;
+html[data-theme='dark'] .langSettings__option,
+body.dark .langSettings__option {
+  background: #1b1030;
+  border-color: #49315f;
+  color: #f8f5ff;
+
+  &:hover {
+    background: rgba(139, 124, 255, 0.12);
+  }
 }
 
-body.dark .langSettings__option.is-active,
-html[data-theme='dark'] .langSettings__option.is-active {
-  background: rgba(79, 107, 255, 0.22);
-  border-color: #4f6bff;
-  color: #fff;
+html[data-theme='dark'] .langSettings__option.is-active,
+body.dark .langSettings__option.is-active {
+  background: rgba(107, 92, 224, 0.24);
+  border-color: #8b7cff;
 }
 
-body.dark .langSettings__check,
-html[data-theme='dark'] .langSettings__check {
-  color: #8ea2ff;
+html[data-theme='dark'] .langSettings__check,
+body.dark .langSettings__check {
+  color: #c4b8ff;
 }

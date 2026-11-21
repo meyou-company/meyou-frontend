@@ -88,44 +88,66 @@
   cursor: not-allowed;
 }
 
-.settings-danger-zone {
-  margin-top: 8px;
+html[data-theme='dark'] .deleteAccountModal,
+body.dark .deleteAccountModal {
+  background: #281a3d;
+  color: #f8f5ff;
+  border: 1px solid #49315f;
 }
 
-.settings-danger-zone__title {
-  margin: 0 0 4px;
-  padding: 14px 16px 0;
-  font-size: 0.8125rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  color: #c62828;
+html[data-theme='dark'] .deleteAccountModal__title,
+body.dark .deleteAccountModal__title {
+  color: #f8f5ff;
 }
 
-.settings-danger-zone__desc {
-  margin: 0;
-  padding: 0 16px 12px;
-  font-size: 0.8125rem;
-  line-height: 1.4;
-  color: rgba(0, 0, 0, 0.58);
+html[data-theme='dark'] .deleteAccountModal__warning,
+html[data-theme='dark'] .deleteAccountModal__label,
+body.dark .deleteAccountModal__warning,
+body.dark .deleteAccountModal__label {
+  color: #c4b8d6;
 }
 
-.settings-danger-zone__btn {
-  display: block;
-  width: calc(100% - 32px);
-  margin: 0 16px 16px;
-  padding: 12px 16px;
-  border: none;
-  border-radius: 12px;
-  background: #d12a4f;
-  color: #fff;
-  font: inherit;
-  font-size: 0.9375rem;
-  font-weight: 600;
-  cursor: pointer;
+html[data-theme='dark'] .deleteAccountModal__input,
+body.dark .deleteAccountModal__input {
+  background: #1b1030;
+  border-color: #49315f;
+  color: #f8f5ff;
 }
 
-.settings-danger-zone__btn:disabled {
-  opacity: 0.65;
-  cursor: not-allowed;
+html[data-theme='dark'] .deleteAccountModal__btn--cancel,
+body.dark .deleteAccountModal__btn--cancel {
+  background: #1b1030;
+  color: #f8f5ff;
+}
+
+html[data-theme='dark'] .deleteAccountModal,
+body.dark .deleteAccountModal {
+  background: #281a3d;
+  color: #f8f5ff;
+  border: 1px solid #49315f;
+}
+
+html[data-theme='dark'] .deleteAccountModal__title,
+body.dark .deleteAccountModal__title {
+  color: #f8f5ff;
+}
+
+html[data-theme='dark'] .deleteAccountModal__warning,
+html[data-theme='dark'] .deleteAccountModal__label,
+body.dark .deleteAccountModal__warning,
+body.dark .deleteAccountModal__label {
+  color: #c4b8d6;
+}
+
+html[data-theme='dark'] .deleteAccountModal__input,
+body.dark .deleteAccountModal__input {
+  background: #1b1030;
+  border-color: #49315f;
+  color: #f8f5ff;
+}
+
+html[data-theme='dark'] .deleteAccountModal__btn--cancel,
+body.dark .deleteAccountModal__btn--cancel {
+  background: #1b1030;
+  color: #f8f5ff;
 }

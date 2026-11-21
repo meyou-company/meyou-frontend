@@ -1,7 +1,7 @@
 .blocked-users-page__status {
   margin: 0;
   padding: 18px 4px;
-  color: rgba(0, 0, 0, 0.58);
+  color: var(--settings-text-secondary);
   font-size: 0.9375rem;
 }
 
@@ -10,33 +10,35 @@
   flex-direction: column;
   gap: 8px;
   padding: 28px 18px;
-  border-radius: 16px;
-  background: rgba(255, 255, 255, 0.72);
-  border: 1px solid rgba(0, 0, 0, 0.06);
+  border-radius: var(--settings-radius-card);
+  background: var(--settings-surface);
+  border: 1px solid var(--settings-border);
   text-align: center;
+  box-shadow: var(--settings-shadow);
 }
 
 .blocked-users-page__stateTitle {
   margin: 0;
   font-size: 1rem;
   font-weight: 600;
-  color: #111;
+  color: var(--settings-text);
 }
 
 .blocked-users-page__stateDesc {
   margin: 0;
   font-size: 0.875rem;
   line-height: 1.4;
-  color: rgba(0, 0, 0, 0.58);
+  color: var(--settings-text-secondary);
 }
 
 .blocked-users-page__retry {
   align-self: center;
   margin-top: 8px;
   border: none;
-  border-radius: 12px;
+  border-radius: var(--settings-radius-control);
   padding: 10px 16px;
-  background: linear-gradient(90deg, #ff4fb1, #4f6bff);
+  min-height: 48px;
+  background: var(--settings-accent-gradient);
   color: #fff;
   font: inherit;
   font-weight: 600;
@@ -58,7 +60,7 @@
 }
 
 .blocked-users-page__item + .blocked-users-page__item {
-  border-top: 1px solid rgba(0, 0, 0, 0.06);
+  border-top: 1px solid var(--settings-border-soft);
 }
 
 .blocked-users-page__user {
@@ -75,13 +77,13 @@
   height: 44px;
   border-radius: 50%;
   overflow: hidden;
-  background: rgba(0, 0, 0, 0.08);
+  background: var(--settings-muted-bg);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 1rem;
   font-weight: 600;
-  color: rgba(0, 0, 0, 0.55);
+  color: var(--settings-text-secondary);
 
   img {
     width: 100%;
@@ -107,25 +109,26 @@
 .blocked-users-page__name {
   font-size: 0.9375rem;
   font-weight: 600;
-  color: #111;
+  color: var(--settings-text);
 }
 
 .blocked-users-page__username {
   font-size: 0.8125rem;
-  color: rgba(0, 0, 0, 0.55);
+  color: var(--settings-text-secondary);
 }
 
 .blocked-users-page__unblock {
   flex-shrink: 0;
-  border: 1px solid rgba(0, 0, 0, 0.1);
+  border: 1px solid var(--settings-border);
   border-radius: 999px;
   padding: 8px 14px;
-  background: rgba(255, 255, 255, 0.9);
-  color: #111;
+  background: transparent;
+  color: var(--settings-text);
   font: inherit;
   font-size: 0.8125rem;
   font-weight: 600;
   cursor: pointer;
+  min-height: 40px;
 }
 
 .blocked-users-page__unblock:disabled {

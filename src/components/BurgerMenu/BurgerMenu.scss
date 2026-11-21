@@ -1,12 +1,6 @@
 $bp-tablet: 768px;
 $bp-desktop: 1440px;
 
-$bg-panel: #f3e5ff;
-$bg-panel-desktop: #ffffff;
-$border-panel: #c6b5e5;
-$accent-logout: #e53333;
-
-/* Обгортка + бекдроп поверх усього контенту */
 .profile-menu-wrap {
   position: fixed;
   inset: 0;
@@ -19,7 +13,7 @@ $accent-logout: #e53333;
   position: absolute;
   inset: 0;
   z-index: 0;
-  background: rgba(0, 0, 0, 0.35);
+  background: var(--burger-backdrop);
   cursor: default;
 }
 
@@ -30,16 +24,18 @@ $accent-logout: #e53333;
   top: 70px;
   width: 100%;
   max-width: 420px;
-  font-family: "Montserrat", sans-serif;
-  background: #ffffff;
+  font-family: 'Montserrat', sans-serif;
+  background: var(--burger-panel-bg);
+  color: var(--burger-text);
+  border: 1px solid var(--burger-border);
   border-radius: 24px;
-  box-shadow: 0 0 30px rgba(0, 0, 0, 0.25);
+  box-shadow: var(--burger-shadow);
   display: flex;
   flex-direction: column;
   overflow: hidden;
   overscroll-behavior: contain;
   transform: translateY(130%);
-  transition: transform 0.3s ease;
+  transition: transform 0.3s ease, background 0.2s ease, color 0.2s ease;
 
   @media (min-width: $bp-tablet) {
     transform: translateY(-120%);
@@ -47,28 +43,20 @@ $accent-logout: #e53333;
     max-height: calc(100vh - 90px);
     width: 430px;
     max-width: none;
-    border-radius: 24px 24px 24px 24px;
-    background: $bg-panel; 
+    background: var(--burger-panel-bg-md);
   }
 
   @media (min-width: $bp-desktop) {
-    border-radius: 24px;
-    background: $bg-panel;
     top: 120px;
     right: calc((100vw - 1440px) / 2 + 40px);
     width: 420px;
-    border-radius: 24px;
-    box-shadow: 0 6px 30px rgba(0, 0, 0, 0.2);
+    bottom: 16px;
   }
 }
 
 .profile-menu--open {
-  transform: translateY(0); 
+  transform: translateY(0);
   bottom: 66px;
-
-   @media (max-width: 767.98px) {
-    border: 1px solid black;
-  }
 
   @media (min-width: $bp-tablet) {
     transform: translateY(0);
@@ -86,15 +74,16 @@ $accent-logout: #e53333;
   justify-content: space-between;
   padding: 20px 25px 6px 23px;
   border-radius: 24px 24px 0 0;
+  background: var(--burger-panel-bg-md);
+  border-bottom: 1px solid transparent;
 
   @media (min-width: $bp-tablet) {
     padding: 18px 24px 8px;
-    border-radius: 24px 24px 0 0;
   }
 
   @media (min-width: $bp-desktop) {
     padding: 14px 20px;
-    border-bottom: 1px solid $border-panel;
+    border-bottom-color: var(--burger-divider);
   }
 }
 
@@ -122,14 +111,10 @@ $accent-logout: #e53333;
   min-width: 0;
 
   &:focus-visible {
-    outline: 2px solid rgba(79, 107, 255, 0.55);
+    outline: 2px solid var(--burger-accent);
     outline-offset: 2px;
     border-radius: 8px;
   }
-}
-
-.profile-menu__email--belowTap {
-  align-self: stretch;
 }
 
 .profile-menu__avatar-wrapper {
@@ -155,12 +140,12 @@ $accent-logout: #e53333;
 
 .profile-menu__status-dot {
   position: absolute;
-  right: 0px;
+  right: 0;
   bottom: 46px;
   width: 12px;
   height: 12px;
   border-radius: 50%;
-  background: rgba(11, 134, 4, 1);
+  background: #1bbf62;
 }
 
 .profile-menu__infoWrapper {
@@ -168,34 +153,19 @@ $accent-logout: #e53333;
   flex-direction: column;
 }
 
-.profile-menu__info {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-
-  @media only screen and (max-width: 1439.98px) {
-    text-decoration: underline 0.6px rgb(0, 0, 0);
-  }
-}
-
-@media only screen and (max-width: 1439.98px) {
-  .profile-menu__userTap .profile-menu__name {
-    text-decoration: underline 0.6px rgb(0, 0, 0);
-  }
-}
-
 .profile-menu__name {
   font-weight: 700;
   font-size: 16px;
+  color: var(--burger-text);
 
-@media (min-width: $bp-tablet) {
+  @media (min-width: $bp-tablet) {
     font-size: 18px;
   }
 }
 
 .profile-menu__email {
   font-size: 13px;
-  color: rgba(0, 0, 0, 0.8);
+  color: var(--burger-text-muted);
 
   @media (min-width: $bp-tablet) {
     font-size: 14px;
@@ -204,9 +174,12 @@ $accent-logout: #e53333;
 
 .profile-menu__close {
   margin-bottom: 50px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
 
   @media (min-width: $bp-tablet) {
-    font-size: 26px; 
+    font-size: 26px;
   }
 
   @media (min-width: $bp-desktop) {
@@ -216,14 +189,15 @@ $accent-logout: #e53333;
 
 .profile-menu__close--icon {
   width: 13px;
+  filter: var(--burger-icon-filter);
 }
 
 .profile-menu__divider {
   height: 1px;
-  background: #000000;
+  background: var(--burger-divider);
 
-    @media (min-width: $bp-desktop) {
-    display: none; 
+  @media (min-width: $bp-desktop) {
+    display: none;
   }
 }
 
@@ -252,59 +226,55 @@ $accent-logout: #e53333;
   display: flex;
   align-items: center;
   gap: 14px;
-  padding: 6px 4px;
+  padding: 8px 6px;
   border-radius: 10px;
   border: none;
   background: transparent;
   cursor: pointer;
   text-align: left;
+  color: var(--burger-text);
+  transition: background 0.15s ease;
 
   &:hover {
-    background: rgba(0, 0, 0, 0.03);
+    background: var(--burger-hover);
   }
 
   @media (min-width: $bp-desktop) {
-    padding: 6px 2px;
+    padding: 8px 4px;
   }
 }
 
 .profile-menu__item--language {
-  padding: 6px 12px 6px 48px;
-  border: 0.5px solid black;
-  border-radius: 0;
+  padding: 8px 12px 8px 48px;
+  border: 1px solid var(--burger-border);
+  border-radius: var(--settings-radius-control, 12px);
 }
 
 .profile-menu__item--language .profile-menu__label {
   flex: 1;
 }
 
-.profile-menu__icon--language {
-  margin-left: auto;
-}
-
 .profile-menu__icon {
   width: 18px;
   text-align: center;
-  
-   @media (min-width: $bp-tablet) {
-    width: 20px;
-   }
+  filter: var(--burger-icon-filter);
 
-    @media (min-width: $bp-desktop) {
+  @media (min-width: $bp-tablet) {
+    width: 20px;
+  }
+
+  @media (min-width: $bp-desktop) {
     width: 23px;
-   }
+  }
 }
 
 .profile-menu__label {
   font-size: 13px;
+  color: var(--burger-text);
 
-  @media (max-width: 767.98px) {
-    text-decoration: underline 0.5px;
-  }
-
-   @media (min-width: $bp-tablet) {
+  @media (min-width: $bp-tablet) {
     font-size: 16px;
-   }
+  }
 }
 
 .profile-menu__badge {
@@ -313,7 +283,7 @@ $accent-logout: #e53333;
   height: 18px;
   padding: 0 5px;
   border-radius: 999px;
-  background: #c2185b;
+  background: var(--burger-badge-bg);
   color: #fff;
   font-size: 11px;
   font-weight: 700;
@@ -321,7 +291,6 @@ $accent-logout: #e53333;
   text-align: center;
 }
 
-/* Переключатель "Посмотреть как гость" */
 .profile-menu__guest-toggle {
   margin-left: auto;
 }
@@ -329,9 +298,9 @@ $accent-logout: #e53333;
 .profile-menu__toggle-track {
   width: 46px;
   height: 20px;
-  background: #F1E7FF;
+  background: var(--burger-toggle-track);
   border-radius: 20px;
-  border: 0.5px solid black;
+  border: 1px solid var(--burger-border);
   position: relative;
   overflow: hidden;
 }
@@ -339,9 +308,9 @@ $accent-logout: #e53333;
 .profile-menu__toggle-thumb {
   width: 15px;
   height: 15px;
-  background: #F1E7FF;
+  background: #fff;
   border-radius: 50%;
-  border: 0.2px solid black;
+  border: 1px solid var(--burger-border);
   position: absolute;
   left: 4px;
   top: 2px;
@@ -349,25 +318,19 @@ $accent-logout: #e53333;
 }
 
 .profile-menu__guest-toggle.is-on .profile-menu__toggle-track {
-  background: #2b2b2b;
+  background: var(--burger-toggle-track-on);
 }
 
 .profile-menu__guest-toggle.is-on .profile-menu__toggle-thumb {
   left: 26px;
-  background: #ffffff;
 }
-
-/* ThemeToggleDark в меню */
 
 .profile-menu__item--dark {
   display: flex;
   align-items: center;
-  padding: 6px 4px;
+  padding: 8px 6px;
   border-radius: 10px;
-  border: none;
-  background: transparent;
   cursor: pointer;
-  text-align: left;
 
   .profile-menu__label {
     flex: 1;
@@ -385,96 +348,11 @@ $accent-logout: #e53333;
 
 .profile-menu__item--logout {
   margin-top: 4px;
-  color: $accent-logout;
+  color: var(--burger-logout);
 }
 
-
-/* =========================
-   !🌙 DARK MODE 
-   ========================= */
-
-body.dark,
-html[data-theme="dark"] {
-  .profile-menu {
-    --bg-menu: #1a1a1a;
-    --bg-header: #2a2a2a;
-    --text-primary: #ffffff;
-    --text-secondary: rgba(255, 255, 255, 0.8);
-    --border-color: #444444;
-    --divider-color: #444444;
-    --hover-bg: rgba(255, 255, 255, 0.1);
-    --shadow: rgba(0, 0, 0, 0.7);
-    
-    background: var(--bg-menu);
-    color: var(--text-primary);
-    box-shadow: 0 0 30px var(--shadow);
-    
-    @media (min-width: $bp-tablet) {
-      background: var(--bg-header);
-    }
-    
-    @media (max-width: 767.98px) {
-      border-color: var(--border-color);
-    }
-  }
-  
-  .profile-menu--open {
-    @media (max-width: 767.98px) {
-      border-color: var(--border-color);
-    }
-  }
-  
-  .profile-menu__header {
-    background: var(--bg-header);
-    
-    @media (min-width: $bp-desktop) {
-      border-bottom-color: var(--border-color);
-    }
-  }
-  
-  .profile-menu__name,
-  .profile-menu__userTap .profile-menu__name {
-    color: var(--text-primary);
-    text-decoration-color: currentColor;
-  }
-
-  .profile-menu__info {
-    text-decoration-color: currentColor;
-  }
-  
-  .profile-menu__email {
-    color: var(--text-secondary);
-  }
-  
-  .profile-menu__divider {
-    background: var(--divider-color);
-  }
-  
-  .profile-menu__item,
-  .profile-menu__label {
-    color: var(--text-primary);
-  }
-
-  .profile-menu__item:hover {
-    background: var(--hover-bg);
-  }
-  
-  .profile-menu__section--language {
-    border-color: var(--border-color);
-  }
-  
-  .profile-menu__item--language {
-    border-color: var(--border-color);
-    color: var(--text-primary);
-  }
-  
-  .profile-menu__item--logout {
-    color: #ff6b6b !important;
-  }
-
-  .profile-menu__icon,
-  .profile-menu__close,
-  .profile-menu__icon--language {
-    filter: brightness(0) invert(1);
-  }
+.profile-menu__section {
+  margin-top: 4px;
+  padding-top: 8px;
+  border-top: 1px solid var(--burger-divider);
 }

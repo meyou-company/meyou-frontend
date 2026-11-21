@@ -1,5 +1,6 @@
 .active-sessions {
   padding: 0 0 8px;
+  color: var(--settings-text);
 
   &__alerts {
     display: flex;
@@ -79,7 +80,7 @@
   &__desc {
     display: block;
     font-size: 13px;
-    opacity: 0.75;
+    color: var(--settings-text-secondary);
     margin-top: 4px;
   }
 
@@ -100,16 +101,7 @@
 
   &__muted {
     font-size: 14px;
-    opacity: 0.7;
+    color: var(--settings-text-secondary);
     margin: 8px 0;
   }
-}
-
-[data-theme='dark'] .active-sessions__item {
-  border-top-color: rgba(255, 255, 255, 0.08);
-}
-
-[data-theme='dark'] .active-sessions__badge {
-  background: rgba(107, 92, 224, 0.22);
-  color: #c4baff;
 }
