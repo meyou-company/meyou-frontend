@@ -213,23 +213,28 @@
     },
     "mfa": {
       "title": "Two-factor authentication",
-      "subtitle": "Enter the code from your authenticator app or a backup code.",
+      "subtitle": "Girişi tamamlamak için doğrulayıcı uygulamadaki 6 haneli kodu girin.",
       "methodLabel": "Verification method",
-      "methodTotp": "Authenticator",
+      "methodTotp": "Doğrulayıcı kodu",
       "methodBackup": "Backup code",
       "totpLabel": "6-digit code",
       "backupLabel": "Backup code",
       "totpPlaceholder": "000000",
       "backupPlaceholder": "XXXX-XXXX",
-      "verify": "Verify and continue",
+      "verify": "Onayla ve giriş yap",
       "verifying": "Verifying…",
-      "success": "Verified successfully",
+      "success": "Giriş başarılı",
       "backToLogin": "Back to sign in",
       "errors": {
         "challengeExpired": "This sign-in step expired. Please sign in again.",
         "codeRequired": "Enter a verification code",
-        "failed": "Verification failed"
-      }
+        "failed": "Verification failed",
+        "codeTooShort": "6 hanenin tamamını girin",
+        "invalidCode": "Hatalı veya süresi dolmuş kod. Tekrar deneyin veya yedek kod kullanın.",
+        "attemptsExceeded": "Çok fazla deneme. Devam etmek için yeniden giriş yapın."
+      },
+      "totpHint": "Kodlar uygulamada her 30 saniyede yenilenir.",
+      "backupHint": "Tek kullanımlık yedek kodlardan birini girin."
     }
   },
   "profile": {
@@ -962,7 +967,7 @@
           "pageTitle": "Two-factor authentication",
           "pageSubtitle": "Authenticator app (TOTP)",
           "loading": "Loading…",
-          "intro": "Use Google Authenticator, Microsoft Authenticator, or any TOTP app. You will receive 10 one-time backup codes.",
+          "intro": "Hesabınızı doğrulayıcı uygulamasındaki kodlarla koruyun. 10 yedek kod alırsınız.",
           "enrollmentOff": "New 2FA enrollment is temporarily unavailable. If you already use 2FA, sign-in still requires your code.",
           "startSetup": "Set up authenticator",
           "scanHint": "Scan this QR code with your authenticator app, then enter the first 6-digit code.",
@@ -986,7 +991,36 @@
           "codePlaceholder": "Verification code",
           "passwordPlaceholder": "Account password (if you use one)",
           "disableButton": "Disable 2FA",
-          "disableConfirm": "Disable two-factor authentication for this account?"
+          "disableConfirm": "Disable two-factor authentication for this account?",
+          "confirming": "Etkinleştiriliyor…",
+          "disabledBadge": "2FA kapalı",
+          "backupSectionTitle": "Yedek kodlar",
+          "backupSectionDesc": "Doğrulayıcıya erişemiyorsanız yedek kod kullanın.",
+          "copyBackupCodes": "Tüm kodları kopyala",
+          "backupCopied": "Yedek kodlar kopyalandı",
+          "copyFailed": "Panoya kopyalanamadı",
+          "disableIntro": "Giriş için yalnızca parola gerekir. 2FA açık kalsın önerilir.",
+          "disableOpen": "2FA’yı kapat…",
+          "errors": {
+            "codeTooShort": "6 hanenin tamamını girin",
+            "confirmFailed": "2FA etkinleştirilemedi. Kodu kontrol edin."
+          },
+          "onboarding": {
+            "step1Title": "Doğrulayıcı uygulaması yükleyin",
+            "step1Body": "Google Authenticator veya Microsoft Authenticator yükleyin. Uygulama tek kullanımlık 6 haneli kodlar üretir.",
+            "step2Title": "QR kodu tarayın",
+            "step2Body": "Uygulamada + veya “Hesap ekle”ye dokunun ve QR taramayı seçin. Kodu yalnızca uygulama ile tarayın.",
+            "step3Title": "Kurulumu onaylayın",
+            "step3Body": "Uygulamadaki 6 haneli kodu girin.",
+            "step4Title": "Yedek kodları kaydedin",
+            "step4Body": "Telefon kaybolursa yedek kodlarla giriş yapabilirsiniz. Güvenli yerde saklayın.",
+            "googleAuth": "Google Authenticator",
+            "msAuth": "Microsoft Authenticator",
+            "showManualKey": "QR taranamıyor mu? Gizli anahtarı girin",
+            "hideManualKey": "Gizli anahtarı gizle",
+            "copySecret": "Anahtarı kopyala",
+            "secretCopied": "Gizli anahtar kopyalandı"
+          }
         },
         "sessions": {
           "title": "Active sessions",

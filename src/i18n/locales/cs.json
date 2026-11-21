@@ -213,23 +213,28 @@
     },
     "mfa": {
       "title": "Two-factor authentication",
-      "subtitle": "Enter the code from your authenticator app or a backup code.",
+      "subtitle": "Zadejte 6místný kód z ověřovací aplikace a dokončete přihlášení.",
       "methodLabel": "Verification method",
-      "methodTotp": "Authenticator",
+      "methodTotp": "Kód z aplikace",
       "methodBackup": "Backup code",
       "totpLabel": "6-digit code",
       "backupLabel": "Backup code",
       "totpPlaceholder": "000000",
       "backupPlaceholder": "XXXX-XXXX",
-      "verify": "Verify and continue",
+      "verify": "Potvrdit a přihlásit se",
       "verifying": "Verifying…",
-      "success": "Verified successfully",
+      "success": "Přihlášení úspěšné",
       "backToLogin": "Back to sign in",
       "errors": {
         "challengeExpired": "This sign-in step expired. Please sign in again.",
         "codeRequired": "Enter a verification code",
-        "failed": "Verification failed"
-      }
+        "failed": "Verification failed",
+        "codeTooShort": "Zadejte všech 6 číslic",
+        "invalidCode": "Nesprávný nebo expirovaný kód. Zkuste znovu nebo použijte záložní kód.",
+        "attemptsExceeded": "Příliš mnoho pokusů. Přihlaste se znovu."
+      },
+      "totpHint": "Kódy se v aplikaci obnovují každých 30 sekund.",
+      "backupHint": "Zadejte jednorázový záložní kód."
     }
   },
   "profile": {
@@ -962,7 +967,7 @@
           "pageTitle": "Two-factor authentication",
           "pageSubtitle": "Authenticator app (TOTP)",
           "loading": "Loading…",
-          "intro": "Use Google Authenticator, Microsoft Authenticator, or any TOTP app. You will receive 10 one-time backup codes.",
+          "intro": "Chraňte účet kódy z ověřovací aplikace. Dostanete 10 záložních kódů.",
           "enrollmentOff": "New 2FA enrollment is temporarily unavailable. If you already use 2FA, sign-in still requires your code.",
           "startSetup": "Set up authenticator",
           "scanHint": "Scan this QR code with your authenticator app, then enter the first 6-digit code.",
@@ -986,7 +991,36 @@
           "codePlaceholder": "Verification code",
           "passwordPlaceholder": "Account password (if you use one)",
           "disableButton": "Disable 2FA",
-          "disableConfirm": "Disable two-factor authentication for this account?"
+          "disableConfirm": "Disable two-factor authentication for this account?",
+          "confirming": "Zapínání…",
+          "disabledBadge": "2FA vypnuto",
+          "backupSectionTitle": "Záložní kódy",
+          "backupSectionDesc": "Použijte záložní kód, pokud nemáte přístup k aplikaci.",
+          "copyBackupCodes": "Kopírovat všechny kódy",
+          "backupCopied": "Záložní kódy zkopírovány",
+          "copyFailed": "Kopírování se nezdařilo",
+          "disableIntro": "K přihlášení stačí heslo. Doporučujeme 2FA ponechat zapnuté.",
+          "disableOpen": "Vypnout 2FA…",
+          "errors": {
+            "codeTooShort": "Zadejte všech 6 číslic",
+            "confirmFailed": "2FA se nepodařilo zapnout. Zkontrolujte kód."
+          },
+          "onboarding": {
+            "step1Title": "Nainstalujte ověřovací aplikaci",
+            "step1Body": "Nainstalujte Google Authenticator nebo Microsoft Authenticator. Aplikace vytvoří jednorázové 6místné kódy.",
+            "step2Title": "Naskenujte QR kód",
+            "step2Body": "V aplikaci klepněte na + nebo „Přidat účet“ a zvolte skenování QR. Skenujte přímo v aplikaci.",
+            "step3Title": "Potvrďte nastavení",
+            "step3Body": "Zadejte 6místný kód z aplikace.",
+            "step4Title": "Uložte záložní kódy",
+            "step4Body": "Záložní kódy pomohou při ztrátě telefonu. Uložte je na bezpečné místo.",
+            "googleAuth": "Google Authenticator",
+            "msAuth": "Microsoft Authenticator",
+            "showManualKey": "Nelze skenovat QR? Zadejte tajný klíč",
+            "hideManualKey": "Skrýt tajný klíč",
+            "copySecret": "Kopírovat klíč",
+            "secretCopied": "Tajný klíč zkopírován"
+          }
         },
         "sessions": {
           "title": "Active sessions",
