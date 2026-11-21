@@ -32,9 +32,14 @@ export const conversationsApi = {
     return data;
   },
 
-  async markConversationRead(conversationId) {
+  async markConversationRead(conversationId, { readUpToMessageId } = {}) {
+    const payload =
+      readUpToMessageId && String(readUpToMessageId).trim()
+        ? { readUpToMessageId: String(readUpToMessageId).trim() }
+        : undefined;
     const { data } = await api.patch(
       apiPath(`/conversations/${encodeURIComponent(conversationId)}/read`),
+      payload,
     );
     return data;
   },
