@@ -7,10 +7,21 @@
   --field-radius-inner: 19px;
 
   width: 100%;
+  min-height: 100dvh;
   padding: 20px 16px 30px;
-
+  color: var(--field-text);
   overflow: visible;
   box-sizing: border-box;
+}
+
+html[data-theme='dark'] .edit-profile .ep-avatar__ring::before,
+body.dark .edit-profile .ep-avatar__ring::before {
+  background: #1b1030;
+  opacity: 1;
+}
+
+html[data-theme='light'] .edit-profile .ep-pill {
+  color: #5a45c4;
 }
 
 .edit-profile__form {

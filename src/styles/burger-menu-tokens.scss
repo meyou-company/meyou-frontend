@@ -1,0 +1,38 @@
+/* Burger menu theme tokens (uses existing `data-theme` on html). */
+
+html[data-theme='light'] {
+  --burger-backdrop: rgba(16, 7, 31, 0.35);
+  --burger-panel-bg: #ffffff;
+  --burger-panel-bg-md: #f4effa;
+  --burger-text: #281a3d;
+  --burger-text-muted: #665a76;
+  --burger-border: #ded3e9;
+  --burger-divider: rgba(40, 26, 61, 0.12);
+  --burger-hover: rgba(107, 92, 224, 0.1);
+  --burger-shadow: 0 8px 32px rgba(40, 26, 61, 0.18);
+  --burger-icon-filter: none;
+  --burger-logout: #dc3545;
+  --burger-toggle-track: #eae1f4;
+  --burger-toggle-track-on: #49315f;
+  --burger-badge-bg: #c2185b;
+  --burger-accent: #6b5ce0;
+}
+
+html[data-theme='dark'],
+body.dark {
+  --burger-backdrop: rgba(0, 0, 0, 0.55);
+  --burger-panel-bg: #281a3d;
+  --burger-panel-bg-md: #1b1030;
+  --burger-text: #f8f5ff;
+  --burger-text-muted: #c4b8d6;
+  --burger-border: #49315f;
+  --burger-divider: rgba(255, 255, 255, 0.12);
+  --burger-hover: rgba(139, 124, 255, 0.16);
+  --burger-shadow: 0 12px 48px rgba(0, 0, 0, 0.55);
+  --burger-icon-filter: brightness(0) invert(1);
+  --burger-logout: #ff8a96;
+  --burger-toggle-track: #49315f;
+  --burger-toggle-track-on: #6b5ce0;
+  --burger-badge-bg: #ff4fb1;
+  --burger-accent: #8b7cff;
+}
