@@ -20,7 +20,11 @@ html[data-theme='light'] .settings-page {
   --settings-border: #ded3e9;
   --settings-border-soft: rgba(0, 0, 0, 0.06);
   --settings-hover: rgba(107, 92, 224, 0.08);
-  --settings-back-bg: rgba(255, 255, 255, 0.85);
+  --settings-back-bg: #ffffff;
+  --settings-back-bg-hover: rgba(107, 92, 224, 0.12);
+  --settings-back-border: #ded3e9;
+  --settings-back-border-hover: #6b5ce0;
+  --settings-back-icon: #281a3d;
   --settings-input-bg: #ffffff;
   --settings-input-border: rgba(40, 26, 61, 0.14);
   --settings-muted-bg: #eae1f4;
@@ -38,7 +42,11 @@ body.dark .settings-page {
   --settings-border: #49315f;
   --settings-border-soft: rgba(255, 255, 255, 0.08);
   --settings-hover: rgba(139, 124, 255, 0.14);
-  --settings-back-bg: rgba(40, 26, 61, 0.85);
+  --settings-back-bg: #352a4d;
+  --settings-back-bg-hover: rgba(139, 124, 255, 0.22);
+  --settings-back-border: #5c4578;
+  --settings-back-border-hover: #8b7cff;
+  --settings-back-icon: #f8f5ff;
   --settings-input-bg: #1b1030;
   --settings-input-border: #49315f;
   --settings-muted-bg: #1b1030;

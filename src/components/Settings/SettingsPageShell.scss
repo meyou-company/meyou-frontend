@@ -29,26 +29,41 @@
   justify-content: center;
   width: 44px;
   height: 44px;
-  border: 1px solid var(--settings-border);
+  min-width: 44px;
+  min-height: 44px;
+  border: 1px solid var(--settings-back-border);
   border-radius: var(--settings-radius-control);
   background: var(--settings-back-bg);
   cursor: pointer;
-  transition: background 0.15s ease, border-color 0.15s ease;
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
 
   &:hover {
-    background: var(--settings-hover);
+    background: var(--settings-back-bg-hover);
+    border-color: var(--settings-back-border-hover);
   }
 
   &:focus-visible {
     outline: 2px solid var(--settings-accent);
     outline-offset: 2px;
+    border-color: var(--settings-back-border-hover);
+  }
+
+  &:active {
+    transform: scale(0.97);
   }
 }
 
-.settings-page__back img {
-  width: 18px;
-  height: 18px;
-  filter: var(--settings-icon-filter);
+.settings-page__back-icon {
+  display: block;
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  background-color: var(--settings-back-icon);
+  -webkit-mask: url('/icon-black/arrow-left.svg') center / contain no-repeat;
+  mask: url('/icon-black/arrow-left.svg') center / contain no-repeat;
 }
 
 .settings-page__titles {

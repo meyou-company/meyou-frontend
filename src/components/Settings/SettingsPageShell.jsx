@@ -1,5 +1,4 @@
 import { useTranslation } from 'react-i18next';
-import profileIcons from '../../constants/profileIcons';
 import './SettingsPageShell.scss';
 
 export default function SettingsPageShell({
@@ -21,7 +20,7 @@ export default function SettingsPageShell({
             onClick={onBack}
             aria-label={t('common.back')}
           >
-            <img src={profileIcons.arrowLeftBlack} alt="" aria-hidden="true" />
+            <span className="settings-page__back-icon" aria-hidden="true" />
           </button>
           <div className="settings-page__titles">
             <h1 className="settings-page__title">{title}</h1>
