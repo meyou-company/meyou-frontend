@@ -94,9 +94,14 @@
 
 .mfa-verify__submit {
   width: 100%;
-  height: 52px;
+  min-height: 48px;
+  height: auto;
+  padding: 14px 20px;
   border-radius: 999px;
   margin-top: 4px;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.25;
 }
 
 .mfa-verify__submit:disabled {
@@ -132,6 +137,87 @@
   color: var(--field-text, rgba(255, 255, 255, 0.92));
 }
 
+.mfa-verify__timer-hint {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin: -4px 0 0;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.62);
+  line-height: 1.35;
+  text-align: center;
+}
+
+.mfa-verify__timer-hint--plain {
+  display: block;
+}
+
+.mfa-verify__timer-icon {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  opacity: 0.85;
+}
+
+.mfa-verify__help-link {
+  margin: 4px auto 0;
+  padding: 8px 4px;
+  border: none;
+  background: transparent;
+  font: inherit;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.72);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  cursor: pointer;
+}
+
+.mfa-otp-cells {
+  position: relative;
+}
+
+.mfa-otp-cells__autofill {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+  pointer-events: none;
+}
+
+.mfa-otp-cells__row {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.mfa-otp-cells__cell {
+  width: 100%;
+  aspect-ratio: 1;
+  max-height: 52px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(8, 4, 18, 0.55);
+  color: rgba(255, 255, 255, 0.95);
+  font: inherit;
+  font-size: 22px;
+  font-weight: 600;
+  text-align: center;
+  padding: 0;
+  box-sizing: border-box;
+  caret-color: #ff4fb1;
+}
+
+.mfa-otp-cells__cell:focus {
+  outline: none;
+  border-color: rgba(255, 79, 177, 0.75);
+  box-shadow: 0 0 0 2px rgba(79, 107, 255, 0.35);
+}
+
+.mfa-otp-cells__cell:disabled {
+  opacity: 0.55;
+}
+
 .mfa-code-field__hint {
   text-align: center;
 }
@@ -161,6 +247,20 @@
 
 [data-theme='light'] .mfa-code-field__label {
   color: rgba(30, 20, 50, 0.88);
+}
+
+[data-theme='light'] .mfa-verify__timer-hint {
+  color: rgba(30, 20, 50, 0.58);
+}
+
+[data-theme='light'] .mfa-verify__help-link {
+  color: rgba(60, 40, 120, 0.85);
+}
+
+[data-theme='light'] .mfa-otp-cells__cell {
+  background: rgba(255, 255, 255, 0.95);
+  border-color: rgba(79, 107, 255, 0.22);
+  color: rgba(20, 12, 40, 0.92);
 }
 
 @media (max-width: 380px) {
