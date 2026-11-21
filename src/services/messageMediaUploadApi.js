@@ -1,5 +1,6 @@
 import { api, apiPath } from './api';
 import { resolveFileMime } from '../utils/messageAttachmentMedia';
+import { throwCloudinaryUploadError } from '../utils/mediaUploadApiError.js';
 
 const MAX_IMAGE_BYTES = 10 * 1024 * 1024;
 const MAX_VIDEO_BYTES = 50 * 1024 * 1024;
@@ -116,8 +117,7 @@ async function uploadViaPresigned(file, presignPath) {
   }
 
   if (!uploadRes.ok) {
-    const msg = cloudBody?.error?.message ?? `${uploadRes.status} ${uploadRes.statusText}`;
-    throw new Error(`Upload failed: ${msg}`);
+    throwCloudinaryUploadError(uploadRes, cloudBody);
   }
 
   const publicUrl = extractPublicMediaUrl(data, cloudBody);

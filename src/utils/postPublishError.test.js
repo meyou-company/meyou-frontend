@@ -38,4 +38,16 @@ describe("getPostPublishFailureToast", () => {
     });
     assert.equal(message, "Could not publish post");
   });
+
+  it("shows rate-limit text without redundant upload prefix", () => {
+    const details = "Upload limit reached for now. Try again in 30 seconds.";
+    const message = getPostPublishFailureToast({
+      phase: "upload",
+      details,
+      errorCode: "RATE_LIMITED",
+      t,
+    });
+    assert.equal(message, details);
+    assert.doesNotMatch(message, /Could not upload one of the files/);
+  });
 });

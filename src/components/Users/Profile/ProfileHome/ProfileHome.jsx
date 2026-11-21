@@ -8,6 +8,7 @@ import AvatarCropModal from "../../../AvatarCropModal/AvatarCropModal";
 import { cropImageToFile } from "../../../../utils/cropImageToFile";
 import { AVATAR_OUTPUT_SIZE } from "../../../../utils/avatarCrop";
 import { getPostPublishFailureToast } from "../../../../utils/postPublishError";
+import { getApiErrorCode, getApiErrorMessage } from "../../../../utils/getApiErrorMessage";
 import { isPostFullTextTooLong } from "../../../../utils/postText";
 import { authApi } from "../../../../services/auth";
 import { postsApi } from "../../../../services/postsApi";
@@ -37,7 +38,6 @@ import { mapApiPostToFeedItem } from "../../../../utils/mapApiPostToFeedItem";
 import { useProfileAuthorFeed } from "../../../../hooks/useProfileAuthorFeed";
 import ProfilePostsFeed from "../ProfilePostsFeed/ProfilePostsFeed";
 import CreatePostModal from "../../../PostFeed/CreatePostModal";
-import { getApiErrorMessage } from "../../../../utils/getApiErrorMessage";
 import { detectCurrentLocationLabel } from "../../../../utils/postGeolocation";
 import StoryViewerModal from "../../../Stories/StoryViewerModal";
 import StoryUploadModal from "../../../Stories/StoryUploadModal";
@@ -465,6 +465,7 @@ export default function ProfileHome({
         getPostPublishFailureToast({
           phase: publishPhase,
           details,
+          errorCode: getApiErrorCode(err),
           videoMessage: getRegularVideoErrorMessage(err, t),
           t,
         })

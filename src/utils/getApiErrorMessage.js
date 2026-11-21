@@ -110,12 +110,41 @@ function payloadMentionsPhone(payload) {
   }
 }
 
-function translateErrorCode(code, details) {
+function parseRetryAfterHeader(headers) {
+  if (!headers || typeof headers !== 'object') return null;
+  const raw = headers['retry-after'] ?? headers['Retry-After'];
+  if (raw == null || raw === '') return null;
+  const seconds = Number(raw);
+  if (Number.isFinite(seconds) && seconds > 0) return Math.ceil(seconds);
+  return null;
+}
+
+function resolveRetryAfterSeconds(error, details) {
+  const fromDetails = Number(details?.retryAfterSeconds);
+  if (Number.isFinite(fromDetails) && fromDetails > 0) {
+    return Math.ceil(fromDetails);
+  }
+  if (error) {
+    const fromGetter = getRetryAfterSeconds(error);
+    if (fromGetter) return fromGetter;
+  }
+  return null;
+}
+
+function translateErrorCode(code, details, error) {
   const key = `errors.${code}`;
   if (!i18n.exists(key)) return null;
-  const seconds = Number(details?.retryAfterSeconds);
-  if (Number.isFinite(seconds) && seconds > 0) {
-    return i18n.t(key, { seconds: Math.ceil(seconds) });
+
+  const retrySec = resolveRetryAfterSeconds(error, details);
+  if (code === 'RATE_LIMITED' && retrySec) {
+    const retryKey = 'errors.RATE_LIMITED_RETRY';
+    if (i18n.exists(retryKey)) {
+      return i18n.t(retryKey, { seconds: retrySec });
+    }
+  }
+
+  if (retrySec) {
+    return i18n.t(key, { seconds: retrySec });
   }
   return i18n.t(key);
 }
@@ -124,6 +153,10 @@ export function getRetryAfterSeconds(error) {
   const payload = extractErrorPayload(error);
   const seconds = Number(payload?.details?.retryAfterSeconds);
   if (Number.isFinite(seconds) && seconds > 0) return Math.ceil(seconds);
+
+  const headerSeconds = parseRetryAfterHeader(error?.response?.headers);
+  if (headerSeconds) return headerSeconds;
+
   return null;
 }
 
@@ -159,6 +192,11 @@ function resolveErrorCode(payload, error) {
     }
   }
 
+  const httpStatus = error?.response?.status ?? error?.status;
+  if (httpStatus === 429 && (!code || code === 'ERR_BAD_REQUEST')) {
+    return 'RATE_LIMITED';
+  }
+
   return code || '';
 }
 
@@ -179,7 +217,7 @@ export function getApiErrorMessage(error, fallbackKey = 'errors.generic') {
   if (!error) return i18n.t(fallbackKey);
 
   if (isNetworkError(error)) {
-    return translateErrorCode('NETWORK_ERROR') || i18n.t(fallbackKey);
+    return translateErrorCode('NETWORK_ERROR', null, error) || i18n.t(fallbackKey);
   }
 
   const payload = extractErrorPayload(error);
@@ -189,26 +227,26 @@ export function getApiErrorMessage(error, fallbackKey = 'errors.generic') {
   if (code === 'VALIDATION_ERROR') {
     const inferred = inferCodeFromMessage(serverMessage);
     if (inferred) {
-      const translated = translateErrorCode(inferred, payload?.details);
+      const translated = translateErrorCode(inferred, payload?.details, error);
       if (translated) return translated;
     }
     if (serverMessage && !isTechnicalErrorMessage(serverMessage)) {
       return serverMessage;
     }
-    return translateErrorCode(code) || i18n.t(fallbackKey);
+    return translateErrorCode(code, payload?.details, error) || i18n.t(fallbackKey);
   }
 
   // Legacy 409 without specific code: infer from message (e.g. duplicate email).
   if (code === 'CONFLICT' && serverMessage) {
     const inferred = inferCodeFromMessage(serverMessage);
     if (inferred) {
-      const translated = translateErrorCode(inferred, payload?.details);
+      const translated = translateErrorCode(inferred, payload?.details, error);
       if (translated) return translated;
     }
   }
 
   if (code) {
-    const translated = translateErrorCode(code, payload?.details);
+    const translated = translateErrorCode(code, payload?.details, error);
     if (translated) return translated;
   }
 
@@ -248,4 +286,9 @@ export function getApiErrorSuggestions(error) {
   }
 
   return [];
+}
+
+/** User-facing text for presign / Cloudinary upload failures. */
+export function getMediaUploadErrorMessage(error, fallbackKey = 'errors.MEDIA_UPLOAD_FAILED') {
+  return getApiErrorMessage(error, fallbackKey);
 }

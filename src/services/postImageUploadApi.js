@@ -1,4 +1,5 @@
 import { api } from "./api";
+import { throwCloudinaryUploadError } from "../utils/mediaUploadApiError.js";
 import {
   RegularVideoUploadError,
   REGULAR_VIDEO_ERROR,
@@ -187,10 +188,7 @@ async function uploadUnsignedToCloudinary(file) {
   }
 
   if (!uploadRes.ok) {
-    const msg =
-      body?.error?.message ??
-      `${uploadRes.status} ${uploadRes.statusText}`;
-    throw new Error(`Media upload failed: ${msg}`);
+    throwCloudinaryUploadError(uploadRes, body);
   }
 
   const url =
@@ -272,9 +270,6 @@ async function uploadViaPostMediaPresign(file) {
   }
 
   if (!uploadRes.ok) {
-    const msg =
-      cloudBody?.error?.message ??
-      `${uploadRes.status} ${uploadRes.statusText}`;
     console.error("[post-media-upload] cloudinary error", {
       status: uploadRes.status,
       body: cloudBody,
@@ -282,7 +277,7 @@ async function uploadViaPostMediaPresign(file) {
       type: file.type,
       size: file.size,
     });
-    throw new Error(`Media upload failed: ${msg}`);
+    throwCloudinaryUploadError(uploadRes, cloudBody);
   }
 
   const publicUrl = extractPublicMediaUrl(data, cloudBody);

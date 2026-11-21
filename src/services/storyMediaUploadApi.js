@@ -1,4 +1,5 @@
 import { storiesApi } from "./storiesApi";
+import { throwCloudinaryUploadError } from "../utils/mediaUploadApiError.js";
 
 const MAX_IMAGE_SIZE = 10 * 1024 * 1024;
 const MAX_VIDEO_SIZE = 80 * 1024 * 1024;
@@ -123,10 +124,7 @@ export async function uploadStoryMedia(file, { durationSec } = {}) {
     }
 
     if (!response.ok) {
-      throw new Error(
-        uploadBody?.error?.message ||
-          `Не вдалося завантажити story media (${response.status})`
-      );
+      throwCloudinaryUploadError(response, uploadBody);
     }
   } else {
     const response = await fetch(uploadUrl, {
@@ -138,7 +136,7 @@ export async function uploadStoryMedia(file, { durationSec } = {}) {
     });
 
     if (!response.ok) {
-      throw new Error(`Не вдалося завантажити story media (${response.status})`);
+      throwCloudinaryUploadError(response, null);
     }
   }
 
