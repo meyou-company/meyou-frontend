@@ -38,6 +38,20 @@ export const authApi = {
     await api.post("/auth/logout-all");
   },
 
+  async listSessions() {
+    const { data } = await api.get("/auth/sessions");
+    return data;
+  },
+
+  async revokeSession(sessionId) {
+    await api.delete(`/auth/sessions/${sessionId}`);
+  },
+
+  async updateLoginAlerts(enabled) {
+    const { data } = await api.patch("/auth/login-alerts", { enabled });
+    return data;
+  },
+
   // ===== USER =====
   /** GET /users/me — deduped by default; pass { force: true } after profile edits. */
   async me(options = {}) {

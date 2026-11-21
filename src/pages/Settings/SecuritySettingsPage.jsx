@@ -9,6 +9,7 @@ import { profileApi } from '../../services/profileApi';
 import { useAuthStore } from '../../zustand/useAuthStore';
 import { useNotificationsStore } from '../../zustand/useNotificationsStore';
 import { getApiErrorMessage } from '../../utils/getApiErrorMessage';
+import ActiveSessionsPanel from '../../components/Settings/ActiveSessionsPanel';
 import SettingsPageShell from '../../components/Settings/SettingsPageShell';
 import '../../components/Settings/SettingsPageShell.scss';
 import '../../components/Settings/DeleteAccountConfirmModal.scss';
@@ -46,6 +47,7 @@ export default function SecuritySettingsPage() {
   const resetNotifications = useNotificationsStore.getState().reset;
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [sessionsOpen, setSessionsOpen] = useState(false);
 
   const handleBack = () => {
     if ((window.history.state?.idx ?? 0) > 0) {
@@ -57,7 +59,7 @@ export default function SecuritySettingsPage() {
   };
 
   const handleLogoutAll = async () => {
-    if (!window.confirm(t('settings.security.logoutAllConfirm'))) return;
+    if (!window.confirm(t('settings.security.logoutAllConfirmAll'))) return;
     try {
       await authApi.logoutAll();
       clearSession();
@@ -114,9 +116,13 @@ export default function SecuritySettingsPage() {
         <SettingsNavRow
           label={t('settings.security.items.sessions.title')}
           desc={t('settings.security.items.sessions.desc')}
-          badge={t('settings.security.comingSoon')}
-          disabled
+          onClick={() => setSessionsOpen((v) => !v)}
         />
+        {sessionsOpen ? (
+          <div className="settings-card__expanded">
+            <ActiveSessionsPanel />
+          </div>
+        ) : null}
       </div>
 
       <div className="settings-card">
