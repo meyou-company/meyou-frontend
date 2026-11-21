@@ -138,16 +138,24 @@ export const conversationsApi = {
     return data;
   },
 
-  async getMessages(conversationId, { page = 1, limit = 50 } = {}) {
+  async getMessages(conversationId, { before, limit = 40, page } = {}) {
+    const params = { limit };
+    if (before) params.before = before;
+    if (page != null) params.page = page;
+
     const { data } = await api.get(
       apiPath(`/conversations/${encodeURIComponent(conversationId)}/messages`),
-      { params: { page, limit } },
+      { params },
     );
+    const items = extractList(data);
     return {
-      items: extractList(data),
-      page: data?.page ?? page,
+      items,
       limit: data?.limit ?? limit,
-      total: data?.total ?? extractList(data).length,
+      total: data?.total,
+      page: data?.page,
+      hasMoreOlder: Boolean(data?.hasMoreOlder),
+      before: data?.before ?? null,
+      paginationMode: data?.paginationMode,
       unreadCount: data?.unreadCount,
       totalUnreadCount: data?.totalUnreadCount,
     };

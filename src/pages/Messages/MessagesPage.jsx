@@ -54,6 +54,10 @@ import {
   mergeOutgoingMessage,
 } from '../../utils/optimisticChatMessage';
 import {
+  isNearBottom,
+  mergeMessageHistory,
+} from '../../utils/messageHistory';
+import {
   conversationMatchesSearch,
   formatConversationClock,
   getConversationListPreview,
@@ -82,6 +86,8 @@ import { startConversationCall, joinConversationGroupRoom } from '../../provider
 import { useCallsStore } from '../../zustand/useCallsStore';
 import { useGroupRoomsStore } from '../../zustand/useGroupRoomsStore';
 import './MessagesPage.scss';
+
+const MESSAGES_PAGE_SIZE = 40;
 
 function getDisplayName(user, fallback) {
   if (!user) return fallback;
@@ -299,6 +305,8 @@ export default function MessagesPage() {
   const [loadingList, setLoadingList] = useState(true);
   const [loadingHidden, setLoadingHidden] = useState(false);
   const [loadingChat, setLoadingChat] = useState(false);
+  const [loadingOlder, setLoadingOlder] = useState(false);
+  const [hasMoreOlder, setHasMoreOlder] = useState(false);
   const [drafts, setDrafts] = useState({});
   const draftsRef = useRef({});
   const activeConversationIdRef = useRef(conversationId || null);
@@ -324,6 +332,10 @@ export default function MessagesPage() {
   const readInFlightRef = useRef(new Map());
 
   const messagesEndRef = useRef(null);
+  const messagesScrollRef = useRef(null);
+  const olderCursorRef = useRef(null);
+  const chatLoadGenRef = useRef(0);
+  const stickToBottomRef = useRef(true);
   const longPressTimerRef = useRef(null);
   const startCallInFlightRef = useRef(false);
   const activeConversationId = conversationId || null;
@@ -531,14 +543,23 @@ export default function MessagesPage() {
     async (id) => {
       if (!id) {
         setMessages([]);
+        setHasMoreOlder(false);
+        olderCursorRef.current = null;
         setSeenMessageIds(new Set());
         return;
       }
+      const gen = ++chatLoadGenRef.current;
       try {
         setLoadingChat(true);
-        const result = await conversationsApi.getMessages(id, { limit: 100 });
+        stickToBottomRef.current = true;
+        const result = await conversationsApi.getMessages(id, {
+          limit: MESSAGES_PAGE_SIZE,
+        });
+        if (gen !== chatLoadGenRef.current) return;
         const items = result.items || [];
         setMessages(items);
+        setHasMoreOlder(Boolean(result.hasMoreOlder));
+        olderCursorRef.current = result.before ?? null;
         setSeenMessageIds(collectSeenOutgoingIds(items, currentUserId));
         if (typeof result.totalUnreadCount === 'number') {
           setTotalUnreadCount(result.totalUnreadCount);
@@ -549,16 +570,51 @@ export default function MessagesPage() {
           ),
         );
       } catch (err) {
+        if (gen !== chatLoadGenRef.current) return;
         console.error('[messages] chat failed', err);
         toast.error(getApiErrorMessage(err, 'messenger.loadMessagesError'));
         setMessages([]);
+        setHasMoreOlder(false);
+        olderCursorRef.current = null;
         setSeenMessageIds(new Set());
       } finally {
-        setLoadingChat(false);
+        if (gen === chatLoadGenRef.current) setLoadingChat(false);
       }
     },
     [currentUserId, setTotalUnreadCount],
   );
+
+  const loadOlderMessages = useCallback(async () => {
+    const id = activeConversationIdRef.current;
+    const before = olderCursorRef.current;
+    if (!id || !before || !hasMoreOlder || loadingOlder || loadingChat) return;
+
+    const gen = chatLoadGenRef.current;
+    const scrollEl = messagesScrollRef.current;
+    const prevHeight = scrollEl?.scrollHeight ?? 0;
+
+    try {
+      setLoadingOlder(true);
+      const result = await conversationsApi.getMessages(id, {
+        before,
+        limit: MESSAGES_PAGE_SIZE,
+      });
+      if (gen !== chatLoadGenRef.current) return;
+      setMessages((prev) => mergeMessageHistory(prev, result.items || []));
+      setHasMoreOlder(Boolean(result.hasMoreOlder));
+      olderCursorRef.current = result.before ?? null;
+      requestAnimationFrame(() => {
+        const el = messagesScrollRef.current;
+        if (!el || gen !== chatLoadGenRef.current) return;
+        const delta = el.scrollHeight - prevHeight;
+        if (delta > 0) el.scrollTop += delta;
+      });
+    } catch (err) {
+      console.error('[messages] older messages failed', err);
+    } finally {
+      if (gen === chatLoadGenRef.current) setLoadingOlder(false);
+    }
+  }, [hasMoreOlder, loadingOlder, loadingChat]);
 
   useEffect(() => {
     if (!isAuthed) return;
@@ -605,13 +661,41 @@ export default function MessagesPage() {
     setPinnedMessageId(null);
     setSeenMessageIds(new Set());
     setHighlightMessageId(null);
+    setHasMoreOlder(false);
+    olderCursorRef.current = null;
+    setMessages([]);
     loadMessages(activeConversationId);
     void markChatRead(activeConversationId);
   }, [isAuthed, activeConversationId, loadMessages, markChatRead]);
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages, activeConversationId, typingUserIds]);
+    const el = messagesScrollRef.current;
+    if (!el || !activeConversationId) return undefined;
+
+    const onScroll = () => {
+      stickToBottomRef.current = isNearBottom(el);
+      if (el.scrollTop < 96 && hasMoreOlder && !loadingOlder && !loadingChat) {
+        void loadOlderMessages();
+      }
+    };
+
+    el.addEventListener('scroll', onScroll, { passive: true });
+    return () => el.removeEventListener('scroll', onScroll);
+  }, [
+    activeConversationId,
+    hasMoreOlder,
+    loadingOlder,
+    loadingChat,
+    loadOlderMessages,
+  ]);
+
+  useEffect(() => {
+    if (loadingChat) return;
+    if (!stickToBottomRef.current && !typingUserIds.length) return;
+    messagesEndRef.current?.scrollIntoView({
+      behavior: typingUserIds.length ? 'smooth' : 'auto',
+    });
+  }, [messages, activeConversationId, typingUserIds, loadingChat]);
 
   useEffect(() => {
     if (!highlightMessageId) return undefined;
@@ -674,6 +758,8 @@ export default function MessagesPage() {
       }
 
       if (matchesActive(convId)) {
+        const nearBottom = isNearBottom(messagesScrollRef.current);
+        stickToBottomRef.current = nearBottom;
         setMessages((prev) => {
           if (prev.some((m) => String(m.id) === String(message.id))) return prev;
           if (
@@ -686,7 +772,7 @@ export default function MessagesPage() {
               message,
             );
           }
-          return [...prev, message];
+          return mergeMessageHistory(prev, [message]);
         });
         void markChatRead(convId);
       }
@@ -1828,11 +1914,14 @@ export default function MessagesPage() {
                     </div>
                   ) : null}
 
-                  <div className="messagesPage__messages">
-                    {loadingChat && (
+                  <div className="messagesPage__messages" ref={messagesScrollRef}>
+                    {loadingOlder ? (
                       <p className="messagesPage__hint">{t('common.loading')}</p>
-                    )}
-                    {!loadingChat &&
+                    ) : null}
+                    {loadingChat && messages.length === 0 ? (
+                      <p className="messagesPage__hint">{t('common.loading')}</p>
+                    ) : null}
+                    {(messages.length > 0 || !loadingChat) &&
                       groupedMessages.map((item) => {
                         if (item.type === 'date') {
                           return (
