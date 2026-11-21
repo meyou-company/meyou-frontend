@@ -77,6 +77,14 @@ export const authApi = {
     return data;
   },
 
+  async listSecurityEvents({ limit = 30, cursor } = {}) {
+    const params = new URLSearchParams();
+    params.set("limit", String(limit));
+    if (cursor) params.set("cursor", cursor);
+    const { data } = await api.get(`/auth/security-events?${params.toString()}`);
+    return data;
+  },
+
   async revokeSession(sessionId) {
     await api.delete(`/auth/sessions/${sessionId}`);
   },

@@ -1349,6 +1349,10 @@
         "sessions": {
           "title": "Активні сесії",
           "desc": "Пристрої, з яких виконано вхід"
+        },
+        "securityLog": {
+          "title": "Журнал безпеки",
+          "desc": "Останні події входу та змін захисту"
         }
       },
       "logoutAll": "Вийти на всіх пристроях",
@@ -1374,6 +1378,28 @@
         "loginAlerts": "Email-сповіщення про нові пристрої",
         "alertsEnabled": "Сповіщення про вхід увімкнено",
         "alertsDisabled": "Сповіщення про вхід вимкнено"
+      },
+      "securityLog": {
+        "loading": "Завантаження журналу…",
+        "loadingMore": "Завантаження…",
+        "loadMore": "Показати ще",
+        "empty": "Подій безпеки поки немає",
+        "loadError": "Не вдалося завантажити журнал безпеки",
+        "unknownDevice": "Невідомий пристрій",
+        "unknownTime": "Невідомий час",
+        "countryApprox": "Країна (приблизно): {{country}}",
+        "retentionNote": "Події зберігаються до 90 днів. Паролі, коди та повні IP-адреси не зберігаються.",
+        "types": {
+          "loginSuccess": "Успішний вхід",
+          "loginFailed": "Невдалий вхід",
+          "mfaEnabled": "2FA увімкнено",
+          "mfaDisabled": "2FA вимкнено",
+          "passwordChanged": "Пароль змінено",
+          "logoutAll": "Вихід на всіх пристроях",
+          "sessionRevoked": "Сеанс завершено",
+          "mfaRateLimited": "Обмеження спроб MFA",
+          "unknown": "Подія безпеки"
+        }
       },
       "deleteAccount": {
         "dangerZoneTitle": "Небезпечна зона",

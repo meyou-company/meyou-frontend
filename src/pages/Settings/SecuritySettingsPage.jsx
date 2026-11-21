@@ -10,6 +10,7 @@ import { useAuthStore } from '../../zustand/useAuthStore';
 import { useNotificationsStore } from '../../zustand/useNotificationsStore';
 import { getApiErrorMessage } from '../../utils/getApiErrorMessage';
 import ActiveSessionsPanel from '../../components/Settings/ActiveSessionsPanel';
+import SecurityEventLogPanel from '../../components/Settings/SecurityEventLogPanel';
 import SettingsPageShell from '../../components/Settings/SettingsPageShell';
 import '../../components/Settings/SettingsPageShell.scss';
 import '../../components/Settings/DeleteAccountConfirmModal.scss';
@@ -48,6 +49,7 @@ export default function SecuritySettingsPage() {
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [sessionsOpen, setSessionsOpen] = useState(false);
+  const [securityLogOpen, setSecurityLogOpen] = useState(false);
 
   const handleBack = () => {
     if ((window.history.state?.idx ?? 0) > 0) {
@@ -120,6 +122,16 @@ export default function SecuritySettingsPage() {
         {sessionsOpen ? (
           <div className="settings-card__expanded">
             <ActiveSessionsPanel />
+          </div>
+        ) : null}
+        <SettingsNavRow
+          label={t('settings.security.items.securityLog.title')}
+          desc={t('settings.security.items.securityLog.desc')}
+          onClick={() => setSecurityLogOpen((v) => !v)}
+        />
+        {securityLogOpen ? (
+          <div className="settings-card__expanded">
+            <SecurityEventLogPanel />
           </div>
         ) : null}
       </div>
