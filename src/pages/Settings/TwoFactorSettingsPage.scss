@@ -1,0 +1,88 @@
+.two-factor__muted {
+  opacity: 0.72;
+  margin: 0 0 12px;
+}
+
+.two-factor__desc,
+.two-factor__warn {
+  margin: 0 0 16px;
+  line-height: 1.45;
+}
+
+.two-factor__warn {
+  color: #e8a23a;
+}
+
+.two-factor__primary,
+.two-factor__danger {
+  width: 100%;
+  padding: 12px 16px;
+  border-radius: 12px;
+  border: none;
+  font: inherit;
+  cursor: pointer;
+}
+
+.two-factor__primary {
+  background: var(--settings-accent, #6b5ce0);
+  color: #fff;
+}
+
+.two-factor__danger {
+  background: rgba(220, 53, 69, 0.15);
+  color: #ff8a96;
+  margin-top: 8px;
+}
+
+.two-factor__qr {
+  display: flex;
+  justify-content: center;
+  margin: 16px 0 20px;
+  padding: 12px;
+  background: #fff;
+  border-radius: 12px;
+}
+
+.two-factor__input {
+  width: 100%;
+  margin: 8px 0 12px;
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  box-sizing: border-box;
+}
+
+[data-theme='light'] .two-factor__input {
+  border-color: rgba(0, 0, 0, 0.12);
+}
+
+.two-factor__badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(46, 204, 113, 0.2);
+  color: #8dffb8;
+  font-size: 0.85rem;
+}
+
+.two-factor__backup ul {
+  list-style: none;
+  padding: 0;
+  margin: 12px 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 8px;
+}
+
+.two-factor__backup code {
+  font-size: 0.95rem;
+}
+
+.two-factor__row {
+  width: 100%;
+  text-align: left;
+  margin: 12px 0;
+}

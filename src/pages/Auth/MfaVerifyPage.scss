@@ -1,0 +1,31 @@
+.auth--mfa {
+  .mfa-method {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+
+  .mfa-method__btn {
+    flex: 1;
+    padding: 10px 12px;
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    cursor: pointer;
+  }
+
+  .mfa-method__btn--active {
+    background: rgba(107, 92, 224, 0.25);
+    border-color: rgba(107, 92, 224, 0.45);
+  }
+}
+
+[data-theme='light'] .auth--mfa .mfa-method__btn {
+  border-color: rgba(0, 0, 0, 0.12);
+}
+
+[data-theme='light'] .auth--mfa .mfa-method__btn--active {
+  background: rgba(107, 92, 224, 0.12);
+}

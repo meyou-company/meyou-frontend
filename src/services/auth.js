@@ -15,6 +15,40 @@ export const authApi = {
     return data;
   },
 
+  async verifyMfa({ challengeToken, code, method }) {
+    const { data } = await api.post(
+      "/auth/mfa/verify",
+      { challengeToken, code, method },
+      { skipAuth: true },
+    );
+    return data;
+  },
+
+  async getTotpStatus() {
+    const { data } = await api.get("/auth/totp/status");
+    return data;
+  },
+
+  async startTotpSetup() {
+    const { data } = await api.post("/auth/totp/setup");
+    return data;
+  },
+
+  async confirmTotpSetup(code) {
+    const { data } = await api.post("/auth/totp/confirm", { code });
+    return data;
+  },
+
+  async disableTotp(payload) {
+    const { data } = await api.post("/auth/totp/disable", payload);
+    return data;
+  },
+
+  async regenerateTotpBackup(payload) {
+    const { data } = await api.post("/auth/totp/backup/regenerate", payload);
+    return data;
+  },
+
   async refresh() {
     const { data } = await postSessionRefresh();
     return data;

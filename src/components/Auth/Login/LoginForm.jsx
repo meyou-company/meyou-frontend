@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { useAuthStore } from "../../../zustand/useAuthStore";
@@ -24,6 +25,7 @@ function getLoginErrorMessage(error, t) {
 export default function LoginForm({ onBack, onForgot, onSuccess }) {
   useForceDarkTheme();
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const login = useAuthStore((s) => s.login);
 
   const [form, setForm] = useState({ email: "", password: "" });
@@ -68,6 +70,11 @@ export default function LoginForm({ onBack, onForgot, onSuccess }) {
         email: form.email.trim(),
         password: form.password,
       });
+
+      if (res?.ok && res?.mfaRequired) {
+        navigate("/auth/mfa", { replace: true });
+        return;
+      }
 
       if (res?.ok) {
         toast.success(t("auth.login.toastSuccess"));

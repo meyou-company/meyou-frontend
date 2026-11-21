@@ -45,6 +45,8 @@ import AccountSettingsPage from '../pages/Settings/AccountSettingsPage';
 import ChangePasswordPage from '../pages/Settings/ChangePasswordPage';
 import PrivacySettingsPage from '../pages/Settings/PrivacySettingsPage';
 import SecuritySettingsPage from '../pages/Settings/SecuritySettingsPage';
+import TwoFactorSettingsPage from '../pages/Settings/TwoFactorSettingsPage';
+import MfaVerifyPage from '../pages/Auth/MfaVerifyPage';
 import BlockedUsersPage from '../pages/Settings/BlockedUsersPage';
 import VipAccessSettingsPage from '../pages/Settings/VipAccessSettingsPage';
 import LegalPrivacyPage from '../app/legal/privacy/page';
@@ -186,6 +188,7 @@ function AppLayout() {
               <Route path="/settings/change-password" element={<ChangePasswordPage />} />
               <Route path="/settings/privacy" element={<PrivacySettingsPage />} />
               <Route path="/settings/security" element={<SecuritySettingsPage />} />
+              <Route path="/settings/security/two-factor" element={<TwoFactorSettingsPage />} />
               <Route path="/settings/blocked" element={<BlockedUsersPage />} />
 
               <Route path="/admin" element={<AdminLayout />}>
@@ -214,6 +217,7 @@ function AppLayout() {
               <Route path="/auth/verify-email" element={<VerifyEmailPage />} />
 
               <Route path="/auth/google/success" element={<GoogleOAuthSuccess />} />
+              <Route path="/auth/mfa" element={<MfaVerifyPage />} />
 
               <Route path="/auth/forgot-password" element={<ForgotPassword />} />
               <Route path="/auth/reset/verify-code" element={<VerifyResetCodePage />} />
