@@ -87,7 +87,7 @@ export default function SecurityEventLogPanel() {
         {items.map((ev) => {
           const typeKey = EVENT_I18N_KEY[ev.type] ?? 'unknown';
           const country = ev.countryCode
-            ? formatSessionCountryLabel(ev.countryCode, uiLocale)
+            ? formatSessionCountryLabel(ev.countryCode, uiLocale, t)
             : null;
           return (
             <li key={ev.id} className="security-event-log__item">
