@@ -71,6 +71,23 @@ export const storiesApi = {
     return data;
   },
 
+  /** Re-resolve story for Messenger forward open (server-side access checks). */
+  async openForMessenger(storyId) {
+    const { data } = await api.get(
+      apiPath(`/stories/by-id/${encodeURIComponent(storyId)}/open`),
+    );
+    return data;
+  },
+
+  async getChatPreviews(storyIds) {
+    const ids = [...new Set((storyIds || []).filter(Boolean))];
+    if (!ids.length) return [];
+    const { data } = await api.post(apiPath('/stories/chat-previews'), {
+      storyIds: ids,
+    });
+    return data?.previews || [];
+  },
+
   async deleteStory(storyId) {
     const { data } = await api.delete(apiPath(`/stories/${encodeURIComponent(storyId)}`));
     return data;

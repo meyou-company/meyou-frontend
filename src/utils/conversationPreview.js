@@ -61,9 +61,6 @@ export function getConversationLastMessagePreview(lastMessage, t, viewerId) {
   }
 
   const storyPreview = getStoryReplyPreview(lastMessage);
-  if (storyPreview?.isUnavailable) {
-    return t('messenger.storyUnavailable', { defaultValue: 'Story is no longer available' });
-  }
   if (storyPreview) {
     return storyPreview.kind === 'forward'
       ? t('messenger.storyForwarded', { defaultValue: 'Сторис переслали' })

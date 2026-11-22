@@ -1,4 +1,3 @@
-const DAY_MS = 24 * 60 * 60 * 1000;
 export const STORY_MESSAGE_MARKER = '[[MEYOU_STORY:';
 const STORY_MESSAGE_MARKER_END = ']]';
 const STORY_URL_RE = /(?:^|\s)(?:https?:\/\/[^\s]+)?\/stories\/([^/\s?#]+)/i;
@@ -11,16 +10,39 @@ function pickFirstValue(...values) {
   return values.find((value) => value !== undefined && value !== null);
 }
 
-function firstAttachment(message) {
-  return Array.isArray(message?.attachments) ? message.attachments.find((item) => item?.url) : null;
-}
-
 export function encodeStoryMessageMarker(preview) {
   try {
     return `${STORY_MESSAGE_MARKER}${encodeURIComponent(JSON.stringify(preview || {}))}${STORY_MESSAGE_MARKER_END}`;
   } catch {
     return '';
   }
+}
+
+/** Safe forward marker — story id + author only (no Cloudinary URLs). */
+export function encodeStoryShareMarker({
+  storyId,
+  mediaType,
+  text,
+  author,
+}) {
+  if (!storyId) return '';
+  const payload = {
+    v: 2,
+    storyId,
+    mediaType: String(mediaType || 'image').toLowerCase() === 'video' ? 'video' : 'image',
+  };
+  const caption = String(text || '').trim();
+  if (caption) payload.text = caption;
+  if (author && typeof author === 'object') {
+    payload.author = {
+      id: pickFirstValue(author.id, author._id),
+      username: pickFirstString(author.username, author.nick, author.nickname),
+      firstName: pickFirstString(author.firstName, author.first_name),
+      lastName: pickFirstString(author.lastName, author.last_name),
+      name: pickFirstString(author.name),
+    };
+  }
+  return encodeStoryMessageMarker(payload);
 }
 
 export function getStoryMessageMarker(text = '') {
@@ -44,12 +66,6 @@ export function getStoryMessageText(message) {
 
   const withoutMarker = raw.replace(/\[\[MEYOU_STORY:[^\]]+\]\]\s*/g, '').trim();
   return withoutMarker.replace(STORY_URL_RE, '').trim();
-}
-
-function getTime(value) {
-  if (!value) return null;
-  const time = new Date(value).getTime();
-  return Number.isFinite(time) ? time : null;
 }
 
 function getAuthor(preview, message) {
@@ -95,84 +111,44 @@ export function hasStoryReference(message) {
   );
 }
 
+/**
+ * Client-side story card hints only — media must come from stories/chat-previews API.
+ */
 export function getStoryReplyPreview(message) {
   const metadata = message?.metadata || {};
   const markerPreview = getStoryMessageMarker(message?.text);
   const storyUrlMatch = typeof message?.text === 'string' ? message.text.match(STORY_URL_RE) : null;
-  const attachment = firstAttachment(message);
   const preview = metadata.storyPreview || message?.storyPreview || markerPreview || {};
-  if (!hasStoryReference(message) && !(storyUrlMatch?.[1] && attachment?.url)) return null;
+  if (!hasStoryReference(message) && !storyUrlMatch?.[1]) return null;
 
   const storyId = pickFirstValue(
     message?.storyId,
     message?.story_id,
     metadata.storyId,
     metadata.story_id,
-    preview.id,
     preview.storyId,
+    preview.id,
     storyUrlMatch?.[1],
   );
 
-  const mediaUrl = pickFirstString(
-    preview.thumbnailUrl,
-    preview.thumbnail_url,
-    preview.previewUrl,
-    preview.preview_url,
-    preview.mediaUrl,
-    preview.media_url,
-    preview.url,
-    message?.storyMediaUrl,
-    message?.mediaUrl,
-    message?.media_url,
-    attachment?.url,
-  );
+  if (!storyId) return null;
+
   const mediaType = pickFirstString(
     preview.mediaType,
     preview.media_type,
     preview.type,
-    message?.storyMediaType,
-    message?.mediaType,
-    message?.media_type,
-    attachment?.mimeType,
-    attachment?.mime_type,
-    message?.type,
+    metadata.storyPreview?.mediaType,
   ).toLowerCase();
   const text = pickFirstString(preview.text, preview.caption, metadata.storyText);
-  const createdAt = pickFirstValue(preview.createdAt, preview.created_at, metadata.storyCreatedAt);
-  const expiresAtRaw = pickFirstValue(
-    preview.expiresAt,
-    preview.expires_at,
-    preview.expiredAt,
-    preview.activeUntil,
-    metadata.storyExpiresAt,
-  );
-
-  const expiresAt = getTime(expiresAtRaw);
-  const createdAtTime = getTime(createdAt);
-  const expiredByCreatedAt =
-    !expiresAt && createdAtTime ? Date.now() - createdAtTime >= DAY_MS : false;
-
-  const isUnavailable =
-    preview.available === false ||
-    preview.isAvailable === false ||
-    preview.unavailable === true ||
-    preview.deleted === true ||
-    preview.deletedAt ||
-    preview.expired === true ||
-    (expiresAt ? expiresAt <= Date.now() : false) ||
-    expiredByCreatedAt ||
-    !storyId ||
-    !mediaUrl;
 
   return {
     storyId,
-    mediaUrl: isUnavailable ? '' : mediaUrl,
-    mediaType,
+    mediaUrl: '',
+    mediaType: mediaType || 'image',
     text,
-    createdAt,
-    expiresAt: expiresAtRaw,
     author: getAuthor(preview, message),
     kind: markerPreview ? 'forward' : 'reply',
-    isUnavailable,
+    isUnavailable: false,
+    requiresServerPreview: true,
   };
 }
