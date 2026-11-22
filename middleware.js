@@ -27,9 +27,12 @@ export default async function middleware(request) {
   const lang = url.searchParams.get('lang');
   if (lang) renderUrl.searchParams.set('lang', lang);
 
+  const upstreamTimeoutMs = 12_000;
+
   try {
     const upstream = await fetch(renderUrl.toString(), {
       headers: { Accept: 'text/html' },
+      signal: AbortSignal.timeout(upstreamTimeoutMs),
     });
     const html = await upstream.text();
     return new Response(html, {

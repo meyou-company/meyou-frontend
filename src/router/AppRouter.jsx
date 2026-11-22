@@ -165,10 +165,6 @@ function AppLayout() {
               <Route path="/wallet" element={<WalletPage />} />
 
               <Route path="/notifications" element={<NotificationsPage />} />
-              <Route
-                path="/posts/:postId"
-                element={<Navigate to="/post/:postId" replace />}
-              />
               <Route path="/posts/:postId" element={<LegacyPostShareRedirect />} />
               <Route
                 path="/post/:postId"
