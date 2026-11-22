@@ -2,6 +2,8 @@ import {
   isSocialCrawlerUserAgent,
   isSocialPreviewPath,
 } from './src/utils/linkPreviewBot.js';
+import { buildSafeDefaultOgHtml } from './src/utils/linkPreviewFallbackHtml.js';
+import { cacheControlForPreviewPath } from './src/utils/linkPreviewCache.js';
 
 export const config = {
   matcher: ['/', '/profile/:path*', '/post/:path*', '/posts/:path*'],
@@ -29,23 +31,40 @@ export default async function middleware(request) {
 
   const upstreamTimeoutMs = 12_000;
 
+  const fallbackResponse = () =>
+    new Response(buildSafeDefaultOgHtml(), {
+      status: 200,
+      headers: {
+        'Content-Type': 'text/html; charset=utf-8',
+        'Cache-Control': cacheControlForPreviewPath(url.pathname, {
+          fallback: true,
+        }),
+      },
+    });
+
   try {
     const upstream = await fetch(renderUrl.toString(), {
       headers: { Accept: 'text/html' },
       signal: AbortSignal.timeout(upstreamTimeoutMs),
     });
+    if (!upstream.ok) {
+      return fallbackResponse();
+    }
     const html = await upstream.text();
+    if (!html.includes('og:image')) {
+      return fallbackResponse();
+    }
+    const cacheFromApi = upstream.headers.get('cache-control');
     return new Response(html, {
-      status: upstream.ok ? 200 : 502,
+      status: 200,
       headers: {
         'Content-Type': 'text/html; charset=utf-8',
-        'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=600',
+        'Cache-Control':
+          cacheFromApi ??
+          cacheControlForPreviewPath(url.pathname, { fallback: false }),
       },
     });
   } catch {
-    return new Response('<!doctype html><title>LUNMEYO</title>', {
-      status: 502,
-      headers: { 'Content-Type': 'text/html; charset=utf-8' },
-    });
+    return fallbackResponse();
   }
 }
