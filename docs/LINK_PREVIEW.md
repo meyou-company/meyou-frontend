@@ -5,7 +5,18 @@
 | Layer | Role |
 |-------|------|
 | `index.html` | Default `og:*` / `twitter:*` for home (no JS) |
-| `public/og/lunmeyo-og.png` | 1200×630 default card (`npm run og:generate`; composites `public/Logo/lunmeyo.jpg`, same brand as `favicon.png`) |
+| `public/og/lunmeyo-og-source.jpg` | Approved brand artwork (source of truth) |
+| `public/og/lunmeyo-og.png` | 1200×630 export (`npm run og:generate`) |
+
+### Refreshing social cache after OG image change
+
+Platforms cache aggressively. After deploy, use:
+
+- [Facebook Sharing Debugger](https://developers.facebook.com/tools/debug/) — **Scrape Again**
+- [LinkedIn Post Inspector](https://www.linkedin.com/post-inspector/)
+- Telegram / WhatsApp: append a cache-busting query only when testing (`?v=2` on the **page URL** does not change `og:image`; rescrape or wait TTL)
+
+Same filename `lunmeyo-og.png` is kept; rescrape tools are required for an immediate update.
 | `middleware.js` (Vercel Edge) | Social crawlers → `GET {API}/api/public/link-preview/render?path=…&lang=` |
 | Nest `LinkPreviewModule` | Safe metadata from DB; private content → restricted card |
 
