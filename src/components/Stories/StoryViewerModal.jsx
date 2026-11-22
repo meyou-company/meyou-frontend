@@ -824,7 +824,6 @@ function StoryShareModal({ isOpen, story, onClose }) {
         const conversationId = conversation?.id || conversation?._id;
         if (!conversationId) return;
 
-        const isVideoStory = String(mediaType).toLowerCase() === "video";
         const storyMarker = encodeStoryMessageMarker({
           storyId,
           mediaUrl,
@@ -845,18 +844,10 @@ function StoryShareModal({ isOpen, story, onClose }) {
           storyMarker,
           message.trim(),
         ].filter(Boolean).join("\n");
-        const attachments = mediaUrl
-          ? [{
-              url: mediaUrl,
-              mimeType: isVideoStory ? "video/mp4" : "image/jpeg",
-              fileName: "story",
-            }]
-          : undefined;
 
         await conversationsApi.sendMessage(conversationId, {
-          type: attachments ? (isVideoStory ? "VIDEO" : "IMAGE") : "TEXT",
+          type: "TEXT",
           text: composedText || undefined,
-          attachments,
         });
       }));
       toast.success(i18n.t("storyViewerUi.sent"));
