@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "og:generate": "node scripts/generate-og-png.mjs",
     "lint": "eslint .",
     "preview": "vite preview",
     "format": "prettier . --write",
@@ -13,7 +14,8 @@
     "test": "vitest run",
     "test:auth-session": "vitest run src/services/authSession.test.js",
     "test:session-refresh": "vitest run src/services/sessionRefresh.test.js src/services/authRefresh.test.js",
-    "test:chat-delivery": "vitest run src/utils/chatMediaDeliveryCache.test.js src/config/sec009ChatDelivery.test.js src/hooks/useChatAttachmentDelivery.test.js src/components/Messages/MessageAttachments.featureFlag.test.jsx src/components/Messages/ChatAttachmentMedia.protected.test.jsx src/components/Messages/MediaViewerModal.test.jsx"
+    "test:chat-delivery": "vitest run src/utils/chatMediaDeliveryCache.test.js src/config/sec009ChatDelivery.test.js src/hooks/useChatAttachmentDelivery.test.js src/components/Messages/MessageAttachments.featureFlag.test.jsx src/components/Messages/ChatAttachmentMedia.protected.test.jsx src/components/Messages/MediaViewerModal.test.jsx",
+    "og:generate": "node scripts/generate-og-png.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
@@ -41,6 +43,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",
+    "@resvg/resvg-js": "^2.6.2",
     "@testing-library/react": "^16.3.3",
     "@types/react": "^19.2.5",
     "@types/react-dom": "^19.2.3",

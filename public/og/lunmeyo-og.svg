@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1a1530"/>
+      <stop offset="55%" stop-color="#2a2250"/>
+      <stop offset="100%" stop-color="#6b5ce0"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <circle cx="980" cy="120" r="180" fill="#6b5ce0" opacity="0.22"/>
+  <circle cx="180" cy="520" r="220" fill="#9b8cff" opacity="0.12"/>
+  <rect x="80" y="78" width="96" height="96" rx="24" fill="#ffffff" opacity="0.12"/>
+  <text x="128" y="142" text-anchor="middle" font-family="Montserrat, Arial, sans-serif" font-size="42" font-weight="700" fill="#ffffff">L</text>
+  <text x="200" y="130" font-family="Montserrat, Arial, sans-serif" font-size="58" font-weight="700" fill="#ffffff">LUNMEYO</text>
+  <text x="200" y="198" font-family="Montserrat, Arial, sans-serif" font-size="30" font-weight="600" fill="#e8e4ff">Соціальна мережа нового покоління</text>
+  <text x="200" y="262" font-family="Montserrat, Arial, sans-serif" font-size="24" font-weight="500" fill="#cfc8ff">Знайомся | Спілкуйся | Ділися моментами</text>
+  <text x="200" y="560" font-family="Montserrat, Arial, sans-serif" font-size="20" font-weight="500" fill="#ffffff" opacity="0.65">lunmeyo.com</text>
+</svg>

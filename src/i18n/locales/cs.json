@@ -1934,5 +1934,15 @@
     "animation": "Animace",
     "empty": "Zatím nic není",
     "removeSticker": "Odebrat samolepku"
+  },
+  "linkPreview": {
+    "siteName": "LUNMEYO",
+    "homeTitle": "LUNMEYO — Sociální síť nové generace",
+    "homeDescription": "Poznávej lidi, povídej si, sdílej fotky a videa, najdi přátele a objevuj nové možnosti s LUNMEYO.",
+    "tagline": "Poznávej • Povídej • Sdílej okamžiky",
+    "restrictedTitle": "LUNMEYO",
+    "restrictedDescription": "Tento obsah není k dispozici pro náhled odkazu. Otevřete LUNMEYO a zjistěte více.",
+    "profileTitle": "{{name}} (@{{username}}) · LUNMEYO",
+    "langQueryHint": "Přidejte ?lang=cs pro jazyk náhledu (ne všechny sítě to respektují)."
   }
 }

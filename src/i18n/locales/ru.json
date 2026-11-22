@@ -2191,5 +2191,15 @@
     "animation": "Анимация",
     "empty": "Пока пусто",
     "removeSticker": "Удалить стикер"
+  },
+  "linkPreview": {
+    "siteName": "LUNMEYO",
+    "homeTitle": "LUNMEYO — Социальная сеть нового поколения",
+    "homeDescription": "Знакомься, общайся, делись фото и видео, находи друзей и открывай новые возможности вместе с LUNMEYO.",
+    "tagline": "Знакомься • Общайся • Дели моментами",
+    "restrictedTitle": "LUNMEYO",
+    "restrictedDescription": "Этот контент недоступен для предпросмотра. Откройте LUNMEYO, чтобы узнать больше.",
+    "profileTitle": "{{name}} (@{{username}}) · LUNMEYO",
+    "langQueryHint": "Добавьте ?lang=ru для языка превью (не все платформы учитывают)."
   }
 }

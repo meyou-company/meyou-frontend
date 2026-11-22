@@ -2256,5 +2256,15 @@
     "animation": "Анімація",
     "empty": "Поки що порожньо",
     "removeSticker": "Видалити стікер"
+  },
+  "linkPreview": {
+    "siteName": "LUNMEYO",
+    "homeTitle": "LUNMEYO — Соціальна мережа нового покоління",
+    "homeDescription": "Знайомся, спілкуйся, ділися фото та відео, знаходь друзів і відкривай нові можливості разом із LUNMEYO.",
+    "tagline": "Знайомся • Спілкуйся • Ділися моментами",
+    "restrictedTitle": "LUNMEYO",
+    "restrictedDescription": "Цей контент недоступний для попереднього перегляду. Відкрийте LUNMEYO, щоб дізнатися більше.",
+    "profileTitle": "{{name}} (@{{username}}) · LUNMEYO",
+    "langQueryHint": "Додайте ?lang=uk до посилання, щоб підказати мову прев'ю (не всі мережі враховують)."
   }
 }
