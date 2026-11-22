@@ -35,6 +35,7 @@ import TypingIndicator from '../../components/Messages/TypingIndicator';
 import OnlineStatus from '../../components/Presence/OnlineStatus';
 import StoryViewerModal from '../../components/Stories/StoryViewerModal';
 import { conversationsApi } from '../../services/conversationsApi';
+import { storiesApi } from '../../services/storiesApi';
 import { mergeConversationPages } from '../../utils/conversationListPage';
 import { shouldFetchInboxAfterSearchClear } from '../../utils/inboxListLoadScheduling';
 import {
@@ -271,30 +272,37 @@ function isConversationMuted(conversation) {
   return new Date(conversation.mutedUntil).getTime() > Date.now();
 }
 
-function buildStoryViewerGroup(preview, fallbackAuthor) {
-  if (!preview || preview.isUnavailable || !preview.mediaUrl) return null;
+function buildStoryViewerGroupFromOpen(openPayload, fallbackAuthor) {
+  if (!openPayload?.available || !openPayload.story) return null;
 
+  const apiAuthor = openPayload.author || {};
   const author = {
-    ...(preview.author || {}),
-    id: preview.author?.id || fallbackAuthor?.id,
-    username: preview.author?.username || fallbackAuthor?.username || '',
-    name: preview.author?.name || fallbackAuthor?.name || '',
-    avatarUrl: preview.author?.avatarUrl || fallbackAuthor?.avatarUrl || null,
+    id: apiAuthor.id || fallbackAuthor?.id,
+    username: apiAuthor.username || fallbackAuthor?.username || '',
+    name: [apiAuthor.firstName, apiAuthor.lastName].filter(Boolean).join(' ').trim()
+      || fallbackAuthor?.name
+      || '',
+    firstName: apiAuthor.firstName || '',
+    lastName: apiAuthor.lastName || '',
+    avatarUrl: apiAuthor.avatarUrl || fallbackAuthor?.avatarUrl || null,
   };
+
+  const story = openPayload.story;
+  const mediaType = String(story.mediaType || 'IMAGE').toLowerCase();
 
   return {
     author,
     stories: [
       {
-        id: preview.storyId,
-        storyId: preview.storyId,
-        mediaUrl: preview.mediaUrl,
-        mediaType: preview.mediaType || 'image',
-        text: preview.text || '',
-        createdAt: preview.createdAt,
-        expiresAt: preview.expiresAt,
+        id: story.id,
+        storyId: story.id,
+        mediaUrl: story.mediaUrl,
+        mediaType: mediaType === 'video' ? 'video' : 'image',
+        text: story.text || '',
+        createdAt: story.createdAt,
+        expiresAt: story.expiresAt,
         author,
-        authorId: author.id,
+        authorId: story.authorId || author.id,
       },
     ],
   };
@@ -2687,9 +2695,27 @@ export default function MessagesPage() {
                               });
                             }}
                             onReactionSelect={handleReactionSelect}
-                            onOpenStory={(preview) => {
-                              const group = buildStoryViewerGroup(preview, storyAuthorFallback);
-                              if (group) setStoryViewerGroup(group);
+                            onOpenStory={async (preview) => {
+                              const storyId = preview?.storyId;
+                              if (!storyId) return;
+                              try {
+                                const openPayload = await storiesApi.openForMessenger(storyId);
+                                const group = buildStoryViewerGroupFromOpen(
+                                  openPayload,
+                                  storyAuthorFallback,
+                                );
+                                if (group) {
+                                  setStoryViewerGroup(group);
+                                  return;
+                                }
+                              } catch {
+                                // fall through to unavailable toast
+                              }
+                              toast.error(
+                                t('messenger.storyUnavailable', {
+                                  defaultValue: 'Story is no longer available',
+                                }),
+                              );
                             }}
                             storyAuthorFallback={storyAuthorFallback.name || storyAuthorFallback.username}
                             seenMessageIds={seenMessageIds}

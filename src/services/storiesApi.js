@@ -71,6 +71,14 @@ export const storiesApi = {
     return data;
   },
 
+  /** Re-resolve story for Messenger forward open (server-side access checks). */
+  async openForMessenger(storyId) {
+    const { data } = await api.get(
+      apiPath(`/stories/by-id/${encodeURIComponent(storyId)}/open`),
+    );
+    return data;
+  },
+
   async deleteStory(storyId) {
     const { data } = await api.delete(apiPath(`/stories/${encodeURIComponent(storyId)}`));
     return data;
