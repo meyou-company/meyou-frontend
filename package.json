@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "og:generate": "node scripts/generate-og-png.mjs",
     "lint": "eslint .",
     "preview": "vite preview",
     "format": "prettier . --write",
@@ -41,6 +42,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",
+    "@resvg/resvg-js": "^2.6.2",
     "@testing-library/react": "^16.3.3",
     "@types/react": "^19.2.5",
     "@types/react-dom": "^19.2.3",
@@ -56,6 +58,7 @@
     "prettier": "^3.8.1",
     "prettier-plugin-tailwindcss": "^0.7.2",
     "sass": "^1.97.1",
+    "sharp": "^0.35.5",
     "tailwindcss": "^3.4.18",
     "vite": "^7.2.4",
     "vitest": "^3.2.4"

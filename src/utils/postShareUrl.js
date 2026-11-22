@@ -14,7 +14,7 @@ export function getPublicAppOrigin() {
 export function buildPostShareUrl(postId) {
   if (!postId) return '';
   const origin = getPublicAppOrigin();
-  const path = `/posts/${encodeURIComponent(postId)}`;
+  const path = `/post/${encodeURIComponent(postId)}`;
   if (!origin) return path;
   return `${origin}${path}`;
 }

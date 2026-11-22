@@ -1931,5 +1931,15 @@
     "animation": "Animation",
     "empty": "Rien pour le moment",
     "removeSticker": "Retirer le sticker"
+  },
+  "linkPreview": {
+    "siteName": "LUNMEYO",
+    "homeTitle": "LUNMEYO — Le réseau social nouvelle génération",
+    "homeDescription": "Rencontre, discute, partage photos et vidéos, trouve des amis et découvre de nouvelles possibilités avec LUNMEYO.",
+    "tagline": "Rencontre • Discute • Partage des moments",
+    "restrictedTitle": "LUNMEYO",
+    "restrictedDescription": "Ce contenu n'est pas disponible en aperçu de lien. Ouvrez LUNMEYO pour en savoir plus.",
+    "profileTitle": "{{name}} (@{{username}}) · LUNMEYO",
+    "langQueryHint": "Ajoutez ?lang=fr pour la langue de l'aperçu (toutes les plateformes ne le respectent pas)."
   }
 }

@@ -1931,5 +1931,15 @@
     "animation": "Animasyon",
     "empty": "Henüz bir şey yok",
     "removeSticker": "Çıkartmayı kaldır"
+  },
+  "linkPreview": {
+    "siteName": "LUNMEYO",
+    "homeTitle": "LUNMEYO — Yeni nesil sosyal ağ",
+    "homeDescription": "Tanış, sohbet et, fotoğraf ve video paylaş, arkadaş bul ve LUNMEYO ile yeni imkânlar keşfet.",
+    "tagline": "Tanış • Sohbet et • Anları paylaş",
+    "restrictedTitle": "LUNMEYO",
+    "restrictedDescription": "Bu içerik bağlantı önizlemesi için kullanılamıyor. Daha fazlası için LUNMEYO'yu açın.",
+    "profileTitle": "{{name}} (@{{username}}) · LUNMEYO",
+    "langQueryHint": "Önizleme dili için ?lang=tr ekleyin (tüm platformlar uygulamaz)."
   }
 }

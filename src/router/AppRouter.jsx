@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, useLocation, useNavigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, useLocation, useNavigate, Navigate, useParams } from 'react-router-dom';
 
 import AppBottomNav from '../components/AppBottomNav/AppBottomNav';
 import RouterLoaderSync from '../components/RouterLoaderSync';
@@ -80,6 +80,11 @@ import { CallsProvider } from '../providers/CallsProvider';
 import { GiftInboxProvider } from '../providers/GiftInboxProvider';
 import { resolveProfileUsername } from '../utils/profileUsername';
 
+function LegacyPostShareRedirect() {
+  const { postId } = useParams();
+  return <Navigate to={`/post/${encodeURIComponent(postId ?? '')}`} replace />;
+}
+
 /** Глобальне бургер-меню — рендериться один раз, відкривається з будь-якої сторінки */
 function GlobalBurgerMenu() {
   const storiesOverlayActive = useStoriesOverlayStore((s) => s.isActive);
@@ -160,6 +165,7 @@ function AppLayout() {
               <Route path="/wallet" element={<WalletPage />} />
 
               <Route path="/notifications" element={<NotificationsPage />} />
+              <Route path="/posts/:postId" element={<LegacyPostShareRedirect />} />
               <Route
                 path="/post/:postId"
                 element={
