@@ -14,8 +14,7 @@
     "test": "vitest run",
     "test:auth-session": "vitest run src/services/authSession.test.js",
     "test:session-refresh": "vitest run src/services/sessionRefresh.test.js src/services/authRefresh.test.js",
-    "test:chat-delivery": "vitest run src/utils/chatMediaDeliveryCache.test.js src/config/sec009ChatDelivery.test.js src/hooks/useChatAttachmentDelivery.test.js src/components/Messages/MessageAttachments.featureFlag.test.jsx src/components/Messages/ChatAttachmentMedia.protected.test.jsx src/components/Messages/MediaViewerModal.test.jsx",
-    "og:generate": "node scripts/generate-og-png.mjs"
+    "test:chat-delivery": "vitest run src/utils/chatMediaDeliveryCache.test.js src/config/sec009ChatDelivery.test.js src/hooks/useChatAttachmentDelivery.test.js src/components/Messages/MessageAttachments.featureFlag.test.jsx src/components/Messages/ChatAttachmentMedia.protected.test.jsx src/components/Messages/MediaViewerModal.test.jsx"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
@@ -59,6 +58,7 @@
     "prettier": "^3.8.1",
     "prettier-plugin-tailwindcss": "^0.7.2",
     "sass": "^1.97.1",
+    "sharp": "^0.35.5",
     "tailwindcss": "^3.4.18",
     "vite": "^7.2.4",
     "vitest": "^3.2.4"

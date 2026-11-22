@@ -5,7 +5,7 @@
 | Layer | Role |
 |-------|------|
 | `index.html` | Default `og:*` / `twitter:*` for home (no JS) |
-| `public/og/lunmeyo-og.png` | 1200×630 default card (`npm run og:generate` from SVG) |
+| `public/og/lunmeyo-og.png` | 1200×630 default card (`npm run og:generate`; composites `public/Logo/lunmeyo.jpg`, same brand as `favicon.png`) |
 | `middleware.js` (Vercel Edge) | Social crawlers → `GET {API}/api/public/link-preview/render?path=…&lang=` |
 | Nest `LinkPreviewModule` | Safe metadata from DB; private content → restricted card |
 
