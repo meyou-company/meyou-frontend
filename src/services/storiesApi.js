@@ -79,6 +79,15 @@ export const storiesApi = {
     return data;
   },
 
+  async getChatPreviews(storyIds) {
+    const ids = [...new Set((storyIds || []).filter(Boolean))];
+    if (!ids.length) return [];
+    const { data } = await api.post(apiPath('/stories/chat-previews'), {
+      storyIds: ids,
+    });
+    return data?.previews || [];
+  },
+
   async deleteStory(storyId) {
     const { data } = await api.delete(apiPath(`/stories/${encodeURIComponent(storyId)}`));
     return data;

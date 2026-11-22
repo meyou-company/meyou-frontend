@@ -35,7 +35,7 @@ import {
   buildWhatsAppShareUrl,
   openExternalShareUrl,
 } from "../../utils/externalShareLinks";
-import { encodeStoryMessageMarker } from "../../utils/storyMessagePreview";
+import { encodeStoryShareMarker } from "../../utils/storyMessagePreview";
 import { useStoriesOverlayLock } from "../../hooks/useStoriesOverlayLock";
 import "./StoryViewerModal.scss";
 import StoryUploadModal from "./StoryUploadModal";
@@ -824,20 +824,16 @@ function StoryShareModal({ isOpen, story, onClose }) {
         const conversationId = conversation?.id || conversation?._id;
         if (!conversationId) return;
 
-        const storyMarker = encodeStoryMessageMarker({
+        const storyMarker = encodeStoryShareMarker({
           storyId,
-          mediaUrl,
           mediaType,
           text: storyText,
-          createdAt: story?.createdAt || story?.created_at,
-          expiresAt: story?.expiresAt || story?.expires_at,
           author: {
             id: storyAuthor?.id || storyAuthor?._id || story?.authorId || story?.userId,
             username: storyAuthor?.username || storyAuthor?.nick || storyAuthor?.nickname || "",
             name: getAuthorName(storyAuthor),
             firstName: storyAuthor?.firstName || storyAuthor?.first_name || "",
             lastName: storyAuthor?.lastName || storyAuthor?.last_name || "",
-            avatarUrl: storyAuthor?.avatarUrl || storyAuthor?.avatar || null,
           },
         });
         const composedText = [

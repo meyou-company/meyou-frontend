@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { getMyReactionEmoji } from '../../constants/messageReactions';
 import { isMessageSeenByPeer } from '../../utils/messageReadReceipt';
 import { isEmojiOnlyMessage, splitMessageTextWithEmoji } from '../../utils/messageTextDisplay';
+import { useStoryChatPreview } from '../../hooks/useStoryChatPreview';
 import { getStoryMessageText, getStoryReplyPreview } from '../../utils/storyMessagePreview';
 import { getLunmeyoItemFromMessage } from '../../constants/lunmeyoCatalog';
 import {
@@ -118,42 +119,61 @@ function getStoryAuthorLabel(preview, fallback) {
 
 function StoryReplyPreview({ preview, onOpenStory, authorFallback }) {
   const { t } = useTranslation();
-  if (!preview) return null;
+  const { loading, preview: serverPreview } = useStoryChatPreview(preview?.storyId);
+
+  if (!preview?.storyId) return null;
 
   const authorLabel = getStoryAuthorLabel(
-    preview,
+    {
+      ...preview,
+      author: serverPreview?.available ? serverPreview.author : preview.author,
+    },
     authorFallback || t('messenger.storyAuthorFallback', { defaultValue: 'Story author' }),
   );
 
-  if (preview.isUnavailable) {
+  const unavailableLabel = t('messenger.storyUnavailable', {
+    defaultValue: 'Stories більше недоступна',
+  });
+
+  if (!loading && serverPreview && !serverPreview.available) {
     return (
       <div className="msgBubble__storyPreview msgBubble__storyPreview--unavailable">
         <span className="msgBubble__storyThumb msgBubble__storyThumb--unavailable" aria-hidden="true">
           <span className="msgBubble__storyThumbPlaceholder" />
         </span>
         <div className="msgBubble__storyMeta">
-          <span className="msgBubble__storyAuthor">
-            {authorLabel}
-          </span>
-          <span className="msgBubble__storyUnavailable">
-            {t('messenger.storyUnavailable', { defaultValue: 'Story is no longer available' })}
-          </span>
+          <span className="msgBubble__storyAuthor">{authorLabel}</span>
+          <span className="msgBubble__storyUnavailable">{unavailableLabel}</span>
         </div>
       </div>
     );
   }
 
-  const isVideo = preview.mediaType === 'video' || preview.mediaType?.startsWith('video');
+  const mediaType = serverPreview?.available
+    ? serverPreview.mediaType
+    : preview.mediaType;
+  const isVideo = mediaType === 'video' || mediaType?.startsWith?.('video');
+  const mediaUrl = serverPreview?.available ? serverPreview.mediaUrl : '';
+  const caption = serverPreview?.available
+    ? (serverPreview.text || preview.text)
+    : preview.text;
+
   const content = (
     <>
-        <span className="msgBubble__storyAuthor">{authorLabel}</span>
+      <span className="msgBubble__storyAuthor">{authorLabel}</span>
       <div className="msgBubble__storyThumb" aria-hidden="true">
-        {isVideo ? (
-          <video src={preview.mediaUrl} muted playsInline preload="metadata" />
+        {loading ? (
+          <span className="msgBubble__storyThumbPlaceholder" />
+        ) : mediaUrl ? (
+          isVideo ? (
+            <video src={mediaUrl} muted playsInline preload="metadata" />
+          ) : (
+            <img src={mediaUrl} alt="" />
+          )
         ) : (
-          <img src={preview.mediaUrl} alt="" />
+          <span className="msgBubble__storyThumbPlaceholder" />
         )}
-        {isVideo ? <span className="msgBubble__storyVideoMark" /> : null}
+        {isVideo && mediaUrl ? <span className="msgBubble__storyVideoMark" /> : null}
       </div>
       <div className="msgBubble__storyMeta">
         {preview.kind === 'reply' ? (
@@ -161,28 +181,38 @@ function StoryReplyPreview({ preview, onOpenStory, authorFallback }) {
             {t('messenger.storyReply', { defaultValue: 'Story reply' })}
           </span>
         ) : null}
-        {preview.text ? <span className="msgBubble__storyText">{preview.text}</span> : null}
+        {caption ? <span className="msgBubble__storyText">{caption}</span> : null}
       </div>
     </>
   );
 
+  const canOpen = Boolean(serverPreview?.available && !loading);
+
+  if (canOpen) {
+    return (
+      <button
+        type="button"
+        className="msgBubble__storyPreview msgBubble__storyPreview--button"
+        onClick={(e) => {
+          e.stopPropagation();
+          onOpenStory?.(preview);
+        }}
+        onMouseDown={(e) => e.stopPropagation()}
+        onTouchStart={(e) => e.stopPropagation()}
+        aria-label={t('messenger.openStoryReply', {
+          defaultValue: 'Open story by {{name}}',
+          name: authorLabel,
+        })}
+      >
+        {content}
+      </button>
+    );
+  }
+
   return (
-    <button
-      type="button"
-      className="msgBubble__storyPreview msgBubble__storyPreview--button"
-      onClick={(e) => {
-        e.stopPropagation();
-        onOpenStory?.(preview);
-      }}
-      onMouseDown={(e) => e.stopPropagation()}
-      onTouchStart={(e) => e.stopPropagation()}
-      aria-label={t('messenger.openStoryReply', {
-        defaultValue: 'Open story by {{name}}',
-        name: authorLabel,
-      })}
-    >
+    <div className="msgBubble__storyPreview msgBubble__storyPreview--unavailable">
       {content}
-    </button>
+    </div>
   );
 }
 
