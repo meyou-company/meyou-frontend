@@ -3,9 +3,9 @@
 const DEFAULT_ORIGIN = 'https://lunmeyo.com';
 const DEFAULT_IMAGE = `${DEFAULT_ORIGIN}/og/lunmeyo-og.png`;
 
-const TITLE = 'LUNMEYO — A next-generation social network';
+const TITLE = 'LUNMEYO — More Than a Social Network';
 const DESCRIPTION =
-  'Meet people, chat, share photos and videos, find friends, and discover new possibilities with LUNMEYO.';
+  'Connect, create, share and discover new possibilities. Meet people, express yourself and explore opportunities to earn on LUNMEYO.';
 
 function escapeHtml(value) {
   return String(value)
