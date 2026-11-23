@@ -484,7 +484,7 @@ export default function ExploreContent({ onBack, onOpenProfile }) {
 
                         {isUserVip(user) && (
                           <span className="explore-content__vipBadge" aria-hidden="true">
-                            VIP
+                            {t("uiText.vip")}
                           </span>
                         )}
 

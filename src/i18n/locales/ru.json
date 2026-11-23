@@ -1,4 +1,13 @@
 {
+  "cameraFilters": {
+    "natural": "Естественный",
+    "beauty": "Ретушь",
+    "glow": "Сияние",
+    "warm": "Тёплый",
+    "cold": "Холодный",
+    "vintage": "Винтаж",
+    "mono": "Чёрно-белый"
+  },
   "storyViewerUi": {
     "add": "Добавить",
     "views": "Просмотры",
@@ -1415,6 +1424,7 @@
     "pickColor": "Цвет {{color}}",
     "tools": "Инструменты истории",
     "music": "Музыка",
+    "musicComingSoon": "Музыка скоро будет доступна",
     "templates": "Шаблоны",
     "collage": "Коллаж",
     "stickers": "Стикеры",

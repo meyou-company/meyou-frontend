@@ -22,7 +22,7 @@
   width: 100%;
   height: 100%;
   display: block;
-  object-fit: cover;
+  object-fit: contain;
 }
 
 .storyCamera__topBar {
@@ -126,6 +126,11 @@
   border: 2px solid rgba(255, 255, 255, 0.72);
   border-radius: 50%;
   box-shadow: 0 3px 12px rgba(0, 0, 0, 0.3);
+}
+
+.storyCamera__filter > span:last-child {
+  max-width: 100%;
+  overflow-wrap: anywhere;
 }
 
 .storyCamera__filter.is-active .storyCamera__filterSwatch {

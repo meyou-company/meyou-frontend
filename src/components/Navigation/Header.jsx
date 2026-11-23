@@ -1,15 +1,17 @@
 import { NavLink } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { profileIcons, useNavItems } from '../../hooks/useNavItems';
 import MessagesNavBadge from '../Messages/MessagesNavBadge.jsx';
 import './Header.scss';
 
 export default function Header({ alwaysVisible = false }) {
+  const { t } = useTranslation();
   const navItems = useNavItems();
 
   return (
     <nav
       className={`header ${alwaysVisible ? 'header--always-visible' : ''}`}
-      aria-label="Основна навігація"
+      aria-label={t('live.mainNavigation')}
     >
       {navItems.map((item) => (
         <NavLink

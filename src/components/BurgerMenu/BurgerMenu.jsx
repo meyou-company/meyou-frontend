@@ -159,7 +159,6 @@ export default function BurgerMenu({
 
     if (
       [
-        'favorites',
         'support',
         'report',
         'about',

@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import profileIcons from "../../constants/profileIcons";
 import '../FirstPage/FirstPageView.scss';
 
@@ -10,6 +11,7 @@ export default function StoryCircle({
   isLive = false,
   onClick,
 }) {
+  const { t } = useTranslation();
   const isAdd = type === "add";
   const isOwn = type === "own";
 
@@ -29,7 +31,7 @@ export default function StoryCircle({
         </div>
 
         <span className="story-text">
-          add story
+          {t("uiText.add_story")}
         </span>
       </button>
     );

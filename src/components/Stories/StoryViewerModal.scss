@@ -2349,3 +2349,51 @@ body.dark .storyViewer__popupItem:active,
 [data-theme="dark"] .storyStatsUserSheet button img {
   filter: grayscale(100%) invert(1);
 }
+
+// Keep visitor controls compact regardless of the desktop player breakpoint.
+.storyViewer__viewerReplyBar {
+  display: flex;
+  flex-direction: column;
+  width: min(380px, calc(100% - 32px));
+  margin: 8px auto 0;
+  gap: 4px;
+}
+
+.storyViewer__viewerReplyBar .storyViewer__messageWrap {
+  gap: 8px;
+}
+
+.storyViewer__viewerReplyBar .storyViewer__messageInput {
+  height: 36px;
+  box-sizing: border-box;
+  border-radius: 18px;
+  font-size: 13px;
+  padding: 6px 12px;
+}
+
+.storyViewer__viewerReplyBar .storyViewer__sendBtn {
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
+  min-height: 36px;
+}
+
+.storyViewer__viewerReplyBar .storyViewer__reactions {
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 36px;
+  padding: 0;
+  gap: 4px;
+}
+
+.storyViewer__viewerReplyBar .storyViewer__reactionBtn {
+  flex: 0 0 36px;
+  width: 36px;
+  height: 36px;
+}
+
+.storyViewer__reactionEmoji {
+  font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif;
+  font-size: 26px;
+  line-height: 1;
+}

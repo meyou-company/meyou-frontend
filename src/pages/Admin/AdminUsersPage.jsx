@@ -4,10 +4,10 @@ export default function AdminUsersPage() {
   return (
     <section className="adminPage">
       <header className="adminPage__header">
-        <h1>Users</h1>
+        <h1>{t("uiText.users")}</h1>
         <p>{t('adminAudit.usersPlaceholder')}</p>
       </header>
-      <div className="adminEmpty">Coming soon</div>
+      <div className="adminEmpty">{t("uiText.coming_soon")}</div>
     </section>
   );
 }

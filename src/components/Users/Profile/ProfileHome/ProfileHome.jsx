@@ -489,7 +489,7 @@ export default function ProfileHome({
       await authApi.uploadAvatar(file);
       await refreshMe?.();
       setCropModalSrc(null);
-      toast.success("Аватар оновлено");
+      toast.success(t("profile.editForm.toast.avatarUpdated"));
     } catch (err) {
       const msg =
         err?.response?.status === 401

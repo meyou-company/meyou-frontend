@@ -73,12 +73,6 @@ export default function FriendsListRows({
                 <span className="friends-content__userInfo">
                   <span className="friends-content__nameRow">
                     <span className="friends-content__name">{name || uname || "—"}</span>
-                    {u.isVerified && (
-                      <span className="friends-content__verified friends-content__desktopOnly" aria-hidden="true">
-                        <img src="/icon1/verified.svg" alt="" className="friends-content__verifiedIcon" />
-                      </span>
-                    )}
-                    <img src="/icon1/Vector-2.png" alt="" className="friends-content__nameInlineIcon friends-content__desktopOnly" aria-hidden="true" />
                   </span>
                   {(uname || lastSeenText) && (
                     <span className="friends-content__username">
@@ -87,9 +81,6 @@ export default function FriendsListRows({
                       {lastSeenText}
                     </span>
                   )}
-                </span>
-                <span className="friends-content__trail friends-content__desktopOnly" aria-hidden="true">
-                  <img src="/icon1/Vector-1.png" alt="" className="friends-content__chevron" />
                 </span>
               </button>
               {action && onAction ? (

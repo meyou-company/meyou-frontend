@@ -621,7 +621,7 @@ export default function ProfileInfoPanel({
                 className="infoField__input"
                 value={draft.telegram || ''}
                 onChange={(e) => setDraft((d) => ({ ...d, telegram: e.target.value }))}
-                placeholder="@username або https://t.me/username"
+                  placeholder={t("uiText.social_placeholder", { url: "https://t.me/username" })}
                 maxLength={200}
               />
             </label>
@@ -631,7 +631,7 @@ export default function ProfileInfoPanel({
                 className="infoField__input"
                 value={draft.instagram || ''}
                 onChange={(e) => setDraft((d) => ({ ...d, instagram: e.target.value }))}
-                placeholder="@username або https://instagram.com/username"
+                  placeholder={t("uiText.social_placeholder", { url: "https://instagram.com/username" })}
                 maxLength={200}
               />
             </label>
@@ -641,7 +641,7 @@ export default function ProfileInfoPanel({
                 className="infoField__input"
                 value={draft.tiktok || ''}
                 onChange={(e) => setDraft((d) => ({ ...d, tiktok: e.target.value }))}
-                placeholder="@username або https://tiktok.com/@username"
+                  placeholder={t("uiText.social_placeholder", { url: "https://tiktok.com/@username" })}
                 maxLength={200}
               />
             </label>

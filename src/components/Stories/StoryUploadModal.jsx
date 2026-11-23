@@ -419,82 +419,6 @@ export default function StoryUploadModal({ isOpen, onClose, onCreated }) {
 
                 <h3 className="storyUploadModal__title">{t("stories.createTitle")}</h3>
 
-                <button
-                  type="button"
-                  className="storyUploadModal__settings"
-                  aria-label={t("storyUpload.settings")}
-                >
-                  <img
-                    src={profileIcons.storySettings}
-                    alt=""
-                    className="storyUploadModal_settingsIcon"
-                  />
-                </button>
-              </div>
-
-              <div className="storyUploadModal__tools" aria-label={t("stories.tools")}>
-                <button
-                  type="button"
-                  className="storyUploadModal__tool"
-                  aria-label={t("stories.addText")}
-                  title={t("stories.addText")}
-                >
-                  <span className="storyUploadModal__toolIcon storyUploadModal__toolIcon--text">
-                    Aa
-                  </span>
-                </button>
-
-                <button
-                  type="button"
-                  className="storyUploadModal__tool"
-                  aria-label={t("stories.music")}
-                  title={t("stories.music")}
-                >
-                  <span className="storyUploadModal__toolIcon">
-                    <img src={profileIcons.storyMusic} alt="" />
-                  </span>
-                </button>
-
-                <button
-                  type="button"
-                  className="storyUploadModal__tool"
-                  aria-label={t("stories.templates")}
-                  title={t("stories.templates")}
-                >
-                  <img src={profileIcons.storyTemplate} alt="" />
-                </button>
-
-                <button
-                  type="button"
-                  className="storyUploadModal__tool"
-                  aria-label={t("stories.collage")}
-                  title={t("stories.collage")}
-                >
-                  <img src={profileIcons.storyCollage} alt="" />
-                </button>
-              </div>
-
-              <div className="storyUploadModal__galleryHead">
-                <button type="button" className="storyUploadModal__galleryTitle">
-                  {t("storyUpload.gallery")}
-                  <img
-                    src={profileIcons.arrowLeftFilledBlack}
-                    className="storyUploadModal__galleryArrowIcon"
-                    alt=""
-                  />
-                </button>
-
-                <button
-                  type="button"
-                  className="storyUploadModal__selectBtn"
-                  onClick={() => inputRef.current?.click()}
-                  disabled={isPublishing}
-                >
-                  {t("storyUpload.select")}
-                  <span className="storyUploadModal__selectIcon">
-                    <img src={profileIcons.storyGallery} alt="" />
-                  </span>
-                </button>
               </div>
             </>
           )}
@@ -558,6 +482,7 @@ export default function StoryUploadModal({ isOpen, onClose, onCreated }) {
                       className="storyUploadModal__editorTool"
                       aria-label={t("stories.music")}
                       title={t("stories.music")}
+                      onClick={() => toast.info(t("stories.musicComingSoon"))}
                     >
                       <img src={profileIcons.storyEditorMusic} alt="" />
                     </button>
@@ -571,14 +496,6 @@ export default function StoryUploadModal({ isOpen, onClose, onCreated }) {
                       <img src={profileIcons.storyBrush} alt="" />
                     </button>
 
-                    <button
-                      type="button"
-                      className="storyUploadModal__editorTool storyUploadModal__editorTool--small"
-                      aria-label={t("common.back")}
-                      title={t("common.back")}
-                    >
-                      <img src={profileIcons.storyArrowFilled} alt="" />
-                    </button>
                   </div>
                 </div>
 
