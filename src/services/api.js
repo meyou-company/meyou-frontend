@@ -22,6 +22,21 @@ function resolveApiBaseUrl() {
     .replace(/\/$/, "");
   if (raw) {
     const absolute = /^https?:\/\//i.test(raw);
+    if (absolute && import.meta.env.DEV) {
+      try {
+        const origin = new URL(raw).origin;
+        const pageOrigin =
+          typeof window !== "undefined" ? window.location.origin : "";
+        if (pageOrigin && origin !== pageOrigin) {
+          console.warn(
+            `[meyou-frontend] VITE_API_URL points to ${origin} while dev runs on ${pageOrigin}. ` +
+              "Use VITE_API_URL=/api (see .env.development) so Vite proxies to api.lunmeyo.com and avoids CORS.",
+          );
+        }
+      } catch {
+        /* ignore parse errors */
+      }
+    }
     if (!absolute && import.meta.env.PROD) {
       console.warn(
         `[meyou-frontend] VITE_API_URL is relative (${raw}). With Vercel, vercel.json must rewrite /api → API host. Recommended: absolute https://api.lunmeyo.com/api`,
