@@ -192,11 +192,12 @@ export function createStoryFilterRenderer(canvas) {
         gl.uniform2fv(mouthLocation, regions?.mouth || [0, 0]);
         gl.drawArrays(gl.TRIANGLES, 0, 6);
       },
-      dispose() {
+      dispose({ releaseContext = false } = {}) {
         gl.deleteTexture(texture);
         gl.deleteBuffer(positionBuffer);
         gl.deleteBuffer(textureBuffer);
         gl.deleteProgram(program);
+        if (releaseContext) gl.getExtension('WEBGL_lose_context')?.loseContext();
       },
     };
   } catch (error) {
