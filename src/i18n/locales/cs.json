@@ -17,6 +17,12 @@
     "off": "Off",
     "appLoadError": "Failed to load the app. Please refresh the page."
   },
+  "monitoring": {
+    "crashTitle": "Něco se pokazilo",
+    "crashBody": "Došlo k neočekávané chybě. Vaše soukromé zprávy se neodesílají automaticky.",
+    "reload": "Obnovit stránku",
+    "reference": "Reference: {{id}}"
+  },
   "presence": {
     "online": "Online",
     "offline": "Offline",

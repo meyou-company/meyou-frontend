@@ -1,4 +1,6 @@
 import axios from "axios";
+import { captureApiServerError } from "../monitoring/sentry.js";
+import { pathWithoutQuery } from "../monitoring/sentry-sanitize.js";
 import { logApiError, logApiRequest, logApiResponse } from "../utils/apiRequestLog";
 import {
   dedupedSessionRefresh,
@@ -239,6 +241,19 @@ api.interceptors.response.use(
   },
   async (err) => {
     logApiError(err.config?.__apiLogId, err);
+    const status = err.response?.status;
+    if (status >= 500) {
+      const url = [err.config?.baseURL, err.config?.url]
+        .filter(Boolean)
+        .join("")
+        .replace(/([^:]\/)\/+/g, "$1");
+      captureApiServerError({
+        status,
+        code: err.response?.data?.code,
+        method: String(err.config?.method ?? "get").toUpperCase(),
+        urlPath: pathWithoutQuery(url),
+      });
+    }
     const original = err.config;
 
     if (original?.skipAuth || isRefreshEndpoint(original)) {

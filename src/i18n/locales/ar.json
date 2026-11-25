@@ -17,6 +17,12 @@
     "off": "Off",
     "appLoadError": "Failed to load the app. Please refresh the page."
   },
+  "monitoring": {
+    "crashTitle": "حدث خطأ ما",
+    "crashBody": "حدث خطأ غير متوقع. لا تُرسل رسائلك الخاصة تلقائيًا إلى الدعم.",
+    "reload": "إعادة تحميل الصفحة",
+    "reference": "المرجع: {{id}}"
+  },
   "presence": {
     "online": "متصل",
     "offline": "غير متصل",

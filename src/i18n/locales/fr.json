@@ -17,6 +17,12 @@
     "off": "Off",
     "appLoadError": "Failed to load the app. Please refresh the page."
   },
+  "monitoring": {
+    "crashTitle": "Une erreur est survenue",
+    "crashBody": "Une erreur inattendue s'est produite. Vos messages privés ne sont pas envoyés automatiquement.",
+    "reload": "Recharger la page",
+    "reference": "Référence : {{id}}"
+  },
   "presence": {
     "online": "En ligne",
     "offline": "Hors ligne",
