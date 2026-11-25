@@ -1,9 +1,9 @@
 import { BRAND_NAME } from '../../constants/brand';
 
-export default function BrandWordmark({ className = '', as: Tag = 'span' }) {
+export default function BrandWordmark({ className = '', as: Component = 'span' }) {
   return (
-    <Tag className={`app-brand-wordmark ${className}`.trim()}>
+    <Component className={`app-brand-wordmark ${className}`.trim()}>
       {BRAND_NAME}
-    </Tag>
+    </Component>
   );
 }

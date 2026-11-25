@@ -17,7 +17,7 @@ function readSoundEnabled() {
   return true;
 }
 
-export const useMessagesStore = create((set, get) => ({
+export const useMessagesStore = create((set, _get) => ({
   totalUnreadCount: 0,
   activeConversationId: null,
   soundEnabled: readSoundEnabled(),

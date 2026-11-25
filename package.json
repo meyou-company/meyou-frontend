@@ -12,6 +12,7 @@
     "format": "prettier . --write",
     "format:check": "prettier . --check",
     "test": "vitest run",
+    "test:ci": "vitest run && node scripts/run-node-tests.mjs",
     "test:auth-session": "vitest run src/services/authSession.test.js",
     "test:session-refresh": "vitest run src/services/sessionRefresh.test.js src/services/authRefresh.test.js",
     "test:chat-delivery": "vitest run src/utils/chatMediaDeliveryCache.test.js src/config/sec009ChatDelivery.test.js src/hooks/useChatAttachmentDelivery.test.js src/components/Messages/MessageAttachments.featureFlag.test.jsx src/components/Messages/ChatAttachmentMedia.protected.test.jsx src/components/Messages/MediaViewerModal.test.jsx"
@@ -50,6 +51,7 @@
     "autoprefixer": "^10.4.22",
     "eslint": "^9.39.1",
     "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^7.0.1",
     "eslint-plugin-react-refresh": "^0.4.24",
     "globals": "^16.5.0",

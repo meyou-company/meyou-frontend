@@ -83,10 +83,10 @@ export default function FirstPageView({
   onGoExplore,
   onGoWallet,
   onGoVipChat,
-  onGoFriends,
+  onGoFriends: _onGoFriends,
   onGoNotifications,
   onGoHome,
-  onOpenProfile,
+  onOpenProfile: _onOpenProfile,
 }) {
   const { t } = useTranslation();
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);

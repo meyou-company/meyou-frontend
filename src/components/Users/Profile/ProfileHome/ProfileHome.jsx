@@ -291,7 +291,7 @@ export default function ProfileHome({
 
     setPostMediaFiles((prev) => {
       const next = accepted.map((file) => {
-        const mime = resolvePostMediaMime(file);
+        resolvePostMediaMime(file);
         return {
           id: `${file.name}-${file.size}-${file.lastModified}`,
           file,

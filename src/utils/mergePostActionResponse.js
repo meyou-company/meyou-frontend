@@ -119,9 +119,7 @@ export function mergeRepostResponse(prev, raw) {
 }
 
 /** POST /posts/:id/comments — додати коментар і оновити лічильник. */
-export function mergeCommentResponse(prev, raw, submittedContent) {
-  const text = (submittedContent || "").trim();
-
+export function mergeCommentResponse(prev, raw, _submittedContent) {
   let base = mergeMappedFullPost(prev, raw);
   if (!base) {
     base = {

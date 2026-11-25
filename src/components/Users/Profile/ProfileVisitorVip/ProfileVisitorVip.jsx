@@ -42,7 +42,7 @@ export default function ProfileVisitorVip({
   // eslint-disable-next-line no-unused-vars
   const [isFriendImage, setIsFriendImage] = useState(false);
 
-  const [isTablet, setIsTablet] = useState(window.innerWidth >= 768);
+  const [, setIsTablet] = useState(window.innerWidth >= 768);
 
   useEffect(() => {
   if (!viewImageUrl) return;

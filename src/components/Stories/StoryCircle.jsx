@@ -6,12 +6,11 @@ export default function StoryCircle({
   avatar,
   username,
   viewed,
-  storiesCount,
+  storiesCount: _storiesCount,
   isLive = false,
   onClick,
 }) {
   const isAdd = type === "add";
-  const isOwn = type === "own";
 
   if (isAdd) {
     return (
