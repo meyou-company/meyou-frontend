@@ -61,6 +61,18 @@ export default function ExploreContent({ onBack, onOpenProfile }) {
     loadCurrentUser();
   }, []);
 
+  useEffect(() => {
+    if (filterOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [filterOpen]);
+
   const lastReqId = useRef(0);
   const skipNextSearch = useRef(false);
 
