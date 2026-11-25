@@ -5,7 +5,10 @@ import { useTranslation } from "react-i18next";
 import { useAuthStore } from "../../zustand/useAuthStore";
 import { storiesApi } from "../../services/storiesApi";
 import { uploadStoryMedia } from "../../services/storyMediaUploadApi";
-import { getApiErrorMessage } from "../../utils/getApiErrorMessage";
+import {
+  getApiErrorCode,
+  getApiErrorMessage,
+} from "../../utils/getApiErrorMessage";
 import { composeStoryImage } from "../../utils/composeStoryImage";
 import { clampStoryTextPosition } from "../../utils/storySafeArea";
 import { useStoriesOverlayLock } from "../../hooks/useStoriesOverlayLock";
@@ -49,10 +52,16 @@ function getPublishPhaseLabel(phase, isVideo) {
 }
 
 function getStoryCreateErrorMessage(error) {
+  if (getApiErrorCode(error) === "RATE_LIMITED") {
+    return (
+      getApiErrorMessage(error) || i18n.t("errors.RATE_LIMITED")
+    );
+  }
+
   const raw = getApiErrorMessage(error) || error?.message || "";
   const normalized = raw.toLowerCase();
 
-  if (normalized.includes("50") || normalized.includes("24 hours") || error?.response?.status === 429) {
+  if (normalized.includes("50") || normalized.includes("24 hours")) {
     return i18n.t("storyUpload.dailyLimit");
   }
 
