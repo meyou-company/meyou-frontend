@@ -102,7 +102,7 @@ export default function EditPostModal({
       return;
     }
     const next = accepted.map((file) => {
-      const mime = resolvePostMediaMime(file);
+      resolvePostMediaMime(file);
       return {
         id: mediaItemId(),
         file,

@@ -761,11 +761,9 @@ export default function ActiveCallOverlay({
     Boolean(cameraEnabled) ||
     Boolean(hasRemoteVideoTrack);
   const mainSource = isLocalVideoMain ? 'local' : 'remote';
-  const previewSource = isLocalVideoMain ? 'remote' : 'local';
   const hasLocalVideo = Boolean(cameraEnabled) && !cameraError;
   const hasRemoteVideo = Boolean(hasRemoteVideoTrack);
   const mainHasVideo = mainSource === 'local' ? hasLocalVideo : hasRemoteVideo;
-  const previewHasVideo = previewSource === 'local' ? hasLocalVideo : hasRemoteVideo;
   const previewSwapLabel = 'Показати це відео великим';
   const PREVIEW_DRAG_THRESHOLD = 8;
   const PREVIEW_STAGE_PADDING = 16;

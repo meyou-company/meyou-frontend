@@ -192,7 +192,7 @@ export default function MessageComposer({
     [busy, onSendPayload, stopTyping],
   );
 
-  const handleFileSelect = (source) => (e) => {
+  const handleFileSelect = (_source) => (e) => {
     const files = e.target.files;
     if (files?.length) {
       addPendingFiles(files);

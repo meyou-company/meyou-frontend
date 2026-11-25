@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import Select, { components } from 'react-select';
+import Select from 'react-select';
 import VisibilityToggle from './VisibilityToggle';
 import './MultiSelect.scss';
 

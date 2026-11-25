@@ -253,22 +253,6 @@ export function usePostFeedActions(
     ]
   );
 
-  const toggleCommentsOpen = useCallback((postId) => {
-    if (readOnly) return;
-    setCommentsOpenPostId((id) => {
-      if (id != null && String(id) === String(postId)) {
-        setCommentDraft("");
-        setReplyOpenCommentId(null);
-        setReplyDraft("");
-        return null;
-      }
-      setCommentDraft("");
-      setReplyOpenCommentId(null);
-      setReplyDraft("");
-      return postId;
-    });
-  }, [readOnly]);
-
   const isCommentsOpen = useCallback(
     (postId) =>
       commentsOpenPostId != null &&

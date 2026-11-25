@@ -6,7 +6,6 @@ import ThemeToggleDark from '../../../ThemeToggleDark/ThemeToggleDark';
 import BrandWordmark from '../../../BrandLogo/BrandWordmark';
 import profileIcons from '../../../../constants/profileIcons';
 import { BRAND_NAME } from '../../../../constants/brand';
-import { HEADER_CONFIG } from '../../../../constants/profileNavigation';
 import { useBurgerMenu } from '../../../../hooks/useBurgerMenu';
 import MessagesNavBadge from '../../../Messages/MessagesNavBadge';
 import NotificationBell from '../../../Notifications/NotificationBell';
@@ -35,8 +34,6 @@ export default function ProfileHeader({
 
   const isActive = makeIsActive(location);
 
-  const config = HEADER_CONFIG[variant] ?? HEADER_CONFIG.owner;
-  const showThemeInRight = config.showThemeInRight === true;
   const isVisitor = variant !== 'owner';
 
   const handleSearchSubmit = (e) => {

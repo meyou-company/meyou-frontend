@@ -134,7 +134,7 @@ export default function MessageContextMenu({
           </header>
         ) : null}
         <ul className="msgContextMenu__list">
-          {menuItems.map(({ id, Icon, danger, labelKey }) => (
+          {menuItems.map(({ id, Icon: MenuIcon, danger, labelKey }) => (
             <li key={id}>
               <button
                 type="button"
@@ -143,7 +143,7 @@ export default function MessageContextMenu({
                 onClick={() => onAction?.(id)}
               >
                 <span className="msgContextMenu__icon" aria-hidden="true">
-                  <Icon size={17} strokeWidth={1.75} />
+                  <MenuIcon size={17} strokeWidth={1.75} />
                 </span>
                 {t(labelKey || `messenger.menu.${id}`)}
               </button>

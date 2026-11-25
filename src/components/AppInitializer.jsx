@@ -12,7 +12,7 @@ export default function AppInitializer() {
       try {
         setLoading(true);
         await init();
-      } catch (e) {
+      } catch {
         toast.error("Не вдалося завантажити додаток. Спробуйте оновити сторінку.");
       } finally {
         setLoading(false);

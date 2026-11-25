@@ -126,18 +126,6 @@ function getInitialFollowingState(author, story, group) {
   return value === undefined || value === null ? false : Boolean(value);
 }
 
-function getStoryDurationMs(story, mediaType) {
-  if (mediaType !== "video") return IMAGE_DURATION;
-
-  const durationSec =
-    story?.durationSec ||
-    story?.duration_sec ||
-    story?.duration ||
-    60;
-
-  return Math.min(Math.max(Number(durationSec) * 1000, 1000), MAX_VIDEO_DURATION);
-}
-
 function getAuthorName(author) {
   return (
     [author?.firstName, author?.lastName].filter(Boolean).join(" ").trim() ||
@@ -451,7 +439,6 @@ function StoryAnalyticsModal({
   onSelectViewer,
   onClose,
 }) {
-  const reactions = analytics?.reactionsByType || analytics?.reactionsGrouped || {};
   const rawViewers = analytics?.viewersPreview || analytics?.viewers || storyViewersOnly || [];
   const reactionsByUser = useMemo(() => buildStoryReactionsByUser(analytics), [analytics]);
   const viewers = [...rawViewers, ...storyViewersOnly]
@@ -797,7 +784,6 @@ function StoryShareModal({ isOpen, story, onClose }) {
 
   const visibleUsers = query.trim() ? results : suggestions;
   const selectedUsers = [...selected.values()];
-  const mediaUrl = getStoryMediaUrl(story);
   const mediaType = getStoryMediaType(story);
   const storyText = story?.text || "";
   const storyUrl = `${window.location.origin}/stories/${encodeURIComponent(storyId)}`;
@@ -1929,7 +1915,7 @@ export default function StoryViewerModal({
     try {
       setIsReplySending(true);
 
-      const response = await storiesApi.reply(storyId, message);
+      await storiesApi.reply(storyId, message);
 
       setReplyText("");
 

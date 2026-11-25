@@ -1,5 +1,4 @@
-import assert from 'node:assert/strict';
-import { describe, it, before } from 'node:test';
+import { beforeAll, describe, expect, it } from 'vitest';
 import { initI18n } from '../i18n/index.js';
 import {
   getApiErrorCode,
@@ -9,7 +8,7 @@ import {
 import { createCloudinaryUploadError } from './mediaUploadApiError.js';
 
 describe('getApiErrorMessage — upload / rate limit', () => {
-  before(() => {
+  beforeAll(() => {
     initI18n('en');
   });
 
@@ -24,11 +23,11 @@ describe('getApiErrorMessage — upload / rate limit', () => {
         headers: {},
       },
     };
-    assert.equal(getApiErrorCode(err), 'RATE_LIMITED');
-    assert.equal(getRetryAfterSeconds(err), 42);
+    expect(getApiErrorCode(err)).toBe('RATE_LIMITED');
+    expect(getRetryAfterSeconds(err)).toBe(42);
     const message = getApiErrorMessage(err);
-    assert.match(message, /42/);
-    assert.match(message, /Upload limit/i);
+    expect(message).toMatch(/42/);
+    expect(message).toMatch(/Upload limit/i);
   });
 
   it('maps HTTP 429 without body code using Retry-After header', () => {
@@ -39,25 +38,25 @@ describe('getApiErrorMessage — upload / rate limit', () => {
         headers: { 'retry-after': '15' },
       },
     };
-    assert.equal(getApiErrorCode(err), 'RATE_LIMITED');
-    assert.equal(getRetryAfterSeconds(err), 15);
+    expect(getApiErrorCode(err)).toBe('RATE_LIMITED');
+    expect(getRetryAfterSeconds(err)).toBe(15);
     const message = getApiErrorMessage(err);
-    assert.match(message, /15/);
+    expect(message).toMatch(/15/);
   });
 
   it('maps Cloudinary 500 upload failure to MEDIA_UPLOAD_FAILED', () => {
     const err = createCloudinaryUploadError({ status: 500, statusText: 'Error' }, {
       error: { message: 'cloudinary down' },
     });
-    assert.equal(getApiErrorCode(err), 'MEDIA_UPLOAD_FAILED');
+    expect(getApiErrorCode(err)).toBe('MEDIA_UPLOAD_FAILED');
     const message = getApiErrorMessage(err);
-    assert.match(message, /Could not upload/i);
+    expect(message).toMatch(/Could not upload/i);
   });
 
   it('treats fetch network errors as NETWORK_ERROR', () => {
     const err = { code: 'ERR_NETWORK', message: 'Network Error' };
-    assert.equal(getApiErrorCode(err), 'NETWORK_ERROR');
+    expect(getApiErrorCode(err)).toBe('NETWORK_ERROR');
     const message = getApiErrorMessage(err);
-    assert.match(message, /connect/i);
+    expect(message).toMatch(/connect/i);
   });
 });

@@ -7,7 +7,7 @@ Workflow [`.github/workflows/ci.yml`](workflows/ci.yml) runs on **pull requests 
 1. `npm ci`
 2. `npm run lint` (ESLint flat config)
 3. `npm run build` (Vite production build)
-4. `npm run test:ci` — all Vitest files (`vitest.config.js`, `jsdom`)
+4. `npm run test:ci` — Vitest (`jsdom`) + Node test-runner / assert scripts (`scripts/run-node-tests.mjs`)
 
 CI sets dummy `VITE_*` URLs (`127.0.0.1`) for the build step. Tests use mocks (`vi.mock`, `vi.stubEnv`); no live API, Cloudinary, or auth secrets.
 

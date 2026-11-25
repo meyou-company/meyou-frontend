@@ -152,7 +152,7 @@ export default function ChatContextMenu({
         aria-label={t('messenger.chatMenu.title')}
       >
         <ul className="chatContextMenu__list">
-          {items.map(({ id, Icon, label, danger }) => (
+          {items.map(({ id, Icon: MenuIcon, label, danger }) => (
             <li key={id}>
               <button
                 type="button"
@@ -161,7 +161,7 @@ export default function ChatContextMenu({
                 onClick={() => onAction?.(id)}
               >
                 <span className="chatContextMenu__icon" aria-hidden="true">
-                  <Icon size={16} />
+                  <MenuIcon size={16} />
                 </span>
                 <span>{label}</span>
               </button>

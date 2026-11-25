@@ -74,7 +74,7 @@ describe('prepareChatImageForUpload with mocked decode', () => {
       height: 3000,
       close: vi.fn(),
     }));
-    HTMLCanvasElement.prototype.toBlob = function (cb, type, quality) {
+    HTMLCanvasElement.prototype.toBlob = function (cb, type, _quality) {
       const pixels = type === 'image/png' ? 3 * 1024 * 1024 : 4 * 1024 * 1024;
       cb(new Blob([new Uint8Array(pixels)], { type }));
     };

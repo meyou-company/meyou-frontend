@@ -42,10 +42,30 @@ jobs:
         run: npm ci
 
       - name: Lint
+        id: lint
+        continue-on-error: true
         run: npm run lint
 
       - name: Production build
+        id: build
+        if: ${{ always() && !cancelled() }}
+        continue-on-error: true
         run: npm run build
 
       - name: Tests (Vitest)
+        id: test
+        if: ${{ always() && !cancelled() }}
+        continue-on-error: true
         run: npm run test:ci
+
+      - name: Report check results
+        if: ${{ always() && !cancelled() }}
+        run: |
+          echo "lint:  ${{ steps.lint.outcome }}"
+          echo "build: ${{ steps.build.outcome }}"
+          echo "test:  ${{ steps.test.outcome }}"
+          if [ "${{ steps.lint.outcome }}" != "success" ] || \
+             [ "${{ steps.build.outcome }}" != "success" ] || \
+             [ "${{ steps.test.outcome }}" != "success" ]; then
+            exit 1
+          fi

@@ -5,6 +5,7 @@ import { toast } from 'sonner';
 import LegalLayout from '../layout';
 import LegalDocumentView from '../LegalDocumentView';
 import { getLegalUi } from '../../../i18n/legal';
+import { authApi } from '../../../services/auth';
 import { profileApi } from '../../../services/profileApi';
 import { useAuthStore } from '../../../zustand/useAuthStore';
 import { getApiErrorMessage } from '../../../utils/getApiErrorMessage';

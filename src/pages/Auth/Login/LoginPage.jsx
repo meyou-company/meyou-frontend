@@ -17,7 +17,9 @@ export default function LoginPage() {
       onSuccess={async () => {
         try {
           await refreshMe();
-        } catch {}
+        } catch {
+          /* refresh optional after login */
+        }
 
         const u = user || useAuthStore.getState().user;
         const isVerified =
