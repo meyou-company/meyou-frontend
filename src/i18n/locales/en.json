@@ -250,6 +250,12 @@
     "off": "Off",
     "appLoadError": "Failed to load the app. Please refresh the page."
   },
+  "monitoring": {
+    "crashTitle": "Something went wrong",
+    "crashBody": "An unexpected error occurred. Your messages and private content were not sent to support automatically.",
+    "reload": "Reload page",
+    "reference": "Reference: {{id}}"
+  },
   "presence": {
     "online": "Online",
     "offline": "Offline",

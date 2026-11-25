@@ -17,6 +17,12 @@
     "off": "Off",
     "appLoadError": "Failed to load the app. Please refresh the page."
   },
+  "monitoring": {
+    "crashTitle": "Bir şeyler ters gitti",
+    "crashBody": "Beklenmeyen bir hata oluştu. Özel mesajlarınız otomatik olarak gönderilmez.",
+    "reload": "Sayfayı yenile",
+    "reference": "Referans: {{id}}"
+  },
   "presence": {
     "online": "Çevrimiçi",
     "offline": "Çevrimdışı",
