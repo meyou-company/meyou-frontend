@@ -288,7 +288,29 @@ export function getApiErrorSuggestions(error) {
   return [];
 }
 
+const CLIENT_UPLOAD_ERROR_CODES = new Set([
+  'CHAT_IMAGE_TOO_LARGE_INPUT',
+  'CHAT_IMAGE_TOO_LARGE_OUTPUT',
+  'CHAT_IMAGE_GIF_TOO_LARGE',
+  'CHAT_IMAGE_OPTIMIZE_FAILED',
+  'CHAT_IMAGE_INVALID',
+  'CHAT_VIDEO_TOO_LARGE',
+  'CHAT_AUDIO_TOO_LARGE',
+  'CHAT_FILE_TOO_LARGE',
+]);
+
 /** User-facing text for presign / Cloudinary upload failures. */
 export function getMediaUploadErrorMessage(error, fallbackKey = 'errors.MEDIA_UPLOAD_FAILED') {
+  const code =
+    typeof error?.code === 'string'
+      ? error.code.trim()
+      : typeof error?.message === 'string' && CLIENT_UPLOAD_ERROR_CODES.has(error.message.trim())
+        ? error.message.trim()
+        : '';
+
+  if (code && CLIENT_UPLOAD_ERROR_CODES.has(code) && i18n.exists(`errors.${code}`)) {
+    return i18n.t(`errors.${code}`);
+  }
+
   return getApiErrorMessage(error, fallbackKey);
 }

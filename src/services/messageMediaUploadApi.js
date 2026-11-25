@@ -1,8 +1,13 @@
 import { api, apiPath } from './api';
 import { resolveFileMime } from '../utils/messageAttachmentMedia';
 import { throwCloudinaryUploadError } from '../utils/mediaUploadApiError.js';
+import {
+  CHAT_IMAGE_MAX_OUTPUT_BYTES,
+  ChatImageUploadError,
+  prepareChatImageForUpload,
+} from '../utils/chatImageOptimize';
 
-const MAX_IMAGE_BYTES = 10 * 1024 * 1024;
+export const MESSAGE_IMAGE_MAX_BYTES = CHAT_IMAGE_MAX_OUTPUT_BYTES;
 const MAX_VIDEO_BYTES = 50 * 1024 * 1024;
 const MAX_AUDIO_BYTES = 15 * 1024 * 1024;
 const MAX_FILE_BYTES = 25 * 1024 * 1024;
@@ -70,29 +75,45 @@ function fileTypeParam(file) {
   return 'image';
 }
 
-function validateFileSize(file) {
+function validateNonImageFileSize(file) {
   const type = resolveFileMime(file);
-  if (type.startsWith('image/') && file.size > MAX_IMAGE_BYTES) {
-    throw new Error('Image must be 10MB or less');
-  }
   if (type.startsWith('video/') && file.size > MAX_VIDEO_BYTES) {
-    throw new Error('Video must be 50MB or less');
+    throw new Error('CHAT_VIDEO_TOO_LARGE');
   }
   if (type.startsWith('audio/') && file.size > MAX_AUDIO_BYTES) {
-    throw new Error('Audio must be 15MB or less');
+    throw new Error('CHAT_AUDIO_TOO_LARGE');
   }
   if (file.size > MAX_FILE_BYTES) {
-    throw new Error('File must be 25MB or less');
+    throw new Error('CHAT_FILE_TOO_LARGE');
   }
 }
 
-async function uploadViaPresigned(file, presignPath) {
-  validateFileSize(file);
+function validateChatImageOutputSize(file) {
+  if (file.size > MESSAGE_IMAGE_MAX_BYTES) {
+    throw new ChatImageUploadError('CHAT_IMAGE_TOO_LARGE_OUTPUT');
+  }
+}
+
+async function resolveUploadFile(file, options) {
+  const type = resolveFileMime(file);
+  if (!type.startsWith('image/')) {
+    validateNonImageFileSize(file);
+    return file;
+  }
+  const prepared = await prepareChatImageForUpload(file, {
+    onProgress: (phase) => options?.onImagePrepare?.(phase),
+  });
+  validateChatImageOutputSize(prepared);
+  return prepared;
+}
+
+async function uploadViaPresigned(file, presignPath, options) {
+  const uploadFile = await resolveUploadFile(file, options);
 
   const { data } = await api.get(apiPath(presignPath), {
     params: {
-      fileName: file.name || `message-${Date.now()}`,
-      fileType: fileTypeParam(file),
+      fileName: uploadFile.name || `message-${Date.now()}`,
+      fileType: fileTypeParam(uploadFile),
     },
   });
 
@@ -106,7 +127,7 @@ async function uploadViaPresigned(file, presignPath) {
   for (const [key, value] of Object.entries(uploadFields)) {
     if (value != null) formData.append(key, String(value));
   }
-  formData.append('file', file);
+  formData.append('file', uploadFile);
 
   const uploadRes = await fetch(uploadUrl, { method: 'POST', body: formData });
   let cloudBody = null;
@@ -122,16 +143,21 @@ async function uploadViaPresigned(file, presignPath) {
 
   const publicUrl = extractPublicMediaUrl(data, cloudBody);
   if (!publicUrl) throw new Error('Upload succeeded but URL is missing');
-  return publicUrl;
+  return { url: publicUrl, file: uploadFile };
 }
 
-export async function uploadMessageMedia(file) {
+/**
+ * @param {File} file
+ * @param {{ onImagePrepare?: (phase: 'decode' | 'optimize') => void }} [options]
+ * @returns {Promise<{ url: string, file: File }>}
+ */
+export async function uploadMessageMedia(file, options) {
   if (!file) throw new Error('No file provided');
   const kind = presignKindForFile(file);
   if (kind === 'file') {
-    return uploadViaPresigned(file, '/uploads/message-files/presigned-url');
+    return uploadViaPresigned(file, '/uploads/message-files/presigned-url', options);
   }
-  return uploadViaPresigned(file, '/uploads/message-media/presigned-url');
+  return uploadViaPresigned(file, '/uploads/message-media/presigned-url', options);
 }
 
 export function buildAttachmentFromFile(file, url) {

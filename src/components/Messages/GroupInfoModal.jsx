@@ -297,7 +297,7 @@ export default function GroupInfoModal({
     if (!file) return;
     try {
       setBusy(true);
-      const url = await uploadMessageMedia(file);
+      const { url } = await uploadMessageMedia(file);
       const updated = await conversationsApi.updateGroup(conversation.id, {
         avatarUrl: url,
       });
