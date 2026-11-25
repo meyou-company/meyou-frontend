@@ -1,6 +1,6 @@
 import * as Sentry from '@sentry/react';
 import { detectBrowserName, detectDeviceType, getAppRelease } from './device-context.js';
-import { sanitizeSentryEvent } from './sentry-sanitize.js';
+import { finalizeSentryPayload } from './sentry-sanitize.js';
 
 const EXPECTED_API_CODES = new Set([
   'UNAUTHORIZED',
@@ -67,7 +67,7 @@ export function initClientMonitoring() {
       const prev = lastSentAt.get(fingerprint);
       if (prev && now - prev < DEDUPE_MS) return null;
       lastSentAt.set(fingerprint, now);
-      return sanitizeSentryEvent(event);
+      return finalizeSentryPayload(event);
     },
   });
 
@@ -87,11 +87,6 @@ export function captureReactError(error, componentStack) {
   if (!isSentryEnabled()) return null;
   Sentry.withScope((scope) => {
     scope.setTag('error_source', 'react_boundary');
-    if (componentStack) {
-      scope.setContext('react', {
-        component_stack: String(componentStack).slice(0, 300),
-      });
-    }
     Sentry.captureException(error);
   });
   return Sentry.lastEventId();
