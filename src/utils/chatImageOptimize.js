@@ -49,6 +49,13 @@ export function shouldPrepareChatImage(file, mime = resolveFileMime(file)) {
   return false;
 }
 
+async function readFileArrayBuffer(file) {
+  if (typeof file.arrayBuffer === 'function') {
+    return file.arrayBuffer();
+  }
+  return new Response(file).arrayBuffer();
+}
+
 function yieldToMain() {
   return new Promise((resolve) => {
     setTimeout(resolve, 0);

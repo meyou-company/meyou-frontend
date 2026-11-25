@@ -49,9 +49,15 @@ describe('chatImageOptimize helpers', () => {
   });
 
   it('rejects animated GIF over output limit', async () => {
-    const header = new Uint8Array([0x21, 0xf9, 0x21, 0xf9]);
-    const rest = new Uint8Array(CHAT_IMAGE_MAX_OUTPUT_BYTES);
-    const file = new File([header, rest], 'anim.gif', { type: 'image/gif' });
+    const file = {
+      size: CHAT_IMAGE_MAX_OUTPUT_BYTES + 1,
+      name: 'anim.gif',
+      type: 'image/gif',
+      arrayBuffer: async () => {
+        const u = new Uint8Array([0x21, 0xf9, 0x00, 0x21, 0xf9, 0x00]);
+        return u.buffer;
+      },
+    };
     await expect(prepareChatImageForUpload(file)).rejects.toMatchObject({
       code: 'CHAT_IMAGE_GIF_TOO_LARGE',
     });
