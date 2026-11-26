@@ -1,32 +1,36 @@
-import { giftsApi } from './giftsApi';
+import { giftsApi, normalizeGiftListResponse } from './giftsApi';
 
-const DEFAULT_PAGE_SIZE = 100;
+export const GIFTS_PAGE_SIZE = 30;
+/** Safety cap for pending-only paging (not full gift history). */
+export const GIFTS_PENDING_MAX_PAGES = 20;
 
-/** Load full gift history via cursor pages (backward compatible API). */
-export async function fetchAllReceivedGifts({ take = DEFAULT_PAGE_SIZE } = {}) {
-  const items = [];
-  let cursor;
-  let guard = 0;
-  do {
-    const page = await giftsApi.getReceived({ cursor, take });
-    const batch = Array.isArray(page?.items) ? page.items : [];
-    items.push(...batch);
-    cursor = page?.hasMore ? page.nextCursor : undefined;
-    guard += 1;
-  } while (cursor && guard < 500);
-  return items;
+export function mergeGiftListItems(existing, incoming) {
+  const next = Array.isArray(existing) ? [...existing] : [];
+  const seen = new Set(next.map((item) => item?.id).filter(Boolean));
+  for (const item of incoming ?? []) {
+    const id = item?.id;
+    if (!id || seen.has(id)) continue;
+    seen.add(id);
+    next.push(item);
+  }
+  return next;
 }
 
-export async function fetchAllSentGifts({ take = DEFAULT_PAGE_SIZE } = {}) {
+/** Load every PENDING received gift via bounded pending-only pages. */
+export async function fetchPendingReceivedGifts({
+  take = GIFTS_PAGE_SIZE,
+  maxPages = GIFTS_PENDING_MAX_PAGES,
+} = {}) {
   const items = [];
   let cursor;
-  let guard = 0;
+  let pages = 0;
   do {
-    const page = await giftsApi.getSent({ cursor, take });
-    const batch = Array.isArray(page?.items) ? page.items : [];
-    items.push(...batch);
+    const page = await giftsApi.getReceivedPending({ cursor, take });
+    items.push(...(page?.items ?? []));
     cursor = page?.hasMore ? page.nextCursor : undefined;
-    guard += 1;
-  } while (cursor && guard < 500);
-  return items;
+    pages += 1;
+  } while (cursor && pages < maxPages);
+  return mergeGiftListItems([], items);
 }
+
+export { normalizeGiftListResponse };

@@ -1,6 +1,6 @@
 import { useEffect, useLayoutEffect } from 'react';
 import { useLocation, useSearchParams } from 'react-router-dom';
-import { fetchAllReceivedGifts } from '../services/giftsPagination';
+import { fetchPendingReceivedGifts } from '../services/giftsPagination';
 import { useAuthStore } from '../zustand/useAuthStore';
 import { useGiftInboxStore } from '../zustand/useGiftInboxStore';
 import GiftBoxOverlay from '../components/Gifts/GiftBoxOverlay';
@@ -29,7 +29,7 @@ export function GiftInboxProvider() {
     }
 
     let cancelled = false;
-    fetchAllReceivedGifts()
+    fetchPendingReceivedGifts()
       .then((items) => {
         if (cancelled) return;
         hydratePending(items ?? []);
