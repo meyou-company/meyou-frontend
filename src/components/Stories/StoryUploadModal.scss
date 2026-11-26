@@ -1366,7 +1366,6 @@
   }
 }
 
-// The picker has two actions, positioned independently of the removed tool rows.
 .storyUploadModal:not(.storyUploadModal--editorMode) {
   .storyUploadModal__page {
     min-height: calc(100dvh - 8px);
@@ -1456,56 +1455,7 @@
   height: 32px;
 }
 
-@media (min-width: 1024px) {
-  .storyUploadModal:not(.storyUploadModal--editorMode) {
-    .storyUploadModal__title { font-size: 24px; }
-    .storyUploadModal__pickFileBtn {
-      width: min(100%, 380px);
-      min-height: 64px;
-      font-size: 18px;
-      padding: 16px 20px;
-    }
-  }
-}
-
 .storyUploadModal--editorMode .storyUploadModal__editor { position: relative; }
-
-@media (min-width: 1024px) {
-  .storyUploadModal--editorMode .storyUploadModal__editorTool {
-    flex-basis: 44px;
-    width: 44px;
-    height: 44px;
-    padding: 10px;
-    box-sizing: border-box;
-  }
-
-  .storyUploadModal--editorMode .storyUploadModal__editorTool img {
-    width: 22px;
-    height: 22px;
-  }
-
-  .storyUploadModal--editorMode .storyUploadModal__editorToolIcon--text {
-    font-size: 18px;
-    line-height: 1;
-  }
-
-  .storyUploadModal--editorMode .storyUploadModal__bottomActions {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 48px;
-    gap: 8px;
-  }
-
-  .storyUploadModal--editorMode .storyUploadModal__audienceBtn {
-    font-size: 16px;
-    min-height: 48px;
-    padding: 8px;
-    gap: 6px;
-  }
-
-  .storyUploadModal--editorMode .storyUploadModal__nextBtn {
-    width: 48px;
-    height: 48px;
-  }
-}
 
 .storyPhotoPanel {
   position: absolute;
@@ -1523,22 +1473,7 @@
 
   button { cursor: pointer; }
   &__close { position: absolute; top: 4px; right: 4px; border: 0; background: transparent; color: #fff; width: 28px; height: 28px; display: grid; place-items: center; }
-  &__filters {
-    display: flex;
-    gap: 12px;
-    overflow-x: auto;
-    padding: 8px 4px;
-    scrollbar-width: none;
-    -ms-overflow-style: none;
-    cursor: grab;
-    user-select: none;
-    touch-action: pan-x;
-    overscroll-behavior-x: contain;
-
-    &::-webkit-scrollbar { display: none; }
-    &.is-dragging,
-    &.is-dragging button { cursor: grabbing; }
-  }
+  &__filters { display: flex; gap: 12px; overflow-x: auto; padding: 8px 4px; }
   &__filters button { flex: 0 0 auto; min-width: 64px; width: max-content; padding: 4px 2px; border: 0; background: transparent; color: #fff; font-size: 11px; white-space: nowrap; overflow-wrap: normal; }
   &__filters button > span { display: block; width: 48px; height: 48px; border-radius: 50%; border: 2px solid #fff; margin: 0 auto 6px; }
   &__filters button[aria-pressed="true"] > span { outline: 3px solid #ff46ad; outline-offset: 2px; }
@@ -1551,15 +1486,6 @@
   left: auto;
   width: min(320px, calc(100% - 16px));
   padding: 28px 6px 6px;
-  scrollbar-width: none;
-
-  &::-webkit-scrollbar { display: none; }
-
-  .EmojiPickerReact,
-  .EmojiPickerReact * {
-    scrollbar-width: none;
-    &::-webkit-scrollbar { display: none; }
-  }
 
   .EmojiPickerReact {
     --epr-emoji-size: 26px;
