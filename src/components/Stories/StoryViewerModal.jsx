@@ -1,3 +1,4 @@
+import { i18n as translation } from "../../i18n";
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
@@ -523,7 +524,7 @@ function StoryAnalyticsModal({
   };
 
   return (
-    <div className="storyStatsModal" role="dialog" aria-modal="true" aria-label="Story statistics">
+    <div className="storyStatsModal" role="dialog" aria-modal="true" aria-label={translation.t("uiText.story_statistics")}>
       <div className="storyStatsModal__dots" aria-hidden="true" />
       <header className="storyStatsModal__header">
         <BrandWordmark className="storyStatsModal__brand" />
@@ -532,7 +533,7 @@ function StoryAnalyticsModal({
         </button>
       </header>
 
-      <div className="storyStatsModal__rail" aria-label="Stories">
+      <div className="storyStatsModal__rail" aria-label={translation.t("uiText.stories")}>
         {safeStories.map((_, index) => renderStoryThumb(index))}
         <button type="button" className="storyStatsModal__add" onClick={onAddStory}>
           <img src={profileIcons.storyAdd} alt="" aria-hidden="true" />
@@ -540,7 +541,7 @@ function StoryAnalyticsModal({
         </button>
       </div>
 
-      <div className="storyStatsModal__tabs" role="tablist" aria-label="Story statistics tabs">
+      <div className="storyStatsModal__tabs" role="tablist" aria-label={translation.t("uiText.story_statistics_tabs")}>
         <button
           type="button"
           className={activeTab === "views" ? "is-active" : ""}
@@ -919,7 +920,7 @@ function StoryShareModal({ isOpen, story, onClose }) {
         >
           {sending ? i18n.t("live.sending") : i18n.t("common.send")}
         </button>
-        <div className="storyShareModal__social" aria-label="Share story">
+        <div className="storyShareModal__social" aria-label={translation.t("uiText.share_story")}>
           {STORY_SHARE_PROVIDERS.map((provider) => (
             <button
               type="button"
@@ -2096,18 +2097,19 @@ export default function StoryViewerModal({
             ))}
           </div>
 
+          <div className="storyViewer__header">
           <button className="storyViewer__author" onClick={handleOpenAuthorProfile}>
             <img src={authorAvatar} alt="" />
             <div className="storyViewer__authorText">
               <div>
-                <span className="storyViewer__authorName">{getAuthorName(author)}</span>
+                <span className="storyViewer__authorName" title={getAuthorName(author)}>{getAuthorName(author)}</span>
                 <span className="storyViewer__time">{getStoryTimeLabel(currentStory)}</span>
               </div>
               {/* <span className="storyViewer__music">♫ random music</span> */}
             </div>
           </button>
 
-          {!readOnly && !isOwnStory && (
+          {!readOnly && !isOwnStory && !isFollowingAuthor && (
             <button
               type="button"
               className="storyViewer__followBtn"
@@ -2142,6 +2144,8 @@ export default function StoryViewerModal({
                 ⋮
               </button>
             ) : null}
+          </div>
+
           </div>
 
           {isMenuOpen && !readOnly && !isOwnStory && (
@@ -2426,8 +2430,10 @@ export default function StoryViewerModal({
                   className={`storyViewer__reactionBtn ${selectedReaction === reaction.id ? "storyViewer__reactionBtn--active" : ""
                     }`}
                   onClick={() => handleReactionClick(reaction.id)} disabled={isReactionSaving}
+                  aria-label={reaction.emoji}
+                  aria-pressed={selectedReaction === reaction.id}
                 >
-                  <img src={reaction.icon} alt="" />
+                  <span className="storyViewer__reactionEmoji" aria-hidden="true">{reaction.emoji}</span>
                 </button>
               ))}
             </div>

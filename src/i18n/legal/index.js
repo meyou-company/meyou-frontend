@@ -4,8 +4,16 @@ import {
   LEGAL_UI,
   LEGAL_VERSION,
 } from './uk.js';
+import cs from './cs.js';
+import fr from './fr.js';
+import es from './es.js';
+import tr from './tr.js';
 
 const LOCALES = {
+  cs,
+  fr,
+  es,
+  tr,
   uk: { LEGAL_DOCUMENTS, LEGAL_NAV, LEGAL_UI },
   en: {
     LEGAL_DOCUMENTS,

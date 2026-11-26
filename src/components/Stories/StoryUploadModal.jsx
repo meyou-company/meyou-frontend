@@ -15,6 +15,10 @@ import { useStoriesOverlayLock } from "../../hooks/useStoriesOverlayLock";
 import profileIcons from "../../constants/profileIcons";
 import StoryTextEditor from "./StoryTextEditor";
 import StoryCamera from "./StoryCamera";
+import EmojiPicker, { EmojiStyle } from "emoji-picker-react";
+import { LuX, LuTrash2 } from "react-icons/lu";
+import { STORY_FILTERS } from "../../utils/storyFilters";
+import { useStoryPhotoFilter } from "../../hooks/useStoryPhotoFilter";
 import "./StoryUploadModal.scss";
 
 const STORY_VISIBILITY_OPTIONS = [
@@ -82,6 +86,10 @@ export default function StoryUploadModal({ isOpen, onClose, onCreated }) {
   const inputRef = useRef(null);
   const visibilityWrapRef = useRef(null);
   const mediaFrameRef = useRef(null);
+  const photoPanelRef = useRef(null);
+  const filterToggleRef = useRef(null);
+  const filterDragRef = useRef(null);
+  const suppressFilterClickRef = useRef(false);
   const [fileItem, setFileItem] = useState(null);
   const [text, setText] = useState("");
   const [storyText, setStoryText] = useState("");
@@ -96,6 +104,22 @@ export default function StoryUploadModal({ isOpen, onClose, onCreated }) {
   const [visibility, setVisibility] = useState("FOLLOWERS");
   const [isVisibilityOpen, setIsVisibilityOpen] = useState(false);
   const [isCameraOpen, setIsCameraOpen] = useState(false);
+  const [photoPanel, setPhotoPanel] = useState(null);
+  const [stickers, setStickers] = useState([]);
+  const [selectedSticker, setSelectedSticker] = useState(null);
+  const [filterId, setFilterId] = useState("natural");
+  const [filterIntensity, setFilterIntensity] = useState(0);
+  const photoFilter = useStoryPhotoFilter(fileItem, filterId, filterIntensity);
+
+  useEffect(() => {
+    if (!isOpen || photoPanel !== "filters") return;
+    const closeOutside = (event) => {
+      if (photoPanelRef.current?.contains(event.target) || filterToggleRef.current?.contains(event.target)) return;
+      setPhotoPanel(null);
+    };
+    document.addEventListener("pointerdown", closeOutside, true);
+    return () => document.removeEventListener("pointerdown", closeOutside, true);
+  }, [isOpen, photoPanel]);
 
   const currentUser = useAuthStore((s) => s.user);
   const currentUserAvatar =
@@ -173,6 +197,11 @@ export default function StoryUploadModal({ isOpen, onClose, onCreated }) {
   if (!isOpen) return null;
 
   const resetStoryText = () => {
+    setPhotoPanel(null);
+    setStickers([]);
+    setSelectedSticker(null);
+    setFilterId("natural");
+    setFilterIntensity(0);
     setStoryText("");
     setStoryTextColor(DEFAULT_STORY_TEXT_COLOR);
     setStoryTextSize(DEFAULT_STORY_TEXT_SIZE);
@@ -305,6 +334,10 @@ export default function StoryUploadModal({ isOpen, onClose, onCreated }) {
   };
 
   const handlePublish = async () => {
+    if (photoFilter.busy || photoFilter.error) {
+      if (photoFilter.error) toast.error(t("storyUpload.publishError"));
+      return;
+    }
     if (!fileItem?.file) {
       toast.error(t("storyUpload.chooseMediaFirst"));
       return;
@@ -328,17 +361,20 @@ export default function StoryUploadModal({ isOpen, onClose, onCreated }) {
         textWidth: overlayEl?.offsetWidth,
         textHeight: overlayEl?.offsetHeight,
       });
-      const uploadFile = !isVideo && storyText.trim()
+      const imageFile = photoFilter.result?.file || fileItem.file;
+      const uploadFile = !isVideo && (storyText.trim() || stickers.length)
         ? await composeStoryImage({
-            file: fileItem.file,
+            file: imageFile,
+            stickers,
             text: storyText,
             color: storyTextColor,
             fontSize: storyTextSize,
             position,
             frameWidth: mediaFrame?.width,
             frameHeight: mediaFrame?.height,
+            fit: "contain",
           })
-        : fileItem.file;
+        : imageFile;
 
       setPublishPhase(STORY_PUBLISH_PHASE.UPLOADING);
       const uploaded = await uploadStoryMedia(uploadFile, {
@@ -428,82 +464,6 @@ export default function StoryUploadModal({ isOpen, onClose, onCreated }) {
 
                 <h3 className="storyUploadModal__title">{t("stories.createTitle")}</h3>
 
-                <button
-                  type="button"
-                  className="storyUploadModal__settings"
-                  aria-label={t("storyUpload.settings")}
-                >
-                  <img
-                    src={profileIcons.storySettings}
-                    alt=""
-                    className="storyUploadModal_settingsIcon"
-                  />
-                </button>
-              </div>
-
-              <div className="storyUploadModal__tools" aria-label={t("stories.tools")}>
-                <button
-                  type="button"
-                  className="storyUploadModal__tool"
-                  aria-label={t("stories.addText")}
-                  title={t("stories.addText")}
-                >
-                  <span className="storyUploadModal__toolIcon storyUploadModal__toolIcon--text">
-                    Aa
-                  </span>
-                </button>
-
-                <button
-                  type="button"
-                  className="storyUploadModal__tool"
-                  aria-label={t("stories.music")}
-                  title={t("stories.music")}
-                >
-                  <span className="storyUploadModal__toolIcon">
-                    <img src={profileIcons.storyMusic} alt="" />
-                  </span>
-                </button>
-
-                <button
-                  type="button"
-                  className="storyUploadModal__tool"
-                  aria-label={t("stories.templates")}
-                  title={t("stories.templates")}
-                >
-                  <img src={profileIcons.storyTemplate} alt="" />
-                </button>
-
-                <button
-                  type="button"
-                  className="storyUploadModal__tool"
-                  aria-label={t("stories.collage")}
-                  title={t("stories.collage")}
-                >
-                  <img src={profileIcons.storyCollage} alt="" />
-                </button>
-              </div>
-
-              <div className="storyUploadModal__galleryHead">
-                <button type="button" className="storyUploadModal__galleryTitle">
-                  {t("storyUpload.gallery")}
-                  <img
-                    src={profileIcons.arrowLeftFilledBlack}
-                    className="storyUploadModal__galleryArrowIcon"
-                    alt=""
-                  />
-                </button>
-
-                <button
-                  type="button"
-                  className="storyUploadModal__selectBtn"
-                  onClick={() => inputRef.current?.click()}
-                  disabled={isPublishing}
-                >
-                  {t("storyUpload.select")}
-                  <span className="storyUploadModal__selectIcon">
-                    <img src={profileIcons.storyGallery} alt="" />
-                  </span>
-                </button>
               </div>
             </>
           )}
@@ -538,7 +498,7 @@ export default function StoryUploadModal({ isOpen, onClose, onCreated }) {
                     <button
                       type="button"
                       className={`storyUploadModal__editorTool ${isTextEditorOpen ? "storyUploadModal__editorTool--active" : ""}`}
-                      onClick={() => setIsTextEditorOpen((prev) => !prev)}
+                      onClick={() => { setPhotoPanel(null); setIsTextEditorOpen((prev) => !prev); }}
                       disabled={fileItem.type !== "image" || isPublishing}
                       aria-label={t("stories.addText")}
                       aria-pressed={isTextEditorOpen}
@@ -558,6 +518,9 @@ export default function StoryUploadModal({ isOpen, onClose, onCreated }) {
                       className="storyUploadModal__editorTool"
                       aria-label={t("stories.stickers")}
                       title={t("stories.stickers")}
+                      disabled={fileItem.type !== "image" || isPublishing}
+                      aria-pressed={photoPanel === "emoji"}
+                      onClick={() => { setIsTextEditorOpen(false); setPhotoPanel(photoPanel === "emoji" ? null : "emoji"); }}
                     >
                       <img src={profileIcons.storySticker} alt="" />
                     </button>
@@ -567,6 +530,7 @@ export default function StoryUploadModal({ isOpen, onClose, onCreated }) {
                       className="storyUploadModal__editorTool"
                       aria-label={t("stories.music")}
                       title={t("stories.music")}
+                      onClick={() => toast.info(t("stories.musicComingSoon"))}
                     >
                       <img src={profileIcons.storyEditorMusic} alt="" />
                     </button>
@@ -574,25 +538,25 @@ export default function StoryUploadModal({ isOpen, onClose, onCreated }) {
                     <button
                       type="button"
                       className="storyUploadModal__editorTool"
-                      aria-label={t("stories.draw")}
-                      title={t("stories.draw")}
+                      aria-label={t("storyCamera.filters")}
+                      ref={filterToggleRef}
+                      title={t("storyCamera.filters")}
+                      disabled={fileItem.type !== "image" || isPublishing}
+                      aria-pressed={photoPanel === "filters"}
+                      onClick={() => { setIsTextEditorOpen(false); setPhotoPanel(photoPanel === "filters" ? null : "filters"); }}
                     >
                       <img src={profileIcons.storyBrush} alt="" />
                     </button>
 
-                    <button
-                      type="button"
-                      className="storyUploadModal__editorTool storyUploadModal__editorTool--small"
-                      aria-label={t("common.back")}
-                      title={t("common.back")}
-                    >
-                      <img src={profileIcons.storyArrowFilled} alt="" />
-                    </button>
                   </div>
                 </div>
 
                 <div
                   ref={mediaFrameRef}
+                  aria-busy={photoFilter.busy}
+                  onPointerDown={(event) => {
+                    if (event.target.classList.contains("storyUploadModal__editorMedia")) setSelectedSticker(null);
+                  }}
                   className={`storyUploadModal__mediaFrame ${fileItem.orientation === "landscape"
                     ? "storyUploadModal__mediaFrame--landscape"
                     : fileItem.orientation === "portrait"
@@ -608,7 +572,7 @@ export default function StoryUploadModal({ isOpen, onClose, onCreated }) {
                     />
                   ) : (
                     <img
-                      src={fileItem.previewUrl}
+                      src={photoFilter.result?.url || fileItem.previewUrl}
                       alt=""
                       className="storyUploadModal__editorMedia"
                     />
@@ -616,6 +580,21 @@ export default function StoryUploadModal({ isOpen, onClose, onCreated }) {
 
                   <div className="storySafeMask storySafeMask--top" aria-hidden="true" />
                   <div className="storySafeMask storySafeMask--bottom" aria-hidden="true" />
+                  {stickers.map((sticker) => <button key={sticker.id} type="button"
+                    className={`storyPhotoSticker${selectedSticker === sticker.id ? " is-selected" : ""}`}
+                    style={{ left: `${sticker.x}%`, top: `${sticker.y}%`, fontSize: sticker.size }}
+                    aria-label={sticker.emoji}
+                    onClick={() => setSelectedSticker(sticker.id)}
+                    onPointerDown={(event) => { event.currentTarget.setPointerCapture(event.pointerId); setSelectedSticker(sticker.id); }}
+                    onPointerMove={(event) => {
+                      if (!event.currentTarget.hasPointerCapture(event.pointerId)) return;
+                      const frame = mediaFrameRef.current.getBoundingClientRect();
+                      const half = sticker.size / 2;
+                      const x = Math.max(half / frame.width * 100, Math.min(100 - half / frame.width * 100, (event.clientX - frame.left) / frame.width * 100));
+                      const y = Math.max(half / frame.height * 100, Math.min(100 - half / frame.height * 100, (event.clientY - frame.top) / frame.height * 100));
+                      setStickers(previous => previous.map(item => item.id === sticker.id ? {...item, x, y} : item));
+                    }}
+                  >{sticker.emoji}</button>)}
 
                   {fileItem.type === "image" && (
                     <StoryTextEditor
@@ -651,9 +630,65 @@ export default function StoryUploadModal({ isOpen, onClose, onCreated }) {
                 </div>
               </div>
 
+              {photoPanel && <div ref={photoPanelRef} className={`storyPhotoPanel storyPhotoPanel--${photoPanel}`}>
+                <button className="storyPhotoPanel__close" type="button" aria-label={t("common.close")} onClick={() => setPhotoPanel(null)}><LuX /></button>
+                {photoPanel === "emoji" ? <EmojiPicker width="100%" height={240} theme="dark" emojiStyle={EmojiStyle.NATIVE} previewConfig={{showPreview:false}} skinTonesDisabled autoFocusSearch={false} searchPlaceholder={t("common.search")} lazyLoadEmojis onEmojiClick={({emoji}) => {
+                  const id = crypto.randomUUID();
+                  setStickers(previous => [...previous, {id, emoji, x:50, y:50, size:48}]);
+                  setSelectedSticker(id); setPhotoPanel(null);
+                }} /> : <>
+                  <div className="storyPhotoPanel__filters"
+                    onWheel={(event) => { event.currentTarget.scrollLeft += event.deltaY; }}
+                    onPointerDown={(event) => {
+                      if (event.pointerType !== "mouse" || event.button !== 0) return;
+                      suppressFilterClickRef.current = false;
+                      filterDragRef.current = {x: event.clientX, scrollLeft: event.currentTarget.scrollLeft};
+                    }}
+                    onPointerMove={(event) => {
+                      const drag = filterDragRef.current;
+                      if (!drag) return;
+                      const distance = event.clientX - drag.x;
+                      if (Math.abs(distance) < 5 && !suppressFilterClickRef.current) return;
+                      suppressFilterClickRef.current = true;
+                      event.currentTarget.setPointerCapture(event.pointerId);
+                      event.currentTarget.classList.add("is-dragging");
+                      event.currentTarget.scrollLeft = drag.scrollLeft - distance;
+                    }}
+                    onPointerUp={(event) => {
+                      filterDragRef.current = null;
+                      event.currentTarget.classList.remove("is-dragging");
+                    }}
+                    onPointerCancel={(event) => {
+                      filterDragRef.current = null;
+                      suppressFilterClickRef.current = false;
+                      event.currentTarget.classList.remove("is-dragging");
+                    }}
+                    onPointerLeave={() => { filterDragRef.current = null; }}
+                    onClickCapture={(event) => {
+                      if (!suppressFilterClickRef.current) return;
+                      event.preventDefault();
+                      event.stopPropagation();
+                      suppressFilterClickRef.current = false;
+                    }}
+                  >
+                    {STORY_FILTERS.map(filter => <button type="button" key={filter.id} aria-pressed={filter.id === filterId} onClick={() => { setFilterId(filter.id); if (!filterIntensity) setFilterIntensity(70); }}>
+                      <span style={{background:filter.swatch}} />{t(`cameraFilters.${filter.id}`)}
+                    </button>)}
+                  </div>
+                  <label className="storyPhotoPanel__intensity">{t("storyCamera.intensity")}
+                    <input type="range" min="0" max="100" value={filterIntensity} onChange={event => setFilterIntensity(Number(event.target.value))} />
+                    <output>{filterIntensity}%</output>
+                  </label>
+                </>}
+              </div>}
+              {selectedSticker && <div className="storyPhotoStickerTools">
+                <input aria-label={t("stories.stickers")} type="range" min="24" max="100" value={stickers.find(item => item.id === selectedSticker)?.size || 48} onChange={event => setStickers(previous => previous.map(item => item.id === selectedSticker ? {...item, size:Number(event.target.value)} : item))} />
+                <button type="button" aria-label={t("common.delete")} onClick={() => { setStickers(previous => previous.filter(item => item.id !== selectedSticker)); setSelectedSticker(null); }}><LuTrash2 /></button>
+                <button type="button" aria-label={t("common.close")} onClick={() => setSelectedSticker(null)}><LuX /></button>
+              </div>}
               <div className="storyUploadModal__bottomActions">
                 <button type="button" className="storyUploadModal__audienceBtn" onClick={handlePublish}
-                  disabled={isPublishing}>
+                  disabled={isPublishing || photoFilter.busy}>
                   <span className="storyUploadModal__audienceAvatar">
                     <img src={currentUserAvatar} alt="" />
                   </span>
@@ -706,7 +741,7 @@ export default function StoryUploadModal({ isOpen, onClose, onCreated }) {
                   type="button"
                   className="storyUploadModal__nextBtn"
                   onClick={handlePublish}
-                  disabled={isPublishing}
+                  disabled={isPublishing || photoFilter.busy}
                   aria-label={t("storyUpload.publish")}
                 >
                   {isPublishing ? "..." : <img

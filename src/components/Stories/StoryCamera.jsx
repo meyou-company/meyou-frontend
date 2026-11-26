@@ -158,8 +158,6 @@ export default function StoryCamera({ onClose, onCapture }) {
         streamRef.current?.getTracks().forEach((track) => track.stop());
         const videoConstraints = {
           facingMode: { ideal: facingMode },
-          width: { ideal: 1080 },
-          height: { ideal: 1920 },
         };
         let stream;
         try {
@@ -421,7 +419,7 @@ export default function StoryCamera({ onClose, onCapture }) {
                   disabled={isRecording}
                 >
                   <span className="storyCamera__filterSwatch" style={{ background: filter.swatch }} />
-                  <span>{filter.label}</span>
+                  <span>{t(`cameraFilters.${filter.id}`)}</span>
                 </button>
               ))}
             </div>

@@ -46,7 +46,7 @@ export default function AdminDashboardPage() {
   return (
     <section className="adminPage">
       <header className="adminPage__header">
-        <h1>Dashboard</h1>
+        <h1>{t("uiText.dashboard")}</h1>
         <p>{t('adminAudit.overview', { brand: BRAND_NAME })}</p>
       </header>
 
@@ -57,27 +57,27 @@ export default function AdminDashboardPage() {
           <div className="adminCards">
             <article className="adminCard">
               <strong>{userReports.open ?? 0}</strong>
-              <span>Open user reports</span>
+              <span>{t("uiText.open_user_reports")}</span>
             </article>
             <article className="adminCard">
               <strong>{userReports.reviewed ?? 0}</strong>
-              <span>Reviewed</span>
+              <span>{t("uiText.reviewed")}</span>
             </article>
             <article className="adminCard">
               <strong>{userReports.closed ?? 0}</strong>
-              <span>Closed</span>
+              <span>{t("uiText.closed")}</span>
             </article>
             <article className="adminCard">
               <strong>{overview?.storyReports?.pending ?? 0}</strong>
-              <span>Story reports pending</span>
+              <span>{t("uiText.story_reports_pending")}</span>
             </article>
             <article className="adminCard">
               <strong>{overview?.messageReports?.pending ?? 0}</strong>
-              <span>Message reports pending</span>
+              <span>{t("uiText.message_reports_pending")}</span>
             </article>
             <article className="adminCard">
               <strong>{feedbackOverview?.new ?? 0}</strong>
-              <span>New feedback</span>
+              <span>{t("uiText.new_feedback")}</span>
             </article>
           </div>
 
@@ -87,14 +87,14 @@ export default function AdminDashboardPage() {
               className="adminBtn adminBtn--primary"
               onClick={() => navigate('/admin/feedback')}
             >
-              Open feedback
+              {t("uiText.open_feedback")}
             </button>
             <button
               type="button"
               className="adminBtn"
               onClick={() => navigate('/admin/reports')}
             >
-              Open user reports
+              {t("uiText.open_user_reports")}
             </button>
           </div>
         </>

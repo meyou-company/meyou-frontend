@@ -11,7 +11,6 @@ export function useMenuItems() {
       { id: 'edit', icon: profileIcons.pencilBlack, label: t('menu.edit') },
       { id: 'guest', icon: profileIcons.eyeBlack, label: t('menu.viewAsGuest') },
       { id: 'dark', icon: profileIcons.moonBlack, label: t('menu.darkTheme') },
-      { id: 'favorites', icon: profileIcons.heartBlack, label: t('menu.favorites') },
       { id: 'blocked', icon: profileIcons.userBlockedBlack, label: t('menu.blocked') },
       { id: 'policy', icon: profileIcons.privacyBlack, label: t('menu.privacy') },
       { id: 'account', icon: profileIcons.settingsBlack, label: t('menu.accountSettings') },

@@ -1,3 +1,5 @@
+import { i18n as translation } from "../../../i18n";
+import { useTranslation } from "react-i18next";
 import { LuArrowLeft } from 'react-icons/lu';
 
 import AppHeader from '../../Layout/AppHeader';
@@ -13,6 +15,7 @@ export default function StoryArchiveView({
   onGoVipChat,
   onGoWallet,
 }) {
+  useTranslation();
   const { items, loading, loadingMore, meta, loadMore } = useStoryArchive();
 
   return (
@@ -27,19 +30,19 @@ export default function StoryArchiveView({
 
       <main className="storyArchivePage__content">
         <div className="storyArchivePage__head">
-          <button type="button" onClick={onBack} aria-label="Back">
+          <button type="button" onClick={onBack} aria-label={translation.t("uiText.back")}>
             <LuArrowLeft aria-hidden="true" />
           </button>
           <div>
-            <h1>Stories archive</h1>
-            <p>Active and expired stories from your profile</p>
+            <h1>{translation.t("uiText.stories_archive")}</h1>
+            <p>{translation.t("uiText.active_and_expired_stories_from_your_profile")}</p>
           </div>
         </div>
 
-        {loading ? <p className="storyArchivePage__hint">Loading...</p> : null}
+        {loading ? <p className="storyArchivePage__hint">{translation.t("uiText.loading")}</p> : null}
 
         {!loading && items.length === 0 ? (
-          <p className="storyArchivePage__hint">No archived stories yet</p>
+          <p className="storyArchivePage__hint">{translation.t("uiText.no_archived_stories_yet")}</p>
         ) : null}
 
         <div className="storyArchivePage__grid">
@@ -55,7 +58,7 @@ export default function StoryArchiveView({
             disabled={loadingMore}
             onClick={loadMore}
           >
-            {loadingMore ? 'Loading...' : 'Load more'}
+            {loadingMore ? translation.t("common.loading") : translation.t("uiText.load_more")}
           </button>
         ) : null}
       </main>

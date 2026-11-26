@@ -576,7 +576,7 @@ export default function ProfilePhotosView({
               >
                 <img src={photo.url} alt="" className="profilePhotos__image" loading="lazy" />
                 {ownerVipEnabled && photo.type !== "avatar" && photo.visibility === "VIP" ? (
-                  <span className="profilePhotos__vipBadge">VIP</span>
+                  <span className="profilePhotos__vipBadge">{t("uiText.vip")}</span>
                 ) : null}
               </button>
               <button

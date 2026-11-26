@@ -72,12 +72,12 @@ export default function AdminLayout() {
 
   return (
     <div className="adminShell">
-      <aside className="adminShell__sidebar" aria-label="Admin navigation">
+      <aside className="adminShell__sidebar" aria-label={t("uiText.admin_navigation")}>
         <div className="adminShell__brand">
           <BrandLogo className="adminShell__brandMark" decorative />
           <div>
-            <strong>{BRAND_NAME} Admin</strong>
-            <small>Moderation panel</small>
+            <strong>{BRAND_NAME} {t("uiText.admin")}</strong>
+            <small>{t("uiText.moderation_panel")}</small>
           </div>
         </div>
 
@@ -108,7 +108,7 @@ export default function AdminLayout() {
           className="adminShell__backApp"
           onClick={() => navigate('/first-page')}
         >
-          ← Back to app
+          {t("uiText.back_to_app")}
         </button>
       </aside>
 

@@ -66,6 +66,8 @@ export default function ProfileHome({
   followingList,
   /** Classified friends count from connections — not following/followers totals. */
   classifiedFriendsCount,
+  friendsLoadState = "ready",
+  onRetryFriends,
   /** Відкрити профіль користувача за username (клік по аватару друга) */
   onOpenUser,
   /** Open /friends with all contact tabs */
@@ -489,7 +491,7 @@ export default function ProfileHome({
       await authApi.uploadAvatar(file);
       await refreshMe?.();
       setCropModalSrc(null);
-      toast.success("Аватар оновлено");
+      toast.success(t("profile.editForm.toast.avatarUpdated"));
     } catch (err) {
       const msg =
         err?.response?.status === 401
@@ -818,7 +820,7 @@ export default function ProfileHome({
             aria-label={t('profile.friends.titleWithCount', { count: displayFriendsCount })}
           >
             <span className="friendsTitle__label">{t('profile.friends.title')}</span>{" "}
-            <span className="friendsTitle__count">{displayFriendsCount}</span>
+            <span className="friendsTitle__count">{friendsLoadState !== "ready" && !hasFriends && classifiedFriendsCount == null ? "—" : displayFriendsCount}</span>
           </button>
 
           {hasFriends ? (
@@ -874,8 +876,18 @@ export default function ProfileHome({
                 );
               })}
             </div>
+          ) : friendsLoadState !== "ready" ? (
+            <p className="friendsEmptyMsg" role="status">
+              {friendsLoadState === "error" ? t('friends.page.loadError') : t('common.loading')}
+            </p>
           ) : (
             <p className="friendsEmptyMsg">{t('profile.friends.empty')}</p>
+          )}
+
+          {friendsLoadState === "error" && (
+            <button type="button" className="findFriendsBtn" onClick={onRetryFriends}>
+              {t('common.retry')}
+            </button>
           )}
 
           <div className="friendsActions">

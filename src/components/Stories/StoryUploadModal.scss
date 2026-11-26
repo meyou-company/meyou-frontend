@@ -738,11 +738,13 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  flex-wrap: wrap;
+  flex-direction: column;
   gap: 14px;
 }
 
 .storyUploadModal__pickFileBtn {
+  width: min(100%, 320px);
+  justify-content: center;
   border: 0;
   border-radius: 22px;
   background: linear-gradient(180deg, #fff 0%, #ddc2ff 100%);
@@ -1247,7 +1249,7 @@
 .storyUploadModal__mediaFrame--landscape .storyUploadModal__editorMedia {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
 }
 
 .storyUploadModal--editorMode {
@@ -1288,11 +1290,13 @@
 }
 
 .storyUploadModal--editorMode .storyUploadModal__mediaFrame {
-  flex: 0 1 auto;
-  width: min(100%, calc((100dvh - 240px) * 9 / 16));
-  aspect-ratio: 9 / 16;
+  background: #111;
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  aspect-ratio: auto;
   height: auto;
-  max-height: calc(100dvh - 240px);
+  max-height: none;
 }
 
 .storyUploadModal--editorMode .storyUploadModal__caption {
@@ -1300,9 +1304,37 @@
 }
 
 .storyUploadModal--editorMode .storyUploadModal__bottomActions {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 40px;
+  gap: 6px;
   flex: 0 0 auto;
   margin-top: 6px;
   padding-bottom: 8px;
+}
+
+.storyUploadModal--editorMode .storyUploadModal__audienceBtn {
+  width: 100%;
+  min-width: 0;
+  min-height: 40px;
+  height: auto;
+  padding: 6px;
+  gap: 4px;
+  font-size: 12px;
+  white-space: normal;
+}
+
+.storyUploadModal--editorMode .storyUploadModal__audienceAvatar {
+  flex: 0 0 26px;
+  width: 26px;
+  height: 26px;
+}
+
+.storyUploadModal--editorMode .storyUploadModal__closeFriendsIcon,
+.storyUploadModal--editorMode .storyUploadModal__closeFriendsIcon img {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  object-fit: contain;
 }
 
 @media (max-width: 767px) {
@@ -1331,6 +1363,263 @@
 
   .storyUploadModal--editorMode .storyUploadModal__editorTop {
     padding: 8px 12px;
+  }
+}
+
+.storyUploadModal:not(.storyUploadModal--editorMode) {
+  .storyUploadModal__page {
+    min-height: calc(100dvh - 8px);
+  }
+
+  .storyUploadModal__content {
+    width: min(540px, calc(100% - 32px));
+    padding: 12px 0 24px;
+  }
+
+  .storyUploadModal__head {
+    grid-template-columns: 36px minmax(0, 1fr) 36px;
+    min-height: 40px;
+    margin-bottom: 0;
+  }
+
+  .storyUploadModal__close {
+    width: 36px;
+    height: 36px;
+    display: grid;
+    place-items: center;
+    padding: 0;
+  }
+
+  .storyUploadModal__title {
+    font-size: 17px;
+    line-height: 1.35;
+  }
+
+  .storyUploadModal__pickOnly {
+    min-height: 0;
+    margin-top: clamp(56px, 23dvh, 180px);
+    gap: 16px;
+  }
+
+  .storyUploadModal__pickFileBtn {
+    width: min(100%, 290px);
+    min-height: 56px;
+    box-sizing: border-box;
+    padding: 12px 16px;
+    border-radius: 20px;
+    font-size: 14px;
+    line-height: 1.4;
+    gap: 10px;
+  }
+
+  .storyUploadModal__pickFileIcon {
+    flex: 0 0 28px;
+    width: 28px;
+    height: 28px;
+  }
+}
+
+.storyUploadModal--editorMode .storyUploadModal__editorTop {
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.storyUploadModal--editorMode:not(.storyUploadModal--cameraMode) .storyUploadModal__content--editor {
+  width: min(580px, calc(100% - 24px));
+}
+
+.storyUploadModal--editorMode .storyUploadModal__editorBack {
+  position: static;
+  flex: 0 0 32px;
+  width: 32px;
+  height: 36px;
+  padding: 4px;
+  display: grid;
+  place-items: center;
+}
+
+.storyUploadModal--editorMode .storyUploadModal__editorBack img {
+  width: 24px;
+  height: 24px;
+}
+
+.storyUploadModal--editorMode .storyUploadModal__editorTools {
+  gap: 8px;
+  min-width: 0;
+}
+
+.storyUploadModal--editorMode .storyUploadModal__editorTool {
+  flex: 0 0 32px;
+  width: 32px;
+  height: 32px;
+}
+
+.storyUploadModal--editorMode .storyUploadModal__editor { position: relative; }
+
+@media (min-width: 1024px) {
+  .storyUploadModal:not(.storyUploadModal--editorMode) {
+    .storyUploadModal__title { font-size: 24px; }
+    .storyUploadModal__pickFileBtn {
+      width: min(100%, 380px);
+      min-height: 64px;
+      font-size: 18px;
+      padding: 16px 20px;
+    }
+  }
+
+  .storyUploadModal--editorMode .storyUploadModal__editorTool {
+    flex-basis: 44px;
+    width: 44px;
+    height: 44px;
+    padding: 10px;
+    box-sizing: border-box;
+  }
+
+  .storyUploadModal--editorMode .storyUploadModal__editorTool img {
+    width: 22px;
+    height: 22px;
+  }
+
+  .storyUploadModal--editorMode .storyUploadModal__editorToolIcon--text {
+    font-size: 18px;
+    line-height: 1;
+  }
+
+  .storyUploadModal--editorMode .storyUploadModal__bottomActions {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 48px;
+    gap: 8px;
+  }
+
+  .storyUploadModal--editorMode .storyUploadModal__audienceBtn {
+    font-size: 16px;
+    min-height: 48px;
+    padding: 8px;
+    gap: 6px;
+  }
+
+  .storyUploadModal--editorMode .storyUploadModal__nextBtn {
+    width: 48px;
+    height: 48px;
+  }
+}
+
+.storyPhotoPanel {
+  position: absolute;
+  z-index: 30;
+  bottom: 132px;
+  left: 8px;
+  right: 8px;
+  padding: 30px 10px 12px;
+  border: 1px solid #a17be1;
+  border-radius: 8px;
+  background: #16131e;
+  color: #fff;
+  max-height: min(360px, 60dvh);
+  overflow: auto;
+
+  button { cursor: pointer; }
+  &__close { position: absolute; top: 4px; right: 4px; border: 0; background: transparent; color: #fff; width: 28px; height: 28px; display: grid; place-items: center; }
+  &__filters {
+    display: flex;
+    gap: 12px;
+    overflow-x: auto;
+    padding: 8px 4px;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    cursor: grab;
+    user-select: none;
+    touch-action: pan-x;
+    overscroll-behavior-x: contain;
+    &::-webkit-scrollbar { display: none; }
+    &.is-dragging,
+    &.is-dragging button { cursor: grabbing; }
+  }
+  &__filters button { flex: 0 0 auto; min-width: 64px; width: max-content; padding: 4px 2px; border: 0; background: transparent; color: #fff; font-size: 11px; white-space: nowrap; overflow-wrap: normal; }
+  &__filters button > span { display: block; width: 48px; height: 48px; border-radius: 50%; border: 2px solid #fff; margin: 0 auto 6px; }
+  &__filters button[aria-pressed="true"] > span { outline: 3px solid #ff46ad; outline-offset: 2px; }
+  &__intensity { display: flex; gap: 8px; align-items: center; font-size: 12px; margin-top: 8px; }
+  &__intensity input { flex: 1; min-width: 0; accent-color: #ff46ad; }
+  &__intensity output { width: 36px; }
+}
+
+.storyPhotoPanel--emoji {
+  left: auto;
+  width: min(320px, calc(100% - 16px));
+  padding: 28px 6px 6px;
+  scrollbar-width: none;
+  &::-webkit-scrollbar { display: none; }
+  .EmojiPickerReact,
+  .EmojiPickerReact * {
+    scrollbar-width: none;
+    &::-webkit-scrollbar { display: none; }
+  }
+
+  .EmojiPickerReact {
+    --epr-emoji-size: 26px;
+    --epr-emoji-padding: 5px;
+    --epr-header-padding: 6px;
+    --epr-category-label-height: 24px;
+    --epr-category-label-padding: 0 8px;
+    --epr-category-label-text-size: 11px;
+    --epr-search-input-height: 32px;
+    --epr-search-input-text-size: 12px;
+    border: 0;
+  }
+}
+
+.storyPhotoSticker {
+  position: absolute;
+  z-index: 7;
+  transform: translate(-50%, -50%);
+  border: 1px solid transparent;
+  background: transparent;
+  padding: 0;
+  line-height: 1;
+  font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif;
+  touch-action: none;
+  cursor: grab;
+  &.is-selected { border-color: #fff; }
+}
+
+.storyPhotoStickerTools {
+  position: absolute;
+  bottom: 132px;
+  left: 12px;
+  right: 12px;
+  z-index: 25;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px;
+  border-radius: 8px;
+  background: #16131ee6;
+  input { flex: 1; min-width: 0; accent-color: #ff46ad; }
+  button { width: 32px; height: 32px; border: 0; background: transparent; color: #fff; display: grid; place-items: center; }
+}
+
+@media (max-width: 480px) {
+  .storyUploadModal--editorMode .storyUploadModal__bottomActions {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 40px;
+    gap: 6px;
+  }
+
+  .storyUploadModal--editorMode .storyUploadModal__audienceBtn {
+    width: 100%;
+    min-width: 0;
+    min-height: 40px;
+    font-size: 11px;
+    padding: 6px;
+    gap: 4px;
+  }
+
+  .storyUploadModal--editorMode .storyUploadModal__closeFriendsIcon,
+  .storyUploadModal--editorMode .storyUploadModal__closeFriendsIcon img {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+    object-fit: contain;
   }
 }
 
