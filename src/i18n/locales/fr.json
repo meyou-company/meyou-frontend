@@ -1251,16 +1251,25 @@
     "GIFTS_PAYMENT_NOT_AVAILABLE": "Les paiements de cadeaux ne sont pas encore disponibles.",
     "GIFTS_INVALID_GIFT_ID": "Cadeau inconnu.",
     "CANNOT_SEND_GIFT_TO_SELF": "Vous ne pouvez pas vous envoyer un cadeau.",
-    "LUNA_DAILY_LIMIT": "La limite quotidienne de messages de Lun est atteinte. Réessaie demain.",
-    "LUNA_MONTHLY_LIMIT": "La limite mensuelle de messages de Lun est atteinte.",
-    "LUNA_BUDGET_EXCEEDED": "Lun est temporairement indisponible : le budget IA de la plateforme pour ce mois est épuisé.",
+    "LUNA_DAILY_LIMIT": "Vous avez atteint votre limite quotidienne de messages. Réessayez après sa réinitialisation.",
+    "LUNA_MONTHLY_LIMIT": "Vous avez atteint votre limite mensuelle d’utilisation de Luna.",
+    "LUNA_BUDGET_EXCEEDED": "Luna est temporairement indisponible. Nous travaillons à rétablir le service. Réessayez plus tard.",
     "LUNA_BUSY": "Lun est déjà en train de répondre. Patiente un instant.",
     "LUNA_MEDIA_UNAVAILABLE": "Les photos et la voix nécessitent une IA connectée.",
     "LUNA_IMAGE_INVALID": "Envoyez un JPEG, PNG ou WebP de 4 Mo maximum.",
     "LUNA_IMAGE_TOO_LARGE": "Photo trop lourde. Maximum 4 Mo.",
     "LUNA_AUDIO_INVALID": "Enregistrement inutilisable. Vérifiez le micro.",
     "LUNA_AUDIO_TOO_LONG": "Les messages vocaux durent 60 secondes maximum.",
-    "LUNA_CONVERSATION_NOT_FOUND": "Cette conversation Lun est introuvable."
+    "LUNA_CONVERSATION_NOT_FOUND": "Cette conversation Lun est introuvable.",
+    "LUNA_OPENAI_INSUFFICIENT_QUOTA": "Luna est temporairement indisponible. Nous travaillons à rétablir le service. Réessayez plus tard.",
+    "LUNA_OPENAI_RATE_LIMIT": "Trop de requêtes. Veuillez patienter un instant puis réessayer.",
+    "LUNA_OPENAI_CONFIG_ERROR": "Luna est temporairement indisponible. Réessayez plus tard.",
+    "LUNA_AI_UNAVAILABLE": "Luna n’a pas pu répondre à votre demande. Réessayez plus tard.",
+    "LUNA_NETWORK_ERROR": "Impossible de joindre Luna. Vérifiez votre connexion Internet.",
+    "LUNA_TIMEOUT": "Luna n’a pas répondu à temps. Réessayez plus tard.",
+    "LUNA_UPLOAD_FAILED": "Impossible d’envoyer l’image. Réessayez.",
+    "LUNA_MESSAGE_SAVE_FAILED": "Impossible d’enregistrer le message. Réessayez.",
+    "LUNA_REQUEST_IN_PROGRESS": "Cette requête est déjà en cours de traitement."
   },
   "gifts": {
     "title": "Cadeaux",
@@ -1929,7 +1938,8 @@
     "newChatConfirm": "Nouvelle discussion",
     "cancel": "Annuler",
     "historyEmpty": "Pas encore d’autres discussions",
-    "confirming": "Patientez…"
+    "confirming": "Patientez…",
+    "quotaRestored": "Votre limite n’a pas été consommée."
   },
   "lunmeyo": {
     "tabs": {

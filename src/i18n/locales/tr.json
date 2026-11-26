@@ -1251,16 +1251,25 @@
     "GIFTS_PAYMENT_NOT_AVAILABLE": "Hediye ödemeleri henüz kullanılamıyor.",
     "GIFTS_INVALID_GIFT_ID": "Bilinmeyen hediye.",
     "CANNOT_SEND_GIFT_TO_SELF": "Kendinize hediye gönderemezsiniz.",
-    "LUNA_DAILY_LIMIT": "Lun günlük mesaj sınırına ulaşıldı. Yarın tekrar dene.",
-    "LUNA_MONTHLY_LIMIT": "Lun aylık mesaj sınırına ulaşıldı.",
-    "LUNA_BUDGET_EXCEEDED": "Lun geçici olarak kullanılamıyor: platformun bu ayki yapay zeka bütçesi doldu.",
+    "LUNA_DAILY_LIMIT": "Günlük mesaj limitinizi kullandınız. Sıfırlandıktan sonra tekrar deneyin.",
+    "LUNA_MONTHLY_LIMIT": "Aylık Luna kullanım limitinize ulaştınız.",
+    "LUNA_BUDGET_EXCEEDED": "Luna geçici olarak kullanılamıyor. Hizmeti yeniden sağlamak için çalışıyoruz. Lütfen sonra tekrar deneyin.",
     "LUNA_BUSY": "Lun zaten yanıtlıyor. Lütfen biraz bekle.",
     "LUNA_MEDIA_UNAVAILABLE": "Fotoğraf ve ses için bağlı bir yapay zekâ gerekir.",
     "LUNA_IMAGE_INVALID": "En fazla 4 MB JPEG, PNG veya WebP gönder.",
     "LUNA_IMAGE_TOO_LARGE": "Fotoğraf çok büyük. Azami 4 MB.",
     "LUNA_AUDIO_INVALID": "Kayıt kullanılamadı. Mikrofon iznini kontrol et.",
     "LUNA_AUDIO_TOO_LONG": "Sesli mesaj en fazla 60 saniye olabilir.",
-    "LUNA_CONVERSATION_NOT_FOUND": "Bu Lun sohbeti bulunamadı."
+    "LUNA_CONVERSATION_NOT_FOUND": "Bu Lun sohbeti bulunamadı.",
+    "LUNA_OPENAI_INSUFFICIENT_QUOTA": "Luna geçici olarak kullanılamıyor. Hizmeti yeniden sağlamak için çalışıyoruz. Lütfen sonra tekrar deneyin.",
+    "LUNA_OPENAI_RATE_LIMIT": "Çok fazla istek. Lütfen biraz bekleyip tekrar deneyin.",
+    "LUNA_OPENAI_CONFIG_ERROR": "Luna geçici olarak kullanılamıyor. Lütfen sonra tekrar deneyin.",
+    "LUNA_AI_UNAVAILABLE": "Luna isteğinize yanıt veremedi. Lütfen sonra tekrar deneyin.",
+    "LUNA_NETWORK_ERROR": "Luna’ya bağlanılamadı. İnternet bağlantınızı kontrol edin.",
+    "LUNA_TIMEOUT": "Luna zamanında yanıt veremedi. Lütfen sonra tekrar deneyin.",
+    "LUNA_UPLOAD_FAILED": "Görsel yüklenemedi. Lütfen tekrar deneyin.",
+    "LUNA_MESSAGE_SAVE_FAILED": "Mesaj kaydedilemedi. Lütfen tekrar deneyin.",
+    "LUNA_REQUEST_IN_PROGRESS": "Bu istek zaten işleniyor."
   },
   "gifts": {
     "title": "Hediyeler",
@@ -1929,7 +1938,8 @@
     "newChatConfirm": "Yeni sohbet",
     "cancel": "İptal",
     "historyEmpty": "Henüz başka sohbet yok",
-    "confirming": "Lütfen bekle…"
+    "confirming": "Lütfen bekle…",
+    "quotaRestored": "Limitiniz harcanmadı."
   },
   "lunmeyo": {
     "tabs": {

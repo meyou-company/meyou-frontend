@@ -60,3 +60,54 @@ describe('getApiErrorMessage — upload / rate limit', () => {
     expect(message).toMatch(/connect/i);
   });
 });
+
+describe('getApiErrorMessage — Luna errors', () => {
+  beforeAll(() => {
+    initI18n('uk');
+  });
+
+  it('maps Luna OpenAI rate limit with retry metadata', async () => {
+    const { getLunaErrorMeta, isLunaRetryAllowed, getApiErrorMessage } = await import(
+      './getApiErrorMessage.js'
+    );
+    const err = {
+      response: {
+        data: {
+          code: 'LUNA_OPENAI_RATE_LIMIT',
+          details: { retryable: true, retryAfterSeconds: 5 },
+        },
+      },
+    };
+    expect(getLunaErrorMeta(err).retryable).toBe(true);
+    expect(isLunaRetryAllowed(err)).toBe(true);
+    const message = getApiErrorMessage(err);
+    expect(message).toMatch(/запит/i);
+  });
+
+  it('hides retry for platform budget exhaustion', async () => {
+    const { isLunaRetryAllowed } = await import('./getApiErrorMessage.js');
+    const err = {
+      response: {
+        data: {
+          code: 'LUNA_OPENAI_INSUFFICIENT_QUOTA',
+          details: { retryable: false, quotaRestored: true },
+        },
+      },
+    };
+    expect(isLunaRetryAllowed(err)).toBe(false);
+  });
+
+  it('does not leak raw provider errors in the message', () => {
+    const err = {
+      response: {
+        data: {
+          code: 'LUNA_AI_UNAVAILABLE',
+          message: 'OpenAI 503: insufficient_quota internal trace',
+        },
+      },
+    };
+    const message = getApiErrorMessage(err);
+    expect(message).not.toMatch(/trace/i);
+    expect(message).not.toMatch(/OpenAI/i);
+  });
+});

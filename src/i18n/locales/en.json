@@ -1568,16 +1568,25 @@
     "GIFTS_PAYMENT_NOT_AVAILABLE": "Gift payments are not available yet.",
     "GIFTS_INVALID_GIFT_ID": "Unknown gift.",
     "CANNOT_SEND_GIFT_TO_SELF": "You cannot send a gift to yourself.",
-    "LUNA_DAILY_LIMIT": "Lun’s daily message limit has been reached. Try again tomorrow.",
-    "LUNA_MONTHLY_LIMIT": "Lun’s monthly message limit has been reached.",
-    "LUNA_BUDGET_EXCEEDED": "Lun is temporarily unavailable because the platform AI budget for this month is used up.",
+    "LUNA_DAILY_LIMIT": "You have used your daily message limit. Try again after it resets.",
+    "LUNA_MONTHLY_LIMIT": "You have reached your monthly Luna usage limit.",
+    "LUNA_BUDGET_EXCEEDED": "Luna is temporarily unavailable. We are working to restore it. Please try again later.",
     "LUNA_BUSY": "Lun is already answering. Please wait a moment.",
     "LUNA_MEDIA_UNAVAILABLE": "Photos and voice need a live AI connection.",
     "LUNA_IMAGE_INVALID": "Use a JPEG, PNG, or WebP photo up to 4 MB.",
     "LUNA_IMAGE_TOO_LARGE": "That photo is too large. Use a file up to 4 MB.",
     "LUNA_AUDIO_INVALID": "Could not use that recording. Check the microphone permission and try again.",
     "LUNA_AUDIO_TOO_LONG": "Voice notes can be at most 60 seconds.",
-    "LUNA_CONVERSATION_NOT_FOUND": "This Lun conversation was not found."
+    "LUNA_CONVERSATION_NOT_FOUND": "This Lun conversation was not found.",
+    "LUNA_OPENAI_INSUFFICIENT_QUOTA": "Luna is temporarily unavailable. We are working to restore it. Please try again later.",
+    "LUNA_OPENAI_RATE_LIMIT": "Too many requests. Please wait a moment and try again.",
+    "LUNA_OPENAI_CONFIG_ERROR": "Luna is temporarily unavailable. Please try again later.",
+    "LUNA_AI_UNAVAILABLE": "Luna could not respond to your request. Please try again later.",
+    "LUNA_NETWORK_ERROR": "Could not reach Luna. Check your internet connection.",
+    "LUNA_TIMEOUT": "Luna did not respond in time. Please try again later.",
+    "LUNA_UPLOAD_FAILED": "Could not upload the image. Please try again.",
+    "LUNA_MESSAGE_SAVE_FAILED": "Could not save your message. Please try again.",
+    "LUNA_REQUEST_IN_PROGRESS": "This request is already being processed."
   },
   "gifts": {
     "title": "Gifts",
@@ -2250,7 +2259,8 @@
     "newChatConfirm": "Start new chat",
     "cancel": "Cancel",
     "historyEmpty": "No other chats yet",
-    "confirming": "Working…"
+    "confirming": "Working…",
+    "quotaRestored": "Your limit was not spent."
   },
   "lunmeyo": {
     "tabs": {

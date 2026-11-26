@@ -886,6 +886,31 @@ body.dark .lunaMenu__item--danger:focus-visible {
   opacity: 0.5;
 }
 
+.lunaSystemError {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  width: 100%;
+  max-width: min(92%, 480px);
+  align-self: flex-start;
+}
+
+.lunaBubble--system {
+  background: color-mix(in srgb, var(--luna-assistant-bg, #2d1b4e) 88%, transparent);
+  color: var(--luna-assistant-text, #f3e8ff);
+  font-size: 0.92rem;
+  line-height: 1.45;
+  border: 1px solid color-mix(in srgb, #e9d5ff 22%, transparent);
+}
+
+.lunaSystemError__note {
+  display: block;
+  margin-top: 6px;
+  font-size: 0.85rem;
+  opacity: 0.92;
+}
+
 .lunaRetry {
   align-self: flex-end;
   border: 0;
@@ -893,6 +918,11 @@ body.dark .lunaMenu__item--danger:focus-visible {
   color: #e9d5ff;
   cursor: pointer;
   font-weight: 700;
+}
+
+.lunaRetry:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
 }
 
 @keyframes lunaFabHello {
