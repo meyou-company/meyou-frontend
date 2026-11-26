@@ -1230,16 +1230,25 @@
     "GIFTS_PAYMENT_NOT_AVAILABLE": "دفع الهدايا غير متاح بعد.",
     "GIFTS_INVALID_GIFT_ID": "هدية غير معروفة.",
     "CANNOT_SEND_GIFT_TO_SELF": "لا يمكنك إرسال هدية لنفسك.",
-    "LUNA_DAILY_LIMIT": "تم بلوغ الحد اليومي لرسائل لون. حاول غداً.",
-    "LUNA_MONTHLY_LIMIT": "تم بلوغ الحد الشهري لرسائل لون.",
-    "LUNA_BUDGET_EXCEEDED": "لون غير متاحة مؤقتاً لأن ميزانية الذكاء الاصطناعي للمنصة لهذا الشهر استُنفدت.",
+    "LUNA_DAILY_LIMIT": "لقد استخدمت حد الرسائل اليومي. حاول مرة أخرى بعد إعادة التعيين.",
+    "LUNA_MONTHLY_LIMIT": "لقد وصلت إلى حد الاستخدام الشهري لـ Luna.",
+    "LUNA_BUDGET_EXCEEDED": "Luna غير متاحة مؤقتًا. نعمل على استعادة الخدمة. حاول لاحقًا.",
     "LUNA_BUSY": "لون تجيب الآن. انتظر لحظة.",
     "LUNA_MEDIA_UNAVAILABLE": "الصور والصوت يحتاجان إلى ذكاء اصطناعي متصل.",
     "LUNA_IMAGE_INVALID": "أرسل صورة JPEG أو PNG أو WebP حتى 4 ميجابايت.",
     "LUNA_IMAGE_TOO_LARGE": "الصورة كبيرة جداً. الحد 4 ميجابايت.",
     "LUNA_AUDIO_INVALID": "تعذر استخدام التسجيل. تحقق من إذن الميكروفون.",
     "LUNA_AUDIO_TOO_LONG": "الرسالة الصوتية حتى 60 ثانية.",
-    "LUNA_CONVERSATION_NOT_FOUND": "لم يتم العثور على محادثة لون هذه."
+    "LUNA_CONVERSATION_NOT_FOUND": "لم يتم العثور على محادثة لون هذه.",
+    "LUNA_OPENAI_INSUFFICIENT_QUOTA": "Luna غير متاحة مؤقتًا. نعمل على استعادة الخدمة. حاول لاحقًا.",
+    "LUNA_OPENAI_RATE_LIMIT": "طلبات كثيرة جدًا. انتظر قليلًا ثم حاول مرة أخرى.",
+    "LUNA_OPENAI_CONFIG_ERROR": "Luna غير متاحة مؤقتًا. حاول لاحقًا.",
+    "LUNA_AI_UNAVAILABLE": "تعذر على Luna الرد على طلبك. حاول لاحقًا.",
+    "LUNA_NETWORK_ERROR": "تعذر الاتصال بـ Luna. تحقق من اتصالك بالإنترنت.",
+    "LUNA_TIMEOUT": "لم تستجب Luna في الوقت المناسب. حاول لاحقًا.",
+    "LUNA_UPLOAD_FAILED": "تعذر رفع الصورة. حاول مرة أخرى.",
+    "LUNA_MESSAGE_SAVE_FAILED": "تعذر حفظ الرسالة. حاول مرة أخرى.",
+    "LUNA_REQUEST_IN_PROGRESS": "يتم معالجة هذا الطلب بالفعل."
   },
   "gifts": {
     "title": "الهدايا",
@@ -1715,7 +1724,8 @@
     "newChatConfirm": "محادثة جديدة",
     "cancel": "إلغاء",
     "historyEmpty": "لا توجد محادثات أخرى بعد",
-    "confirming": "يرجى الانتظار…"
+    "confirming": "يرجى الانتظار…",
+    "quotaRestored": "لم يتم خصم حدك."
   },
   "lunmeyo": {
     "tabs": {

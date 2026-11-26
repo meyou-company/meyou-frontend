@@ -1251,16 +1251,25 @@
     "GIFTS_PAYMENT_NOT_AVAILABLE": "Los pagos de regalos aún no están disponibles.",
     "GIFTS_INVALID_GIFT_ID": "Regalo desconocido.",
     "CANNOT_SEND_GIFT_TO_SELF": "No puedes enviarte un regalo a ti mismo.",
-    "LUNA_DAILY_LIMIT": "Se alcanzó el límite diario de mensajes de Lun. Prueba mañana.",
-    "LUNA_MONTHLY_LIMIT": "Se alcanzó el límite mensual de mensajes de Lun.",
-    "LUNA_BUDGET_EXCEEDED": "Lun no está disponible: se agotó el presupuesto de IA de la plataforma este mes.",
+    "LUNA_DAILY_LIMIT": "Has usado tu límite diario de mensajes. Inténtalo de nuevo cuando se reinicie.",
+    "LUNA_MONTHLY_LIMIT": "Has alcanzado tu límite mensual de uso de Luna.",
+    "LUNA_BUDGET_EXCEEDED": "Luna no está disponible temporalmente. Estamos trabajando para restablecerla. Inténtalo más tarde.",
     "LUNA_BUSY": "Lun ya está respondiendo. Espera un momento.",
     "LUNA_MEDIA_UNAVAILABLE": "Fotos y voz requieren una IA conectada.",
     "LUNA_IMAGE_INVALID": "Envía JPEG, PNG o WebP de hasta 4 MB.",
     "LUNA_IMAGE_TOO_LARGE": "La foto es demasiado grande. Máximo 4 MB.",
     "LUNA_AUDIO_INVALID": "No se pudo usar la grabación. Revisa el micrófono.",
     "LUNA_AUDIO_TOO_LONG": "Los audios duran como máximo 60 segundos.",
-    "LUNA_CONVERSATION_NOT_FOUND": "No se encontró esta conversación de Lun."
+    "LUNA_CONVERSATION_NOT_FOUND": "No se encontró esta conversación de Lun.",
+    "LUNA_OPENAI_INSUFFICIENT_QUOTA": "Luna no está disponible temporalmente. Estamos trabajando para restablecerla. Inténtalo más tarde.",
+    "LUNA_OPENAI_RATE_LIMIT": "Demasiadas solicitudes. Espera un momento e inténtalo de nuevo.",
+    "LUNA_OPENAI_CONFIG_ERROR": "Luna no está disponible temporalmente. Inténtalo más tarde.",
+    "LUNA_AI_UNAVAILABLE": "Luna no pudo responder a tu solicitud. Inténtalo más tarde.",
+    "LUNA_NETWORK_ERROR": "No se pudo conectar con Luna. Comprueba tu conexión a Internet.",
+    "LUNA_TIMEOUT": "Luna no respondió a tiempo. Inténtalo más tarde.",
+    "LUNA_UPLOAD_FAILED": "No se pudo subir la imagen. Inténtalo de nuevo.",
+    "LUNA_MESSAGE_SAVE_FAILED": "No se pudo guardar el mensaje. Inténtalo de nuevo.",
+    "LUNA_REQUEST_IN_PROGRESS": "Esta solicitud ya se está procesando."
   },
   "gifts": {
     "title": "Regalos",
@@ -1929,7 +1938,8 @@
     "newChatConfirm": "Chat nuevo",
     "cancel": "Cancelar",
     "historyEmpty": "Aún no hay otros chats",
-    "confirming": "Espera…"
+    "confirming": "Espera…",
+    "quotaRestored": "Tu límite no se consumió."
   },
   "lunmeyo": {
     "tabs": {

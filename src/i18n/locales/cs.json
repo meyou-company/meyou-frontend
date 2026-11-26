@@ -1251,16 +1251,25 @@
     "GIFTS_PAYMENT_NOT_AVAILABLE": "Platby za dárky zatím nejsou dostupné.",
     "GIFTS_INVALID_GIFT_ID": "Neznámý dárek.",
     "CANNOT_SEND_GIFT_TO_SELF": "Nemůžete poslat dárek sami sobě.",
-    "LUNA_DAILY_LIMIT": "Denní limit zpráv Luny je vyčerpaný. Zkus to zítra.",
-    "LUNA_MONTHLY_LIMIT": "Měsíční limit zpráv Luny je vyčerpaný.",
-    "LUNA_BUDGET_EXCEEDED": "Luna je dočasně nedostupná: měsíční AI rozpočet platformy je vyčerpaný.",
+    "LUNA_DAILY_LIMIT": "Vyčerpali jste denní limit zpráv. Zkuste to znovu po jeho obnovení.",
+    "LUNA_MONTHLY_LIMIT": "Dosáhli jste měsíčního limitu použití Luny.",
+    "LUNA_BUDGET_EXCEEDED": "Luna je dočasně nedostupná. Pracujeme na obnovení. Zkuste to později.",
     "LUNA_BUSY": "Luna právě odpovídá. Počkej chvilku.",
     "LUNA_MEDIA_UNAVAILABLE": "Fotky a hlas vyžadují zapojenou AI.",
     "LUNA_IMAGE_INVALID": "Pošlete JPEG, PNG nebo WebP do 4 MB.",
     "LUNA_IMAGE_TOO_LARGE": "Fotka je moc velká. Maximum 4 MB.",
     "LUNA_AUDIO_INVALID": "Nahrávku nelze použít. Zkontrolujte oprávnění mikrofonu.",
     "LUNA_AUDIO_TOO_LONG": "Hlasová zpráva může trvat nejvýše 60 sekund.",
-    "LUNA_CONVERSATION_NOT_FOUND": "Tento chat Luny se nenašel."
+    "LUNA_CONVERSATION_NOT_FOUND": "Tento chat Luny se nenašel.",
+    "LUNA_OPENAI_INSUFFICIENT_QUOTA": "Luna je dočasně nedostupná. Pracujeme na obnovení. Zkuste to později.",
+    "LUNA_OPENAI_RATE_LIMIT": "Příliš mnoho požadavků. Chvíli počkejte a zkuste to znovu.",
+    "LUNA_OPENAI_CONFIG_ERROR": "Luna je dočasně nedostupná. Zkuste to později.",
+    "LUNA_AI_UNAVAILABLE": "Luna nemohla odpovědět na váš požadavek. Zkuste to později.",
+    "LUNA_NETWORK_ERROR": "Nepodařilo se připojit k Luně. Zkontrolujte připojení k internetu.",
+    "LUNA_TIMEOUT": "Luna nestihla včas odpovědět. Zkuste to později.",
+    "LUNA_UPLOAD_FAILED": "Obrázek se nepodařilo nahrát. Zkuste to znovu.",
+    "LUNA_MESSAGE_SAVE_FAILED": "Zprávu se nepodařilo uložit. Zkuste to znovu.",
+    "LUNA_REQUEST_IN_PROGRESS": "Tento požadavek se již zpracovává."
   },
   "gifts": {
     "title": "Dárky",
@@ -1932,7 +1941,8 @@
     "newChatConfirm": "Nový chat",
     "cancel": "Zrušit",
     "historyEmpty": "Zatím žádné další chaty",
-    "confirming": "Čekejte…"
+    "confirming": "Čekejte…",
+    "quotaRestored": "Váš limit nebyl spotřebován."
   },
   "lunmeyo": {
     "tabs": {

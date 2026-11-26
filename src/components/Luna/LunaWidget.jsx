@@ -29,7 +29,10 @@ import {
   normalizeLunaAppearance,
   prefersReducedMotion,
 } from "../../utils/lunaAssets";
-import { getApiErrorMessage } from "../../utils/getApiErrorMessage";
+import {
+  getApiErrorMessage,
+  isLunaRetryAllowed,
+} from "../../utils/getApiErrorMessage";
 import { lunaMarkdownToHtml } from "../../utils/lunaMarkdown";
 import { lunaApi } from "../../services/lunaApi";
 import {
@@ -221,6 +224,7 @@ function LunaThread({ paused }) {
   const messages = useLunaStore((s) => s.messages);
   const sending = useLunaStore((s) => s.sending);
   const error = useLunaStore((s) => s.error);
+  const errorMeta = useLunaStore((s) => s.errorMeta);
   const send = useLunaStore((s) => s.send);
   const retry = useLunaStore((s) => s.retry);
   const greetingPlayed = useLunaStore((s) => s.greetingPlayed);
@@ -549,11 +553,6 @@ function LunaThread({ paused }) {
                 />
               ) : null}
               <LunaMessageBody msg={msg} />
-              {msg.failed ? (
-                <button type="button" className="lunaRetry" onClick={() => void retry()}>
-                  {t("luna.retry")}
-                </button>
-              ) : null}
             </div>
           ))
         )}
@@ -564,9 +563,24 @@ function LunaThread({ paused }) {
           </div>
         ) : null}
         {error ? (
-          <button type="button" className="lunaRetry" onClick={() => void retry()}>
-            {getApiErrorMessage(error, "luna.error")}
-          </button>
+          <div className="lunaSystemError" role="alert" aria-live="polite">
+            <p className="lunaBubble lunaBubble--system">
+              {getApiErrorMessage(error, "luna.error")}
+              {errorMeta?.quotaRestored ? (
+                <span className="lunaSystemError__note">{t("luna.quotaRestored")}</span>
+              ) : null}
+            </p>
+            {isLunaRetryAllowed(error) ? (
+              <button
+                type="button"
+                className="lunaRetry"
+                disabled={sending}
+                onClick={() => void retry()}
+              >
+                {t("luna.retry")}
+              </button>
+            ) : null}
+          </div>
         ) : null}
       </div>
       {photoUrl ? (
