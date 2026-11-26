@@ -32,3 +32,25 @@ Set `VITE_APP_RELEASE` in Vercel build env to git SHA.
 ## UptimeRobot
 
 Monitor `https://lunmeyo.com` (or production SPA URL) HTTP 200.
+
+## Sentry troubleshooting (frontend)
+
+**Vercel (build-time, not runtime):**
+
+- Names must be `VITE_SENTRY_ENABLED` and `VITE_SENTRY_DSN` (not `SENTRY_DSN`).
+- `VITE_SENTRY_ENABLED` must be the string `true` (lowercase).
+- Apply to **Production**, then **Redeploy**.
+
+**Verify DSN is baked in:** production `assets/index-*.js` should contain your EU ingest host (e.g. `ingest.de.sentry.io`). If absent, SDK never initializes.
+
+**Manual smoke (one shot, after DSN in bundle):** DevTools Console on `https://lunmeyo.com`:
+
+```javascript
+window.dispatchEvent(
+  new ErrorEvent('error', { error: new Error('LUNMEYO_SENTRY_SMOKE') }),
+);
+```
+
+Check Network for POST to `ingest…sentry.io`. Plain `throw new Error(...)` in the Console often does not reach page handlers.
+
+**Local pipeline check:** `npm run test:sentry-smoke` (dry). Live: `SENTRY_SMOKE_DSN=<EU DSN> npm run test:sentry-smoke`.

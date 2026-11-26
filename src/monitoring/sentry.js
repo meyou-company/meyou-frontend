@@ -45,12 +45,16 @@ export function initClientMonitoring() {
     maxBreadcrumbs: 15,
     defaultIntegrations: false,
     integrations: [
+      Sentry.globalHandlersIntegration(),
       Sentry.inboundFiltersIntegration(),
       Sentry.functionToStringIntegration(),
       Sentry.linkedErrorsIntegration(),
       Sentry.dedupeIntegration(),
     ],
     beforeSend(event) {
+      if (!event.tags?.error_source && event.exception) {
+        event.tags = { ...(event.tags ?? {}), error_source: 'global' };
+      }
       const status = event.tags?.api_status;
       const code = event.tags?.api_code;
       if (
@@ -83,23 +87,13 @@ export function initClientMonitoring() {
   active = true;
 }
 
-export function captureReactError(error, componentStack) {
+export function captureReactError(error, _componentStack) {
   if (!isSentryEnabled()) return null;
   Sentry.withScope((scope) => {
     scope.setTag('error_source', 'react_boundary');
     Sentry.captureException(error);
   });
   return Sentry.lastEventId();
-}
-
-export function captureUnhandledError(error) {
-  if (!isSentryEnabled()) return;
-  if (error?.__sentryCaptured) return;
-  error.__sentryCaptured = true;
-  Sentry.withScope((scope) => {
-    scope.setTag('error_source', 'global');
-    Sentry.captureException(error);
-  });
 }
 
 export function captureApiServerError(meta) {
@@ -118,21 +112,6 @@ export function captureApiServerError(meta) {
     if (code) scope.setTag('api_code', String(code).slice(0, 64));
     if (method) scope.setTag('http_method', method.slice(0, 8));
     Sentry.captureMessage(`API ${status}`, 'error');
-  });
-}
-
-export function registerGlobalErrorHandlers() {
-  if (!isSentryEnabled()) return;
-  window.addEventListener('error', (event) => {
-    if (event.error) captureUnhandledError(event.error);
-  });
-  window.addEventListener('unhandledrejection', (event) => {
-    const reason = event.reason;
-    if (reason instanceof Error) {
-      captureUnhandledError(reason);
-    } else if (reason != null) {
-      captureUnhandledError(new Error(String(reason).slice(0, 200)));
-    }
   });
 }
 
