@@ -86,6 +86,8 @@ export default function StoryUploadModal({ isOpen, onClose, onCreated }) {
   const inputRef = useRef(null);
   const visibilityWrapRef = useRef(null);
   const mediaFrameRef = useRef(null);
+  const photoPanelRef = useRef(null);
+  const filterToggleRef = useRef(null);
   const filterDragRef = useRef(null);
   const suppressFilterClickRef = useRef(false);
   const [fileItem, setFileItem] = useState(null);
@@ -108,6 +110,16 @@ export default function StoryUploadModal({ isOpen, onClose, onCreated }) {
   const [filterId, setFilterId] = useState("natural");
   const [filterIntensity, setFilterIntensity] = useState(0);
   const photoFilter = useStoryPhotoFilter(fileItem, filterId, filterIntensity);
+
+  useEffect(() => {
+    if (!isOpen || photoPanel !== "filters") return;
+    const closeOutside = (event) => {
+      if (photoPanelRef.current?.contains(event.target) || filterToggleRef.current?.contains(event.target)) return;
+      setPhotoPanel(null);
+    };
+    document.addEventListener("pointerdown", closeOutside, true);
+    return () => document.removeEventListener("pointerdown", closeOutside, true);
+  }, [isOpen, photoPanel]);
 
   const currentUser = useAuthStore((s) => s.user);
   const currentUserAvatar =
@@ -527,6 +539,7 @@ export default function StoryUploadModal({ isOpen, onClose, onCreated }) {
                       type="button"
                       className="storyUploadModal__editorTool"
                       aria-label={t("storyCamera.filters")}
+                      ref={filterToggleRef}
                       title={t("storyCamera.filters")}
                       disabled={fileItem.type !== "image" || isPublishing}
                       aria-pressed={photoPanel === "filters"}
@@ -617,7 +630,7 @@ export default function StoryUploadModal({ isOpen, onClose, onCreated }) {
                 </div>
               </div>
 
-              {photoPanel && <div className={`storyPhotoPanel storyPhotoPanel--${photoPanel}`}>
+              {photoPanel && <div ref={photoPanelRef} className={`storyPhotoPanel storyPhotoPanel--${photoPanel}`}>
                 <button className="storyPhotoPanel__close" type="button" aria-label={t("common.close")} onClick={() => setPhotoPanel(null)}><LuX /></button>
                 {photoPanel === "emoji" ? <EmojiPicker width="100%" height={240} theme="dark" emojiStyle={EmojiStyle.NATIVE} previewConfig={{showPreview:false}} skinTonesDisabled autoFocusSearch={false} searchPlaceholder={t("common.search")} lazyLoadEmojis onEmojiClick={({emoji}) => {
                   const id = crypto.randomUUID();

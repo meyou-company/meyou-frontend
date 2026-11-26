@@ -2097,11 +2097,12 @@ export default function StoryViewerModal({
             ))}
           </div>
 
+          <div className="storyViewer__header">
           <button className="storyViewer__author" onClick={handleOpenAuthorProfile}>
             <img src={authorAvatar} alt="" />
             <div className="storyViewer__authorText">
               <div>
-                <span className="storyViewer__authorName">{getAuthorName(author)}</span>
+                <span className="storyViewer__authorName" title={getAuthorName(author)}>{getAuthorName(author)}</span>
                 <span className="storyViewer__time">{getStoryTimeLabel(currentStory)}</span>
               </div>
               {/* <span className="storyViewer__music">♫ random music</span> */}
@@ -2143,6 +2144,8 @@ export default function StoryViewerModal({
                 ⋮
               </button>
             ) : null}
+          </div>
+
           </div>
 
           {isMenuOpen && !readOnly && !isOwnStory && (

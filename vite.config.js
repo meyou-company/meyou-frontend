@@ -1,5 +1,7 @@
 import { defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react';
+import { Agent } from 'node:https';
+import * as tls from 'node:tls';
 import { snapshotSentryBuildEnv } from './scripts/sentry-env-snapshot.mjs';
 
 const DEFAULT_DEV_API_PROXY_TARGET = 'https://api.lunmeyo.com';
@@ -27,6 +29,13 @@ export default defineConfig(({ mode }) => {
     env.VITE_DEV_API_PROXY_TARGET?.trim() ||
     process.env.VITE_DEV_API_PROXY_TARGET?.trim() ||
     DEFAULT_DEV_API_PROXY_TARGET;
+  // Include OS-trusted certificates for local HTTPS proxies without disabling TLS verification.
+  const proxyAgent = proxyTarget.startsWith('https:') && typeof tls.getCACertificates === 'function'
+    ? new Agent({ ca: [...new Set([
+        ...tls.getCACertificates('default'),
+        ...tls.getCACertificates('system'),
+      ])] })
+    : undefined;
 
   return {
     envPrefix: 'VITE_',
@@ -39,6 +48,7 @@ export default defineConfig(({ mode }) => {
           target: proxyTarget,
           changeOrigin: true,
           secure: true,
+          agent: proxyAgent,
           cookieDomainRewrite: 'localhost',
         },
         '/socket.io': {
@@ -46,6 +56,7 @@ export default defineConfig(({ mode }) => {
           ws: true,
           changeOrigin: true,
           secure: true,
+          agent: proxyAgent,
         },
       },
     },

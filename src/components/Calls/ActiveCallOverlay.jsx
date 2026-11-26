@@ -1,7 +1,15 @@
 import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
-import { LuMic, LuMicOff, LuVideo, LuVideoOff } from 'react-icons/lu';
+import { LuMic, LuMicOff, LuVideo, LuVideoOff, LuMonitor, LuMonitorOff } from 'react-icons/lu';
+import { useCallScreenShare } from '../../hooks/useCallScreenShare';
+import CallScreenSharePane from './CallScreenSharePane';
+import { useCallOverlayScrollLock } from '../../hooks/useCallOverlayScrollLock';
+import { useCallStageMode } from '../../hooks/useCallStageMode';
+import { useCallLayoutTransition } from '../../hooks/useCallLayoutTransition';
+import CallStageModeSwitch from './CallStageModeSwitch';
+import { useCallRecovery } from '../../hooks/useCallRecovery';
+import CallConnectionNotice from './CallConnectionNotice';
 import {
   ConnectionState,
   RoomEvent,
@@ -87,6 +95,10 @@ export default function ActiveCallOverlay({
   onFatalError,
 }) {
   const { t } = useTranslation();
+  useCallOverlayScrollLock();
+  const recovery = useCallRecovery(call, media);
+  const recoveryRef = useRef(recovery);
+  recoveryRef.current = recovery;
   const roomRef = useRef(null);
   const localVideoRef = useRef(null);
   const remoteVideoRef = useRef(null);
@@ -117,6 +129,12 @@ export default function ActiveCallOverlay({
   const [isDraggingPreview, setIsDraggingPreview] = useState(false);
   const [cameraError, setCameraError] = useState(pendingCameraError);
   const isConnectedRef = useRef(false);
+  const screenShare = useCallScreenShare(roomRef.current);
+  const [selectedShareId, setSelectedShareId] = useState(null);
+  const activeShare = screenShare.shares.find(share => share.identity === selectedShareId) || screenShare.shares.find(share => !share.isLocal) || screenShare.shares[0];
+  const stageView = useCallStageMode(screenShare.shares);
+  const showScreen = Boolean(activeShare && stageView.mode === 'screen');
+  useCallLayoutTransition(stageRef, showScreen);
 
   const initialPeer =
     localUserId && call?.callerId === localUserId
@@ -187,10 +205,10 @@ export default function ActiveCallOverlay({
   // Effect A — Room lifecycle only (stable deps: url/token/callId).
   useEffect(() => {
     let cancelled = false;
-    const url = media?.url;
-    const token = media?.token;
+    const url = recovery.media?.url;
+    const token = recovery.media?.token;
     const callId = call?.id;
-    const roomName = media?.roomName;
+    const roomName = recovery.media?.roomName;
 
     console.log('CALL ROOM EFFECT MOUNT', {
       callId,
@@ -271,6 +289,7 @@ export default function ActiveCallOverlay({
       connectedAtRef.current = Date.now();
       isConnectedRef.current = true;
       setIsConnected(true);
+      recoveryRef.current.connected();
       setStatusLabel(tRef.current('messenger.calls.inCall'));
       onConnectionStatusRef.current?.('connected');
       if (!durationTimerRef.current) {
@@ -306,14 +325,14 @@ export default function ActiveCallOverlay({
 
       remote.trackPublications.forEach((pub) => {
         if (!pub.track) return;
-        if (pub.kind === Track.Kind.Video && remoteVideoRef.current) {
+        if (pub.source === Track.Source.Camera && pub.kind === Track.Kind.Video && remoteVideoRef.current) {
           pub.track.attach(remoteVideoRef.current);
           console.log('REMOTE TRACK ATTACHED', {
             kind: pub.kind,
             source: pub.source,
           });
         }
-        if (pub.kind === Track.Kind.Audio && remoteAudioRef.current) {
+        if (pub.source === Track.Source.Microphone && pub.kind === Track.Kind.Audio && remoteAudioRef.current) {
           pub.track.attach(remoteAudioRef.current);
         }
       });
@@ -326,7 +345,7 @@ export default function ActiveCallOverlay({
         source: publication?.source,
         participant: participant?.identity,
       });
-      if (track.kind === Track.Kind.Video && remoteVideoRef.current) {
+      if (publication?.source === Track.Source.Camera && track.kind === Track.Kind.Video && remoteVideoRef.current) {
         track.attach(remoteVideoRef.current);
         console.log('REMOTE TRACK ATTACHED', {
           kind: track.kind,
@@ -334,7 +353,7 @@ export default function ActiveCallOverlay({
           participant: participant?.identity,
         });
       }
-      if (track.kind === Track.Kind.Audio && remoteAudioRef.current) {
+      if (publication?.source === Track.Source.Microphone && track.kind === Track.Kind.Audio && remoteAudioRef.current) {
         track.attach(remoteAudioRef.current);
       }
       syncRemoteVideoState('TrackSubscribed');
@@ -415,6 +434,12 @@ export default function ActiveCallOverlay({
     };
 
     const onDisconnected = (reason) => {
+      isConnectedRef.current = false;
+      setIsConnected(false);
+      setHasRemoteVideoTrack(false);
+      setStatusLabel(tRef.current('messenger.calls.disconnected'));
+      onConnectionStatusRef.current?.('disconnected');
+      recoveryRef.current.disconnected(reason);
       console.log('CALL ROOM DISCONNECT EVENT', {
         callId,
         reason,
@@ -567,6 +592,7 @@ export default function ActiveCallOverlay({
         }
         if (!cancelled && connectGenRef.current === gen) {
           const msg = mapConnectError(err, tRef.current);
+          recoveryRef.current.disconnected();
           setStatusLabel(msg);
           setIsConnected(false);
           onFatalErrorRef.current?.(msg);
@@ -574,7 +600,7 @@ export default function ActiveCallOverlay({
         return;
       }
 
-      if (wantVideo || camOn) {
+      if (camOn) {
         try {
           const camPub = await setLocalCameraEnabled(room, true);
           if (camPub?.track && localVideoRef.current) {
@@ -658,14 +684,14 @@ export default function ActiveCallOverlay({
         roomRef.current = null;
       }
     };
-  }, [media?.url, media?.token, call?.id]);
+  }, [recovery.media?.url, recovery.media?.token, call?.id, recovery.media?.roomName, recovery.attempt]);
 
   // Effect B — local mic toggle (no reconnect).
   useEffect(() => {
     const room = roomRef.current;
     if (!room || room.state !== ConnectionState.Connected) return;
     void room.localParticipant.setMicrophoneEnabled(Boolean(micEnabled));
-  }, [micEnabled]);
+  }, [micEnabled, isConnected]);
 
   // Effect B — local camera toggle (no reconnect). Skips if Effect A already
   // started camera or a start is in-flight.
@@ -897,10 +923,15 @@ export default function ActiveCallOverlay({
 
   return createPortal(
     <div className="callOverlay callOverlay--active" role="dialog" aria-modal="true">
-      <div className="callActive">
+      <div className={`callActive${activeShare ? ' callActive--has-share' : ''}${showScreen ? ' callActive--sharing' : ''}`}>
         <div className="callActive__stage" ref={stageRef}>
+          {activeShare && <div className={`callActive__screen${showScreen ? '' : ' is-view-hidden'}`} aria-hidden={!showScreen}><CallScreenSharePane share={activeShare} /></div>}
+          {showScreen && screenShare.shares.length > 1 && <div className="callScreenShare__switcher">
+            {screenShare.shares.map(share => <button key={share.identity} type="button" aria-pressed={share.identity === activeShare?.identity} onClick={() => setSelectedShareId(share.identity)}>{share.isLocal ? t('messenger.calls.you') : share.name}</button>)}
+          </div>}
           <video
             ref={remoteVideoRef}
+            data-call-tile="remote"
             className={`callActive__remoteVideo${
               isLocalVideoMain ? ' is-preview' : ' is-main'
             }${hasRemoteVideo ? '' : ' is-hidden'}${
@@ -908,15 +939,15 @@ export default function ActiveCallOverlay({
             }${isLocalVideoMain && isDraggingPreview ? ' is-dragging' : ''}`}
             autoPlay
             playsInline
-            {...(isLocalVideoMain ? previewDragProps : {})}
+            {...(isLocalVideoMain && !showScreen ? previewDragProps : {})}
           />
-          {showVideoUi && !hasRemoteVideo && isLocalVideoMain ? (
+          {showVideoUi && !hasRemoteVideo && isLocalVideoMain && !showScreen ? (
             <button
               type="button"
               className={`callActive__videoFallback callActive__videoFallback--preview callActive__previewDraggable${
                 isDraggingPreview ? ' is-dragging' : ''
               }`}
-              {...previewDragProps}
+              {...(!showScreen ? previewDragProps : {})}
             >
               <div className="callOverlay__avatar" aria-hidden="true">
                 {peerUser?.avatarUrl ? (
@@ -928,7 +959,7 @@ export default function ActiveCallOverlay({
             </button>
           ) : null}
           <audio ref={remoteAudioRef} autoPlay playsInline />
-          {!showVideoUi || (showVideoUi && !mainHasVideo) ? (
+          {!showScreen && (!showVideoUi || (showVideoUi && !mainHasVideo)) ? (
             <div className="callActive__audioFallback">
               <div
                 className="callOverlay__avatar callOverlay__avatar--lg"
@@ -948,6 +979,7 @@ export default function ActiveCallOverlay({
           ) : null}
           <video
             ref={localVideoRef}
+            data-call-tile="local"
             className={`callActive__localVideo${
               isLocalVideoMain ? ' is-main' : ' is-preview'
             }${hasLocalVideo ? '' : ' is-hidden'}${
@@ -956,21 +988,23 @@ export default function ActiveCallOverlay({
             autoPlay
             playsInline
             muted
-            {...(!isLocalVideoMain ? previewDragProps : {})}
+            {...(!isLocalVideoMain && !showScreen ? previewDragProps : {})}
           />
-          {showVideoUi && !hasLocalVideo && !isLocalVideoMain ? (
+          {showVideoUi && !hasLocalVideo && !isLocalVideoMain && !showScreen ? (
             <button
               type="button"
               className={`callActive__videoFallback callActive__videoFallback--preview callActive__previewDraggable${
                 isDraggingPreview ? ' is-dragging' : ''
               }`}
-              {...previewDragProps}
+              {...(!showScreen ? previewDragProps : {})}
             >
               <div className="callOverlay__avatar" aria-hidden="true">
                 <span>Y</span>
               </div>
             </button>
           ) : null}
+          {showScreen && !hasRemoteVideo && <div className="callScreenShare__avatar callScreenShare__avatar--remote">{name}</div>}
+          {showScreen && !hasLocalVideo && <div className="callScreenShare__avatar callScreenShare__avatar--local">{t('messenger.calls.you')}</div>}
         </div>
 
         <div className="callActive__meta">
@@ -981,6 +1015,10 @@ export default function ActiveCallOverlay({
         </div>
 
         <div className="callActive__footer">
+          <CallConnectionNotice recovery={recovery} />
+          {activeShare && <CallStageModeSwitch mode={stageView.mode} onChange={stageView.setMode} />}
+          {screenShare.errorKey && <p role="alert" className="callActive__cameraErrorBody">{t(screenShare.errorKey)}</p>}
+          {screenShare.blockedKey && <p className="callActive__cameraErrorBody">{t(screenShare.blockedKey)}</p>}
           {cameraError === 'not-readable' ? (
             <div className="callActive__cameraError" role="alert">
               <p className="callActive__cameraErrorTitle">
@@ -999,10 +1037,19 @@ export default function ActiveCallOverlay({
             </div>
           ) : null}
         <div className="callActive__controls">
+          <button type="button" className={`callOverlay__ctrl${screenShare.local ? '' : ' is-off'}`}
+            onClick={() => { if (!screenShare.local) setSelectedShareId(roomRef.current?.localParticipant?.identity); void screenShare.toggle(); }}
+            disabled={Boolean(screenShare.blockedKey) || screenShare.busy || !isConnected}
+            title={t(screenShare.blockedKey || (screenShare.local ? 'messenger.calls.stopScreenShare' : 'messenger.calls.screenShare'))}
+            aria-label={t(screenShare.local ? 'messenger.calls.stopScreenShare' : 'messenger.calls.screenShare')}
+            aria-pressed={screenShare.local}>
+            {screenShare.local ? <LuMonitorOff /> : <LuMonitor />}
+          </button>
           <button
             type="button"
             className={`callOverlay__ctrl${micEnabled ? '' : ' is-off'}`}
             onClick={() => onMicChange?.(!micEnabled)}
+            disabled={!isConnected}
             title={
               micEnabled
                 ? t('messenger.calls.muteMic')
@@ -1020,6 +1067,7 @@ export default function ActiveCallOverlay({
             type="button"
             className="callOverlay__ctrl"
             onClick={() => onCameraChange?.(!cameraEnabled)}
+            disabled={!isConnected}
             title={
               cameraEnabled
                 ? t('messenger.calls.cameraOff')
@@ -1041,6 +1089,7 @@ export default function ActiveCallOverlay({
             type="button"
             className="callOverlay__ctrl"
             onClick={() => void switchCamera()}
+            disabled={!isConnected}
             aria-label={t('messenger.calls.switchCamera')}
           >
             🔄
