@@ -1,4 +1,4 @@
-import React, { act } from 'react';
+import React, { act, useLayoutEffect } from 'react';
 import { createRoot } from 'react-dom/client';
 import { afterEach, expect, it, vi } from 'vitest';
 import { useCallRecovery } from './useCallRecovery';
@@ -10,7 +10,7 @@ let root, host, recovery;
 afterEach(()=>{if(root)act(()=>root.unmount());host?.remove();root=null;vi.clearAllMocks()});
 const call={id:'call',status:'ACTIVE'};
 const media={url:'wss://test.invalid',token:'old',roomName:'room'};
-function Harness({group}){recovery=useCallRecovery(call,media,group);return null}
+function Harness({group}){const value=useCallRecovery(call,media,group);useLayoutEffect(()=>{recovery=value});return null}
 function mount(group=false){host=document.createElement('div');document.body.append(host);root=createRoot(host);act(()=>root.render(<Harness group={group}/>))}
 
 it('does not reconnect automatically or fight another account session',()=>{

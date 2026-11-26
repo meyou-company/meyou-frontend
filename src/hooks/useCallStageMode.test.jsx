@@ -1,4 +1,4 @@
-import React, { act } from 'react';
+import React, { act, useLayoutEffect } from 'react';
 import { createRoot } from 'react-dom/client';
 import { afterEach, expect, it } from 'vitest';
 import { useCallStageMode } from './useCallStageMode';
@@ -11,7 +11,7 @@ function render(shares){
   if(!root){host=document.createElement('div');document.body.append(host);root=createRoot(host)}
   act(()=>root.render(<StableHarness shares={shares}/>));
 }
-function StableHarness({shares}){state=useCallStageMode(shares);return null}
+function StableHarness({shares}){const value=useCallStageMode(shares);useLayoutEffect(()=>{state=value});return null}
 it('automatically selects screen on start, preserves manual choice, and returns on stop',()=>{
   render([]);expect(state.mode).toBe('participants');
   render([{identity:'friend'}]);expect(state.mode).toBe('screen');

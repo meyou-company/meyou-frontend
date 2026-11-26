@@ -1,4 +1,4 @@
-import React, { act } from 'react';
+import React, { act, useLayoutEffect } from 'react';
 import { createRoot } from 'react-dom/client';
 import { EventEmitter } from 'node:events';
 import { afterEach, describe, expect, it, vi } from 'vitest';
@@ -24,7 +24,7 @@ function roomFixture() {
 function mount(room, supported = true) {
   vi.stubGlobal('isSecureContext', true);
   vi.stubGlobal('navigator', {mediaDevices:supported ? {getDisplayMedia:vi.fn()} : {}});
-  function Harness() { state = useCallScreenShare(room); return null; }
+  function Harness() { const value = useCallScreenShare(room); useLayoutEffect(() => { state = value; }); return null; }
   host = document.createElement('div'); document.body.append(host); root = createRoot(host);
   act(() => root.render(<Harness />));
 }
