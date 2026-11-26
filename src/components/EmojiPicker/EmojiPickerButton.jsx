@@ -7,7 +7,6 @@ import {
 } from "react";
 import { createPortal } from "react-dom";
 import { useTranslation } from "react-i18next";
-import EmojiPicker, { Theme } from "emoji-picker-react";
 import { useThemeStore } from "../../zustand/useThemeStore";
 import { insertEmojiAtCursor } from "../../utils/insertEmojiAtCursor";
 import { toLunmeyoToken } from "../../utils/lunmeyoToken";
@@ -70,6 +69,7 @@ export default function EmojiPickerButton({
 }) {
   const [open, setOpen] = useState(false);
   const [tab, setTab] = useState("emoji");
+  const [emojiPickerMod, setEmojiPickerMod] = useState(null);
   const { t } = useTranslation();
   const [coords, setCoords] = useState({
     top: 0,
@@ -87,7 +87,26 @@ export default function EmojiPickerButton({
   const isMobile = useMobilePicker();
 
   const effectiveTheme = useThemeStore((s) => s.effectiveTheme);
-  const pickerTheme = effectiveTheme === "dark" ? Theme.DARK : Theme.LIGHT;
+  const pickerTheme =
+    emojiPickerMod?.Theme &&
+    (effectiveTheme === "dark"
+      ? emojiPickerMod.Theme.DARK
+      : emojiPickerMod.Theme.LIGHT);
+
+  useEffect(() => {
+    if (!open) return undefined;
+    let cancelled = false;
+    import("emoji-picker-react")
+      .then((mod) => {
+        if (!cancelled) setEmojiPickerMod(mod);
+      })
+      .catch((err) => {
+        console.error("[emoji-picker] load failed", err);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [open]);
 
   const updatePosition = useCallback(() => {
     const trigger = wrapRef.current?.querySelector(".emoji-picker-btn__trigger");
@@ -278,17 +297,22 @@ export default function EmojiPickerButton({
         <LunmeyoPickerPanel type="png" onSelect={handleLunmeyoSelect} />
       ) : tab === "anims" && enableLunmeyo ? (
         <LunmeyoPickerPanel type="mp4" onSelect={handleLunmeyoSelect} />
-      ) : (
-        <EmojiPicker
-          onEmojiClick={handleEmojiClick}
-          theme={pickerTheme}
-          lazyLoadEmojis
-          searchPlaceholder="Пошук…"
-          previewConfig={{ showPreview: false }}
-          width={pickerWidth}
-          height={emojiHeight}
-        />
-      )}
+      ) : emojiPickerMod?.default ? (
+        (() => {
+          const EmojiPickerPanel = emojiPickerMod.default;
+          return (
+            <EmojiPickerPanel
+              onEmojiClick={handleEmojiClick}
+              theme={pickerTheme}
+              lazyLoadEmojis
+              searchPlaceholder="Пошук…"
+              previewConfig={{ showPreview: false }}
+              width={pickerWidth}
+              height={emojiHeight}
+            />
+          );
+        })()
+      ) : null}
     </div>
   );
 
