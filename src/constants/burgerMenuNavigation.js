@@ -1,9 +1,9 @@
 /** Real destinations for burger menu ids (no /oops placeholders). */
 export const BURGER_MENU_ACTIONS = {
   favorites: { kind: 'route', path: '/saved' },
-  support: { kind: 'feedback', view: 'compose' },
-  report: { kind: 'route', path: '/legal/community-guidelines' },
-  about: { kind: 'route', path: '/features/profile' },
+  support: { kind: 'feedback', view: 'compose', composeIntent: 'support' },
+  report: { kind: 'feedback', view: 'compose', composeIntent: 'report' },
+  about: { kind: 'route', path: '/about' },
 };
 
 const LEGACY_OOPS_MENU_IDS = ['favorites', 'support', 'report', 'about'];

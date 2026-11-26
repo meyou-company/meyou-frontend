@@ -1840,6 +1840,22 @@
     "thread": {
       "you": "Vous",
       "team": "Administration MeYou"
+    },
+    "support": {
+      "title": "Help / Support",
+      "intro": "Tell us about a technical issue or something confusing in the app. For policy or safety concerns, use Report in the menu.",
+      "typeLegend": "What kind of issue?",
+      "success": "Thank you! We received your message and will review it."
+    },
+    "report": {
+      "title": "Report a concern",
+      "intro": "Describe a policy or safety issue. For specific content, use Report on the profile, post, message, story, or live chat. You can attach a screenshot below.",
+      "detailsLabel": "What happened?",
+      "detailsPlaceholder": "Describe the situation and who or what it involves…",
+      "messageRequired": "Please describe the concern",
+      "success": "Thank you. Your report was sent to the moderation queue.",
+      "guidelinesLink": "Read the community guidelines",
+      "backendRequired": "This report type is not enabled on the server yet. Please use in-app Report on the specific content or try again after the platform update."
     }
   },
   "admin": {
@@ -1970,5 +1986,63 @@
   "adminAudit": {
     "usersPlaceholder": "La gestion des utilisateurs n’est pas encore disponible dans cette version.",
     "usersComingSoon": "Bientôt disponible"
+  },
+  "about": {
+    "title": "About LunMeYo",
+    "subtitle": "LunMeYo is a social space to stay in touch, share moments, and use built-in communication tools.",
+    "backHome": "Back to home",
+    "sectionsAria": "About sections",
+    "legalTitle": "Legal documents",
+    "legal": {
+      "terms": "Terms of use",
+      "privacy": "Privacy policy",
+      "guidelines": "Community guidelines"
+    },
+    "sections": {
+      "what": {
+        "title": "What is LunMeYo?",
+        "body": "LunMeYo helps you keep a profile, follow people you care about, and take part in a shared feed of posts and media."
+      },
+      "mission": {
+        "title": "Our goal",
+        "body": "We want to make everyday communication and self-expression simple — without replacing real-world connections."
+      },
+      "social": {
+        "title": "Meet and connect",
+        "body": "Browse profiles, follow users, and send connection requests to grow your circle."
+      },
+      "posts": {
+        "title": "Posts, photos, and video",
+        "body": "Publish text posts with photos or videos, react, and comment in the feed."
+      },
+      "stories": {
+        "title": "Stories",
+        "body": "Share short-lived stories with your followers and close friends."
+      },
+      "chats": {
+        "title": "Private and group chats",
+        "body": "Message people one-on-one or in group conversations with text and media."
+      },
+      "calls": {
+        "title": "Audio and video calls",
+        "body": "Start voice or video calls from the messenger when both sides can connect."
+      },
+      "live": {
+        "title": "Live streams",
+        "body": "Hosts can go live; viewers can watch and interact where the feature is enabled."
+      },
+      "luna": {
+        "title": "Luna AI",
+        "body": "Luna is an in-app AI assistant for questions, drafting text, and help with everyday tasks inside the app."
+      },
+      "community": {
+        "title": "Community",
+        "body": "Community guidelines describe expected behaviour. You can report profiles, posts, messages, stories, and live chat through the in-app tools."
+      },
+      "privacy": {
+        "title": "Privacy and safety",
+        "body": "Account security settings, blocking, and privacy controls are available in the app. No product can guarantee absolute safety — use the tools provided and stay careful with personal data."
+      }
+    }
   }
 }

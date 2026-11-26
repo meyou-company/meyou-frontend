@@ -84,6 +84,10 @@ export const OopsPage = lazyPage(
   () => import('../pages/Oops/OopsPage'),
   { moduleId: 'page-oops' },
 );
+export const AboutPage = lazyPage(
+  () => import('../pages/About/AboutPage'),
+  { moduleId: 'page-about' },
+);
 export const LivePage = lazyPage(
   () => import('../pages/Live/LivePage'),
   { moduleId: 'page-live' },

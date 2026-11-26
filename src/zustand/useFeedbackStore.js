@@ -19,6 +19,7 @@ export const useFeedbackStore = create((set) => ({
   isOpen: false,
   view: 'compose',
   selectedId: null,
+  composeIntent: 'default',
   unreadCount: 0,
 
   open: (opts = {}) =>
@@ -26,8 +27,15 @@ export const useFeedbackStore = create((set) => ({
       isOpen: true,
       view: opts.feedbackId ? 'detail' : opts.view || 'compose',
       selectedId: opts.feedbackId || null,
+      composeIntent: opts.composeIntent || 'default',
     }),
-  close: () => set({ isOpen: false, view: 'compose', selectedId: null }),
+  close: () =>
+    set({
+      isOpen: false,
+      view: 'compose',
+      selectedId: null,
+      composeIntent: 'default',
+    }),
   setView: (view, selectedId = null) => set({ view, selectedId }),
   setUnreadCount: (unreadCount) => set({ unreadCount: Number(unreadCount) || 0 }),
   fetchUnreadCount: async () => {

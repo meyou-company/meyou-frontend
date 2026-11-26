@@ -2100,6 +2100,22 @@
     "thread": {
       "you": "Вы",
       "team": "Администрация MeYou"
+    },
+    "support": {
+      "title": "Help / Support",
+      "intro": "Tell us about a technical issue or something confusing in the app. For policy or safety concerns, use Report in the menu.",
+      "typeLegend": "What kind of issue?",
+      "success": "Thank you! We received your message and will review it."
+    },
+    "report": {
+      "title": "Report a concern",
+      "intro": "Describe a policy or safety issue. For specific content, use Report on the profile, post, message, story, or live chat. You can attach a screenshot below.",
+      "detailsLabel": "What happened?",
+      "detailsPlaceholder": "Describe the situation and who or what it involves…",
+      "messageRequired": "Please describe the concern",
+      "success": "Thank you. Your report was sent to the moderation queue.",
+      "guidelinesLink": "Read the community guidelines",
+      "backendRequired": "This report type is not enabled on the server yet. Please use in-app Report on the specific content or try again after the platform update."
     }
   },
   "admin": {
@@ -2230,5 +2246,63 @@
   "adminAudit": {
     "usersPlaceholder": "Управление пользователями пока недоступно в этой сборке.",
     "usersComingSoon": "Скоро"
+  },
+  "about": {
+    "title": "О LunMeYo",
+    "subtitle": "LunMeYo — социальное пространство для общения и обмена моментами.",
+    "backHome": "На главную",
+    "sectionsAria": "Розділи про платформу",
+    "legalTitle": "Юридичні документи",
+    "legal": {
+      "terms": "Умови використання",
+      "privacy": "Політика конфіденційності",
+      "guidelines": "Правила спільноти"
+    },
+    "sections": {
+      "what": {
+        "title": "Що таке LunMeYo?",
+        "body": "LunMeYo допомагає вести профіль, стежити за людьми та брати участь у стрічці дописів і медіа."
+      },
+      "mission": {
+        "title": "Наша мета",
+        "body": "Ми прагнемо зробити щоденне спілкування та самовираження простішими — не замінюючи реальні зв’язки."
+      },
+      "social": {
+        "title": "Спілкування та знайомства",
+        "body": "Переглядайте профілі, підписуйтесь і надсилайте запити на знайомство."
+      },
+      "posts": {
+        "title": "Дописи, фотографії та відео",
+        "body": "Публікуйте текстові дописи з фото або відео, реагуйте та коментуйте у стрічці."
+      },
+      "stories": {
+        "title": "Stories",
+        "body": "Діліться короткочасними stories для підписників і близьких друзів."
+      },
+      "chats": {
+        "title": "Приватні та групові чати",
+        "body": "Пишіть один на один або в групах — текстом і медіа."
+      },
+      "calls": {
+        "title": "Аудіо- та відеодзвінки",
+        "body": "Ініціюйте голосові або відеодзвінки з месенджера, коли обидві сторони можуть з’єднатися."
+      },
+      "live": {
+        "title": "Прямі ефіри",
+        "body": "Ведучі можуть виходити в ефір; глядачі можуть дивитися та взаємодіяти там, де функція доступна."
+      },
+      "luna": {
+        "title": "Luna AI",
+        "body": "Luna — ШІ-помічник у застосунку для питань, чернеток тексту та допомоги з повсякденними задачами."
+      },
+      "community": {
+        "title": "Спільнота",
+        "body": "Правила спільноти описують очікувану поведінку. Скарги на профілі, дописи, повідомлення, stories та live-чат доступні в інструментах застосунку."
+      },
+      "privacy": {
+        "title": "Приватність та безпека",
+        "body": "Налаштування безпеки, блокування та приватності доступні в застосунку. Жоден продукт не гарантує абсолютної безпеки — користуйтеся інструментами й обережно ставтеся до персональних даних."
+      }
+    }
   }
 }

@@ -165,7 +165,10 @@ export default function BurgerMenu({
       return;
     }
     if (menuAction?.kind === 'feedback') {
-      openFeedback({ view: menuAction.view || 'compose' });
+      openFeedback({
+        view: menuAction.view || 'compose',
+        composeIntent: menuAction.composeIntent || 'default',
+      });
       onClose();
       return;
     }

@@ -132,6 +132,7 @@ function AppLayout() {
                 <Route path="/live/:liveId?" element={<LazyPages.LivePage />} />
                 <Route path="/saved" element={<LazyPages.SavedPage />} />
                 <Route path="/saved/collections/:collectionId" element={<LazyPages.SavedPage />} />
+                <Route path="/about" element={<LazyPages.AboutPage />} />
                 <Route path="/oops" element={<LazyPages.OopsPage />} />
                 <Route path="/users/profile/complete" element={<LazyPages.CompleteProfilePage />} />
                 <Route path="/users/profile/edit" element={<LazyPages.EditProfilePage />} />

@@ -20,24 +20,26 @@ describe('burgerMenuNavigation', () => {
     });
   });
 
-  it('maps support to feedback compose', () => {
+  it('maps support to technical feedback compose', () => {
     expect(resolveBurgerMenuAction('support')).toEqual({
       kind: 'feedback',
       view: 'compose',
+      composeIntent: 'support',
     });
   });
 
-  it('maps report to community guidelines', () => {
+  it('maps report to violation feedback compose', () => {
     expect(resolveBurgerMenuAction('report')).toMatchObject({
-      kind: 'route',
-      path: '/legal/community-guidelines',
+      kind: 'feedback',
+      view: 'compose',
+      composeIntent: 'report',
     });
   });
 
-  it('maps about to platform feature page', () => {
+  it('maps about to public about page', () => {
     expect(resolveBurgerMenuAction('about')).toMatchObject({
       kind: 'route',
-      path: '/features/profile',
+      path: '/about',
     });
   });
 
