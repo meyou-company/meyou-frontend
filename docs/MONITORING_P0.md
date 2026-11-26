@@ -59,7 +59,7 @@ Check Network for POST to `ingest…sentry.io`. Plain `throw new Error(...)` in 
 
 `npm run build` runs `scripts/sentry-build.mjs` **pre** and **post** (non-blocking):
 
-- **pre:** boolean snapshot of `VITE_SENTRY_*` in `process.env` (no secret values), optional write of `.env.production.local` from env (gitignored, ensures Vite production `loadEnv` sees vars).
+- **pre:** boolean snapshot of `VITE_SENTRY_*` in `process.env` (no secret values; read-only, no env files created).
 - **vite:** log line `phase: vite_config` with the same snapshot.
 - **post:** scans `dist/assets/index-*.js` for `ingest(.de)?.sentry.io` (no DSN printed). Emits `BUILD_ENV_BUNDLE_MISMATCH` when env expected init but bundle has no ingest host.
 

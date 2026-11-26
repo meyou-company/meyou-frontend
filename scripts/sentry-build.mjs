@@ -3,7 +3,6 @@ import fs from "node:fs";
 import path from "node:path";
 import {
   diagnosePostBuild,
-  materializeSentryViteEnv,
   scanDistBundles,
   snapshotSentryBuildEnv,
 } from "./sentry-env-snapshot.mjs";
@@ -16,13 +15,10 @@ function logDiagnostic(payload) {
 
 function runPre() {
   const snapshot = snapshotSentryBuildEnv();
-  const materialized = materializeSentryViteEnv();
 
   const payload = {
     phase: "pre",
     snapshot,
-    materialized_production_local: materialized,
-    materialized_path: materialized ? ".env.production.local" : null,
   };
 
   fs.writeFileSync(PRE_SNAPSHOT_PATH, JSON.stringify(payload), "utf8");

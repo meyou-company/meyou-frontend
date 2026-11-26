@@ -1,14 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
 
-export const SENTRY_VITE_KEYS = [
-  "VITE_SENTRY_ENABLED",
-  "VITE_SENTRY_DSN",
-  "VITE_SENTRY_ENVIRONMENT",
-  "VITE_SENTRY_SAMPLE_RATE",
-  "VITE_APP_RELEASE",
-];
-
 const INGEST_HOST_RE = /ingest(\.de)?\.sentry\.io/i;
 
 /**
@@ -34,42 +26,6 @@ export function snapshotSentryBuildEnv(env = process.env) {
       String(env.VITE_SENTRY_SAMPLE_RATE ?? "").trim(),
     ),
   };
-}
-
-/**
- * Ensure Vite production mode sees SENTRY vars via `.env.production.local`
- * (gitignored). Values are never logged.
- */
-export function materializeSentryViteEnv(env = process.env) {
-  const rows = [];
-  for (const key of SENTRY_VITE_KEYS) {
-    const value = env[key];
-    if (value == null) continue;
-    const trimmed = String(value).trim();
-    if (!trimmed) continue;
-    rows.push(`${key}=${String(value).replace(/\r?\n/g, "")}`);
-  }
-  if (!rows.length) return false;
-
-  const filePath = path.resolve(".env.production.local");
-  let existing = "";
-  if (fs.existsSync(filePath)) {
-    existing = fs.readFileSync(filePath, "utf8");
-  }
-
-  const otherLines = existing
-    .split("\n")
-    .filter(
-      (line) =>
-        line.trim() &&
-        !SENTRY_VITE_KEYS.some(
-          (k) => line.startsWith(`${k}=`) || line.startsWith(`${k} =`),
-        ),
-    );
-
-  const body = [...otherLines, ...rows].filter(Boolean).join("\n");
-  fs.writeFileSync(filePath, `${body}\n`, { mode: 0o600, encoding: "utf8" });
-  return true;
 }
 
 export function scanDistBundles(distDir = "dist") {
