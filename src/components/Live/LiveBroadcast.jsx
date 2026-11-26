@@ -27,7 +27,6 @@ const LIVE_EMOJI_TO_REACTION_TYPE = {
 function liveEmojiToReactionType(emoji) {
   return LIVE_EMOJI_TO_REACTION_TYPE[emoji] ?? msgEmojiToReactionType(emoji) ?? null;
 }
-import profileIcons from "../../constants/profileIcons";
 import LiveHeader from "./LiveHeader";
 import LiveStage from "./LiveStage";
 import LiveChat from "./LiveChat";

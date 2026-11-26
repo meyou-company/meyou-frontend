@@ -42,6 +42,15 @@ const MESSAGE_CODE_HINTS = [
   { pattern: /^LUNA_AUDIO_INVALID$/i, code: 'LUNA_AUDIO_INVALID' },
   { pattern: /^LUNA_AUDIO_TOO_LONG$/i, code: 'LUNA_AUDIO_TOO_LONG' },
   { pattern: /^LUNA_CONVERSATION_NOT_FOUND$/i, code: 'LUNA_CONVERSATION_NOT_FOUND' },
+  { pattern: /^LUNA_OPENAI_RATE_LIMIT$/i, code: 'LUNA_OPENAI_RATE_LIMIT' },
+  { pattern: /^LUNA_OPENAI_INSUFFICIENT_QUOTA$/i, code: 'LUNA_OPENAI_INSUFFICIENT_QUOTA' },
+  { pattern: /^LUNA_OPENAI_CONFIG_ERROR$/i, code: 'LUNA_OPENAI_CONFIG_ERROR' },
+  { pattern: /^LUNA_AI_UNAVAILABLE$/i, code: 'LUNA_AI_UNAVAILABLE' },
+  { pattern: /^LUNA_NETWORK_ERROR$/i, code: 'LUNA_NETWORK_ERROR' },
+  { pattern: /^LUNA_TIMEOUT$/i, code: 'LUNA_TIMEOUT' },
+  { pattern: /^LUNA_UPLOAD_FAILED$/i, code: 'LUNA_UPLOAD_FAILED' },
+  { pattern: /^LUNA_MESSAGE_SAVE_FAILED$/i, code: 'LUNA_MESSAGE_SAVE_FAILED' },
+  { pattern: /^LUNA_REQUEST_IN_PROGRESS$/i, code: 'LUNA_REQUEST_IN_PROGRESS' },
   { pattern: /название города|назва міста/i, code: 'CITY_NAME_INVALID' },
 ];
 
@@ -147,6 +156,53 @@ function translateErrorCode(code, details, error) {
     return i18n.t(key, { seconds: retrySec });
   }
   return i18n.t(key);
+}
+
+function readErrorDetails(error) {
+  const payload = extractErrorPayload(error);
+  const raw = payload?.details;
+  if (typeof raw === 'object' && raw !== null) return raw;
+  return {};
+}
+
+/**
+ * Safe Luna send metadata from API error body.
+ */
+export function getLunaErrorMeta(error) {
+  const details = readErrorDetails(error);
+  const payload = extractErrorPayload(error);
+  const code = error ? resolveErrorCode(payload, error) : '';
+  const retryable = details.retryable === true;
+  const quotaRestored = details.quotaRestored === true;
+  const retryAfterSeconds = resolveRetryAfterSeconds(error, details);
+  const resetAt = typeof details.resetAt === 'string' ? details.resetAt : null;
+  const requestState =
+    typeof details.requestState === 'string' ? details.requestState : null;
+  return {
+    code,
+    retryable,
+    quotaRestored,
+    retryAfterSeconds,
+    resetAt,
+    requestState,
+  };
+}
+
+/** Manual Luna retry is allowed only when the backend marks the error retryable. */
+export function isLunaRetryAllowed(error) {
+  if (!error) return false;
+  const { retryable, code } = getLunaErrorMeta(error);
+  if (!retryable) return false;
+  const blocked = new Set([
+    'LUNA_DAILY_LIMIT',
+    'LUNA_MONTHLY_LIMIT',
+    'LUNA_BUDGET_EXCEEDED',
+    'LUNA_OPENAI_INSUFFICIENT_QUOTA',
+    'LUNA_OPENAI_CONFIG_ERROR',
+    'LUNA_REQUEST_IN_PROGRESS',
+  ]);
+  if (blocked.has(code)) return false;
+  return true;
 }
 
 export function getRetryAfterSeconds(error) {
@@ -288,7 +344,29 @@ export function getApiErrorSuggestions(error) {
   return [];
 }
 
+const CLIENT_UPLOAD_ERROR_CODES = new Set([
+  'CHAT_IMAGE_TOO_LARGE_INPUT',
+  'CHAT_IMAGE_TOO_LARGE_OUTPUT',
+  'CHAT_IMAGE_GIF_TOO_LARGE',
+  'CHAT_IMAGE_OPTIMIZE_FAILED',
+  'CHAT_IMAGE_INVALID',
+  'CHAT_VIDEO_TOO_LARGE',
+  'CHAT_AUDIO_TOO_LARGE',
+  'CHAT_FILE_TOO_LARGE',
+]);
+
 /** User-facing text for presign / Cloudinary upload failures. */
 export function getMediaUploadErrorMessage(error, fallbackKey = 'errors.MEDIA_UPLOAD_FAILED') {
+  const code =
+    typeof error?.code === 'string'
+      ? error.code.trim()
+      : typeof error?.message === 'string' && CLIENT_UPLOAD_ERROR_CODES.has(error.message.trim())
+        ? error.message.trim()
+        : '';
+
+  if (code && CLIENT_UPLOAD_ERROR_CODES.has(code) && i18n.exists(`errors.${code}`)) {
+    return i18n.t(`errors.${code}`);
+  }
+
   return getApiErrorMessage(error, fallbackKey);
 }

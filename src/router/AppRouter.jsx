@@ -1,77 +1,22 @@
+import { Suspense } from 'react';
 import { BrowserRouter, Routes, Route, useLocation, useNavigate, Navigate, useParams } from 'react-router-dom';
 
 import AppBottomNav from '../components/AppBottomNav/AppBottomNav';
 import RouterLoaderSync from '../components/RouterLoaderSync';
+import RouteChunkFallback from './RouteChunkFallback';
 import { useAuthStore } from '../zustand/useAuthStore';
-import HomePage from '../pages/HomeFeed/HomePage';
-import Explore from '../pages/Explore/Explore';
-import Friends from '../pages/Friends/Friends';
-import Profile from '../pages/Profile/Profile';
-import ProfileFriendsPage from '../pages/Profile/ProfileFriendsPage';
-import ProfilePhotosPage from '../pages/Profile/ProfilePhotosPage';
-import VipChat from '../pages/VipChat/VipChat';
-import MessagesPage from '../pages/Messages/MessagesPage';
-import StoryArchivePage from '../pages/Stories/StoryArchivePage';
-
-import LoginPage from '../pages/Auth/Login/LoginPage';
-import RegisterPage from '../pages/Auth/Register/RegisterPage';
-import VerifyEmailPage from '../pages/Auth/VerifyEmail/VerifyEmailPage';
-import GoogleOAuthSuccess from '../pages/Auth/GoogleOAuthSuccess';
-
-import VerifyResetCodePage from '../pages/Auth/VerifyEmail/VerifyResetCodePage';
-
-import AuthCallback from '../pages/AuthCallback/AuthCallback';
-import ForgotPassword from '../pages/Auth/ForgotPassword/ForgotPasswordPage';
-import ResetNewPasswordPage from '../pages/Auth/ResetNewPassword/ResetNewPasswordPage';
-
-import CompleteProfilePage from '../pages/Users/Profile/CompleteProfilePage';
-import EditProfilePage from '../pages/Users/Profile/EditProfilePage';
-import VideoPage from '../pages/Video/VideoPage';
-import OopsPage from '../pages/Oops/OopsPage';
-import LivePage from '../pages/Live/LivePage';
-import SavedPage from '../pages/Saved/SavedPage';
-
-import FirstPage from '../pages/FirstPage/FirstPage';
-import WalletPage from '../pages/Wallet/WalletPage';
-import NotificationsPage from '../pages/Notifications/NotificationsPage';
-import MyGiftsPage from '../pages/MyGifts/MyGiftsPage';
-import NotFoundPage from '../pages/NotFound/NotFoundPage';
 import ProfileGuard from './ProfileGuard';
+import * as LazyPages from './lazyPages';
 
 import { UserProfileNavProvider } from '../context/UserProfileNavContext';
 import BurgerMenu from '../components/BurgerMenu/BurgerMenu';
 import LanguageSettings from '../components/Settings/LanguageSettings';
-import AccountSettingsPage from '../pages/Settings/AccountSettingsPage';
-import ChangePasswordPage from '../pages/Settings/ChangePasswordPage';
-import PrivacySettingsPage from '../pages/Settings/PrivacySettingsPage';
-import SecuritySettingsPage from '../pages/Settings/SecuritySettingsPage';
-import TwoFactorSettingsPage from '../pages/Settings/TwoFactorSettingsPage';
-import MfaVerifyPage from '../pages/Auth/MfaVerifyPage';
-import BlockedUsersPage from '../pages/Settings/BlockedUsersPage';
-import VipAccessSettingsPage from '../pages/Settings/VipAccessSettingsPage';
-import LegalPrivacyPage from '../app/legal/privacy/page';
-import LegalTermsPage from '../app/legal/terms/page';
-import LegalCommunityGuidelinesPage from '../app/legal/community-guidelines/page';
-import LegalDeleteAccountPage from '../app/legal/delete-account/page';
-import LegalAcceptTermsPage from '../app/legal/accept-terms/page';
-import EarnPage from '../app/earn/page';
-import FeatureChatPage from '../app/features/chat/page';
-import FeatureSecurityPage from '../app/features/security/page';
-import FeatureStoriesPage from '../app/features/stories/page';
-import FeatureProfilePage from '../app/features/profile/page';
-import FeatureGiftsPage from '../app/features/gifts/page';
 import { useBurgerMenuStore } from '../zustand/useBurgerMenuStore';
 import { useLocaleStore } from '../zustand/useLocaleStore';
 import { useThemeStore } from '../zustand/useThemeStore';
 import { useStoriesOverlayStore } from '../zustand/useStoriesOverlayStore';
 import FeedbackWidget from '../components/Feedback/FeedbackWidget';
 import LunaWidget from '../components/Luna/LunaWidget';
-import AdminLayout from '../pages/Admin/AdminLayout';
-import AdminDashboardPage from '../pages/Admin/AdminDashboardPage';
-import AdminReportsPage from '../pages/Admin/AdminReportsPage';
-import AdminFeedbackPage from '../pages/Admin/AdminFeedbackPage';
-import AdminUsersPage from '../pages/Admin/AdminUsersPage';
-import Post from '../components/Post/Post';
 import { MessagesSocketProvider } from '../providers/MessagesSocketProvider';
 import { NotificationsSocketProvider } from '../providers/NotificationsSocketProvider';
 import { PresenceSocketProvider } from '../providers/PresenceSocketProvider';
@@ -83,6 +28,19 @@ import { resolveProfileUsername } from '../utils/profileUsername';
 function LegacyPostShareRedirect() {
   const { postId } = useParams();
   return <Navigate to={`/post/${encodeURIComponent(postId ?? '')}`} replace />;
+}
+
+function PostRoute() {
+  const navigate = useNavigate();
+  return (
+    <LazyPages.Post
+      onGoBack={() => navigate(-1)}
+      onGoProfile={(value) => {
+        const username = resolveProfileUsername(value);
+        if (username) navigate(`/profile/${encodeURIComponent(username)}`);
+      }}
+    />
+  );
 }
 
 /** Глобальне бургер-меню — рендериться один раз, відкривається з будь-якої сторінки */
@@ -112,7 +70,6 @@ function GlobalBurgerMenu() {
 
 function AppLayout() {
   const location = useLocation();
-  const navigate = useNavigate();
 
   const user = useAuthStore((s) => s.user);
   const isAuthed = useAuthStore((s) => s.isAuthed);
@@ -148,90 +105,81 @@ function AppLayout() {
       <div className="app-shell">
         <div className="app-page">
           <div className={`app-container${showBottomNav ? ' app-container--has-bottom-nav' : ''}`}>
-            <Routes>
-              <Route path="/" element={<HomePage />} />
-              <Route path="/search" element={<Explore />} />
-              <Route path="/friends" element={<Friends />} />
-              <Route path="/profile" element={<Profile />} />
-              <Route path="/profile/photos" element={<ProfilePhotosPage />} />
-              <Route path="/profile/:username/photos" element={<ProfilePhotosPage />} />
-              <Route path="/profile/:username" element={<Profile />} />
-              <Route path="/profile/:username/friends" element={<ProfileFriendsPage />} />
-              <Route path="/vip-chat" element={<VipChat />} />
-              <Route path="/messages" element={<MessagesPage />} />
-              <Route path="/messages/:conversationId" element={<MessagesPage />} />
-              <Route path="/stories/archive" element={<StoryArchivePage />} />
-              <Route path="/first-page" element={<FirstPage />} />
-              <Route path="/wallet" element={<WalletPage />} />
+            <Suspense fallback={<RouteChunkFallback />}>
+              <Routes>
+                <Route path="/" element={<LazyPages.HomePage />} />
+                <Route path="/search" element={<LazyPages.Explore />} />
+                <Route path="/friends" element={<LazyPages.Friends />} />
+                <Route path="/profile" element={<LazyPages.Profile />} />
+                <Route path="/profile/photos" element={<LazyPages.ProfilePhotosPage />} />
+                <Route path="/profile/:username/photos" element={<LazyPages.ProfilePhotosPage />} />
+                <Route path="/profile/:username" element={<LazyPages.Profile />} />
+                <Route path="/profile/:username/friends" element={<LazyPages.ProfileFriendsPage />} />
+                <Route path="/vip-chat" element={<LazyPages.VipChat />} />
+                <Route path="/messages" element={<LazyPages.MessagesPage />} />
+                <Route path="/messages/:conversationId" element={<LazyPages.MessagesPage />} />
+                <Route path="/stories/archive" element={<LazyPages.StoryArchivePage />} />
+                <Route path="/first-page" element={<LazyPages.FirstPage />} />
+                <Route path="/wallet" element={<LazyPages.WalletPage />} />
 
-              <Route path="/notifications" element={<NotificationsPage />} />
-              <Route path="/posts/:postId" element={<LegacyPostShareRedirect />} />
-              <Route
-                path="/post/:postId"
-                element={
-                  <Post
-                    onGoBack={() => navigate(-1)}
-                    onGoProfile={(value) => {
-                      const username = resolveProfileUsername(value);
-                      if (username) navigate(`/profile/${encodeURIComponent(username)}`);
-                    }}
-                  />
-                }
-              />
+                <Route path="/notifications" element={<LazyPages.NotificationsPage />} />
+                <Route path="/posts/:postId" element={<LegacyPostShareRedirect />} />
+                <Route path="/post/:postId" element={<PostRoute />} />
 
-              <Route path="/my-gifts" element={<MyGiftsPage />} />
+                <Route path="/my-gifts" element={<LazyPages.MyGiftsPage />} />
 
-              <Route path="/video" element={<VideoPage />} />
-              <Route path="/live/:liveId?" element={<LivePage />} />
-              <Route path="/saved" element={<SavedPage />} />
-              <Route path="/saved/collections/:collectionId" element={<SavedPage />} />
-              <Route path="/oops" element={<OopsPage />} />
-              <Route path="/users/profile/complete" element={<CompleteProfilePage />} />
-              <Route path="/users/profile/edit" element={<EditProfilePage />} />
+                <Route path="/video" element={<LazyPages.VideoPage />} />
+                <Route path="/live/:liveId?" element={<LazyPages.LivePage />} />
+                <Route path="/saved" element={<LazyPages.SavedPage />} />
+                <Route path="/saved/collections/:collectionId" element={<LazyPages.SavedPage />} />
+                <Route path="/oops" element={<LazyPages.OopsPage />} />
+                <Route path="/users/profile/complete" element={<LazyPages.CompleteProfilePage />} />
+                <Route path="/users/profile/edit" element={<LazyPages.EditProfilePage />} />
 
-              <Route path="/settings/account" element={<AccountSettingsPage />} />
-              <Route path="/settings/vip-access" element={<VipAccessSettingsPage />} />
-              <Route path="/settings/change-password" element={<ChangePasswordPage />} />
-              <Route path="/settings/privacy" element={<PrivacySettingsPage />} />
-              <Route path="/settings/security" element={<SecuritySettingsPage />} />
-              <Route path="/settings/security/two-factor" element={<TwoFactorSettingsPage />} />
-              <Route path="/settings/blocked" element={<BlockedUsersPage />} />
+                <Route path="/settings/account" element={<LazyPages.AccountSettingsPage />} />
+                <Route path="/settings/vip-access" element={<LazyPages.VipAccessSettingsPage />} />
+                <Route path="/settings/change-password" element={<LazyPages.ChangePasswordPage />} />
+                <Route path="/settings/privacy" element={<LazyPages.PrivacySettingsPage />} />
+                <Route path="/settings/security" element={<LazyPages.SecuritySettingsPage />} />
+                <Route path="/settings/security/two-factor" element={<LazyPages.TwoFactorSettingsPage />} />
+                <Route path="/settings/blocked" element={<LazyPages.BlockedUsersPage />} />
 
-              <Route path="/admin" element={<AdminLayout />}>
-                <Route index element={<AdminDashboardPage />} />
-                <Route path="feedback" element={<AdminFeedbackPage />} />
-                <Route path="reports" element={<AdminReportsPage />} />
-                <Route path="users" element={<AdminUsersPage />} />
-              </Route>
+                <Route path="/admin" element={<LazyPages.AdminLayout />}>
+                  <Route index element={<LazyPages.AdminDashboardPage />} />
+                  <Route path="feedback" element={<LazyPages.AdminFeedbackPage />} />
+                  <Route path="reports" element={<LazyPages.AdminReportsPage />} />
+                  <Route path="users" element={<LazyPages.AdminUsersPage />} />
+                </Route>
 
-              <Route path="/legal/privacy" element={<LegalPrivacyPage />} />
-              <Route path="/legal/terms" element={<LegalTermsPage />} />
-              <Route path="/legal/community-guidelines" element={<LegalCommunityGuidelinesPage />} />
-              <Route path="/legal/delete-account" element={<LegalDeleteAccountPage />} />
-              <Route path="/legal/accept-terms" element={<LegalAcceptTermsPage />} />
+                <Route path="/legal/privacy" element={<LazyPages.LegalPrivacyPage />} />
+                <Route path="/legal/terms" element={<LazyPages.LegalTermsPage />} />
+                <Route path="/legal/community-guidelines" element={<LazyPages.LegalCommunityGuidelinesPage />} />
+                <Route path="/legal/delete-account" element={<LazyPages.LegalDeleteAccountPage />} />
+                <Route path="/legal/accept-terms" element={<LazyPages.LegalAcceptTermsPage />} />
 
-              <Route path="/earn" element={<EarnPage />} />
-              <Route path="/features/chat" element={<FeatureChatPage />} />
-              <Route path="/features/stories" element={<FeatureStoriesPage />} />
-              <Route path="/features/gifts" element={<FeatureGiftsPage />} />
-              <Route path="/features/profile" element={<FeatureProfilePage />} />
-              <Route path="/features/security" element={<FeatureSecurityPage />} />
+                <Route path="/earn" element={<LazyPages.EarnPage />} />
+                <Route path="/features/chat" element={<LazyPages.FeatureChatPage />} />
+                <Route path="/features/stories" element={<LazyPages.FeatureStoriesPage />} />
+                <Route path="/features/gifts" element={<LazyPages.FeatureGiftsPage />} />
+                <Route path="/features/profile" element={<LazyPages.FeatureProfilePage />} />
+                <Route path="/features/security" element={<LazyPages.FeatureSecurityPage />} />
 
-              <Route path="/auth/login" element={<LoginPage />} />
-              <Route path="/auth/register" element={<RegisterPage />} />
+                <Route path="/auth/login" element={<LazyPages.LoginPage />} />
+                <Route path="/auth/register" element={<LazyPages.RegisterPage />} />
 
-              <Route path="/auth/verify-email" element={<VerifyEmailPage />} />
+                <Route path="/auth/verify-email" element={<LazyPages.VerifyEmailPage />} />
 
-              <Route path="/auth/google/success" element={<GoogleOAuthSuccess />} />
-              <Route path="/auth/mfa" element={<MfaVerifyPage />} />
+                <Route path="/auth/google/success" element={<LazyPages.GoogleOAuthSuccess />} />
+                <Route path="/auth/mfa" element={<LazyPages.MfaVerifyPage />} />
 
-              <Route path="/auth/forgot-password" element={<ForgotPassword />} />
-              <Route path="/auth/reset/verify-code" element={<VerifyResetCodePage />} />
-              <Route path="/auth/reset/new-password" element={<ResetNewPasswordPage />} />
+                <Route path="/auth/forgot-password" element={<LazyPages.ForgotPassword />} />
+                <Route path="/auth/reset/verify-code" element={<LazyPages.VerifyResetCodePage />} />
+                <Route path="/auth/reset/new-password" element={<LazyPages.ResetNewPasswordPage />} />
 
-              <Route path="/auth/callback" element={<AuthCallback />} />
-              <Route path="*" element={<NotFoundPage />} />
-            </Routes>
+                <Route path="/auth/callback" element={<LazyPages.AuthCallback />} />
+                <Route path="*" element={<LazyPages.NotFoundPage />} />
+              </Routes>
+            </Suspense>
           </div>
         </div>
       </div>

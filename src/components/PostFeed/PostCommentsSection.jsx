@@ -183,7 +183,7 @@ function CommentBubble({
 
 function ReplyRow({
   reply,
-  post,
+  post: _post,
   currentUserId,
   profileNav,
   onDeleteComment,

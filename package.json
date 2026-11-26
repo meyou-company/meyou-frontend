@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "node scripts/sentry-build.mjs pre && vite build && node scripts/sentry-build.mjs post",
     "og:generate": "node scripts/generate-og-png.mjs",
     "lint": "eslint .",
     "i18n:audit": "node scripts/audit-i18n.mjs",
@@ -13,6 +13,8 @@
     "format": "prettier . --write",
     "format:check": "prettier . --check",
     "test": "vitest run",
+    "test:ci": "vitest run && node --test scripts/sentry-env-snapshot.test.js && node scripts/run-node-tests.mjs",
+    "test:sentry-smoke": "node scripts/sentry-smoke-local.mjs",
     "test:auth-session": "vitest run src/services/authSession.test.js",
     "test:session-refresh": "vitest run src/services/sessionRefresh.test.js src/services/authRefresh.test.js",
     "test:chat-delivery": "vitest run src/utils/chatMediaDeliveryCache.test.js src/config/sec009ChatDelivery.test.js src/hooks/useChatAttachmentDelivery.test.js src/components/Messages/MessageAttachments.featureFlag.test.jsx src/components/Messages/ChatAttachmentMedia.protected.test.jsx src/components/Messages/MediaViewerModal.test.jsx"
@@ -21,6 +23,7 @@
     "@hookform/resolvers": "^5.2.2",
     "@livekit/components-react": "^2.9.23",
     "@mediapipe/tasks-vision": "0.10.32",
+    "@sentry/react": "^9.47.2",
     "axios": "^1.13.2",
     "emoji-picker-react": "^4.19.1",
     "i18next": "^26.3.1",
@@ -51,6 +54,7 @@
     "autoprefixer": "^10.4.22",
     "eslint": "^9.39.1",
     "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^7.0.1",
     "eslint-plugin-react-refresh": "^0.4.24",
     "globals": "^16.5.0",

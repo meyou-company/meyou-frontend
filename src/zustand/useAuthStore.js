@@ -7,11 +7,7 @@ import {
   persistOAuthSessionTokens,
 } from '../services/api';
 import { authApi } from '../services/auth';
-import {
-  applyAuthFromSession,
-  ensureAccessTokenInStore,
-  pickAccessToken,
-} from '../services/authSession';
+import { ensureAccessTokenInStore, pickAccessToken } from '../services/authSession';
 import { passwordApi } from '../services/passwordApi';
 import { disconnectSocket } from '../services/socket';
 import { useMessagesStore } from './useMessagesStore';

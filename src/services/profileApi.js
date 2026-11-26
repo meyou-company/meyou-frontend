@@ -1,5 +1,4 @@
 import { api } from "./api";
-import { authApi } from "./auth";
 
 export const profileApi = {
   async getProfileStatus() {

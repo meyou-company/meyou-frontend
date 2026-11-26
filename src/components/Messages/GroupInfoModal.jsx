@@ -130,7 +130,7 @@ function MemberActionsMenu({ isOpen, anchorRect, items, label, onClose, onAction
         aria-label={label}
       >
         <ul className="chatContextMenu__list">
-          {items.map(({ id, Icon, label: itemLabel, danger }) => (
+          {items.map(({ id, Icon: MenuIcon, label: itemLabel, danger }) => (
             <li key={id}>
               <button
                 type="button"
@@ -139,7 +139,7 @@ function MemberActionsMenu({ isOpen, anchorRect, items, label, onClose, onAction
                 onClick={() => onAction?.(id)}
               >
                 <span className="chatContextMenu__icon" aria-hidden="true">
-                  <Icon size={16} />
+                  <MenuIcon size={16} />
                 </span>
                 <span>{itemLabel}</span>
               </button>
@@ -297,7 +297,7 @@ export default function GroupInfoModal({
     if (!file) return;
     try {
       setBusy(true);
-      const url = await uploadMessageMedia(file);
+      const { url } = await uploadMessageMedia(file);
       const updated = await conversationsApi.updateGroup(conversation.id, {
         avatarUrl: url,
       });

@@ -3,9 +3,12 @@ import { useTranslation } from 'react-i18next';
 import { useLocation } from 'react-router-dom';
 import { toast } from 'sonner';
 
-import ActiveCallOverlay from '../components/Calls/ActiveCallOverlay';
-import GroupCallOverlay from '../components/Calls/GroupCallOverlay';
 import IncomingCallModal from '../components/Calls/IncomingCallModal';
+import {
+  LazyActiveCallOverlay,
+  LazyGroupCallOverlay,
+  preloadCallOverlayChunks,
+} from './callOverlayChunks.jsx';
 import OutgoingCallScreen from '../components/Calls/OutgoingCallScreen';
 import { CALL_SOCKET_EVENTS } from '../constants/callEvents';
 import { isPublicPath } from '../constants/publicRoutes';
@@ -14,7 +17,7 @@ import { getSessionAccessToken } from '../services/api';
 import { callsApi } from '../services/callsApi';
 import { connectSocket } from '../services/socket';
 import { getApiErrorMessage } from '../utils/getApiErrorMessage';
-import { clearSharedCallRoom } from '../utils/callRoomSession';
+import { clearSharedCallRoom } from '../utils/callRoomSessionLoader';
 import { useAuthStore } from '../zustand/useAuthStore';
 import { useCallsStore } from '../zustand/useCallsStore';
 import { useGroupRoomsStore } from '../zustand/useGroupRoomsStore';
@@ -83,6 +86,19 @@ export function CallsProvider() {
     Boolean(user) &&
     Boolean(token) &&
     !isPublicPath(location.pathname);
+
+  // Preload LiveKit UI while ringing / before active media (keeps incoming signaling eager).
+  useEffect(() => {
+    if (
+      phase === 'incoming' ||
+      phase === 'outgoing' ||
+      phase === 'connecting' ||
+      phase === 'active' ||
+      phase === 'error'
+    ) {
+      void preloadCallOverlayChunks();
+    }
+  }, [phase]);
 
   const clearCall = useCallback(async () => {
     stopRinging();
@@ -453,7 +469,7 @@ export function CallsProvider() {
     return (
       <>
         {unlockHint}
-        <GroupCallOverlay
+        <LazyGroupCallOverlay
           call={call}
           media={media}
           mediaType={mediaType}
@@ -467,6 +483,7 @@ export function CallsProvider() {
             useCallsStore.getState().setConnectionStatus(s)
           }
           onLeave={handleEnd}
+          onCancel={handleCancel}
           onMinimize={() => useCallsStore.getState().setUiMode('mini')}
           onExpand={() => useCallsStore.getState().setUiMode('full')}
           onFatalError={(msg) => useCallsStore.getState().setError(msg)}
@@ -492,7 +509,7 @@ export function CallsProvider() {
     return (
       <>
         {unlockHint}
-        <ActiveCallOverlay
+        <LazyActiveCallOverlay
           call={call}
           media={media}
           mediaType={mediaType}
@@ -505,6 +522,7 @@ export function CallsProvider() {
             useCallsStore.getState().setConnectionStatus(s)
           }
           onEnd={handleEnd}
+          onCancel={handleCancel}
           onFatalError={(msg) => useCallsStore.getState().setError(msg)}
         />
       </>

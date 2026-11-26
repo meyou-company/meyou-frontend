@@ -24,7 +24,7 @@
   text-decoration: underline;
 }
 
-html[data-theme="dark"] .postTextExpand__toggle,
+html[data-theme='dark'] .postTextExpand__toggle,
 body.dark .postTextExpand__toggle {
   color: #c4b5ff;
 }
@@ -52,12 +52,13 @@ body.dark .postTextExpand__toggle {
 }
 
 body.dark .postShare__embed,
-html[data-theme="dark"] .postShare__embed {
+html[data-theme='dark'] .postShare__embed {
   border-color: rgba(255, 255, 255, 0.12);
   background: rgba(36, 37, 38, 0.55);
 }
 
 body.dark .postShare__embedAuthor,
-html[data-theme="dark"] .postShare__embedAuthor {
+body.dark .postShare__embedText,
+html[data-theme='dark'] .postShare__embedAuthor {
   color: rgba(255, 255, 255, 0.92);
 }

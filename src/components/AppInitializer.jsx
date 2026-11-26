@@ -13,7 +13,7 @@ export default function AppInitializer() {
       try {
         setLoading(true);
         await init();
-      } catch (e) {
+      } catch {
         toast.error(i18n.t("common.appLoadError"));
       } finally {
         setLoading(false);

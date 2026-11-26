@@ -5,7 +5,7 @@ export const CITY_NAME_MAX_LENGTH = 120;
  * hyphens, apostrophes (ASCII and typographic), dots, commas, slashes, parentheses.
  */
 const CITY_NAME_PATTERN =
-  /^[\p{L}\p{M}\p{N}\s.'’‘‛ʻʼ`´ʹˈ,.\-\/()«»·\u2010-\u2014]+$/u;
+  /^[\p{L}\p{M}\p{N}\s.'’‘‛ʻʼ`´ʹˈ,.\-/()«»·\u2010-\u2014]+$/u;
 
 export function isValidCityName(value, options = {}) {
   if (typeof value !== 'string') {

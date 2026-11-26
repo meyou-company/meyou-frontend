@@ -11,7 +11,7 @@ export default function AppHeader({
   onGoWallet,
   onGoVipChat,
   onGoHome,
-  showTabletNav = false,
+  showTabletNav: _showTabletNav = false,
   variant,
   className = "",
 }) {

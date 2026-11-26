@@ -1,0 +1,11 @@
+{
+  "capturedAt": "2025-11-26",
+  "branch": "main",
+  "note": "Single index chunk before route/call overlay lazy loading (LUN-PL-002 baseline).",
+  "initialJsKB": 3156.93,
+  "initialJsGzipKB": 897.63,
+  "initialCssKB": 725.42,
+  "initialCssGzipKB": 118.92,
+  "jsChunkCount": 1,
+  "totalJsKB": 3156.93
+}

@@ -50,11 +50,12 @@ export default function MessageComposer({
   const inputRef = useRef(null);
   const [recording, setRecording] = useState(false);
   const [uploadingFile, setUploadingFile] = useState(false);
+  const [optimizingPhoto, setOptimizingPhoto] = useState(false);
   const [pendingAttachments, setPendingAttachments] = useState([]);
   const mediaRecorderRef = useRef(null);
   const recordChunksRef = useRef([]);
 
-  const busy = sending || uploadingFile;
+  const busy = sending || uploadingFile || optimizingPhoto;
   const hasText = Boolean((value ?? '').trim());
   const hasPending = pendingAttachments.length > 0;
   const canSend = (hasText || hasPending) && !busy;
@@ -124,8 +125,12 @@ export default function MessageComposer({
       if (snapshot.length) setUploadingFile(true);
       const attachments = [];
       for (const item of snapshot) {
-        const url = await uploadMessageMedia(item.file);
-        attachments.push(buildAttachmentFromFile(item.file, url));
+        const { url, file: uploadFile } = await uploadMessageMedia(item.file, {
+          onImagePrepare: (phase) => {
+            setOptimizingPhoto(phase === 'decode' || phase === 'optimize');
+          },
+        });
+        attachments.push(buildAttachmentFromFile(uploadFile, url));
       }
 
       const type = attachments.length
@@ -144,6 +149,7 @@ export default function MessageComposer({
       toast.error(getMediaUploadErrorMessage(err, 'messenger.uploadError'));
     } finally {
       setUploadingFile(false);
+      setOptimizingPhoto(false);
     }
   };
 
@@ -186,7 +192,7 @@ export default function MessageComposer({
     [busy, onSendPayload, stopTyping],
   );
 
-  const handleFileSelect = (source) => (e) => {
+  const handleFileSelect = (_source) => (e) => {
     const files = e.target.files;
     if (files?.length) {
       addPendingFiles(files);
@@ -347,6 +353,9 @@ export default function MessageComposer({
         </div>
       </div>
 
+      {optimizingPhoto ? (
+        <p className="msgComposer__uploadHint">{t('messenger.optimizingPhoto')}</p>
+      ) : null}
       {uploadingFile ? (
         <p className="msgComposer__uploadHint">{t('messenger.uploading')}</p>
       ) : null}

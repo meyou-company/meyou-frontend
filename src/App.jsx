@@ -4,6 +4,7 @@ import { i18n } from './i18n';
 import { I18nProvider } from './providers/I18nProvider';
 import { useAuthStore } from './zustand/useAuthStore';
 import AppRouter from './router/AppRouter';
+import RootErrorBoundary from './components/RootErrorBoundary/RootErrorBoundary';
 import { GlobalLoaderProvider } from './context/GlobalLoaderContext';
 import GlobalLoader from './components/GlobalLoader/GlobalLoader';
 
@@ -31,7 +32,9 @@ function AppBootstrap() {
 export default function App() {
   return (
     <I18nProvider>
-      <AppBootstrap />
+      <RootErrorBoundary>
+        <AppBootstrap />
+      </RootErrorBoundary>
     </I18nProvider>
   );
 }

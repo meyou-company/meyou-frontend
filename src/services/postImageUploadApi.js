@@ -183,7 +183,7 @@ async function uploadUnsignedToCloudinary(file) {
   let body = null;
   try {
     body = await uploadRes.json();
-  } catch (_) {
+  } catch {
     /* ignore */
   }
 
@@ -265,7 +265,7 @@ async function uploadViaPostMediaPresign(file) {
   let cloudBody = null;
   try {
     cloudBody = await uploadRes.json();
-  } catch (_) {
+  } catch {
     /* non-JSON body */
   }
 

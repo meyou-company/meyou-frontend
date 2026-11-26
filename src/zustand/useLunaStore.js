@@ -7,6 +7,7 @@ import {
   readStoredConversationId,
   writeStoredConversationId,
 } from "../utils/lunaConversations";
+import { getLunaErrorMeta } from "../utils/getApiErrorMessage";
 
 function nonce() {
   return `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
@@ -28,6 +29,7 @@ export const useLunaStore = create((set, get) => ({
   sending: false,
   mutating: false,
   error: null,
+  errorMeta: null,
   lastNonce: null,
   lastText: null,
   lastImage: null,
@@ -234,6 +236,7 @@ export const useLunaStore = create((set, get) => ({
     set({
       sending: true,
       error: null,
+      errorMeta: null,
       lastNonce: clientNonce,
       lastText: trimmed,
       lastImage: imageFile || null,
@@ -267,6 +270,7 @@ export const useLunaStore = create((set, get) => ({
       set((state) => ({
         sending: false,
         error,
+        errorMeta: getLunaErrorMeta(error),
         messages: state.messages.map((m) =>
           m.id === optimistic.id ? { ...m, pending: false, failed: true } : m,
         ),
@@ -274,11 +278,12 @@ export const useLunaStore = create((set, get) => ({
     }
   },
   async retry() {
-    const { lastText, lastNonce, lastImage, messages, conversationId } = get();
-    if ((!lastText && !lastImage) || !lastNonce) return;
+    const { lastText, lastNonce, lastImage, messages, conversationId, sending } = get();
+    if (sending || (!lastText && !lastImage) || !lastNonce) return;
     set({
       sending: true,
       error: null,
+      errorMeta: null,
       messages: messages.map((m) =>
         m.failed ? { ...m, failed: false, pending: true } : m,
       ),
@@ -317,11 +322,15 @@ export const useLunaStore = create((set, get) => ({
       set((state) => ({
         sending: false,
         error,
+        errorMeta: getLunaErrorMeta(error),
         messages: state.messages.map((m) =>
           m.pending ? { ...m, pending: false, failed: true } : m,
         ),
       }));
     }
+  },
+  clearError() {
+    set({ error: null, errorMeta: null });
   },
   markGreetingPlayed() {
     set({ greetingPlayed: true });

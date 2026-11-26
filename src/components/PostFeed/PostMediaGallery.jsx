@@ -21,8 +21,6 @@ useEffect(() => {
   if (!images.length) return null;
 
   const total = images.length;
-  const hidden = Math.max(0, total - 5);
-
   const openAt = (index) => {
     if (typeof onOpenLightbox === "function") onOpenLightbox(images, index);
   };

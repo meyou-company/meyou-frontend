@@ -1456,6 +1456,18 @@
   height: 32px;
 }
 
+@media (min-width: 1024px) {
+  .storyUploadModal:not(.storyUploadModal--editorMode) {
+    .storyUploadModal__title { font-size: 24px; }
+    .storyUploadModal__pickFileBtn {
+      width: min(100%, 380px);
+      min-height: 64px;
+      font-size: 18px;
+      padding: 16px 20px;
+    }
+  }
+}
+
 .storyUploadModal--editorMode .storyUploadModal__editor { position: relative; }
 
 @media (min-width: 1024px) {

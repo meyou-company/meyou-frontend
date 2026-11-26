@@ -129,7 +129,7 @@ export default function CreateGroupModal({ isOpen, currentUserId, onClose, onCre
     if (!file) return;
     try {
       setUploading(true);
-      const url = await uploadMessageMedia(file);
+      const { url } = await uploadMessageMedia(file);
       setAvatarUrl(url);
     } catch (err) {
       toast.error(getMediaUploadErrorMessage(err, 'messenger.uploadError'));
