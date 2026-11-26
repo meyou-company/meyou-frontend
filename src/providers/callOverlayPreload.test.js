@@ -9,10 +9,10 @@ describe('preloadCallOverlayChunks', () => {
     await first;
   });
 
-  it('resolves overlay chunk imports without mounting UI', async () => {
+  it('resolves overlay and callRoomSession imports without mounting UI', async () => {
     const { preloadCallOverlayChunks } = await import('./callOverlayChunks.jsx');
     const result = await preloadCallOverlayChunks();
     expect(Array.isArray(result)).toBe(true);
-    expect(result).toHaveLength(2);
+    expect(result).toHaveLength(3);
   });
 });

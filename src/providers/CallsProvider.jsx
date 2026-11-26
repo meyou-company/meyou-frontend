@@ -17,7 +17,7 @@ import { getSessionAccessToken } from '../services/api';
 import { callsApi } from '../services/callsApi';
 import { connectSocket } from '../services/socket';
 import { getApiErrorMessage } from '../utils/getApiErrorMessage';
-import { clearSharedCallRoom } from '../utils/callRoomSession';
+import { clearSharedCallRoom } from '../utils/callRoomSessionLoader';
 import { useAuthStore } from '../zustand/useAuthStore';
 import { useCallsStore } from '../zustand/useCallsStore';
 import { useGroupRoomsStore } from '../zustand/useGroupRoomsStore';

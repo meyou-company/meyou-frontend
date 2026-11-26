@@ -1,18 +1,20 @@
 import { lazy, Suspense } from 'react';
 
 import OutgoingCallScreen from '../components/Calls/OutgoingCallScreen';
+import { preloadCallRoomSessionModule } from '../utils/callRoomSessionLoader';
 
 const ActiveCallOverlay = lazy(() => import('../components/Calls/ActiveCallOverlay'));
 const GroupCallOverlay = lazy(() => import('../components/Calls/GroupCallOverlay'));
 
 let preloadPromise = null;
 
-/** Warm LiveKit overlay chunks before active UI (incoming ring, restore, group join). */
+/** Warm LiveKit overlay chunks + shared room module (incoming ring, restore, group join). */
 export function preloadCallOverlayChunks() {
   if (!preloadPromise) {
     preloadPromise = Promise.all([
       import('../components/Calls/ActiveCallOverlay'),
       import('../components/Calls/GroupCallOverlay'),
+      preloadCallRoomSessionModule(),
     ]).finally(() => {
       preloadPromise = null;
     });
