@@ -10,6 +10,6 @@ export default defineConfig({
   root,
   test: {
     environment: "jsdom",
-    exclude: ["node_modules/**", "dist/**", ...vitestExcludeFromJs],
+    exclude: ["node_modules/**", "dist/**", "scripts/**", ...vitestExcludeFromJs],
   },
 });
