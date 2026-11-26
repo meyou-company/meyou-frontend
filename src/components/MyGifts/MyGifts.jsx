@@ -6,6 +6,7 @@ import { LOCAL_GIFT_CATALOG } from "../../constants/giftCatalog";
 import { getGiftDisplayById, mergeCatalogSections } from "../../constants/giftDisplayCatalog";
 import profileIcons from "../../constants/profileIcons";
 import { giftsApi } from "../../services/giftsApi";
+import { GIFTS_PAGE_SIZE, mergeGiftListItems } from "../../services/giftsPagination";
 import { subscriptionsApi } from "../../services/subscriptionsApi";
 import { getApiErrorCode, getApiErrorMessage } from "../../utils/getApiErrorMessage";
 import {
@@ -53,6 +54,12 @@ export default function MyGifts({ goBack, receiverId, receiverName, thankMode = 
     mergeCatalogSections(LOCAL_GIFT_CATALOG),
   );
   const [received, setReceived] = useState([]);
+  const [receivedHasMore, setReceivedHasMore] = useState(false);
+  const [receivedNextCursor, setReceivedNextCursor] = useState(null);
+  const [historyLoading, setHistoryLoading] = useState(false);
+  const [historyLoadingMore, setHistoryLoadingMore] = useState(false);
+  const [historyError, setHistoryError] = useState(false);
+  const historyFetchRef = useRef({ inFlight: false, loadMoreInFlight: false });
   const [selectedGiftsById, setSelectedGiftsById] = useState(() => new Map());
   const [selectedRecipientsById, setSelectedRecipientsById] = useState(() => new Map());
   const [pickFriendOpen, setPickFriendOpen] = useState(false);
@@ -81,11 +88,56 @@ export default function MyGifts({ goBack, receiverId, receiverName, thankMode = 
   );
   const canSend = selectedGifts.length > 0 && selectedRecipients.length > 0 && !sending;
 
-  const loadHistory = () =>
+  const loadHistoryFirstPage = () => {
+    if (historyFetchRef.current.inFlight) return Promise.resolve();
+    historyFetchRef.current.inFlight = true;
+    setHistoryLoading(true);
+    setHistoryError(false);
+    return giftsApi
+      .getReceived({ take: GIFTS_PAGE_SIZE })
+      .then((page) => {
+        setReceived(Array.isArray(page?.items) ? page.items : []);
+        setReceivedHasMore(Boolean(page?.hasMore));
+        setReceivedNextCursor(page?.nextCursor ?? null);
+      })
+      .catch(() => {
+        setReceived([]);
+        setReceivedHasMore(false);
+        setReceivedNextCursor(null);
+        setHistoryError(true);
+      })
+      .finally(() => {
+        historyFetchRef.current.inFlight = false;
+        setHistoryLoading(false);
+      });
+  };
+
+  const loadHistoryMore = () => {
+    if (
+      historyFetchRef.current.loadMoreInFlight
+      || historyFetchRef.current.inFlight
+      || !receivedHasMore
+      || !receivedNextCursor
+    ) {
+      return;
+    }
+    historyFetchRef.current.loadMoreInFlight = true;
+    setHistoryLoadingMore(true);
+    setHistoryError(false);
+    const cursor = receivedNextCursor;
     giftsApi
-      .getReceived()
-      .then((data) => setReceived(Array.isArray(data?.items) ? data.items : []))
-      .catch(() => setReceived([]));
+      .getReceived({ cursor, take: GIFTS_PAGE_SIZE })
+      .then((page) => {
+        setReceived((prev) => mergeGiftListItems(prev, page?.items ?? []));
+        setReceivedHasMore(Boolean(page?.hasMore));
+        setReceivedNextCursor(page?.nextCursor ?? null);
+      })
+      .catch(() => setHistoryError(true))
+      .finally(() => {
+        historyFetchRef.current.loadMoreInFlight = false;
+        setHistoryLoadingMore(false);
+      });
+  };
 
   useEffect(() => {
     let cancelled = false;
@@ -98,16 +150,22 @@ export default function MyGifts({ goBack, receiverId, receiverName, thankMode = 
         }
       })
       .catch(() => {});
-    loadHistory();
     const onGiftOpened = () => {
-      void loadHistory();
+      if (pageView === "history") void loadHistoryFirstPage();
     };
     window.addEventListener("meyou:gift-opened", onGiftOpened);
     return () => {
       cancelled = true;
       window.removeEventListener("meyou:gift-opened", onGiftOpened);
     };
-  }, []);
+  }, [pageView]);
+
+  useEffect(() => {
+    if (pageView !== "history") return undefined;
+    if (received.length > 0 || historyFetchRef.current.inFlight) return undefined;
+    void loadHistoryFirstPage();
+    return undefined;
+  }, [pageView, received.length]);
 
   useEffect(() => {
     if (!receiverId) {
@@ -937,7 +995,20 @@ export default function MyGifts({ goBack, receiverId, receiverName, thankMode = 
           ) : null}
 
           <div className="my-gifts-page__previousList">
-            {received.length === 0 ? (
+            {historyLoading && received.length === 0 ? (
+              <p className="my-gifts-page__empty">{t("common.loading")}</p>
+            ) : historyError && received.length === 0 ? (
+              <div className="my-gifts-page__historyFooter">
+                <p className="my-gifts-page__empty">{t("gifts.historyLoadError")}</p>
+                <button
+                  type="button"
+                  className="my-gifts-page__linkBtn"
+                  onClick={() => void loadHistoryFirstPage()}
+                >
+                  {t("common.retry")}
+                </button>
+              </div>
+            ) : received.length === 0 ? (
               <p className="my-gifts-page__empty">{t("gifts.empty")}</p>
             ) : filteredReceived.length === 0 ? (
               <p className="my-gifts-page__empty">{t("gifts.filterEmpty")}</p>
@@ -983,6 +1054,21 @@ export default function MyGifts({ goBack, receiverId, receiverName, thankMode = 
                 );
               })
             )}
+            {received.length > 0 && receivedHasMore ? (
+              <div className="my-gifts-page__historyFooter">
+                {historyError ? (
+                  <p className="my-gifts-page__empty">{t("gifts.historyLoadError")}</p>
+                ) : null}
+                <button
+                  type="button"
+                  className="my-gifts-page__linkBtn"
+                  disabled={historyLoadingMore}
+                  onClick={() => loadHistoryMore()}
+                >
+                  {historyLoadingMore ? t("gifts.loadingMore") : t("gifts.loadMore")}
+                </button>
+              </div>
+            ) : null}
           </div>
             </>
           )}
