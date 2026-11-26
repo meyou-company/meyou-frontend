@@ -138,6 +138,21 @@
   box-shadow: 0 0 0 3px #fff, 0 0 0 5px #ff4fb1;
 }
 
+.storyCamera__filter[aria-busy="true"] .storyCamera__filterSwatch {
+  position: relative;
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 12px;
+    border: 2px solid #fff;
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: storyBeautyLoading 800ms linear infinite;
+  }
+}
+
+@keyframes storyBeautyLoading { to { transform: rotate(360deg); } }
+
 .storyCamera__intensity {
   display: grid;
   grid-template-columns: auto 1fr 38px;
