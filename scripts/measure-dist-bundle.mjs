@@ -120,13 +120,9 @@ function measure() {
   const initialJsList = jsChunks.filter((c) => c.inInitialGraph);
   const initialCssList = cssChunks.filter((c) => c.inInitialGraph);
 
-  const livekitInInitial = initialJsList.some((c) => {
-    const src = readFileSync(join(assetsDir, c.name), 'utf8');
-    return (
-      src.includes('livekit-client.esm') ||
-      /from"\.\/livekit-client/.test(src)
-    );
-  });
+  const livekitInInitial = initialJsFiles.some((name) =>
+    name.includes('livekit-client'),
+  );
 
   const report = {
     entryScripts: scriptRefs,
