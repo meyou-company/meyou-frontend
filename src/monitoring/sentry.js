@@ -15,8 +15,13 @@ const DEDUPE_MS = 60_000;
 
 let active = false;
 
+function sentryEnabledFlag() {
+  const raw = String(import.meta.env.VITE_SENTRY_ENABLED ?? '').trim();
+  return raw.toLowerCase() === 'true';
+}
+
 export function isSentryEnabled() {
-  if (import.meta.env.VITE_SENTRY_ENABLED !== 'true') return false;
+  if (!sentryEnabledFlag()) return false;
   const dsn = String(import.meta.env.VITE_SENTRY_DSN ?? '').trim();
   return Boolean(dsn);
 }

@@ -54,3 +54,13 @@ window.dispatchEvent(
 Check Network for POST to `ingest…sentry.io`. Plain `throw new Error(...)` in the Console often does not reach page handlers.
 
 **Local pipeline check:** `npm run test:sentry-smoke` (dry). Live: `SENTRY_SMOKE_DSN=<EU DSN> npm run test:sentry-smoke`.
+
+## Build-time diagnostics (Vercel / CI)
+
+`npm run build` runs `scripts/sentry-build.mjs` **pre** and **post** (non-blocking):
+
+- **pre:** boolean snapshot of `VITE_SENTRY_*` in `process.env` (no secret values; read-only, no env files created).
+- **vite:** log line `phase: vite_config` with the same snapshot.
+- **post:** scans `dist/assets/index-*.js` for `ingest(.de)?.sentry.io` (no DSN printed). Emits `BUILD_ENV_BUNDLE_MISMATCH` when env expected init but bundle has no ingest host.
+
+Search Vercel build logs for `[sentry-build-diag]`.
