@@ -1969,5 +1969,9 @@
     "restrictedDescription": "Tento obsah není k dispozici pro náhled odkazu. Otevřete LUNMEYO a zjistěte více.",
     "profileTitle": "{{name}} (@{{username}}) · LUNMEYO",
     "langQueryHint": "Přidejte ?lang=cs pro jazyk náhledu (ne všechny sítě to respektují)."
+  },
+  "adminAudit": {
+    "usersPlaceholder": "Správa uživatelů v této verzi zatím není k dispozici.",
+    "usersComingSoon": "Již brzy"
   }
 }

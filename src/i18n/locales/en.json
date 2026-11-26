@@ -1,6 +1,7 @@
 {
   "adminAudit": {
-    "usersPlaceholder": "User management is coming soon.",
+    "usersPlaceholder": "User management is not available in this build yet.",
+    "usersComingSoon": "Coming soon",
     "updateError": "Could not update the status",
     "loadReportsError": "Could not load reports",
     "openReportError": "Could not open the report",

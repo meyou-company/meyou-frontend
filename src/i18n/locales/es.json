@@ -1966,5 +1966,9 @@
     "restrictedDescription": "Este contenido no está disponible para vista previa. Abre LUNMEYO para saber más.",
     "profileTitle": "{{name}} (@{{username}}) · LUNMEYO",
     "langQueryHint": "Añade ?lang=es para el idioma del enlace (no todas las redes lo aplican)."
+  },
+  "adminAudit": {
+    "usersPlaceholder": "La gestión de usuarios aún no está disponible en esta versión.",
+    "usersComingSoon": "Próximamente"
   }
 }

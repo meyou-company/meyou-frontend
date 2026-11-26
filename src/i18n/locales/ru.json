@@ -2226,5 +2226,9 @@
     "restrictedDescription": "Этот контент недоступен для предпросмотра. Откройте LUNMEYO, чтобы узнать больше.",
     "profileTitle": "{{name}} (@{{username}}) · LUNMEYO",
     "langQueryHint": "Добавьте ?lang=ru для языка превью (не все платформы учитывают)."
+  },
+  "adminAudit": {
+    "usersPlaceholder": "Управление пользователями пока недоступно в этой сборке.",
+    "usersComingSoon": "Скоро"
   }
 }

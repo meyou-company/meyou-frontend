@@ -4,10 +4,12 @@ export default function AdminUsersPage() {
   return (
     <section className="adminPage">
       <header className="adminPage__header">
-        <h1>Users</h1>
+        <h1>{t('admin.nav.users')}</h1>
         <p>{t('adminAudit.usersPlaceholder')}</p>
       </header>
-      <div className="adminEmpty">Coming soon</div>
+      <div className="adminEmpty" role="status">
+        {t('adminAudit.usersComingSoon')}
+      </div>
     </section>
   );
 }

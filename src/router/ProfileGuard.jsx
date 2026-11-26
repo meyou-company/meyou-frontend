@@ -1,66 +1,38 @@
-import { useEffect } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
-import { isPublicPath } from '../constants/publicRoutes';
+import { useEffect } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { clearOAuthSessionTokens } from '../services/api';
 import { useAuthStore } from '../zustand/useAuthStore';
-import { hasAcceptedTerms } from '../utils/authTerms';
+import { resolveProfileGuardState } from './profileGuardState';
 
 export default function ProfileGuard({ children }) {
   const { user, isAuthed, isAuthLoading } = useAuthStore();
   const { pathname } = useLocation();
   const navigate = useNavigate();
 
+  const guard = resolveProfileGuardState({
+    pathname,
+    isAuthLoading,
+    isAuthed,
+    user,
+  });
+
   useEffect(() => {
-    if (isAuthLoading) return;
+    if (!guard.redirect) return undefined;
 
-    const isPublicPage = isPublicPath(pathname);
+    const { to, replace = true, state } = guard.redirect;
+    if (to === pathname && !state) return undefined;
 
-    // ✅ якщо не залогінений і це не public сторінка → редірект на логін
-    if ((!isAuthed || !user) && !isPublicPage) {
+    if (guard.phase === 'unauthorized') {
       clearOAuthSessionTokens();
-      navigate("/auth/login", { replace: true });
-      return;
     }
 
-    // ✅ якщо не залогінений на public — не чіпаємо (але виходимо, бо user=null)
-    if (!user) return;
+    navigate(to, { replace, ...(state ? { state } : {}) });
+    return undefined;
+  }, [guard.phase, guard.redirect, navigate, pathname]);
 
-    const isAdminPath = pathname.startsWith('/admin');
-    if (isAdminPath) return;
-
-    // ✅ факт email-верифікації
-    const isVerified =
-      user.isVerified === true ||
-      user.emailVerified === true ||
-      user.email_verified === true ||
-      Boolean(user.emailVerifiedAt);
-
-    const needsTerms = !hasAcceptedTerms(user);
-    const isLegalPage = pathname.startsWith('/legal/');
-
-    if (needsTerms && !isLegalPage) {
-      navigate('/legal/accept-terms', { replace: true });
-      return;
-    }
-
-    const isVerifyEmailPage = pathname === '/auth/verify-email';
-
-    // 1) НЕ verified → verify-email (окрім самої сторінки верифікації та інших public)
-    if (!isVerified && !isVerifyEmailPage && !isPublicPage) {
-      navigate("/auth/verify-email", { replace: true });
-      return;
-    }
-
-    // 2) Verified, але профіль не завершений → complete (лише після email-верифікації)
-    if (
-      isVerified &&
-      user.profileCompleted === false &&
-      pathname !== '/users/profile/complete' &&
-      !isPublicPage
-    ) {
-      navigate("/users/profile/complete", { replace: true });
-    }
-  }, [isAuthLoading, isAuthed, user, pathname, navigate]);
+  if (!guard.renderChildren) {
+    return null;
+  }
 
   return children;
 }

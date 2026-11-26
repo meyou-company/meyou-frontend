@@ -1742,5 +1742,9 @@
     "animation": "رسم متحرك",
     "empty": "لا يوجد شيء بعد",
     "removeSticker": "إزالة الملصق"
+  },
+  "adminAudit": {
+    "usersPlaceholder": "إدارة المستخدمين غير متاحة بعد في هذا الإصدار.",
+    "usersComingSoon": "قريبًا"
   }
 }

@@ -1966,5 +1966,9 @@
     "restrictedDescription": "Bu içerik bağlantı önizlemesi için kullanılamıyor. Daha fazlası için LUNMEYO'yu açın.",
     "profileTitle": "{{name}} (@{{username}}) · LUNMEYO",
     "langQueryHint": "Önizleme dili için ?lang=tr ekleyin (tüm platformlar uygulamaz)."
+  },
+  "adminAudit": {
+    "usersPlaceholder": "Kullanıcı yönetimi bu sürümde henüz kullanılamıyor.",
+    "usersComingSoon": "Yakında"
   }
 }

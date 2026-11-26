@@ -16,6 +16,7 @@ import { useEffect, useMemo, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import UserAvatar from '../UserAvatar/UserAvatar';
+import { resolveBurgerMenuAction } from '../../constants/burgerMenuNavigation';
 
 const GUEST_PREVIEW_BLOCKED_MENU = new Set([
   'edit',
@@ -157,15 +158,14 @@ export default function BurgerMenu({
       return;
     }
 
-    if (
-      [
-        'favorites',
-        'support',
-        'report',
-        'about',
-      ].includes(id)
-    ) {
-      navigate('/oops');
+    const menuAction = resolveBurgerMenuAction(id);
+    if (menuAction?.kind === 'route') {
+      navigate(menuAction.path);
+      onClose();
+      return;
+    }
+    if (menuAction?.kind === 'feedback') {
+      openFeedback({ view: menuAction.view || 'compose' });
       onClose();
       return;
     }
