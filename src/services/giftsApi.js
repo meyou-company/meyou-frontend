@@ -9,12 +9,20 @@ export const giftsApi = {
     return api.get('/gifts/catalog').then(unwrap);
   },
 
-  getReceived() {
-    return api.get('/gifts/received').then(unwrap);
+  getReceived({ cursor, take } = {}) {
+    const params = new URLSearchParams();
+    if (cursor) params.set('cursor', cursor);
+    if (take != null) params.set('take', String(take));
+    const qs = params.toString();
+    return api.get(`/gifts/received${qs ? `?${qs}` : ''}`).then(unwrap);
   },
 
-  getSent() {
-    return api.get('/gifts/sent').then(unwrap);
+  getSent({ cursor, take } = {}) {
+    const params = new URLSearchParams();
+    if (cursor) params.set('cursor', cursor);
+    if (take != null) params.set('take', String(take));
+    const qs = params.toString();
+    return api.get(`/gifts/sent${qs ? `?${qs}` : ''}`).then(unwrap);
   },
 
   getRecipient(userId) {

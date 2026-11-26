@@ -6,6 +6,7 @@ import { LOCAL_GIFT_CATALOG } from "../../constants/giftCatalog";
 import { getGiftDisplayById, mergeCatalogSections } from "../../constants/giftDisplayCatalog";
 import profileIcons from "../../constants/profileIcons";
 import { giftsApi } from "../../services/giftsApi";
+import { fetchAllReceivedGifts } from "../../services/giftsPagination";
 import { subscriptionsApi } from "../../services/subscriptionsApi";
 import { getApiErrorCode, getApiErrorMessage } from "../../utils/getApiErrorMessage";
 import {
@@ -82,9 +83,8 @@ export default function MyGifts({ goBack, receiverId, receiverName, thankMode = 
   const canSend = selectedGifts.length > 0 && selectedRecipients.length > 0 && !sending;
 
   const loadHistory = () =>
-    giftsApi
-      .getReceived()
-      .then((data) => setReceived(Array.isArray(data?.items) ? data.items : []))
+    fetchAllReceivedGifts()
+      .then((items) => setReceived(Array.isArray(items) ? items : []))
       .catch(() => setReceived([]));
 
   useEffect(() => {

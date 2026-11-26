@@ -1,6 +1,6 @@
 import { useEffect, useLayoutEffect } from 'react';
 import { useLocation, useSearchParams } from 'react-router-dom';
-import { giftsApi } from '../services/giftsApi';
+import { fetchAllReceivedGifts } from '../services/giftsPagination';
 import { useAuthStore } from '../zustand/useAuthStore';
 import { useGiftInboxStore } from '../zustand/useGiftInboxStore';
 import GiftBoxOverlay from '../components/Gifts/GiftBoxOverlay';
@@ -29,11 +29,10 @@ export function GiftInboxProvider() {
     }
 
     let cancelled = false;
-    giftsApi
-      .getReceived()
-      .then((data) => {
+    fetchAllReceivedGifts()
+      .then((items) => {
         if (cancelled) return;
-        hydratePending(data?.items ?? []);
+        hydratePending(items ?? []);
       })
       .catch(() => {});
 
