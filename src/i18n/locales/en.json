@@ -1,6 +1,6 @@
 {
   "adminAudit": {
-    "usersPlaceholder": "User management is not available in this build yet.",
+    "usersPlaceholder": "Search, review, and moderate registered accounts.",
     "usersComingSoon": "Coming soon",
     "updateError": "Could not update the status",
     "loadReportsError": "Could not load reports",
@@ -1565,6 +1565,9 @@
     "SUBSCRIPTION_REQUIRED": "Subscribe to this profile to send messages.",
     "VIP_CHAT_ACCESS_REQUIRED": "Messages require VIP access to this profile.",
     "ACCOUNT_SUSPENDED": "Your account has been suspended.",
+    "ACCOUNT_SUSPENDED_TEMP": "Your account is temporarily restricted for violating community rules. Access will return after the restriction ends{{until}}.",
+    "ACCOUNT_SUSPENDED_INDEFINITE": "Access to your account is restricted. If you believe this is a mistake, contact support.",
+    "ACCOUNT_SUSPENDED_SUPPORT": "Contact support",
     "ACCOUNT_DELETED": "This account has been deleted.",
     "GIFTS_PAYMENT_NOT_AVAILABLE": "Gift payments are not available yet.",
     "GIFTS_INVALID_GIFT_ID": "Unknown gift.",
@@ -2131,7 +2134,8 @@
       "suggestion": "I have a suggestion",
       "bug": "I found a bug",
       "unclear": "Something was unclear",
-      "review": "I want to leave a review"
+      "review": "I want to leave a review",
+      "violation": "Policy / safety report"
     },
     "detailsLabel": "Tell us more...",
     "detailsPlaceholder": "Tell us more...",
@@ -2186,6 +2190,109 @@
       "feedback": "Feedback",
       "reports": "Reports",
       "users": "Users"
+    },
+    "users": {
+      "subtitle": "Registered accounts, moderation, and audit history.",
+      "searchPlaceholder": "Search username, name, email, or user ID",
+      "empty": "No users match your filters",
+      "loadError": "Could not load users",
+      "openError": "Could not open user details",
+      "statsError": "Could not load statistics",
+      "actionError": "Moderation action failed",
+      "actionSuccess": "Action recorded",
+      "viewDetails": "Details",
+      "detailTitle": "User details",
+      "auditTitle": "Administration history",
+      "noAudit": "No moderation actions yet",
+      "byAdmin": "By {{name}}",
+      "reasonRequired": "Reason (required)",
+      "noteOptional": "Internal note (optional)",
+      "suspendDuration": "Suspension ends",
+      "invalidUntil": "Choose a valid end date in the future",
+      "indefinite": "Until manual review",
+      "prev": "Previous",
+      "next": "Next",
+      "confirmWarn": "Send warning",
+      "confirmSuspend": "Suspend",
+      "confirmBan": "Block account",
+      "confirmBanTitle": "Block account indefinitely?",
+      "confirmUnban": "Restore access",
+      "sortNewest": "Newest first",
+      "sortOldest": "Oldest first",
+      "presets": {
+        "24h": "24 hours",
+        "3d": "3 days",
+        "7d": "7 days",
+        "30d": "30 days",
+        "custom": "Custom end date"
+      },
+      "filters": {
+        "allStatus": "All statuses",
+        "allRoles": "All roles",
+        "ALL": "All",
+        "vip": "VIP only",
+        "nonVip": "Non-VIP",
+        "status": "Account status",
+        "role": "Role",
+        "vipLabel": "VIP",
+        "sort": "Sort"
+      },
+      "stats": {
+        "total": "Total users",
+        "new24h": "New (24h)",
+        "new7d": "New (7 days)",
+        "new30d": "New (30 days)",
+        "active": "Active",
+        "suspended": "Suspended",
+        "temporarySuspended": "Temp. suspended",
+        "vip": "VIP"
+      },
+      "columns": {
+        "avatar": "Avatar",
+        "username": "Username",
+        "name": "Name",
+        "status": "Status",
+        "role": "Role",
+        "vip": "VIP",
+        "registered": "Registered",
+        "actions": "Actions"
+      },
+      "fields": {
+        "username": "Username",
+        "name": "Name",
+        "id": "User ID",
+        "email": "Email",
+        "status": "Status",
+        "role": "Role",
+        "vip": "VIP",
+        "registered": "Registered",
+        "lastActivity": "Last activity",
+        "suspendedUntil": "Suspended until",
+        "suspensionReason": "Suspension reason"
+      },
+      "accountStatus": {
+        "ACTIVE": "Active",
+        "SUSPENDED": "Suspended",
+        "PENDING": "Pending",
+        "DELETED": "Deleted"
+      },
+      "roles": {
+        "USER": "User",
+        "MODERATOR": "Moderator",
+        "ADMIN": "Admin"
+      },
+      "actions": {
+        "warn": "Warning",
+        "suspend": "Temporary suspension",
+        "ban": "Block",
+        "unban": "Unblock"
+      },
+      "auditTypes": {
+        "WARN": "Warning",
+        "SUSPEND_TEMPORARY": "Temporary suspension",
+        "SUSPEND_INDEFINITE": "Indefinite block",
+        "UNSUSPEND": "Access restored"
+      }
     },
     "feedback": {
       "title": "Suggestions / Feedback",

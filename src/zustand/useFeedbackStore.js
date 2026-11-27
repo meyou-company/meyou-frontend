@@ -6,6 +6,7 @@ export const FEEDBACK_TYPES = [
   { id: 'BUG', emoji: '🐞', labelKey: 'feedback.types.bug' },
   { id: 'UNCLEAR', emoji: '😕', labelKey: 'feedback.types.unclear' },
   { id: 'REVIEW', emoji: '❤️', labelKey: 'feedback.types.review' },
+  { id: 'VIOLATION', emoji: '⚠️', labelKey: 'feedback.types.violation' },
 ];
 
 export const FEEDBACK_STATUSES = [

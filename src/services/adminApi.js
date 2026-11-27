@@ -72,4 +72,71 @@ export const adminApi = {
     );
     return data;
   },
+
+  async getUsersStats() {
+    const { data } = await api.get(apiPath('/admin/users/stats'));
+    return data;
+  },
+
+  async listUsers({ q, status, role, vip, page = 1, limit = 25, sort } = {}) {
+    const { data } = await api.get(apiPath('/admin/users'), {
+      params: {
+        ...(q?.trim() ? { q: q.trim() } : {}),
+        ...(status ? { status } : {}),
+        ...(role ? { role } : {}),
+        ...(vip != null && vip !== '' ? { vip: String(vip) } : {}),
+        ...(sort ? { sort } : {}),
+        page,
+        limit,
+      },
+    });
+    return data;
+  },
+
+  async getUser(userId) {
+    const { data } = await api.get(
+      apiPath(`/admin/users/${encodeURIComponent(userId)}`),
+    );
+    return data;
+  },
+
+  async listUserModerationActions(userId, { page = 1, limit = 20 } = {}) {
+    const { data } = await api.get(
+      apiPath(`/admin/users/${encodeURIComponent(userId)}/actions`),
+      { params: { page, limit } },
+    );
+    return data;
+  },
+
+  async warnUser(userId, body) {
+    const { data } = await api.post(
+      apiPath(`/admin/users/${encodeURIComponent(userId)}/warn`),
+      body,
+    );
+    return data;
+  },
+
+  async suspendUser(userId, body) {
+    const { data } = await api.post(
+      apiPath(`/admin/users/${encodeURIComponent(userId)}/suspend`),
+      body,
+    );
+    return data;
+  },
+
+  async banUser(userId, body) {
+    const { data } = await api.post(
+      apiPath(`/admin/users/${encodeURIComponent(userId)}/ban`),
+      body,
+    );
+    return data;
+  },
+
+  async unbanUser(userId, body) {
+    const { data } = await api.post(
+      apiPath(`/admin/users/${encodeURIComponent(userId)}/unban`),
+      body,
+    );
+    return data;
+  },
 };
