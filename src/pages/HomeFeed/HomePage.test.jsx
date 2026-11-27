@@ -3,7 +3,6 @@ import { render, screen, fireEvent, cleanup } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 
 const navigateMock = vi.fn();
-const clearSessionMock = vi.fn();
 
 vi.mock('react-router-dom', async (importOriginal) => {
   const actual = await importOriginal();
@@ -12,13 +11,6 @@ vi.mock('react-router-dom', async (importOriginal) => {
     useNavigate: () => navigateMock,
   };
 });
-
-vi.mock('../../zustand/useAuthStore', () => ({
-  useAuthStore: (selector) =>
-    typeof selector === 'function'
-      ? selector({ clearSession: clearSessionMock })
-      : { clearSession: clearSessionMock },
-}));
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
@@ -48,25 +40,23 @@ describe('HomePage auth entry actions', () => {
     vi.clearAllMocks();
   });
 
-  it('clears session before navigating to register', () => {
+  it('navigates to register without forcing clearSession (pre–nav-guard behavior)', () => {
     render(
       <MemoryRouter>
         <HomePage />
       </MemoryRouter>,
     );
     fireEvent.click(screen.getByRole('button', { name: 'auth.register.submit' }));
-    expect(clearSessionMock).toHaveBeenCalledTimes(1);
     expect(navigateMock).toHaveBeenCalledWith('/auth/register');
   });
 
-  it('clears session before navigating to login', () => {
+  it('navigates to login without forcing clearSession', () => {
     render(
       <MemoryRouter>
         <HomePage />
       </MemoryRouter>,
     );
     fireEvent.click(screen.getByRole('button', { name: 'auth.login.submit' }));
-    expect(clearSessionMock).toHaveBeenCalledTimes(1);
     expect(navigateMock).toHaveBeenCalledWith('/auth/login');
   });
 });
