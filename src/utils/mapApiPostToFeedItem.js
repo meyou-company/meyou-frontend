@@ -13,6 +13,7 @@
  */
 
 import profileIcons from '../constants/profileIcons';
+import { resolveFeedPostText } from './resolveFeedPostText';
 
 function mapCommentAuthor(a) {
   if (!a || typeof a !== 'object') return null;
@@ -192,7 +193,13 @@ export function mapApiPostToFeedItem(p) {
   })();
 
   const originalPostId = p.originalPostId ?? p.original_post_id ?? p.repostOfId ?? null;
-  const originalRaw = p.originalPost ?? p.original ?? p.repostedPost ?? p.sourcePost ?? null;
+  const originalRaw =
+    p.originalPost ??
+    p.original_post ??
+    p.original ??
+    p.repostedPost ??
+    p.sourcePost ??
+    null;
   const originalPost = originalRaw ? mapApiPostToFeedItem(originalRaw) : null;
   const isRepost = Boolean(originalPostId || originalPost);
 
@@ -201,7 +208,7 @@ export function mapApiPostToFeedItem(p) {
   return {
     id: p.id,
     authorId: authorId != null ? String(authorId) : null,
-    text: p.fullText ?? p.shortText ?? p.repostText ?? '',
+    text: resolveFeedPostText(p),
     isRepost,
     originalPostId: originalPostId != null ? String(originalPostId) : null,
     originalPost,
