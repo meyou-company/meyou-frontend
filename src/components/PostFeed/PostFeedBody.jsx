@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import PostFeedMedia from "./PostFeedMedia";
 import { RepostEmbedLabel } from "./RepostUi";
 import { isRepostCard, postAuthorDisplayName } from "../../utils/postShareContext";
+import { resolveFeedPostText } from "../../utils/resolveFeedPostText";
 import {
   getPostTextPreview,
   shouldExpandPostText,
@@ -58,7 +59,7 @@ export default function PostFeedBody({ post, postId, onOpenLightbox }) {
             {postAuthorDisplayName(original?.author)}
           </p>
           <PostExpandableText
-            text={original?.text}
+            text={resolveFeedPostText(original)}
             className="postText postShare__embedText"
           />
           <PostFeedMedia
@@ -73,7 +74,7 @@ export default function PostFeedBody({ post, postId, onOpenLightbox }) {
 
   return (
     <>
-      <PostExpandableText text={post?.text} />
+      <PostExpandableText text={resolveFeedPostText(post)} />
       <PostFeedMedia
         post={post}
         postId={postId ?? post?.id}
