@@ -1269,7 +1269,13 @@
     "LUNA_TIMEOUT": "Luna zamanında yanıt veremedi. Lütfen sonra tekrar deneyin.",
     "LUNA_UPLOAD_FAILED": "Görsel yüklenemedi. Lütfen tekrar deneyin.",
     "LUNA_MESSAGE_SAVE_FAILED": "Mesaj kaydedilemedi. Lütfen tekrar deneyin.",
-    "LUNA_REQUEST_IN_PROGRESS": "Bu istek zaten işleniyor."
+    "LUNA_REQUEST_IN_PROGRESS": "Bu istek zaten işleniyor.",
+    "ACCOUNT_SUSPENDED_TEMP": "Hesabınız topluluk kurallarını ihlal ettiği için geçici olarak kısıtlandı. Erişim kısıtlama bitince geri gelir{{until}}.",
+    "ACCOUNT_SUSPENDED_INDEFINITE": "Hesabınıza erişim kısıtlı. Bunun hata olduğunu düşünüyorsanız destekle iletişime geçin.",
+    "ACCOUNT_SUSPENDED_SUPPORT": "Destekle iletişim",
+    "ACCOUNT_SUSPENDED_GUIDELINES": "Topluluk kuralları",
+    "ACCOUNT_SUSPENDED_SUPPORT_PAGE": "Yardım ve destek",
+    "ACCOUNT_SUSPENDED_MAIL_SUBJECT": "LunMeYo — hesap erişimi"
   },
   "gifts": {
     "title": "Hediyeler",
@@ -1809,7 +1815,8 @@
       "suggestion": "Bir önerim var",
       "bug": "Hata buldum",
       "unclear": "Bir şey belirsizdi",
-      "review": "Yorum bırakmak istiyorum"
+      "review": "Yorum bırakmak istiyorum",
+      "violation": "Kurallar / güvenlik"
     },
     "detailsLabel": "Daha fazla anlatın...",
     "detailsPlaceholder": "Daha fazla anlatın...",
@@ -1842,20 +1849,20 @@
       "team": "MeYou Yönetimi"
     },
     "support": {
-      "title": "Help / Support",
-      "intro": "Tell us about a technical issue or something confusing in the app. For policy or safety concerns, use Report in the menu.",
-      "typeLegend": "What kind of issue?",
-      "success": "Thank you! We received your message and will review it."
+      "title": "Yardım / destek",
+      "intro": "Uygulamadaki teknik bir sorunu veya kafa karıştıran bir noktayı anlatın. Politika veya güvenlik için menüdeki Bildir'i kullanın.",
+      "typeLegend": "Ne tür bir sorun?",
+      "success": "Teşekkürler! Mesajınızı aldık ve inceleyeceğiz."
     },
     "report": {
-      "title": "Report a concern",
-      "intro": "Describe a policy or safety issue. For specific content, use Report on the profile, post, message, story, or live chat. You can attach a screenshot below.",
-      "detailsLabel": "What happened?",
-      "detailsPlaceholder": "Describe the situation and who or what it involves…",
-      "messageRequired": "Please describe the concern",
-      "success": "Thank you. Your report was sent to the moderation queue.",
-      "guidelinesLink": "Read the community guidelines",
-      "backendRequired": "This report type is not enabled on the server yet. Please use in-app Report on the specific content or try again after the platform update."
+      "title": "Endişe bildir",
+      "intro": "Politika veya güvenlik konusunu açıklayın. Belirli içerik için profil, gönderi, mesaj, story veya canlı sohbette Bildir'i kullanın. Aşağıya ekran görüntüsü ekleyebilirsiniz.",
+      "detailsLabel": "Ne oldu?",
+      "detailsPlaceholder": "Durumu ve kimin veya neyin ilgili olduğunu açıklayın…",
+      "messageRequired": "Lütfen durumu açıklayın",
+      "success": "Teşekkürler. Bildiriminiz moderasyon kuyruğuna gönderildi.",
+      "guidelinesLink": "Topluluk kurallarını oku",
+      "backendRequired": "Bu bildirim türü sunucuda henüz etkin değil. Belirli içerikte uygulama içi Bildir'i kullanın veya platform güncellemesinden sonra tekrar deneyin."
     }
   },
   "admin": {
@@ -1891,6 +1898,118 @@
         "screenshot": "Ekran görüntüsü",
         "page": "Sayfa",
         "date": "Tarih"
+      },
+      "screenshotUnavailable": "Ekran görüntüsü kullanılamıyor"
+    },
+    "users": {
+      "subtitle": "Kayıtlı hesaplar, moderasyon ve denetim geçmişi.",
+      "searchPlaceholder": "Kullanıcı adı, ad, e-posta veya kullanıcı kimliği ara",
+      "empty": "Filtrelere uyan kullanıcı yok",
+      "loadError": "Kullanıcılar yüklenemedi",
+      "openError": "Kullanıcı detayı açılamadı",
+      "statsError": "İstatistikler yüklenemedi",
+      "actionError": "Moderasyon işlemi başarısız",
+      "actionSuccess": "İşlem kaydedildi",
+      "viewDetails": "Detaylar",
+      "detailTitle": "Kullanıcı detayı",
+      "auditTitle": "Yönetim geçmişi",
+      "noAudit": "Henüz moderasyon işlemi yok",
+      "byAdmin": "{{name}} tarafından",
+      "reasonRequired": "Gerekçe (zorunlu)",
+      "noteOptional": "Dahili not (isteğe bağlı)",
+      "suspendDuration": "Askı bitişi",
+      "invalidUntil": "Gelecekte geçerli bir bitiş tarihi seçin",
+      "indefinite": "Elle incelemeye kadar",
+      "prev": "Önceki",
+      "next": "Sonraki",
+      "confirmWarn": "Uyarı gönder",
+      "confirmSuspend": "Askıya al",
+      "confirmBan": "Hesabı engelle",
+      "confirmBanTitle": "Hesap süresiz engellensin mi?",
+      "confirmUnban": "Erişimi geri ver",
+      "sortNewest": "Önce en yeni",
+      "sortOldest": "Önce en eski",
+      "relatedReports": "İlgili bildirimler",
+      "relatedFeedback": "İlgili geri bildirimler",
+      "noRelatedReports": "İlgili bildirim yok",
+      "noRelatedFeedback": "İlgili geri bildirim yok",
+      "openReport": "Bildirimi aç",
+      "openFeedback": "Talebi aç",
+      "viewAllReports": "Tüm bildirimler",
+      "viewAllFeedback": "Tüm geri bildirimler",
+      "presets": {
+        "24h": "24 saat",
+        "3d": "3 gün",
+        "7d": "7 gün",
+        "30d": "30 gün",
+        "custom": "Özel bitiş tarihi"
+      },
+      "filters": {
+        "allStatus": "Tüm durumlar",
+        "allRoles": "Tüm roller",
+        "ALL": "Tümü",
+        "vip": "Yalnızca VIP",
+        "nonVip": "VIP değil",
+        "status": "Hesap durumu",
+        "role": "Rol",
+        "vipLabel": "VIP",
+        "sort": "Sıralama"
+      },
+      "stats": {
+        "total": "Toplam kullanıcı",
+        "new24h": "Yeni (24 sa)",
+        "new7d": "Yeni (7 gün)",
+        "new30d": "Yeni (30 gün)",
+        "active": "Aktif",
+        "suspended": "Askıda",
+        "temporarySuspended": "Geçici askı",
+        "vip": "VIP"
+      },
+      "columns": {
+        "avatar": "Avatar",
+        "username": "Kullanıcı adı",
+        "name": "Ad",
+        "status": "Durum",
+        "role": "Rol",
+        "vip": "VIP",
+        "registered": "Kayıt",
+        "actions": "İşlemler"
+      },
+      "fields": {
+        "username": "Kullanıcı adı",
+        "name": "Ad",
+        "id": "Kullanıcı kimliği",
+        "email": "E-posta",
+        "status": "Durum",
+        "role": "Rol",
+        "vip": "VIP",
+        "registered": "Kayıt",
+        "lastActivity": "Son etkinlik",
+        "suspendedUntil": "Askı bitişi",
+        "suspensionReason": "Askı gerekçesi"
+      },
+      "accountStatus": {
+        "ACTIVE": "Aktif",
+        "SUSPENDED": "Askıda",
+        "PENDING": "Beklemede",
+        "DELETED": "Silindi"
+      },
+      "roles": {
+        "USER": "Kullanıcı",
+        "MODERATOR": "Moderatör",
+        "ADMIN": "Yönetici"
+      },
+      "actions": {
+        "warn": "Uyarı",
+        "suspend": "Geçici askı",
+        "ban": "Engelle",
+        "unban": "Engeli kaldır"
+      },
+      "auditTypes": {
+        "WARN": "Uyarı",
+        "SUSPEND_TEMPORARY": "Geçici askı",
+        "SUSPEND_INDEFINITE": "Süresiz engel",
+        "UNSUSPEND": "Erişim geri verildi"
       }
     }
   },
@@ -1988,60 +2107,60 @@
     "usersComingSoon": "Yakında"
   },
   "about": {
-    "title": "About LunMeYo",
-    "subtitle": "LunMeYo is a social space to stay in touch, share moments, and use built-in communication tools.",
-    "backHome": "Back to home",
-    "sectionsAria": "About sections",
-    "legalTitle": "Legal documents",
+    "title": "LunMeYo hakkında",
+    "subtitle": "LunMeYo, iletişimde kalmak, anları paylaşmak ve yerleşik iletişim araçlarını kullanmak için bir sosyal alandır.",
+    "backHome": "Ana sayfaya dön",
+    "sectionsAria": "Hakkında bölümleri",
+    "legalTitle": "Yasal belgeler",
     "legal": {
-      "terms": "Terms of use",
-      "privacy": "Privacy policy",
-      "guidelines": "Community guidelines"
+      "terms": "Kullanım koşulları",
+      "privacy": "Gizlilik politikası",
+      "guidelines": "Topluluk kuralları"
     },
     "sections": {
       "what": {
-        "title": "What is LunMeYo?",
-        "body": "LunMeYo helps you keep a profile, follow people you care about, and take part in a shared feed of posts and media."
+        "title": "LunMeYo nedir?",
+        "body": "LunMeYo profil oluşturmanıza, önem verdiğiniz kişileri takip etmenize ve paylaşılan gönderi ve medya akışına katılmanıza yardımcı olur."
       },
       "mission": {
-        "title": "Our goal",
-        "body": "We want to make everyday communication and self-expression simple — without replacing real-world connections."
+        "title": "Hedefimiz",
+        "body": "Günlük iletişimi ve kendini ifade etmeyi kolaylaştırmak istiyoruz — gerçek dünyadaki bağları değiştirmeden."
       },
       "social": {
-        "title": "Meet and connect",
-        "body": "Browse profiles, follow users, and send connection requests to grow your circle."
+        "title": "Tanışma ve bağlantı",
+        "body": "Profilleri gezin, kullanıcıları takip edin ve çevrenizi genişletmek için bağlantı istekleri gönderin."
       },
       "posts": {
-        "title": "Posts, photos, and video",
-        "body": "Publish text posts with photos or videos, react, and comment in the feed."
+        "title": "Gönderiler, fotoğraf ve video",
+        "body": "Metin gönderilerini fotoğraf veya videoyla yayınlayın, akışta tepki verin ve yorum yapın."
       },
       "stories": {
         "title": "Stories",
-        "body": "Share short-lived stories with your followers and close friends."
+        "body": "Takipçileriniz ve yakın arkadaşlarınızla kısa ömürlü story'ler paylaşın."
       },
       "chats": {
-        "title": "Private and group chats",
-        "body": "Message people one-on-one or in group conversations with text and media."
+        "title": "Özel ve grup sohbetleri",
+        "body": "Bire bir veya gruplarda metin ve medya ile mesajlaşın."
       },
       "calls": {
-        "title": "Audio and video calls",
-        "body": "Start voice or video calls from the messenger when both sides can connect."
+        "title": "Sesli ve görüntülü aramalar",
+        "body": "Her iki taraf da bağlanabildiğinde mesajlaşmadan sesli veya görüntülü arama başlatın."
       },
       "live": {
-        "title": "Live streams",
-        "body": "Hosts can go live; viewers can watch and interact where the feature is enabled."
+        "title": "Canlı yayınlar",
+        "body": "Yayıncılar canlıya geçebilir; izleyiciler özellik etkin olduğu yerde izler ve etkileşir."
       },
       "luna": {
         "title": "Luna AI",
-        "body": "Luna is an in-app AI assistant for questions, drafting text, and help with everyday tasks inside the app."
+        "body": "Luna, uygulama içi yapay zeka asistanıdır; sorular, metin taslakları ve günlük işler için yardımcı olur."
       },
       "community": {
-        "title": "Community",
-        "body": "Community guidelines describe expected behaviour. You can report profiles, posts, messages, stories, and live chat through the in-app tools."
+        "title": "Topluluk",
+        "body": "Topluluk kuralları beklenen davranışı açıklar. Profil, gönderi, mesaj, story ve canlı sohbeti uygulama araçlarıyla bildirebilirsiniz."
       },
       "privacy": {
-        "title": "Privacy and safety",
-        "body": "Account security settings, blocking, and privacy controls are available in the app. No product can guarantee absolute safety — use the tools provided and stay careful with personal data."
+        "title": "Gizlilik ve güvenlik",
+        "body": "Hesap güvenliği, engelleme ve gizlilik ayarları uygulamada mevcuttur. Hiçbir ürün mutlak güvenlik garanti etmez — araçları kullanın ve kişisel verilerinize dikkat edin."
       }
     }
   }

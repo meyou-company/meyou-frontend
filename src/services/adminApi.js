@@ -6,11 +6,12 @@ export const adminApi = {
     return data;
   },
 
-  async listUserReports({ status, username, page = 1, limit = 20 } = {}) {
+  async listUserReports({ status, username, userId, page = 1, limit = 20 } = {}) {
     const { data } = await api.get(apiPath('/admin/reports/users'), {
       params: {
         ...(status ? { status } : {}),
         ...(username?.trim() ? { username: username.trim() } : {}),
+        ...(userId ? { userId } : {}),
         page,
         limit,
       },
@@ -38,15 +39,25 @@ export const adminApi = {
     return data;
   },
 
-  async listFeedback({ status, type, page = 1, limit = 20 } = {}) {
+  async listFeedback({ status, type, userId, page = 1, limit = 20 } = {}) {
     const { data } = await api.get(apiPath('/admin/feedback'), {
       params: {
         ...(status ? { status } : {}),
         ...(type ? { type } : {}),
+        ...(userId ? { userId } : {}),
         page,
         limit,
       },
     });
+    return data;
+  },
+
+  async getFeedbackScreenshotDelivery(feedbackId) {
+    const { data } = await api.get(
+      apiPath(
+        `/admin/feedback/${encodeURIComponent(feedbackId)}/screenshot-delivery`,
+      ),
+    );
     return data;
   },
 

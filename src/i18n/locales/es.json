@@ -1269,7 +1269,13 @@
     "LUNA_TIMEOUT": "Luna no respondió a tiempo. Inténtalo más tarde.",
     "LUNA_UPLOAD_FAILED": "No se pudo subir la imagen. Inténtalo de nuevo.",
     "LUNA_MESSAGE_SAVE_FAILED": "No se pudo guardar el mensaje. Inténtalo de nuevo.",
-    "LUNA_REQUEST_IN_PROGRESS": "Esta solicitud ya se está procesando."
+    "LUNA_REQUEST_IN_PROGRESS": "Esta solicitud ya se está procesando.",
+    "ACCOUNT_SUSPENDED_TEMP": "Tu cuenta está restringida temporalmente por infringir las normas de la comunidad. El acceso volverá cuando termine la restricción{{until}}.",
+    "ACCOUNT_SUSPENDED_INDEFINITE": "El acceso a tu cuenta está restringido. Si crees que es un error, contacta con soporte.",
+    "ACCOUNT_SUSPENDED_SUPPORT": "Contactar con soporte",
+    "ACCOUNT_SUSPENDED_GUIDELINES": "Normas de la comunidad",
+    "ACCOUNT_SUSPENDED_SUPPORT_PAGE": "Ayuda y soporte",
+    "ACCOUNT_SUSPENDED_MAIL_SUBJECT": "LunMeYo — acceso a la cuenta"
   },
   "gifts": {
     "title": "Regalos",
@@ -1809,7 +1815,8 @@
       "suggestion": "Tengo una sugerencia",
       "bug": "Encontré un error",
       "unclear": "Algo no quedó claro",
-      "review": "Quiero dejar una reseña"
+      "review": "Quiero dejar una reseña",
+      "violation": "Normas / seguridad"
     },
     "detailsLabel": "Cuéntanos más...",
     "detailsPlaceholder": "Cuéntanos más...",
@@ -1842,20 +1849,20 @@
       "team": "Administración de MeYou"
     },
     "support": {
-      "title": "Help / Support",
-      "intro": "Tell us about a technical issue or something confusing in the app. For policy or safety concerns, use Report in the menu.",
-      "typeLegend": "What kind of issue?",
-      "success": "Thank you! We received your message and will review it."
+      "title": "Ayuda / soporte",
+      "intro": "Cuéntanos un problema técnico o algo confuso en la app. Para temas de política o seguridad, usa Denunciar en el menú.",
+      "typeLegend": "¿Qué tipo de problema es?",
+      "success": "¡Gracias! Recibimos tu mensaje y lo revisaremos."
     },
     "report": {
-      "title": "Report a concern",
-      "intro": "Describe a policy or safety issue. For specific content, use Report on the profile, post, message, story, or live chat. You can attach a screenshot below.",
-      "detailsLabel": "What happened?",
-      "detailsPlaceholder": "Describe the situation and who or what it involves…",
-      "messageRequired": "Please describe the concern",
-      "success": "Thank you. Your report was sent to the moderation queue.",
-      "guidelinesLink": "Read the community guidelines",
-      "backendRequired": "This report type is not enabled on the server yet. Please use in-app Report on the specific content or try again after the platform update."
+      "title": "Informar de un problema",
+      "intro": "Describe un problema de política o seguridad. Para contenido concreto, usa Denunciar en el perfil, publicación, mensaje, story o chat en directo. Puedes adjuntar una captura abajo.",
+      "detailsLabel": "¿Qué ocurrió?",
+      "detailsPlaceholder": "Describe la situación y a quién o qué afecta…",
+      "messageRequired": "Describe el problema, por favor",
+      "success": "Gracias. Tu informe se envió a la cola de moderación.",
+      "guidelinesLink": "Leer las normas de la comunidad",
+      "backendRequired": "Este tipo de informe aún no está activo en el servidor. Usa Denunciar en la app sobre el contenido concreto o inténtalo de nuevo tras una actualización."
     }
   },
   "admin": {
@@ -1891,6 +1898,118 @@
         "screenshot": "Captura",
         "page": "Página",
         "date": "Fecha"
+      },
+      "screenshotUnavailable": "Captura no disponible"
+    },
+    "users": {
+      "subtitle": "Cuentas registradas, moderación e historial de auditoría.",
+      "searchPlaceholder": "Buscar usuario, nombre, correo o ID",
+      "empty": "Ningún usuario coincide con los filtros",
+      "loadError": "No se pudieron cargar los usuarios",
+      "openError": "No se pudieron abrir los detalles del usuario",
+      "statsError": "No se pudieron cargar las estadísticas",
+      "actionError": "Error en la acción de moderación",
+      "actionSuccess": "Acción registrada",
+      "viewDetails": "Detalles",
+      "detailTitle": "Detalles del usuario",
+      "auditTitle": "Historial de administración",
+      "noAudit": "Aún no hay acciones de moderación",
+      "byAdmin": "Por {{name}}",
+      "reasonRequired": "Motivo (obligatorio)",
+      "noteOptional": "Nota interna (opcional)",
+      "suspendDuration": "Fin de la suspensión",
+      "invalidUntil": "Elige una fecha de fin válida en el futuro",
+      "indefinite": "Hasta revisión manual",
+      "prev": "Anterior",
+      "next": "Siguiente",
+      "confirmWarn": "Enviar advertencia",
+      "confirmSuspend": "Suspender",
+      "confirmBan": "Bloquear cuenta",
+      "confirmBanTitle": "¿Bloquear la cuenta indefinidamente?",
+      "confirmUnban": "Restaurar acceso",
+      "sortNewest": "Más recientes primero",
+      "sortOldest": "Más antiguos primero",
+      "relatedReports": "Denuncias relacionadas",
+      "relatedFeedback": "Solicitudes relacionadas",
+      "noRelatedReports": "Sin denuncias relacionadas",
+      "noRelatedFeedback": "Sin solicitudes relacionadas",
+      "openReport": "Abrir denuncia",
+      "openFeedback": "Abrir solicitud",
+      "viewAllReports": "Ver todas las denuncias",
+      "viewAllFeedback": "Ver todas las solicitudes",
+      "presets": {
+        "24h": "24 horas",
+        "3d": "3 días",
+        "7d": "7 días",
+        "30d": "30 días",
+        "custom": "Fecha de fin personalizada"
+      },
+      "filters": {
+        "allStatus": "Todos los estados",
+        "allRoles": "Todos los roles",
+        "ALL": "Todos",
+        "vip": "Solo VIP",
+        "nonVip": "Sin VIP",
+        "status": "Estado de la cuenta",
+        "role": "Rol",
+        "vipLabel": "VIP",
+        "sort": "Orden"
+      },
+      "stats": {
+        "total": "Total usuarios",
+        "new24h": "Nuevos (24 h)",
+        "new7d": "Nuevos (7 días)",
+        "new30d": "Nuevos (30 días)",
+        "active": "Activos",
+        "suspended": "Suspendidos",
+        "temporarySuspended": "Susp. temp.",
+        "vip": "VIP"
+      },
+      "columns": {
+        "avatar": "Avatar",
+        "username": "Usuario",
+        "name": "Nombre",
+        "status": "Estado",
+        "role": "Rol",
+        "vip": "VIP",
+        "registered": "Registro",
+        "actions": "Acciones"
+      },
+      "fields": {
+        "username": "Usuario",
+        "name": "Nombre",
+        "id": "ID de usuario",
+        "email": "Correo",
+        "status": "Estado",
+        "role": "Rol",
+        "vip": "VIP",
+        "registered": "Registro",
+        "lastActivity": "Última actividad",
+        "suspendedUntil": "Suspendido hasta",
+        "suspensionReason": "Motivo de la suspensión"
+      },
+      "accountStatus": {
+        "ACTIVE": "Activo",
+        "SUSPENDED": "Suspendido",
+        "PENDING": "Pendiente",
+        "DELETED": "Eliminado"
+      },
+      "roles": {
+        "USER": "Usuario",
+        "MODERATOR": "Moderador",
+        "ADMIN": "Administrador"
+      },
+      "actions": {
+        "warn": "Advertencia",
+        "suspend": "Suspensión temporal",
+        "ban": "Bloquear",
+        "unban": "Desbloquear"
+      },
+      "auditTypes": {
+        "WARN": "Advertencia",
+        "SUSPEND_TEMPORARY": "Suspensión temporal",
+        "SUSPEND_INDEFINITE": "Bloqueo indefinido",
+        "UNSUSPEND": "Acceso restaurado"
       }
     }
   },
@@ -1988,60 +2107,60 @@
     "usersComingSoon": "Próximamente"
   },
   "about": {
-    "title": "About LunMeYo",
-    "subtitle": "LunMeYo is a social space to stay in touch, share moments, and use built-in communication tools.",
-    "backHome": "Back to home",
-    "sectionsAria": "About sections",
-    "legalTitle": "Legal documents",
+    "title": "Acerca de LunMeYo",
+    "subtitle": "LunMeYo es un espacio social para mantener el contacto, compartir momentos y usar herramientas de comunicación integradas.",
+    "backHome": "Volver al inicio",
+    "sectionsAria": "Secciones Acerca de",
+    "legalTitle": "Documentos legales",
     "legal": {
-      "terms": "Terms of use",
-      "privacy": "Privacy policy",
-      "guidelines": "Community guidelines"
+      "terms": "Términos de uso",
+      "privacy": "Política de privacidad",
+      "guidelines": "Normas de la comunidad"
     },
     "sections": {
       "what": {
-        "title": "What is LunMeYo?",
-        "body": "LunMeYo helps you keep a profile, follow people you care about, and take part in a shared feed of posts and media."
+        "title": "¿Qué es LunMeYo?",
+        "body": "LunMeYo te ayuda a mantener un perfil, seguir a las personas que te importan y participar en un feed compartido de publicaciones y medios."
       },
       "mission": {
-        "title": "Our goal",
-        "body": "We want to make everyday communication and self-expression simple — without replacing real-world connections."
+        "title": "Nuestro objetivo",
+        "body": "Queremos que la comunicación cotidiana y la expresión personal sean sencillas, sin sustituir los lazos del mundo real."
       },
       "social": {
-        "title": "Meet and connect",
-        "body": "Browse profiles, follow users, and send connection requests to grow your circle."
+        "title": "Conocer y conectar",
+        "body": "Explora perfiles, sigue usuarios y envía solicitudes de conexión para ampliar tu círculo."
       },
       "posts": {
-        "title": "Posts, photos, and video",
-        "body": "Publish text posts with photos or videos, react, and comment in the feed."
+        "title": "Publicaciones, fotos y vídeo",
+        "body": "Publica textos con fotos o vídeos, reacciona y comenta en el feed."
       },
       "stories": {
         "title": "Stories",
-        "body": "Share short-lived stories with your followers and close friends."
+        "body": "Comparte stories efímeras con tus seguidores y amigos cercanos."
       },
       "chats": {
-        "title": "Private and group chats",
-        "body": "Message people one-on-one or in group conversations with text and media."
+        "title": "Chats privados y grupales",
+        "body": "Envía mensajes uno a uno o en grupos con texto y medios."
       },
       "calls": {
-        "title": "Audio and video calls",
-        "body": "Start voice or video calls from the messenger when both sides can connect."
+        "title": "Llamadas de audio y vídeo",
+        "body": "Inicia llamadas de voz o vídeo desde el mensajero cuando ambas partes puedan conectarse."
       },
       "live": {
-        "title": "Live streams",
-        "body": "Hosts can go live; viewers can watch and interact where the feature is enabled."
+        "title": "Transmisiones en directo",
+        "body": "Los anfitriones pueden emitir en directo; los espectadores miran e interactúan donde la función esté disponible."
       },
       "luna": {
         "title": "Luna AI",
-        "body": "Luna is an in-app AI assistant for questions, drafting text, and help with everyday tasks inside the app."
+        "body": "Luna es una asistente de IA en la app para preguntas, borradores de texto y ayuda con tareas cotidianas."
       },
       "community": {
-        "title": "Community",
-        "body": "Community guidelines describe expected behaviour. You can report profiles, posts, messages, stories, and live chat through the in-app tools."
+        "title": "Comunidad",
+        "body": "Las normas de la comunidad describen el comportamiento esperado. Puedes denunciar perfiles, publicaciones, mensajes, stories y chat en directo con las herramientas de la app."
       },
       "privacy": {
-        "title": "Privacy and safety",
-        "body": "Account security settings, blocking, and privacy controls are available in the app. No product can guarantee absolute safety — use the tools provided and stay careful with personal data."
+        "title": "Privacidad y seguridad",
+        "body": "Ajustes de seguridad de la cuenta, bloqueo y controles de privacidad están en la app. Ningún producto garantiza seguridad absoluta: usa las herramientas y cuida tus datos personales."
       }
     }
   }

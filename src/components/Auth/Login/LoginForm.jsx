@@ -1,11 +1,16 @@
 import { useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { useAuthStore } from "../../../zustand/useAuthStore";
 import { resolvedApiBaseUrl } from "../../../services/api";
 import { useForceDarkTheme } from "../../../hooks/useForceDarkTheme";
 import { getApiErrorCode, getApiErrorMessage } from "../../../utils/getApiErrorMessage";
+import {
+  PUBLIC_GUIDELINES_PATH,
+  PUBLIC_SUPPORT_PATH,
+  supportMailtoHref,
+} from "../../../constants/supportContact";
 import BrandLogo from "../../BrandLogo/BrandLogo";
 import "./LoginForm.scss";
 
@@ -31,6 +36,7 @@ export default function LoginForm({ onBack, onForgot, onSuccess }) {
   const [form, setForm] = useState({ email: "", password: "" });
   const [touched, setTouched] = useState({ email: false, password: false });
   const [submitError, setSubmitError] = useState("");
+  const [suspendedNotice, setSuspendedNotice] = useState(false);
 
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -49,6 +55,7 @@ export default function LoginForm({ onBack, onForgot, onSuccess }) {
     const { name, value } = e.target;
     setForm((p) => ({ ...p, [name]: value }));
     setSubmitError("");
+    setSuspendedNotice(false);
   };
 
   const onBlur = (e) => setTouched((p) => ({ ...p, [e.target.name]: true }));
@@ -60,6 +67,7 @@ export default function LoginForm({ onBack, onForgot, onSuccess }) {
   const onSubmit = async (e) => {
     e.preventDefault();
     setSubmitError("");
+    setSuspendedNotice(false);
 
     setTouched({ email: true, password: true });
     if (errors.email || errors.password) return;
@@ -83,11 +91,13 @@ export default function LoginForm({ onBack, onForgot, onSuccess }) {
         const msg = getLoginErrorMessage(res?.error, t);
         toast.error(msg);
         setSubmitError(msg);
+        setSuspendedNotice(getApiErrorCode(res?.error) === "ACCOUNT_SUSPENDED");
       }
     } catch (err) {
-      const msg = getLoginErrorMessage(err, t);
+      const msg = getApiErrorMessage(err, "auth.login.errors.loginFailed");
       toast.error(msg);
       setSubmitError(msg || t("auth.common.somethingWentWrong"));
+      setSuspendedNotice(getApiErrorCode(err) === "ACCOUNT_SUSPENDED");
     } finally {
       setIsSubmitting(false);
     }
@@ -168,7 +178,30 @@ export default function LoginForm({ onBack, onForgot, onSuccess }) {
           {t("auth.login.forgotPassword")}
         </button>
 
-        {submitError && <div className="auth__error">{submitError}</div>}
+        {submitError ? (
+          <div className="auth__error">
+            <p>{submitError}</p>
+            {suspendedNotice ? (
+              <p className="auth__errorLinks">
+                <Link to={PUBLIC_GUIDELINES_PATH}>
+                  {t("errors.ACCOUNT_SUSPENDED_GUIDELINES")}
+                </Link>
+                {" · "}
+                <Link to={PUBLIC_SUPPORT_PATH}>
+                  {t("errors.ACCOUNT_SUSPENDED_SUPPORT_PAGE")}
+                </Link>
+                {supportMailtoHref(t("errors.ACCOUNT_SUSPENDED_MAIL_SUBJECT")) ? (
+                  <>
+                    {" · "}
+                    <a href={supportMailtoHref(t("errors.ACCOUNT_SUSPENDED_MAIL_SUBJECT"))}>
+                      {t("errors.ACCOUNT_SUSPENDED_SUPPORT")}
+                    </a>
+                  </>
+                ) : null}
+              </p>
+            ) : null}
+          </div>
+        ) : null}
 
         <div className="authActions">
           <button className="btn-gradient btn-gradient--auth-primary" type="submit" disabled={isSubmitting}>

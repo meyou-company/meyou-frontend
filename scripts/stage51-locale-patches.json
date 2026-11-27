@@ -1,0 +1,1238 @@
+{
+  "ru": {
+    "about": {
+      "title": "О LunMeYo",
+      "subtitle": "LunMeYo — социальное пространство для общения, обмена моментами и встроенных инструментов связи.",
+      "backHome": "На главную",
+      "sectionsAria": "Разделы о платформе",
+      "legalTitle": "Юридические документы",
+      "legal": {
+        "terms": "Условия использования",
+        "privacy": "Политика конфиденциальности",
+        "guidelines": "Правила сообщества"
+      },
+      "sections": {
+        "what": {
+          "title": "Что такое LunMeYo?",
+          "body": "LunMeYo помогает вести профиль, следить за людьми и участвовать в общей ленте публикаций и медиа."
+        },
+        "mission": {
+          "title": "Наша цель",
+          "body": "Мы стремимся сделать повседневное общение и самовыражение проще — не заменяя реальные связи."
+        },
+        "social": {
+          "title": "Знакомства и общение",
+          "body": "Просматривайте профили, подписывайтесь и отправляйте запросы на знакомство."
+        },
+        "posts": {
+          "title": "Публикации, фото и видео",
+          "body": "Публикуйте текстовые посты с фото или видео, реагируйте и комментируйте в ленте."
+        },
+        "stories": {
+          "title": "Stories",
+          "body": "Делитесь короткими stories для подписчиков и близких друзей."
+        },
+        "chats": {
+          "title": "Личные и групповые чаты",
+          "body": "Пишите один на один или в группах — текстом и медиа."
+        },
+        "calls": {
+          "title": "Аудио- и видеозвонки",
+          "body": "Начинайте голосовые или видеозвонки из мессенджера, когда обе стороны могут соединиться."
+        },
+        "live": {
+          "title": "Прямые эфиры",
+          "body": "Ведущие могут выходить в эфир; зрители смотрят и взаимодействуют там, где функция доступна."
+        },
+        "luna": {
+          "title": "Luna AI",
+          "body": "Luna — ИИ-помощник в приложении для вопросов, черновиков текста и повседневных задач."
+        },
+        "community": {
+          "title": "Сообщество",
+          "body": "Правила сообщества описывают ожидаемое поведение. Жалобы на профили, посты, сообщения, stories и live-чат доступны в инструментах приложения."
+        },
+        "privacy": {
+          "title": "Конфиденциальность и безопасность",
+          "body": "Настройки безопасности, блокировка и приватность доступны в приложении. Ни один продукт не гарантирует абсолютной безопасности — пользуйтесь инструментами и бережно относитесь к личным данным."
+        }
+      }
+    },
+    "admin": {
+      "users": {
+        "subtitle": "Зарегистрированные аккаунты, модерация и история действий.",
+        "searchPlaceholder": "Поиск: имя пользователя, имя, email или ID",
+        "empty": "Нет пользователей по этим фильтрам",
+        "loadError": "Не удалось загрузить пользователей",
+        "openError": "Не удалось открыть карточку пользователя",
+        "statsError": "Не удалось загрузить статистику",
+        "actionError": "Не удалось выполнить действие модерации",
+        "actionSuccess": "Действие зафиксировано",
+        "viewDetails": "Подробности",
+        "detailTitle": "Карточка пользователя",
+        "auditTitle": "История модерации",
+        "noAudit": "Действий модерации пока нет",
+        "byAdmin": "Администратор: {{name}}",
+        "reasonRequired": "Причина (обязательно)",
+        "noteOptional": "Внутренняя заметка (необязательно)",
+        "suspendDuration": "Ограничение до",
+        "invalidUntil": "Выберите корректную дату окончания в будущем",
+        "indefinite": "До ручной проверки",
+        "prev": "Назад",
+        "next": "Далее",
+        "confirmWarn": "Отправить предупреждение",
+        "confirmSuspend": "Ограничить доступ",
+        "confirmBan": "Заблокировать аккаунт",
+        "confirmBanTitle": "Заблокировать аккаунт без срока?",
+        "confirmUnban": "Восстановить доступ",
+        "sortNewest": "Сначала новые",
+        "sortOldest": "Сначала старые",
+        "relatedReports": "Связанные жалобы",
+        "relatedFeedback": "Связанные обращения",
+        "noRelatedReports": "Нет связанных жалоб",
+        "noRelatedFeedback": "Нет связанных обращений",
+        "openReport": "Открыть жалобу",
+        "openFeedback": "Открыть обращение",
+        "viewAllReports": "Все жалобы",
+        "viewAllFeedback": "Все обращения",
+        "presets": {
+          "24h": "24 часа",
+          "3d": "3 дня",
+          "7d": "7 дней",
+          "30d": "30 дней",
+          "custom": "Своя дата"
+        },
+        "filters": {
+          "allStatus": "Все статусы",
+          "allRoles": "Все роли",
+          "ALL": "Все",
+          "vip": "Только VIP",
+          "nonVip": "Без VIP",
+          "status": "Статус аккаунта",
+          "role": "Роль",
+          "vipLabel": "VIP",
+          "sort": "Сортировка"
+        },
+        "stats": {
+          "total": "Всего",
+          "new24h": "Новые за 24 ч",
+          "new7d": "Новые за 7 дней",
+          "new30d": "Новые за 30 дней",
+          "active": "Активные",
+          "suspended": "Ограничены",
+          "temporarySuspended": "Временно",
+          "vip": "VIP"
+        },
+        "columns": {
+          "avatar": "Аватар",
+          "username": "Имя пользователя",
+          "name": "Имя",
+          "status": "Статус",
+          "role": "Роль",
+          "vip": "VIP",
+          "registered": "Регистрация",
+          "actions": "Действия"
+        },
+        "fields": {
+          "username": "Имя пользователя",
+          "name": "Имя",
+          "id": "ID пользователя",
+          "email": "Email",
+          "status": "Статус",
+          "role": "Роль",
+          "vip": "VIP",
+          "registered": "Дата регистрации",
+          "lastActivity": "Последняя активность",
+          "suspendedUntil": "Ограничение до",
+          "suspensionReason": "Причина ограничения"
+        },
+        "accountStatus": {
+          "ACTIVE": "Активен",
+          "SUSPENDED": "Ограничен",
+          "PENDING": "Ожидает",
+          "DELETED": "Удалён"
+        },
+        "roles": {
+          "USER": "Пользователь",
+          "MODERATOR": "Модератор",
+          "ADMIN": "Администратор"
+        },
+        "actions": {
+          "warn": "Предупреждение",
+          "suspend": "Временное ограничение",
+          "ban": "Блокировка",
+          "unban": "Разблокировать"
+        },
+        "auditTypes": {
+          "WARN": "Предупреждение",
+          "SUSPEND_TEMPORARY": "Временное ограничение",
+          "SUSPEND_INDEFINITE": "Блокировка без срока",
+          "UNSUSPEND": "Доступ восстановлен"
+        }
+      },
+      "feedback": {
+        "screenshotUnavailable": "Скриншот недоступен"
+      }
+    },
+    "feedback": {
+      "types": {
+        "violation": "Правила / безопасность"
+      },
+      "support": {
+        "title": "Помощь / поддержка",
+        "intro": "Опишите техническую проблему или непонятный момент в приложении. Для вопросов политики или безопасности используйте пункт «Жалоба» в меню.",
+        "typeLegend": "Какой это тип проблемы?",
+        "success": "Спасибо! Мы получили ваше сообщение и рассмотрим его."
+      },
+      "report": {
+        "title": "Сообщить о нарушении",
+        "intro": "Опишите вопрос политики или безопасности. Для конкретного контента используйте «Жалоба» в профиле, посте, сообщении, story или live-чате. Можно приложить скриншот.",
+        "detailsLabel": "Что произошло?",
+        "detailsPlaceholder": "Опишите ситуацию и о чём идёт речь…",
+        "messageRequired": "Опишите, пожалуйста, ситуацию",
+        "success": "Спасибо. Ваше обращение отправлено в очередь модерации.",
+        "guidelinesLink": "Правила сообщества",
+        "backendRequired": "Этот тип обращения ещё не включён на сервере. Используйте встроенную «Жалобу» для конкретного контента или попробуйте позже после обновления платформы."
+      }
+    },
+    "errors": {
+      "ACCOUNT_SUSPENDED": "Доступ к вашему аккаунту ограничен.",
+      "ACCOUNT_SUSPENDED_TEMP": "Ваш аккаунт временно ограничен за нарушение правил сообщества. Доступ вернётся после окончания ограничения{{until}}.",
+      "ACCOUNT_SUSPENDED_INDEFINITE": "Доступ к вашему аккаунту ограничен. Если вы считаете, что это ошибка, свяжитесь с поддержкой.",
+      "ACCOUNT_SUSPENDED_SUPPORT": "Связаться с поддержкой",
+      "ACCOUNT_SUSPENDED_GUIDELINES": "Правила сообщества",
+      "ACCOUNT_SUSPENDED_SUPPORT_PAGE": "Помощь и поддержка",
+      "ACCOUNT_SUSPENDED_MAIL_SUBJECT": "LunMeYo — доступ к аккаунту"
+    }
+  },
+  "fr": {
+    "about": {
+      "title": "À propos de LunMeYo",
+      "subtitle": "LunMeYo est un espace social pour rester en contact, partager des moments et utiliser les outils de communication intégrés.",
+      "backHome": "Retour à l'accueil",
+      "sectionsAria": "Sections À propos",
+      "legalTitle": "Documents juridiques",
+      "legal": {
+        "terms": "Conditions d'utilisation",
+        "privacy": "Politique de confidentialité",
+        "guidelines": "Règles de la communauté"
+      },
+      "sections": {
+        "what": {
+          "title": "Qu'est-ce que LunMeYo ?",
+          "body": "LunMeYo vous aide à gérer un profil, suivre les personnes qui comptent pour vous et participer à un fil partagé de publications et de médias."
+        },
+        "mission": {
+          "title": "Notre objectif",
+          "body": "Nous voulons rendre la communication quotidienne et l'expression de soi plus simples — sans remplacer les liens dans le monde réel."
+        },
+        "social": {
+          "title": "Rencontrer et échanger",
+          "body": "Parcourez les profils, suivez des utilisateurs et envoyez des demandes de connexion pour élargir votre cercle."
+        },
+        "posts": {
+          "title": "Publications, photos et vidéos",
+          "body": "Publiez des textes avec photos ou vidéos, réagissez et commentez dans le fil."
+        },
+        "stories": {
+          "title": "Stories",
+          "body": "Partagez des stories éphémères avec vos abonnés et vos amis proches."
+        },
+        "chats": {
+          "title": "Chats privés et de groupe",
+          "body": "Échangez en tête-à-tête ou en groupe avec du texte et des médias."
+        },
+        "calls": {
+          "title": "Appels audio et vidéo",
+          "body": "Lancez des appels vocaux ou vidéo depuis la messagerie lorsque les deux parties peuvent se connecter."
+        },
+        "live": {
+          "title": "Diffusions en direct",
+          "body": "Les hôtes peuvent passer en direct ; les spectateurs regardent et interagissent là où la fonction est disponible."
+        },
+        "luna": {
+          "title": "Luna AI",
+          "body": "Luna est une assistante IA dans l'application pour les questions, la rédaction de textes et l'aide aux tâches du quotidien."
+        },
+        "community": {
+          "title": "Communauté",
+          "body": "Les règles de la communauté décrivent le comportement attendu. Vous pouvez signaler profils, publications, messages, stories et chat en direct via les outils de l'application."
+        },
+        "privacy": {
+          "title": "Confidentialité et sécurité",
+          "body": "Les paramètres de sécurité du compte, le blocage et la confidentialité sont disponibles dans l'application. Aucun produit ne garantit une sécurité absolue — utilisez les outils fournis et restez prudent avec vos données personnelles."
+        }
+      }
+    },
+    "admin": {
+      "users": {
+        "subtitle": "Comptes enregistrés, modération et historique d'audit.",
+        "searchPlaceholder": "Rechercher nom d'utilisateur, nom, e-mail ou ID",
+        "empty": "Aucun utilisateur ne correspond à vos filtres",
+        "loadError": "Impossible de charger les utilisateurs",
+        "openError": "Impossible d'ouvrir les détails de l'utilisateur",
+        "statsError": "Impossible de charger les statistiques",
+        "actionError": "Échec de l'action de modération",
+        "actionSuccess": "Action enregistrée",
+        "viewDetails": "Détails",
+        "detailTitle": "Détails de l'utilisateur",
+        "auditTitle": "Historique d'administration",
+        "noAudit": "Aucune action de modération pour l'instant",
+        "byAdmin": "Par {{name}}",
+        "reasonRequired": "Motif (obligatoire)",
+        "noteOptional": "Note interne (facultatif)",
+        "suspendDuration": "Fin de la suspension",
+        "invalidUntil": "Choisissez une date de fin valide dans le futur",
+        "indefinite": "Jusqu'à examen manuel",
+        "prev": "Précédent",
+        "next": "Suivant",
+        "confirmWarn": "Envoyer un avertissement",
+        "confirmSuspend": "Suspendre",
+        "confirmBan": "Bloquer le compte",
+        "confirmBanTitle": "Bloquer le compte sans limite de temps ?",
+        "confirmUnban": "Rétablir l'accès",
+        "sortNewest": "Plus récents d'abord",
+        "sortOldest": "Plus anciens d'abord",
+        "relatedReports": "Signalements associés",
+        "relatedFeedback": "Retours associés",
+        "noRelatedReports": "Aucun signalement associé",
+        "noRelatedFeedback": "Aucun retour associé",
+        "openReport": "Ouvrir le signalement",
+        "openFeedback": "Ouvrir la demande",
+        "viewAllReports": "Voir tous les signalements",
+        "viewAllFeedback": "Voir tous les retours",
+        "presets": {
+          "24h": "24 heures",
+          "3d": "3 jours",
+          "7d": "7 jours",
+          "30d": "30 jours",
+          "custom": "Date de fin personnalisée"
+        },
+        "filters": {
+          "allStatus": "Tous les statuts",
+          "allRoles": "Tous les rôles",
+          "ALL": "Tous",
+          "vip": "VIP uniquement",
+          "nonVip": "Sans VIP",
+          "status": "Statut du compte",
+          "role": "Rôle",
+          "vipLabel": "VIP",
+          "sort": "Tri"
+        },
+        "stats": {
+          "total": "Total utilisateurs",
+          "new24h": "Nouveaux (24 h)",
+          "new7d": "Nouveaux (7 jours)",
+          "new30d": "Nouveaux (30 jours)",
+          "active": "Actifs",
+          "suspended": "Suspendus",
+          "temporarySuspended": "Susp. temp.",
+          "vip": "VIP"
+        },
+        "columns": {
+          "avatar": "Avatar",
+          "username": "Nom d'utilisateur",
+          "name": "Nom",
+          "status": "Statut",
+          "role": "Rôle",
+          "vip": "VIP",
+          "registered": "Inscription",
+          "actions": "Actions"
+        },
+        "fields": {
+          "username": "Nom d'utilisateur",
+          "name": "Nom",
+          "id": "ID utilisateur",
+          "email": "E-mail",
+          "status": "Statut",
+          "role": "Rôle",
+          "vip": "VIP",
+          "registered": "Inscription",
+          "lastActivity": "Dernière activité",
+          "suspendedUntil": "Suspendu jusqu'au",
+          "suspensionReason": "Motif de la suspension"
+        },
+        "accountStatus": {
+          "ACTIVE": "Actif",
+          "SUSPENDED": "Suspendu",
+          "PENDING": "En attente",
+          "DELETED": "Supprimé"
+        },
+        "roles": {
+          "USER": "Utilisateur",
+          "MODERATOR": "Modérateur",
+          "ADMIN": "Administrateur"
+        },
+        "actions": {
+          "warn": "Avertissement",
+          "suspend": "Suspension temporaire",
+          "ban": "Bloquer",
+          "unban": "Débloquer"
+        },
+        "auditTypes": {
+          "WARN": "Avertissement",
+          "SUSPEND_TEMPORARY": "Suspension temporaire",
+          "SUSPEND_INDEFINITE": "Blocage indéfini",
+          "UNSUSPEND": "Accès rétabli"
+        }
+      },
+      "feedback": {
+        "screenshotUnavailable": "Capture d'écran indisponible"
+      }
+    },
+    "feedback": {
+      "types": {
+        "violation": "Règles / sécurité"
+      },
+      "support": {
+        "title": "Aide / support",
+        "intro": "Parlez-nous d'un problème technique ou d'un point peu clair dans l'application. Pour les questions de politique ou de sécurité, utilisez Signalement dans le menu.",
+        "typeLegend": "Quel type de problème ?",
+        "success": "Merci ! Nous avons reçu votre message et allons l'examiner."
+      },
+      "report": {
+        "title": "Signaler un problème",
+        "intro": "Décrivez un problème de politique ou de sécurité. Pour un contenu précis, utilisez Signaler sur le profil, la publication, le message, la story ou le chat en direct. Vous pouvez joindre une capture ci-dessous.",
+        "detailsLabel": "Que s'est-il passé ?",
+        "detailsPlaceholder": "Décrivez la situation et les personnes ou contenus concernés…",
+        "messageRequired": "Veuillez décrire le problème",
+        "success": "Merci. Votre signalement a été envoyé à la file de modération.",
+        "guidelinesLink": "Lire les règles de la communauté",
+        "backendRequired": "Ce type de signalement n'est pas encore activé sur le serveur. Utilisez Signaler dans l'application sur le contenu concerné ou réessayez après une mise à jour de la plateforme."
+      }
+    },
+    "errors": {
+      "ACCOUNT_SUSPENDED": "Votre compte a été suspendu.",
+      "ACCOUNT_SUSPENDED_TEMP": "Votre compte est temporairement restreint pour violation des règles de la communauté. L'accès sera rétabli à la fin de la restriction{{until}}.",
+      "ACCOUNT_SUSPENDED_INDEFINITE": "L'accès à votre compte est restreint. Si vous pensez qu'il s'agit d'une erreur, contactez le support.",
+      "ACCOUNT_SUSPENDED_SUPPORT": "Contacter le support",
+      "ACCOUNT_SUSPENDED_GUIDELINES": "Règles de la communauté",
+      "ACCOUNT_SUSPENDED_SUPPORT_PAGE": "Aide et support",
+      "ACCOUNT_SUSPENDED_MAIL_SUBJECT": "LunMeYo — accès au compte"
+    }
+  },
+  "es": {
+    "about": {
+      "title": "Acerca de LunMeYo",
+      "subtitle": "LunMeYo es un espacio social para mantener el contacto, compartir momentos y usar herramientas de comunicación integradas.",
+      "backHome": "Volver al inicio",
+      "sectionsAria": "Secciones Acerca de",
+      "legalTitle": "Documentos legales",
+      "legal": {
+        "terms": "Términos de uso",
+        "privacy": "Política de privacidad",
+        "guidelines": "Normas de la comunidad"
+      },
+      "sections": {
+        "what": {
+          "title": "¿Qué es LunMeYo?",
+          "body": "LunMeYo te ayuda a mantener un perfil, seguir a las personas que te importan y participar en un feed compartido de publicaciones y medios."
+        },
+        "mission": {
+          "title": "Nuestro objetivo",
+          "body": "Queremos que la comunicación cotidiana y la expresión personal sean sencillas, sin sustituir los lazos del mundo real."
+        },
+        "social": {
+          "title": "Conocer y conectar",
+          "body": "Explora perfiles, sigue usuarios y envía solicitudes de conexión para ampliar tu círculo."
+        },
+        "posts": {
+          "title": "Publicaciones, fotos y vídeo",
+          "body": "Publica textos con fotos o vídeos, reacciona y comenta en el feed."
+        },
+        "stories": {
+          "title": "Stories",
+          "body": "Comparte stories efímeras con tus seguidores y amigos cercanos."
+        },
+        "chats": {
+          "title": "Chats privados y grupales",
+          "body": "Envía mensajes uno a uno o en grupos con texto y medios."
+        },
+        "calls": {
+          "title": "Llamadas de audio y vídeo",
+          "body": "Inicia llamadas de voz o vídeo desde el mensajero cuando ambas partes puedan conectarse."
+        },
+        "live": {
+          "title": "Transmisiones en directo",
+          "body": "Los anfitriones pueden emitir en directo; los espectadores miran e interactúan donde la función esté disponible."
+        },
+        "luna": {
+          "title": "Luna AI",
+          "body": "Luna es una asistente de IA en la app para preguntas, borradores de texto y ayuda con tareas cotidianas."
+        },
+        "community": {
+          "title": "Comunidad",
+          "body": "Las normas de la comunidad describen el comportamiento esperado. Puedes denunciar perfiles, publicaciones, mensajes, stories y chat en directo con las herramientas de la app."
+        },
+        "privacy": {
+          "title": "Privacidad y seguridad",
+          "body": "Ajustes de seguridad de la cuenta, bloqueo y controles de privacidad están en la app. Ningún producto garantiza seguridad absoluta: usa las herramientas y cuida tus datos personales."
+        }
+      }
+    },
+    "admin": {
+      "users": {
+        "subtitle": "Cuentas registradas, moderación e historial de auditoría.",
+        "searchPlaceholder": "Buscar usuario, nombre, correo o ID",
+        "empty": "Ningún usuario coincide con los filtros",
+        "loadError": "No se pudieron cargar los usuarios",
+        "openError": "No se pudieron abrir los detalles del usuario",
+        "statsError": "No se pudieron cargar las estadísticas",
+        "actionError": "Error en la acción de moderación",
+        "actionSuccess": "Acción registrada",
+        "viewDetails": "Detalles",
+        "detailTitle": "Detalles del usuario",
+        "auditTitle": "Historial de administración",
+        "noAudit": "Aún no hay acciones de moderación",
+        "byAdmin": "Por {{name}}",
+        "reasonRequired": "Motivo (obligatorio)",
+        "noteOptional": "Nota interna (opcional)",
+        "suspendDuration": "Fin de la suspensión",
+        "invalidUntil": "Elige una fecha de fin válida en el futuro",
+        "indefinite": "Hasta revisión manual",
+        "prev": "Anterior",
+        "next": "Siguiente",
+        "confirmWarn": "Enviar advertencia",
+        "confirmSuspend": "Suspender",
+        "confirmBan": "Bloquear cuenta",
+        "confirmBanTitle": "¿Bloquear la cuenta indefinidamente?",
+        "confirmUnban": "Restaurar acceso",
+        "sortNewest": "Más recientes primero",
+        "sortOldest": "Más antiguos primero",
+        "relatedReports": "Denuncias relacionadas",
+        "relatedFeedback": "Solicitudes relacionadas",
+        "noRelatedReports": "Sin denuncias relacionadas",
+        "noRelatedFeedback": "Sin solicitudes relacionadas",
+        "openReport": "Abrir denuncia",
+        "openFeedback": "Abrir solicitud",
+        "viewAllReports": "Ver todas las denuncias",
+        "viewAllFeedback": "Ver todas las solicitudes",
+        "presets": {
+          "24h": "24 horas",
+          "3d": "3 días",
+          "7d": "7 días",
+          "30d": "30 días",
+          "custom": "Fecha de fin personalizada"
+        },
+        "filters": {
+          "allStatus": "Todos los estados",
+          "allRoles": "Todos los roles",
+          "ALL": "Todos",
+          "vip": "Solo VIP",
+          "nonVip": "Sin VIP",
+          "status": "Estado de la cuenta",
+          "role": "Rol",
+          "vipLabel": "VIP",
+          "sort": "Orden"
+        },
+        "stats": {
+          "total": "Total usuarios",
+          "new24h": "Nuevos (24 h)",
+          "new7d": "Nuevos (7 días)",
+          "new30d": "Nuevos (30 días)",
+          "active": "Activos",
+          "suspended": "Suspendidos",
+          "temporarySuspended": "Susp. temp.",
+          "vip": "VIP"
+        },
+        "columns": {
+          "avatar": "Avatar",
+          "username": "Usuario",
+          "name": "Nombre",
+          "status": "Estado",
+          "role": "Rol",
+          "vip": "VIP",
+          "registered": "Registro",
+          "actions": "Acciones"
+        },
+        "fields": {
+          "username": "Usuario",
+          "name": "Nombre",
+          "id": "ID de usuario",
+          "email": "Correo",
+          "status": "Estado",
+          "role": "Rol",
+          "vip": "VIP",
+          "registered": "Registro",
+          "lastActivity": "Última actividad",
+          "suspendedUntil": "Suspendido hasta",
+          "suspensionReason": "Motivo de la suspensión"
+        },
+        "accountStatus": {
+          "ACTIVE": "Activo",
+          "SUSPENDED": "Suspendido",
+          "PENDING": "Pendiente",
+          "DELETED": "Eliminado"
+        },
+        "roles": {
+          "USER": "Usuario",
+          "MODERATOR": "Moderador",
+          "ADMIN": "Administrador"
+        },
+        "actions": {
+          "warn": "Advertencia",
+          "suspend": "Suspensión temporal",
+          "ban": "Bloquear",
+          "unban": "Desbloquear"
+        },
+        "auditTypes": {
+          "WARN": "Advertencia",
+          "SUSPEND_TEMPORARY": "Suspensión temporal",
+          "SUSPEND_INDEFINITE": "Bloqueo indefinido",
+          "UNSUSPEND": "Acceso restaurado"
+        }
+      },
+      "feedback": {
+        "screenshotUnavailable": "Captura no disponible"
+      }
+    },
+    "feedback": {
+      "types": {
+        "violation": "Normas / seguridad"
+      },
+      "support": {
+        "title": "Ayuda / soporte",
+        "intro": "Cuéntanos un problema técnico o algo confuso en la app. Para temas de política o seguridad, usa Denunciar en el menú.",
+        "typeLegend": "¿Qué tipo de problema es?",
+        "success": "¡Gracias! Recibimos tu mensaje y lo revisaremos."
+      },
+      "report": {
+        "title": "Informar de un problema",
+        "intro": "Describe un problema de política o seguridad. Para contenido concreto, usa Denunciar en el perfil, publicación, mensaje, story o chat en directo. Puedes adjuntar una captura abajo.",
+        "detailsLabel": "¿Qué ocurrió?",
+        "detailsPlaceholder": "Describe la situación y a quién o qué afecta…",
+        "messageRequired": "Describe el problema, por favor",
+        "success": "Gracias. Tu informe se envió a la cola de moderación.",
+        "guidelinesLink": "Leer las normas de la comunidad",
+        "backendRequired": "Este tipo de informe aún no está activo en el servidor. Usa Denunciar en la app sobre el contenido concreto o inténtalo de nuevo tras una actualización."
+      }
+    },
+    "errors": {
+      "ACCOUNT_SUSPENDED": "Tu cuenta ha sido suspendida.",
+      "ACCOUNT_SUSPENDED_TEMP": "Tu cuenta está restringida temporalmente por infringir las normas de la comunidad. El acceso volverá cuando termine la restricción{{until}}.",
+      "ACCOUNT_SUSPENDED_INDEFINITE": "El acceso a tu cuenta está restringido. Si crees que es un error, contacta con soporte.",
+      "ACCOUNT_SUSPENDED_SUPPORT": "Contactar con soporte",
+      "ACCOUNT_SUSPENDED_GUIDELINES": "Normas de la comunidad",
+      "ACCOUNT_SUSPENDED_SUPPORT_PAGE": "Ayuda y soporte",
+      "ACCOUNT_SUSPENDED_MAIL_SUBJECT": "LunMeYo — acceso a la cuenta"
+    }
+  },
+  "cs": {
+    "about": {
+      "title": "O LunMeYo",
+      "subtitle": "LunMeYo je sociální prostor pro udržování kontaktu, sdílení okamžiků a vestavěných komunikačních nástrojů.",
+      "backHome": "Zpět na úvod",
+      "sectionsAria": "Sekce O platformě",
+      "legalTitle": "Právní dokumenty",
+      "legal": {
+        "terms": "Podmínky použití",
+        "privacy": "Zásady ochrany soukromí",
+        "guidelines": "Pravidla komunity"
+      },
+      "sections": {
+        "what": {
+          "title": "Co je LunMeYo?",
+          "body": "LunMeYo vám pomáhá vést profil, sledovat lidi, na kterých vám záleží, a účastnit se společného feedu příspěvků a médií."
+        },
+        "mission": {
+          "title": "Náš cíl",
+          "body": "Chceme zpřehlednit každodenní komunikaci a sebevyjádření — bez nahrazování reálných vztahů."
+        },
+        "social": {
+          "title": "Poznávání a propojení",
+          "body": "Prohlížejte profily, sledujte uživatele a posílejte žádosti o propojení."
+        },
+        "posts": {
+          "title": "Příspěvky, fotky a video",
+          "body": "Publikujte text s fotkami nebo videem, reagujte a komentujte ve feedu."
+        },
+        "stories": {
+          "title": "Stories",
+          "body": "Sdílejte krátkodobé stories s odběrateli a blízkými přáteli."
+        },
+        "chats": {
+          "title": "Soukromé a skupinové chaty",
+          "body": "Pište jeden na jednoho nebo ve skupinách — textem i médii."
+        },
+        "calls": {
+          "title": "Audio a videohovory",
+          "body": "Zahajte hlasové nebo videohovory z messengeru, když se obě strany mohou spojit."
+        },
+        "live": {
+          "title": "Živé přenosy",
+          "body": "Moderátoři mohou vysílat naživo; diváci sledují a reagují tam, kde je funkce dostupná."
+        },
+        "luna": {
+          "title": "Luna AI",
+          "body": "Luna je AI asistent v aplikaci pro dotazy, návrhy textů a pomoc s běžnými úkoly."
+        },
+        "community": {
+          "title": "Komunita",
+          "body": "Pravidla komunity popisují očekávané chování. Profily, příspěvky, zprávy, stories a live chat můžete nahlásit v aplikaci."
+        },
+        "privacy": {
+          "title": "Soukromí a bezpečí",
+          "body": "Nastavení zabezpečení účtu, blokování a soukromí jsou v aplikaci. Žádný produkt nezaručuje absolutní bezpečí — používejte nástroje a opatrně nakládejte s osobními údaji."
+        }
+      }
+    },
+    "admin": {
+      "users": {
+        "subtitle": "Registrované účty, moderace a historie auditů.",
+        "searchPlaceholder": "Hledat uživatelské jméno, jméno, e-mail nebo ID",
+        "empty": "Žádní uživatelé neodpovídají filtrům",
+        "loadError": "Nepodařilo se načíst uživatele",
+        "openError": "Nepodařilo se otevřít detail uživatele",
+        "statsError": "Nepodařilo se načíst statistiky",
+        "actionError": "Moderátorská akce selhala",
+        "actionSuccess": "Akce zaznamenána",
+        "viewDetails": "Podrobnosti",
+        "detailTitle": "Detail uživatele",
+        "auditTitle": "Historie administrace",
+        "noAudit": "Zatím žádné moderátorské akce",
+        "byAdmin": "Od {{name}}",
+        "reasonRequired": "Důvod (povinný)",
+        "noteOptional": "Interní poznámka (volitelné)",
+        "suspendDuration": "Konec pozastavení",
+        "invalidUntil": "Zvolte platné datum ukončení v budoucnosti",
+        "indefinite": "Do ruční kontroly",
+        "prev": "Předchozí",
+        "next": "Další",
+        "confirmWarn": "Odeslat varování",
+        "confirmSuspend": "Pozastavit",
+        "confirmBan": "Zablokovat účet",
+        "confirmBanTitle": "Zablokovat účet na neurčito?",
+        "confirmUnban": "Obnovit přístup",
+        "sortNewest": "Nejnovější první",
+        "sortOldest": "Nejstarší první",
+        "relatedReports": "Související hlášení",
+        "relatedFeedback": "Související zpětná vazba",
+        "noRelatedReports": "Žádná související hlášení",
+        "noRelatedFeedback": "Žádná související zpětná vazba",
+        "openReport": "Otevřít hlášení",
+        "openFeedback": "Otevřít žádost",
+        "viewAllReports": "Všechna hlášení",
+        "viewAllFeedback": "Veškerá zpětná vazba",
+        "presets": {
+          "24h": "24 hodin",
+          "3d": "3 dny",
+          "7d": "7 dní",
+          "30d": "30 dní",
+          "custom": "Vlastní datum ukončení"
+        },
+        "filters": {
+          "allStatus": "Všechny stavy",
+          "allRoles": "Všechny role",
+          "ALL": "Vše",
+          "vip": "Pouze VIP",
+          "nonVip": "Bez VIP",
+          "status": "Stav účtu",
+          "role": "Role",
+          "vipLabel": "VIP",
+          "sort": "Řazení"
+        },
+        "stats": {
+          "total": "Celkem uživatelů",
+          "new24h": "Noví (24 h)",
+          "new7d": "Noví (7 dní)",
+          "new30d": "Noví (30 dní)",
+          "active": "Aktivní",
+          "suspended": "Pozastavení",
+          "temporarySuspended": "Dočasně",
+          "vip": "VIP"
+        },
+        "columns": {
+          "avatar": "Avatar",
+          "username": "Uživatelské jméno",
+          "name": "Jméno",
+          "status": "Stav",
+          "role": "Role",
+          "vip": "VIP",
+          "registered": "Registrace",
+          "actions": "Akce"
+        },
+        "fields": {
+          "username": "Uživatelské jméno",
+          "name": "Jméno",
+          "id": "ID uživatele",
+          "email": "E-mail",
+          "status": "Stav",
+          "role": "Role",
+          "vip": "VIP",
+          "registered": "Registrace",
+          "lastActivity": "Poslední aktivita",
+          "suspendedUntil": "Pozastaveno do",
+          "suspensionReason": "Důvod pozastavení"
+        },
+        "accountStatus": {
+          "ACTIVE": "Aktivní",
+          "SUSPENDED": "Pozastaven",
+          "PENDING": "Čeká",
+          "DELETED": "Smazaný"
+        },
+        "roles": {
+          "USER": "Uživatel",
+          "MODERATOR": "Moderátor",
+          "ADMIN": "Administrátor"
+        },
+        "actions": {
+          "warn": "Varování",
+          "suspend": "Dočasné pozastavení",
+          "ban": "Zablokovat",
+          "unban": "Odblokovat"
+        },
+        "auditTypes": {
+          "WARN": "Varování",
+          "SUSPEND_TEMPORARY": "Dočasné pozastavení",
+          "SUSPEND_INDEFINITE": "Neurčitý blok",
+          "UNSUSPEND": "Přístup obnoven"
+        }
+      },
+      "feedback": {
+        "screenshotUnavailable": "Snímek obrazovky není k dispozici"
+      }
+    },
+    "feedback": {
+      "types": {
+        "violation": "Pravidla / bezpečnost"
+      },
+      "support": {
+        "title": "Nápověda / podpora",
+        "intro": "Popište technický problém nebo něco nejasného v aplikaci. Pro otázky pravidel nebo bezpečnosti použijte v menu Nahlásit.",
+        "typeLegend": "O jaký typ jde?",
+        "success": "Děkujeme! Vaši zprávu jsme obdrželi a projdeme ji."
+      },
+      "report": {
+        "title": "Nahlásit problém",
+        "intro": "Popište problém s pravidly nebo bezpečností. U konkrétního obsahu použijte Nahlásit u profilu, příspěvku, zprávy, story nebo live chatu. Níže můžete přiložit snímek.",
+        "detailsLabel": "Co se stalo?",
+        "detailsPlaceholder": "Popište situaci a o co jde…",
+        "messageRequired": "Popište prosím situaci",
+        "success": "Děkujeme. Vaše hlášení bylo odesláno do fronty moderace.",
+        "guidelinesLink": "Pravidla komunity",
+        "backendRequired": "Tento typ hlášení na serveru zatím není zapnutý. Použijte Nahlásit v aplikaci u konkrétního obsahu nebo to zkuste po aktualizaci platformy."
+      }
+    },
+    "errors": {
+      "ACCOUNT_SUSPENDED": "Váš účet byl pozastaven.",
+      "ACCOUNT_SUSPENDED_TEMP": "Váš účet je dočasně omezen kvůli porušení pravidel komunity. Přístup se obnoví po skončení omezení{{until}}.",
+      "ACCOUNT_SUSPENDED_INDEFINITE": "Přístup k vašemu účtu je omezen. Pokud jde podle vás o chybu, kontaktujte podporu.",
+      "ACCOUNT_SUSPENDED_SUPPORT": "Kontaktovat podporu",
+      "ACCOUNT_SUSPENDED_GUIDELINES": "Pravidla komunity",
+      "ACCOUNT_SUSPENDED_SUPPORT_PAGE": "Nápověda a podpora",
+      "ACCOUNT_SUSPENDED_MAIL_SUBJECT": "LunMeYo — přístup k účtu"
+    }
+  },
+  "tr": {
+    "about": {
+      "title": "LunMeYo hakkında",
+      "subtitle": "LunMeYo, iletişimde kalmak, anları paylaşmak ve yerleşik iletişim araçlarını kullanmak için bir sosyal alandır.",
+      "backHome": "Ana sayfaya dön",
+      "sectionsAria": "Hakkında bölümleri",
+      "legalTitle": "Yasal belgeler",
+      "legal": {
+        "terms": "Kullanım koşulları",
+        "privacy": "Gizlilik politikası",
+        "guidelines": "Topluluk kuralları"
+      },
+      "sections": {
+        "what": {
+          "title": "LunMeYo nedir?",
+          "body": "LunMeYo profil oluşturmanıza, önem verdiğiniz kişileri takip etmenize ve paylaşılan gönderi ve medya akışına katılmanıza yardımcı olur."
+        },
+        "mission": {
+          "title": "Hedefimiz",
+          "body": "Günlük iletişimi ve kendini ifade etmeyi kolaylaştırmak istiyoruz — gerçek dünyadaki bağları değiştirmeden."
+        },
+        "social": {
+          "title": "Tanışma ve bağlantı",
+          "body": "Profilleri gezin, kullanıcıları takip edin ve çevrenizi genişletmek için bağlantı istekleri gönderin."
+        },
+        "posts": {
+          "title": "Gönderiler, fotoğraf ve video",
+          "body": "Metin gönderilerini fotoğraf veya videoyla yayınlayın, akışta tepki verin ve yorum yapın."
+        },
+        "stories": {
+          "title": "Stories",
+          "body": "Takipçileriniz ve yakın arkadaşlarınızla kısa ömürlü story'ler paylaşın."
+        },
+        "chats": {
+          "title": "Özel ve grup sohbetleri",
+          "body": "Bire bir veya gruplarda metin ve medya ile mesajlaşın."
+        },
+        "calls": {
+          "title": "Sesli ve görüntülü aramalar",
+          "body": "Her iki taraf da bağlanabildiğinde mesajlaşmadan sesli veya görüntülü arama başlatın."
+        },
+        "live": {
+          "title": "Canlı yayınlar",
+          "body": "Yayıncılar canlıya geçebilir; izleyiciler özellik etkin olduğu yerde izler ve etkileşir."
+        },
+        "luna": {
+          "title": "Luna AI",
+          "body": "Luna, uygulama içi yapay zeka asistanıdır; sorular, metin taslakları ve günlük işler için yardımcı olur."
+        },
+        "community": {
+          "title": "Topluluk",
+          "body": "Topluluk kuralları beklenen davranışı açıklar. Profil, gönderi, mesaj, story ve canlı sohbeti uygulama araçlarıyla bildirebilirsiniz."
+        },
+        "privacy": {
+          "title": "Gizlilik ve güvenlik",
+          "body": "Hesap güvenliği, engelleme ve gizlilik ayarları uygulamada mevcuttur. Hiçbir ürün mutlak güvenlik garanti etmez — araçları kullanın ve kişisel verilerinize dikkat edin."
+        }
+      }
+    },
+    "admin": {
+      "users": {
+        "subtitle": "Kayıtlı hesaplar, moderasyon ve denetim geçmişi.",
+        "searchPlaceholder": "Kullanıcı adı, ad, e-posta veya kullanıcı kimliği ara",
+        "empty": "Filtrelere uyan kullanıcı yok",
+        "loadError": "Kullanıcılar yüklenemedi",
+        "openError": "Kullanıcı detayı açılamadı",
+        "statsError": "İstatistikler yüklenemedi",
+        "actionError": "Moderasyon işlemi başarısız",
+        "actionSuccess": "İşlem kaydedildi",
+        "viewDetails": "Detaylar",
+        "detailTitle": "Kullanıcı detayı",
+        "auditTitle": "Yönetim geçmişi",
+        "noAudit": "Henüz moderasyon işlemi yok",
+        "byAdmin": "{{name}} tarafından",
+        "reasonRequired": "Gerekçe (zorunlu)",
+        "noteOptional": "Dahili not (isteğe bağlı)",
+        "suspendDuration": "Askı bitişi",
+        "invalidUntil": "Gelecekte geçerli bir bitiş tarihi seçin",
+        "indefinite": "Elle incelemeye kadar",
+        "prev": "Önceki",
+        "next": "Sonraki",
+        "confirmWarn": "Uyarı gönder",
+        "confirmSuspend": "Askıya al",
+        "confirmBan": "Hesabı engelle",
+        "confirmBanTitle": "Hesap süresiz engellensin mi?",
+        "confirmUnban": "Erişimi geri ver",
+        "sortNewest": "Önce en yeni",
+        "sortOldest": "Önce en eski",
+        "relatedReports": "İlgili bildirimler",
+        "relatedFeedback": "İlgili geri bildirimler",
+        "noRelatedReports": "İlgili bildirim yok",
+        "noRelatedFeedback": "İlgili geri bildirim yok",
+        "openReport": "Bildirimi aç",
+        "openFeedback": "Talebi aç",
+        "viewAllReports": "Tüm bildirimler",
+        "viewAllFeedback": "Tüm geri bildirimler",
+        "presets": {
+          "24h": "24 saat",
+          "3d": "3 gün",
+          "7d": "7 gün",
+          "30d": "30 gün",
+          "custom": "Özel bitiş tarihi"
+        },
+        "filters": {
+          "allStatus": "Tüm durumlar",
+          "allRoles": "Tüm roller",
+          "ALL": "Tümü",
+          "vip": "Yalnızca VIP",
+          "nonVip": "VIP değil",
+          "status": "Hesap durumu",
+          "role": "Rol",
+          "vipLabel": "VIP",
+          "sort": "Sıralama"
+        },
+        "stats": {
+          "total": "Toplam kullanıcı",
+          "new24h": "Yeni (24 sa)",
+          "new7d": "Yeni (7 gün)",
+          "new30d": "Yeni (30 gün)",
+          "active": "Aktif",
+          "suspended": "Askıda",
+          "temporarySuspended": "Geçici askı",
+          "vip": "VIP"
+        },
+        "columns": {
+          "avatar": "Avatar",
+          "username": "Kullanıcı adı",
+          "name": "Ad",
+          "status": "Durum",
+          "role": "Rol",
+          "vip": "VIP",
+          "registered": "Kayıt",
+          "actions": "İşlemler"
+        },
+        "fields": {
+          "username": "Kullanıcı adı",
+          "name": "Ad",
+          "id": "Kullanıcı kimliği",
+          "email": "E-posta",
+          "status": "Durum",
+          "role": "Rol",
+          "vip": "VIP",
+          "registered": "Kayıt",
+          "lastActivity": "Son etkinlik",
+          "suspendedUntil": "Askı bitişi",
+          "suspensionReason": "Askı gerekçesi"
+        },
+        "accountStatus": {
+          "ACTIVE": "Aktif",
+          "SUSPENDED": "Askıda",
+          "PENDING": "Beklemede",
+          "DELETED": "Silindi"
+        },
+        "roles": {
+          "USER": "Kullanıcı",
+          "MODERATOR": "Moderatör",
+          "ADMIN": "Yönetici"
+        },
+        "actions": {
+          "warn": "Uyarı",
+          "suspend": "Geçici askı",
+          "ban": "Engelle",
+          "unban": "Engeli kaldır"
+        },
+        "auditTypes": {
+          "WARN": "Uyarı",
+          "SUSPEND_TEMPORARY": "Geçici askı",
+          "SUSPEND_INDEFINITE": "Süresiz engel",
+          "UNSUSPEND": "Erişim geri verildi"
+        }
+      },
+      "feedback": {
+        "screenshotUnavailable": "Ekran görüntüsü kullanılamıyor"
+      }
+    },
+    "feedback": {
+      "types": {
+        "violation": "Kurallar / güvenlik"
+      },
+      "support": {
+        "title": "Yardım / destek",
+        "intro": "Uygulamadaki teknik bir sorunu veya kafa karıştıran bir noktayı anlatın. Politika veya güvenlik için menüdeki Bildir'i kullanın.",
+        "typeLegend": "Ne tür bir sorun?",
+        "success": "Teşekkürler! Mesajınızı aldık ve inceleyeceğiz."
+      },
+      "report": {
+        "title": "Endişe bildir",
+        "intro": "Politika veya güvenlik konusunu açıklayın. Belirli içerik için profil, gönderi, mesaj, story veya canlı sohbette Bildir'i kullanın. Aşağıya ekran görüntüsü ekleyebilirsiniz.",
+        "detailsLabel": "Ne oldu?",
+        "detailsPlaceholder": "Durumu ve kimin veya neyin ilgili olduğunu açıklayın…",
+        "messageRequired": "Lütfen durumu açıklayın",
+        "success": "Teşekkürler. Bildiriminiz moderasyon kuyruğuna gönderildi.",
+        "guidelinesLink": "Topluluk kurallarını oku",
+        "backendRequired": "Bu bildirim türü sunucuda henüz etkin değil. Belirli içerikte uygulama içi Bildir'i kullanın veya platform güncellemesinden sonra tekrar deneyin."
+      }
+    },
+    "errors": {
+      "ACCOUNT_SUSPENDED": "Hesabınız askıya alındı.",
+      "ACCOUNT_SUSPENDED_TEMP": "Hesabınız topluluk kurallarını ihlal ettiği için geçici olarak kısıtlandı. Erişim kısıtlama bitince geri gelir{{until}}.",
+      "ACCOUNT_SUSPENDED_INDEFINITE": "Hesabınıza erişim kısıtlı. Bunun hata olduğunu düşünüyorsanız destekle iletişime geçin.",
+      "ACCOUNT_SUSPENDED_SUPPORT": "Destekle iletişim",
+      "ACCOUNT_SUSPENDED_GUIDELINES": "Topluluk kuralları",
+      "ACCOUNT_SUSPENDED_SUPPORT_PAGE": "Yardım ve destek",
+      "ACCOUNT_SUSPENDED_MAIL_SUBJECT": "LunMeYo — hesap erişimi"
+    }
+  },
+  "ar": {
+    "about": {
+      "title": "عن LunMeYo",
+      "subtitle": "LunMeYo مساحة اجتماعية للبقاء على تواصل ومشاركة اللحظات واستخدام أدوات التواصل المدمجة.",
+      "backHome": "العودة إلى الصفحة الرئيسية",
+      "sectionsAria": "أقسام حول المنصة",
+      "legalTitle": "المستندات القانونية",
+      "legal": {
+        "terms": "شروط الاستخدام",
+        "privacy": "سياسة الخصوصية",
+        "guidelines": "إرشادات المجتمع"
+      },
+      "sections": {
+        "what": {
+          "title": "ما هو LunMeYo؟",
+          "body": "يساعدك LunMeYo على إدارة ملفك الشخصي ومتابعة من تهمهم والمشاركة في موجز مشترك للمنشورات والوسائط."
+        },
+        "mission": {
+          "title": "هدفنا",
+          "body": "نريد تبسيط التواصل اليومي والتعبير عن الذات دون أن يحل محل العلاقات في العالم الحقيقي."
+        },
+        "social": {
+          "title": "التعارف والتواصل",
+          "body": "تصفّح الملفات الشخصية وتابِع المستخدمين وأرسل طلبات تواصل لتوسيع دائرتك."
+        },
+        "posts": {
+          "title": "المنشورات والصور والفيديو",
+          "body": "انشر نصوصًا مع صور أو فيديو وتفاعل وعلّق في الموجز."
+        },
+        "stories": {
+          "title": "القصص",
+          "body": "شارك قصصًا قصيرة المدة مع متابعيك وأصدقائك المقرّبين."
+        },
+        "chats": {
+          "title": "الدردشات الخاصة والجماعية",
+          "body": "راسل الأشخاص واحدًا لواحد أو في مجموعات بالنص والوسائط."
+        },
+        "calls": {
+          "title": "المكالمات الصوتية والمرئية",
+          "body": "ابدأ مكالمات صوتية أو مرئية من المراسلة عندما يتّسع الطرفان للاتصال."
+        },
+        "live": {
+          "title": "البث المباشر",
+          "body": "يمكن للمضيفين البث المباشر؛ والمشاهدون يتابعون ويتفاعلون حيث تتوفر الميزة."
+        },
+        "luna": {
+          "title": "Luna AI",
+          "body": "Luna مساعد ذكاء اصطناعي داخل التطبيق للأسئلة وصياغة النصوص والمساعدة في المهام اليومية."
+        },
+        "community": {
+          "title": "المجتمع",
+          "body": "توضّح إرشادات المجتمع السلوك المتوقَّع. يمكنك الإبلاغ عن الملفات والمنشورات والرسائل والقصص والدردشة المباشرة عبر أدوات التطبيق."
+        },
+        "privacy": {
+          "title": "الخصوصية والأمان",
+          "body": "إعدادات أمان الحساب والحظر والخصوصية متوفرة في التطبيق. لا يضمن أي منتج أمانًا مطلقًا — استخدم الأدوات المتاحة واحرص على بياناتك الشخصية."
+        }
+      }
+    },
+    "admin": {
+      "users": {
+        "subtitle": "الحسابات المسجّلة والإشراف وسجلّ التدقيق.",
+        "searchPlaceholder": "ابحث باسم المستخدم أو الاسم أو البريد أو المعرّف",
+        "empty": "لا يوجد مستخدمون يطابقون عوامل التصفية",
+        "loadError": "تعذّر تحميل المستخدمين",
+        "openError": "تعذّر فتح تفاصيل المستخدم",
+        "statsError": "تعذّر تحميل الإحصاءات",
+        "actionError": "فشل إجراء الإشراف",
+        "actionSuccess": "تم تسجيل الإجراء",
+        "viewDetails": "التفاصيل",
+        "detailTitle": "تفاصيل المستخدم",
+        "auditTitle": "سجلّ الإدارة",
+        "noAudit": "لا توجد إجراءات إشراف بعد",
+        "byAdmin": "بواسطة {{name}}",
+        "reasonRequired": "السبب (مطلوب)",
+        "noteOptional": "ملاحظة داخلية (اختياري)",
+        "suspendDuration": "ينتهي التعليق",
+        "invalidUntil": "اختر تاريخ انتهاء صالحًا في المستقبل",
+        "indefinite": "حتى المراجعة اليدوية",
+        "prev": "السابق",
+        "next": "التالي",
+        "confirmWarn": "إرسال تحذير",
+        "confirmSuspend": "تعليق",
+        "confirmBan": "حظر الحساب",
+        "confirmBanTitle": "حظر الحساب بلا أمد؟",
+        "confirmUnban": "استعادة الوصول",
+        "sortNewest": "الأحدث أولًا",
+        "sortOldest": "الأقدم أولًا",
+        "relatedReports": "بلاغات مرتبطة",
+        "relatedFeedback": "ملاحظات مرتبطة",
+        "noRelatedReports": "لا توجد بلاغات مرتبطة",
+        "noRelatedFeedback": "لا توجد ملاحظات مرتبطة",
+        "openReport": "فتح البلاغ",
+        "openFeedback": "فتح الطلب",
+        "viewAllReports": "عرض كل البلاغات",
+        "viewAllFeedback": "عرض كل الملاحظات",
+        "presets": {
+          "24h": "24 ساعة",
+          "3d": "3 أيام",
+          "7d": "7 أيام",
+          "30d": "30 يومًا",
+          "custom": "تاريخ انتهاء مخصّص"
+        },
+        "filters": {
+          "allStatus": "كل الحالات",
+          "allRoles": "كل الأدوار",
+          "ALL": "الكل",
+          "vip": "VIP فقط",
+          "nonVip": "بدون VIP",
+          "status": "حالة الحساب",
+          "role": "الدور",
+          "vipLabel": "VIP",
+          "sort": "الترتيب"
+        },
+        "stats": {
+          "total": "إجمالي المستخدمين",
+          "new24h": "جدد (24 س)",
+          "new7d": "جدد (7 أيام)",
+          "new30d": "جدد (30 يومًا)",
+          "active": "نشطون",
+          "suspended": "معلّقون",
+          "temporarySuspended": "تعليق مؤقت",
+          "vip": "VIP"
+        },
+        "columns": {
+          "avatar": "الصورة الرمزية",
+          "username": "اسم المستخدم",
+          "name": "الاسم",
+          "status": "الحالة",
+          "role": "الدور",
+          "vip": "VIP",
+          "registered": "التسجيل",
+          "actions": "إجراءات"
+        },
+        "fields": {
+          "username": "اسم المستخدم",
+          "name": "الاسم",
+          "id": "معرّف المستخدم",
+          "email": "البريد الإلكتروني",
+          "status": "الحالة",
+          "role": "الدور",
+          "vip": "VIP",
+          "registered": "تاريخ التسجيل",
+          "lastActivity": "آخر نشاط",
+          "suspendedUntil": "معلّق حتى",
+          "suspensionReason": "سبب التعليق"
+        },
+        "accountStatus": {
+          "ACTIVE": "نشط",
+          "SUSPENDED": "معلّق",
+          "PENDING": "قيد الانتظار",
+          "DELETED": "محذوف"
+        },
+        "roles": {
+          "USER": "مستخدم",
+          "MODERATOR": "مشرف",
+          "ADMIN": "مدير"
+        },
+        "actions": {
+          "warn": "تحذير",
+          "suspend": "تعليق مؤقت",
+          "ban": "حظر",
+          "unban": "إلغاء الحظر"
+        },
+        "auditTypes": {
+          "WARN": "تحذير",
+          "SUSPEND_TEMPORARY": "تعليق مؤقت",
+          "SUSPEND_INDEFINITE": "حظر بلا أمد",
+          "UNSUSPEND": "تم استعادة الوصول"
+        }
+      },
+      "feedback": {
+        "screenshotUnavailable": "لقطة الشاشة غير متوفرة"
+      }
+    },
+    "feedback": {
+      "types": {
+        "violation": "السياسة / الأمان"
+      },
+      "support": {
+        "title": "المساعدة / الدعم",
+        "intro": "أخبرنا عن مشكلة تقنية أو أمر غير واضح في التطبيق. لمخاوف السياسة أو الأمان استخدم «إبلاغ» من القائمة.",
+        "typeLegend": "ما نوع المشكلة؟",
+        "success": "شكرًا لك! استلمنا رسالتك وسنراجعها."
+      },
+      "report": {
+        "title": "الإبلاغ عن مخاوف",
+        "intro": "صف مسألة تتعلق بالسياسة أو الأمان. للمحتوى المحدّد استخدم «إبلاغ» في الملف أو المنشور أو الرسالة أو القصة أو الدردشة المباشرة. يمكنك إرفاق لقطة شاشة أدناه.",
+        "detailsLabel": "ماذا حدث؟",
+        "detailsPlaceholder": "صف الموقف ومن أو ما الذي يخصّه…",
+        "messageRequired": "يرجى وصف المخاوف",
+        "success": "شكرًا لك. أُرسل بلاغك إلى قائمة انتظار الإشراف.",
+        "guidelinesLink": "قراءة إرشادات المجتمع",
+        "backendRequired": "نوع البلاغ هذا غير مفعّل على الخادم بعد. استخدم «إبلاغ» داخل التطبيق على المحتوى المحدّد أو أعد المحاولة بعد تحديث المنصة."
+      }
+    },
+    "errors": {
+      "ACCOUNT_SUSPENDED": "تم تعليق حسابك.",
+      "ACCOUNT_SUSPENDED_TEMP": "حسابك مقيّد مؤقتًا لمخالفة إرشادات المجتمع. يعود الوصول بعد انتهاء القيد{{until}}.",
+      "ACCOUNT_SUSPENDED_INDEFINITE": "الوصول إلى حسابك مقيّد. إذا اعتقدت أن هذا خطأ، تواصل مع الدعم.",
+      "ACCOUNT_SUSPENDED_SUPPORT": "التواصل مع الدعم",
+      "ACCOUNT_SUSPENDED_GUIDELINES": "إرشادات المجتمع",
+      "ACCOUNT_SUSPENDED_SUPPORT_PAGE": "المساعدة والدعم",
+      "ACCOUNT_SUSPENDED_MAIL_SUBJECT": "LunMeYo — الوصول إلى الحساب"
+    }
+  }
+}

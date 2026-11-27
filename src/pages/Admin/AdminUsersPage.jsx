@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import { adminApi } from '../../services/adminApi';
 import { getApiErrorMessage } from '../../utils/getApiErrorMessage';
+import { useNavigate } from 'react-router-dom';
 import { formatDate, formatUserLabel, formatUserSubline } from './adminUtils';
 
 const DEFAULT_LIMIT = 25;
@@ -148,8 +149,13 @@ function ReasonModal({ title, confirmKey, onClose, onConfirm, minReason = 3 }) {
 
 function UserDetailModal({ user, onClose, onUserUpdated }) {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const [actions, setActions] = useState([]);
   const [actionsLoading, setActionsLoading] = useState(true);
+  const [reports, setReports] = useState([]);
+  const [reportsLoading, setReportsLoading] = useState(true);
+  const [feedbacks, setFeedbacks] = useState([]);
+  const [feedbacksLoading, setFeedbacksLoading] = useState(true);
   const [modal, setModal] = useState(null);
 
   const loadActions = useCallback(async () => {
@@ -165,9 +171,30 @@ function UserDetailModal({ user, onClose, onUserUpdated }) {
     }
   }, [user?.id]);
 
+  const loadRelated = useCallback(async () => {
+    if (!user?.id) return;
+    try {
+      setReportsLoading(true);
+      setFeedbacksLoading(true);
+      const [reportsData, feedbackData] = await Promise.all([
+        adminApi.listUserReports({ userId: user.id, page: 1, limit: 8 }),
+        adminApi.listFeedback({ userId: user.id, page: 1, limit: 8 }),
+      ]);
+      setReports(Array.isArray(reportsData?.items) ? reportsData.items : []);
+      setFeedbacks(Array.isArray(feedbackData?.items) ? feedbackData.items : []);
+    } catch {
+      setReports([]);
+      setFeedbacks([]);
+    } finally {
+      setReportsLoading(false);
+      setFeedbacksLoading(false);
+    }
+  }, [user?.id]);
+
   useEffect(() => {
     loadActions();
-  }, [loadActions]);
+    loadRelated();
+  }, [loadActions, loadRelated]);
 
   const refreshUser = async () => {
     const fresh = await adminApi.getUser(user.id);
@@ -280,6 +307,80 @@ function UserDetailModal({ user, onClose, onUserUpdated }) {
               </button>
             )}
           </div>
+
+          <h3 className="adminSubheading">{t('admin.users.relatedReports')}</h3>
+          {reportsLoading ? (
+            <p>{t('common.loading')}</p>
+          ) : reports.length === 0 ? (
+            <p>{t('admin.users.noRelatedReports')}</p>
+          ) : (
+            <ul className="adminAuditList">
+              {reports.map((row) => (
+                <li key={row.id}>
+                  <strong>{row.status}</strong>
+                  <span> · {formatDate(row.createdAt)}</span>
+                  <p>{row.reason}</p>
+                  <button
+                    type="button"
+                    className="adminBtn"
+                    onClick={() => {
+                      onClose();
+                      navigate(`/admin/reports?userId=${encodeURIComponent(user.id)}&reportId=${encodeURIComponent(row.id)}`);
+                    }}
+                  >
+                    {t('admin.users.openReport')}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+          <button
+            type="button"
+            className="adminBtn"
+            onClick={() => {
+              onClose();
+              navigate(`/admin/reports?userId=${encodeURIComponent(user.id)}`);
+            }}
+          >
+            {t('admin.users.viewAllReports')}
+          </button>
+
+          <h3 className="adminSubheading">{t('admin.users.relatedFeedback')}</h3>
+          {feedbacksLoading ? (
+            <p>{t('common.loading')}</p>
+          ) : feedbacks.length === 0 ? (
+            <p>{t('admin.users.noRelatedFeedback')}</p>
+          ) : (
+            <ul className="adminAuditList">
+              {feedbacks.map((row) => (
+                <li key={row.id}>
+                  <strong>{row.type}</strong>
+                  <span> · {formatDate(row.createdAt)}</span>
+                  <p>{row.messagePreview}</p>
+                  <button
+                    type="button"
+                    className="adminBtn"
+                    onClick={() => {
+                      onClose();
+                      navigate(`/admin/feedback?userId=${encodeURIComponent(user.id)}&feedbackId=${encodeURIComponent(row.id)}`);
+                    }}
+                  >
+                    {t('admin.users.openFeedback')}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+          <button
+            type="button"
+            className="adminBtn"
+            onClick={() => {
+              onClose();
+              navigate(`/admin/feedback?userId=${encodeURIComponent(user.id)}`);
+            }}
+          >
+            {t('admin.users.viewAllFeedback')}
+          </button>
 
           <h3 className="adminSubheading">{t('admin.users.auditTitle')}</h3>
           {actionsLoading ? (

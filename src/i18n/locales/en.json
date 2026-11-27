@@ -1568,6 +1568,9 @@
     "ACCOUNT_SUSPENDED_TEMP": "Your account is temporarily restricted for violating community rules. Access will return after the restriction ends{{until}}.",
     "ACCOUNT_SUSPENDED_INDEFINITE": "Access to your account is restricted. If you believe this is a mistake, contact support.",
     "ACCOUNT_SUSPENDED_SUPPORT": "Contact support",
+    "ACCOUNT_SUSPENDED_GUIDELINES": "Community guidelines",
+    "ACCOUNT_SUSPENDED_SUPPORT_PAGE": "About LunMeYo",
+    "ACCOUNT_SUSPENDED_MAIL_SUBJECT": "Account access appeal",
     "ACCOUNT_DELETED": "This account has been deleted.",
     "GIFTS_PAYMENT_NOT_AVAILABLE": "Gift payments are not available yet.",
     "GIFTS_INVALID_GIFT_ID": "Unknown gift.",
@@ -2292,7 +2295,15 @@
         "SUSPEND_TEMPORARY": "Temporary suspension",
         "SUSPEND_INDEFINITE": "Indefinite block",
         "UNSUSPEND": "Access restored"
-      }
+      },
+      "relatedReports": "Related reports",
+      "relatedFeedback": "Related support / feedback",
+      "noRelatedReports": "No linked user reports",
+      "noRelatedFeedback": "No linked feedback tickets",
+      "openReport": "Open report",
+      "openFeedback": "Open ticket",
+      "viewAllReports": "All reports for this user",
+      "viewAllFeedback": "All feedback for this user"
     },
     "feedback": {
       "title": "Suggestions / Feedback",
@@ -2320,7 +2331,8 @@
         "screenshot": "Screenshot",
         "page": "Page",
         "date": "Date"
-      }
+      },
+      "screenshotUnavailable": "Screenshot could not be loaded securely"
     }
   },
   "luna": {

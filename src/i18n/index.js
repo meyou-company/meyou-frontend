@@ -7,6 +7,7 @@ import es from './locales/es.json';
 import fr from './locales/fr.json';
 import ru from './locales/ru.json';
 import tr from './locales/tr.json';
+import ar from './locales/ar.json';
 import uk from './locales/uk.json';
 import {
   DEFAULT_LOCALE,
@@ -22,6 +23,7 @@ const resources = {
   cs: { translation: cs },
   es: { translation: es },
   ru: { translation: ru },
+  ar: { translation: ar },
 };
 
 let initialized = false;

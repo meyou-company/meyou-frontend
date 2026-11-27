@@ -1568,6 +1568,9 @@
     "ACCOUNT_SUSPENDED_TEMP": "Ваш акаунт тимчасово обмежено через порушення правил спільноти. Доступ буде відновлено після завершення терміну обмеження{{until}}.",
     "ACCOUNT_SUSPENDED_INDEFINITE": "Доступ до вашого акаунта обмежено. Якщо ви вважаєте, що це помилка, зверніться до підтримки.",
     "ACCOUNT_SUSPENDED_SUPPORT": "Звернутися до підтримки",
+    "ACCOUNT_SUSPENDED_GUIDELINES": "Правила спільноти",
+    "ACCOUNT_SUSPENDED_SUPPORT_PAGE": "Про LunMeYo",
+    "ACCOUNT_SUSPENDED_MAIL_SUBJECT": "Оскарження обмеження акаунта",
     "ACCOUNT_DELETED": "Акаунт видалено.",
     "GIFTS_PAYMENT_NOT_AVAILABLE": "Оплата подарунків ще не підключена.",
     "GIFTS_INVALID_GIFT_ID": "Невідомий подарунок.",
@@ -2299,7 +2302,15 @@
         "SUSPEND_TEMPORARY": "Тимчасове обмеження",
         "SUSPEND_INDEFINITE": "Блокування без терміну",
         "UNSUSPEND": "Доступ відновлено"
-      }
+      },
+      "relatedReports": "Пов’язані скарги",
+      "relatedFeedback": "Пов’язані звернення",
+      "noRelatedReports": "Немає пов’язаних скарг",
+      "noRelatedFeedback": "Немає пов’язаних звернень",
+      "openReport": "Відкрити скаргу",
+      "openFeedback": "Відкрити звернення",
+      "viewAllReports": "Усі скарги щодо користувача",
+      "viewAllFeedback": "Усі звернення користувача"
     },
     "feedback": {
       "title": "Пропозиції / Feedback",
@@ -2327,7 +2338,8 @@
         "screenshot": "Скріншот",
         "page": "Сторінка",
         "date": "Дата"
-      }
+      },
+      "screenshotUnavailable": "Не вдалося безпечно завантажити скриншот"
     }
   },
   "luna": {

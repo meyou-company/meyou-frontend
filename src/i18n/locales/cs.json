@@ -1269,7 +1269,13 @@
     "LUNA_TIMEOUT": "Luna nestihla včas odpovědět. Zkuste to později.",
     "LUNA_UPLOAD_FAILED": "Obrázek se nepodařilo nahrát. Zkuste to znovu.",
     "LUNA_MESSAGE_SAVE_FAILED": "Zprávu se nepodařilo uložit. Zkuste to znovu.",
-    "LUNA_REQUEST_IN_PROGRESS": "Tento požadavek se již zpracovává."
+    "LUNA_REQUEST_IN_PROGRESS": "Tento požadavek se již zpracovává.",
+    "ACCOUNT_SUSPENDED_TEMP": "Váš účet je dočasně omezen kvůli porušení pravidel komunity. Přístup se obnoví po skončení omezení{{until}}.",
+    "ACCOUNT_SUSPENDED_INDEFINITE": "Přístup k vašemu účtu je omezen. Pokud jde podle vás o chybu, kontaktujte podporu.",
+    "ACCOUNT_SUSPENDED_SUPPORT": "Kontaktovat podporu",
+    "ACCOUNT_SUSPENDED_GUIDELINES": "Pravidla komunity",
+    "ACCOUNT_SUSPENDED_SUPPORT_PAGE": "Nápověda a podpora",
+    "ACCOUNT_SUSPENDED_MAIL_SUBJECT": "LunMeYo — přístup k účtu"
   },
   "gifts": {
     "title": "Dárky",
@@ -1812,7 +1818,8 @@
       "suggestion": "Mám návrh",
       "bug": "Našel/našla jsem chybu",
       "unclear": "Něco bylo nejasné",
-      "review": "Chci zanechat recenzi"
+      "review": "Chci zanechat recenzi",
+      "violation": "Pravidla / bezpečnost"
     },
     "detailsLabel": "Řekněte nám víc...",
     "detailsPlaceholder": "Řekněte nám víc...",
@@ -1845,20 +1852,20 @@
       "team": "Administrace MeYou"
     },
     "support": {
-      "title": "Help / Support",
-      "intro": "Tell us about a technical issue or something confusing in the app. For policy or safety concerns, use Report in the menu.",
-      "typeLegend": "What kind of issue?",
-      "success": "Thank you! We received your message and will review it."
+      "title": "Nápověda / podpora",
+      "intro": "Popište technický problém nebo něco nejasného v aplikaci. Pro otázky pravidel nebo bezpečnosti použijte v menu Nahlásit.",
+      "typeLegend": "O jaký typ jde?",
+      "success": "Děkujeme! Vaši zprávu jsme obdrželi a projdeme ji."
     },
     "report": {
-      "title": "Report a concern",
-      "intro": "Describe a policy or safety issue. For specific content, use Report on the profile, post, message, story, or live chat. You can attach a screenshot below.",
-      "detailsLabel": "What happened?",
-      "detailsPlaceholder": "Describe the situation and who or what it involves…",
-      "messageRequired": "Please describe the concern",
-      "success": "Thank you. Your report was sent to the moderation queue.",
-      "guidelinesLink": "Read the community guidelines",
-      "backendRequired": "This report type is not enabled on the server yet. Please use in-app Report on the specific content or try again after the platform update."
+      "title": "Nahlásit problém",
+      "intro": "Popište problém s pravidly nebo bezpečností. U konkrétního obsahu použijte Nahlásit u profilu, příspěvku, zprávy, story nebo live chatu. Níže můžete přiložit snímek.",
+      "detailsLabel": "Co se stalo?",
+      "detailsPlaceholder": "Popište situaci a o co jde…",
+      "messageRequired": "Popište prosím situaci",
+      "success": "Děkujeme. Vaše hlášení bylo odesláno do fronty moderace.",
+      "guidelinesLink": "Pravidla komunity",
+      "backendRequired": "Tento typ hlášení na serveru zatím není zapnutý. Použijte Nahlásit v aplikaci u konkrétního obsahu nebo to zkuste po aktualizaci platformy."
     }
   },
   "admin": {
@@ -1894,6 +1901,118 @@
         "screenshot": "Snímek",
         "page": "Stránka",
         "date": "Datum"
+      },
+      "screenshotUnavailable": "Snímek obrazovky není k dispozici"
+    },
+    "users": {
+      "subtitle": "Registrované účty, moderace a historie auditů.",
+      "searchPlaceholder": "Hledat uživatelské jméno, jméno, e-mail nebo ID",
+      "empty": "Žádní uživatelé neodpovídají filtrům",
+      "loadError": "Nepodařilo se načíst uživatele",
+      "openError": "Nepodařilo se otevřít detail uživatele",
+      "statsError": "Nepodařilo se načíst statistiky",
+      "actionError": "Moderátorská akce selhala",
+      "actionSuccess": "Akce zaznamenána",
+      "viewDetails": "Podrobnosti",
+      "detailTitle": "Detail uživatele",
+      "auditTitle": "Historie administrace",
+      "noAudit": "Zatím žádné moderátorské akce",
+      "byAdmin": "Od {{name}}",
+      "reasonRequired": "Důvod (povinný)",
+      "noteOptional": "Interní poznámka (volitelné)",
+      "suspendDuration": "Konec pozastavení",
+      "invalidUntil": "Zvolte platné datum ukončení v budoucnosti",
+      "indefinite": "Do ruční kontroly",
+      "prev": "Předchozí",
+      "next": "Další",
+      "confirmWarn": "Odeslat varování",
+      "confirmSuspend": "Pozastavit",
+      "confirmBan": "Zablokovat účet",
+      "confirmBanTitle": "Zablokovat účet na neurčito?",
+      "confirmUnban": "Obnovit přístup",
+      "sortNewest": "Nejnovější první",
+      "sortOldest": "Nejstarší první",
+      "relatedReports": "Související hlášení",
+      "relatedFeedback": "Související zpětná vazba",
+      "noRelatedReports": "Žádná související hlášení",
+      "noRelatedFeedback": "Žádná související zpětná vazba",
+      "openReport": "Otevřít hlášení",
+      "openFeedback": "Otevřít žádost",
+      "viewAllReports": "Všechna hlášení",
+      "viewAllFeedback": "Veškerá zpětná vazba",
+      "presets": {
+        "24h": "24 hodin",
+        "3d": "3 dny",
+        "7d": "7 dní",
+        "30d": "30 dní",
+        "custom": "Vlastní datum ukončení"
+      },
+      "filters": {
+        "allStatus": "Všechny stavy",
+        "allRoles": "Všechny role",
+        "ALL": "Vše",
+        "vip": "Pouze VIP",
+        "nonVip": "Bez VIP",
+        "status": "Stav účtu",
+        "role": "Role",
+        "vipLabel": "VIP",
+        "sort": "Řazení"
+      },
+      "stats": {
+        "total": "Celkem uživatelů",
+        "new24h": "Noví (24 h)",
+        "new7d": "Noví (7 dní)",
+        "new30d": "Noví (30 dní)",
+        "active": "Aktivní",
+        "suspended": "Pozastavení",
+        "temporarySuspended": "Dočasně",
+        "vip": "VIP"
+      },
+      "columns": {
+        "avatar": "Avatar",
+        "username": "Uživatelské jméno",
+        "name": "Jméno",
+        "status": "Stav",
+        "role": "Role",
+        "vip": "VIP",
+        "registered": "Registrace",
+        "actions": "Akce"
+      },
+      "fields": {
+        "username": "Uživatelské jméno",
+        "name": "Jméno",
+        "id": "ID uživatele",
+        "email": "E-mail",
+        "status": "Stav",
+        "role": "Role",
+        "vip": "VIP",
+        "registered": "Registrace",
+        "lastActivity": "Poslední aktivita",
+        "suspendedUntil": "Pozastaveno do",
+        "suspensionReason": "Důvod pozastavení"
+      },
+      "accountStatus": {
+        "ACTIVE": "Aktivní",
+        "SUSPENDED": "Pozastaven",
+        "PENDING": "Čeká",
+        "DELETED": "Smazaný"
+      },
+      "roles": {
+        "USER": "Uživatel",
+        "MODERATOR": "Moderátor",
+        "ADMIN": "Administrátor"
+      },
+      "actions": {
+        "warn": "Varování",
+        "suspend": "Dočasné pozastavení",
+        "ban": "Zablokovat",
+        "unban": "Odblokovat"
+      },
+      "auditTypes": {
+        "WARN": "Varování",
+        "SUSPEND_TEMPORARY": "Dočasné pozastavení",
+        "SUSPEND_INDEFINITE": "Neurčitý blok",
+        "UNSUSPEND": "Přístup obnoven"
       }
     }
   },
@@ -1991,60 +2110,60 @@
     "usersComingSoon": "Již brzy"
   },
   "about": {
-    "title": "About LunMeYo",
-    "subtitle": "LunMeYo is a social space to stay in touch, share moments, and use built-in communication tools.",
-    "backHome": "Back to home",
-    "sectionsAria": "About sections",
-    "legalTitle": "Legal documents",
+    "title": "O LunMeYo",
+    "subtitle": "LunMeYo je sociální prostor pro udržování kontaktu, sdílení okamžiků a vestavěných komunikačních nástrojů.",
+    "backHome": "Zpět na úvod",
+    "sectionsAria": "Sekce O platformě",
+    "legalTitle": "Právní dokumenty",
     "legal": {
-      "terms": "Terms of use",
-      "privacy": "Privacy policy",
-      "guidelines": "Community guidelines"
+      "terms": "Podmínky použití",
+      "privacy": "Zásady ochrany soukromí",
+      "guidelines": "Pravidla komunity"
     },
     "sections": {
       "what": {
-        "title": "What is LunMeYo?",
-        "body": "LunMeYo helps you keep a profile, follow people you care about, and take part in a shared feed of posts and media."
+        "title": "Co je LunMeYo?",
+        "body": "LunMeYo vám pomáhá vést profil, sledovat lidi, na kterých vám záleží, a účastnit se společného feedu příspěvků a médií."
       },
       "mission": {
-        "title": "Our goal",
-        "body": "We want to make everyday communication and self-expression simple — without replacing real-world connections."
+        "title": "Náš cíl",
+        "body": "Chceme zpřehlednit každodenní komunikaci a sebevyjádření — bez nahrazování reálných vztahů."
       },
       "social": {
-        "title": "Meet and connect",
-        "body": "Browse profiles, follow users, and send connection requests to grow your circle."
+        "title": "Poznávání a propojení",
+        "body": "Prohlížejte profily, sledujte uživatele a posílejte žádosti o propojení."
       },
       "posts": {
-        "title": "Posts, photos, and video",
-        "body": "Publish text posts with photos or videos, react, and comment in the feed."
+        "title": "Příspěvky, fotky a video",
+        "body": "Publikujte text s fotkami nebo videem, reagujte a komentujte ve feedu."
       },
       "stories": {
         "title": "Stories",
-        "body": "Share short-lived stories with your followers and close friends."
+        "body": "Sdílejte krátkodobé stories s odběrateli a blízkými přáteli."
       },
       "chats": {
-        "title": "Private and group chats",
-        "body": "Message people one-on-one or in group conversations with text and media."
+        "title": "Soukromé a skupinové chaty",
+        "body": "Pište jeden na jednoho nebo ve skupinách — textem i médii."
       },
       "calls": {
-        "title": "Audio and video calls",
-        "body": "Start voice or video calls from the messenger when both sides can connect."
+        "title": "Audio a videohovory",
+        "body": "Zahajte hlasové nebo videohovory z messengeru, když se obě strany mohou spojit."
       },
       "live": {
-        "title": "Live streams",
-        "body": "Hosts can go live; viewers can watch and interact where the feature is enabled."
+        "title": "Živé přenosy",
+        "body": "Moderátoři mohou vysílat naživo; diváci sledují a reagují tam, kde je funkce dostupná."
       },
       "luna": {
         "title": "Luna AI",
-        "body": "Luna is an in-app AI assistant for questions, drafting text, and help with everyday tasks inside the app."
+        "body": "Luna je AI asistent v aplikaci pro dotazy, návrhy textů a pomoc s běžnými úkoly."
       },
       "community": {
-        "title": "Community",
-        "body": "Community guidelines describe expected behaviour. You can report profiles, posts, messages, stories, and live chat through the in-app tools."
+        "title": "Komunita",
+        "body": "Pravidla komunity popisují očekávané chování. Profily, příspěvky, zprávy, stories a live chat můžete nahlásit v aplikaci."
       },
       "privacy": {
-        "title": "Privacy and safety",
-        "body": "Account security settings, blocking, and privacy controls are available in the app. No product can guarantee absolute safety — use the tools provided and stay careful with personal data."
+        "title": "Soukromí a bezpečí",
+        "body": "Nastavení zabezpečení účtu, blokování a soukromí jsou v aplikaci. Žádný produkt nezaručuje absolutní bezpečí — používejte nástroje a opatrně nakládejte s osobními údaji."
       }
     }
   }

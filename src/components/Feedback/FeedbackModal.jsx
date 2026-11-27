@@ -16,6 +16,7 @@ import {
   isViolationTypeRejected,
 } from '../../constants/feedbackCompose';
 import { FEEDBACK_TYPES, useFeedbackStore } from '../../zustand/useFeedbackStore';
+import { useFeedbackScreenshotUrl } from '../../hooks/useFeedbackScreenshotUrl';
 import './FeedbackWidget.scss';
 
 const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
@@ -496,6 +497,12 @@ function statusKey(status) {
 }
 
 function MineDetail({ titleId, detail, loading, currentUserId, onBack, t }) {
+  const { url: screenshotUrl } = useFeedbackScreenshotUrl(
+    detail?.id,
+    detail?.hasScreenshot,
+    { admin: false },
+  );
+
   if (loading || !detail) {
     return (
       <div>
@@ -523,10 +530,10 @@ function MineDetail({ titleId, detail, loading, currentUserId, onBack, t }) {
         <article className="feedbackThread__bubble feedbackThread__bubble--you">
           <strong>{t('feedback.thread.you')}</strong>
           <p>{detail.message}</p>
-          {detail.screenshotUrl ? (
-            <a href={detail.screenshotUrl} target="_blank" rel="noreferrer">
+          {detail.hasScreenshot && screenshotUrl ? (
+            <a href={screenshotUrl} target="_blank" rel="noreferrer">
               <img
-                src={detail.screenshotUrl}
+                src={screenshotUrl}
                 alt={t('feedback.screenshotPreview')}
               />
             </a>
