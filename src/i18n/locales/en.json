@@ -68,13 +68,14 @@
     "no_archived_stories_yet": "No archived stories yet"
   },
   "adminAudit": {
-    "usersPlaceholder": "User management is coming soon.",
+    "usersPlaceholder": "Search, review, and moderate registered accounts.",
     "updateError": "Could not update the status",
     "loadReportsError": "Could not load reports",
     "openReportError": "Could not open the report",
     "noReports": "No reports found",
     "overviewError": "Could not load the overview",
-    "overview": "Overview of the {{brand}} moderation queue."
+    "overview": "Overview of the {{brand}} moderation queue.",
+    "usersComingSoon": "Coming soon"
   },
   "storyViewerUi": {
     "add": "Add",
@@ -1662,7 +1663,13 @@
     "LUNA_TIMEOUT": "Luna did not respond in time. Please try again later.",
     "LUNA_UPLOAD_FAILED": "Could not upload the image. Please try again.",
     "LUNA_MESSAGE_SAVE_FAILED": "Could not save your message. Please try again.",
-    "LUNA_REQUEST_IN_PROGRESS": "This request is already being processed."
+    "LUNA_REQUEST_IN_PROGRESS": "This request is already being processed.",
+    "ACCOUNT_SUSPENDED_TEMP": "Your account is temporarily restricted for violating community rules. Access will return after the restriction ends{{until}}.",
+    "ACCOUNT_SUSPENDED_INDEFINITE": "Access to your account is restricted. If you believe this is a mistake, contact support.",
+    "ACCOUNT_SUSPENDED_SUPPORT": "Contact support",
+    "ACCOUNT_SUSPENDED_GUIDELINES": "Community guidelines",
+    "ACCOUNT_SUSPENDED_SUPPORT_PAGE": "About LunMeYo",
+    "ACCOUNT_SUSPENDED_MAIL_SUBJECT": "Account access appeal"
   },
   "gifts": {
     "title": "Gifts",
@@ -2206,7 +2213,8 @@
       "suggestion": "I have a suggestion",
       "bug": "I found a bug",
       "unclear": "Something was unclear",
-      "review": "I want to leave a review"
+      "review": "I want to leave a review",
+      "violation": "Policy / safety report"
     },
     "detailsLabel": "Tell us more...",
     "detailsPlaceholder": "Tell us more...",
@@ -2237,6 +2245,22 @@
     "thread": {
       "you": "You",
       "team": "MeYou Administration"
+    },
+    "support": {
+      "title": "Help / Support",
+      "intro": "Tell us about a technical issue or something confusing in the app. For policy or safety concerns, use Report in the menu.",
+      "typeLegend": "What kind of issue?",
+      "success": "Thank you! We received your message and will review it."
+    },
+    "report": {
+      "title": "Report a concern",
+      "intro": "Describe a policy or safety issue. For specific content, use Report on the profile, post, message, story, or live chat. You can attach a screenshot below.",
+      "detailsLabel": "What happened?",
+      "detailsPlaceholder": "Describe the situation and who or what it involves…",
+      "messageRequired": "Please describe the concern",
+      "success": "Thank you. Your report was sent to the moderation queue.",
+      "guidelinesLink": "Read the community guidelines",
+      "backendRequired": "This report type is not enabled on the server yet. Please use in-app Report on the specific content or try again after the platform update."
     }
   },
   "admin": {
@@ -2272,7 +2296,119 @@
         "screenshot": "Screenshot",
         "page": "Page",
         "date": "Date"
-      }
+      },
+      "screenshotUnavailable": "Screenshot could not be loaded securely"
+    },
+    "users": {
+      "subtitle": "Registered accounts, moderation, and audit history.",
+      "searchPlaceholder": "Search username, name, email, or user ID",
+      "empty": "No users match your filters",
+      "loadError": "Could not load users",
+      "openError": "Could not open user details",
+      "statsError": "Could not load statistics",
+      "actionError": "Moderation action failed",
+      "actionSuccess": "Action recorded",
+      "viewDetails": "Details",
+      "detailTitle": "User details",
+      "auditTitle": "Administration history",
+      "noAudit": "No moderation actions yet",
+      "byAdmin": "By {{name}}",
+      "reasonRequired": "Reason (required)",
+      "noteOptional": "Internal note (optional)",
+      "suspendDuration": "Suspension ends",
+      "invalidUntil": "Choose a valid end date in the future",
+      "indefinite": "Until manual review",
+      "prev": "Previous",
+      "next": "Next",
+      "confirmWarn": "Send warning",
+      "confirmSuspend": "Suspend",
+      "confirmBan": "Block account",
+      "confirmBanTitle": "Block account indefinitely?",
+      "confirmUnban": "Restore access",
+      "sortNewest": "Newest first",
+      "sortOldest": "Oldest first",
+      "presets": {
+        "24h": "24 hours",
+        "3d": "3 days",
+        "7d": "7 days",
+        "30d": "30 days",
+        "custom": "Custom end date"
+      },
+      "filters": {
+        "allStatus": "All statuses",
+        "allRoles": "All roles",
+        "ALL": "All",
+        "vip": "VIP only",
+        "nonVip": "Non-VIP",
+        "status": "Account status",
+        "role": "Role",
+        "vipLabel": "VIP",
+        "sort": "Sort"
+      },
+      "stats": {
+        "total": "Total users",
+        "new24h": "New (24h)",
+        "new7d": "New (7 days)",
+        "new30d": "New (30 days)",
+        "active": "Active",
+        "suspended": "Suspended",
+        "temporarySuspended": "Temp. suspended",
+        "vip": "VIP"
+      },
+      "columns": {
+        "avatar": "Avatar",
+        "username": "Username",
+        "name": "Name",
+        "status": "Status",
+        "role": "Role",
+        "vip": "VIP",
+        "registered": "Registered",
+        "actions": "Actions"
+      },
+      "fields": {
+        "username": "Username",
+        "name": "Name",
+        "id": "User ID",
+        "email": "Email",
+        "status": "Status",
+        "role": "Role",
+        "vip": "VIP",
+        "registered": "Registered",
+        "lastActivity": "Last activity",
+        "suspendedUntil": "Suspended until",
+        "suspensionReason": "Suspension reason"
+      },
+      "accountStatus": {
+        "ACTIVE": "Active",
+        "SUSPENDED": "Suspended",
+        "PENDING": "Pending",
+        "DELETED": "Deleted"
+      },
+      "roles": {
+        "USER": "User",
+        "MODERATOR": "Moderator",
+        "ADMIN": "Admin"
+      },
+      "actions": {
+        "warn": "Warning",
+        "suspend": "Temporary suspension",
+        "ban": "Block",
+        "unban": "Unblock"
+      },
+      "auditTypes": {
+        "WARN": "Warning",
+        "SUSPEND_TEMPORARY": "Temporary suspension",
+        "SUSPEND_INDEFINITE": "Indefinite block",
+        "UNSUSPEND": "Access restored"
+      },
+      "relatedReports": "Related reports",
+      "relatedFeedback": "Related support / feedback",
+      "noRelatedReports": "No linked user reports",
+      "noRelatedFeedback": "No linked feedback tickets",
+      "openReport": "Open report",
+      "openFeedback": "Open ticket",
+      "viewAllReports": "All reports for this user",
+      "viewAllFeedback": "All feedback for this user"
     }
   },
   "luna": {
@@ -2363,5 +2499,63 @@
     "restrictedDescription": "This content is not available for link preview. Open LUNMEYO to learn more.",
     "profileTitle": "{{name}} (@{{username}}) · LUNMEYO",
     "langQueryHint": "Add ?lang=en to suggest preview language (not all platforms honor it)."
+  },
+  "about": {
+    "title": "About LunMeYo",
+    "subtitle": "LunMeYo is a social space to stay in touch, share moments, and use built-in communication tools.",
+    "backHome": "Back to home",
+    "sectionsAria": "About sections",
+    "legalTitle": "Legal documents",
+    "legal": {
+      "terms": "Terms of use",
+      "privacy": "Privacy policy",
+      "guidelines": "Community guidelines"
+    },
+    "sections": {
+      "what": {
+        "title": "What is LunMeYo?",
+        "body": "LunMeYo helps you keep a profile, follow people you care about, and take part in a shared feed of posts and media."
+      },
+      "mission": {
+        "title": "Our goal",
+        "body": "We want to make everyday communication and self-expression simple — without replacing real-world connections."
+      },
+      "social": {
+        "title": "Meet and connect",
+        "body": "Browse profiles, follow users, and send connection requests to grow your circle."
+      },
+      "posts": {
+        "title": "Posts, photos, and video",
+        "body": "Publish text posts with photos or videos, react, and comment in the feed."
+      },
+      "stories": {
+        "title": "Stories",
+        "body": "Share short-lived stories with your followers and close friends."
+      },
+      "chats": {
+        "title": "Private and group chats",
+        "body": "Message people one-on-one or in group conversations with text and media."
+      },
+      "calls": {
+        "title": "Audio and video calls",
+        "body": "Start voice or video calls from the messenger when both sides can connect."
+      },
+      "live": {
+        "title": "Live streams",
+        "body": "Hosts can go live; viewers can watch and interact where the feature is enabled."
+      },
+      "luna": {
+        "title": "Luna AI",
+        "body": "Luna is an in-app AI assistant for questions, drafting text, and help with everyday tasks inside the app."
+      },
+      "community": {
+        "title": "Community",
+        "body": "Community guidelines describe expected behaviour. You can report profiles, posts, messages, stories, and live chat through the in-app tools."
+      },
+      "privacy": {
+        "title": "Privacy and safety",
+        "body": "Account security settings, blocking, and privacy controls are available in the app. No product can guarantee absolute safety — use the tools provided and stay careful with personal data."
+      }
+    }
   }
 }

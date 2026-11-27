@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { toast } from 'sonner';
 import { adminApi } from '../../services/adminApi';
 import { getApiErrorMessage } from '../../utils/getApiErrorMessage';
@@ -124,6 +124,9 @@ function ReportDetailModal({ report, onClose, onUpdated }) {
 
 export default function AdminReportsPage() {
   const { t } = useTranslation();
+  const [searchParams] = useSearchParams();
+  const userIdFilter = searchParams.get('userId')?.trim() || '';
+  const openReportId = searchParams.get('reportId')?.trim() || '';
   const [statusFilter, setStatusFilter] = useState('OPEN');
   const [usernameQuery, setUsernameQuery] = useState('');
   const [searchInput, setSearchInput] = useState('');
@@ -144,7 +147,8 @@ export default function AdminReportsPage() {
       setLoading(true);
       const data = await adminApi.listUserReports({
         status: statusFilter === 'ALL' ? undefined : statusFilter,
-        username: usernameQuery,
+        username: userIdFilter ? undefined : usernameQuery,
+        userId: userIdFilter || undefined,
         page,
         limit,
       });
@@ -157,7 +161,19 @@ export default function AdminReportsPage() {
     } finally {
       setLoading(false);
     }
-  }, [statusFilter, usernameQuery, page, limit]);
+  }, [statusFilter, usernameQuery, userIdFilter, page, limit]);
+
+  useEffect(() => {
+    if (!openReportId) return;
+    void (async () => {
+      try {
+        const fresh = await adminApi.getUserReport(openReportId);
+        setSelectedReport(fresh);
+      } catch (error) {
+        toast.error(getApiErrorMessage(error) || t('adminAudit.openReportError'));
+      }
+    })();
+  }, [openReportId, t]);
 
   useEffect(() => {
     loadReports();

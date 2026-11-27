@@ -430,6 +430,99 @@
   margin-top: 20px;
 }
 
+.adminStatsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.adminStatCard {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 14px 16px;
+  border-radius: 12px;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  font-size: 0.85rem;
+}
+
+.adminStatCard strong {
+  font-size: 1.35rem;
+}
+
+.adminSelect {
+  padding: 8px 10px;
+  border-radius: 10px;
+  border: 1px solid #d1d5db;
+  font: inherit;
+  background: #fff;
+}
+
+.adminField {
+  display: grid;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.adminField textarea,
+.adminField input[type='datetime-local'] {
+  width: 100%;
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px solid #d1d5db;
+  font: inherit;
+}
+
+.adminModal--wide {
+  max-width: 720px;
+}
+
+.adminModal__footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.adminToolbar--compact {
+  margin-top: 16px;
+}
+
+.adminBtn--danger {
+  color: #b91c1c;
+}
+
+.adminBtn--primary {
+  font-weight: 600;
+}
+
+.adminSubheading {
+  margin: 20px 0 8px;
+  font-size: 1rem;
+}
+
+.adminAuditList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 12px;
+}
+
+.adminAuditList p {
+  margin: 4px 0;
+  white-space: pre-wrap;
+}
+
+.adminRadio {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 4px 0;
+}
+
 @media (max-width: 900px) {
   .adminShell {
     grid-template-columns: 1fr;

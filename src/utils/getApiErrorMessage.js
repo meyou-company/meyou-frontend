@@ -301,6 +301,29 @@ export function getApiErrorMessage(error, fallbackKey = 'errors.generic') {
     }
   }
 
+  if (code === 'ACCOUNT_SUSPENDED') {
+    const details = readErrorDetails(error);
+    if (details.indefinite) {
+      const indefinite = translateErrorCode('ACCOUNT_SUSPENDED_INDEFINITE', details, error);
+      if (indefinite) return indefinite;
+    }
+    if (typeof details.suspendedUntil === 'string' && details.suspendedUntil) {
+      let untilLabel = '';
+      try {
+        untilLabel = new Intl.DateTimeFormat(undefined, {
+          dateStyle: 'medium',
+          timeStyle: 'short',
+        }).format(new Date(details.suspendedUntil));
+      } catch {
+        untilLabel = details.suspendedUntil;
+      }
+      const tempKey = 'errors.ACCOUNT_SUSPENDED_TEMP';
+      if (i18n.exists(tempKey)) {
+        return i18n.t(tempKey, { until: untilLabel ? ` (${untilLabel})` : '' });
+      }
+    }
+  }
+
   if (code) {
     const translated = translateErrorCode(code, payload?.details, error);
     if (translated) return translated;

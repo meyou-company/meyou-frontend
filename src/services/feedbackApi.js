@@ -30,6 +30,13 @@ export const feedbackApi = {
     return data;
   },
 
+  async getScreenshotDelivery(feedbackId) {
+    const { data } = await api.get(
+      apiPath(`/feedback/${encodeURIComponent(feedbackId)}/screenshot-delivery`),
+    );
+    return data;
+  },
+
   async markRead(feedbackId) {
     const { data } = await api.post(
       apiPath(`/feedback/${encodeURIComponent(feedbackId)}/read`),

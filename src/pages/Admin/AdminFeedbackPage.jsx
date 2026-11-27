@@ -13,7 +13,8 @@ import {
   formatUserSubline,
   profilePath,
 } from './adminUtils';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useFeedbackScreenshotUrl } from '../../hooks/useFeedbackScreenshotUrl';
 
 const STATUS_FILTERS = [{ id: 'ALL', labelKey: 'admin.feedback.filters.all' }, ...FEEDBACK_STATUSES];
 
@@ -64,6 +65,12 @@ function FeedbackDetailModal({ item, onClose, onUpdated }) {
     }
   };
 
+  const { url: screenshotUrl, loading: screenshotLoading } = useFeedbackScreenshotUrl(
+    item?.id,
+    item?.hasScreenshot,
+    { admin: true },
+  );
+
   if (!item) return null;
   const meta = typeMeta(item.type);
 
@@ -107,16 +114,22 @@ function FeedbackDetailModal({ item, onClose, onUpdated }) {
             <span>{t('admin.feedback.fields.message')}</span>
             <strong style={{ whiteSpace: 'pre-wrap' }}>{item.message}</strong>
           </div>
-          {item.screenshotUrl ? (
+          {item.hasScreenshot ? (
             <div className="adminDetailRow">
               <span>{t('admin.feedback.fields.screenshot')}</span>
-              <a href={item.screenshotUrl} target="_blank" rel="noreferrer">
-                <img
-                  src={item.screenshotUrl}
-                  alt=""
-                  style={{ maxWidth: '100%', maxHeight: 220, borderRadius: 12 }}
-                />
-              </a>
+              {screenshotLoading ? (
+                <strong>{t('common.loading')}</strong>
+              ) : screenshotUrl ? (
+                <a href={screenshotUrl} target="_blank" rel="noreferrer">
+                  <img
+                    src={screenshotUrl}
+                    alt=""
+                    style={{ maxWidth: '100%', maxHeight: 220, borderRadius: 12 }}
+                  />
+                </a>
+              ) : (
+                <strong>{t('admin.feedback.screenshotUnavailable')}</strong>
+              )}
             </div>
           ) : null}
           <div className="adminDetailRow">
@@ -192,6 +205,9 @@ function FeedbackDetailModal({ item, onClose, onUpdated }) {
 
 export default function AdminFeedbackPage() {
   const { t } = useTranslation();
+  const [searchParams] = useSearchParams();
+  const userIdFilter = searchParams.get('userId')?.trim() || '';
+  const openFeedbackId = searchParams.get('feedbackId')?.trim() || '';
   const [statusFilter, setStatusFilter] = useState('NEW');
   const [typeFilter, setTypeFilter] = useState('ALL');
   const [page, setPage] = useState(1);
@@ -212,6 +228,7 @@ export default function AdminFeedbackPage() {
       const data = await adminApi.listFeedback({
         status: statusFilter === 'ALL' ? undefined : statusFilter,
         type: typeFilter === 'ALL' ? undefined : typeFilter,
+        userId: userIdFilter || undefined,
         page,
         limit,
       });
@@ -224,7 +241,19 @@ export default function AdminFeedbackPage() {
     } finally {
       setLoading(false);
     }
-  }, [statusFilter, typeFilter, page, limit]);
+  }, [statusFilter, typeFilter, userIdFilter, page, limit]);
+
+  useEffect(() => {
+    if (!openFeedbackId) return;
+    void (async () => {
+      try {
+        const fresh = await adminApi.getFeedback(openFeedbackId);
+        setSelected(fresh);
+      } catch (error) {
+        toast.error(getApiErrorMessage(error, 'errors.generic'));
+      }
+    })();
+  }, [openFeedbackId]);
 
   useEffect(() => {
     loadItems();

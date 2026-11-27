@@ -18,6 +18,7 @@ export const PUBLIC_PATHS = [
   '/legal/delete-account',
   '/legal/accept-terms',
   '/earn',
+  '/about',
   '/features/chat',
   '/features/stories',
   '/features/gifts',

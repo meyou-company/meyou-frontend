@@ -1,19 +1,20 @@
 import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
-import { useLocation } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { toast } from 'sonner';
-import {
-  isPostImageUploadEnabled,
-  uploadPostImage,
-} from '../../services/postImageUploadApi';
+import { isPostImageUploadEnabled } from '../../services/postImageUploadApi';
+import { uploadFeedbackScreenshot } from '../../services/feedbackScreenshotUploadApi';
 import { feedbackApi } from '../../services/feedbackApi';
 import { getApiErrorMessage } from '../../utils/getApiErrorMessage';
 import { useAuthStore } from '../../zustand/useAuthStore';
 import {
-  FEEDBACK_TYPES,
-  useFeedbackStore,
-} from '../../zustand/useFeedbackStore';
+  feedbackTypesForIntent,
+  FEEDBACK_VIOLATION_TYPE,
+  isViolationTypeRejected,
+} from '../../constants/feedbackCompose';
+import { FEEDBACK_TYPES, useFeedbackStore } from '../../zustand/useFeedbackStore';
+import { useFeedbackScreenshotUrl } from '../../hooks/useFeedbackScreenshotUrl';
 import './FeedbackWidget.scss';
 
 const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
@@ -27,8 +28,8 @@ function getFocusable(root) {
   ].filter((el) => !el.hasAttribute('hidden'));
 }
 
-function typeMeta(typeId) {
-  return FEEDBACK_TYPES.find((item) => item.id === typeId) || FEEDBACK_TYPES[0];
+function typeMeta(typeId, types) {
+  return types.find((item) => item.id === typeId) || types[0];
 }
 
 function ModalCloseButton({ onClose, t }) {
@@ -62,6 +63,7 @@ export default function FeedbackModal({ isOpen, onClose, returnFocusRef }) {
   const currentUserId = useAuthStore((s) => s.user?.id);
   const view = useFeedbackStore((s) => s.view);
   const selectedId = useFeedbackStore((s) => s.selectedId);
+  const composeIntent = useFeedbackStore((s) => s.composeIntent);
   const setView = useFeedbackStore((s) => s.setView);
   const fetchUnreadCount = useFeedbackStore((s) => s.fetchUnreadCount);
   const dialogRef = useRef(null);
@@ -209,12 +211,16 @@ export default function FeedbackModal({ isOpen, onClose, returnFocusRef }) {
   const handleSubmit = async (event) => {
     event.preventDefault();
     if (success || submittingRef.current) return;
-    if (!type) {
+    const isReport = composeIntent === 'report';
+    const submitType = isReport ? FEEDBACK_VIOLATION_TYPE : type;
+    if (!isReport && !submitType) {
       toast.error(t('feedback.typeRequired'));
       return;
     }
     if (message.trim().length < 3) {
-      toast.error(t('feedback.messageRequired'));
+      toast.error(
+        t(isReport ? 'feedback.report.messageRequired' : 'feedback.messageRequired'),
+      );
       return;
     }
 
@@ -223,10 +229,10 @@ export default function FeedbackModal({ isOpen, onClose, returnFocusRef }) {
     try {
       let screenshotUrl;
       if (screenshotFile) {
-        screenshotUrl = await uploadPostImage(screenshotFile);
+        screenshotUrl = await uploadFeedbackScreenshot(screenshotFile);
       }
       await feedbackApi.create({
-        type,
+        type: submitType,
         message: message.trim(),
         ...(screenshotUrl ? { screenshotUrl } : {}),
         pagePath: location.pathname,
@@ -235,6 +241,10 @@ export default function FeedbackModal({ isOpen, onClose, returnFocusRef }) {
       });
       setSuccess(true);
     } catch (error) {
+      if (isReport && isViolationTypeRejected(error)) {
+        toast.error(t('feedback.report.backendRequired'), { duration: 8000 });
+        return;
+      }
       const uploadFailed = Boolean(screenshotFile) && !error?.response;
       toast.error(
         getApiErrorMessage(
@@ -247,6 +257,25 @@ export default function FeedbackModal({ isOpen, onClose, returnFocusRef }) {
       setSubmitting(false);
     }
   };
+
+  const visibleTypes = feedbackTypesForIntent(composeIntent);
+  const isReport = composeIntent === 'report';
+  const isSupport = composeIntent === 'support';
+  const composeTitle = isReport
+    ? t('feedback.report.title')
+    : isSupport
+      ? t('feedback.support.title')
+      : t('feedback.title');
+  const composeIntro = isReport
+    ? t('feedback.report.intro')
+    : isSupport
+      ? t('feedback.support.intro')
+      : t('feedback.intro');
+  const successCopy = isReport
+    ? t('feedback.report.success')
+    : isSupport
+      ? t('feedback.support.success')
+      : t('feedback.success');
 
   const titleId = 'feedback-modal-title';
 
@@ -283,7 +312,7 @@ export default function FeedbackModal({ isOpen, onClose, returnFocusRef }) {
         ) : success ? (
           <>
             <h2 id={titleId} className="feedbackModal__title">
-              {t('feedback.success')}
+              {successCopy}
             </h2>
             <div className="feedbackModal__rowBtns">
               <button type="button" className="feedbackModal__attachBtn" onClick={onClose}>
@@ -302,46 +331,63 @@ export default function FeedbackModal({ isOpen, onClose, returnFocusRef }) {
           <form onSubmit={handleSubmit}>
             <div className="feedbackModal__topRow">
               <h2 id={titleId} className="feedbackModal__title">
-                {t('feedback.title')}
+                {composeTitle}
               </h2>
-              <button
-                type="button"
-                className="feedbackModal__textLink"
-                onClick={() => setView('list')}
-              >
-                {t('feedback.mine.title')}
-              </button>
+              {!isReport ? (
+                <button
+                  type="button"
+                  className="feedbackModal__textLink"
+                  onClick={() => setView('list')}
+                >
+                  {t('feedback.mine.title')}
+                </button>
+              ) : null}
             </div>
             <p id="feedback-modal-intro" className="feedbackModal__intro">
-              {t('feedback.intro')}
+              {composeIntro}
             </p>
-            <fieldset className="feedbackModal__types">
-              <legend className="feedbackModal__legend">{t('feedback.typeLegend')}</legend>
-              {FEEDBACK_TYPES.map((item) => (
-                <label
-                  key={item.id}
-                  className={`feedbackModal__type${type === item.id ? ' is-selected' : ''}`}
-                >
-                  <input
-                    type="radio"
-                    name="feedback-type"
-                    value={item.id}
-                    checked={type === item.id}
-                    onChange={() => setType(item.id)}
-                  />
-                  <span aria-hidden="true">{item.emoji}</span>
-                  <span>{t(item.labelKey)}</span>
-                </label>
-              ))}
-            </fieldset>
+            {isReport ? (
+              <p className="feedbackModal__hint">
+                <Link to="/legal/community-guidelines" onClick={(e) => e.stopPropagation()}>
+                  {t('feedback.report.guidelinesLink')}
+                </Link>
+              </p>
+            ) : null}
+            {visibleTypes.length > 0 ? (
+              <fieldset className="feedbackModal__types">
+                <legend className="feedbackModal__legend">
+                  {t(isSupport ? 'feedback.support.typeLegend' : 'feedback.typeLegend')}
+                </legend>
+                {visibleTypes.map((item) => (
+                  <label
+                    key={item.id}
+                    className={`feedbackModal__type${type === item.id ? ' is-selected' : ''}`}
+                  >
+                    <input
+                      type="radio"
+                      name="feedback-type"
+                      value={item.id}
+                      checked={type === item.id}
+                      onChange={() => setType(item.id)}
+                    />
+                    <span aria-hidden="true">{item.emoji}</span>
+                    <span>{t(item.labelKey)}</span>
+                  </label>
+                ))}
+              </fieldset>
+            ) : null}
             <label className="feedbackModal__details">
-              <span>{t('feedback.detailsLabel')}</span>
+              <span>
+                {t(isReport ? 'feedback.report.detailsLabel' : 'feedback.detailsLabel')}
+              </span>
               <textarea
                 value={message}
                 onChange={(event) => setMessage(event.target.value)}
                 maxLength={4000}
                 rows={5}
-                placeholder={t('feedback.detailsPlaceholder')}
+                placeholder={t(
+                  isReport ? 'feedback.report.detailsPlaceholder' : 'feedback.detailsPlaceholder',
+                )}
                 required
               />
             </label>
@@ -412,7 +458,7 @@ function MineList({ titleId, items, loading, onBack, onOpen, t }) {
       ) : (
         <ul className="feedbackMineList">
           {items.map((item) => {
-            const meta = typeMeta(item.type);
+            const meta = typeMeta(item.type, FEEDBACK_TYPES);
             return (
               <li key={item.id}>
                 <button
@@ -449,6 +495,12 @@ function statusKey(status) {
 }
 
 function MineDetail({ titleId, detail, loading, currentUserId, onBack, t }) {
+  const { url: screenshotUrl } = useFeedbackScreenshotUrl(
+    detail?.id,
+    detail?.hasScreenshot,
+    { admin: false },
+  );
+
   if (loading || !detail) {
     return (
       <div>
@@ -460,7 +512,7 @@ function MineDetail({ titleId, detail, loading, currentUserId, onBack, t }) {
     );
   }
 
-  const meta = typeMeta(detail.type);
+  const meta = typeMeta(detail.type, FEEDBACK_TYPES);
   return (
     <div>
       <div className="feedbackModal__topRow">
@@ -476,10 +528,10 @@ function MineDetail({ titleId, detail, loading, currentUserId, onBack, t }) {
         <article className="feedbackThread__bubble feedbackThread__bubble--you">
           <strong>{t('feedback.thread.you')}</strong>
           <p>{detail.message}</p>
-          {detail.screenshotUrl ? (
-            <a href={detail.screenshotUrl} target="_blank" rel="noreferrer">
+          {detail.hasScreenshot && screenshotUrl ? (
+            <a href={screenshotUrl} target="_blank" rel="noreferrer">
               <img
-                src={detail.screenshotUrl}
+                src={screenshotUrl}
                 alt={t('feedback.screenshotPreview')}
               />
             </a>
