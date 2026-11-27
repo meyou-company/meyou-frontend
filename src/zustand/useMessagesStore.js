@@ -17,8 +17,10 @@ function readSoundEnabled() {
   return true;
 }
 
-export const useMessagesStore = create((set, _get) => ({
+export const useMessagesStore = create((set, get) => ({
   totalUnreadCount: 0,
+  /** `error` after a failed poll — badge keeps the last successful totalUnreadCount. */
+  totalUnreadFetchStatus: 'idle',
   activeConversationId: null,
   soundEnabled: readSoundEnabled(),
 
@@ -43,10 +45,15 @@ export const useMessagesStore = create((set, _get) => ({
       async () => {
         try {
           const data = await conversationsApi.getUnreadCount();
-          set({ totalUnreadCount: Math.max(0, data?.count ?? 0) });
+          set({
+            totalUnreadCount: Math.max(0, data?.count ?? 0),
+            totalUnreadFetchStatus: 'ok',
+          });
           return data;
         } catch (e) {
           console.error('[messages] fetch unread count failed', e);
+          set({ totalUnreadFetchStatus: 'error' });
+          return { count: get().totalUnreadCount };
         }
       },
       UNREAD_THROTTLE_MS,
@@ -79,6 +86,7 @@ export const useMessagesStore = create((set, _get) => ({
     resetThrottle(UNREAD_KEY);
     set({
       totalUnreadCount: 0,
+      totalUnreadFetchStatus: 'idle',
       activeConversationId: null,
     });
   },
