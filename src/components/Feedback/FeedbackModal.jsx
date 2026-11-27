@@ -3,10 +3,8 @@ import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { Link, useLocation } from 'react-router-dom';
 import { toast } from 'sonner';
-import {
-  isPostImageUploadEnabled,
-  uploadPostImage,
-} from '../../services/postImageUploadApi';
+import { isPostImageUploadEnabled } from '../../services/postImageUploadApi';
+import { uploadFeedbackScreenshot } from '../../services/feedbackScreenshotUploadApi';
 import { feedbackApi } from '../../services/feedbackApi';
 import { getApiErrorMessage } from '../../utils/getApiErrorMessage';
 import { useAuthStore } from '../../zustand/useAuthStore';
@@ -231,7 +229,7 @@ export default function FeedbackModal({ isOpen, onClose, returnFocusRef }) {
     try {
       let screenshotUrl;
       if (screenshotFile) {
-        screenshotUrl = await uploadPostImage(screenshotFile);
+        screenshotUrl = await uploadFeedbackScreenshot(screenshotFile);
       }
       await feedbackApi.create({
         type: submitType,

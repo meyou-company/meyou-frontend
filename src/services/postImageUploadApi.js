@@ -399,3 +399,11 @@ export async function uploadPostMedia(file, { onProgress } = {}) {
     `Unsupported media type: ${mime || "(empty)"}. Expected image/* or video/*.`
   );
 }
+
+export {
+  appendFormFields,
+  extractPublicMediaUrl,
+  extractSignedUrl,
+  extractUploadFields,
+  fileWithResolvedMime,
+};
