@@ -1,7 +1,8 @@
 import { isPublicPath } from '../constants/publicRoutes';
 import { hasAcceptedTerms } from '../utils/authTerms';
 
-const AUTH_GUEST_ONLY_PATHS = new Set([
+/** Public auth screens stay mountable during bootstrap and when a session exists (pre–nav-guard behavior). */
+export const PUBLIC_AUTH_FORM_PATHS = new Set([
   '/auth/login',
   '/auth/register',
   '/auth/forgot-password',
@@ -32,6 +33,12 @@ export function resolveProfileGuardState({
   const isPublicPage = isPublicPath(pathname);
 
   if (isAuthLoading) {
+    const allowDuringBootstrap =
+      isPublicPath(pathname) &&
+      (pathname === '/' || PUBLIC_AUTH_FORM_PATHS.has(pathname));
+    if (allowDuringBootstrap) {
+      return { phase: 'loading-public', renderChildren: true, redirect: null };
+    }
     return { phase: 'loading', renderChildren: false, redirect: null };
   }
 
@@ -53,29 +60,6 @@ export function resolveProfileGuardState({
 
   if (pathname.startsWith('/admin')) {
     return { phase: 'admin', renderChildren: true, redirect: null };
-  }
-
-  if (isAuthed && AUTH_GUEST_ONLY_PATHS.has(pathname)) {
-    const isVerified = isEmailVerifiedUser(user);
-    if (!isVerified) {
-      return {
-        phase: 'authed-auth-route',
-        renderChildren: false,
-        redirect: { to: '/auth/verify-email', replace: true },
-      };
-    }
-    if (user.profileCompleted === false) {
-      return {
-        phase: 'authed-auth-route',
-        renderChildren: false,
-        redirect: { to: PROFILE_COMPLETE_PATH, replace: true },
-      };
-    }
-    return {
-      phase: 'authed-auth-route',
-      renderChildren: false,
-      redirect: { to: '/profile', replace: true },
-    };
   }
 
   const isVerified = isEmailVerifiedUser(user);
