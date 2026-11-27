@@ -22,6 +22,14 @@ import {
   setLocalCameraEnabled,
 } from '../../utils/callRoomSession';
 import { useCallsStore } from '../../zustand/useCallsStore';
+import ScreenSharePane from './CallScreenSharePane';
+import { SCREEN_SHARE_OPTIONS } from '../../utils/callScreenShare';
+import { useCallOverlayScrollLock } from '../../hooks/useCallOverlayScrollLock';
+import { useCallStageMode } from '../../hooks/useCallStageMode';
+import { useCallLayoutTransition } from '../../hooks/useCallLayoutTransition';
+import CallStageModeSwitch from './CallStageModeSwitch';
+import { useCallRecovery } from '../../hooks/useCallRecovery';
+import CallConnectionNotice from './CallConnectionNotice';
 
 function displayName(user, fallback = '') {
   if (!user) return fallback;
@@ -254,7 +262,7 @@ function collectScreenShares(room, call, localUserId) {
   const consider = (participant, isLocal) => {
     if (!participant) return;
     participant.trackPublications.forEach((pub) => {
-      if (pub.source !== Track.Source.ScreenShare || !pub.track || pub.isMuted) {
+      if (pub.source !== Track.Source.ScreenShare || !pub.track || pub.isMuted || pub.track.mediaStreamTrack?.readyState === 'ended') {
         return;
       }
       const identity = participant.identity || (isLocal ? localUserId : '');
@@ -340,6 +348,7 @@ function ParticipantTile({ tile, speaking, youLabel, layoutKey }) {
       className={`callGroupTile${speaking ? ' is-speaking' : ''}${
         hasVideo ? ' is-video' : ' is-audio'
       }`}
+      data-call-tile={tile.identity}
     >
       <video
         ref={videoRef}
@@ -440,70 +449,6 @@ function GroupRemoteAudio({ room }) {
   );
 }
 
-function ScreenSharePane({ share, youLabel, sharingLabel }) {
-  const videoRef = useRef(null);
-  const audioRef = useRef(null);
-
-  useEffect(() => {
-    const participant = share.participant;
-    if (!participant) return undefined;
-
-    const attach = () => {
-      participant.trackPublications.forEach((pub) => {
-        if (!pub.track) return;
-        if (pub.source === Track.Source.ScreenShare && videoRef.current) {
-          pub.track.attach(videoRef.current);
-        }
-        if (
-          pub.source === Track.Source.ScreenShareAudio &&
-          !share.isLocal &&
-          audioRef.current
-        ) {
-          pub.track.attach(audioRef.current);
-        }
-      });
-    };
-
-    attach();
-    const unbind = bindParticipantMedia(participant, attach);
-    const media = participant.getTrackPublication?.(Track.Source.ScreenShare)
-      ?.track?.mediaStreamTrack;
-    const onEnded = () => attach();
-    media?.addEventListener('ended', onEnded);
-    return () => {
-      unbind();
-      media?.removeEventListener('ended', onEnded);
-      const videoEl = videoRef.current;
-      const audioEl = audioRef.current;
-      participant.trackPublications.forEach((pub) => {
-        if (pub.source === Track.Source.ScreenShare) {
-          detachTrackFromElement(pub.track, videoEl);
-        } else if (pub.source === Track.Source.ScreenShareAudio) {
-          detachTrackFromElement(pub.track, audioEl);
-        }
-      });
-    };
-  }, [share.participant, share.isLocal, share.identity]);
-
-  return (
-    <div className="callGroupScreen">
-      <video
-        ref={videoRef}
-        className="callGroupScreen__video"
-        autoPlay
-        playsInline
-        muted={share.isLocal}
-      />
-      <audio ref={audioRef} autoPlay playsInline />
-      <span className="callGroupScreen__name">
-        {share.name}
-        {share.isLocal ? ` (${youLabel})` : ''}
-        {' · '}
-        {sharingLabel}
-      </span>
-    </div>
-  );
-}
 
 export default function GroupCallOverlay({
   call,
@@ -522,6 +467,10 @@ export default function GroupCallOverlay({
   onFatalError,
 }) {
   const { t } = useTranslation();
+  useCallOverlayScrollLock(!compact);
+  const recovery = useCallRecovery(call, media, true);
+  const recoveryRef = useRef(recovery);
+  recoveryRef.current = recovery;
   const roomRef = useRef(null);
   const connectGenRef = useRef(0);
   const tRef = useRef(t);
@@ -539,6 +488,9 @@ export default function GroupCallOverlay({
   const [statusLabel, setStatusLabel] = useState(t('messenger.calls.connecting'));
   const [tiles, setTiles] = useState([]);
   const [screenShares, setScreenShares] = useState([]);
+  const stageRef = useRef(null);
+  const stageView = useCallStageMode(screenShares);
+  const [selectedShareId, setSelectedShareId] = useState(null);
   const [speakingIds, setSpeakingIds] = useState(() => new Set());
   const [screenShareOn, setScreenShareOn] = useState(false);
   const [speakerSupported, setSpeakerSupported] = useState(false);
@@ -572,10 +524,10 @@ export default function GroupCallOverlay({
 
   useEffect(() => {
     let cancelled = false;
-    const url = media?.url;
-    const token = media?.token;
+    const url = recovery.media?.url;
+    const token = recovery.media?.token;
     const callId = call?.id;
-    const roomName = media?.roomName;
+    const roomName = recovery.media?.roomName;
 
     if (!url || !token) {
       onFatalErrorRef.current?.(tRef.current('messenger.calls.connectFailed'));
@@ -602,23 +554,30 @@ export default function GroupCallOverlay({
       );
     };
 
+    let screenMediaTrack;
+    const onBrowserStop = () => {
+      void room.localParticipant.setScreenShareEnabled(false).catch(() => {});
+      setScreenShareOn(false);
+      syncScreen();
+    };
     const syncScreen = () => {
+      screenMediaTrack?.removeEventListener('ended', onBrowserStop);
+      if (room.state === ConnectionState.Disconnected) {
+        screenMediaTrack = null;
+        setScreenShares([]);
+        setScreenShareOn(false);
+        return;
+      }
       setScreenShares(
         collectScreenShares(room, callRef.current, localUserIdRef.current),
       );
       const localShare = room.localParticipant?.getTrackPublication(
         Track.Source.ScreenShare,
       );
-      const sharing = Boolean(localShare?.track && !localShare.isMuted);
+      const sharing = Boolean(localShare?.track && !localShare.isMuted && localShare.track.mediaStreamTrack?.readyState !== 'ended');
       setScreenShareOn(sharing);
-      const mediaTrack = localShare?.track?.mediaStreamTrack;
-      if (mediaTrack && mediaTrack.readyState !== 'ended') {
-        const onBrowserStop = () => {
-          void room.localParticipant.setScreenShareEnabled(false).catch(() => {});
-          setScreenShareOn(false);
-        };
-        mediaTrack.addEventListener('ended', onBrowserStop, { once: true });
-      }
+      screenMediaTrack = localShare?.track?.mediaStreamTrack;
+      if (sharing) screenMediaTrack?.addEventListener('ended', onBrowserStop, { once: true });
     };
 
     const syncRoster = () => {
@@ -634,6 +593,7 @@ export default function GroupCallOverlay({
     const markConnected = () => {
       if (cancelled || connectGenRef.current !== gen) return;
       setIsConnected(true);
+      recoveryRef.current.connected();
       setStatusLabel(tRef.current('messenger.calls.inCall'));
       onConnectionStatusRef.current?.('connected');
       syncRoster();
@@ -648,7 +608,13 @@ export default function GroupCallOverlay({
         setIsConnected(false);
         setStatusLabel(tRef.current('messenger.calls.disconnected'));
         onConnectionStatusRef.current?.('disconnected');
+        setScreenShares([]);
+        setScreenShareOn(false);
       }
+    };
+    const onDisconnected = reason => {
+      onConnection(ConnectionState.Disconnected);
+      recoveryRef.current.disconnected(reason);
     };
 
     const onSpeakers = (speakers) => {
@@ -657,6 +623,7 @@ export default function GroupCallOverlay({
 
     room.on(RoomEvent.Connected, markConnected);
     room.on(RoomEvent.ConnectionStateChanged, onConnection);
+    room.on(RoomEvent.Disconnected, onDisconnected);
     room.on(RoomEvent.ParticipantConnected, syncRoster);
     room.on(RoomEvent.ParticipantDisconnected, syncRoster);
     room.on(RoomEvent.TrackSubscribed, onScreenTrack);
@@ -671,7 +638,9 @@ export default function GroupCallOverlay({
       if (
         reused &&
         (room.state === ConnectionState.Connected ||
-          room.state === ConnectionState.Connecting)
+          room.state === ConnectionState.Connecting ||
+          room.state === ConnectionState.Reconnecting ||
+          room.state === ConnectionState.SignalReconnecting)
       ) {
         if (room.state === ConnectionState.Connected) {
           void room
@@ -702,9 +671,7 @@ export default function GroupCallOverlay({
           setMicError(true);
           onMicChangeRef.current?.(false);
         }
-        const wantVideo =
-          (mediaTypeRef.current || callRef.current?.mediaType) === 'VIDEO' ||
-          Boolean(cameraEnabledRef.current);
+        const wantVideo = Boolean(cameraEnabledRef.current);
         if (wantVideo) {
           try {
             await setLocalCameraEnabled(room, true);
@@ -718,6 +685,7 @@ export default function GroupCallOverlay({
         if (!cancelled && connectGenRef.current === gen) markConnected();
       } catch (err) {
         if (!cancelled && connectGenRef.current === gen) {
+          recoveryRef.current.disconnected();
           const msg = mapConnectError(err, tRef.current);
           setStatusLabel(msg);
           onFatalErrorRef.current?.(msg);
@@ -729,6 +697,8 @@ export default function GroupCallOverlay({
       cancelled = true;
       room.off(RoomEvent.Connected, markConnected);
       room.off(RoomEvent.ConnectionStateChanged, onConnection);
+      room.off(RoomEvent.Disconnected, onDisconnected);
+      screenMediaTrack?.removeEventListener('ended', onBrowserStop);
       room.off(RoomEvent.ParticipantConnected, syncRoster);
       room.off(RoomEvent.ParticipantDisconnected, syncRoster);
       room.off(RoomEvent.TrackSubscribed, onScreenTrack);
@@ -755,7 +725,7 @@ export default function GroupCallOverlay({
           : 'group overlay cleanup disconnect',
       });
     };
-  }, [media?.url, media?.token, call?.id, media?.roomName]);
+  }, [recovery.media?.url, recovery.media?.token, call?.id, recovery.media?.roomName, recovery.attempt]);
 
   useEffect(() => {
     const room = roomRef.current;
@@ -768,7 +738,7 @@ export default function GroupCallOverlay({
         setMicError(true);
         onMicChangeRef.current?.(false);
       });
-  }, [micEnabled]);
+  }, [micEnabled, isConnected]);
 
   useEffect(() => {
     const room = roomRef.current;
@@ -857,8 +827,9 @@ export default function GroupCallOverlay({
     setScreenShareBusy(true);
     setScreenShareError(null);
     const next = !screenShareOn;
+    if (next) setSelectedShareId(room.localParticipant.identity);
     try {
-      await room.localParticipant.setScreenShareEnabled(next);
+      await room.localParticipant.setScreenShareEnabled(next, SCREEN_SHARE_OPTIONS);
       const pub = room.localParticipant.getTrackPublication(
         Track.Source.ScreenShare,
       );
@@ -914,7 +885,10 @@ export default function GroupCallOverlay({
   const count = tiles.length || 1;
   const gridCols = getGroupGridCols(count, narrowViewport);
   const hasScreenShare = screenShares.length > 0;
-  const layoutKey = `${gridCols}:${hasScreenShare ? 1 : 0}:${count}`;
+  const showScreen = hasScreenShare && stageView.mode === 'screen';
+  const activeShare = screenShares.find(share => share.identity === selectedShareId) || screenShares.find(share => !share.isLocal) || screenShares[0];
+  const layoutKey = `${gridCols}:${showScreen ? 1 : 0}:${count}`;
+  useCallLayoutTransition(stageRef, layoutKey);
 
   const unlockAudio = () => {
     const room = roomRef.current;
@@ -955,7 +929,7 @@ export default function GroupCallOverlay({
       ) : (
         <div
           className={`callActive callActive--group${
-            hasScreenShare ? ' has-screen' : ''
+            showScreen ? ' has-screen' : ''
           }`}
         >
           <div className="callGroup__top">
@@ -974,17 +948,18 @@ export default function GroupCallOverlay({
             </button>
           </div>
 
-          <div className="callGroup__stage">
+          <div className="callGroup__stage" ref={stageRef}>
             {hasScreenShare ? (
-              <div className="callGroup__screenStage">
-                {screenShares.map((share) => (
+              <div className={`callGroup__screenStage${showScreen ? '' : ' is-view-hidden'}`} aria-hidden={!showScreen}>
+                {[activeShare].map((share) => (
                   <ScreenSharePane
                     key={`share-${share.identity}`}
                     share={share}
-                    youLabel={t('messenger.calls.you')}
-                    sharingLabel={t('messenger.calls.screenShare')}
                   />
                 ))}
+                {screenShares.length > 1 && <div className="callScreenShare__switcher">
+                  {screenShares.map(share => <button key={share.identity} type="button" aria-pressed={share.identity === activeShare?.identity} onClick={() => setSelectedShareId(share.identity)}>{share.isLocal ? t('messenger.calls.you') : share.name}</button>)}
+                </div>}
               </div>
             ) : null}
 
@@ -1006,6 +981,8 @@ export default function GroupCallOverlay({
           </div>
 
           <div className="callActive__footer">
+            <CallConnectionNotice recovery={recovery} />
+            {hasScreenShare && <CallStageModeSwitch mode={stageView.mode} onChange={stageView.setMode} />}
             {audioBlocked ? (
               <p className="callActive__cameraErrorBody">
                 {t('messenger.calls.tapToHear')}
@@ -1024,11 +1001,13 @@ export default function GroupCallOverlay({
             {screenShareError ? (
               <p className="callActive__cameraErrorBody">{screenShareError}</p>
             ) : null}
+            {screenShareBlockedReason && <p className="callActive__cameraErrorBody">{screenShareBlockedReason}</p>}
             <div className="callActive__controls">
               <button
                 type="button"
                 className={`callOverlay__ctrl${micEnabled ? '' : ' is-off'}`}
                 onClick={() => onMicChange?.(!micEnabled)}
+                disabled={!isConnected}
                 aria-label={
                   micEnabled
                     ? t('messenger.calls.muteMic')
@@ -1041,6 +1020,7 @@ export default function GroupCallOverlay({
                 type="button"
                 className={`callOverlay__ctrl${cameraEnabled ? '' : ' is-off'}`}
                 onClick={() => onCameraChange?.(!cameraEnabled)}
+                disabled={!isConnected}
                 aria-label={
                   cameraEnabled
                     ? t('messenger.calls.cameraOff')
@@ -1061,7 +1041,7 @@ export default function GroupCallOverlay({
                 type="button"
                 className={`callOverlay__ctrl${screenShareOn ? '' : ' is-off'}`}
                 onClick={() => void toggleScreenShare()}
-                disabled={Boolean(screenShareBlockedReason) || screenShareBusy}
+                disabled={!isConnected || Boolean(screenShareBlockedReason) || screenShareBusy}
                 title={
                   screenShareBlockedReason ||
                   (screenShareOn

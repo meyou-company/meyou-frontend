@@ -1,13 +1,22 @@
 {
+  "cameraFilters": {
+    "natural": "Природний",
+    "beauty": "Ретуш",
+    "glow": "Сяйво",
+    "warm": "Теплий",
+    "cold": "Холодний",
+    "vintage": "Вінтаж",
+    "mono": "Чорно-білий"
+  },
   "adminAudit": {
     "usersPlaceholder": "Керування користувачами поки недоступне в цій збірці.",
-    "usersComingSoon": "Незабаром",
     "updateError": "Не вдалося оновити статус",
     "loadReportsError": "Не вдалося завантажити скарги",
     "openReportError": "Не вдалося відкрити скаргу",
     "noReports": "Скарг не знайдено",
     "overviewError": "Не вдалося завантажити огляд",
-    "overview": "Огляд черги модерації {{brand}}."
+    "overview": "Огляд черги модерації {{brand}}.",
+    "usersComingSoon": "Незабаром"
   },
   "storyViewerUi": {
     "add": "Додати",
@@ -1114,6 +1123,13 @@
       "groupVideoStarted": "У групі LunMeYo почалася відеокімната",
       "groupRoomEnded": "Кімната завершилась",
       "screenShare": "Демонстрація екрана",
+      "mediaDisconnected": "З’єднання втрачено. Камера й демонстрація зараз не передаються. Спробуйте підключитися знову.",
+      "duplicateSession": "Цей обліковий запис підключився з іншої вкладки або пристрою. Закрийте інший дзвінок перед повторним підключенням.",
+      "callView": "Вигляд дзвінка",
+      "screenView": "Екран",
+      "participantsView": "Учасники",
+      "sharingYourScreen": "Ви демонструєте екран",
+      "screenShareMirrorNotice": "Попередній перегляд приховано, щоб уникнути нескінченного дзеркалення. Співрозмовники бачать ваш екран. Виберіть іншу вкладку або вікно замість цього дзвінка.",
       "stopScreenShare": "Зупинити демонстрацію",
       "screenShareUnsupported": "Цей браузер не підтримує демонстрацію екрана",
       "screenShareInsecure": "Для демонстрації екрана потрібне захищене з’єднання (HTTPS)",
@@ -1487,6 +1503,7 @@
     "pickColor": "Колір {{color}}",
     "tools": "Інструменти історії",
     "music": "Музика",
+    "musicComingSoon": "Музика скоро буде доступна",
     "templates": "Шаблони",
     "collage": "Колаж",
     "stickers": "Стікери",
@@ -1565,12 +1582,6 @@
     "SUBSCRIPTION_REQUIRED": "Щоб писати повідомлення, потрібно підписатися на цей профіль.",
     "VIP_CHAT_ACCESS_REQUIRED": "Повідомлення доступні лише з VIP-доступом до цього профілю.",
     "ACCOUNT_SUSPENDED": "Ваш акаунт заблоковано.",
-    "ACCOUNT_SUSPENDED_TEMP": "Ваш акаунт тимчасово обмежено через порушення правил спільноти. Доступ буде відновлено після завершення терміну обмеження{{until}}.",
-    "ACCOUNT_SUSPENDED_INDEFINITE": "Доступ до вашого акаунта обмежено. Якщо ви вважаєте, що це помилка, зверніться до підтримки.",
-    "ACCOUNT_SUSPENDED_SUPPORT": "Звернутися до підтримки",
-    "ACCOUNT_SUSPENDED_GUIDELINES": "Правила спільноти",
-    "ACCOUNT_SUSPENDED_SUPPORT_PAGE": "Про LunMeYo",
-    "ACCOUNT_SUSPENDED_MAIL_SUBJECT": "Оскарження обмеження акаунта",
     "ACCOUNT_DELETED": "Акаунт видалено.",
     "GIFTS_PAYMENT_NOT_AVAILABLE": "Оплата подарунків ще не підключена.",
     "GIFTS_INVALID_GIFT_ID": "Невідомий подарунок.",
@@ -1593,7 +1604,13 @@
     "LUNA_TIMEOUT": "Luna не змогла відповісти вчасно. Спробуйте пізніше.",
     "LUNA_UPLOAD_FAILED": "Не вдалося завантажити зображення. Спробуйте ще раз.",
     "LUNA_MESSAGE_SAVE_FAILED": "Не вдалося зберегти повідомлення. Спробуйте ще раз.",
-    "LUNA_REQUEST_IN_PROGRESS": "Цей запит уже обробляється."
+    "LUNA_REQUEST_IN_PROGRESS": "Цей запит уже обробляється.",
+    "ACCOUNT_SUSPENDED_TEMP": "Ваш акаунт тимчасово обмежено через порушення правил спільноти. Доступ буде відновлено після завершення терміну обмеження{{until}}.",
+    "ACCOUNT_SUSPENDED_INDEFINITE": "Доступ до вашого акаунта обмежено. Якщо ви вважаєте, що це помилка, зверніться до підтримки.",
+    "ACCOUNT_SUSPENDED_SUPPORT": "Звернутися до підтримки",
+    "ACCOUNT_SUSPENDED_GUIDELINES": "Правила спільноти",
+    "ACCOUNT_SUSPENDED_SUPPORT_PAGE": "Про LunMeYo",
+    "ACCOUNT_SUSPENDED_MAIL_SUBJECT": "Оскарження обмеження акаунта"
   },
   "gifts": {
     "title": "Подарунки",
@@ -2201,6 +2218,35 @@
       "reports": "Reports",
       "users": "Users"
     },
+    "feedback": {
+      "title": "Пропозиції / Feedback",
+      "subtitle": "Звернення з демо-тестування LunMeYo.",
+      "empty": "Звернень не знайдено",
+      "detailTitle": "Звернення",
+      "thread": "Історія відповідей",
+      "replyLabel": "Відповісти користувачу",
+      "replyPlaceholder": "Напишіть відповідь…",
+      "sendReply": "Надіслати відповідь",
+      "replySent": "Відповідь надіслано користувачу",
+      "statusUpdated": "Статус оновлено",
+      "viewProfile": "Профіль користувача",
+      "next": "Далі",
+      "page": "Сторінка {{page}} / {{totalPages}} · {{total}}",
+      "filters": {
+        "all": "Усі",
+        "allTypes": "Усі типи"
+      },
+      "fields": {
+        "status": "Статус",
+        "user": "Користувач",
+        "type": "Тип",
+        "message": "Повідомлення",
+        "screenshot": "Скріншот",
+        "page": "Сторінка",
+        "date": "Дата"
+      },
+      "screenshotUnavailable": "Не вдалося безпечно завантажити скриншот"
+    },
     "users": {
       "subtitle": "Облікові записи, модерація та історія адміністративних дій.",
       "searchPlaceholder": "Пошук: нік, ім’я, email або ID",
@@ -2311,35 +2357,6 @@
       "openFeedback": "Відкрити звернення",
       "viewAllReports": "Усі скарги щодо користувача",
       "viewAllFeedback": "Усі звернення користувача"
-    },
-    "feedback": {
-      "title": "Пропозиції / Feedback",
-      "subtitle": "Звернення з демо-тестування LunMeYo.",
-      "empty": "Звернень не знайдено",
-      "detailTitle": "Звернення",
-      "thread": "Історія відповідей",
-      "replyLabel": "Відповісти користувачу",
-      "replyPlaceholder": "Напишіть відповідь…",
-      "sendReply": "Надіслати відповідь",
-      "replySent": "Відповідь надіслано користувачу",
-      "statusUpdated": "Статус оновлено",
-      "viewProfile": "Профіль користувача",
-      "next": "Далі",
-      "page": "Сторінка {{page}} / {{totalPages}} · {{total}}",
-      "filters": {
-        "all": "Усі",
-        "allTypes": "Усі типи"
-      },
-      "fields": {
-        "status": "Статус",
-        "user": "Користувач",
-        "type": "Тип",
-        "message": "Повідомлення",
-        "screenshot": "Скріншот",
-        "page": "Сторінка",
-        "date": "Дата"
-      },
-      "screenshotUnavailable": "Не вдалося безпечно завантажити скриншот"
     }
   },
   "luna": {

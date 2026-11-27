@@ -10,6 +10,9 @@ self.onmessage = async ({ data }) => {
         const { FaceLandmarker, FilesetResolver } = await import('./mediapipe/vision_bundle.mjs');
         const vision = await FilesetResolver.forVisionTasks(new URL('./mediapipe', self.location.href).href);
         landmarker = await FaceLandmarker.createFromOptions(vision, {
+          // Chrome on iOS has no Safari Version/ token. MediaPipe's automatic
+          // canvas selection then tries document.createElement() in this worker.
+          canvas: new OffscreenCanvas(1, 1),
           baseOptions: {
             modelAssetPath: new URL('./mediapipe/face_landmarker.task', self.location.href).href,
             delegate: 'CPU',

@@ -231,6 +231,8 @@
   .app-page {
     @apply w-full flex justify-center;
     min-height: 100dvh;
+    /* Keep page headers below the iPhone cutout in edge-to-edge browsers. */
+    padding-top: env(safe-area-inset-top, 0px);
   
   }
 
@@ -240,7 +242,7 @@
     @apply px-4 pt-8 pb-10;
 
     /* ✅ не фіксуємо висоту жорстко */
-    min-height: 100dvh;
+    min-height: calc(100dvh - env(safe-area-inset-top, 0px));
     height: auto;
   }
 
@@ -260,7 +262,7 @@
   /* ✅ На desktop: скрол сторінки (body), а контент НЕ обрізається */
   @screen lg {
     .app-container {
-      min-height: 100vh;
+      min-height: calc(100dvh - env(safe-area-inset-top, 0px));
       height: auto;
     }
 

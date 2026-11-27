@@ -135,7 +135,7 @@ export default function ProfileVipMediaPanel({
               {item.locked ? (
                 <span className="profileVipMedia__lockFace">
                   <img src={profileIcons.lockBlack} alt="" aria-hidden />
-                  <span>VIP</span>
+                  <span>{t("uiText.vip")}</span>
                   {vipEnabled && !isVipMember ? (
                     <span className="profileVipMedia__cta">
                       {t('profile.vipAccess.getVipAccess', {

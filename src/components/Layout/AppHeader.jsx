@@ -1,4 +1,5 @@
 import ThemeToggleDark from "../ThemeToggleDark/ThemeToggleDark";
+import { useTranslation } from "react-i18next";
 import BrandWordmark from "../BrandLogo/BrandWordmark";
 import profileIcons from "../../constants/profileIcons";
 import { BRAND_NAME } from "../../constants/brand";
@@ -14,6 +15,7 @@ export default function AppHeader({
   variant,
   className = "",
 }) {
+  const { t } = useTranslation();
   const { open } = useBurgerMenu();
   const showHomeIconFromMd = variant === "messenger";
 
@@ -27,7 +29,7 @@ export default function AppHeader({
             type="button"
             className={`app-header-icon-btn ${showHomeIconFromMd ? "hidden md:flex" : "hidden xl:flex"}`}
             onClick={onGoProfile}
-            aria-label="Профіль"
+            aria-label={t("nav.profile")}
           >
             <img src={profileIcons.home} alt="" aria-hidden="true" />
           </button>
@@ -36,7 +38,7 @@ export default function AppHeader({
             type="button"
             className="app-header-icon-btn"
             onClick={onGoExplore}
-            aria-label="Пошук"
+            aria-label={t("common.search")}
           >
             <img src={profileIcons.search} alt="" aria-hidden="true" />
           </button>
@@ -56,7 +58,7 @@ export default function AppHeader({
             type="button"
             className="app-header-icon-btn hidden md:flex"
             onClick={onGoWallet}
-            aria-label="Баланс"
+            aria-label={t("walletPage.title")}
           >
             <img src={profileIcons.balance} alt="" aria-hidden="true" />
           </button>
@@ -65,7 +67,7 @@ export default function AppHeader({
             type="button"
             className="app-header-icon-btn md:hidden"
             onClick={onGoVipChat}
-            aria-label="Чат"
+            aria-label={t("nav.messages")}
           >
             <img src={profileIcons.chat} alt="" aria-hidden="true" />
           </button>
@@ -76,7 +78,7 @@ export default function AppHeader({
             type="button"
             className="app-header-icon-btn hidden md:flex"
             onClick={open}
-            aria-label="Меню"
+            aria-label={t("live.menu")}
           >
             <img src={profileIcons.menu} alt="" aria-hidden="true" />
           </button>

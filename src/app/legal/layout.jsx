@@ -1,3 +1,4 @@
+import { i18n as translation } from "../../i18n";
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { getLegalNav, getLegalUi } from '../../i18n/legal';
@@ -44,7 +45,7 @@ export default function LegalLayout({ children }) {
           </div>
         </header>
 
-        <nav className="legalLayout__nav" aria-label="Legal documents">
+        <nav className="legalLayout__nav" aria-label={translation.t("uiText.legal_documents")}>
           {nav.map((item) => {
             const isActive = location.pathname === item.path;
             return (

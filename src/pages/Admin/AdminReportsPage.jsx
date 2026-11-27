@@ -28,7 +28,7 @@ function ReportDetailModal({ report, onClose, onUpdated }) {
     try {
       setSaving(true);
       const updated = await adminApi.updateUserReportStatus(report.id, status);
-      toast.success(`Status updated to ${status}`);
+      toast.success(t("uiText.status_updated", { status: t(`uiText.${status.toLowerCase()}`) }));
       onUpdated?.(updated);
       onClose?.();
     } catch (error) {
@@ -46,44 +46,44 @@ function ReportDetailModal({ report, onClose, onUpdated }) {
         className="adminModal"
         role="dialog"
         aria-modal="true"
-        aria-label="Report details"
+        aria-label={t("uiText.report_details")}
         onClick={(e) => e.stopPropagation()}
       >
         <div className="adminModal__header">
-          <h2>Report details</h2>
-          <button type="button" className="adminModal__close" onClick={onClose} aria-label="Close">
+          <h2>{t("uiText.report_details")}</h2>
+          <button type="button" className="adminModal__close" onClick={onClose} aria-label={t("uiText.close")}>
             ×
           </button>
         </div>
 
         <div className="adminDetailGrid">
           <div className="adminDetailRow">
-            <span>Status</span>
+            <span>{t("uiText.status")}</span>
             <strong>
-              <span className={`adminStatus adminStatus--${report.status}`}>{report.status}</span>
+              <span className={`adminStatus adminStatus--${report.status}`}>{t(`uiText.${report.status.toLowerCase()}`, { defaultValue: report.status })}</span>
             </strong>
           </div>
           <div className="adminDetailRow">
-            <span>Date</span>
+            <span>{t("uiText.date")}</span>
             <strong>{formatDate(report.createdAt)}</strong>
           </div>
           <div className="adminDetailRow">
-            <span>Reporter</span>
+            <span>{t("uiText.reporter")}</span>
             <strong>{formatUserLabel(report.reporter)}</strong>
             <small>{formatUserSubline(report.reporter)}</small>
           </div>
           <div className="adminDetailRow">
-            <span>Reported user</span>
+            <span>{t("uiText.reported_user")}</span>
             <strong>{formatUserLabel(report.reportedUser)}</strong>
             <small>{formatUserSubline(report.reportedUser)}</small>
           </div>
           <div className="adminDetailRow">
-            <span>Reason</span>
+            <span>{t("uiText.reason")}</span>
             <strong>{report.reason}</strong>
           </div>
           {report.reviewedAt ? (
             <div className="adminDetailRow">
-              <span>Reviewed</span>
+              <span>{t("uiText.reviewed")}</span>
               <strong>{formatDate(report.reviewedAt)}</strong>
               {report.reviewedBy ? (
                 <small>by {formatUserLabel(report.reviewedBy)}</small>
@@ -98,7 +98,7 @@ function ReportDetailModal({ report, onClose, onUpdated }) {
             className="adminBtn"
             onClick={() => navigate(profilePath(report.reportedUser))}
           >
-            View profile
+            {t("uiText.view_profile")}
           </button>
           <button
             type="button"
@@ -106,7 +106,7 @@ function ReportDetailModal({ report, onClose, onUpdated }) {
             disabled={saving || report.status === 'REVIEWED'}
             onClick={() => updateStatus('REVIEWED')}
           >
-            Mark reviewed
+            {t("uiText.mark_reviewed")}
           </button>
           <button
             type="button"
@@ -114,7 +114,7 @@ function ReportDetailModal({ report, onClose, onUpdated }) {
             disabled={saving || report.status === 'CLOSED'}
             onClick={() => updateStatus('CLOSED')}
           >
-            Close report
+            {t("uiText.close_report")}
           </button>
         </div>
       </div>
@@ -210,8 +210,8 @@ export default function AdminReportsPage() {
   return (
     <section className="adminPage">
       <header className="adminPage__header">
-        <h1>Reports</h1>
-        <p>User reports moderation queue.</p>
+        <h1>{t("uiText.reports")}</h1>
+        <p>{t("uiText.user_reports_moderation_queue")}</p>
       </header>
 
       <div className="adminToolbar">
@@ -223,7 +223,7 @@ export default function AdminReportsPage() {
               className={`adminFilterBtn${statusFilter === filter.id ? ' is-active' : ''}`}
               onClick={() => handleFilterChange(filter.id)}
             >
-              {filter.label}
+              {t(`uiText.${filter.id.toLowerCase()}`)}
             </button>
           ))}
         </div>
@@ -231,7 +231,7 @@ export default function AdminReportsPage() {
         <input
           type="search"
           className="adminSearch"
-          placeholder="Search by username"
+          placeholder={t("uiText.search_by_username")}
           value={searchInput}
           onChange={(e) => setSearchInput(e.target.value)}
         />
@@ -246,11 +246,11 @@ export default function AdminReportsPage() {
           <table className="adminTable">
             <thead>
               <tr>
-                <th>Status</th>
-                <th>Date</th>
-                <th>Reporter</th>
-                <th>Reported User</th>
-                <th>Reason</th>
+                <th>{t("uiText.status")}</th>
+                <th>{t("uiText.date")}</th>
+                <th>{t("uiText.reporter")}</th>
+                <th>{t("uiText.reported_user")}</th>
+                <th>{t("uiText.reason")}</th>
               </tr>
             </thead>
             <tbody>
@@ -258,7 +258,7 @@ export default function AdminReportsPage() {
                 <tr key={report.id} onClick={() => handleRowClick(report)}>
                   <td>
                     <span className={`adminStatus adminStatus--${report.status}`}>
-                      {report.status}
+                      {t(`uiText.${report.status.toLowerCase()}`, { defaultValue: report.status })}
                     </span>
                   </td>
                   <td>{formatDate(report.createdAt)}</td>
@@ -284,7 +284,7 @@ export default function AdminReportsPage() {
 
       <div className="adminPagination">
         <span>
-          Page {page} / {totalPages} · {total} total
+          {t("uiText.page")} {page} / {totalPages} · {total} {t("uiText.total")}
         </span>
         <div className="adminPagination__actions">
           <button
@@ -293,7 +293,7 @@ export default function AdminReportsPage() {
             disabled={page <= 1 || loading}
             onClick={() => setPage((p) => Math.max(1, p - 1))}
           >
-            Previous
+            {t("uiText.previous")}
           </button>
           <button
             type="button"
@@ -301,7 +301,7 @@ export default function AdminReportsPage() {
             disabled={page >= totalPages || loading}
             onClick={() => setPage((p) => p + 1)}
           >
-            Next
+            {t("uiText.next")}
           </button>
         </div>
       </div>

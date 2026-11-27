@@ -12,6 +12,7 @@ import { toast } from 'sonner';
 import { STORY_FILTERS, getStoryFilterCss } from '../../utils/storyFilters';
 import { createStoryFilterRenderer } from '../../utils/storyFilterRenderer';
 import { getStoryFaceRegions } from '../../utils/storyFaceRegions';
+import { createStoryFaceTracker } from '../../utils/storyFaceTracker';
 import './StoryCamera.scss';
 
 const MAX_RECORDING_SECONDS = 60;
@@ -53,6 +54,7 @@ export default function StoryCamera({ onClose, onCapture }) {
   const rendererModeRef = useRef(null);
   const faceWorkerRef = useRef(null);
   const faceReadyRef = useRef(false);
+  const [beautyLoading, setBeautyLoading] = useState(false);
   const faceBusyRef = useRef(false);
   const faceRegionsRef = useRef(null);
   const faceFrameAtRef = useRef(0);
@@ -88,30 +90,17 @@ export default function StoryCamera({ onClose, onCapture }) {
 
   useEffect(() => {
     if (filterId !== 'beauty' || typeof createImageBitmap !== 'function') return;
-    let disposed = false;
-    const worker = new Worker(`${import.meta.env.BASE_URL}story-face-tracker.js`);
-    faceWorkerRef.current = worker;
-    faceReadyRef.current = false;
-    faceBusyRef.current = false;
-    let failedOnce = false;
-    const failed = (error) => {
-      if (disposed) return;
-      console.error('[story-camera] Beauty failed', error);
-      faceReadyRef.current = false;
-      faceBusyRef.current = false;
-      faceRegionsRef.current = null;
-      worker.terminate();
-      if (!failedOnce) toast.error(t("storyCamera.beautyError"));
-      failedOnce = true;
-    };
-    worker.onmessage = ({ data }) => {
-      if (disposed) return;
-      if (data.type === 'ready') faceReadyRef.current = true;
-      if (data.type === 'result') {
+    const tracker = createStoryFaceTracker({
+      onReady: ready => {
+        faceReadyRef.current = ready;
         faceBusyRef.current = false;
-        const next = getStoryFaceRegions(data.landmarks);
+        if (!ready) faceRegionsRef.current = null;
+        setBeautyLoading(!ready);
+      },
+      onResult: landmarks => {
+        faceBusyRef.current = false;
+        const next = getStoryFaceRegions(landmarks);
         const previous = faceRegionsRef.current;
-        // Dampen small tracking fluctuations without leaving a mask behind fast movement.
         const moved = next && previous && Math.hypot(next.face[0] - previous.face[0], next.face[1] - previous.face[1]) > next.face[2] * 0.3;
         faceRegionsRef.current = next && previous && !moved
           ? Object.fromEntries(Object.entries(next).map(([key, values]) => [
@@ -119,14 +108,19 @@ export default function StoryCamera({ onClose, onCapture }) {
             ]))
           : next;
         faceResultAtRef.current = performance.now();
-      }
-      if (data.type === 'error') failed(data);
-    };
-    worker.onerror = failed;
-    worker.postMessage({ type: 'init' });
+      },
+      onUnavailable: () => {
+        setBeautyLoading(false);
+        setFilterId('natural');
+        toast.error(t("storyCamera.beautyError"));
+      },
+    });
+    faceWorkerRef.current = tracker;
+    faceReadyRef.current = false;
+    faceBusyRef.current = false;
+    setBeautyLoading(true);
     return () => {
-      disposed = true;
-      worker.terminate();
+      tracker.terminate();
       faceWorkerRef.current = null;
       faceReadyRef.current = false;
       faceBusyRef.current = false;
@@ -158,8 +152,6 @@ export default function StoryCamera({ onClose, onCapture }) {
         streamRef.current?.getTracks().forEach((track) => track.stop());
         const videoConstraints = {
           facingMode: { ideal: facingMode },
-          width: { ideal: 1080 },
-          height: { ideal: 1920 },
         };
         let stream;
         try {
@@ -214,7 +206,7 @@ export default function StoryCamera({ onClose, onCapture }) {
                 frame.close();
                 return;
               }
-              worker.postMessage({ type: 'frame', frame, timestamp: now }, [frame]);
+              worker.postFrame(frame, now);
             })
             .catch(() => { faceBusyRef.current = false; faceRegionsRef.current = null; });
         }
@@ -418,10 +410,11 @@ export default function StoryCamera({ onClose, onCapture }) {
                   onClick={() => setFilterId(filter.id)}
                   role="option"
                   aria-selected={filter.id === filterId}
+                  aria-busy={filter.id === 'beauty' && filterId === 'beauty' && beautyLoading}
                   disabled={isRecording}
                 >
                   <span className="storyCamera__filterSwatch" style={{ background: filter.swatch }} />
-                  <span>{filter.label}</span>
+                  <span>{t(`cameraFilters.${filter.id}`)}</span>
                 </button>
               ))}
             </div>

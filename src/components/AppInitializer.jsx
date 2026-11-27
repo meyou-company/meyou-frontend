@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { i18n } from "../i18n";
 import { useAuthStore } from "../zustand/useAuthStore";
 import { useGlobalLoader } from "../context/GlobalLoaderContext";
 import { toast } from "sonner";
@@ -13,7 +14,7 @@ export default function AppInitializer() {
         setLoading(true);
         await init();
       } catch {
-        toast.error("Не вдалося завантажити додаток. Спробуйте оновити сторінку.");
+        toast.error(i18n.t("common.appLoadError"));
       } finally {
         setLoading(false);
       }

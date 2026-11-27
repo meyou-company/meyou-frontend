@@ -154,6 +154,8 @@ export default function Profile() {
   /** Mutual friends preview for the own-profile «Друзі» card. */
   const [followingList, setFollowingList] = useState([]);
   const [classifiedFriendsCount, setClassifiedFriendsCount] = useState(null);
+  const [friendsLoadState, setFriendsLoadState] = useState("loading");
+  const [friendsRetry, setFriendsRetry] = useState(0);
   const [secondaryReady, setSecondaryReady] = useState(false);
   const [vipPurchaseModalOpen, setVipPurchaseModalOpen] = useState(false);
   const [chatLockedModalOpen, setChatLockedModalOpen] = useState(false);
@@ -201,6 +203,7 @@ export default function Profile() {
       return;
     }
     let cancelled = false;
+    setFriendsLoadState("loading");
     subscriptionsApi
       .getConnections({ tab: "friends", take: 200 })
       .then((res) => {
@@ -210,14 +213,14 @@ export default function Profile() {
         if (cancelled) return;
         setFollowingList(Array.isArray(items) ? items : []);
         setClassifiedFriendsCount(counts.friends);
+        setFriendsLoadState("ready");
       })
       .catch(() => {
         if (cancelled) return;
-        setFollowingList([]);
-        setClassifiedFriendsCount(0);
+        setFriendsLoadState("error");
       });
     return () => { cancelled = true; };
-  }, [isOwnProfile, user?.id]);
+  }, [isOwnProfile, user?.id, friendsRetry]);
 
   useEffect(() => {
     if (!urlUsername) {
@@ -626,6 +629,8 @@ export default function Profile() {
           loadSecondary={secondaryReady}
           followingList={followingList}
           classifiedFriendsCount={classifiedFriendsCount}
+          friendsLoadState={friendsLoadState}
+          onRetryFriends={() => setFriendsRetry(value => value + 1)}
           onOpenUser={onOpenUser}
           onShowMore={onShowMore}
           onFindFriends={onFindFriends}

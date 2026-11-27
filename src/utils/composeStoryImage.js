@@ -101,10 +101,12 @@ export async function composeStoryImage({
   frameWidth,
   frameHeight,
   filter = "none",
+  fit = "cover",
+  stickers = [],
 }) {
   const normalizedText = String(text || "").trim();
   const normalizedFilter = filter && filter !== "none" ? filter : "none";
-  if (!normalizedText && normalizedFilter === "none") return file;
+  if (!normalizedText && normalizedFilter === "none" && !stickers.length) return file;
 
   const image = await loadImage(file);
   const canvas = document.createElement("canvas");
@@ -114,21 +116,45 @@ export async function composeStoryImage({
     throw new Error("Редактор изображения недоступен");
   }
 
-  canvas.width = image.naturalWidth;
-  canvas.height = image.naturalHeight;
-  context.save();
-  context.filter = normalizedFilter;
-  context.drawImage(image, 0, 0);
-  context.restore();
-
   const safeFrameWidth = Math.max(1, Number(frameWidth) || image.naturalWidth);
   const safeFrameHeight = Math.max(1, Number(frameHeight) || image.naturalHeight);
-  const coverScale = Math.max(
+  const contain = fit === "contain";
+  canvas.width = contain ? Math.min(1920, image.naturalWidth) : image.naturalWidth;
+  canvas.height = contain
+    ? Math.round(canvas.width * safeFrameHeight / safeFrameWidth)
+    : image.naturalHeight;
+  if (contain) {
+    context.fillStyle = "#111111";
+    context.fillRect(0, 0, canvas.width, canvas.height);
+  }
+  context.save();
+  context.filter = normalizedFilter;
+  const imageScale = Math.min(canvas.width / image.naturalWidth, canvas.height / image.naturalHeight);
+  if (contain) {
+    const width = image.naturalWidth * imageScale;
+    const height = image.naturalHeight * imageScale;
+    context.drawImage(image, (canvas.width - width) / 2, (canvas.height - height) / 2, width, height);
+  } else {
+    context.drawImage(image, 0, 0);
+  }
+  context.restore();
+
+  const stickerScale = canvas.width / safeFrameWidth;
+  stickers.forEach((sticker) => {
+    context.save();
+    context.font = `${sticker.size * stickerScale}px "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif`;
+    context.textAlign = "center";
+    context.textBaseline = "middle";
+    context.fillText(sticker.emoji, sticker.x / 100 * canvas.width, sticker.y / 100 * canvas.height);
+    context.restore();
+  });
+
+  const coverScale = contain ? safeFrameWidth / canvas.width : Math.max(
     safeFrameWidth / image.naturalWidth,
     safeFrameHeight / image.naturalHeight,
   );
-  const renderedWidth = image.naturalWidth * coverScale;
-  const renderedHeight = image.naturalHeight * coverScale;
+  const renderedWidth = canvas.width * coverScale;
+  const renderedHeight = canvas.height * coverScale;
   const offsetX = (safeFrameWidth - renderedWidth) / 2;
   const offsetY = (safeFrameHeight - renderedHeight) / 2;
   const sourceX =
@@ -150,7 +176,7 @@ export async function composeStoryImage({
   context.shadowBlur = Math.max(2, sourceFontSize * 0.08);
   context.shadowOffsetY = Math.max(1, sourceFontSize * 0.04);
   const maxTextWidth = Math.min(
-    image.naturalWidth * 0.94,
+    canvas.width * 0.94,
     (safeFrameWidth * 0.94) / coverScale,
   );
   const lines = wrapText(context, normalizedText, maxTextWidth);

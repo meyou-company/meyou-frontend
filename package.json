@@ -8,6 +8,7 @@
     "build": "node scripts/sentry-build.mjs pre && vite build && node scripts/sentry-build.mjs post",
     "og:generate": "node scripts/generate-og-png.mjs",
     "lint": "eslint .",
+    "i18n:audit": "node scripts/audit-i18n.mjs",
     "preview": "vite preview",
     "format": "prettier . --write",
     "format:check": "prettier . --check",

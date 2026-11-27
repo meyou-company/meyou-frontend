@@ -324,7 +324,7 @@ export default function EmojiPickerButton({
               <button
                 type="button"
                 className="emoji-picker-btn__overlay"
-                aria-label="Закрити вибір емодзі"
+            aria-label={t("common.close")}
                 onClick={closePicker}
               />
             ) : null}
@@ -360,7 +360,7 @@ export default function EmojiPickerButton({
                     }
               }
               role="dialog"
-              aria-label="Вибір емодзі"
+          aria-label={t("lunmeyo.tabs.emoji")}
               aria-modal="true"
               onMouseDown={(e) => e.stopPropagation()}
               onClick={(e) => e.stopPropagation()}

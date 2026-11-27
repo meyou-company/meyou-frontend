@@ -42,7 +42,7 @@ export const nodeScriptTestFiles = [];
 for (const file of all) {
   const src = readFileSync(file, "utf8");
   if (usesVitest(src)) continue;
-  vitestExcludeFromJs.push(file);
+  vitestExcludeFromJs.push(file.replaceAll("\\", "/"));
   if (usesNodeTest(src)) {
     nodeTestRunnerFiles.push(file);
   } else {

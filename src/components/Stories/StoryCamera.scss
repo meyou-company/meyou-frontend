@@ -22,7 +22,7 @@
   width: 100%;
   height: 100%;
   display: block;
-  object-fit: cover;
+  object-fit: contain;
 }
 
 .storyCamera__topBar {
@@ -128,10 +128,30 @@
   box-shadow: 0 3px 12px rgba(0, 0, 0, 0.3);
 }
 
+.storyCamera__filter > span:last-child {
+  white-space: nowrap;
+  overflow-wrap: normal;
+}
+
 .storyCamera__filter.is-active .storyCamera__filterSwatch {
   border-color: #ff4fb1;
   box-shadow: 0 0 0 3px #fff, 0 0 0 5px #ff4fb1;
 }
+
+.storyCamera__filter[aria-busy="true"] .storyCamera__filterSwatch {
+  position: relative;
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 12px;
+    border: 2px solid #fff;
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: storyBeautyLoading 800ms linear infinite;
+  }
+}
+
+@keyframes storyBeautyLoading { to { transform: rotate(360deg); } }
 
 .storyCamera__intensity {
   display: grid;
@@ -227,7 +247,8 @@
   }
 
   .storyCamera__filter {
-    flex-basis: 58px;
+    flex: 0 0 auto;
+    min-width: 58px;
   }
 }
 
@@ -249,8 +270,8 @@
   }
 
   .storyCamera__filter {
-    flex: 0 0 62px;
-    min-width: 0;
+    flex: 0 0 auto;
+    min-width: 62px;
     padding-inline: 0;
   }
 }

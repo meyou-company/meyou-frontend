@@ -301,14 +301,6 @@ export default function MyGifts({ goBack, receiverId, receiverName, thankMode = 
     return [...keys].sort().reverse();
   }, [received]);
 
-  const hasHistoryFilters = Boolean(
-    senderFilterId
-      || giftFilterId
-      || monthFilter
-      || historyQuery.trim()
-      || dateSort !== "newest"
-      || historyTab !== "all",
-  );
 
   const filteredReceived = useMemo(() => {
     const query = historyQuery.trim().toLowerCase();
@@ -860,14 +852,6 @@ export default function MyGifts({ goBack, receiverId, receiverName, thankMode = 
             <>
           <div className="my-gifts-page__sectionTop">
             <h2 className="my-gifts-page__sectionTitle">{t("gifts.previous")}</h2>
-            <button
-              type="button"
-              className="my-gifts-page__linkBtn"
-              onClick={resetHistoryFilters}
-              disabled={!hasHistoryFilters && historyTab === "all"}
-            >
-              {t("gifts.viewAll")}
-            </button>
           </div>
 
           {received.length > 0 ? (
