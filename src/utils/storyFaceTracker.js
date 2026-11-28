@@ -21,7 +21,10 @@ export function createStoryFaceTracker({ onReady, onResult, onUnavailable }) {
     if (disposed) return;
     frameErrors = 0;
     try {
-      const current = new Worker(`${import.meta.env.BASE_URL}story-face-tracker.js`);
+      const current = new Worker(
+        new URL('../workers/storyFaceTracker.worker.js', import.meta.url),
+        { type: 'module' },
+      );
       worker = current;
       timeout = setTimeout(() => fail(new Error('Beauty initialization timed out')), 20000);
       current.onmessage = ({ data }) => {

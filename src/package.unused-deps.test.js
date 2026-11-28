@@ -11,9 +11,9 @@ const pkg = JSON.parse(
 );
 
 describe('unused dependencies removed (018)', () => {
-  it('does not list removed LiveKit UI and npm MediaPipe packages', () => {
+  it('does not list removed LiveKit UI package; keeps livekit-client and pinned MediaPipe', () => {
     expect(pkg.dependencies?.['@livekit/components-react']).toBeUndefined();
-    expect(pkg.dependencies?.['@mediapipe/tasks-vision']).toBeUndefined();
+    expect(pkg.dependencies?.['@mediapipe/tasks-vision']).toBe('0.10.32');
     expect(pkg.dependencies?.['livekit-client']).toBeDefined();
   });
 });

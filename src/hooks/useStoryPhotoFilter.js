@@ -5,7 +5,10 @@ import { getStoryFaceRegions } from '../utils/storyFaceRegions';
 
 function detectFace(image) {
   return new Promise((resolve) => {
-    const worker = new Worker('/story-face-tracker.js');
+    const worker = new Worker(
+      new URL('../workers/storyFaceTracker.worker.js', import.meta.url),
+      { type: 'module' },
+    );
     const finish = (regions) => { clearTimeout(timeout); worker.terminate(); resolve(regions); };
     const timeout = setTimeout(() => finish(null), 15000);
     worker.onerror = () => finish(null);
