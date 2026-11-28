@@ -14,6 +14,7 @@
 
 import profileIcons from '../constants/profileIcons';
 import { resolveFeedPostText } from './resolveFeedPostText';
+import { unwrapRepostEmbedOriginal } from './unwrapRepostEmbed';
 
 function mapCommentAuthor(a) {
   if (!a || typeof a !== 'object') return null;
@@ -200,7 +201,8 @@ export function mapApiPostToFeedItem(p) {
     p.repostedPost ??
     p.sourcePost ??
     null;
-  const originalPost = originalRaw ? mapApiPostToFeedItem(originalRaw) : null;
+  const embedRaw = originalRaw ? unwrapRepostEmbedOriginal(originalRaw) : null;
+  const originalPost = embedRaw ? mapApiPostToFeedItem(embedRaw) : null;
   const isRepost = Boolean(originalPostId || originalPost);
 
   const authorId = a?.id ?? p.authorId ?? p.userId ?? p.author_id ?? null;

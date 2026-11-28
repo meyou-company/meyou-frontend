@@ -1,4 +1,10 @@
 import { mapApiPostToFeedItem } from "./mapApiPostToFeedItem";
+import {
+  isRepostEmbedShell,
+  repostSourceForEmbed,
+} from "./unwrapRepostEmbed";
+import { resolveFeedPostText } from "./resolveFeedPostText";
+import { hasPostMedia } from "./postMedia";
 
 function unwrapPayload(raw) {
   if (!raw || typeof raw !== "object") return null;
@@ -45,14 +51,29 @@ export function extractCreatedRepostFromResponse(raw, sourcePost) {
     let mapped = mapApiPostToFeedItem(candidate);
     if (!mapped) continue;
 
-    if (!mapped.originalPost && sourcePost) {
-      mapped = {
-        ...mapped,
-        originalPostId: mapped.originalPostId ?? sourceId,
-        originalPost: mapApiPostToFeedItem(sourcePost),
-        isRepost: true,
-      };
-    }
+  const embedFromSource = sourcePost
+    ? mapApiPostToFeedItem(repostSourceForEmbed(sourcePost))
+    : null;
+
+  if (!mapped.originalPost && embedFromSource) {
+    mapped = {
+      ...mapped,
+      originalPostId: mapped.originalPostId ?? sourceId,
+      originalPost: embedFromSource,
+      isRepost: true,
+    };
+  } else if (
+    mapped.originalPost &&
+    sourcePost &&
+    isRepostEmbedShell(mapped.originalPost) &&
+    embedFromSource &&
+    (resolveFeedPostText(embedFromSource).trim() || hasPostMedia(embedFromSource))
+  ) {
+    mapped = {
+      ...mapped,
+      originalPost: embedFromSource,
+    };
+  }
 
     if (mapped.isRepost || mapped.originalPostId || mapped.originalPost) {
       return mapped;
@@ -63,7 +84,7 @@ export function extractCreatedRepostFromResponse(raw, sourcePost) {
         ...mapped,
         isRepost: true,
         originalPostId: sourceId,
-        originalPost: mapApiPostToFeedItem(sourcePost),
+        originalPost: embedFromSource ?? mapApiPostToFeedItem(sourcePost),
       };
     }
   }
