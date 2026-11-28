@@ -1003,8 +1003,7 @@
       "leaveSuccess": "Вы вышли из группы",
       "memberAdded": "Участники добавлены",
       "memberRemoved": "Участник удалён",
-      "roleUpdated": "Роль обновлена",
-      "callsComingSoon": "Групповые звонки — скоро"
+      "roleUpdated": "Роль обновлена"
     },
     "calls": {
       "audioCall": "Audio call",

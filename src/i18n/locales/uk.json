@@ -1051,8 +1051,7 @@
       "leaveSuccess": "Ви вийшли з групи",
       "memberAdded": "Учасників додано",
       "memberRemoved": "Учасника видалено",
-      "roleUpdated": "Роль оновлено",
-      "callsComingSoon": "Групові дзвінки — незабаром"
+      "roleUpdated": "Роль оновлено"
     },
     "calls": {
       "audioCall": "Аудіодзвінок",
