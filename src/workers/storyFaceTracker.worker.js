@@ -1,20 +1,25 @@
-// Classic worker: MediaPipe's WASM loader requires importScripts().
+import { FaceLandmarker, FilesetResolver } from '@mediapipe/tasks-vision';
+
 let landmarker;
 let initializing;
+
+function mediapipePublicBase() {
+  const base = import.meta.env.BASE_URL || '/';
+  return new URL(`${base}mediapipe/`, self.location.href).href;
+}
 
 self.onmessage = async ({ data }) => {
   if (data.type === 'init') {
     if (initializing) return;
     initializing = (async () => {
       try {
-        const { FaceLandmarker, FilesetResolver } = await import('./mediapipe/vision_bundle.mjs');
-        const vision = await FilesetResolver.forVisionTasks(new URL('./mediapipe', self.location.href).href);
+        const vision = await FilesetResolver.forVisionTasks(mediapipePublicBase());
         landmarker = await FaceLandmarker.createFromOptions(vision, {
           // Chrome on iOS has no Safari Version/ token. MediaPipe's automatic
           // canvas selection then tries document.createElement() in this worker.
           canvas: new OffscreenCanvas(1, 1),
           baseOptions: {
-            modelAssetPath: new URL('./mediapipe/face_landmarker.task', self.location.href).href,
+            modelAssetPath: new URL('face_landmarker.task', mediapipePublicBase()).href,
             delegate: 'CPU',
           },
           runningMode: 'VIDEO',

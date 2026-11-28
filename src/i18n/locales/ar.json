@@ -717,8 +717,7 @@
       "leaveSuccess": "You left the group",
       "memberAdded": "Members added",
       "memberRemoved": "Member removed",
-      "roleUpdated": "Role updated",
-      "callsComingSoon": "Group calls — coming soon"
+      "roleUpdated": "Role updated"
     },
     "calls": {
       "audioCall": "Audio call",
