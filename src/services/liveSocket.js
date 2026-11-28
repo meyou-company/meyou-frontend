@@ -8,6 +8,9 @@ import {
 let socket = null;
 let socketToken = null;
 
+/** Window key so HMR re-eval does not stack duplicate auth listeners. */
+const LIVE_SOCKET_AUTH_HANDLER_KEY = "__lunmeyoLiveSocketOnAccessTokenUpdated";
+
 function resolveLiveSocketUrl() {
   const explicit = String(import.meta.env.VITE_SOCKET_URL ?? "")
     .trim()
@@ -16,6 +19,31 @@ function resolveLiveSocketUrl() {
     .replace(/\/$/, "")
     .replace(/\/api$/i, "");
   return /\/live$/i.test(base) ? base : `${base}/live`;
+}
+
+function onAccessTokenUpdated(event) {
+  const accessToken = event?.detail?.accessToken;
+  if (!accessToken || !socket || socketToken === accessToken) return;
+  connectLiveSocket(accessToken);
+}
+
+export function ensureLiveSocketAuthTokenListener() {
+  if (typeof window === "undefined") return;
+  const prev = window[LIVE_SOCKET_AUTH_HANDLER_KEY];
+  if (prev) {
+    window.removeEventListener(AUTH_ACCESS_TOKEN_UPDATED_EVENT, prev);
+  }
+  window[LIVE_SOCKET_AUTH_HANDLER_KEY] = onAccessTokenUpdated;
+  window.addEventListener(AUTH_ACCESS_TOKEN_UPDATED_EVENT, onAccessTokenUpdated);
+}
+
+export function teardownLiveSocketAuthTokenListener() {
+  if (typeof window === "undefined") return;
+  const prev = window[LIVE_SOCKET_AUTH_HANDLER_KEY];
+  if (prev) {
+    window.removeEventListener(AUTH_ACCESS_TOKEN_UPDATED_EVENT, prev);
+    delete window[LIVE_SOCKET_AUTH_HANDLER_KEY];
+  }
 }
 
 export function connectLiveSocket(token) {
@@ -49,10 +77,10 @@ export function getLiveSocket() {
   return socket;
 }
 
-if (typeof window !== "undefined") {
-  window.addEventListener(AUTH_ACCESS_TOKEN_UPDATED_EVENT, (event) => {
-    const accessToken = event?.detail?.accessToken;
-    if (!accessToken || !socket || socketToken === accessToken) return;
-    connectLiveSocket(accessToken);
+ensureLiveSocketAuthTokenListener();
+
+if (import.meta.hot) {
+  import.meta.hot.dispose(() => {
+    teardownLiveSocketAuthTokenListener();
   });
 }

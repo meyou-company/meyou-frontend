@@ -46,19 +46,28 @@ export default function ExploreContent({ onBack, onOpenProfile }) {
   const [hasSearched, setHasSearched] = useState(false);
 
   useEffect(() => {
+    let cancelled = false;
+
     const loadCurrentUser = async () => {
       try {
         const response = await authApi.me();
+        if (cancelled) return;
         const user = response?.data ?? response;
         setCurrentUser(user);
       } catch (error) {
-        console.error('GET CURRENT USER ERROR:', error);
+        if (!cancelled) {
+          console.error('GET CURRENT USER ERROR:', error);
+        }
       } finally {
-        setCurrentUserLoading(false);
+        if (!cancelled) setCurrentUserLoading(false);
       }
     };
 
     loadCurrentUser();
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   useEffect(() => {
@@ -184,24 +193,6 @@ export default function ExploreContent({ onBack, onOpenProfile }) {
     [buildSearchParams, updateSubscribedIds]
   );
 
-  const loadFollowing = useCallback(async () => {
-    let cancelled = false;
-    subscriptionsApi
-      .getFollowing({ take: 200 })
-      .then((res) => {
-        const data = res?.data ?? res;
-        const items = data?.items ?? [];
-        const ids = new Set((Array.isArray(items) ? items : []).map((i) => i.id).filter(Boolean));
-        if (!cancelled) setSubscribedIds(ids);
-      })
-      .catch(() => {
-        if (!cancelled) setSubscribedIds(new Set());
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
   const handleSubscribe = useCallback(
     async (user) => {
       const id = user?.id;
@@ -258,8 +249,25 @@ export default function ExploreContent({ onBack, onOpenProfile }) {
   }, []);
 
   useEffect(() => {
-    loadFollowing();
-  }, [loadFollowing]);
+    let cancelled = false;
+
+    subscriptionsApi
+      .getFollowing({ take: 200 })
+      .then((res) => {
+        if (cancelled) return;
+        const data = res?.data ?? res;
+        const items = data?.items ?? [];
+        const ids = new Set((Array.isArray(items) ? items : []).map((i) => i.id).filter(Boolean));
+        setSubscribedIds(ids);
+      })
+      .catch(() => {
+        if (!cancelled) setSubscribedIds(new Set());
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   useEffect(() => {
     if (currentUserLoading) return;

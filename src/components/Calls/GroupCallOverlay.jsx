@@ -776,18 +776,29 @@ export default function GroupCallOverlay({
   }, []);
 
   useEffect(() => {
+    let cancelled = false;
     const supported = Boolean(
       typeof HTMLMediaElement !== 'undefined' &&
         HTMLMediaElement.prototype.setSinkId,
     );
     setSpeakerSupported(supported);
-    if (!supported || !navigator.mediaDevices?.enumerateDevices) return;
+    if (!supported || !navigator.mediaDevices?.enumerateDevices) {
+      return () => {
+        cancelled = true;
+      };
+    }
     navigator.mediaDevices
       .enumerateDevices()
-      .then((list) =>
-        setAudioOutputs(list.filter((d) => d.kind === 'audiooutput')),
-      )
-      .catch(() => setAudioOutputs([]));
+      .then((list) => {
+        if (cancelled) return;
+        setAudioOutputs(list.filter((d) => d.kind === 'audiooutput'));
+      })
+      .catch(() => {
+        if (!cancelled) setAudioOutputs([]);
+      });
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   const switchCamera = async () => {
