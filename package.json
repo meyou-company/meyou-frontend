@@ -21,8 +21,6 @@
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
-    "@livekit/components-react": "^2.9.23",
-    "@mediapipe/tasks-vision": "0.10.32",
     "@sentry/react": "^9.47.2",
     "axios": "^1.13.2",
     "emoji-picker-react": "^4.19.1",
